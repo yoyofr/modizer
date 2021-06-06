@@ -73,8 +73,7 @@ typedef struct {
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIView *searchPrgView;
 	IBOutlet UILabel *searchLabel;
-	IBOutlet UIProgressView *prgView;
-    
+	
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
@@ -124,7 +123,6 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;
 @property (nonatomic, retain) IBOutlet UILabel *searchLabel;
-@property (nonatomic, retain) IBOutlet UIProgressView *prgView;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
 -(IBAction)goPlayer;

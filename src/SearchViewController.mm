@@ -26,7 +26,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #define MAX_SEARCH_RESULT 512   //per section
 
 static volatile int mSearchProgress;
-static volatile int mSearchProgressVal;
 static volatile int mSearchMode;
 static int local_flag;
 
@@ -34,7 +33,7 @@ static NSFileManager *mFileMngr;
 
 @implementation SearchViewController 
 
-@synthesize tableView,sBar,detailViewController,searchPrgView,searchLabel,prgView;
+@synthesize tableView,sBar,detailViewController,searchPrgView,searchLabel;
 @synthesize downloadViewController,rootViewControllerIphone;
 @synthesize popTipView;
 
@@ -449,9 +448,7 @@ static NSFileManager *mFileMngr;
 					playlist_entries[playlist_entries_idx].playlist_id=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
 					playlist_entries[playlist_entries_idx].filename=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
 					playlist_entries[playlist_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 3)];
-					
-					mSearchProgressVal=0+20*playlist_entries_idx/playlist_entries_count;
-					
+															
 					playlist_entries_idx++;
 					if (playlist_entries_idx==playlist_entries_count) break;
 				}
@@ -507,7 +504,6 @@ static NSFileManager *mFileMngr;
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
-			mSearchProgressVal=40;
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
@@ -598,8 +594,6 @@ static NSFileManager *mFileMngr;
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
-			mSearchProgressVal=80;
-			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
 					dbASMA_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -685,8 +679,6 @@ static NSFileManager *mFileMngr;
 			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			
-			mSearchProgressVal=60;
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -804,7 +796,6 @@ static NSFileManager *mFileMngr;
 						local_entries[local_entries_idx].label=[[NSString alloc] initWithString:file];
 						if ([cpath length]==prefix_length-1) local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithString:file];
 						else local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",[cpath substringFromIndex:prefix_length],file];
-						mSearchProgressVal=20+20*local_entries_idx/local_entries_count;
 						//if (local_entries_idx==local_entries_count) break;
 					}					
 					local_entries_idx++;					
@@ -818,11 +809,19 @@ static NSFileManager *mFileMngr;
 	return 0;
 }
 
+-(void) showSearchPrgView {
+    searchLabel.text=@"Searching...";
+    searchPrgView.hidden=false;
+}
+
+-(void) hideSearchPrgView {
+    searchPrgView.hidden=true;
+}
+
 -(void) searchThread {
 	//NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     @autoreleasepool {
         mSearchProgress=0;
-        mSearchProgressVal=0;
         if (playlist_searchOn&&(mSearchMode&1)) [self searchPlaylist];
         mSearchProgress=1;
         if (local_searchOn&&(mSearchMode&2)) [self searchLocal];
@@ -832,7 +831,8 @@ static NSFileManager *mFileMngr;
         if (HVSC_searchOn&&(mSearchMode&8)) [self searchHVSC];
         mSearchProgress=4;
         if (ASMA_searchOn&&(mSearchMode&8)) [self searchASMA];
-        searchPrgView.hidden=YES;
+        //searchPrgView.hidden=YES;
+        [self performSelectorOnMainThread:@selector(hideSearchPrgView) withObject:nil waitUntilDone:YES];
     }
 	//[pool release];
 }
@@ -877,7 +877,6 @@ static NSFileManager *mFileMngr;
 		if (mSearchProgress==2) searchLabel.text=NSLocalizedString(@"Searching MODLAND...",@"");
 		if (mSearchProgress==3) searchLabel.text=NSLocalizedString(@"Searching HVSC...",@"");
         if (mSearchProgress==4) searchLabel.text=NSLocalizedString(@"Searching ASMA...",@"");
-		prgView.progress=((float)mSearchProgressVal)/100.0f;
 	}
 }	
 
@@ -892,9 +891,9 @@ static NSFileManager *mFileMngr;
 		
 	} else {
 		tooMuchDB=tooMuchDBHVSC=tooMuchDBASMA=tooMuchPL=tooMuchLO=0;
-		searchPrgView.hidden=NO;
-		searchLabel.text=@"Searching...";
-		prgView.progress=0;
+		//searchPrgView.hidden=NO;
+        [self performSelectorOnMainThread:@selector(showSearchPrgView) withObject:nil waitUntilDone:YES];
+		
 		mSearchProgress=0;
 		modland_expanded=local_expanded=playlist_expanded=HVSC_expanded=ASMA_expanded=0;
 		mSearchMode=search_mode;

@@ -1009,7 +1009,13 @@ static float movePinchScale,movePinchScaleOld;
     return;
 }
 
+-(void) updMediaCenterProgress {
+    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+}
 -(void) updMediaCenter {
+    static bool no_reetrant=false;
+    if (no_reetrant) return;
+    no_reetrant=true;
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
     
     if (artwork==nil) {
@@ -1021,50 +1027,57 @@ static float movePinchScale,movePinchScaleOld;
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
         NSString *title=[mplayer getModName];
-                
-        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     title,
-                                     MPMediaItemPropertyTitle,
-                                     artist,
-                                     MPMediaItemPropertyArtist,
-                                     artwork,
-                                     MPMediaItemPropertyArtwork,
-                                     artist,
-                                     MPMediaItemPropertyAlbumArtist,
-                                     album,
-                                     MPMediaItemPropertyAlbumTitle,
-                                     [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
-                                     MPNowPlayingInfoPropertyMediaType,
-                                     
-                                     [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                     MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                     [NSNumber numberWithUnsignedInteger:mPlaylist_size],
-                                     MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                                                          
-                                     [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                     MPMediaItemPropertyPlaybackDuration,
-                                     [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                     MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                     [NSNumber numberWithInt:mPaused],
-                                     MPNowPlayingInfoPropertyPlaybackRate,
-                                                                     
-                                     //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                     //MPMediaItemPropertyPersistentID,
-                                     nil];
-    } else {
-        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackRate,
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+        
+        infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 title,
+                                 MPMediaItemPropertyTitle,
+                                 artist,
+                                 MPMediaItemPropertyArtist,
                                  artwork,
                                  MPMediaItemPropertyArtwork,
+                                 artist,
+                                 MPMediaItemPropertyAlbumArtist,
+                                 album,
+                                 MPMediaItemPropertyAlbumTitle,
+                                 [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                 MPNowPlayingInfoPropertyMediaType,
+                                 
+                                 [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 [NSNumber numberWithUnsignedInteger:mPlaylist_size],
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                                                      
+                                 [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                 MPMediaItemPropertyPlaybackDuration,
+                                 [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                 (mPaused?@0:@1),
+                                 MPNowPlayingInfoPropertyPlaybackRate,
+                                                                 
+                                 //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                 //MPMediaItemPropertyPersistentID,
+                                 nil];
+    
+    } else {
+        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 artwork,
+                                 MPMediaItemPropertyArtwork,
+                                 @0,
+                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 @0,
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                                                      
+                                 @0,
+                                 MPMediaItemPropertyPlaybackDuration,
+                                 @0,
+                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                 @0,
+                                 MPNowPlayingInfoPropertyPlaybackRate,
+                                                                                                  
                                  nil];
     }
     
-    //infoCenter.playbackState;
+    no_reetrant=false;
 }
 
 
@@ -1398,7 +1411,7 @@ static float movePinchScale,movePinchScaleOld;
 	}
 	
 	if (updMPNowCnt==0) {  // call 1/5 => 1/s
-        [self updMediaCenter];
+        [self updMediaCenterProgress];
         updMPNowCnt=5;
     } else updMPNowCnt--;
 	return;
@@ -1579,6 +1592,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playPrevSub {
     static bool no_reentrant=false;
+    if (mShuffle) {
+        [self playPrev];
+        return;
+    }
     if (no_reentrant) return;
     no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
@@ -1621,6 +1638,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playNextSub {
     static bool no_reentrant=false;
+    if (mShuffle) {
+        [self playNext];
+        return;
+    }
     if (no_reentrant) return;
     no_reentrant=true;
     //if archive and no subsongs => change archive index

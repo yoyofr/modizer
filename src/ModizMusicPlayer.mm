@@ -9673,8 +9673,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
         if (ompt_mod) openmpt_module_ext_destroy(ompt_mod);
         ompt_mod=NULL;
-        if (mp_data) free(mp_data);
-        mp_data=NULL;
+        mdz_safe_free(mp_data);        
+        mdz_safe_free(ompt_mod_interactive)
     }
     if (mPlayType==MMP_ADPLUG) {
         delete adPlugPlayer;
