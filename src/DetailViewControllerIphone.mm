@@ -2560,6 +2560,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
         if (tmp_str[i]=='@') {
             found_arc=1;
+            arc_index=0;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
             filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
