@@ -3558,7 +3558,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                                else mFadeSamplesStart=1<<31;
+                                else mFadeSamplesStart=1<<30;
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_HVL) {
@@ -3766,7 +3766,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mLoopMode) iModuleLength=-1;
                             if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                            else mFadeSamplesStart=1<<31;
+                            else mFadeSamplesStart=1<<30;
                             mod_message_updated=2;
                         }
                         if (mPlayType==MMP_HVL) {
@@ -3975,7 +3975,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 if (mLoopMode) iModuleLength=-1;
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                                else mFadeSamplesStart=1<<31;
+                                else mFadeSamplesStart=1<<30;
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_HVL) {
@@ -4573,7 +4573,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                                                         
                                     if (mLoopMode) mNewModuleLength=-1;
                                     if (mNewModuleLength>0) mFadeSamplesStart=(int64_t)(mNewModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                                    else mFadeSamplesStart=1<<31;
+                                    else mFadeSamplesStart=1<<30;
                                 } else {
                                     nbBytes=0;
                                 }
@@ -6423,7 +6423,7 @@ char* loadRom(const char* path, size_t romSize)
     mCurrentSamples=0;
     
     if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-    else mFadeSamplesStart=1<<31;
+    else mFadeSamplesStart=1<<30;
             
     return 0;
 }
@@ -9472,6 +9472,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 }
                 if (iModuleLength<1000) iModuleLength=1000;
                 if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
+                
+                if (mLoopMode) iModuleLength=-1;
+                if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
+                else mFadeSamplesStart=1<<30;
             } else {
                 KSSPLAY_reset(kssplay, mod_currentsub, 0);
                 if (kss->info) {
@@ -9479,6 +9483,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
                 } else iModuleLength=optGENDefaultLength;
                 if (iModuleLength<1000) iModuleLength=1000;
+                
+                if (mLoopMode) iModuleLength=-1;
+                if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
+                else mFadeSamplesStart=1<<30;
             }
             if (startPos) [self Seek:startPos];
             [self Play];

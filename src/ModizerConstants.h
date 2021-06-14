@@ -117,8 +117,8 @@
 
 #define VERSION_MAJOR 3
 #define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 1
-#define VERSION_MINOR_STR "1"
+#define VERSION_MINOR 2
+#define VERSION_MINOR_STR "2"
 
 
 #define MAX_PL_ENTRIES 65536
