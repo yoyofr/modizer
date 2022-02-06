@@ -138,6 +138,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -235,6 +236,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     [self showAlert:alertC];
 }
+
 - (void)shufflePlaylist {
     if (playlist->nb_entries) {
         int pos=0;
@@ -2042,10 +2044,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleDefault;    
+}
+
 -(void) viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
     
@@ -2059,6 +2065,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    NSLog(@"darkMode:%d %d",oldmode,darkMode);
     
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
@@ -3000,6 +3008,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (indexPath.row>=2) { //start selected playlist
             [self freePlaylist];
             playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+            mFreePlaylist=1;
             
             if (indexPath.row==2) {
                 NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
@@ -3190,6 +3199,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [self freePlaylist];
         playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+        mFreePlaylist=1;
         
         
         if (indexPath.row==0) { //new playlist
@@ -3223,6 +3233,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -3257,6 +3268,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_RANDOM;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -3279,6 +3291,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_MOSTPLAYED;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -3301,6 +3314,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_FAVORITES;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -3320,6 +3334,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
             childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
@@ -3525,6 +3540,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+                    ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
                     childController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
@@ -3633,6 +3649,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 - (void)freePlaylist {
     if (!mFreePlaylist) return;
+    
+    NSLog(@"free  playlist");
+    
     if (playlist) {
         for (int i=0;i<playlist->nb_entries;i++) {
             playlist->entries[i].label=nil;
@@ -3644,6 +3663,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         free(playlist);
         playlist=NULL;
     }
+    mFreePlaylist=0;
 }
 - (void)dealloc {
     

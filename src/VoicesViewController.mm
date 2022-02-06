@@ -60,6 +60,10 @@
     [super viewDidAppear:animated];
 }
 
+/*- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleDefault;
+}*/
+
 - (void) viewWillAppear:(BOOL)animated {
     //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];

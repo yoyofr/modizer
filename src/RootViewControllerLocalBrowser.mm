@@ -1881,12 +1881,8 @@ static int shouldRestart=1;
     return UIStatusBarStyleDefault;
 }
 
-/*- (UIViewController *)childViewControllerForStatusBarStyle {
-    return self.topViewController;
-}*/
-
 -(void) viewWillAppear:(BOOL)animated {
-    //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
         

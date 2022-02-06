@@ -164,9 +164,6 @@ extern "C" void updateMainLoopC(void) {
     //[supportedExtension release];
     supportedExtension=nil;
 }
-    
-
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
@@ -194,8 +191,8 @@ extern "C" void updateMainLoopC(void) {
         }
     }
     
-    [SettingsGenViewController loadSettings];
-    [SettingsGenViewController restoreSettings];
+    //[SettingsGenViewController loadSettings];
+    //[SettingsGenViewController restoreSettings];
  
     
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);

@@ -2185,6 +2185,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	NSString *filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     
     if (!filePath) return FALSE;
+    
+    if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
 	
     
     mOnlyCurrentEntry=0;
@@ -2531,6 +2533,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (!filePath) return FALSE;
     if (!fileName) return FALSE;
     
+    if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
+    
     // if already playing, stop
 	if (repeatingTimer) {
 		[repeatingTimer invalidate];
@@ -2705,8 +2709,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mIsPlaying=YES;
         mPaused=1;
     } else {
-        //random mode & mutli song ?
-        if (mShuffle) {
+        //random mode & multi song ?
+        if (mShuffle&&(found_sub==0)) {
             /*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
              mOnlyCurrentSubEntry=1;
              }*/
@@ -3757,9 +3761,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mIsPlaying=FALSE;
 	else mIsPlaying= [valNb boolValue];
-	valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlayingPosRestart=0;
-	else mPlayingPosRestart= [valNb intValue];
+    valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
+    if (valNb == nil) mPlayingPosRestart=0;
+    else mPlayingPosRestart= [valNb intValue];
+    
 	valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mPlaylist_size=0;
 	else mPlaylist_size= [valNb intValue];
@@ -5092,6 +5097,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
+    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
 }
 
 
@@ -5110,6 +5116,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     if (!is_macOS) if (m_displayLink) [m_displayLink invalidate];
         
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
     /*CATransition *transition=[CATransition animation];
     transition.duration=0.2;
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];

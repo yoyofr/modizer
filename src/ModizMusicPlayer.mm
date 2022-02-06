@@ -18,6 +18,8 @@
 extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t play_mutex;
 
+
+
 int64_t iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
@@ -26,6 +28,8 @@ int mod_total_length;
 
 
 #import "ModizMusicPlayer.h"
+
+int PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
 
 //NVDSP
 #import "Novocaine.h"
@@ -1571,6 +1575,8 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 #endif
 
+extern volatile t_settings settings[MAX_SETTINGS];
+
 @implementation ModizMusicPlayer
 @synthesize artist,album;
 @synthesize detailViewControllerIphone;
@@ -1730,6 +1736,16 @@ void propertyListenerCallback (void                   *inUserData,              
 -(id) initMusicPlayer {
     mFileMngr=[[NSFileManager alloc] init];
     
+    PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
+    switch (settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value) {
+        case 0: //44,1Khz
+            PLAYBACK_FREQ=44100;
+            break;
+        case 1: //48Khz
+            PLAYBACK_FREQ=48000;
+            break;
+    }
+    
     if ((self = [super init])) {
         NSError *audioSessionError = nil;
         AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -1767,8 +1783,20 @@ void propertyListenerCallback (void                   *inUserData,              
         // Get current values
         sampleRate = session.sampleRate;
         bufferDuration = session.IOBufferDuration;
+        
+        NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
+        
+        [session setPreferredSampleRate:sampleRate error:&audioSessionError];
+        if (audioSessionError) {
+            NSLog(@"Error %ld, %@",
+                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+        }
+        
+        // Get current values
+        sampleRate = session.sampleRate;
+        bufferDuration = session.IOBufferDuration;
          
-        //NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
+        NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
         
         /*AudioSessionInitialize (
                                 NULL,
@@ -6628,7 +6656,7 @@ char* loadRom(const char* path, size_t romSize)
     UADEstate.config.panning_enable=mUADE_OptPAN;
     UADEstate.config.panning=mUADE_OptPANValue;
     UADEstate.config.no_ep_end=(mLoopMode==1?1:0);
-    
+    UADEstate.config.frequency=PLAYBACK_FREQ;
     UADEstate.config.use_ntsc=mUADE_OptNTSC;
     
     if (strcasecmp(song_md5,"a39585c86c7a521ba28075a102f32396")==0) { //Indianapolis 500 (cust)
