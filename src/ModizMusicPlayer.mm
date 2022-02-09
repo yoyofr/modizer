@@ -234,6 +234,10 @@ char *vgmGetVoiceDetailName(UINT8 chipdId,UINT8 channel) {
                 else if (channel<4+6+1) sprintf(vgm_voice_name,"ADPCM-B");
                 else sprintf(vgm_voice_name,"SSG %d",channel-4-6-1+1);
             }
+            break;
+        case 0x27: //C352
+            sprintf(vgm_voice_name,"PCM %d",channel+1);
+            break;
         case 0x28: //IREM GA20
             sprintf(vgm_voice_name,"PCM %d",channel+1);
             break;
@@ -6165,6 +6169,7 @@ char* loadRom(const char* path, size_t romSize)
     }
     cfg.playback = SidConfig::STEREO;
     cfg.sidEmulation  = mBuilder;
+    cfg.digiBoost = true;
     cfg.secondSidAddress = mSIDSecondSIDAddress;
     cfg.thirdSidAddress = mSIDThirdSIDAddress;
     
@@ -8080,6 +8085,8 @@ int vgmGetFileLength()
             } else if (strcmp(strChip,"K053260")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"VSU")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"C352")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"GA20")==0) {
                 m_voicesDataAvail=1;

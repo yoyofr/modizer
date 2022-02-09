@@ -165,6 +165,11 @@ static void c352_ramp_volume(C352_Voice* v,int ch,UINT8 val)
         v->curr_vol[ch] += (vol_delta>0) ? -1 : 1;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
     C352 *c = &C352Data[ChipID];
@@ -174,6 +179,20 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
     C352_Voice* v;
 
     stream_sample_t out[4];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=C352_VOICES;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
+
 
     memset(outputs[0], 0, samples * sizeof(stream_sample_t));
     memset(outputs[1], 0, samples * sizeof(stream_sample_t));
@@ -213,6 +232,27 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
                 if((v->flags & C352_FLG_FILTER) == 0)
                     s = v->last_sample + (v->counter*(v->sample-v->last_sample)>>16);
             }
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                
+                if ((ofs_end>>10)>(ofs_start>>10))
+                for (;;) {
+                    if ((v->flags & C352_FLG_BUSY)&&(!c->v[j].mute)) {
+                        int vol=v->curr_vol[0]+v->curr_vol[1];
+                        if (!c->muteRear && !MuteAllRear) vol+=v->curr_vol[2]+v->curr_vol[3];
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((((int)(s))*(int)(vol))>>15);
+                    } else m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
+                    
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
             if(!c->v[j].mute)
             {

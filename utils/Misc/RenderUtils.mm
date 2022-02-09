@@ -149,7 +149,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
-    mulfactor=hh/max_voices_by_row;
+    mulfactor=hh/(max_voices_by_row+1);
     
     // Search the right offset to realign oscilloscope view / previous one
     int bufflen;

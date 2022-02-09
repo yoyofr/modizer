@@ -670,7 +670,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_CoverFlow].sub_family=0;
     settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_RecreateSamplesFolder].label=(char*)"Auto. restore Samples folder";
     settings[GLOB_RecreateSamplesFolder].description=NULL;

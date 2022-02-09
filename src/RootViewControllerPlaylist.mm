@@ -2065,9 +2065,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
-    
-    NSLog(@"darkMode:%d %d",oldmode,darkMode);
-    
+        
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
