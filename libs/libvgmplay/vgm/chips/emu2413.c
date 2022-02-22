@@ -1070,6 +1070,10 @@ INLINE static void mix_output_stereo(OPLL *opll) {
             break;
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     

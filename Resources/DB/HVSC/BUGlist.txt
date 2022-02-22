@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc@c64.org>                             #
-#   Last Updated: December 20, 2020.                                  #
+#   Last Updated: July 11, 2021.                                      #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -34,7 +34,7 @@
 #######################################################################
 
 ##############################
-# Bugged tunes as of HVSC 74 #
+# Bugged tunes as of HVSC 76 #
 ##############################
 
 /DEMOS/A-F/Digital_II.sid
@@ -88,11 +88,6 @@
     BUG: File seems truncated, lacks lots of data at end. No good source known.
 (iAN CooG)
 
-/GAMES/S-Z/Shackled.sid
-    BUG: Subtune #2 falls out of sync upon looping, but so does the original
-         game.
-(McLoaf)
-
 /MUSICIANS/A/A-Man/Zack_Theme.sid
     BUG: Falls out of synch on loop. No good version found.
 
@@ -121,10 +116,6 @@
     BUG: Has a lot of wrong sounds inside, obviously a bad rip.
          Sounds bad from 1:23
 (Stello Doussis)
-
-/MUSICIANS/D/Dr_Ali_and_Joker/Compu_Demo_2_tune_3.sid
-    BUG: Falls out of synch on loop.
-(Wilfred)
 
 /MUSICIANS/F/Faclaug/Lets_Drink.sid
     BUG: Falls out of synch at 2:50.
@@ -188,5 +179,13 @@
 
 /MUSICIANS/W/Wizard_Oxygen/Night.sid
     BUG: Contains bad data and sounds bad at 1:15, one voice pitch up too much.
+(iAN CooG)
+
+/MUSICIANS/Z/Zardax/Life_in_Coze.sid
+    BUG: The tune is bugged, but this is how the Album of the Year organisers
+         received the tune and Zardax did not send them a fix, as stated in the
+         release notefile. This rip has been partially fixed to not read past
+         the end of data, but still contains data errors that cause reading
+         from zero page locations instead of its own data.
 (iAN CooG)
 

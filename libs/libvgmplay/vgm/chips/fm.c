@@ -2151,6 +2151,10 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr;
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     if (length) smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
@@ -3389,6 +3393,10 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
         m_voice_current_samplerate=44100;
         printf("voice sample rate null\n");
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
@@ -4043,6 +4051,10 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
             break;
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;
@@ -4243,6 +4255,10 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
             m_voice_ofs=ii;
             break;
         }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr=44100*1024/m_voice_current_samplerate+1;

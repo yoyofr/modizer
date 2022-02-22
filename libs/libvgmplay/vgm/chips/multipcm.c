@@ -492,6 +492,10 @@ void MultiPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         }
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
     int smplIncr;
     smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;

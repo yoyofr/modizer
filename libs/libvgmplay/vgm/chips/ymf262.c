@@ -2582,6 +2582,10 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
             }
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR

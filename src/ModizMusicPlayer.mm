@@ -6199,6 +6199,9 @@ char* loadRom(const char* path, size_t romSize)
         case 2:
             cfg.defaultSidModel=SidConfig::MOS8580;
             cfg.forceSidModel=true;
+            //boost volume for 8580
+            cfg.leftVolume*=3;
+            cfg.rightVolume*=3;
             break;
     }
     mSidEmuEngine->config(cfg);

@@ -203,6 +203,10 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //printf("okim clock: %d\n",smplFreq);
     //TODO:  MODIZER changes end / YOYOFR

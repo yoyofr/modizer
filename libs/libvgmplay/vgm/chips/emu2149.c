@@ -458,6 +458,10 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
             break;
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 

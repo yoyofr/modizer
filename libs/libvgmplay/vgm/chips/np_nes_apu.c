@@ -272,6 +272,10 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
             break;
         }
     }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 

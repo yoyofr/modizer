@@ -653,6 +653,10 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
     }
     if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        printf("voice sample rate null\n");
+    }
     int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 	
