@@ -327,6 +327,8 @@ int SID::clock(unsigned int cycles, short* buf)
     ageBusValue(cycles);
     int s = 0;
     
+    //printf("cycles: %d\n",cycles);
+    
     //TODO:  MODIZER changes start / YOYOFR
     //check current active sid
     int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
@@ -377,11 +379,16 @@ int SID::clock(unsigned int cycles, short* buf)
                     if (unlikely(resampler->input(0))) {
                         //s++;
                         buf[s++]=0;
+                        //TODO:  MODIZER changes start / YOYOFR
+                        int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
+                        m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
+                        if ((m_voice_current_ptr[sid_idx+0]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        if ((m_voice_current_ptr[sid_idx+1]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        if ((m_voice_current_ptr[sid_idx+2]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        //TODO:  MODIZER changes end / YOYOFR
                     }
                 }
-                
             }
-            
             cycles -= delta_t;
             nextVoiceSync -= delta_t;
         }

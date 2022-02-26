@@ -6199,9 +6199,6 @@ char* loadRom(const char* path, size_t romSize)
         case 2:
             cfg.defaultSidModel=SidConfig::MOS8580;
             cfg.forceSidModel=true;
-            //boost volume for 8580
-            cfg.leftVolume*=3;
-            cfg.rightVolume*=3;
             break;
     }
     mSidEmuEngine->config(cfg);
@@ -6284,6 +6281,24 @@ char* loadRom(const char* path, size_t romSize)
             }
                                                 
             sprintf(mod_message,"");
+            
+            if (cfg.forceSidModel) {
+                if (cfg.defaultSidModel==SidConfig::MOS8580) {
+                    cfg.leftVolume*=3;
+                    cfg.rightVolume*=3;
+                    mSidEmuEngine->config(cfg);
+                }
+            } else {
+                //boost volume for 8580
+                if (sidtune_info->sidModel(0)==SidTuneInfo::SIDMODEL_8580) {
+                    cfg.leftVolume*=3;
+                    cfg.rightVolume*=3;
+                    mSidEmuEngine->config(cfg);
+                }
+            }
+            
+            if (cfg.forceSidModel) sprintf(mod_message,"Chip: %s\n",(cfg.defaultSidModel==SidConfig::MOS8580?"8580":"6581"));
+            else sprintf(mod_message,"Chip: %s\n",(sidtune_info->sidModel(0)==SidTuneInfo::SIDMODEL_8580?"8580":"6581"));
             for (int i=0;i<sidtune_info->numberOfInfoStrings();i++)
                 sprintf(mod_message,"%s%s\n",mod_message,sidtune_info->infoString(i));
             
