@@ -262,7 +262,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
+    //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
@@ -576,7 +576,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
-    settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
+    /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
     settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";
     settings[GLOB_PlaybackFrequency].description=(char*)"Change requires restart";
     settings[GLOB_PlaybackFrequency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
@@ -586,7 +586,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[0]=(char*)"44,1Khz";
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[1]=(char*)"48Khz";
+    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[1]=(char*)"48Khz";*/
     
     settings[GLOB_ResumeOnStart].label=(char*)"Resume position on launch";
     settings[GLOB_ResumeOnStart].description=NULL;

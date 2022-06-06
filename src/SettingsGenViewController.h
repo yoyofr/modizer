@@ -50,7 +50,7 @@ enum MDZ_SETTINGS {
     GLOB_DefaultMODPlayer,
     GLOB_DefaultSAPPlayer,
     GLOB_DefaultVGMPlayer,
-    GLOB_PlaybackFrequency,
+    //GLOB_PlaybackFrequency,
     GLOB_ResumeOnStart,
     GLOB_ForceMono,
     GLOB_Panning,

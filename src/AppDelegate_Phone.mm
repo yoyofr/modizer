@@ -310,10 +310,13 @@ extern "C" void updateMainLoopC(void) {
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
 	}
     
-    cpMngt=[[CarPlayAndRemoteManagement alloc] init];
-    cpMngt.detailViewController=detailViewControlleriPhone;
-    cpMngt.rootVCLocalB=rootViewControlleriPhone;
-    [cpMngt initCarPlayAndRemote];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0"))
+     if (@available(iOS 9.0, *)) {
+         cpMngt=[[CarPlayAndRemoteManagement alloc] init];
+         cpMngt.detailViewController=detailViewControlleriPhone;
+         cpMngt.rootVCLocalB=rootViewControlleriPhone;
+         [cpMngt initCarPlayAndRemote];
+    }
     
 	return YES;
 }

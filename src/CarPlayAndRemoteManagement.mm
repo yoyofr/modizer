@@ -31,10 +31,13 @@
             [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Nothing playing",@"")]];
             [item setPlayable:FALSE];
         }
-        if (detailViewController.mIsPlaying) {
-            if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
-            else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
-        }
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+         if (@available(iOS 10.0, *)) {
+            if (detailViewController.mIsPlaying) {
+                if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
+                else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
+            }
+         }
     }
 }
 
@@ -252,10 +255,13 @@
     [contMngr setDelegate:self];
     [contMngr setDataSource:self];
     [contMngr reloadData];
-    if (detailViewController.mIsPlaying) {
-        if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
-        else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
-    }
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+     if (@available(iOS 10.0, *)) {
+        if (detailViewController.mIsPlaying) {
+            if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
+            else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
+        }
+     }
     
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second

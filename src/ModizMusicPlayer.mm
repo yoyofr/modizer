@@ -1741,14 +1741,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mFileMngr=[[NSFileManager alloc] init];
     
     PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
-    switch (settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value) {
+    /*switch (settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value) {
         case 0: //44,1Khz
             PLAYBACK_FREQ=44100;
             break;
         case 1: //48Khz
             PLAYBACK_FREQ=48000;
             break;
-    }
+    }*/
     
     if ((self = [super init])) {
         NSError *audioSessionError = nil;

@@ -1039,8 +1039,8 @@ static float movePinchScale,movePinchScaleOld;
                                  MPMediaItemPropertyAlbumArtist,
                                  album,
                                  MPMediaItemPropertyAlbumTitle,
-                                 [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
-                                 MPNowPlayingInfoPropertyMediaType,
+                                 /*[NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                 MPNowPlayingInfoPropertyMediaType,*/
                                  
                                  [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
                                  MPNowPlayingInfoPropertyPlaybackQueueIndex,
@@ -5116,7 +5116,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     if (!is_macOS) if (m_displayLink) [m_displayLink invalidate];
         
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
-    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0"))
+     if (@available(iOS 13.0, *)) {
+         [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
+     }
     /*CATransition *transition=[CATransition animation];
     transition.duration=0.2;
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
