@@ -272,20 +272,6 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-        <key>NSExceptionDomains</key>
-            <dict>
-                <key>vgmrips.net</key>
-                <dict>
-                    <key>NSIncludesSubdomains</key>
-                    <true/>
-                    <!--key>NSThirdPartyExceptionAllowsInsecureHTTPLoads</key-->
-                    <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-                    <true/>
-                    <!--Include to specify minimum TLS version-->
-                    <key>NSTemporaryExceptionMinimumTLSVersion</key>
-                    <string>TLSv1.0</string>
-                </dict>
-            </dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>

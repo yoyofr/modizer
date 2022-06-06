@@ -119,7 +119,7 @@
         [command removeTarget:nil];
         [command setEnabled:NO];
     }
-    
+        
     [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];

@@ -268,25 +268,11 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-        <key>NSExceptionDomains</key>
-            <dict>
-                <key>vgmrips.net</key>
-                <dict>
-                    <key>NSIncludesSubdomains</key>
-                    <true/>
-                    <!--key>NSThirdPartyExceptionAllowsInsecureHTTPLoads</key-->
-                    <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-                    <true/>
-                    <!--Include to specify minimum TLS version-->
-                    <key>NSTemporaryExceptionMinimumTLSVersion</key>
-                    <string>TLSv1.2</string>
-                </dict>
-            </dict>
-    </dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSMainNibFile</key>

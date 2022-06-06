@@ -1028,7 +1028,40 @@ static float movePinchScale,movePinchScaleOld;
         NSString *album=mplayer.album;
         NSString *title=[mplayer getModName];
         
-        infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+         if (@available(iOS 10.0, *)) {
+             infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      title,
+                                      MPMediaItemPropertyTitle,
+                                      artist,
+                                      MPMediaItemPropertyArtist,
+                                      artwork,
+                                      MPMediaItemPropertyArtwork,
+                                      artist,
+                                      MPMediaItemPropertyAlbumArtist,
+                                      album,
+                                      MPMediaItemPropertyAlbumTitle,
+                                      [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                      MPNowPlayingInfoPropertyMediaType,
+                                      
+                                      [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                      MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                      [NSNumber numberWithUnsignedInteger:mPlaylist_size],
+                                      MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                                                           
+                                      [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                      MPMediaItemPropertyPlaybackDuration,
+                                      [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                      MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                      (mPaused?@0:@1),
+                                      MPNowPlayingInfoPropertyPlaybackRate,
+                                                                      
+                                      //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                      //MPMediaItemPropertyPersistentID,
+                                      nil];
+         }
+         else {
+             infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                  title,
                                  MPMediaItemPropertyTitle,
                                  artist,
@@ -1057,7 +1090,7 @@ static float movePinchScale,movePinchScaleOld;
                                  //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
                                  //MPMediaItemPropertyPersistentID,
                                  nil];
-    
+         }
     } else {
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                  artwork,
