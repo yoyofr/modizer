@@ -697,7 +697,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     
                     //ensure thread has finished
                     dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
-                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
+                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
                     semaphore=nil;
                     //get NSData
                     urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
@@ -733,11 +733,15 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                             el=[arr_details objectAtIndex:j];
                             we[we_index].file_details=[NSString stringWithString:[el raw]];
                             
-                            el=[arr_companies objectAtIndex:j];
-                            we[we_index].file_company=[NSString stringWithString:[el raw]];
+                            if ([arr_companies count]>j) {
+                                el=[arr_companies objectAtIndex:j];
+                                we[we_index].file_company=[NSString stringWithString:[el raw]];
+                            } else we[we_index].file_company=nil;
                             
-                            el=[arr_systems objectAtIndex:j];
-                            we[we_index].file_systems=[NSString stringWithString:[el raw]];
+                            if ([arr_systems count]>j) {
+                                el=[arr_systems objectAtIndex:j];
+                                we[we_index].file_systems=[NSString stringWithString:[el raw]];
+                            } else we[we_index].file_systems=nil;
                             
                             el=[arr_chips objectAtIndex:j];
                             NSString *chipset=nil;

@@ -13,6 +13,21 @@ Todo/Requested:
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
 
+3.2
+----
+
+- [DB] MODLAND updated as of 2022/06/06
+- [DB] ASMA updated as of 2022/06/06
+- [DB] HVSC updated to #76
+- [ALL] Bugfix / archives management
+- [FX] c352 support added for oscillo vex
+- [FX] fixed an issue where last line of oscillo was sometime not visible
+- [FX] SPC / slight improvement of oscillo fx
+- [PLAYER] MSX/KSS file when infinite loop mode is active
+- [PLAYER] VGMPLAY / fixed a crash issue when sample rate is null (fm.c)
+- [PLAYER] SID/8580 volume boost fix
+- [UI] display sid chip in info window
+
 3.1
 ----
 - [UI] Carplay support (playlist based)
