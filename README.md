@@ -3,6 +3,13 @@ Modizer
 
 iOS modules, chiptunes & vgm player.
 
+Support iOS 9+
+
+If you have an old device/iOS version, you're likely to face issue with SSL certificates.
+In case of issue accessing embedded websites (vgmrips, ...), try to open this URL from safari on your iphone/ipad:
+https://letsencrypt.org/certs/isrgrootx1.pem
+you need to 'trust' it and then install the certificate
+
 ## Building
 
 Requires: Xcode 12 or higher
