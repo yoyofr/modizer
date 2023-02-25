@@ -20,7 +20,7 @@ Todo/Requested:
 - [DB] ASMA updated as of 2022/06/06
 - [DB] HVSC updated to #76
 - [ALL] Bugfix / archives management
-- [FX] c352 support added for oscillo vex
+- [FX] c352 support added for oscillo fx
 - [FX] fixed an issue where last line of oscillo was sometime not visible
 - [FX] SPC / slight improvement of oscillo fx
 - [PLAYER] MSX/KSS file when infinite loop mode is active

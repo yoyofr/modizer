@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
                     The High Voltage SID Collection (HVSC)
                        -> Frequently Asked Questions <-
-                       Last Updated:  December 16, 2012
+                        Last Updated: December 1, 2022
 ------------------------------------------------------------------------------
 
 Very Common Questions
@@ -18,7 +18,7 @@ HVSC and SID File Format
  [7] Where can I find the SID File Format specification?
  [8] What is PSIDv2NG and RSID?
  [9] Why has HVSC decided to go with PSIDv2NG?
-[10] Some of the file names end with _2SID or _BASIC. Why is this?
+[10] Some of the file names end with _2SID, _3SID or _BASIC. Why is this?
 [11] My SID player doesn't play all SIDs in HVSC. Why is that?
 
 Updates
@@ -50,10 +50,10 @@ General Questions
 [1] What is the High Voltage SID Collection (HVSC)?
 ---------------------------------------------------
 
-HVSC is the ultimate SID tune collection featuring over 41,200 popular and
+HVSC is the ultimate SID tune collection featuring over 56,600 popular and
 requested SIDs from the Commodore 64. The collection includes SIDs (aka C64
-music) from games, demos, intros, etc. HVSC has been in the making for fifteen
-years and is the result of many contributors.
+music) from games, demos, intros, etc. HVSC has been in the making for more
+than 25 years (since July 1996) and is the result of many contributors.
 
 [2] What software and hardware do I need to play the tunes in HVSC?
 -------------------------------------------------------------------
@@ -210,7 +210,7 @@ and for the collection to go to PSIDv2NG, then it was an easy decision to make.
 Further, PSIDv2NG is the only new SID file format thus far that facilitates what
 was preferred.
 
-[10] Some of the file names end with _2SID or _BASIC. Why is this?
+[10] Some of the file names end with _2SID, _3SID or _BASIC. Why is this?
 ----------------------------------------------------------------------------
 
 SIDs that are marked "_BASIC" were originally taken from C64 games
@@ -231,6 +231,14 @@ chips in it that maps the second SID chip at the same address as where the 2SID
 tune is made for. Also if you have a C64 cartridge that emulates 2 SID chips, it
 is also possible to play _2SID files on it.
 
+From HVSC #63, _3SID files will be present in the collection. 3SID files are
+SID files that control 3 SID chips. The SID file format is extended for this so
+the address of the third SID chip can be specified and also the SID model of it.
+
+In order to play _3SID files, you need to use a Sidplayer that supports the
+PSID v4 and RSID v4 file format or you need to use a modified C64 that have 3
+SID chips.
+
 [11] My SID player doesn't play all SIDs in HVSC. Why is that?
 --------------------------------------------------------------
 
@@ -245,10 +253,16 @@ that your extra SID chip is mapped to. Also it is possible to play _2SID files
 on the 1541 Ultimate II cartridge via SID emulation and when you are using the
 audio out connector on the cartridge.
 
+From HVSC #63, _3SID files are included. Also these can be only played
+correctly if your SID player does support it or if your Commodore 64 has 3 SID
+chips inside and the SID tune is using the same addresses of the second and
+third SID chips that your extra SID chips are mapped to.
+
 [12] When will the next update be released?
 -------------------------------------------
 
-There is no fixed time schedule as to when each update is released. Each update
+Usually we try to release a new update by the end of June and December.
+There was no fixed time schedule as to when each update is released. Each update
 is dependent on two factors: available time and available SIDs. Once enough
 SIDs have been sent in and the HVSC crew has time enough to properly sort the
 SIDs, the next update will be released. At present, it takes on average six
@@ -267,7 +281,7 @@ particular, do NOT run the update tool more than once.
 -------------------------------------------------------
 
 The update tool was made in mind to be portable, and at the moment is available
-for Win95/98/ME/XP/Vista/7 and Linux.
+for Win95/98/ME/XP/Vista/7/10/11 and Linux.
 
 If you would like to port the Update tool to your OS, the source code to the
 tool and information about the format of the HVS data file can be obtained at
@@ -344,8 +358,8 @@ should be C64 compliant.
 
 Once you've ripped the C64 data (and wherever possible, tested your ripped data
 on a real C64) you should use the SIDEdit tool to convert your rip to PSIDv2NG
-format for HVSC. Please use the SIDEdit link at http://lala.c64.org/ for more
-information.
+format for HVSC. You can find the latest tool at
+https://csdb.dk/release/?id=203029
 
 However, do not set any of the PSIDv2NG fields unless you are absolutely sure
 you are correct. Consult the documentation with SIDEdit for more information.
@@ -401,11 +415,11 @@ For demos, you might wish to pay a visit to Stephan Schmid's excellent Demo
 Dungeon site at http://www.demodungeon.com/ - it has lots of demos, but also
 which tunes were used in each one. Very highly recommended.
 
-Also, at CSDb <https://noname.c64.org/csdb/> everyone who knows or finds the
-correct sids used in C64 production can add a link to the correct HVSC path.
+Also, at CSDb <https://csdb.dk> everyone who knows or finds the correct sids
+used in C64 production can add a link to the correct HVSC path.
 
 And if by all means you still can't locate a tune in HVSC, drop us a line at
-<hvsc (sid) c64.org> and I'm sure we can help you out.
+<hvsc.crew (sid) gmail.com> and I'm sure we can help you out.
 
 [22] Why do some of the tunes in HVSC not play?
 -----------------------------------------------
@@ -444,7 +458,7 @@ Malvern
 Worc's WR14 1QD
 ENGLAND
 
-Website: http://goo.gl/2fZG1 (links to http://www.binaryzone.org product page)
+Site: https://tinyurl.com/5dh64r7e (links to http://www.binaryzone.org product page)
 Email: kenz (sid) bzpd.wanadoo.co.uk
 -----------------------------------------------------------------------
 Bionic Grasshopper
@@ -456,7 +470,7 @@ CD have had written permission from the programmers concerned to include their
 work, such as Sidplay, PlaySID, APlayer etc.
 
 If you are a public domain library and wish to include HVSC on a CD-ROM then
-please email us <hvsc (sid) c64.org> for permission - that's all we ask.
+please email us <hvsc.crew (sid) gmail.com> for permission - that's all we ask.
 As long as you are making no profit on the CD, we will be more than willing
 to support you.
 
@@ -465,7 +479,7 @@ CD) which contain to have "over 10,000 SID tunes". They have copied HVSC onto
 those CDs without permission and are making profit from it, which is not only
 against the HVSC ethic, but also means that the composers' works are being
 abused. Should you ever stumble about such a CD offered on websites or online
-auctions, please let us know and notify us via email at <hvsc (sid) c64.org>.
+auctions, please let us know and notify us via email at <hvsc.crew (sid) gmail.com>.
 Thank you.
 
 [26] When will HVSC be completed?
@@ -514,7 +528,7 @@ For more information, please consult the following webpage:
 http://covertbitops.c64.org
 
 Another cross-platform music editor is CheeseCutter made by Abaddon of
-Fairlight, see: http://theyamo.kapsi.fi/
+Artline Designs, see: https://csdb.dk/release/?id=106959
 It's an open source cross-platform music editor build around the JCH-editor.
 
 And of course, once you have a saved compiled tune, it should be pretty easy to
@@ -543,6 +557,6 @@ Do you have more questions? Have you also checked:
 (5) BUGlist.txt (information about bugs in SIDs)
 
 If you have checked those documents and have not found the answers you seek,
-by all means, please email <hvsc (sid) c64.org> at any
+by all means, please email <hvsc.crew (sid) gmail.com> at any
 time. Note that if you think your problem is related to the emulator/player
 you are using, we suggest you email the party responsible.

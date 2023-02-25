@@ -1,2 +1,2 @@
 # stub for old updaters
-Release 76
+Release 78

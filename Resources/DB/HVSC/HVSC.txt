@@ -2,14 +2,14 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 76
+                                  Release 78
 
-                               December 23, 2021
+                               December 23, 2022
 
 Compiled by:
 ------------
 Current Members:
-    Emiliano Peruch (Ian Coog) <iancoog (sid) alice.it> - ITALY
+    Emiliano Peruch (Ian Coog) <iancoog7102 (sid) gmail.com> - ITALY
     Inge Høie Pedersen ("448") <ingehp (sid) outlook.com> - NORWAY
     Wilfred Bos <wilfred_hvsc (sid) xs4all.nl> - NETHERLANDS
     Mariusz Mlynski - POLAND
@@ -372,7 +372,7 @@ Here are some of the items we are looking for:
 
 If you have SIDs that you think are not in HVSC, please send them to us!
 If you already have the SIDs or disk images on your PC, fine, just email
-them to hvsc (sid) c64.org.
+them to <hvsc.crew(sid)gmail.com>.
 If you have them on your old disks and have no idea how to convert them over
 to your PC, get in touch with us via the same email and we'll work something
 out for you.
@@ -430,7 +430,7 @@ Please refer to STIL.faq before sending in STIL entries for each pack.
 Further, if you are sending STIL entries relating to SIDs already
 in HVSC, please send them directly to the current STIL Administrator:
 
-iAN CooG <hvsc (sid) c64.org>
+iAN CooG <hvsc.crew(sid)gmail.com>
 
 Please also DO NOT send any attachment that is more than 1 MB without
 mailing us first to let us know and that you have confirmation from us it is
@@ -438,8 +438,10 @@ okay to send.  It's good netiquette, you know.
 
 Please mail your ZIP file of SIDs to the following address:
 
-hvsc (sid) c64.org (it will reach two people, so you can be assured that your
-                    mail will get processed)
+<hvsc.crew(sid)gmail.com>
+
+it will reach two people, so you can be assured that your mail will get
+processed.
 
 And, if you have the data on a C64 disk, but do not have the file transfer
 capabilities to transfer C64 files to your PC, also contact the people above
@@ -601,7 +603,7 @@ or some additional information, no matter how insignificant, let us know.
 
 Please mail to the following address:
 
-  hvsc (sid) c64.org
+  <hvsc.crew(sid)gmail.com>
 
 
 [3-4-1] Verify Your Information
@@ -723,7 +725,7 @@ MOVE
 If you need further information on credit fixes, please consult the
 Updatexx.hvs files in your DOCUMENTS dir of HVSC for further examples,
 and if you require more information on the file format of the .hvs
-file, feel free to email <hvsc (sid) c64.org> at any time.
+file, feel free to email <hvsc.crew(sid)gmail.com> at any time.
 
 As of HVSC 4.6 (Update #31) there is also a new command, INITPLAY, which
 takes care of invalid init and play addresses in SID files.  Often it has
