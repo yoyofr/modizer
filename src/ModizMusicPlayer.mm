@@ -9709,9 +9709,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         gme_emu=NULL;
     }
     if (mPlayType==MMP_XMP) {
-        xmp_end_player(xmp_ctx);
-        xmp_release_module(xmp_ctx);
-        xmp_free_context(xmp_ctx);
+        if (xmp_ctx) xmp_end_player(xmp_ctx);
+        if (xmp_ctx) xmp_release_module(xmp_ctx);
+        if (xmp_ctx) xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
         mdz_safe_free(xmp_mi);
         

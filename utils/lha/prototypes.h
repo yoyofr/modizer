@@ -9,10 +9,10 @@
 int encode_lzhuf P_((FILE *infp, FILE *outfp, size_t size, size_t *original_size_var, size_t *packed_size_var, char *name, char *hdr_method));
 /* bitio.c */
 void fillbuf P_((int n));
-unsigned short getbits P_((int n));
+unsigned short lha_getbits P_((int n));
 void putcode P_((int n, int x));
 void putbits P_((int n, int x));
-void init_getbits P_((void));
+void init_lha_getbits P_((void));
 void init_putbits P_((void));
 /* crcio.c */
 void make_crctable P_((void));

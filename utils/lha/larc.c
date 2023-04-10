@@ -15,12 +15,12 @@ static int      flag, flagcnt, matchpos;
 unsigned short
 decode_c_lzs( /*void*/ )
 {
-    if (getbits(1)) {
-        return getbits(8);
+    if (lha_getbits(1)) {
+        return lha_getbits(8);
     }
     else {
-        matchpos = getbits(11);
-        return getbits(4) + 0x100;
+        matchpos = lha_getbits(11);
+        return lha_getbits(4) + 0x100;
     }
 }
 
@@ -37,7 +37,7 @@ decode_p_lzs( /*void*/ )
 void
 decode_start_lzs( /*void*/ )
 {
-    init_getbits();
+    init_lha_getbits();
     init_code_cache();
 }
 

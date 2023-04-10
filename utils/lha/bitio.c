@@ -32,7 +32,7 @@ fillbuf(n)          /* Shift bitbuf n bits left, read n bits */
 }
 
 unsigned short
-getbits(n)
+lha_getbits(n)
     unsigned char   n;
 {
     unsigned short  x;
@@ -76,7 +76,7 @@ putbits(n, x)           /* Write rightmost n bits of x */
 }
 
 void
-init_getbits( /* void */ )
+init_lha_getbits( /* void */ )
 {
     bitbuf = 0;
     subbitbuf = 0;

@@ -135,9 +135,6 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*SOUND_BUFFER_SIZE_SAMPLE*num_voices);
-    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
-    count=0;
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -150,6 +147,11 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
     mulfactor=hh/(max_voices_by_row+1);
+    
+    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
+    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
+    count=0;
+    
     
     // Search the right offset to realign oscilloscope view / previous one
     int bufflen;

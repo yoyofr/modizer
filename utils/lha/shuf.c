@@ -27,7 +27,7 @@ decode_start_st0( /*void*/ )
 {
     n_max = 286;
     maxmatch = MAXMATCH;
-    init_getbits();
+    init_lha_getbits();
     init_code_cache();
     np = 1 << (LZHUFF3_DICBIT - 6);
 }
@@ -91,12 +91,12 @@ read_tree_c( /*void*/ )
 
     i = 0;
     while (i < N1) {
-        if (getbits(1))
-            c_len[i] = getbits(LENFIELD) + 1;
+        if (lha_getbits(1))
+            c_len[i] = lha_getbits(LENFIELD) + 1;
         else
             c_len[i] = 0;
         if (++i == 3 && c_len[0] == 1 && c_len[1] == 1 && c_len[2] == 1) {
-            c = getbits(CBIT);
+            c = lha_getbits(CBIT);
             for (i = 0; i < N1; i++)
                 c_len[i] = 0;
             for (i = 0; i < 4096; i++)
@@ -115,9 +115,9 @@ read_tree_p(/*void*/)
 
     i = 0;
     while (i < NP) {
-        pt_len[i] = getbits(LENFIELD);
+        pt_len[i] = lha_getbits(LENFIELD);
         if (++i == 3 && pt_len[0] == 1 && pt_len[1] == 1 && pt_len[2] == 1) {
-            c = getbits(LZHUFF3_DICBIT - 6);
+            c = lha_getbits(LZHUFF3_DICBIT - 6);
             for (i = 0; i < NP; i++)
                 pt_len[i] = 0;
             for (i = 0; i < 256; i++)
@@ -134,7 +134,7 @@ decode_start_fix(/*void*/)
 {
     n_max = 314;
     maxmatch = 60;
-    init_getbits();
+    init_lha_getbits();
     init_code_cache();
     np = 1 << (LZHUFF1_DICBIT - 6);
     start_c_dyn();
@@ -151,9 +151,9 @@ decode_c_st0(/*void*/)
     static unsigned short blocksize = 0;
 
     if (blocksize == 0) {   /* read block head */
-        blocksize = getbits(BUFBITS);   /* read block blocksize */
+        blocksize = lha_getbits(BUFBITS);   /* read block blocksize */
         read_tree_c();
-        if (getbits(1)) {
+        if (lha_getbits(1)) {
             read_tree_p();
         }
         else {
@@ -178,7 +178,7 @@ decode_c_st0(/*void*/)
         fillbuf(c_len[j] - 12);
     }
     if (j == N1 - 1)
-        j += getbits(EXTRABITS);
+        j += lha_getbits(EXTRABITS);
     return j;
 }
 
@@ -205,5 +205,5 @@ decode_p_st0(/*void*/)
         } while (j >= np);
         fillbuf(pt_len[j] - 8);
     }
-    return (j << 6) + getbits(6);
+    return (j << 6) + lha_getbits(6);
 }

@@ -328,9 +328,9 @@ read_pt_len(nn, nbit, i_special)
 {
     int           i, c, n;
 
-    n = getbits(nbit);
+    n = lha_getbits(nbit);
     if (n == 0) {
-        c = getbits(nbit);
+        c = lha_getbits(nbit);
         for (i = 0; i < nn; i++)
             pt_len[i] = 0;
         for (i = 0; i < 256; i++)
@@ -353,7 +353,7 @@ read_pt_len(nn, nbit, i_special)
 
             pt_len[i++] = c;
             if (i == i_special) {
-                c = getbits(2);
+                c = lha_getbits(2);
                 while (--c >= 0 && i < NPT)
                     pt_len[i++] = 0;
             }
@@ -370,9 +370,9 @@ read_c_len( /* void */ )
 {
     short           i, c, n;
 
-    n = getbits(CBIT);
+    n = lha_getbits(CBIT);
     if (n == 0) {
-        c = getbits(CBIT);
+        c = lha_getbits(CBIT);
         for (i = 0; i < NC; i++)
             c_len[i] = 0;
         for (i = 0; i < 4096; i++)
@@ -396,9 +396,9 @@ read_c_len( /* void */ )
                 if (c == 0)
                     c = 1;
                 else if (c == 1)
-                    c = getbits(4) + 3;
+                    c = lha_getbits(4) + 3;
                 else
-                    c = getbits(CBIT) + 20;
+                    c = lha_getbits(CBIT) + 20;
                 while (--c >= 0)
                     c_len[i++] = 0;
             }
@@ -419,7 +419,7 @@ decode_c_st1( /*void*/ )
     unsigned short  j, mask;
 
     if (blocksize == 0) {
-        blocksize = getbits(16);
+        blocksize = lha_getbits(16);
         read_pt_len(NT, TBIT, 3);
         read_c_len();
         read_pt_len(np, pbit, -1);
@@ -466,7 +466,7 @@ decode_p_st1( /* void */ )
         fillbuf(pt_len[j] - 8);
     }
     if (j != 0)
-        j = (1 << (j - 1)) + getbits(j - 1);
+        j = (1 << (j - 1)) + lha_getbits(j - 1);
     return j;
 }
 
@@ -484,7 +484,7 @@ decode_start_st1( /* void */ )
         fatal_error("Cannot use %d bytes dictionary", 1 << dicbit);
     }
 
-    init_getbits();
+    init_lha_getbits();
     init_code_cache();
     blocksize = 0;
 }

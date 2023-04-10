@@ -75,7 +75,7 @@ decode_start_dyn( /* void */ )
 {
     n_max = 286;
     maxmatch = MAXMATCH;
-    init_getbits();
+    init_lha_getbits();
     init_code_cache();
     start_c_dyn();
     start_p_dyn();
@@ -294,7 +294,7 @@ decode_c_dyn( /* void */ )
     c = ~c;
     update_c(c);
     if (c == n1)
-        c += getbits(8);
+        c += lha_getbits(8);
     return c;
 }
 
@@ -327,7 +327,7 @@ decode_p_dyn( /* void */ )
     c = (~c) - N_CHAR;
     update_p(c);
 
-    return (c << 6) + getbits(6);
+    return (c << 6) + lha_getbits(6);
 }
 
 /* ------------------------------------------------------------------------ */
