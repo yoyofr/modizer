@@ -32,3 +32,6 @@ Resources/DB/databaseMAIN.modizerdb
 # ASMA svn repo
 Resources/DB/ASMA/trunk
 Resources/DB/ASMA/trunk/*
+Resources/DB/ASMA/stilconverted_asma
+Resources/DB/database.modizerdb
+Resources/DB/ASMA/Asma.txt
