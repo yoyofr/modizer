@@ -248,12 +248,19 @@
 /Composers/Esquivel_Sal/Unreal_Superhero_3.sap	  TITLE: Unreal Superhero 3 [from the Amiga MOD module]\n ARTIST: Raphaël Quercy (Kenet) & Christophe Résigné (Rez)\n
 /Composers/Esquivel_Sal/Unreal_Superhero_3_Stereo.sap	  TITLE: Unreal Superhero 3 [from the XM module]\n ARTIST: Christophe Résigné (Rez) & Raphaël Quercy (Kenet)\nCOMMENT: Same as /Composers/Esquivel_Sal/Unreal_Superhero_3.sap,\n         but with second POKEY support (stereo version)\n
 /Composers/Ezcan_Kemal/Atomit_II.sap	  TITLE: El Cumbanchero\n ARTIST: Rafael Hernández\n
+/Composers/Ezcan_Kemal/Amorada.sap	  TITLE: Brasileirinho (from Brasileirinho)\n ARTIST: Waldir Azevedo and Seu Conjunto\n
+/Composers/Ezcan_Kemal/Also_Sprach_Zarathustra.sap	  TITLE: Also Sprach Zarathustra (Introduction or Sunrise)\n ARTIST: Richard Strauss\n
+/Composers/Ezcan_Kemal/Atomit_II.sap	  TITLE: El Cumbanchero\n ARTIST: Rafael Hernández\n
 /Composers/Ezcan_Kemal/Chromatics.sap	  TITLE: Air [from Orchestral Suite No.3 (BWV 1068)]\n ARTIST: Johann Sebastian Bach\n
 /Composers/Ezcan_Kemal/Digiloo_Digiley.sap	  TITLE: Diggi-Loo Diggi-Ley\n ARTIST: Herreys\nCOMMENT: This song won the Eurovision Song Contest in 1984.\n
 /Composers/Ezcan_Kemal/Fire_Cracker.sap	  TITLE: Firecracker [from Yellow Magic Orchestra]\n ARTIST: Yellow Magic Orchestra (YMO)\n
 /Composers/Ezcan_Kemal/Globetrotter.sap	  TITLE: Ticket To Ride [from Help!]\n ARTIST: The Beatles\n
+/Composers/Ezcan_Kemal/Ice_in_the_Sunshine.sap	  TITLE: Ice in the Sunshine [from Ice in the Sunshine]\n ARTIST: Beagle Music\n
 /Composers/Ezcan_Kemal/Its_a_Sin.sap	  TITLE: It's a Sin [from Actually]\n ARTIST: Pet Shop Boys\n
 /Composers/Ezcan_Kemal/Karriere.sap	  TITLE: Money, Money [from the movie Cabaret]\n ARTIST: John Kander (music), Fred Ebb (lyrics), performed Joel Grey & Liza Minnelli\n
+/Composers/Ezcan_Kemal/Never_on_Sunday.sap	  TITLE: Never on Sunday [from the movie Never on Sunday (Ta Pediá tou Pireá)]\n ARTIST: Manos Hatzidakis (music and lyrics), performed  Melina Mercouri\n
+/Composers/Ezcan_Kemal/Patricia.sap	  TITLE: Patricia\n ARTIST: Perez Prado\n
+/Composers/Ezcan_Kemal/Pulstar.sap	  TITLE: Enola Gay [from Organisation]\n ARTIST: George Andrew McCluskey, performed by Orchestral Manoeuvres in the Dark (OMD)\n
 /Composers/Ezcan_Kemal/Tecno_Ninja.sap	(#1)\n  TITLE: Fourth Rendez-Vous [from Rendez-Vous]\n ARTIST: Jean Michel Jarre\n(#2)\n  TITLE: Equinoxe Part 3 [from Equinoxe]\n ARTIST: Jean Michel Jarre\n(#3)\n  TITLE: Industrial Revolution: Overture [from Revolutions]\n ARTIST: Jean Michel Jarre\n(#4)\n  TITLE: Oxygene (Part IV) [from Oxygene]\n ARTIST: Jean Michel Jarre\n(#5)\n  TITLE: First Rendez-Vous [from Rendez-Vous]\n ARTIST: Jean Michel Jarre\n(#7)\n  TITLE: Oxygene (Part VI) [from Oxygene]\n ARTIST: Jean Michel Jarre\n(#9)\n  TITLE: Second Rendez-Vous Part I [from Rendez-Vous]\n ARTIST: Jean Michel Jarre\n
 /Composers/Ezcan_Kemal/Tinory_Quest_Invention_13.sap	  TITLE: Two-Part Invention No. 13, in A minor (BWV 784)\n ARTIST: Johann Sebastian Bach\n
 /Composers/Falton_Peter/Banana.sap	  TITLE: Tico-tico no fubá\n ARTIST: Zequinha de Abreu\nCOMMENT: A famous Brazilian choro tune composed in 1917.\n
@@ -1051,6 +1058,7 @@
 /Composers/Ristau_Chuck/Mash.sap	  TITLE: Theme from M*A*S*H (Suicide Is Painless) [from the movie]\n ARTIST: Johnny Mandel\n
 /Composers/Ristau_Chuck/Nights_in_White_Satin.sap	  TITLE: Nights in White Satin [from Days of Future Passed]\n ARTIST: The Moody Blues\n
 /Composers/Roemer_Markus/Biene_Maja.sap	  TITLE: Die Biene Maja [from the cartoon series]\n ARTIST: Karel Svoboda\n
+/Composers/Roemer_Markus/JHV_Demo_97_Intro.sap	  TITLE: Nikita [from Ice on Fire]\n ARTIST: Elton John\n
 /Composers/Roemer_Markus/Regenbogen.sap	COMMENT: Soundtrack from the ABBUC 138 intro.\n
 /Composers/Roemer_Markus/Way_You_Are.sap	COMMENT: 6th place at Grayscale Music Competition II.\n
 /Composers/Rogers_Charles/Butterscotch_Drops_of_Lime.sap	  TITLE: Butterscotch Drops of Lime [from the Nintendo Entertainment System]\n ARTIST: Richard J. Armijo (Kulor)\n
@@ -1068,6 +1076,7 @@
 /Composers/Sabath_Peter/High_Society_Girl.sap	  TITLE: High Society Girl\n ARTIST: Laid Back\n
 /Composers/Sabath_Peter/House_of_Rising_Sun.sap	  TITLE: House of the Rising Sun\n ARTIST: Traditional\n
 /Composers/Sabath_Peter/Lunatic.sap	  TITLE: Lunatic [from Gazebo]\n ARTIST: Gazebo\nCOMMENT: Present also in "Fortress Underground" game, no author credited.\n
+/Composers/Sabath_Peter/Peter_Sabath_Demo.sap	(#2)\n  TITLE: Oxygene 4 [from Oxygene]\n ARTIST: Jean Michel Jarre\n(#3)\n  TITLE: For Your Love [from Everybody]\n ARTIST: Albert One\n
 /Composers/Sasik_Marcel/Czerny_Orzet.sap	  TITLE: One Horse Open Sleigh\n ARTIST: James Lord Pierpont\nCOMMENT: Popular under name "Jingle Bells".\n
 /Composers/Selector_Catalogue/Sap_Trap.sap	COMMENT: 4th place at Winter Chip II (Best Pokey) music compo.\n
 /Composers/Sikorski_Pawel/Bzz.sap	COMMENT: 11th place at Grayscale Music Competition II.\n
