@@ -3,11 +3,11 @@
 
 
 /* .ISB - Creative ISACT (Interactive Spatial Audio Composition Tools) middleware [Psychonauts (PC), Mass Effect (multi)] */
-VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
-    VGMSTREAM * vgmstream = NULL;
-    off_t start_offset = 0, name_offset = 0;
-    size_t stream_size = 0, name_size = 0;
-    int loop_flag = 0, channel_count = 0, sample_rate = 0, codec = 0, pcm_bytes = 0, bps = 0;
+VGMSTREAM* init_vgmstream_isb(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
+    off_t start_offset = 0, name_offset = 0, nfld_offset = 0;
+    size_t stream_size = 0, name_size = 0, nfld_size = 0;
+    int loop_flag = 0, channels = 0, sample_rate = 0, codec = 0, pcm_bytes = 0, bps = 0;
     int total_subsongs, target_subsong = sf->stream_index;
     uint32_t (*read_u32me)(off_t,STREAMFILE*);
     uint32_t (*read_u32ce)(off_t,STREAMFILE*);
@@ -18,15 +18,15 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
     if (!check_extensions(sf, "isb"))
         goto fail;
 
-    big_endian = read_u32be(0x00,sf) == 0x46464952; /* "FFIR" */
+    big_endian = read_u32be(0x00,sf) == get_id32be("FFIR"); /* PS3, most X360 */
     read_u32me = big_endian ? read_u32be : read_u32le; /* machine endianness... */
     read_u32ce = big_endian ? read_u32le : read_u32be; /* chunks change with endianness but this just reads as BE */
 
-    if (read_u32ce(0x00,sf) != 0x52494646) /* "RIFF" */
+    if (read_u32ce(0x00,sf) != get_id32be("RIFF"))
         goto fail;
     if (read_u32me(0x04,sf) + 0x08 != get_streamfile_size(sf))
         goto fail;
-    if (read_u32ce(0x08,sf) != 0x69736266) /* "isbf" */
+    if (read_u32ce(0x08,sf) != get_id32be("isbf"))
         goto fail;
 
     /* some files have a companion .icb, seems to be a cue file pointing here */
@@ -36,7 +36,7 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
      * seems to use the format as a simple audio bank. Psychonauts Xbox/PS2 doesn't use ISACT. */
 
     {
-        off_t offset, max_offset, header_offset = 0;
+        off_t offset, max_offset, header_offset = 0, suboffset, submax_offset;
         size_t header_size = 0;
 
         total_subsongs = 0; /* not specified */
@@ -52,23 +52,62 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
 
             switch(chunk_type) {
                 case 0x4C495354: /* "LIST" */
-                    if (read_u32ce(offset, sf) != 0x73616D70) /* "samp" */
-                        break; /* there are "bfob" LIST without data */
-
-                    total_subsongs++;
-                    if (target_subsong == total_subsongs && header_offset == 0) {
-                        header_offset = offset;
-                        header_size = chunk_size;
+                    if (read_u32ce(offset, sf) == get_id32be("samp")) {
+                        /* sample header */
+                        total_subsongs++;
+                        if (target_subsong == total_subsongs && header_offset == 0) {
+                            header_offset = offset;
+                            header_size = chunk_size;
+                        }
                     }
+                    else if (read_u32ce(offset, sf) == get_id32be("fldr")) {
+                        /* subfolder with another LIST inside, for example "stingers" > N smpl (seen in some music_bank) */
+                        off_t current_nfld_offset = 0;
+                        size_t current_nfld_size = 0;
+
+                        suboffset = offset + 0x04;
+                        submax_offset = offset + chunk_size;
+                        while (suboffset < submax_offset) {
+                            uint32_t subchunk_type = read_u32ce(suboffset + 0x00,sf);
+                            uint32_t subchunk_size = read_u32me(suboffset + 0x04,sf);
+                            suboffset += 0x08;
+
+                            if (subchunk_type == get_id32be("titl")) {
+                                /* should go first in fldr*/
+                                current_nfld_offset = suboffset;
+                                current_nfld_size = subchunk_size;
+                            }
+                            else if (subchunk_type == get_id32be("LIST")) {
+                                uint32_t subsubchunk_type = read_u32ce(suboffset, sf);
+
+                                if (subsubchunk_type == get_id32be("samp")) {
+                                    total_subsongs++;
+                                    if (target_subsong == total_subsongs && header_offset == 0) {
+                                        header_offset = suboffset;
+                                        header_size = chunk_size;
+                                        nfld_offset = current_nfld_offset;
+                                        nfld_size = current_nfld_size;
+                                    }
+                                }
+                                else if (subsubchunk_type == get_id32be("fldr")) {
+                                    VGM_LOG("ISB: subfolder with subfolder at %lx\n", suboffset);
+                                    goto fail;
+                                }
+
+                                //break; /* there can be N subLIST+samps */
+                            }
+
+                            suboffset += subchunk_size;
+                        }
+                    }
+
                     break;
 
                 default: /* most are common chunks at the start that seem to contain defaults */
                     break;
             }
 
-            //if (offset + chunk_size+0x01 <= max_offset && chunk_size % 0x02)
-            //    chunk_size += 0x01;
-            offset += chunk_size;
+            offset += chunk_size; /* no chunk 1-byte padding */
         }
 
         if (target_subsong < 0 || target_subsong > total_subsongs || total_subsongs < 1) goto fail;
@@ -89,7 +128,7 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
                     break;
 
                 case 0x63686E6B: /* "chnk" */
-                    channel_count = read_u32me(offset + 0x00, sf);
+                    channels = read_u32me(offset + 0x00, sf);
                     break;
 
                 case 0x73696E66: /* "sinf" */
@@ -122,8 +161,6 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
                     break;
             }
 
-            //if (offset + chunk_size+0x01 <= max_offset && chunk_size % 0x02)
-            //    chunk_size += 0x01;
             offset += chunk_size;
         }
 
@@ -132,12 +169,12 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
     }
 
 
-    /* some files are marked */
-    loop_flag  = 0;
+    /* some files are marked with "loop" but have value 0? */
+    loop_flag = 0;
 
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count, loop_flag);
+    vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->meta_type = meta_ISB;
@@ -145,10 +182,27 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
     vgmstream->num_streams = total_subsongs;
     vgmstream->stream_size = stream_size;
 
-    if (name_offset) { /* UTF16 but only uses lower bytes */
-        if (name_size > STREAM_NAME_SIZE)
-            name_size = STREAM_NAME_SIZE;
-        read_string_utf16(vgmstream->stream_name,name_size, name_offset, sf, big_endian);
+    if (name_offset) {
+        /* UTF16 but only uses lower bytes */
+        char name[256];
+        char nfld[256];
+        
+        /* should read string or set '\0' is no size is set/incorrect */
+        if (name_size >= sizeof(name))
+            name_size = sizeof(name) - 1;
+        read_string_utf16(name, name_size, name_offset, sf, big_endian);
+
+        if (nfld_size >= sizeof(nfld))
+            nfld_size = sizeof(nfld) - 1;
+        read_string_utf16(nfld, nfld_size, nfld_offset, sf, big_endian);
+
+        if (nfld[0] && name[0]) {
+            snprintf(vgmstream->stream_name,STREAM_NAME_SIZE, "%s/%s", nfld, name);
+        }
+        else if (name[0]) {
+            snprintf(vgmstream->stream_name,STREAM_NAME_SIZE, "%s", name);
+        }
+        /* there is also a "titl" for the bank, but it's just the filename so probably unwanted */
     }
 
     switch(codec) {
@@ -163,13 +217,13 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
                 vgmstream->layout_type = layout_interleave;
                 vgmstream->interleave_block_size = 0x02;
             }
-            vgmstream->num_samples = pcm_bytes_to_samples(stream_size, channel_count, bps); /* unsure about pcm_bytes */
+            vgmstream->num_samples = pcm_bytes_to_samples(stream_size, channels, bps); /* unsure about pcm_bytes */
             break;
 
         case 0x01:
             vgmstream->coding_type = coding_XBOX_IMA;
             vgmstream->layout_type = layout_none;
-            vgmstream->num_samples = xbox_ima_bytes_to_samples(stream_size, channel_count); /* pcm_bytes has excess data */
+            vgmstream->num_samples = xbox_ima_bytes_to_samples(stream_size, channels); /* pcm_bytes has excess data */
             break;
 
 #ifdef VGM_USE_VORBIS
@@ -178,14 +232,12 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_OGG_VORBIS;
             vgmstream->layout_type = layout_none;
-            vgmstream->num_samples = pcm_bytes / channel_count / (bps/8);
+            vgmstream->num_samples = pcm_bytes / channels / (bps/8);
             break;
 #endif
 
 #ifdef VGM_USE_FFMPEG
         case 0x04: {
-            uint8_t buf[0x100];
-            size_t bytes;
             off_t fmt_offset = start_offset;
             size_t fmt_size = 0x20;
 
@@ -193,13 +245,12 @@ VGMSTREAM * init_vgmstream_isb(STREAMFILE *sf) {
             stream_size -= fmt_size;
 
             /* XMA1 "fmt" chunk (BE, unlike the usual LE) */
-            bytes = ffmpeg_make_riff_xma_from_fmt_chunk(buf,sizeof(buf), fmt_offset,fmt_size, stream_size, sf, 1);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf,bytes, start_offset, stream_size);
+            vgmstream->codec_data = init_ffmpeg_xma_chunk(sf, start_offset, stream_size, fmt_offset, fmt_size);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
 
-            vgmstream->num_samples = pcm_bytes / channel_count / (bps/8);
+            vgmstream->num_samples = pcm_bytes / channels / (bps/8);
             xma_fix_raw_samples(vgmstream, sf, start_offset, stream_size, fmt_offset, 1,1);
             break;
         }

@@ -2,7 +2,7 @@
 #include "../util.h"
 #include <math.h>
 
-void decode_pcm16le(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm16le(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -11,7 +11,7 @@ void decode_pcm16le(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspa
     }
 }
 
-void decode_pcm16be(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm16be(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -20,7 +20,7 @@ void decode_pcm16be(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspa
     }
 }
 
-void decode_pcm16_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int big_endian) {
+void decode_pcm16_int(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int big_endian) {
     int i, sample_count;
     int16_t (*read_16bit)(off_t,STREAMFILE*) = big_endian ? read_16bitBE : read_16bitLE;
 
@@ -29,7 +29,7 @@ void decode_pcm16_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channels
     }
 }
 
-void decode_pcm8(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm8(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -38,7 +38,7 @@ void decode_pcm8(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacin
     }
 }
 
-void decode_pcm8_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm8_int(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -47,7 +47,7 @@ void decode_pcm8_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelsp
     }
 }
 
-void decode_pcm8_unsigned(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm8_unsigned(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -57,7 +57,7 @@ void decode_pcm8_unsigned(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int chan
     }
 }
 
-void decode_pcm8_unsigned_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm8_unsigned_int(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -67,7 +67,7 @@ void decode_pcm8_unsigned_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int 
     }
 }
 
-void decode_pcm8_sb(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_pcm8_sb(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i;
     int32_t sample_count;
 
@@ -78,7 +78,7 @@ void decode_pcm8_sb(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspa
     }
 }
 
-void decode_pcm4(VGMSTREAM * vgmstream, VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel) {
+void decode_pcm4(VGMSTREAM * vgmstream, VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel) {
     int i, nibble_shift, is_high_first, is_stereo;
     int32_t sample_count;
     int16_t v;
@@ -101,7 +101,7 @@ void decode_pcm4(VGMSTREAM * vgmstream, VGMSTREAMCHANNEL * stream, sample_t * ou
     }
 }
 
-void decode_pcm4_unsigned(VGMSTREAM * vgmstream, VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel) {
+void decode_pcm4_unsigned(VGMSTREAM * vgmstream, VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel) {
     int i, nibble_shift, is_high_first, is_stereo;
     int32_t sample_count;
     int16_t v;
@@ -149,7 +149,7 @@ static int expand_ulaw(uint8_t ulawbyte) {
 }
 
 /* decodes u-law (ITU G.711 non-linear PCM), from g711.c */
-void decode_ulaw(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_ulaw(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i, sample_count;
 
     for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count+=channelspacing) {
@@ -159,7 +159,7 @@ void decode_ulaw(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacin
 }
 
 
-void decode_ulaw_int(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_ulaw_int(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i, sample_count;
 
     for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count+=channelspacing) {
@@ -195,7 +195,7 @@ static int expand_alaw(uint8_t alawbyte) {
 }
 
 /* decodes a-law (ITU G.711 non-linear PCM), from g711.c */
-void decode_alaw(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+void decode_alaw(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
     int i, sample_count;
 
     for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count+=channelspacing) {
@@ -204,7 +204,7 @@ void decode_alaw(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacin
     }
 }
 
-void decode_pcmfloat(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int big_endian) {
+void decode_pcmfloat(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int big_endian) {
     int i, sample_count;
     float (*read_f32)(off_t,STREAMFILE*) = big_endian ? read_f32be : read_f32le;
 
@@ -216,7 +216,56 @@ void decode_pcmfloat(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelsp
     }
 }
 
-size_t pcm_bytes_to_samples(size_t bytes, int channels, int bits_per_sample) {
+void decode_pcm24be(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+    int i;
+    int32_t sample_count;
+
+    for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count += channelspacing) {
+        off_t offset = stream->offset + i * 0x03;
+        int v = read_u8(offset+0x02, stream->streamfile) | (read_s16be(offset + 0x00, stream->streamfile) << 8);
+        outbuf[sample_count] = (v >> 8);
+    }
+}
+
+void decode_pcm24le(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+    int i;
+    int32_t sample_count;
+
+    for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count+=channelspacing) {
+        off_t offset = stream->offset + i * 0x03;
+        int v = read_u8(offset+0x00, stream->streamfile) | (read_s16le(offset + 0x01, stream->streamfile) << 8);
+        outbuf[sample_count] = (v >> 8);
+    }
+}
+
+void decode_pcm32le(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do) {
+    int i;
+    int32_t sample_count;
+
+    for (i=first_sample,sample_count=0; i<first_sample+samples_to_do; i++,sample_count+=channelspacing) {
+        off_t offset = stream->offset + i * 0x04;
+        int32_t v = read_s32le(offset, stream->streamfile);
+        outbuf[sample_count] = (v >> 16);
+    }
+}
+
+int32_t pcm_bytes_to_samples(size_t bytes, int channels, int bits_per_sample) {
     if (channels <= 0 || bits_per_sample <= 0) return 0;
     return ((int64_t)bytes * 8) / channels / bits_per_sample;
+}
+
+int32_t pcm32_bytes_to_samples(size_t bytes, int channels) {
+    return pcm_bytes_to_samples(bytes, channels, 32);
+}
+
+int32_t pcm24_bytes_to_samples(size_t bytes, int channels) {
+    return pcm_bytes_to_samples(bytes, channels, 24);
+}
+
+int32_t pcm16_bytes_to_samples(size_t bytes, int channels) {
+    return pcm_bytes_to_samples(bytes, channels, 16);
+}
+
+int32_t pcm8_bytes_to_samples(size_t bytes, int channels) {
+    return pcm_bytes_to_samples(bytes, channels, 8);
 }

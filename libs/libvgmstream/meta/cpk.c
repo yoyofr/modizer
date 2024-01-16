@@ -1,9 +1,10 @@
 #include "meta.h"
 #include "../coding/coding.h"
-#include "cri_utf.h"
+#include "../util/cri_utf.h"
+#include "../util/companion_files.h"
 
 
-typedef enum { HCA, CWAV, } cpk_type_t;
+typedef enum { HCA, CWAV, ADX } cpk_type_t;
 
 static void load_cpk_name(STREAMFILE* sf, STREAMFILE* sf_acb, VGMSTREAM* vgmstream, int waveid);
 
@@ -18,6 +19,8 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
     off_t subfile_offset = 0;
     size_t subfile_size = 0;
     utf_context* utf = NULL;
+    utf_context* utf_h = NULL;
+    utf_context* utf_l = NULL;
     int total_subsongs, target_subsong = sf->stream_index;
     int subfile_id = 0;
     cpk_type_t type;
@@ -26,11 +29,12 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
 
 
     /* checks */
+    if (!is_id32be(0x00,sf, "CPK "))
+        goto fail;
     if (!check_extensions(sf, "awb"))
         goto fail;
-    if (read_u32be(0x00,sf) != 0x43504B20) /* "CPK " */
-        goto fail;
-    if (read_u32be(0x10,sf) != 0x40555446) /* "@UTF" */
+
+    if (!is_id32be(0x10,sf, "@UTF"))
         goto fail;
     /* 04: 0xFF? */
     /* 08: 0x02A0? */
@@ -39,14 +43,17 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
     /* CPK .cpk is CRI's generic file container, but here we only support CPK .awb used as
      * early audio bank, that like standard AFS2 .awb comes with .acb */
     {
-        int rows, i;
+        int rows, rows_l, rows_h, i;
         const char* name;
+        const char* name_l;
+        const char* name_h;
         const char* Tvers;
         uint32_t table_offset = 0, offset;
         uint32_t Files = 0, FilesL = 0, FilesH = 0;
         uint64_t ContentOffset = 0, ItocOffset = 0;
         uint16_t Align = 0;
         uint32_t DataL_offset = 0, DataL_size = 0, DataH_offset = 0, DataH_size = 0;
+        int id_align;
 
         /* base header */
         table_offset = 0x10;
@@ -64,7 +71,7 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
         utf_close(utf);
         utf = NULL;
 
-        if (strncmp(Tvers, "awb", 3) != 0) /* starts with "awb" + ".(version)" (SFvTK, MGS3D) or " for (version)" (ACI) */
+        if (strncmp(Tvers, "awb", 3) != 0) /* starts with "awb" + ".(version)" (SFvTK, MGS3D) or " for (version)" (ACI, Puyo) */
             goto fail;
         if (Files <= 0)
             goto fail;
@@ -103,51 +110,77 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
 
         /* DataL header */
         table_offset = DataL_offset;
-        utf = utf_open(sf, table_offset, &rows, &name);
-        if (!utf || strcmp(name, "CpkItocL") != 0 || rows != FilesL)
+        utf_l = utf_open(sf, table_offset, &rows_l, &name_l);
+        if (!utf_l || strcmp(name_l, "CpkItocL") != 0 || rows_l != FilesL)
             goto fail;
 
-        for (i = 0; i < rows; i++) {
+        /* DataH header */
+        table_offset = DataH_offset;
+        utf_h = utf_open(sf, table_offset, &rows_h, &name_h);
+        if (!utf_h || strcmp(name_h, "CpkItocH") != 0 || rows_h != FilesH)
+            goto fail;
+
+
+        /* rarely ID doesn't start at 0, adjust values [Puyo Puyo 20th Anniversary (3DS)-3DS_manzai_voice] */
+        id_align = 0;
+        {
+            uint16_t ID_l = 0;
+            uint16_t ID_h = 0;
+
+            /* use lower as base, one table may not exist */
+            utf_query_u16(utf_l, 0, "ID", &ID_l);
+            utf_query_u16(utf_h, 0, "ID", &ID_h);
+            if (rows_l > 0 && rows_h > 0) {
+                if (ID_l > 0 && ID_h > 0) /* one is 0 = no adjust needed */
+                    id_align = ID_l < ID_h ? ID_l : ID_h;
+            }
+            else if (rows_l) {
+                id_align = ID_l;
+            }
+            else if (rows_h) {
+                id_align = ID_h;
+            }
+        }
+
+        /* save DataL sizes */
+        for (i = 0; i < rows_l; i++) {
             uint16_t ID = 0;
             uint16_t FileSize, ExtractSize;
 
-            if (!utf_query_u16(utf, i, "ID", &ID) ||
-                !utf_query_u16(utf, i, "FileSize", &FileSize) ||
-                !utf_query_u16(utf, i, "ExtractSize", &ExtractSize))
+            if (!utf_query_u16(utf_l, i, "ID", &ID) ||
+                !utf_query_u16(utf_l, i, "FileSize", &FileSize) ||
+                !utf_query_u16(utf_l, i, "ExtractSize", &ExtractSize))
                 goto fail;
 
+            ID -= id_align;
             if (ID >= Files || FileSize != ExtractSize || sizes[ID])
                 goto fail;
 
             sizes[ID] = FileSize;
         }
 
-        utf_close(utf);
-        utf = NULL;
-
-        /* DataR header */
-        table_offset = DataH_offset;
-        utf = utf_open(sf, table_offset, &rows, &name);
-        if (!utf || strcmp(name, "CpkItocH") != 0 || rows != FilesH)
-            goto fail;
-
-        for (i = 0; i < rows; i++) {
+        /* save DataH sizes */
+        for (i = 0; i < rows_h; i++) {
             uint16_t ID = 0;
             uint32_t FileSize, ExtractSize;
 
-            if (!utf_query_u16(utf, i, "ID", &ID) ||
-                !utf_query_u32(utf, i, "FileSize", &FileSize) ||
-                !utf_query_u32(utf, i, "ExtractSize", &ExtractSize))
+            if (!utf_query_u16(utf_h, i, "ID", &ID) ||
+                !utf_query_u32(utf_h, i, "FileSize", &FileSize) ||
+                !utf_query_u32(utf_h, i, "ExtractSize", &ExtractSize))
                 goto fail;
 
+            ID -= id_align;
             if (ID >= Files || FileSize != ExtractSize || sizes[ID])
                 goto fail;
 
             sizes[ID] = FileSize;
         }
 
-        utf_close(utf);
-        utf = NULL;
+        utf_close(utf_l);
+        utf_l = NULL;
+
+        utf_close(utf_h);
+        utf_h = NULL;
 
 
         /* find actual offset */
@@ -155,7 +188,7 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
         for (i = 0; i < Files; i++) {
             uint32_t size = sizes[i];
             if (i + 1 == target_subsong) {
-                subfile_id = i;
+                subfile_id = i + id_align;
                 subfile_offset = offset;
                 subfile_size = size;
                 break;
@@ -165,7 +198,7 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
             if (Align && (offset % Align))
                 offset += Align - (offset % Align);
         }
-        
+
         free(sizes);
         sizes = NULL;
     }
@@ -176,13 +209,17 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
     //;VGM_LOG("CPK: subfile offset=%lx + %x, id=%i\n", subfile_offset, subfile_size, subfile_id);
 
 
-    if ((read_u32be(subfile_offset,sf) & 0x7f7f7f7f) == 0x48434100) { /* "HCA\0" */
+    if ((read_u32be(subfile_offset,sf) & 0x7f7f7f7f) == get_id32be("HCA\0")) {
         type = HCA;
         extension = "hca";
     }
-    else if (read_u32be(subfile_offset,sf) == 0x43574156) { /* "CWAV" */
+    else if (is_id32be(subfile_offset,sf, "CWAV")) {
         type = CWAV;
         extension = "bcwav";
+    }
+    else if (read_u16be(subfile_offset, sf) == 0x8000) {
+        type = ADX;
+        extension = "adx";
     }
     else {
         goto fail;
@@ -197,7 +234,11 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
             if (!vgmstream) goto fail;
             break;
         case CWAV: /* Metal Gear Solid: Snake Eater 3D (3DS) */
-            vgmstream = init_vgmstream_rwsd(temp_sf);
+            vgmstream = init_vgmstream_bcwav(temp_sf);
+            if (!vgmstream) goto fail;
+            break;
+        case ADX: /* Sonic Generations (3DS) */
+            vgmstream = init_vgmstream_adx(temp_sf);
             if (!vgmstream) goto fail;
             break;
         default:
@@ -215,6 +256,8 @@ VGMSTREAM* init_vgmstream_cpk_memory(STREAMFILE* sf, STREAMFILE* sf_acb) {
 fail:
     free(sizes);
     utf_close(utf);
+    utf_close(utf_l);
+    utf_close(utf_h);
     close_streamfile(temp_sf);
     close_vgmstream(vgmstream);
     return NULL;
@@ -222,6 +265,7 @@ fail:
 
 static void load_cpk_name(STREAMFILE* sf, STREAMFILE* sf_acb, VGMSTREAM* vgmstream, int waveid) {
     int is_memory = (sf_acb != NULL);
+    int port = -1; /* cpk has no port numbers */
 
     /* .acb is passed when loading memory .awb inside .acb */
     if (!is_memory) {
@@ -237,12 +281,12 @@ static void load_cpk_name(STREAMFILE* sf, STREAMFILE* sf_acb, VGMSTREAM* vgmstre
         if (!sf_acb)
             return;
 
-		/* companion .acb probably loaded */
-        load_acb_wave_name(sf_acb, vgmstream, waveid, is_memory);
+        /* companion .acb probably loaded */
+        load_acb_wave_info(sf_acb, vgmstream, waveid, port, is_memory, 0);
 
         close_streamfile(sf_acb);
     }
     else {
-        load_acb_wave_name(sf_acb, vgmstream, waveid, is_memory);
+        load_acb_wave_info(sf_acb, vgmstream, waveid, port, is_memory, 0);
     }
 }

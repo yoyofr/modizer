@@ -1,8 +1,9 @@
 #include "meta.h"
 #include "../coding/coding.h"
+#include "../util/chunks.h"
 
 
-static int get_subsongs(STREAMFILE* sf, off_t fsb5_offset, size_t fsb5_size);
+static int get_subsongs(STREAMFILE* sf, uint32_t fsb5_offset, uint32_t fsb5_size);
 
 /* FEV+FSB5 container [Just Cause 3 (PC), Shantae: Half-Genie Hero (Switch)] */
 VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
@@ -16,13 +17,14 @@ VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
 
 
     /* checks */
-    if (!check_extensions(sf, "bank"))
-        goto fail;
+    if (!is_id32be(0x00,sf, "RIFF"))
+        return NULL;
+    if (!is_id32be(0x08,sf, "FEV "))
+        return NULL;
 
-    if (read_u32be(0x00,sf) != 0x52494646) /* "RIFF" */
-        goto fail;
-    if (read_u32be(0x08,sf) != 0x46455620) /* "FEV " */
-        goto fail;
+    if (!check_extensions(sf, "bank"))
+        return NULL;
+
     version = read_u32le(0x14,sf); /* newer FEV have some kind of sub-version at 0x18 */
 
     /* .fev is an event format referencing various external .fsb, but FMOD can bake .fev and .fsb to
@@ -86,7 +88,7 @@ VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
 
         /* 0x00: unknown (chunk version? ex LE: 0x00080003, 0x00080005) */
         banks = (bank_size - 0x04) / entry_size;
-        
+
         /* multiple banks is possible but rare [Hades (Switch), Guacamelee 2 (Switch)],
          * must map bank (global) subsong to FSB (internal) subsong */
 
@@ -97,11 +99,13 @@ VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
         total_subsongs = 0;
         for (i = 0; i < banks; i++) {
             //TODO: fsb5_size fails for v0x28< + encrypted, but only used with multibanks = unlikely
-            off_t fsb5_offset  = read_u32le(bank_offset + 0x04 + entry_size*i + 0x00,sf);
-            size_t fsb5_size   = read_u32le(bank_offset+0x08 + entry_size*i,sf);
+            uint32_t fsb5_offset  = read_u32le(bank_offset + 0x04 + entry_size*i + 0x00,sf);
+            uint32_t fsb5_size   = read_u32le(bank_offset + 0x08 + entry_size*i,sf);
             int fsb5_subsongs = get_subsongs(sf, fsb5_offset, fsb5_size);
-            if (!fsb5_subsongs)
+            if (!fsb5_subsongs) {
+                vgm_logi("FSB: couldn't load bank %i at %x (encrypted?)\n", i, fsb5_offset);
                 goto fail;
+            }
 
             /* target in range */
             if (target_subsong >= total_subsongs + 1 && target_subsong < total_subsongs + 1 + fsb5_subsongs) {
@@ -128,7 +132,7 @@ VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
         }
     }
 
-	//;VGM_LOG("FSB5 FEV: offset=%lx, size=%x\n", subfile_offset,subfile_size);
+    //;VGM_LOG("FSB5 FEV: offset=%lx, size=%x\n", subfile_offset,subfile_size);
 
     temp_sf = setup_subfile_streamfile(sf, subfile_offset,subfile_size, "fsb");
     if (!temp_sf) goto fail;
@@ -138,7 +142,10 @@ VGMSTREAM* init_vgmstream_fsb5_fev_bank(STREAMFILE* sf) {
     vgmstream = (read_u32be(0x00, temp_sf) == 0x46534235) ? /* "FSB5" (better flag?)*/
         init_vgmstream_fsb5(temp_sf) :
         init_vgmstream_fsb_encrypted(temp_sf);
-    if (!vgmstream) goto fail;
+    if (!vgmstream) {
+        vgm_logi("FSB: couldn't load bank (encrypted?)\n");
+        goto fail;
+    }
 
     vgmstream->stream_index = sf->stream_index; //target_subsong; /* 0-index matters */
     vgmstream->num_streams = total_subsongs;
@@ -152,14 +159,13 @@ fail:
     return NULL;
 }
 
-static int get_subsongs(STREAMFILE* sf, off_t fsb5_offset, size_t fsb5_size) {
+static int get_subsongs(STREAMFILE* sf, uint32_t fsb5_offset, uint32_t fsb5_size) {
     VGMSTREAM* vgmstream = NULL;
     STREAMFILE* temp_sf = NULL;
     int subsongs = 0;
 
-
     /* standard */
-    if (read_u32be(fsb5_offset, sf) == 0x46534235) { /* FSB5 */
+    if (is_id32be(fsb5_offset, sf, "FSB5")) {
         return read_s32le(fsb5_offset + 0x08,sf);
     }
 
@@ -167,6 +173,7 @@ static int get_subsongs(STREAMFILE* sf, off_t fsb5_offset, size_t fsb5_size) {
     temp_sf = setup_subfile_streamfile(sf, fsb5_offset, fsb5_size, "fsb");
     if (!temp_sf) goto end;
 
+    temp_sf->stream_index = 0;
     vgmstream = init_vgmstream_fsb_encrypted(temp_sf);
     if (!vgmstream) goto end;
 

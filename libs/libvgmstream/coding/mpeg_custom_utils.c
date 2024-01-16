@@ -51,6 +51,7 @@ int mpeg_custom_setup_init_default(STREAMFILE* sf, off_t start_offset, mpeg_code
             }
             break;
 
+        //todo simplify/unify XVAG/P3D/SCD/LYN and just feed arbitrary chunks to the decoder
         case MPEG_P3D:
         case MPEG_SCD:
             if (data->config.interleave <= 0)
@@ -61,7 +62,8 @@ int mpeg_custom_setup_init_default(STREAMFILE* sf, off_t start_offset, mpeg_code
             if (data->config.interleave <= 0)
                 goto fail; /* needs external fixed size */
             data->default_buffer_size = data->config.interleave;
-            //todo simplify/unify XVAG/P3D/SCD/LYN and just feed arbitrary chunks to the decoder
+            if (data->default_buffer_size < data->config.interleave_last)
+                data->default_buffer_size = data->config.interleave_last;
             break;
 
         case MPEG_STANDARD:
@@ -85,8 +87,10 @@ int mpeg_custom_setup_init_default(STREAMFILE* sf, off_t start_offset, mpeg_code
         //case MPEG_P3D: data->skip_samples = info.frame_samples; break; /* matches Radical ADPCM (PC) output */
 
         /* FSBs (with FMOD DLLs) don't seem to need it. Particularly a few games (all from Wayforward?)
-         * contain audible garbage at the beginning, but it's actually there in-game too */
-        //case MPEG_FSB: data->skip_samples = 0; break;
+         * contain audible garbage at the beginning, but it's actually there in-game too.
+         * Games doing full loops also must not have delay (reuses mpeg state on loop) */
+        case MPEG_FSB:
+            data->skip_samples = 0; break;
 
         case MPEG_XVAG: /* set in header and needed for gapless looping */
             data->skip_samples = data->config.skip_samples; break;
@@ -179,7 +183,6 @@ int mpeg_custom_parse_frame_default(VGMSTREAMCHANNEL* stream, mpeg_codec_data* d
 
         case MPEG_P3D: /* fixed interleave, not frame-aligned (ie. blocks may end/start in part of a frame) */
         case MPEG_SCD:
-        case MPEG_LYN:
             current_interleave = data->config.interleave;
 
             /* check if current interleave block is short */
@@ -195,6 +198,23 @@ int mpeg_custom_parse_frame_default(VGMSTREAMCHANNEL* stream, mpeg_codec_data* d
             current_interleave_post = current_interleave*(data->streams_size-1) - current_interleave_pre;
 
             current_data_size = current_interleave;
+            break;
+
+        case MPEG_LYN:
+            /* after N interleaves last block is bigger */
+            if (ms->current_size_count < data->config.max_chunks)
+                current_interleave = data->config.interleave;
+            else if (ms->current_size_count == data->config.max_chunks)
+                current_interleave = data->config.interleave_last;
+            else
+                goto fail;
+
+            current_interleave_pre  = current_interleave*num_stream;
+            current_interleave_post = current_interleave*(data->streams_size-1) - current_interleave_pre;
+            //VGM_LOG("o=%lx, %i: %x, %x, %x, %x\n", stream->offset, num_stream, ms->current_size_count, current_interleave, current_interleave_pre, current_interleave_post );
+
+            current_data_size = current_interleave;
+            ms->current_size_count++;
             break;
 
         default: /* standard frames (CBR or VBR) */
@@ -232,7 +252,9 @@ int mpeg_custom_parse_frame_default(VGMSTREAMCHANNEL* stream, mpeg_codec_data* d
 fail:
     return 0;
 }
+#endif
 
+//TODO: move to a better place
 
 /*****************/
 /* FRAME HELPERS */
@@ -318,6 +340,37 @@ int mpeg_get_frame_info(STREAMFILE* sf, off_t offset, mpeg_frame_info* info) {
     return mpeg_get_frame_info_h(header, info);
 }
 
+
+uint32_t mpeg_get_tag_size(STREAMFILE* sf, uint32_t offset, uint32_t header) {
+    if (!header)
+        header = read_u32be(offset+0x00, sf);
+
+    /* skip ID3v2 */
+    if ((header & 0xFFFFFF00) == get_id32be("ID3\0")) {
+        size_t frame_size = 0;
+        uint8_t flags = read_u8(offset+0x05, sf);
+        /* this is how it's officially read :/ */
+        frame_size += read_u8(offset+0x06, sf) << 21;
+        frame_size += read_u8(offset+0x07, sf) << 14;
+        frame_size += read_u8(offset+0x08, sf) << 7;
+        frame_size += read_u8(offset+0x09, sf) << 0;
+        frame_size += 0x0a;
+        if (flags & 0x10) /* footer? */
+            frame_size += 0x0a;
+
+        return frame_size;
+        
+    }
+
+    /* skip ID3v1 */
+    if ((header & 0xFFFFFF00) == get_id32be("TAG\0")) {
+        ;VGM_LOG("MPEG: ID3v1 at %x\n", offset);
+        return 0x80;
+    }
+
+    return 0;
+}
+
 size_t mpeg_get_samples(STREAMFILE* sf, off_t start_offset, size_t bytes) {
     off_t offset = start_offset;
     off_t max_offset = start_offset + bytes;
@@ -333,32 +386,13 @@ size_t mpeg_get_samples(STREAMFILE* sf, off_t start_offset, size_t bytes) {
     /* MPEG may use VBR so must read all frames */
     while (offset < max_offset) {
         uint32_t header = read_u32be(offset+0x00, sf);
-
-        /* skip ID3v2 */
-        if ((header & 0xFFFFFF00) == 0x49443300) { /* "ID3\0" */
-            size_t frame_size = 0;
-            uint8_t flags = read_u8(offset+0x05, sf);
-            /* this is how it's officially read :/ */
-            frame_size += read_u8(offset+0x06, sf) << 21;
-            frame_size += read_u8(offset+0x07, sf) << 14;
-            frame_size += read_u8(offset+0x08, sf) << 7;
-            frame_size += read_u8(offset+0x09, sf) << 0;
-            frame_size += 0x0a;
-            if (flags & 0x10) /* footer? */
-                frame_size += 0x0a;
-
-            offset += frame_size;
+        size_t tag_size = mpeg_get_tag_size(sf, offset, header);
+        if (tag_size) {
+            offset += tag_size;
             continue;
         }
 
-        /* skip ID3v1 */
-        if ((header & 0xFFFFFF00) == 0x54414700) { /* "TAG\0" */
-            ;VGM_LOG("MPEG: ID3v1 at %lx\n", offset);
-            offset += 0x80;
-            continue;
-        }
-
-        /* regular frame */
+        /* regular frame (assumed) */
         if (!mpeg_get_frame_info_h(header, &info)) {
             VGM_LOG("MPEG: unknown frame at %lx\n", offset);
             break;
@@ -385,28 +419,31 @@ size_t mpeg_get_samples(STREAMFILE* sf, off_t start_offset, size_t bytes) {
                 }
                 /* other flags indicate seek table and stuff */
 
-                /* vendor specific */
-                if (info.frame_size > xing_offset + 0x78 + 0x24 &&
-                        read_u32be(offset + xing_offset + 0x78, sf) == 0x4C414D45) { /* "LAME" */
-                    if (info.layer == 3) {
-                        uint32_t delays = read_u32be(offset + xing_offset + 0x8C, sf);
-                        encoder_delay   = ((delays >> 12) & 0xFFF);
-                        encoder_padding =  ((delays >> 0) & 0xFFF);
+                ;VGM_LOG("MPEG: found Xing header\n");
 
-                        encoder_delay += (528 + 1); /* implicit MDCT decoder delay (seen in LAME source) */
-                        if (encoder_padding > 528 + 1)
-                            encoder_padding -= (528 + 1);
-                    }
-                    else {
-                        encoder_delay = 240 + 1;
+                /* vendor specific */
+                if (info.frame_size > xing_offset + 0x78 + 0x24) {
+                    uint32_t sub_id = read_u32be(offset + xing_offset + 0x78, sf);
+                    if (sub_id == get_id32be("LAME") || /* LAME */
+                        sub_id == get_id32be("Lavc")) { /* FFmpeg */
+                        if (info.layer == 3) {
+                            uint32_t delays = read_u32be(offset + xing_offset + 0x8C, sf);
+                            encoder_delay   = ((delays >> 12) & 0xFFF);
+                            encoder_padding =  ((delays >> 0) & 0xFFF);
+
+                            encoder_delay += (528 + 1); /* implicit MDCT decoder delay (seen in LAME source) */
+                            if (encoder_padding > 528 + 1)
+                                encoder_padding -= (528 + 1);
+                        }
+                        else {
+                            encoder_delay = 240 + 1;
+                        }
                     }
 
                     /* replay gain and stuff */
                 }
 
                 /* there is also "iTunes" vendor with no apparent extra info, iTunes delays are in "iTunSMPB" ID3 tag */
-
-                ;VGM_LOG("MPEG: found Xing header\n");
                 break; /* we got samples */
              }
         }
@@ -431,7 +468,7 @@ size_t mpeg_get_samples(STREAMFILE* sf, off_t start_offset, size_t bytes) {
 
 /* variation of the above, for clean streams = no ID3/VBR headers
  * (maybe should be fused in a single thing with config, API is kinda messy too) */
-int32_t mpeg_get_samples_clean(STREAMFILE *sf, off_t start, size_t size, size_t* p_loop_start, size_t* p_loop_end, int is_vbr) {
+int32_t mpeg_get_samples_clean(STREAMFILE* sf, off_t start, size_t size, uint32_t* p_loop_start, uint32_t* p_loop_end, int is_vbr) {
     mpeg_frame_info info;
     off_t offset = start;
     int32_t num_samples = 0, loop_start = 0, loop_end = 0;
@@ -475,5 +512,3 @@ fail:
     VGM_LOG("MPEG: sample reader failed at %lx\n", offset);
     return 0;
 }
-
-#endif

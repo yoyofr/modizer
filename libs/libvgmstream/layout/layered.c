@@ -1,8 +1,8 @@
 #include "layout.h"
 #include "../vgmstream.h"
-#include "../decode.h"
-#include "../mixing.h"
-#include "../plugins.h"
+#include "../base/decode.h"
+#include "../base/mixing.h"
+#include "../base/plugins.h"
 
 #define VGMSTREAM_MAX_LAYERS 255
 #define VGMSTREAM_LAYER_SAMPLE_BUFFER 8192
@@ -25,12 +25,12 @@ void render_vgmstream_layered(sample_t* outbuf, int32_t sample_count, VGMSTREAM*
         int layer, ch;
 
 
-        if (vgmstream->loop_flag && vgmstream_do_loop(vgmstream)) {
+        if (vgmstream->loop_flag && decode_do_loop(vgmstream)) {
             /* handle looping (loop_layout has been called below) */
             continue;
         }
 
-        samples_to_do = get_vgmstream_samples_to_do(samples_this_block, samples_per_frame, vgmstream);
+        samples_to_do = decode_get_samples_to_do(samples_this_block, samples_per_frame, vgmstream);
         if (samples_to_do > sample_count - samples_written)
             samples_to_do = sample_count - samples_written;
 
@@ -105,7 +105,7 @@ void loop_layout_layered(VGMSTREAM* vgmstream, int32_t loop_sample) {
              * calls to do_loop work (used in seek_vgmstream) */
             if (data->layers[layer]->loop_flag) { /* mixing looping and non-looping layers is allowed */
                 data->layers[layer]->current_sample = data->layers[layer]->loop_end_sample; /* forces do loop */
-                vgmstream_do_loop(data->layers[layer]); /* guaranteed to work should loop_layout be called */
+                decode_do_loop(data->layers[layer]); /* guaranteed to work should loop_layout be called */
             }
             else {
                 /* needed when mixing non-looping layers and installing loop externally */
@@ -240,6 +240,7 @@ VGMSTREAM* allocate_layered_vgmstream(layered_layout_data* data) {
     int i, channels, loop_flag, sample_rate, external_looping;
     int32_t num_samples, loop_start, loop_end;
     int delta = 1024;
+    coding_t coding_type = data->layers[0]->coding_type;
 
     /* get data */
     channels = data->output_channels;
@@ -250,6 +251,7 @@ VGMSTREAM* allocate_layered_vgmstream(layered_layout_data* data) {
     loop_end = data->layers[0]->loop_end_sample;
     external_looping = 0;
     sample_rate = 0;
+
     for (i = 0; i < data->layer_count; i++) {
         int32_t layer_samples = vgmstream_get_samples(data->layers[i]);
         int layer_loop = data->layers[i]->loop_flag;
@@ -280,6 +282,9 @@ VGMSTREAM* allocate_layered_vgmstream(layered_layout_data* data) {
 
         if (sample_rate < layer_rate)
             sample_rate = layer_rate;
+
+        if (coding_type == coding_SILENCE)
+            coding_type = data->layers[i]->coding_type;
     }
 
     data->external_looping = external_looping;
@@ -289,12 +294,12 @@ VGMSTREAM* allocate_layered_vgmstream(layered_layout_data* data) {
     vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
 
+    vgmstream->meta_type = data->layers[0]->meta_type;
     vgmstream->sample_rate = sample_rate;
     vgmstream->num_samples = num_samples;
     vgmstream->loop_start_sample = loop_start;
     vgmstream->loop_end_sample = loop_end;
-    vgmstream->meta_type = data->layers[0]->meta_type; /* info */
-    vgmstream->coding_type = data->layers[0]->coding_type; /* info */
+    vgmstream->coding_type = coding_type;
 
     vgmstream->layout_type = layout_layered;
     vgmstream->layout_data = data;

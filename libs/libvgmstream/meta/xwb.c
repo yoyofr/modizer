@@ -32,24 +32,24 @@ typedef struct {
     int version;
 
     /* segments */
-    off_t base_offset;
-    size_t base_size;
-    off_t entry_offset;
-    size_t entry_size;
-    off_t names_offset;
-    size_t names_size;
-    size_t names_entry_size;
-    off_t extra_offset;
-    size_t extra_size;
-    off_t data_offset;
-    size_t data_size;
+    uint32_t base_offset;
+    uint32_t base_size;
+    uint32_t entry_offset;
+    uint32_t entry_size;
+    uint32_t names_offset;
+    uint32_t names_size;
+    uint32_t names_entry_size;
+    uint32_t extra_offset;
+    uint32_t extra_size;
+    uint32_t data_offset;
+    uint32_t data_size;
 
-    off_t stream_offset;
-    size_t stream_size;
+    uint32_t stream_offset;
+    uint32_t stream_size;
 
     uint32_t base_flags;
-    size_t entry_elem_size;
-    size_t entry_alignment;
+    uint32_t entry_elem_size;
+    uint32_t entry_alignment;
     int total_subsongs;
 
     uint32_t entry_flags;
@@ -89,16 +89,19 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
 
 
     /* checks */
-    /* .xwb: standard
-     * .xna: Touhou Makukasai ~ Fantasy Danmaku Festival (PC)
-     * (extensionless): Ikaruga (X360/PC), Grabbed by the Ghoulies (Xbox) */
-    if (!check_extensions(sf,"xwb,xna,"))
-        goto fail;
-    if ((read_u32be(0x00,sf) != 0x57424E44) &&    /* "WBND" (LE) */
-        (read_u32be(0x00,sf) != 0x444E4257))      /* "DNBW" (BE) */
+    if (!is_id32be(0x00,sf, "WBND") &&
+        !is_id32le(0x00,sf, "WBND")) /* X360 */
         goto fail;
 
-    xwb.little_endian = read_u32be(0x00,sf) == 0x57424E44; /* WBND */
+    /* .xwb: standard
+     * .xna: Touhou Makukasai ~ Fantasy Danmaku Festival (PC)
+     * (extensionless): Ikaruga (X360/PC), Grabbed by the Ghoulies (Xbox)
+     * .hwb: Burnout Revenge (X360)
+     * .bd: Fatal Frame 2 (Xbox) */
+    if (!check_extensions(sf,"xwb,xna,hwb,bd,"))
+        goto fail;
+
+    xwb.little_endian = is_id32be(0x00,sf, "WBND"); /* Xbox/PC */
     if (xwb.little_endian) {
         read_u32 = read_u32le;
         read_s32 = read_s32le;
@@ -241,10 +244,12 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
         uint32_t entry_info = read_u32(offset+0x00, sf);
         if (xwb.version <= XACT1_1_MAX) {
             xwb.entry_flags = entry_info;
-        } else {
+        }
+        else {
             xwb.entry_flags = (entry_info) & 0xF; /*4b*/
             xwb.num_samples = (entry_info >> 4) & 0x0FFFFFFF; /*28b*/
         }
+
         xwb.format          = read_u32(offset+0x04, sf);
         xwb.stream_offset   = xwb.data_offset + read_u32(offset+0x08, sf);
         xwb.stream_size     = read_u32(offset+0x0c, sf);
@@ -351,11 +356,17 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
         /* Stardew Valley (Switch), Skulls of the Shogun (Switch): full interleaved DSPs (including headers) */
         xwb.codec = DSP;
     }
-    else if (xwb.version == XACT3_0_MAX && xwb.codec == XMA2
-            && xwb.bits_per_sample == 0x01 && xwb.block_align == 0x04
-            && xwb.data_size == 0x4e0a1000) { /* some kind of id? */
-        /* Stardew Valley (Vita), standard RIFF with ATRAC9 */
+    else if (xwb.version == XACT3_0_MAX && (xwb.codec == XMA2 || xwb.codec == PCM)
+            && xwb.bits_per_sample == 0x01 && xwb.block_align == 0x02*xwb.channels
+            && is_id32be(xwb.stream_offset, sf, "RIFF") /* clashes with XMA2 */
+            /*&& xwb.data_size == 0x4e0a1000*/) { /* some kind of id in Stardew Valley? */
+        /* Stardew Valley (Vita), Owlboy (PS4): standard RIFF with ATRAC9 */
         xwb.codec = ATRAC9_RIFF;
+    }
+    else if (xwb.version == XACT1_1_MAX && xwb.codec == WMA
+        && read_u32be(xwb.stream_offset, sf) != 0x3026B275) { /* WMA/asf tag */
+        /* Jumper: Griffin's Story (X360): partial hijack (LE on X360 and early version + XMA2) */
+        xwb.codec = XMA2;
     }
 
 
@@ -396,7 +407,8 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
         xwb.loop_start_sample = msadpcm_bytes_to_samples(xwb.loop_start, block_size, xwb.channels);
         xwb.loop_end_sample   = msadpcm_bytes_to_samples(xwb.loop_start + xwb.loop_end, block_size, xwb.channels);
     }
-    else if (xwb.version <= XACT2_1_MAX && (xwb.codec == XMA1 || xwb.codec == XMA2) && xwb.loop_flag) {
+    else if ((xwb.version <= XACT2_1_MAX && (xwb.codec == XMA1 || xwb.codec == XMA2) && xwb.loop_flag)
+                || (xwb.version == XACT_TECHLAND && xwb.codec == XMA2)) {
         /* v38: byte offset, v40+: sample offset, v39: ? */
         /* need to manually find sample offsets, thanks to Microsoft's dumb headers */
         ms_sample_data msd = {0};
@@ -419,6 +431,12 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
         /* if provided, xwb.num_samples is equal to msd.num_samples after proper adjustments (+ 128 - start_skip - end_skip) */
         xwb.fix_xma_loop_samples = 1;
         xwb.fix_xma_num_samples = 0;
+
+        /* Techland's XMA in tool_version 0x2a (not 0x2c?) seems to use (entry_info >> 1) num_samples 
+         * for music banks, but not sfx [Nail'd (X360)-0x2a, Dead Island (X360)-0x2c] */
+        if (xwb.version == XACT_TECHLAND) {
+            xwb.num_samples = 0;
+        }
 
         /* for XWB v22 (and below?) this seems normal [Project Gotham Racing (X360)] */
         if (xwb.num_samples == 0) {
@@ -472,11 +490,7 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
 
 #ifdef VGM_USE_FFMPEG
         case XMA1: { /* Kameo (X360), Table Tennis (X360) */
-            uint8_t buf[0x100];
-            int bytes;
-
-            bytes = ffmpeg_make_riff_xma1(buf, sizeof(buf), vgmstream->num_samples, xwb.stream_size, vgmstream->channels, vgmstream->sample_rate, 0);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf, bytes, xwb.stream_offset,xwb.stream_size);
+            vgmstream->codec_data = init_ffmpeg_xma1_raw(sf, xwb.stream_offset, xwb.stream_size, vgmstream->channels, vgmstream->sample_rate, 0);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
@@ -493,14 +507,9 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
         }
 
         case XMA2: { /* Blue Dragon (X360) */
-            uint8_t buf[0x100];
-            int bytes, block_size, block_count;
+            int block_size = 0x10000; /* XACT default */
 
-            block_size = 0x10000; /* XACT default */
-            block_count = xwb.stream_size / block_size + (xwb.stream_size % block_size ? 1 : 0);
-
-            bytes = ffmpeg_make_riff_xma2(buf, sizeof(buf), vgmstream->num_samples, xwb.stream_size, vgmstream->channels, vgmstream->sample_rate, block_count, block_size);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf, bytes, xwb.stream_offset,xwb.stream_size);
+            vgmstream->codec_data = init_ffmpeg_xma2_raw(sf, xwb.stream_offset, xwb.stream_size, vgmstream->num_samples, vgmstream->channels, vgmstream->sample_rate, block_size, 0);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
@@ -520,13 +529,12 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
 
             /* no wma_bytes_to_samples, this should be ok */
             if (!vgmstream->num_samples)
-                vgmstream->num_samples = (int32_t)ffmpeg_data->totalSamples;
+                vgmstream->num_samples = ffmpeg_get_samples(ffmpeg_data);
             break;
         }
 
         case XWMA: { /* WMAudio2 (WMA v2): BlazBlue (X360), WMAudio3 (WMA Pro): Bullet Witch (PC) voices */
-            uint8_t buf[0x100];
-            int bytes, bps_index, block_align, block_index, avg_bps, wma_codec;
+            int bps_index, block_align, block_index, avg_bps, wma_codec;
 
             bps_index = (xwb.block_align >> 5);  /* upper 3b bytes-per-second index (docs say 2b+6b but are wrong) */
             block_index =  (xwb.block_align) & 0x1F; /*lower 5b block alignment index */
@@ -537,8 +545,7 @@ VGMSTREAM* init_vgmstream_xwb(STREAMFILE* sf) {
             block_align = wma_block_align_index[block_index];
             wma_codec = xwb.bits_per_sample ? 0x162 : 0x161; /* 0=WMAudio2, 1=WMAudio3 */
 
-            bytes = ffmpeg_make_riff_xwma(buf, sizeof(buf), wma_codec, xwb.stream_size, vgmstream->channels, vgmstream->sample_rate, avg_bps, block_align);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf, bytes, xwb.stream_offset,xwb.stream_size);
+            vgmstream->codec_data = init_ffmpeg_xwma(sf, xwb.stream_offset, xwb.stream_size, wma_codec, vgmstream->channels, vgmstream->sample_rate, avg_bps, block_align);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;

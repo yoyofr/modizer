@@ -3,8 +3,8 @@
 
 
 /* Cstr - from Namco NuSound v1 games [Mr. Driller (GC), Star Fox Assault (GC), Donkey Konga (GC)] */
-VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
-    VGMSTREAM * vgmstream = NULL;
+VGMSTREAM* init_vgmstream_cstr(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
     off_t start_offset;
     size_t interleave, first_skip;
     int loop_flag, channels, sample_rate;
@@ -12,11 +12,12 @@ VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
 
 
     /* checks */
+    if (!is_id32be(0x00,sf, "Cstr"))
+        goto fail;
+
     if (!check_extensions(sf,"dsp"))
         goto fail;
 
-    if (read_u32be(0x00,sf) != 0x43737472) /* "Cstr" */
-        goto fail;
 
     /* 0x04: version (0x0066 = 0.66 as seen in nus_config .txt) */
     interleave = read_u16be(0x06, sf);
@@ -31,7 +32,7 @@ VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
 
     /* next is DSP header, with some oddities:
      * - loop flag isn't always set vs Cstr's flag (won't have DSP loop_ps/etc)
-     * - loop start nibbles can be wrong even with loop flag set
+     * - loop start can be wrong even with loop flag set; rarely matches Cstr's loop_start [SF Assault (GC)]
      * - wonky loop_ps as a result (other fields agree between channels) */
 
     num_samples = read_s32be(0x20 + 0x00, sf);
@@ -44,7 +45,6 @@ VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
     loop_flag = (loop_start >= 0);
     start_offset = 0x20 + 0x60 * channels + first_skip;
 
-#if 1
     /* nonlooped tracks may not set first skip for no reason, but can be tested with initial p/s */
     if (!loop_flag && channels == 2 && first_skip == 0) {
         while (first_skip < 0x800) {
@@ -59,10 +59,8 @@ VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
         else
             start_offset += first_skip;
     }
-    if (first_skip > 0 && loop_start >= (interleave - first_skip))
-        loop_start  = loop_start - (interleave - first_skip);
-#endif
-    loop_start = loop_start * 2;
+
+    loop_start = loop_start * channels;
 
     /* Mr. Driller oddity, unreliable loop flag */
     if (loop_end == num_nibbles) {
@@ -97,7 +95,7 @@ VGMSTREAM * init_vgmstream_cstr(STREAMFILE* sf) {
     vgmstream->interleave_first_block_size = interleave - first_skip;
     vgmstream->interleave_first_skip = first_skip;
     vgmstream->meta_type = meta_DSP_CSTR;
-VGM_LOG("1=%x, =%x\n",vgmstream->interleave_first_block_size, vgmstream->interleave_first_skip);
+
     dsp_read_coefs_be(vgmstream, sf, 0x3c, 0x60);
 
     if (!vgmstream_open_stream(vgmstream, sf, start_offset))

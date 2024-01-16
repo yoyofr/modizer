@@ -1,68 +1,60 @@
-/*
-Wii U boot sound file for each game/app.
-*/
-
 #include "meta.h"
-#include "../util.h"
+#include "../coding/coding.h"
 
-VGMSTREAM * init_vgmstream_btsnd(STREAMFILE *streamFile) {
-	VGMSTREAM * vgmstream = NULL;
-	char filename[PATH_LIMIT];
-	int channel_count = 2;
-	int loop_flag;
-	off_t start_offset = 0x8;
+/* .btsnd - Wii U boot sound file for each game/app */
+VGMSTREAM* init_vgmstream_btsnd(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
+    int channels, loop_flag;
+    off_t start_offset, data_size;
+    int32_t num_samples, loop_start;
 
-	/* check extension, case insensitive */
-	streamFile->get_name(streamFile, filename, sizeof(filename));
-	if (strcasecmp("btsnd", filename_extension(filename))) 
-		goto fail;
-	
-	/* Checking for loop start */
-	if (read_32bitBE(0x4, streamFile) > 0)
-		loop_flag = 1;
-	else
-		loop_flag = 0;
-		
-	if (channel_count < 1) goto fail;
 
-	/* build the VGMSTREAM */
+    /* checks */
+    if (!check_extensions(sf, "btsnd"))
+        return NULL;
 
-	vgmstream = allocate_vgmstream(channel_count, loop_flag);
-	if (!vgmstream) goto fail;
+    uint32_t type = read_u32be(0x00,sf);
+    if (type == 0x00) {
+        loop_flag = 0;
+    }
+    else if (type == 0x02) {
+        loop_flag = 1;
+    }
+    else {
+        return NULL;
+    }
 
-	/* fill in the vital statistics */
-	vgmstream->sample_rate = 48000;
-	/* channels and loop flag are set by allocate_vgmstream */
-	
-	// There's probably a better way to get the sample count...
-	vgmstream->num_samples = vgmstream->loop_end_sample = (get_streamfile_size(streamFile) - 8) / 4;
-	
-	vgmstream->loop_start_sample = read_32bitBE(0x4, streamFile);
-		
-	vgmstream->coding_type = coding_PCM16BE;
-	vgmstream->layout_type = layout_interleave;
-	vgmstream->interleave_block_size = 0x2;	// Constant for this format
-	vgmstream->meta_type = meta_WIIU_BTSND;
-	
-	/* open the file for reading by each channel */
-	{
-		int i;
-		for (i = 0; i<channel_count; i++) {
-				vgmstream->ch[i].streamfile = streamFile->open(streamFile, filename,
-				STREAMFILE_DEFAULT_BUFFER_SIZE);
+    loop_start = read_s32be(0x04, sf); /* non-looping: 0 or some number lower than samples */
+    start_offset = 0x08;
+    channels = 2;
 
-			if (!vgmstream->ch[i].streamfile) goto fail;
+    /* extra checks since format is so simple */
+    data_size = get_streamfile_size(sf);
+    num_samples = pcm16_bytes_to_samples(data_size - start_offset, channels);
+    if (loop_start >= num_samples)
+        return NULL;
+    if (num_samples > 960000) /* known max reached by various games, encoder/Wii U limit? */
+        return NULL;
 
-			vgmstream->ch[i].channel_start_offset =
-				vgmstream->ch[i].offset =
-				start_offset + i*vgmstream->interleave_block_size;
-		}
-	}
 
-	return vgmstream;
+    /* build the VGMSTREAM */
+    vgmstream = allocate_vgmstream(channels, loop_flag);
+    if (!vgmstream) goto fail;
 
-	/* clean up anything we may have opened */
+    vgmstream->meta_type = meta_BTSND;
+    vgmstream->sample_rate = 48000;
+    vgmstream->num_samples = num_samples;
+    vgmstream->loop_start_sample = loop_start;
+    vgmstream->loop_end_sample = vgmstream->num_samples;
+
+    vgmstream->coding_type = coding_PCM16BE;
+    vgmstream->layout_type = layout_interleave;
+    vgmstream->interleave_block_size = 0x02;
+
+    if (!vgmstream_open_stream(vgmstream, sf, start_offset))
+        goto fail;
+    return vgmstream;
 fail:
-	if (vgmstream) close_vgmstream(vgmstream);
-	return NULL;
+    close_vgmstream(vgmstream);
+    return NULL;
 }

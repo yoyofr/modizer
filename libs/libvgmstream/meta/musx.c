@@ -1,5 +1,6 @@
 #include "meta.h"
 #include "../coding/coding.h"
+#include "../util/endianness.h"
 
 typedef enum { MFX, MFX_BANK, SFX_BANK, SBNK, FORM } musx_form;
 typedef enum { PSX, DSP, XBOX, IMA, DAT, NGCA, PCM } musx_codec;
@@ -187,15 +188,23 @@ static int parse_musx_stream(STREAMFILE* sf, musx_header* musx) {
             musx->platform = get_id32be("GC02"); /* (fake) */
         }
         else {
+            int channels = musx->channels;
             off_t offset = musx->stream_offset;
             size_t max = 0x5000;
             if (max > musx->stream_size)
                 max = musx->stream_size;
+            if (!channels)
+                channels = 2;
 
+            /* since engine seems to hardcode codecs no apparent way to detect in some cases
+             * [Sphinx and the Cursed Mummy (multi), Buffy the Vampire Slayer: Chaos Bleeds (multi)] */
             if (ps_check_format(sf, offset, max)) {
                 musx->platform = get_id32be("PS2_");
-            } else {
+            } else if (xbox_check_format(sf, offset, max, channels)) {
                 musx->platform = get_id32be("XB02"); /* (fake) */
+            }
+            else {
+                musx->platform = get_id32be("PC02"); /* (fake) */
             }
         }
     }
@@ -226,6 +235,7 @@ static int parse_musx_stream(STREAMFILE* sf, musx_header* musx) {
             break;
 
         case 0x58425F5F: /* "XB__" */
+        case 0x5842315F: /* "XB1_" */
             default_channels = 2;
             default_sample_rate = 44100;
             musx->codec = DAT;
@@ -245,7 +255,7 @@ static int parse_musx_stream(STREAMFILE* sf, musx_header* musx) {
 
         case 0x5749495F: /* "WII_" */
             default_channels = 2;
-            default_sample_rate = 44100;
+            default_sample_rate = 32000;
             musx->codec = DAT;
             break;
 
@@ -265,6 +275,12 @@ static int parse_musx_stream(STREAMFILE* sf, musx_header* musx) {
             default_channels = 2;
             default_sample_rate = 44100;
             musx->codec = DAT;
+            break;
+
+        case 0x50433032: /* "PC02" */
+            default_channels = 2;
+            default_sample_rate = 32000;
+            musx->codec = IMA;
             break;
 
         default:
@@ -307,7 +323,7 @@ static int parse_musx_stream(STREAMFILE* sf, musx_header* musx) {
             }
 
             /* other types (0x0a, 0x09) look like section/end markers, 0x06/07 only seems to exist once */
-            if (type == 0x06 || type == 0x07) {
+            if (type == 0x06 || type == 0x07) { /* loop / goto */
                 musx->loop_start = offset2;
                 musx->loop_end = offset1;
                 musx->loop_flag = 1;
@@ -361,6 +377,8 @@ fail:
     return 0;
 }
 
+//TODO: check possible info here:
+// https://sphinxandthecursedmummy.fandom.com/wiki/SFX
 static int parse_musx(STREAMFILE* sf, musx_header* musx) {
     int32_t (*read_s32)(off_t,STREAMFILE*) = NULL;
     uint32_t (*read_u32)(off_t,STREAMFILE*) = NULL;
@@ -378,7 +396,7 @@ static int parse_musx(STREAMFILE* sf, musx_header* musx) {
         case 1:     /* Athens 2004 (PS2) */
             musx->platform = 0; /* guess later */
             musx->tables_offset = 0x10;
-            musx->big_endian = guess_endianness32bit(0x10, sf);
+            musx->big_endian = guess_endian32(0x10, sf);
             musx->is_old = 1;
             break;
 
@@ -501,7 +519,8 @@ static int parse_musx(STREAMFILE* sf, musx_header* musx) {
                         case 0x44415434: /* "DAT4" */
                         case 0x44415435: /* "DAT5" */
                         case 0x44415438: /* "DAT8" */
-                            /* found on PS3/Wii (but not always?) */
+                        case 0x44415439: /* "DAT9" [Disney Infinity (X360)] */
+                            /* found on PS3/Wii/X360 (but not always?) */
                             musx->stream_size = read_u32le(0x44, sf);
                             musx->channels    = read_u32le(0x48, sf);
                             musx->sample_rate = read_u32le(0x4c, sf);
@@ -608,56 +627,80 @@ static int parse_musx(STREAMFILE* sf, musx_header* musx) {
 
         case SBNK: {
             off_t target_offset, head_offset, data_offset;
-            uint8_t codec;
+            uint8_t codec = 0;
+            uint32_t version;
 
-            /* 0x00: id */
-            /* 0x04: always 0x12? */
-            /* 0x08: file ID (same as base file) */
-            /* 0x0c: some ID? */
-
-            /* 0x10: table1 count */
-            /* 0x14: table1 offset (from here) */
-            /* 0x18: table2 count */
-            /* 0x1c: table2 offset (from here) */
-
-            /* 0x20: table3 count */
-            /* 0x24: table3 offset (from here) */
-            /* 0x28: table4 count */
-            /* 0x2c: table4 offset (from here) */
-
-            /* 0x30: table5 count (waves) */
-            /* 0x34: table5 offset (from here) */
-            /* 0x38: table6 count */
-            /* 0x3c: table6 offset (from here) */
-
-            /* 0x40: table7 count */
-            /* 0x44: table7 offset (from here) */
-            /* 0x48: data size */
-            /* 0x4c: data offset (absolute) */
-            
-            musx->tables_offset = 0x800;
-            if (!is_id32be(musx->tables_offset+0x00, sf, "SBNK"))
+            if (!is_id32be(0x800 + 0x00, sf, "SBNK"))
                 goto fail;
 
-            musx->total_subsongs = read_u32(musx->tables_offset+0x30, sf);
+            version = read_u32(0x800 + 0x04, sf);
+            if (version == 0x2A) {
+                /* - Goldeneye 007 (X360) */
+                /* 0x08: "COM " */
+                /* 0x0c: file ID (same as base file) */
+                /* 0x10: some ID? */
+                musx->tables_offset = 0x814;
+            }
+            else {
+                /* - v0x12 (all others) */
+                /* 0x08: file ID (same as base file) */
+                /* 0x0c: some ID? */
+                musx->tables_offset = 0x810;
+            }
+                
+            /* 0x00: table1 count */
+            /* 0x04: table1 offset (from here) */
+            /* 0x08: table2 count */
+            /* 0x0c: table2 offset (from here) */
+
+            /* 0x10: table3 count */
+            /* 0x14: table3 offset (from here) */
+            /* 0x18: table4 count */
+            /* 0x1c: table4 offset (from here) */
+
+            /* 0x20: table5 count (waves) */
+            /* 0x24: table5 offset (from here) */
+            /* 0x28: table6 count */
+            /* 0x2c: table6 offset (from here) */
+
+            /* 0x30: table7 count */
+            /* 0x34: table7 offset (from here) */
+            /* 0x38: data size */
+            /* 0x3c: data offset (absolute in older versions) */
+
+            musx->total_subsongs = read_u32(musx->tables_offset+0x20, sf);
             if (target_subsong == 0) target_subsong = 1;
             if (target_subsong > musx->total_subsongs || musx->total_subsongs <= 0) goto fail;
 
-            head_offset = read_u32(musx->tables_offset+0x34, sf) + musx->tables_offset + 0x34;
-            data_offset = read_u32(musx->tables_offset+0x4c, sf);
+            if (version == 0x2A) {
+                ;VGM_LOG("MUSX: unknown version format\n");
+                goto fail;
+                /* subheader is 0x10 but variable?, offset table may be table 7? 
+                  - 0x00: ID?
+                  - 0x04: samples?
+                  - 0x08: sample rate
+                  - 0x0a: codec?
+                  - 0x0b: channels
+                  - 0x0c: size?
+                */
+            }
+            else {
+                head_offset = read_u32(musx->tables_offset+0x24, sf) + musx->tables_offset + 0x24;
+                data_offset = read_u32(musx->tables_offset+0x3c, sf);
 
-            target_offset = head_offset + (target_subsong - 1)*0x1c;
-            ;VGM_LOG("MUSX: ho=%lx, do=%lx, to=%lx\n", head_offset, data_offset, target_offset);
+                target_offset = head_offset + (target_subsong - 1) * 0x1c;
+                //;VGM_LOG("MUSX: ho=%lx, do=%lx, to=%lx\n", head_offset, data_offset, target_offset);
 
-            /* 0x00: subfile ID */
-            musx->num_samples       = read_s32(target_offset + 0x04, sf);
-            musx->loop_start_sample = read_s32(target_offset + 0x08, sf); /* -1 if no loop */
-            musx->sample_rate       = read_u16(target_offset + 0x0c, sf);
-            codec                   = read_u8 (target_offset + 0x0e, sf);
-            musx->channels          = read_u8 (target_offset + 0x0f, sf);
-            musx->stream_offset     = read_u32(target_offset + 0x10, sf) + data_offset;
-            musx->stream_size       = read_u32(target_offset + 0x14, sf);
-            musx->loop_start        = read_s32(target_offset + 0x18, sf);
+                /* 0x00: subfile ID */
+                musx->num_samples       = read_s32(target_offset + 0x04, sf);
+                musx->loop_start_sample = read_s32(target_offset + 0x08, sf); /* -1 if no loop */
+                musx->sample_rate       = read_u16(target_offset + 0x0c, sf);
+                codec                   = read_u8 (target_offset + 0x0e, sf);
+                musx->channels          = read_u8 (target_offset + 0x0f, sf);
+                musx->stream_offset     = read_u32(target_offset + 0x10, sf) + data_offset;
+                musx->stream_size       = read_u32(target_offset + 0x14, sf);
+                musx->loop_start        = read_s32(target_offset + 0x18, sf);
+            }
 
             musx->loop_end_sample   = musx->num_samples;
             musx->loop_flag         = (musx->loop_start_sample >= 0);

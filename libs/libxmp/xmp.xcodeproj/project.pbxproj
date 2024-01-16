@@ -397,7 +397,6 @@
 		59805348262F0CA000BB0309 /* stm_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stm_load.c; sourceTree = "<group>"; };
 		59805349262F0CA000BB0309 /* gal5_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gal5_load.c; sourceTree = "<group>"; };
 		5980534A262F0CA000BB0309 /* mgt_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mgt_load.c; sourceTree = "<group>"; };
-		598053E5262F0CC600BB0309 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile; path = "libxmp-master/src/Makefile"; sourceTree = SOURCE_ROOT; };
 		598053F0262F0E8400BB0309 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		598053F1262F0E8400BB0309 /* xmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmp.h; sourceTree = "<group>"; };
 		5980540A262F1D9E00BB0309 /* xmp_prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xmp_prefix.pch; sourceTree = "<group>"; };
@@ -459,7 +458,6 @@
 				5980524A262F0C1400BB0309 /* load_helpers.c */,
 				5980524E262F0C1400BB0309 /* load.c */,
 				598052C2262F0CA000BB0309 /* loaders */,
-				598053E5262F0CC600BB0309 /* Makefile */,
 				5980526A262F0C1F00BB0309 /* md5.c */,
 				59805269262F0C1F00BB0309 /* md5.h */,
 				5980526B262F0C1F00BB0309 /* mdataio.h */,

@@ -1,6 +1,9 @@
 #include "meta.h"
 #include "../util.h"
 #include "../coding/coding.h"
+#include "../util/chunks.h"
+#include "../util/endianness.h"
+#include "../util/channel_mappings.h"
 
 
 /* Wwise uses a custom RIFF/RIFX header, non-standard enough that it's parsed it here.
@@ -13,7 +16,9 @@ typedef enum { PCM, IMA, VORBIS, DSP, XMA2, XWMA, AAC, HEVAG, ATRAC9, OPUSNX, OP
 typedef struct {
     int big_endian;
     size_t file_size;
-    int truncated;
+    int prefetch;
+    int is_wem;
+    int is_bnk;
 
     /* chunks references */
     off_t  fmt_offset;
@@ -38,8 +43,8 @@ typedef struct {
     int format;
     int channels;
     int sample_rate;
-    int block_align;
-    int average_bps;
+    int block_size;
+    int avg_bitrate;
     int bits_per_sample;
     uint8_t channel_type;
     uint32_t channel_layout;
@@ -52,30 +57,43 @@ typedef struct {
 } wwise_header;
 
 static int parse_wwise(STREAMFILE* sf, wwise_header* ww);
-static int is_dsp_full_interleave(STREAMFILE* sf, wwise_header* ww, off_t coef_offset);
+static int is_dsp_full_interleave(STREAMFILE* sf, wwise_header* ww, off_t coef_offset, int full_detection);
 
-
-/* Wwise - Audiokinetic Wwise (Wave Works Interactive Sound Engine) middleware */
+/* Wwise - Audiokinetic Wwise (WaveWorks Interactive Sound Engine) middleware */
 VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
+    return init_vgmstream_wwise_bnk(sf, NULL);
+}
+
+/* used in .bnk */
+VGMSTREAM* init_vgmstream_wwise_bnk(STREAMFILE* sf, int* p_prefetch) {
     VGMSTREAM* vgmstream = NULL;
     wwise_header ww = {0};
     off_t start_offset;
-    uint32_t (*read_u32)(off_t,STREAMFILE*) = NULL;
-     int32_t (*read_s32)(off_t,STREAMFILE*) = NULL;
-    uint16_t (*read_u16)(off_t,STREAMFILE*) = NULL;
+    read_u32_t read_u32 = NULL;
+    read_s32_t read_s32 = NULL;
+    read_u16_t read_u16 = NULL;
 
 
     /* checks */
-    /* .wem: newer "Wwise Encoded Media" used after the 2011.2 SDK (~july 2011)
+    if (!is_id32be(0x00,sf, "RIFF") &&  /* LE */
+        !is_id32be(0x00,sf, "RIFX"))    /* BE */
+        goto fail;
+
+    /* note that Wwise allows those extensions only, so custom engine exts shouldn't be added
+     * .wem: newer "Wwise Encoded Media" used after the 2011.2 SDK (~july 2011)
      * .wav: older PCM/ADPCM files [Spider-Man: Web of Shadows (PC), Punch Out!! (Wii)]
      * .xma: older XMA files [Too Human (X360), Tron Evolution (X360)]
      * .ogg: older Vorbis files [The King of Fighters XII (X360)]
-     * .bnk: Wwise banks for memory .wem detection */
+     * .bnk: Wwise banks for memory .wem detection (hack) */
     if (!check_extensions(sf,"wem,wav,lwav,ogg,logg,xma,bnk"))
         goto fail;
 
+    ww.is_bnk = (p_prefetch != NULL);
     if (!parse_wwise(sf, &ww))
         goto fail;
+
+    if (p_prefetch)
+        *p_prefetch = ww.prefetch;
 
     read_u32 = ww.big_endian ? read_u32be : read_u32le;
     read_s32 = ww.big_endian ? read_s32be : read_s32le;
@@ -92,6 +110,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
     vgmstream->loop_start_sample = ww.loop_start_sample;
     vgmstream->loop_end_sample = ww.loop_end_sample;
     vgmstream->channel_layout = ww.channel_layout;
+    vgmstream->stream_size = ww.data_size;
 
     switch(ww.codec) {
         case PCM: /* common */
@@ -104,11 +123,15 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             vgmstream->layout_type = ww.channels > 1 ? layout_interleave : layout_none;
             vgmstream->interleave_block_size = 0x02;
 
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 ww.data_size = ww.file_size - ww.data_offset;
             }
 
             vgmstream->num_samples = pcm_bytes_to_samples(ww.data_size, ww.channels, ww.bits_per_sample);
+
+            /* prefetch .bnk RIFFs that only have header and no data is possible [Metal Gear Solid V (PC)] */
+            if (ww.prefetch && !vgmstream->num_samples)
+                vgmstream->num_samples = 1; /* force something to avoid broken subsongs */
             break;
 
         case IMA: /* common */
@@ -117,11 +140,11 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
 
             if (ww.fmt_size != 0x14 && ww.fmt_size != 0x28 && ww.fmt_size != 0x18) goto fail; /* oldest, old, new */
             if (ww.bits_per_sample != 4) goto fail;
-            if (ww.block_align != 0x24 * ww.channels) goto fail;
+            if (ww.block_size != 0x24 * ww.channels) goto fail;
 
             vgmstream->coding_type = coding_WWISE_IMA;
             vgmstream->layout_type = layout_interleave;
-            vgmstream->interleave_block_size = ww.block_align / ww.channels;
+            vgmstream->interleave_block_size = ww.block_size / ww.channels;
             vgmstream->codec_endian = ww.big_endian;
 
             /* oldest version uses regular XBOX IMA with stereo mode [Shadowrun (PC)] */
@@ -133,7 +156,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
                 vgmstream->interleave_block_size = 0;
             }
 
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 ww.data_size = ww.file_size - ww.data_offset;
             }
 
@@ -150,8 +173,9 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             cfg.channels = ww.channels;
             cfg.sample_rate = ww.sample_rate;
             cfg.big_endian = ww.big_endian;
+            cfg.stream_end = ww.data_offset + ww.data_size;
 
-            if (ww.block_align != 0 || ww.bits_per_sample != 0) goto fail; /* always 0 for Worbis */
+            if (ww.block_size != 0 || ww.bits_per_sample != 0) goto fail; /* always 0 for Worbis */
 
             /* autodetect format (fields are mostly common, see the end of the file) */
             if (ww.vorb_offset) {
@@ -215,7 +239,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
                     uint32_t setup_id = read_u32be(start_offset + setup_offset + 0x06, sf);
 
                     /* if the setup after header starts with "(data)BCV" it's an inline codebook) */
-                    if ((setup_id & 0x00FFFFFF) == 0x00424356) { /* 0"BCV" */
+                    if ((setup_id & 0x00FFFFFF) == get_id32be("\0BCV")) {
                         cfg.setup_type = WWV_FULL_SETUP;
                     }
                     /* if the setup is suspiciously big it's probably trimmed inline codebooks */
@@ -230,7 +254,6 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             else {
                 /* newer Wwise (>2012) */
                 off_t extra_offset = ww.fmt_offset + 0x18; /* after flag + channels */
-                int is_wem = check_extensions(sf,"wem,bnk"); /* use extension as a guide for faster vorbis inits */
 
                 switch(ww.extra_size) {
                     case 0x30:
@@ -242,7 +265,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
                         /* setup not detectable by header, so we'll try both; libvorbis should reject wrong codebooks
                          * - standard: early (<2012), ex. The King of Fighters XIII (X360)-2011/11, .ogg (cbs are from aoTuV, too)
                          * - aoTuV603: later (>2012), ex. Sonic & All-Stars Racing Transformed (PC)-2012/11, .wem */
-                        cfg.setup_type  = is_wem ? WWV_AOTUV603_CODEBOOKS : WWV_EXTERNAL_CODEBOOKS; /* aoTuV came along .wem */
+                        cfg.setup_type  = ww.is_wem ? WWV_AOTUV603_CODEBOOKS : WWV_EXTERNAL_CODEBOOKS; /* aoTuV came along .wem */
                         break;
 
                     default:
@@ -274,7 +297,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
                 vgmstream->codec_data = init_vorbis_custom(sf, start_offset + setup_offset, VORBIS_WWISE, &cfg);
                 if (!vgmstream->codec_data) {
                     /* codebooks failed: try again with the other type */
-                    cfg.setup_type  = is_wem ? WWV_EXTERNAL_CODEBOOKS : WWV_AOTUV603_CODEBOOKS;
+                    cfg.setup_type  = ww.is_wem ? WWV_EXTERNAL_CODEBOOKS : WWV_AOTUV603_CODEBOOKS;
                     vgmstream->codec_data = init_vorbis_custom(sf, start_offset + setup_offset, VORBIS_WWISE, &cfg);
                     if (!vgmstream->codec_data) goto fail;
                 }
@@ -286,7 +309,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             start_offset += audio_offset;
 
             /* Vorbis is VBR so this is very approximate percent, meh */
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
                         (double)(ww.file_size - start_offset) / (double)ww.data_size);
             }
@@ -301,26 +324,29 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
 
             vgmstream->coding_type = coding_NGC_DSP;
             vgmstream->layout_type = layout_interleave;
-            vgmstream->interleave_block_size = 0x08; /* ww.block_align = 0x8 in older Wwise, samples per block in newer Wwise */
+            vgmstream->interleave_block_size = 0x08; /* ww.block_size = 0x8 in older Wwise, samples per block in newer Wwise */
 
             /* find coef position */
             if (ww.wiih_offset) { /* older */
                 vgmstream->num_samples = dsp_bytes_to_samples(ww.data_size, ww.channels);
                 if (ww.wiih_size != 0x2e * ww.channels) goto fail;
 
-                if (is_dsp_full_interleave(sf, &ww, ww.wiih_offset))
+                if (is_dsp_full_interleave(sf, &ww, ww.wiih_offset, 1))
                     vgmstream->interleave_block_size = ww.data_size / 2;
             }
             else if (ww.extra_size == 0x0c + ww.channels * 0x2e) { /* newer */
                 vgmstream->num_samples = read_s32(ww.fmt_offset + 0x18, sf);
                 ww.wiih_offset = ww.fmt_offset + 0x1c;
                 ww.wiih_size = 0x2e * ww.channels;
+
+                if (is_dsp_full_interleave(sf, &ww, ww.wiih_offset, 0)) /* less common */
+                    vgmstream->interleave_block_size = ww.data_size / 2;
             }
             else {
                 goto fail;
             }
 
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 ww.data_size = ww.file_size - ww.data_offset;
                 vgmstream->num_samples = dsp_bytes_to_samples(ww.data_size, ww.channels);
             }
@@ -340,9 +366,6 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
 
 #ifdef VGM_USE_FFMPEG
         case XMA2: { /* X360/XBone */
-            uint8_t buf[0x100];
-            int bytes;
-
             /* endian check should be enough */
             //if (ww.fmt_size != ...) goto fail; /* XMA1 0x20, XMA2old: 0x34, XMA2new: 0x40, XMA2 Guitar Hero Live/padded: 0x64, etc */
 
@@ -350,14 +373,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             if (!(ww.big_endian || (!ww.big_endian && check_extensions(sf,"wem,bnk"))))
                 goto fail;
 
-            if (ww.xma2_offset) { /* older */
-                bytes = ffmpeg_make_riff_xma2_from_xma2_chunk(buf, sizeof(buf), ww.xma2_offset, ww.xma2_size, ww.data_size, sf);
-            }
-            else { /* newer */
-                bytes = ffmpeg_make_riff_xma_from_fmt_chunk(buf, sizeof(buf), ww.fmt_offset, ww.fmt_size, ww.data_size, sf, ww.big_endian);
-            }
-
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf,bytes, ww.data_offset,ww.data_size);
+            vgmstream->codec_data = init_ffmpeg_xma_chunk(sf, ww.data_offset, ww.data_size, ww.xma2_offset ? ww.xma2_offset : ww.fmt_offset, ww.xma2_size ? ww.xma2_size : ww.fmt_size);
             if ( !vgmstream->codec_data ) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
@@ -368,7 +384,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             xma_fix_raw_samples(vgmstream, sf, ww.data_offset, ww.data_size, ww.xma2_offset ? ww.xma2_offset : ww.fmt_offset, 1,0);
 
             /* XMA is VBR so this is very approximate percent, meh */
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
                         (double)(ww.file_size - start_offset) / (double)ww.data_size);
                 //todo data size, call function
@@ -378,38 +394,27 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
         }
 
         case XWMA: { /* X360 */
-            ffmpeg_codec_data *ffmpeg_data = NULL;
-            uint8_t buf[0x100];
-            int bytes;
-
             if (ww.fmt_size != 0x18) goto fail;
             if (!ww.big_endian) goto fail; /* must be from Wwise X360 (PC LE XWMA is parsed elsewhere) */
 
-            bytes = ffmpeg_make_riff_xwma(buf, sizeof(buf), ww.format, ww.data_size, ww.channels, ww.sample_rate, ww.average_bps, ww.block_align);
-            ffmpeg_data = init_ffmpeg_header_offset(sf, buf,bytes, ww.data_offset, ww.data_size);
-            if ( !ffmpeg_data ) goto fail;
-            vgmstream->codec_data = ffmpeg_data;
+            vgmstream->codec_data = init_ffmpeg_xwma(sf, ww.data_offset, ww.data_size, ww.format, ww.channels, ww.sample_rate, ww.avg_bitrate, ww.block_size);
+            if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
 
+            //if (ww.prefetch) {
+            //    ww.data_size = ww.file_size - ww.data_offset;
+            //}
 
-            /* manually find total samples, why don't they put this in the header is beyond me */
-            {
-                ms_sample_data msd = {0};
+            /* seek table seems BE dpds */
+            vgmstream->num_samples = xwma_dpds_get_samples(sf, ww.seek_offset, ww.seek_size, ww.channels, ww.big_endian);
+            if (!vgmstream->num_samples)
+                vgmstream->num_samples = xwma_get_samples(sf, ww.data_offset, ww.data_size, ww.format, ww.channels, ww.sample_rate, ww.block_size);
 
-                msd.channels = ww.channels;
-                msd.data_offset = ww.data_offset;
-                msd.data_size = ww.data_size;
-
-                if (ww.format == 0x0162)
-                    wmapro_get_samples(&msd, sf, ww.block_align, ww.sample_rate, 0x00E0);
-                else
-                    wma_get_samples(&msd, sf, ww.block_align, ww.sample_rate, 0x001F);
-
-                vgmstream->num_samples = msd.num_samples;
-                if (!vgmstream->num_samples)
-                    vgmstream->num_samples = (int32_t)ffmpeg_data->totalSamples; /* very wrong, from avg-br */
-                //num_samples seem to be found in the last "seek" table entry too, as: entry / channels / 2
+            /* XWMA is VBR so this is very approximate percent, meh */
+            if (ww.prefetch) { /* Guardians of Middle Earth (X360) */
+                vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
+                        (double)(ww.file_size - start_offset) / (double)ww.data_size);
             }
 
             break;
@@ -419,7 +424,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             ffmpeg_codec_data * ffmpeg_data = NULL;
 
             if (ww.fmt_size != 0x24) goto fail;
-            if (ww.block_align != 0 || ww.bits_per_sample != 0) goto fail;
+            if (ww.block_size != 0 || ww.bits_per_sample != 0) goto fail;
 
             /* extra: size 0x12, unknown values */
 
@@ -429,7 +434,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
 
-            vgmstream->num_samples = (int32_t)ffmpeg_data->totalSamples;
+            vgmstream->num_samples = ffmpeg_get_samples(ffmpeg_data); //todo correct?
             break;
         }
 
@@ -438,7 +443,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             size_t seek_size;
 
             if (ww.fmt_size != 0x28) goto fail;
-            /* values up to 0x14 seem fixed and similar to HEVAG's (block_align 0x02/04, bits_per_sample 0x10) */
+            /* values up to 0x14 seem fixed and similar to HEVAG's (block_size 0x02/04, bits_per_sample 0x10) */
 
             vgmstream->num_samples = read_s32(ww.fmt_offset + 0x18, sf);
             /* 0x1c: null?
@@ -458,7 +463,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             }
 
             /* OPUS is VBR so this is very approximate percent, meh */
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
                         (double)(ww.file_size - start_offset) / (double)ww.data_size);
                 ww.data_size = ww.file_size - start_offset;
@@ -471,8 +476,8 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             break;
         }
 
-        case OPUS: { /* fully standard Ogg Opus [Girl Cafe Gun (Mobile)] */
-            if (ww.block_align != 0 || ww.bits_per_sample != 0) goto fail;
+        case OPUS: { /* fully standard Ogg Opus [Girl Cafe Gun (Mobile), Gears 5 (PC)] */
+            if (ww.block_size != 0 || ww.bits_per_sample != 0) goto fail;
 
             /* extra: size 0x12 */
             vgmstream->num_samples = read_s32(ww.fmt_offset + 0x18, sf);
@@ -480,10 +485,19 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             /* 0x20: full samples (without encoder delay) */
 
             /* OPUS is VBR so this is very approximate percent, meh */
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
                         (double)(ww.file_size - start_offset) / (double)ww.data_size);
                 ww.data_size = ww.file_size - start_offset;
+            }
+
+            /* mutant .wem with metadata (voice strings/etc) at data start [Gears 5 (PC)] */
+            if (ww.meta_offset) {
+                /* 0x00: original setup_offset? (0x00 for Opus) */
+                uint32_t meta_skip = read_u32(ww.meta_offset + 0x04, sf);
+
+                ww.data_offset += meta_skip;
+                ww.data_size -= meta_skip;
             }
 
             vgmstream->codec_data = init_ffmpeg_offset(sf, ww.data_offset, ww.data_size);
@@ -497,7 +511,7 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             if (ww.bits_per_sample != 16) goto fail;
 
             /* original data_size doesn't look related to samples or anything */
-			ww.data_size = ww.file_size - ww.data_offset;
+            ww.data_size = ww.file_size - ww.data_offset;
 
             vgmstream->codec_data = init_ffmpeg_offset(sf, ww.data_offset, ww.data_size);
             if (!vgmstream->codec_data) goto fail;
@@ -505,20 +519,22 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             vgmstream->layout_type = layout_none;
 
             /* FFmpeg's samples seem correct, otherwise see ogg_opus.c for getting samples. */
-            vgmstream->num_samples = (int32_t)((ffmpeg_codec_data*)vgmstream->codec_data)->totalSamples;
+            vgmstream->num_samples = ffmpeg_get_samples(vgmstream->codec_data);
             break;
         }
 
         case OPUSWW: { /* updated Opus [Assassin's Creed Valhalla (PC)] */
-            int mapping;
+            int i, mapping;
             opus_config cfg = {0};
 
-            if (ww.block_align != 0 || ww.bits_per_sample != 0) goto fail;
+            if (ww.block_size != 0 || ww.bits_per_sample != 0) goto fail;
             if (!ww.seek_offset) goto fail;
-            if (ww.channels > 8) goto fail; /* mapping not defined */
+            if (ww.channels > 255) goto fail; /* opus limit */
 
             cfg.channels = ww.channels;
             cfg.table_offset = ww.seek_offset;
+
+            vgmstream->sample_rate = 48000; /* fixed in AK's code */
 
             /* extra: size 0x10 (though last 2 fields are beyond, AK plz) */
             /* 0x12: samples per frame */
@@ -527,20 +543,21 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             cfg.skip = read_u16(ww.fmt_offset + 0x20, sf);
             /* 0x22: codec version */
             mapping = read_u8(ww.fmt_offset + 0x23, sf);
+            if (mapping == 1 && ww.channels > 8) goto fail; /* mapping not defined */
 
             if (read_u8(ww.fmt_offset + 0x22, sf) != 1)
                 goto fail;
 
             /* OPUS is VBR so this is very approximate percent, meh */
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 vgmstream->num_samples = (int32_t)(vgmstream->num_samples *
                         (double)(ww.file_size - start_offset) / (double)ww.data_size);
                 ww.data_size = ww.file_size - start_offset;
             }
 
-            /* AK does some wonky implicit config for multichannel */
-            if (mapping == 1 && ww.channel_type == 1) { /* only allowed values ATM, set when >2ch */
-                static const int8_t mapping_matrix[8][8] = {
+            /* AK does some wonky implicit config for multichannel (only accepted channel type is 1) */
+            if (ww.channel_type == 1 && mapping == 1) {
+                static const int8_t mapping_matrix[8][8] = { /* (DeinterleaveAndRemap)*/
                     { 0, 0, 0, 0, 0, 0, 0, 0, },
                     { 0, 1, 0, 0, 0, 0, 0, 0, },
                     { 0, 2, 1, 0, 0, 0, 0, 0, },
@@ -550,26 +567,47 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
                     { 0, 6, 1, 2, 3, 4, 5, 0, },
                     { 0, 6, 1, 2, 3, 4, 5, 7, },
                 };
-                int i;
 
-                /* find coupled OPUS streams (internal streams using 2ch) */
+                if (ww.channels > 8)
+                    goto fail; /* matrix limit */
+
+                /* find coupled (stereo) OPUS streams (simplification of ChannelConfigToMapping) */
                 switch(ww.channel_layout) {
                     case mapping_7POINT1_surround:  cfg.coupled_count = 3; break;   /* 2ch+2ch+2ch+1ch+1ch, 5 streams */
                     case mapping_5POINT1_surround:                                  /* 2ch+2ch+1ch+1ch, 4 streams */
+                    case mapping_5POINT0_surround:                                  /* 2ch+2ch+1ch, 3 streams [Bayonetta 3 (Switch)] */
                     case mapping_QUAD_side:         cfg.coupled_count = 2; break;   /* 2ch+2ch, 2 streams */
                     case mapping_2POINT1_xiph:                                      /* 2ch+1ch, 2 streams */
                     case mapping_STEREO:            cfg.coupled_count = 1; break;   /* 2ch, 1 stream */
                     default:                        cfg.coupled_count = 0; break;   /* 1ch, 1 stream */
-                    //TODO: AK OPUS doesn't seem to handles others mappings, though AK's .h imply they exist (uses 0 coupleds?)
+                    //TODO: AK OPUS doesn't seem to handle others mappings, though AK's .h imply they exist (uses 0 coupleds?)
                 }
 
                 /* total number internal OPUS streams (should be >0) */
                 cfg.stream_count = ww.channels - cfg.coupled_count;
 
-                /* channel assignments */
+                /* channel order */
                 for (i = 0; i < ww.channels; i++) {
                     cfg.channel_mapping[i] = mapping_matrix[ww.channels - 1][i];
                 }
+            }
+            else if (ww.channel_type == 1 && mapping == 255) { /* Overwatch 2 (PC) */
+
+                /* only seen 12ch, but seems to be what ChannelConfigToMapping would output with > 8 */
+                cfg.coupled_count = 0;
+
+                cfg.stream_count = ww.channels - cfg.coupled_count;
+
+                //TODO: mapping seems to be 0x2d63f / FL FR FC LFE BL BR SL SR TFL TFR TBL TBR
+                // while output order seems to swap FC and LFE? (not set in passed channel mapping but reordered later)
+                for (i = 0; i < ww.channels; i++) {
+                    cfg.channel_mapping[i] = i;
+                }
+            }
+            else {
+                /* mapping 0: standard opus (implicit mono/stereo)  */
+                if (ww.channels > 2)
+                    goto fail;
             }
 
             /* Wwise Opus saves all frame sizes in the seek table */
@@ -579,20 +617,20 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             vgmstream->layout_type = layout_none;
             break;
         }
-
 #endif
+
         case HEVAG: /* PSV */
             /* changed values, another bizarre Wwise quirk */
-            //ww.block_align /* unknown (1ch=2, 2ch=4) */
+            //ww.block_size /* unknown (1ch=2, 2ch=4) */
             //ww.bits_per_sample; /* unknown (0x10) */
             //if (ww.bits_per_sample != 4) goto fail;
 
             if (ww.fmt_size != 0x18) goto fail;
             if (ww.big_endian) goto fail;
 
-            /* extra_data (size 0x06)
+            /* extra data (size 0x06)
              * 0x00: samples per block (0x1c)
-             * 0x04: channel config (again?) */
+             * 0x02: channel config (again?) */
 
             vgmstream->coding_type = coding_HEVAG;
             vgmstream->layout_type = layout_interleave;
@@ -608,9 +646,19 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             if (ww.fmt_size != 0x24) goto fail;
             if (ww.extra_size != 0x12) goto fail;
 
+            /* extra data
+             * 0x00: samples per subframe?
+             * 0x02: channel config (again?)
+             * 0x06: config
+             * 0x0a: samples
+             * 0x0e: encoder delay? (same as samples per subframe?)
+             * 0x10: decoder delay? (PS4 only, 0 on Vita?) */
+
             cfg.channels = ww.channels;
             cfg.config_data = read_u32be(ww.fmt_offset + 0x18,sf);
-            cfg.encoder_delay = read_u32(ww.fmt_offset + 0x20,sf);
+            cfg.encoder_delay = read_u16(ww.fmt_offset + 0x20,sf);
+            /* PS4 value at 0x22 looks like encoder delay, but using it removes too many
+             * samples [DmC: Definitive Edition (PS4)] */
 
             vgmstream->codec_data = init_atrac9(&cfg);
             if (!vgmstream->codec_data) goto fail;
@@ -618,19 +666,25 @@ VGMSTREAM* init_vgmstream_wwise(STREAMFILE* sf) {
             vgmstream->layout_type = layout_none;
 
             vgmstream->num_samples = read_s32(ww.fmt_offset + 0x1c, sf);
+
+            if (ww.prefetch) {
+                vgmstream->num_samples = atrac9_bytes_to_samples_cfg(ww.file_size - start_offset, cfg.config_data);
+            }
+
             break;
         }
 #endif
+
         case PTADPCM: /* newer ADPCM [Bayonetta 2 (Switch), Genshin Impact (PC)]  */
             if (ww.bits_per_sample != 4) goto fail;
-            if (ww.block_align != 0x24 * ww.channels && ww.block_align != 0x104 * ww.channels) goto fail;
+            if (ww.block_size != 0x24 * ww.channels && ww.block_size != 0x104 * ww.channels) goto fail;
 
             vgmstream->coding_type = coding_PTADPCM;
             vgmstream->layout_type = layout_interleave;
-            vgmstream->interleave_block_size = ww.block_align / ww.channels;
+            vgmstream->interleave_block_size = ww.block_size / ww.channels;
           //vgmstream->codec_endian = ww.big_endian; //?
 
-            if (ww.truncated) {
+            if (ww.prefetch) {
                 ww.data_size = ww.file_size - ww.data_offset;
             }
 
@@ -651,29 +705,30 @@ fail:
     return NULL;
 }
 
-static int is_dsp_full_interleave(STREAMFILE* sf, wwise_header* ww, off_t coef_offset) {
-    /* older (only?) Wwise use full interleave for memory (in .bnk) files, but
-     * detection from the .wem side is problematic [Punch Out!! (Wii)]
-     * - truncated point to streams = normal
+static int is_dsp_full_interleave(STREAMFILE* sf, wwise_header* ww, off_t coef_offset, int full_detection) {
+    /* older (bank ~v48) Wwise use full interleave for memory (in .bnk) files, but
+     * detection from the .wem side is problematic [Punch Out!! (Wii)-old, Luigi's Mansion 2 (3DS)-new]
+     * - prefetch point to streams = normal
      * - .bnk would be memory banks = full
      * - otherwise small-ish sizes, stereo, with initial predictors for the
      *   second channel matching half size = full
-     * some files aren't detectable like this though, when predictors are 0 
+     * some files aren't detectable like this though, when predictors are 0
      * (but since memory wem aren't that used this shouldn't be too common) */
 
-    if (ww->truncated)
+    if (ww->prefetch)
         return 0;
 
     if (ww->channels == 1)
         return 0;
 
-    if (check_extensions(sf,"bnk"))
+    if (ww->is_bnk)
         return 1;
 
     if (ww->data_size > 0x30000)
         return 0;
 
-    {
+    /* skip reading data if possible */
+    if (full_detection) {
         uint16_t head_ps2 = read_u16be(coef_offset + 1 * 0x2e + 0x22, sf); /* ch2's initial predictor */
         uint16_t init_ps2 = read_u8(ww->data_offset + 0x08, sf); /* at normal interleave */
         uint16_t half_ps2 = read_u8(ww->data_offset + ww->data_size / 2, sf); /* at full interleave */
@@ -688,18 +743,12 @@ static int is_dsp_full_interleave(STREAMFILE* sf, wwise_header* ww, off_t coef_o
 
 
 static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
-    uint32_t (*read_u32)(off_t,STREAMFILE*) = NULL;
-    uint16_t (*read_u16)(off_t,STREAMFILE*) = NULL;
+    read_u32_t read_u32;
+    read_u16_t read_u16;
 
-    if (read_u32be(0x00,sf) != 0x52494646 &&  /* "RIFF" (LE) */
-        read_u32be(0x00,sf) != 0x52494658)    /* "RIFX" (BE) */
-        goto fail;
-    if (read_u32be(0x08,sf) != 0x57415645 &&  /* "WAVE" */
-        read_u32be(0x08,sf) != 0x58574D41)    /* "XWMA" */
-        goto fail;
-
-    ww->big_endian = read_u32be(0x00,sf) == 0x52494658; /* RIFX */
-    if (ww->big_endian) { /* Wwise honors machine's endianness (PC=RIFF, X360=RIFX --unlike XMA) */
+    /* Wwise honors machine's endianness (PC=RIFF, X360=RIFX --unlike XMA) */
+    ww->big_endian = is_id32be(0x00,sf, "RIFX"); /* RIFF size not useful to detect, see below */
+    if (ww->big_endian) {
         read_u32 = read_u32be;
         read_u16 = read_u16be;
     } else {
@@ -725,50 +774,57 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
     }
 #endif
 
+    if (!is_id32be(0x08,sf, "WAVE") &&
+        !is_id32be(0x08,sf, "XWMA"))
+        goto fail;
+
+
     /* parse chunks (reads once linearly) */
     {
-        off_t offset = 0x0c;
-        while (offset < ww->file_size) {
-            uint32_t type = read_u32be(offset + 0x00,sf);
-            uint32_t size = read_u32  (offset + 0x04,sf);
-            offset += 0x08;
+        chunk_t rc = {0};
+        uint32_t file_size = get_streamfile_size(sf);;
 
-            switch(type) {
+        /* chunks are even-aligned and don't need to add padding byte, unlike real RIFFs */
+        rc.be_size = ww->big_endian;
+        rc.current = 0x0c;
+        while (next_chunk(&rc, sf)) {
+
+            switch(rc.type) {
                 case 0x666d7420: /* "fmt " */
-                    ww->fmt_offset = offset;
-                    ww->fmt_size = size;
+                    ww->fmt_offset = rc.offset;
+                    ww->fmt_size = rc.size;
                     break;
                 case 0x584D4132: /* "XMA2" */
-                    ww->xma2_offset = offset;
-                    ww->xma2_size = size;
+                    ww->xma2_offset = rc.offset;
+                    ww->xma2_size = rc.size;
                     break;
                 case 0x64617461: /* "data" */
-                    ww->data_offset = offset;
-                    ww->data_size = size;
+                    ww->data_offset = rc.offset;
+                    ww->data_size = rc.size;
                     break;
                 case 0x766F7262: /* "vorb" */
-                    ww->vorb_offset = offset;
-                    ww->vorb_size = size;
+                    ww->vorb_offset = rc.offset;
+                    ww->vorb_size = rc.size;
                     break;
                 case 0x57696948: /* "WiiH" */
-                    ww->wiih_offset = offset;
-                    ww->wiih_size = size;
+                    ww->wiih_offset = rc.offset;
+                    ww->wiih_size = rc.size;
                     break;
                 case 0x7365656B: /* "seek" */
-                    ww->seek_offset = offset;
-                    ww->seek_size = size;
+                    ww->seek_offset = rc.offset;
+                    ww->seek_size = rc.size;
                     break;
                 case 0x736D706C: /* "smpl" */
-                    ww->smpl_offset = offset;
-                    ww->smpl_size = size;
+                    ww->smpl_offset = rc.offset;
+                    ww->smpl_size = rc.size;
                     break;
                 case 0x6D657461: /* "meta" */
-                    ww->meta_offset = offset;
-                    ww->meta_size = size;
+                    ww->meta_offset = rc.offset;
+                    ww->meta_size = rc.size;
                     break;
 
                 case 0x66616374: /* "fact" */
-                    /* Wwise shouldn't use fact, but if somehow some file does uncomment the following: */
+                    /* Wwise never uses fact, but if somehow some file does uncomment the following: */
                     //if (size == 0x10 && read_u32be(offset + 0x04, sf) == 0x4C794E20) /* "LyN " */
                     //    goto fail; /* ignore LyN RIFF */
                     goto fail;
@@ -779,14 +835,20 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
                 /* "JUNK": optional padding for aligment (0-size JUNK exists too) */
                 /* "akd ": extra info for Wwise? (wave peaks/loudness/HDR envelope?) */
                 default:
+                    /* mainly for incorrectly ripped wems, but should allow truncated wems
+                     * (could also check that fourcc is ASCII)  */
+                    if (rc.offset + rc.size > file_size) {
+                        vgm_logi("WWISE: broken .wem (bad extract?)\n");
+                        goto fail;
+                    }
+
                     break;
             }
-
-            /* chunks are even-aligned and don't need to add padding byte, unlike real RIFFs */
-            offset += size;
         }
     }
 
+    /* use extension as a guide for certain cases */
+    ww->is_wem = check_extensions(sf,"wem,bnk");
 
     /* parse format (roughly spec-compliant but some massaging is needed) */
     if (ww->xma2_offset) {
@@ -803,8 +865,8 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
         ww->format           = read_u16(ww->fmt_offset + 0x00,sf);
         ww->channels         = read_u16(ww->fmt_offset + 0x02,sf);
         ww->sample_rate      = read_u32(ww->fmt_offset + 0x04,sf);
-        ww->average_bps      = read_u32(ww->fmt_offset + 0x08,sf);
-        ww->block_align      = read_u16(ww->fmt_offset + 0x0c,sf);
+        ww->avg_bitrate      = read_u32(ww->fmt_offset + 0x08,sf);
+        ww->block_size       = read_u16(ww->fmt_offset + 0x0c,sf);
         ww->bits_per_sample  = read_u16(ww->fmt_offset + 0x0e,sf);
         if (ww->fmt_size > 0x10 && ww->format != 0x0165 && ww->format != 0x0166) /* ignore XMAWAVEFORMAT */
             ww->extra_size   = read_u16(ww->fmt_offset + 0x10,sf);
@@ -862,6 +924,9 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
         case 0x3041: ww->codec = OPUSWW; break; /* "OPUS_WEM", added on Wwise 2019.2.3, replaces OPUS */
         case 0x8311: ww->codec = PTADPCM; break; /* added on Wwise 2019.1, replaces IMA */
         default:
+            /* some .wav may end up here, only report in .wem cases (newer codecs) */
+            if (ww->is_wem)
+                vgm_logi("WWISE: unknown codec 0x%04x (report)\n", ww->format);
             goto fail;
     }
 
@@ -870,11 +935,14 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
         if (ww->extra_size == 0x0c + ww->channels * 0x2e) {
             /* newer Wwise DSP with coefs [Epic Mickey 2 (Wii), Batman Arkham Origins Blackgate (3DS)] */
             ww->codec = DSP;
-        } else if (ww->extra_size == 0x0a && ww->wiih_offset) { /* WiiH */
+        }
+        else if (ww->extra_size == 0x0a && ww->wiih_offset) { /* WiiH */
             /* few older Wwise DSP with num_samples in extra_size [Tony Hawk: Shred (Wii)] */
             ww->codec = DSP;
-        } else if (ww->block_align == 0x104 * ww->channels) {
-            ww->codec = PTADPCM; /* Bayonetta 2 (Switch) */
+        }
+        else if (ww->block_size == 0x104 * ww->channels) {
+            /* Bayonetta 2 (Switch) */
+            ww->codec = PTADPCM;
         }
     }
 
@@ -888,15 +956,15 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
         /* catch wrong rips as truncated tracks' file_size should be much smaller than data_size,
          * but it's possible to pre-fetch small files too [Punch Out!! (Wii)] */
         if (ww->data_offset + ww->data_size - ww->file_size < 0x5000 && ww->file_size > 0x10000) {
-            VGM_LOG("WWISE: wrong expected data_size\n");
+            vgm_logi("WWISE: wrong expected size (re-rip?)\n");
             goto fail;
         }
 
         if (ww->codec == PCM || ww->codec == IMA || ww->codec == VORBIS || ww->codec == DSP || ww->codec == XMA2 ||
-            ww->codec == OPUSNX || ww->codec == OPUS || ww->codec == OPUSWW || ww->codec == PTADPCM) {
-            ww->truncated = 1; /* only seen those, probably all exist (XWMA, AAC, HEVAG, ATRAC9?) */
+            ww->codec == OPUSNX || ww->codec == OPUS || ww->codec == OPUSWW || ww->codec == PTADPCM || ww->codec == XWMA || ww->codec == ATRAC9) {
+            ww->prefetch = 1; /* only seen those, probably all exist (missing XWMA, AAC, HEVAG) */
         } else {
-            VGM_LOG("WWISE: wrong size, maybe truncated\n");
+            vgm_logi("WWISE: wrong expected size, maybe prefetch (report)\n");
             goto fail;
         }
     }
@@ -905,8 +973,8 @@ static int parse_wwise(STREAMFILE* sf, wwise_header* ww) {
     /* Cyberpunk 2077 has some mutant .wem, with proper Wwise header and PCMEX but data is standard OPUS.
      * From init bank and CAkSound's sources, those may be piped through their plugins. They come in
      * .opuspak (no names), have wrong riff/data sizes and only seem used for sfx (other audio is Vorbis). */
-    if (ww->format == 0xFFFE && ww->truncated) {
-        if (read_u32be(ww->data_offset + 0x00, sf) == 0x4F676753) {
+    if (ww->format == 0xFFFE && ww->prefetch) {
+        if (is_id32be(ww->data_offset + 0x00, sf, "OggS")) {
             ww->codec = OPUSCPR;
         }
     }
@@ -932,7 +1000,7 @@ fail:
 0x14 (4): LoopInfo.dwLoopEndPacketOffset?
 0x18 (4): dwSeekTableSize (0 = no seek table)
 0x1c (4): dwVorbisDataOffset (offset within data)
-0x20 (2): uMaxPacketSize (not including header) 
+0x20 (2): uMaxPacketSize (not including header)
 0x22 (2): uLastGranuleExtra (0..~0x100)
 0x24 (4): dwDecodeAllocSize (0~0x5000)
 0x28 (4): dwDecodeX64AllocSize (mid, 0~0x5000)
@@ -948,7 +1016,7 @@ fail:
 0x0c (2): ? (small, 0..~0x400) [(4) when size is 0x2C]
 0x10 (4): dwSeekTableSize (0 = no seek table)
 0x14 (4): dwVorbisDataOffset (offset within data)
-0x18 (2): uMaxPacketSize (not including header) 
+0x18 (2): uMaxPacketSize (not including header)
 0x1a (2): uLastGranuleExtra (0..~0x100) [(4) when size is 0x2C]
 0x1c (4): dwDecodeAllocSize (0~0x5000)
 0x20 (4): dwDecodeX64AllocSize (0~0x5000)
@@ -965,7 +1033,7 @@ fail:
 0x26 (2): LoopInfo.uLoopEndExtra (extra samples after seek?)
 0x28 (4): dwSeekTableSize (0 = no seek table)
 0x2c (4): dwVorbisDataOffset (offset within data)
-0x30 (2): uMaxPacketSize (not including header) 
+0x30 (2): uMaxPacketSize (not including header)
 0x32 (2): uLastGranuleExtra (small, 0..~0x100)
 0x34 (4): dwDecodeAllocSize (mid, 0~0x5000)
 0x38 (4): dwDecodeX64AllocSize (mid, 0~0x5000)

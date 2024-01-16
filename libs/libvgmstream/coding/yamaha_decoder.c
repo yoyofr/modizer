@@ -12,11 +12,10 @@ static const int scale_step_adpcmb[16] = {
     57, 57, 57, 57, 77, 102, 128, 153,
 };
 
-/* look-up for 'mul' IMA's sign*((code&7) * 2 + 1) for every code */
-static const int scale_delta[16] = {
-      1,  3,  5,  7,  9, 11, 13, 15,
-     -1, -3, -5, -7, -9,-11,-13,-15
+static const int scale_step_capcom[8] = {
+    58982, 58982, 58982, 58982, 78643, 104858, 131072, 157286,
 };
+
 
 /* Yamaha ADPCM-B (aka DELTA-T) expand used in YM2608/YM2610/etc (cross referenced with various sources and .so) */
 static void yamaha_adpcmb_expand_nibble(uint8_t byte, int shift, int32_t* hist1, int32_t* step_size, int16_t *out_sample) {
@@ -39,14 +38,22 @@ static void yamaha_adpcmb_expand_nibble(uint8_t byte, int shift, int32_t* hist1,
 }
 
 /* Yamaha AICA expand, slightly filtered vs "ACM" Yamaha ADPCM, same as Creative ADPCM
- * (some info from https://github.com/vgmrips/vgmplay, https://wiki.multimedia.cx/index.php/Creative_ADPCM) */
-static void yamaha_aica_expand_nibble(VGMSTREAMCHANNEL * stream, off_t byte_offset, int nibble_shift, int32_t* hist1, int32_t* step_size, int16_t *out_sample) {
+ * (some info from https://github.com/superctr/adpcm/blob/master/ymz_codec.c, https://wiki.multimedia.cx/index.php/Creative_ADPCM) */
+static void yamaha_aica_expand_nibble(uint8_t byte, int shift, int16_t* hist1, int32_t* step_size, int16_t *out_sample) {
     int code, delta, sample;
 
-    *hist1 = *hist1 * 254 / 256; /* hist filter is vital to get correct waveform but not done in many emus */
+    *hist1 = *hist1 * 254 / 256; /* hist filter seems used but may not be needed? (clamping delta is enough?)*/
 
-    code = ((read_8bit(byte_offset,stream->streamfile) >> nibble_shift))&0xf;
-    delta = (*step_size * scale_delta[code]) / 8; /* 'mul' IMA with table (not sure if part of encoder) */
+    code = (byte >> shift) & 0xf;
+    delta = ((((code & 0x7) * 2) + 1) * (*step_size)) >> 3; /* like 'mul' IMA */
+
+    /* supposedly from official encoder but possibly all YM chips do this,
+     * matters in some games to avoid random glitches (early/buggy encoders?), ex. GTA2 */
+    if (delta > 32767)
+        delta = 32767;
+
+    if (code & 8)
+        delta = -delta;
     sample = *hist1 + delta;
 
     sample = clamp16(sample); /* apparently done by official encoder */
@@ -57,6 +64,31 @@ static void yamaha_aica_expand_nibble(VGMSTREAMCHANNEL * stream, off_t byte_offs
 
     *out_sample = sample;
     *hist1 = sample;
+}
+
+/* Capcom's version of Yamaha expand */
+static void yamaha_capcom_expand_nibble(uint8_t byte, int shift, int32_t* hist1, int32_t* step_size, int16_t *out_sample) {
+    int code, ucode, delta, sample;
+    const int scale = 0x200; /* ADPCM state var, but seemingly fixed */
+
+    code =  (byte >> shift) & 0xf;
+    ucode = code & 0x7;
+    delta = (ucode * (*step_size)) >> 2; /* custom (SH2 CPU can't do odd shifts in one op, it seems) */
+    if (code & 8)
+        delta = -delta;
+    sample = *hist1 + delta;
+
+    sample = (short)sample; /* clamp not done, but output is always low-ish */
+
+    *step_size = ((*step_size) * scale_step_capcom[ucode]) >> 16;
+    if (*step_size < 0x80) *step_size = 0x80; /* unlike usual 0x7f */
+    else if (*step_size > 0x6000) *step_size = 0x6000;
+
+    *hist1 = sample;
+
+    /* OG code adds out sample, but seems to be always 0 (used for mono downmix?) */
+    sample = ((scale * sample) >> 8) /*+ *out_sample */;
+    *out_sample = sample;
 }
 
 
@@ -79,11 +111,11 @@ static void yamaha_aica_expand_nibble(VGMSTREAMCHANNEL * stream, off_t byte_offs
  */
 
 
-/* Yamaha AICA ADPCM (also used in YMZ280B with high nibble first) */
-void decode_aica(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel, int is_stereo) {
+/* Yamaha AICA ADPCM (also used in YMZ263B/YMZ280B with high nibble first) */
+void decode_aica(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel, int is_stereo, int is_high_first) {
     int i, sample_count = 0;
     int16_t out_sample;
-    int32_t hist1 = stream->adpcm_history1_16;
+    int16_t hist1 = stream->adpcm_history1_16;
     int step_size = stream->adpcm_step_index;
 
     /* no header (external setup), pre-clamp for wrong values */
@@ -91,14 +123,16 @@ void decode_aica(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacin
     if (step_size > 0x6000) step_size = 0x6000;
 
     for (i = first_sample; i < first_sample + samples_to_do; i++) {
-        off_t byte_offset = is_stereo ?
+        uint8_t byte;
+        off_t offset = is_stereo ?
                 stream->offset + i :    /* stereo: one nibble per channel */
                 stream->offset + i/2;   /* mono: consecutive nibbles */
-        int nibble_shift = is_stereo ?
-                (!(channel&1) ? 0:4) :  /* even = low/L, odd = high/R */
-                (!(i&1) ? 0:4);         /* low nibble first */
+        int shift = is_high_first ?
+                is_stereo ? (!(channel&1) ? 4:0) : (!(i&1) ? 4:0) : /* even = high/L, odd = low/R */
+                is_stereo ? (!(channel&1) ? 0:4) : (!(i&1) ? 0:4);  /* even = low/L, odd = high/L */
 
-        yamaha_aica_expand_nibble(stream, byte_offset, nibble_shift, &hist1, &step_size, &out_sample);
+        byte = read_u8(offset, stream->streamfile);
+        yamaha_aica_expand_nibble(byte, shift, &hist1, &step_size, &out_sample);
         outbuf[sample_count] = out_sample;
         sample_count += channelspacing;
     }
@@ -106,6 +140,37 @@ void decode_aica(VGMSTREAMCHANNEL * stream, sample_t * outbuf, int channelspacin
     stream->adpcm_history1_16 = hist1;
     stream->adpcm_step_index = step_size;
 }
+
+/* Capcom/Saturn Yamaha ADPCM, reverse engineered from the exe (codec has no apparent name so CP_YM = Capcom Yamaha) */
+void decode_cp_ym(VGMSTREAMCHANNEL* stream, sample_t* outbuf, int channelspacing, int32_t first_sample, int32_t samples_to_do, int channel, int is_stereo) {
+    int i, sample_count = 0;
+    int16_t out_sample;
+    int32_t hist1 = stream->adpcm_history1_16;
+    int step_size = stream->adpcm_step_index;
+
+    /* no header (external setup), pre-clamp for wrong values */
+    if (step_size < 0x80) step_size = 0x80;
+    if (step_size > 0x6000) step_size = 0x6000;
+
+    for (i = first_sample; i < first_sample + samples_to_do; i++) {
+        uint8_t byte;
+        uint32_t offset = is_stereo ?
+                stream->offset + i :    /* stereo: one nibble per channel */
+                stream->offset + i/2;   /* mono: consecutive nibbles */
+        int shift = is_stereo ?
+                (!(channel&1) ? 0:4) :  /* even = low/L, odd = high/R */
+                (!(i&1) ? 0:4);         /* low nibble first */
+
+        byte = read_u8(offset, stream->streamfile);
+        yamaha_capcom_expand_nibble(byte, shift, &hist1, &step_size, &out_sample);
+        outbuf[sample_count] = out_sample;
+        sample_count += channelspacing;
+    }
+
+    stream->adpcm_history1_16 = hist1;
+    stream->adpcm_step_index = step_size;
+}
+
 
 /* tri-Ace Aska ADPCM, Yamaha ADPCM-B with headered frames (reversed from Android SO's .so)
  * implements table with if-else/switchs too but that's too goofy */

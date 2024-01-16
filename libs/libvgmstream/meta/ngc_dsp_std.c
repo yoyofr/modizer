@@ -8,12 +8,12 @@
 struct dsp_header {
     uint32_t sample_count;      /* 0x00 */
     uint32_t nibble_count;      /* 0x04 (includes frame headers) */
-    uint32_t sample_rate;       /* 0x08 (generally 32/48kz but games like Wario World set 32028hz to adjust for GC's rate) */
+    uint32_t sample_rate;       /* 0x08 (generally 22/32/44/48kz but games like Wario World set 32028hz to adjust for GC's rate) */
     uint16_t loop_flag;         /* 0x0c */
     uint16_t format;            /* 0x0e (always 0 for ADPCM) */
-    uint32_t loop_start_offset; /* 0x10 */
-    uint32_t loop_end_offset;   /* 0x14 */
-    uint32_t ca;                /* 0x18 (always 0) */
+    uint32_t loop_start_offset; /* 0x10 (in nibbles, should be 2 if 0/not set) */
+    uint32_t loop_end_offset;   /* 0x14 (in nibbles) */
+    uint32_t initial_offset;    /* 0x18 ("ca", in nibbles, should be 2) */
     int16_t coef[16];           /* 0x1c (eight pairs) */
     uint16_t gain;              /* 0x3c (always 0 for ADPCM) */
     uint16_t initial_ps;        /* 0x3e (predictor/scale in frame header) */
@@ -22,12 +22,13 @@ struct dsp_header {
     uint16_t loop_ps;           /* 0x44 (predictor/scale in loop frame header) */
     int16_t loop_hist1;         /* 0x46 */
     int16_t loop_hist2;         /* 0x48 */
-    int16_t channel_count;      /* 0x4a (DSPADPCM.exe ~v2.7 extension) */
-    int16_t block_size;         /* 0x4c */
-    /* padding/reserved up to 0x60, DSPADPCM.exe from GC adds garbage here (uninitialized MSVC memory?) */
+    int16_t channels;           /* 0x4a (DSPADPCM.exe ~v2.7 extension) */
+    uint16_t block_size;        /* 0x4c */
+    /* padding/reserved up to 0x60, DSPADPCM.exe from GC adds garbage here (uninitialized MSVC memory?)
+     * [ex. Batallion Wars (GC), Timesplitters 2 (GC)], 0xcccc...cccc with DSPADPCMD */
 };
 
-/* read the above struct; returns nonzero on failure */
+/* read and do basic validations to the above struct */
 static int read_dsp_header_endian(struct dsp_header *header, off_t offset, STREAMFILE* sf, int big_endian) {
     uint32_t (*get_u32)(const uint8_t*) = big_endian ? get_u32be : get_u32le;
     uint16_t (*get_u16)(const uint8_t*) = big_endian ? get_u16be : get_u16le;
@@ -36,31 +37,71 @@ static int read_dsp_header_endian(struct dsp_header *header, off_t offset, STREA
     uint8_t buf[0x60];
 
     if (offset > get_streamfile_size(sf))
-        return 1;
+        goto fail;
     if (read_streamfile(buf, offset, 0x60, sf) != 0x60)
-        return 1;
-    header->sample_count =      get_u32(buf+0x00);
-    header->nibble_count =      get_u32(buf+0x04);
-    header->sample_rate =       get_u32(buf+0x08);
-    header->loop_flag =         get_u16(buf+0x0c);
-    header->format =            get_u16(buf+0x0e);
-    header->loop_start_offset = get_u32(buf+0x10);
-    header->loop_end_offset =   get_u32(buf+0x14);
-    header->ca =                get_u32(buf+0x18);
-    for (i=0; i < 16; i++)
-        header->coef[i] =       get_s16(buf+0x1c+i*0x02);
-    header->gain =              get_u16(buf+0x3c);
-    header->initial_ps =        get_u16(buf+0x3e);
-    header->initial_hist1 =     get_s16(buf+0x40);
-    header->initial_hist2 =     get_s16(buf+0x42);
-    header->loop_ps =           get_u16(buf+0x44);
-    header->loop_hist1 =        get_s16(buf+0x46);
-    header->loop_hist2 =        get_s16(buf+0x48);
-    header->channel_count =     get_s16(buf+0x4a);
-    header->block_size =        get_s16(buf+0x4c);
+        goto fail;
+
+    /* Since header is rather basic add some extra checks. Some validations like samples vs nibbles
+     * and loop offsets/expected values should be external, since there are buggy variations */
+
+    /* base */
+    header->sample_count        = get_u32(buf+0x00);
+    if (header->sample_count > 0x10000000)
+        goto fail; /* unlikely to be that big, should catch fourccs */
+
+    /* usually nibbles = size*2 in mono, but interleaved stereo or L+R may use nibbles =~ size (or not), so can't
+     * easily reject files with more nibbles than data (nibbles may be part of the -R file) without redoing L+R handling */
+    header->nibble_count        = get_u32(buf+0x04);
+    if (header->nibble_count > 0x10000000)
+        goto fail;
+
+    header->sample_rate         = get_u32(buf+0x08);
+    if (header->sample_rate < 8000 || header->sample_rate > 48000)
+        goto fail; /* validated later but fail faster (unsure of min) */
+
+    /* context */
+    header->loop_flag           = get_u16(buf+0x0c);
+    if (header->loop_flag != 0 && header->loop_flag != 1)
+        goto fail;
+    header->format              = get_u16(buf+0x0e);
+    if (header->format != 0)
+        goto fail;
+    header->loop_start_offset   = get_u32(buf+0x10);
+    header->loop_end_offset     = get_u32(buf+0x14);
+
+    header->initial_offset      = get_u32(buf+0x18);
+    if (header->initial_offset != 2 && header->initial_offset != 0)
+        goto fail; /* Dr. Muto uses 0 */
+
+    for (i = 0; i < 16; i++)
+        header->coef[i]         = get_s16(buf+0x1c + i*0x02);
+
+    header->gain                = get_u16(buf+0x3c);
+    if (header->gain != 0)
+        goto fail;
+
+    /* decoder state */
+    header->initial_ps          = get_u16(buf+0x3e);
+    header->initial_hist1       = get_s16(buf+0x40);
+    header->initial_hist2       = get_s16(buf+0x42);
+    header->loop_ps             = get_u16(buf+0x44);
+    header->loop_hist1          = get_s16(buf+0x46);
+    header->loop_hist2          = get_s16(buf+0x48);
+
+    /* reserved, may contain garbage */
+    header->channels            = get_s16(buf+0x4a);
+    header->block_size          = get_s16(buf+0x4c);
+
+    if (header->channels > 64) /* arbitrary max */
+        header->channels = 0;
+    if (header->block_size >= 0xF000) /* same, 16b (usually 0) */
+        header->block_size = 0;
+
+    return 1;
+fail:
     return 0;
 }
-static int read_dsp_header(struct dsp_header *header, off_t offset, STREAMFILE* file) {
+static int read_dsp_header_be(struct dsp_header *header, off_t offset, STREAMFILE* file) {
     return read_dsp_header_endian(header, offset, file, 1);
 }
 static int read_dsp_header_le(struct dsp_header *header, off_t offset, STREAMFILE* file) {
@@ -72,7 +113,7 @@ static int read_dsp_header_le(struct dsp_header *header, off_t offset, STREAMFIL
 typedef struct {
     /* basic config */
     int little_endian;
-    int channel_count;
+    int channels;
     int max_channels;
 
     off_t header_offset;            /* standard DSP header */
@@ -100,22 +141,22 @@ typedef struct {
 /* Common parser for most DSPs that are basically the same with minor changes.
  * Custom variants will just concatenate or interleave standard DSP headers and data,
  * so we make sure to validate read vs expected values, based on dsp_meta config. */
-static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
+static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta* dspm) {
     VGMSTREAM* vgmstream = NULL;
     int i, j;
     int loop_flag;
     struct dsp_header ch_header[COMMON_DSP_MAX_CHANNELS];
 
 
-    if (dspm->channel_count > dspm->max_channels)
+    if (dspm->channels > dspm->max_channels)
         goto fail;
-    if (dspm->channel_count > COMMON_DSP_MAX_CHANNELS)
+    if (dspm->channels > COMMON_DSP_MAX_CHANNELS)
         goto fail;
 
     /* load standard DSP header per channel */
     {
-        for (i = 0; i < dspm->channel_count; i++) {
-            if (read_dsp_header_endian(&ch_header[i], dspm->header_offset + i*dspm->header_spacing, sf, !dspm->little_endian)) {
+        for (i = 0; i < dspm->channels; i++) {
+            if (!read_dsp_header_endian(&ch_header[i], dspm->header_offset + i*dspm->header_spacing, sf, !dspm->little_endian)) {
                 //;VGM_LOG("DSP: bad header\n");
                 goto fail;
             }
@@ -124,31 +165,22 @@ static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
 
     /* fix bad/fixed value in loop start */
     if (dspm->fix_loop_start) {
-        for (i = 0; i < dspm->channel_count; i++) {
+        for (i = 0; i < dspm->channels; i++) {
             if (ch_header[i].loop_flag)
                 ch_header[i].loop_start_offset = 0x00;
         }
     }
 
-    /* check type==0 and gain==0 */
-    {
-        for (i = 0; i < dspm->channel_count; i++) {
-            if (ch_header[i].format || ch_header[i].gain) {
-                //;VGM_LOG("DSP: bad type/gain\n");
-                goto fail;
-            }
-        }
-    }
-
     /* check for agreement between channels */
     if (!dspm->ignore_header_agreement) {
-        for (i = 0; i < dspm->channel_count - 1; i++) {
+        for (i = 0; i < dspm->channels - 1; i++) {
             if (ch_header[i].sample_count != ch_header[i+1].sample_count ||
                 ch_header[i].nibble_count != ch_header[i+1].nibble_count ||
                 ch_header[i].sample_rate != ch_header[i+1].sample_rate ||
                 ch_header[i].loop_flag != ch_header[i+1].loop_flag ||
                 ch_header[i].loop_start_offset != ch_header[i+1].loop_start_offset ||
                 ch_header[i].loop_end_offset != ch_header[i+1].loop_end_offset) {
+                //;VGM_LOG("DSP: bad header agreement\n");
                 goto fail;
             }
         }
@@ -156,7 +188,7 @@ static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
 
     /* check expected initial predictor/scale */
     {
-        int channels = dspm->channel_count;
+        int channels = dspm->channels;
         if (dspm->single_header)
             channels = 1;
 
@@ -171,7 +203,7 @@ static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
 
     /* check expected loop predictor/scale */
     if (ch_header[0].loop_flag && !dspm->ignore_loop_ps) {
-        int channels = dspm->channel_count;
+        int channels = dspm->channels;
         if (dspm->single_header)
             channels = 1;
 
@@ -209,7 +241,7 @@ static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
 
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(dspm->channel_count,loop_flag);
+    vgmstream = allocate_vgmstream(dspm->channels,loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->sample_rate = ch_header[0].sample_rate;
@@ -245,9 +277,9 @@ static VGMSTREAM* init_vgmstream_dsp_common(STREAMFILE* sf, dsp_meta *dspm) {
         vgmstream->loop_end_sample = vgmstream->num_samples;
 
     if (dspm->single_header == 2) { /* double the samples */
-        vgmstream->num_samples /= dspm->channel_count;
-        vgmstream->loop_start_sample /= dspm->channel_count;
-        vgmstream->loop_end_sample /= dspm->channel_count;
+        vgmstream->num_samples /= dspm->channels;
+        vgmstream->loop_start_sample /= dspm->channels;
+        vgmstream->loop_end_sample /= dspm->channels;
     }
 
 
@@ -262,43 +294,42 @@ fail:
 
 /* ********************************* */
 
-/* .dsp - standard dsp as generated by DSPADPCM.exe */
+/* .dsp - standard mono dsp as generated by DSPADPCM.exe */
 VGMSTREAM* init_vgmstream_ngc_dsp_std(STREAMFILE* sf) {
     VGMSTREAM* vgmstream = NULL;
     struct dsp_header header;
     const size_t header_size = 0x60;
     off_t start_offset;
-    int i, channel_count;
+    int i, channels;
 
     /* checks */
+    if (!read_dsp_header_be(&header, 0x00, sf))
+        return NULL;
+
     /* .dsp: standard
-     * .adp: Dr. Muto/Battalion Wars (GC) mono files
+     * .adp: Dr. Muto/Battalion Wars (GC), Tale of Despereaux (Wii)
      * (extensionless): Tony Hawk's Downhill Jam (Wii) */
     if (!check_extensions(sf, "dsp,adp,"))
-        goto fail;
+        return NULL;
 
-    if (read_dsp_header(&header, 0x00, sf))
-        goto fail;
-
-    channel_count = 1;
+    channels = 1;
     start_offset = header_size;
 
-    if (header.initial_ps != (uint8_t)read_8bit(start_offset,sf))
-        goto fail; /* check initial predictor/scale */
-    if (header.format || header.gain)
-        goto fail; /* check type==0 and gain==0 */
+    if (header.initial_ps != read_u8(start_offset,sf))
+        goto fail;
 
     /* Check for a matching second header. If we find one and it checks
      * out thoroughly, we're probably not dealing with a genuine mono DSP.
      * In many cases these will pass all the other checks, including the
      * predictor/scale check if the first byte is 0 */
-    //todo maybe this meta should be after others, so they have a chance to detect >1ch .dsp
+    //TODO: maybe this meta should be after others, so they have a better chance to detect >1ch .dsp
+    // (but .dsp is the common case, so it'd be slower)
     {
         int ko;
         struct dsp_header header2;
 
         /* ignore headers one after another */
-        ko = read_dsp_header(&header2, header_size, sf);
+        ko = !read_dsp_header_be(&header2, header_size, sf);
         if (!ko &&
                 header.sample_count == header2.sample_count &&
                 header.nibble_count == header2.nibble_count &&
@@ -309,7 +340,7 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std(STREAMFILE* sf) {
 
 
         /* ignore headers after interleave [Ultimate Board Collection (Wii)] */
-        ko = read_dsp_header(&header2, 0x10000, sf);
+        ko = !read_dsp_header_be(&header2, 0x10000, sf);
         if (!ko &&
                 header.sample_count == header2.sample_count &&
                 header.nibble_count == header2.nibble_count &&
@@ -317,13 +348,28 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std(STREAMFILE* sf) {
                 header.loop_flag == header2.loop_flag) {
             goto fail;
         }
+
+        /* ignore ddsp, that set samples/nibbles counting both channels so can't be detected
+         * (could check for .dsp but most files don't need this) */
+        if (check_extensions(sf, "adp")) {
+            uint32_t interleave = (get_streamfile_size(sf) / 2);
+
+            ko = !read_dsp_header_be(&header2, interleave, sf);
+            if (!ko &&
+                    header.sample_count == header2.sample_count &&
+                    header.nibble_count == header2.nibble_count &&
+                    header.sample_rate == header2.sample_rate &&
+                    header.loop_flag == header2.loop_flag) {
+                goto fail;
+            }
+        }
     }
         
     if (header.loop_flag) {
         off_t loop_off;
         /* check loop predictor/scale */
         loop_off = header.loop_start_offset/16*8;
-        if (header.loop_ps != (uint8_t)read_8bit(start_offset+loop_off,sf)) {
+        if (header.loop_ps != read_u8(start_offset+loop_off,sf)) {
             /* rarely won't match (ex ESPN 2002), not sure if header or calc problem, but doesn't seem to matter
              *  (there may be a "click" when looping, or loop values may be too big and loop disabled anyway) */
             VGM_LOG("DSP (std): bad loop_predictor\n");
@@ -334,7 +380,7 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std(STREAMFILE* sf) {
 
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count,header.loop_flag);
+    vgmstream = allocate_vgmstream(channels, header.loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->sample_rate = header.sample_rate;
@@ -372,23 +418,20 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std_le(STREAMFILE* sf) {
     struct dsp_header header;
     const size_t header_size = 0x60;
     off_t start_offset;
-    int i, channel_count;
+    int i, channels;
 
     /* checks */
+    if (!read_dsp_header_le(&header, 0x00, sf))
+        return NULL;
     /* .adpcm: LEGO Worlds */
     if (!check_extensions(sf, "adpcm"))
-        goto fail;
+        return NULL;
 
-    if (read_dsp_header_le(&header, 0x00, sf))
-        goto fail;
-
-    channel_count = 1;
+    channels = 1;
     start_offset = header_size;
 
-    if (header.initial_ps != (uint8_t)read_8bit(start_offset,sf))
-        goto fail; /* check initial predictor/scale */
-    if (header.format || header.gain)
-        goto fail; /* check type==0 and gain==0 */
+    if (header.initial_ps != read_u8(start_offset,sf))
+        goto fail;
 
     /* Check for a matching second header. If we find one and it checks
      * out thoroughly, we're probably not dealing with a genuine mono DSP.
@@ -396,9 +439,12 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std_le(STREAMFILE* sf) {
      * predictor/scale check if the first byte is 0 */
     {
         struct dsp_header header2;
-        read_dsp_header_le(&header2, header_size, sf);
+        int ko;
 
-        if (header.sample_count == header2.sample_count &&
+        ko = !read_dsp_header_le(&header2, header_size, sf);
+
+        if (!ko &&
+            header.sample_count == header2.sample_count &&
             header.nibble_count == header2.nibble_count &&
             header.sample_rate == header2.sample_rate &&
             header.loop_flag == header2.loop_flag) {
@@ -410,24 +456,20 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std_le(STREAMFILE* sf) {
         off_t loop_off;
         /* check loop predictor/scale */
         loop_off = header.loop_start_offset/16*8;
-        if (header.loop_ps != (uint8_t)read_8bit(start_offset+loop_off,sf)) {
-            /* rarely won't match (ex ESPN 2002), not sure if header or calc problem, but doesn't seem to matter
-             *  (there may be a "click" when looping, or loop values may be too big and loop disabled anyway) */
-            VGM_LOG("DSP (std): bad loop_predictor\n");
-            //header.loop_flag = 0;
-            //goto fail;
+        if (header.loop_ps != read_u8(start_offset+loop_off,sf)) {
+            goto fail;
         }
     }
 
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count,header.loop_flag);
+    vgmstream = allocate_vgmstream(channels, header.loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->sample_rate = header.sample_rate;
     vgmstream->num_samples = header.sample_count;
     vgmstream->loop_start_sample = dsp_nibbles_to_samples(header.loop_start_offset);
-    vgmstream->loop_end_sample   = dsp_nibbles_to_samples(header.loop_end_offset)+1;
+    vgmstream->loop_end_sample   = dsp_nibbles_to_samples(header.loop_end_offset) + 1;
     if (vgmstream->loop_end_sample > vgmstream->num_samples) /* don't know why, but it does happen */
         vgmstream->loop_end_sample = vgmstream->num_samples;
 
@@ -459,29 +501,27 @@ VGMSTREAM* init_vgmstream_ngc_mdsp_std(STREAMFILE* sf) {
     struct dsp_header header;
     const size_t header_size = 0x60;
     off_t start_offset;
-    int i, c, channel_count;
+    int i, c, channels;
 
     /* checks */
+    if (!read_dsp_header_be(&header, 0x00, sf))
+        return NULL;
     if (!check_extensions(sf, "dsp,mdsp"))
-        goto fail;
+        return NULL;
 
-    if (read_dsp_header(&header, 0x00, sf))
-        goto fail;
+    channels = header.channels==0 ? 1 : header.channels;
+    start_offset = header_size * channels;
 
-    channel_count = header.channel_count==0 ? 1 : header.channel_count;
-    start_offset = header_size * channel_count;
+    if (header.initial_ps != read_u8(start_offset, sf))
+        goto fail;
 
     /* named .dsp and no channels? likely another interleaved dsp */
-    if (check_extensions(sf,"dsp") && header.channel_count == 0)
+    if (check_extensions(sf,"dsp") && header.channels == 0)
         goto fail;
 
-    if (header.initial_ps != (uint8_t)read_8bit(start_offset, sf))
-        goto fail; /* check initial predictor/scale */
-    if (header.format || header.gain)
-        goto fail; /* check type==0 and gain==0 */
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count, header.loop_flag);
+    vgmstream = allocate_vgmstream(channels, header.loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->sample_rate = header.sample_rate;
@@ -493,13 +533,14 @@ VGMSTREAM* init_vgmstream_ngc_mdsp_std(STREAMFILE* sf) {
 
     vgmstream->meta_type = meta_DSP_STD;
     vgmstream->coding_type = coding_NGC_DSP;
-    vgmstream->layout_type = channel_count == 1 ? layout_none : layout_interleave;
+    vgmstream->layout_type = channels == 1 ? layout_none : layout_interleave;
     vgmstream->interleave_block_size = header.block_size * 8;
     if (vgmstream->interleave_block_size)
         vgmstream->interleave_last_block_size = (header.nibble_count / 2 % vgmstream->interleave_block_size + 7) / 8 * 8;
 
-    for (i = 0; i < channel_count; i++) {
-        if (read_dsp_header(&header, header_size * i, sf)) goto fail;
+    for (i = 0; i < channels; i++) {
+        if (!read_dsp_header_be(&header, header_size * i, sf))
+            goto fail;
 
         /* adpcm coeffs/history */
         for (c = 0; c < 16; c++)
@@ -524,21 +565,23 @@ VGMSTREAM* init_vgmstream_ngc_dsp_stm(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    /* .lstm/dsp: renamed to avoid hijacking Scream Tracker 2 Modules */
+    if (read_u16be(0x00, sf) != 0x0200)
+        goto fail;
+
+    /* .lstm/dsp: renamed to avoid hijacking Scream Tracker 2 Modules (not needed) */
     if (!check_extensions(sf, "stm,lstm,dsp"))
         goto fail;
-    if (read_16bitBE(0x00, sf) != 0x0200)
-        goto fail;
-    /* 0x02(2): sample rate, 0x08+: channel sizes/loop offsets? */
+    /* 0x02: sample rate
+     * 0x08+: channel sizes/loop offsets? */
 
-    dspm.channel_count = read_32bitBE(0x04, sf);
+    dspm.channels = read_u32be(0x04, sf);
     dspm.max_channels = 2;
     dspm.fix_looping = 1;
 
     dspm.header_offset =  0x40;
     dspm.header_spacing = 0x60;
     dspm.start_offset = 0x100;
-    dspm.interleave = (read_32bitBE(0x08, sf) + 0x20) / 0x20 * 0x20; /* strange rounding, but works */
+    dspm.interleave = (read_u32be(0x08, sf) + 0x20) / 0x20 * 0x20; /* strange rounding, but works */
 
     dspm.meta_type = meta_DSP_STM;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -546,20 +589,21 @@ fail:
     return NULL;
 }
 
-/* .(mp)dsp - single header + interleaved dsp [Monopoly Party! (GC)] */
+/* .STE - single header + interleaved dsp [Monopoly Party! (GC)] */
 VGMSTREAM* init_vgmstream_ngc_mpdsp(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    /* .mpdsp: renamed since standard .dsp would catch it otherwise */
-    if (!check_extensions(sf, "mpdsp"))
+    /* .ste: real extension
+     * .mpdsp: fake/renamed since standard .dsp would catch it otherwise */
+    if (!check_extensions(sf, "mpdsp,ste"))
         goto fail;
 
     /* at 0x48 is extra data that could help differenciating these DSPs, but seems like
      * memory garbage created by the encoder that other games also have */
     /* 0x02(2): sample rate, 0x08+: channel sizes/loop offsets? */
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
     dspm.single_header = 2;
 
@@ -583,7 +627,7 @@ VGMSTREAM* init_vgmstream_ngc_dsp_std_int(STREAMFILE* sf) {
     if (!check_extensions(sf, "dsp,mss,gcm"))
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
     dspm.fix_looping = 1;
 
@@ -618,9 +662,10 @@ VGMSTREAM* init_vgmstream_idsp_namco(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "idsp"))
+    if (!is_id32be(0x00,sf, "IDSP"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x49445350) /* "IDSP" */
+
+    if (!check_extensions(sf, "idsp"))
         goto fail;
 
     dspm.max_channels = 8;
@@ -628,7 +673,7 @@ VGMSTREAM* init_vgmstream_idsp_namco(STREAMFILE* sf) {
     dspm.fix_looping = 1;
 
     /* 0x04: null */
-    dspm.channel_count = read_32bitBE(0x08, sf);
+    dspm.channels = read_32bitBE(0x08, sf);
     /* 0x0c: sample rate */
     /* 0x10: num_samples */
     /* 0x14: loop start */
@@ -652,12 +697,13 @@ VGMSTREAM* init_vgmstream_sadb(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "sad"))
-        goto fail;
-    if (read_32bitBE(0x00,sf) != 0x73616462) /* "sadb" */
+    if (!is_id32be(0x00,sf, "sadb"))
         goto fail;
 
-    dspm.channel_count = read_8bit(0x32, sf);
+    if (!check_extensions(sf, "sad"))
+        goto fail;
+
+    dspm.channels = read_8bit(0x32, sf);
     dspm.max_channels = 2;
 
     dspm.header_offset =  0x80;
@@ -678,20 +724,20 @@ VGMSTREAM* init_vgmstream_idsp_tt(STREAMFILE* sf) {
     int version_main, version_sub;
 
     /* checks */
+    if (!is_id32be(0x00,sf, "IDSP"))
+        goto fail;
+
     /* .gcm: standard
      * .idsp: header id?
      * .wua: Lego Dimensions (Wii U) */
     if (!check_extensions(sf, "gcm,idsp,wua"))
         goto fail;
 
-    if (read_32bitBE(0x00,sf) != 0x49445350) /* "IDSP" */
-        goto fail;
-
-    version_main = read_32bitBE(0x04, sf);
-    version_sub  = read_32bitBE(0x08, sf); /* extra check since there are other IDSPs */
+    version_main = read_u32be(0x04, sf);
+    version_sub  = read_u32be(0x08, sf); /* extra check since there are other IDSPs */
     if (version_main == 0x01 && version_sub == 0xc8) {
         /* Transformers: The Game (Wii) */
-        dspm.channel_count = 2;
+        dspm.channels = 2;
         dspm.max_channels = 2;
         dspm.header_offset = 0x10;
     }
@@ -702,7 +748,7 @@ VGMSTREAM* init_vgmstream_idsp_tt(STREAMFILE* sf) {
          * Lego Star Wars: The Complete Saga (Wii)
          * Lego Pirates of the Caribbean (Wii)
          * Lego Harry Potter: Years 1-4 (Wii) */
-        dspm.channel_count = 2;
+        dspm.channels = 2;
         dspm.max_channels = 2;
         dspm.header_offset = 0x20;
         /* 0x10+: null */
@@ -710,7 +756,7 @@ VGMSTREAM* init_vgmstream_idsp_tt(STREAMFILE* sf) {
     else if (version_main == 0x03 && version_sub == 0x12c) {
         /* Lego The Lord of the Rings (Wii) */
         /* Lego Dimensions (Wii U) */
-        dspm.channel_count = read_32bitBE(0x10, sf);
+        dspm.channels = read_u32be(0x10, sf);
         dspm.max_channels = 2;
         dspm.header_offset = 0x20;
         /* 0x14+: "I_AM_PADDING" */
@@ -720,8 +766,8 @@ VGMSTREAM* init_vgmstream_idsp_tt(STREAMFILE* sf) {
     }
 
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + 0x60 * dspm.channel_count;
-    dspm.interleave = read_32bitBE(0x0c, sf);
+    dspm.start_offset = dspm.header_offset + 0x60 * dspm.channels;
+    dspm.interleave = read_u32be(0x0c, sf);
 
     dspm.meta_type = meta_IDSP_TT;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -729,22 +775,22 @@ fail:
     return NULL;
 }
 
-/* IDSP - from Next Level games [Super Mario Strikers (GC), Mario Strikers: Charged (Wii)] */
+/* IDSP - from Next Level games [Super Mario Strikers (GC), Mario Strikers Charged (Wii), Spider-Man: Friend or Foe (Wii)] */
 VGMSTREAM* init_vgmstream_idsp_nl(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (!is_id32be(0x00,sf, "IDSP"))
+        goto fail;
     if (!check_extensions(sf, "idsp"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x49445350) /* "IDSP" */
-        goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
     dspm.header_offset =  0x0c;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channels;
     dspm.interleave = read_32bitBE(0x04,sf);
     /* 0x08: usable channel size */
     {
@@ -754,7 +800,7 @@ VGMSTREAM* init_vgmstream_idsp_nl(STREAMFILE* sf) {
         stream_size -= dspm.start_offset;
 
         if (dspm.interleave)
-            dspm.interleave_last = (stream_size / dspm.channel_count) % dspm.interleave;
+            dspm.interleave_last = (stream_size / dspm.channels) % dspm.interleave;
     }
 
     dspm.fix_looping = 1;
@@ -772,16 +818,18 @@ VGMSTREAM* init_vgmstream_wii_wsd(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (read_u32be(0x00,sf) != 0x20)
+        goto fail;
     if (!check_extensions(sf, "wsd"))
         goto fail;
-    if (read_32bitBE(0x08,sf) != read_32bitBE(0x0c,sf)) /* channel sizes */
+    if (read_u32be(0x08,sf) != read_u32be(0x0c,sf)) /* channel sizes */
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
-    dspm.header_offset =  read_32bitBE(0x00,sf);
-    dspm.header_spacing = read_32bitBE(0x04,sf) - dspm.header_offset;
+    dspm.header_offset =  read_u32be(0x00,sf);
+    dspm.header_spacing = read_u32be(0x04,sf) - dspm.header_offset;
     dspm.start_offset = dspm.header_offset + 0x60;
     dspm.interleave = dspm.header_spacing;
 
@@ -791,21 +839,27 @@ fail:
     return NULL;
 }
 
-/* .ddsp - full interleaved dsp [The Sims 2 - Pets (Wii)] */
+/* .ddsp - full interleaved dsp [Shark Tale (GC), The Sims 2: Pets (Wii), Wacky Races: Crash & Dash (Wii)] */
 VGMSTREAM* init_vgmstream_dsp_ddsp(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "ddsp"))
+    /* .adp: Tale of Despereaux (Wii) */
+    /* .ddsp: fake extension (games have bigfiles without names, but has references to .wav)
+     * .wav: Wacky Races: Crash & Dash (Wii) */    
+    if (!check_extensions(sf, "adp,ddsp,wav,lwav"))
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x00;
-    dspm.header_spacing = (get_streamfile_size(sf) / dspm.channel_count);
+    dspm.header_spacing = (get_streamfile_size(sf) / dspm.channels);
     dspm.start_offset = 0x60;
     dspm.interleave = dspm.header_spacing;
+
+    /* this format has nibbles in both headers matching all data (not just for that channel),
+     * and interleave is exact half even for files that aren't aligned to 0x10 */
 
     dspm.meta_type = meta_DSP_DDSP;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -818,17 +872,17 @@ VGMSTREAM* init_vgmstream_wii_was(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (!is_id32be(0x00,sf, "iSWS"))
+        goto fail;
     if (!check_extensions(sf, "was,dsp,isws"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x69535753) /* "iSWS" */
-        goto fail;
 
-    dspm.channel_count = read_32bitBE(0x08,sf);
+    dspm.channels = read_32bitBE(0x08,sf);
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x08 + read_32bitBE(0x04,sf);
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.channel_count*dspm.header_spacing;
+    dspm.start_offset = dspm.header_offset + dspm.channels*dspm.header_spacing;
     dspm.interleave = read_32bitBE(0x10,sf);
 
     dspm.meta_type = meta_WII_WAS;
@@ -845,7 +899,7 @@ VGMSTREAM* init_vgmstream_dsp_str_ig(STREAMFILE* sf) {
     if (!check_extensions(sf, "str"))
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x00;
@@ -867,13 +921,13 @@ VGMSTREAM* init_vgmstream_dsp_xiii(STREAMFILE* sf) {
     if (!check_extensions(sf, "dsp"))
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
     dspm.fix_loop_start = 1; /* loop flag but strange loop start instead of 0 (maybe shouldn't loop) */
 
     dspm.header_offset = 0x00;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing * dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing * dspm.channels;
     dspm.interleave = 0x08;
 
     dspm.meta_type = meta_DSP_XIII;
@@ -887,22 +941,22 @@ VGMSTREAM* init_vgmstream_dsp_ndp(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (!is_id32be(0x00,sf, "NDP\0"))
+        goto fail;
     /* .nds: standard
      * .ndp: header id */
     if (!check_extensions(sf, "nds,ndp"))
-        goto fail;
-    if (!is_id32be(0x00,sf, "NDP\0"))
         goto fail;
     if (read_u32le(0x08,sf) + 0x18 != get_streamfile_size(sf))
         goto fail;
     /* 0x0c: sample rate */
 
-    dspm.channel_count = read_u32le(0x10,sf);
+    dspm.channels = read_u32le(0x10,sf);
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x18;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.channel_count*dspm.header_spacing;
+    dspm.start_offset = dspm.header_offset + dspm.channels*dspm.header_spacing;
     dspm.interleave = 0x04;
     dspm.ignore_loop_ps = 1; /* some files loops from 0 but loop ps is null */
 
@@ -925,13 +979,13 @@ VGMSTREAM* init_vgmstream_dsp_cabelas(STREAMFILE* sf) {
         goto fail;
 
     /* sfx are mono, but standard dsp will catch them tho */
-    dspm.channel_count = read_32bitBE(0x00,sf) == read_32bitBE(0x60,sf) ? 2 : 1;
+    dspm.channels = read_32bitBE(0x00,sf) == read_32bitBE(0x60,sf) ? 2 : 1;
     dspm.max_channels = 2;
-    dspm.force_loop = (dspm.channel_count > 1);
+    dspm.force_loop = (dspm.channels > 1);
 
     dspm.header_offset = 0x00;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.channel_count*dspm.header_spacing;
+    dspm.start_offset = dspm.header_offset + dspm.channels*dspm.header_spacing;
     dspm.interleave = 0x10;
 
     dspm.meta_type = meta_DSP_CABELAS;
@@ -945,18 +999,19 @@ VGMSTREAM* init_vgmstream_ngc_dsp_aaap(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (!is_id32be(0x00,sf, "AAAp"))
+        goto fail;
     if (!check_extensions(sf, "dsp"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x41414170) /* "AAAp" */
-        goto fail;
 
-    dspm.channel_count = read_16bitBE(0x06,sf);
+
+    dspm.interleave = read_u16be(0x04,sf);
+    dspm.channels = read_u16be(0x06,sf);
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x08;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.channel_count*dspm.header_spacing;
-    dspm.interleave = (uint16_t)read_16bitBE(0x04,sf);
+    dspm.start_offset = dspm.header_offset + dspm.channels * dspm.header_spacing;
 
     dspm.meta_type = meta_NGC_DSP_AAAP;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -969,15 +1024,15 @@ VGMSTREAM* init_vgmstream_dsp_dspw(STREAMFILE* sf) {
     dsp_meta dspm = {0};
     size_t data_size;
 
-    /* check extension */
-    if (!check_extensions(sf, "dspw"))
+    /* checks */
+    if (!is_id32be(0x00,sf, "DSPW"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x44535057) /* "DSPW" */
+    if (!check_extensions(sf, "dspw"))
         goto fail;
 
     /* ignore time marker */
     data_size = read_32bitBE(0x08, sf);
-    if (read_32bitBE(data_size - 0x10, sf) == 0x74494D45) /* "tIME" */
+    if (is_id32be(data_size - 0x10, sf, "tIME"))
         data_size -= 0x10; /* (ignore, 2 ints in YYYYMMDD hhmmss00) */
 
     /* some files have a mrkr section with multiple loop regions added at the end (variable size) */
@@ -996,13 +1051,13 @@ VGMSTREAM* init_vgmstream_dsp_dspw(STREAMFILE* sf) {
     data_size -= 0x20; /* header size */
     /* 0x10: loop start, 0x14: loop end, 0x1c: num_samples */
 
-    dspm.channel_count = read_32bitBE(0x18, sf);
+    dspm.channels = read_32bitBE(0x18, sf);
     dspm.max_channels = 6; /* 6ch in Monster Hunter 3 Ultimate */
 
     dspm.header_offset = 0x20;
-    dspm.header_spacing = data_size / dspm.channel_count;
+    dspm.header_spacing = data_size / dspm.channels;
     dspm.start_offset = dspm.header_offset + 0x60;
-    dspm.interleave = data_size / dspm.channel_count;
+    dspm.interleave = data_size / dspm.channels;
 
     dspm.meta_type = meta_DSP_DSPW;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -1015,13 +1070,15 @@ VGMSTREAM* init_vgmstream_ngc_dsp_iadp(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    /* .adp: actual extension, .iadp: header id */
-    if (!check_extensions(sf, "adp,iadp"))
-        goto fail;
-    if (read_32bitBE(0x00,sf) != 0x69616470) /* "iadp" */
+    if (!is_id32be(0x00,sf, "iadp"))
         goto fail;
 
-    dspm.channel_count = read_32bitBE(0x04,sf);
+    /* .adp: actual extension
+     * .iadp: header id */
+    if (!check_extensions(sf, "adp,iadp"))
+        goto fail;
+
+    dspm.channels = read_32bitBE(0x04,sf);
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x20;
@@ -1046,12 +1103,12 @@ VGMSTREAM* init_vgmstream_dsp_mcadpcm(STREAMFILE* sf) {
     //if (read_32bitLE(0x08,sf) != read_32bitLE(0x10,sf))
     //   goto fail;
 
-    dspm.channel_count = read_32bitLE(0x00,sf);
+    dspm.channels = read_32bitLE(0x00,sf);
     dspm.max_channels = 2;
     dspm.little_endian = 1;
 
     dspm.header_offset =  read_32bitLE(0x04,sf);
-    dspm.header_spacing = dspm.channel_count == 1 ? 0 :
+    dspm.header_spacing = dspm.channels == 1 ? 0 :
         read_32bitLE(0x0c,sf) - dspm.header_offset; /* channel 2 start, only with Nch */
     dspm.start_offset = dspm.header_offset + 0x60;
     dspm.interleave = dspm.header_spacing;
@@ -1067,20 +1124,22 @@ VGMSTREAM* init_vgmstream_dsp_switch_audio(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    /* .switch_audio: possibly UE4 class name rather than extension, .dsp: assumed */
+    /* .switch_audio: possibly UE4 class name rather than extension
+     * .dsp: assumed */
     if (!check_extensions(sf, "switch_audio,dsp"))
         goto fail;
 
     /* manual double header test */
+    //todo improve to read after first header
     if (read_32bitLE(0x00, sf) == read_32bitLE(get_streamfile_size(sf) / 2, sf))
-        dspm.channel_count = 2;
+        dspm.channels = 2;
     else
-        dspm.channel_count = 1;
+        dspm.channels = 1;
     dspm.max_channels = 2;
     dspm.little_endian = 1;
 
     dspm.header_offset = 0x00;
-    dspm.header_spacing = get_streamfile_size(sf) / dspm.channel_count;
+    dspm.header_spacing = get_streamfile_size(sf) / dspm.channels;
     dspm.start_offset = dspm.header_offset + 0x60;
     dspm.interleave = dspm.header_spacing;
 
@@ -1095,22 +1154,23 @@ VGMSTREAM* init_vgmstream_dsp_sps_n1(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
+    if (read_u32be(0x00,sf) != 0x08000000) /* file type (see other N1 SPS) */
+        goto fail;
+
     /* .vag: Penny-Punching Princess (Switch)
      * .nlsd: Ys VIII (Switch) */
     if (!check_extensions(sf, "vag,nlsd"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x08000000) /* file type (see other N1 SPS) */
-        goto fail;
-    if ((uint16_t)read_16bitLE(0x08,sf) != read_32bitLE(0x24,sf)) /* header has various repeated values */
+    if (read_u16le(0x08,sf) != read_u32le(0x24,sf)) /* header has various repeated values */
         goto fail;
 
-    dspm.channel_count = 1;
+    dspm.channels = 1;
     dspm.max_channels = 1;
     dspm.little_endian = 1;
 
     dspm.header_offset = 0x1c;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channels;
     dspm.interleave = 0;
 
     dspm.meta_type = meta_DSP_VAG;
@@ -1127,12 +1187,12 @@ VGMSTREAM* init_vgmstream_dsp_itl_ch(STREAMFILE* sf) {
     if (!check_extensions(sf, "itl"))
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
     dspm.header_offset = 0x00;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing * dspm.channels;
     dspm.interleave = 0x23C0;
 
     dspm.fix_looping = 1;
@@ -1148,22 +1208,23 @@ VGMSTREAM* init_vgmstream_dsp_adpy(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "adpcmx"))
+    if (!is_id32be(0x00,sf, "ADPY"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x41445059) /* "ADPY" */
+
+    if (!check_extensions(sf, "adpcmx"))
         goto fail;
 
     /* 0x04(2): 1? */
     /* 0x08: some size? */
     /* 0x0c: null */
 
-    dspm.channel_count = read_16bitLE(0x06,sf);
+    dspm.channels = read_u16le(0x06,sf);
     dspm.max_channels = 2;
     dspm.little_endian = 1;
 
     dspm.header_offset = 0x10;
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channels;
     dspm.interleave = 0x08;
 
     dspm.meta_type = meta_DSP_ADPY;
@@ -1177,16 +1238,17 @@ VGMSTREAM* init_vgmstream_dsp_adpx(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "adpcmx"))
+    if (!is_id32be(0x00,sf, "ADPX"))
         goto fail;
-    if (read_32bitBE(0x00,sf) != 0x41445058) /* "ADPX" */
+
+    if (!check_extensions(sf, "adpcmx"))
         goto fail;
 
     /* from 0x04 *6 are probably channel sizes, so max would be 6ch; this assumes 2ch */
     if (read_32bitLE(0x04,sf) != read_32bitLE(0x08,sf) &&
         read_32bitLE(0x0c,sf) != 0)
         goto fail;
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
     dspm.little_endian = 1;
 
@@ -1215,12 +1277,13 @@ VGMSTREAM* init_vgmstream_dsp_ds2(STREAMFILE* sf) {
           read_32bitBE(0x58,sf) == 0 &&
           read_32bitBE(0x5c,sf) != 0))
         goto fail;
+
     file_size = get_streamfile_size(sf);
     channel_offset = read_32bitBE(0x5c,sf);  /* absolute offset to 2nd channel */
     if (channel_offset < file_size / 2 || channel_offset > file_size) /* just to make sure */
         goto fail;
 
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
     dspm.single_header = 1;
 
@@ -1247,14 +1310,14 @@ VGMSTREAM* init_vgmstream_dsp_itl(STREAMFILE* sf) {
         goto fail;
 
     stream_size = get_streamfile_size(sf);
-    dspm.channel_count = 2;
+    dspm.channels = 2;
     dspm.max_channels = 2;
 
     dspm.start_offset = 0x60;
     dspm.interleave = 0x10000;
     dspm.interleave_first_skip = dspm.start_offset;
     dspm.interleave_first = dspm.interleave - dspm.interleave_first_skip;
-    dspm.interleave_last = (stream_size / dspm.channel_count) % dspm.interleave;
+    dspm.interleave_last = (stream_size / dspm.channels) % dspm.interleave;
     dspm.header_offset = 0x00;
     dspm.header_spacing = dspm.interleave;
 
@@ -1271,17 +1334,18 @@ VGMSTREAM* init_vgmstream_dsp_sqex(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "wav,lwav"))
-        goto fail;
     if (read_u32be(0x00,sf) != 0x00000000)
         goto fail;
 
-    dspm.channel_count = read_u32le(0x04,sf);
+    if (!check_extensions(sf, "wav,lwav"))
+        goto fail;
+
+    dspm.channels = read_u32le(0x04,sf);
     dspm.header_offset = read_u32le(0x08,sf);
     /* 0x0c: channel size */
     dspm.start_offset = dspm.header_offset + 0x60;
 
-    if (dspm.channel_count > 1) {
+    if (dspm.channels > 1) {
         dspm.interleave = read_u32le(0x10,sf) - dspm.header_offset;
         dspm.header_spacing = dspm.interleave;
     }
@@ -1302,21 +1366,20 @@ VGMSTREAM* init_vgmstream_dsp_wiivoice(STREAMFILE* sf) {
     /* also see g1l.c for WiiBGM weirder variation */
 
     /* checks */
+    if (!is_id64be(0x00,sf, "WiiVoice"))
+        goto fail;
     /* .dsp: assumed */
     if (!check_extensions(sf, "dsp"))
         goto fail;
-    if (read_u32be(0x00,sf) != 0x57696956 &&    /* "WiiV" */
-        read_u32be(0x04,sf) != 0x6F696365)      /* "oice" */
-        goto fail;
 
-    dspm.channel_count = 1;
+    dspm.channels = 1;
     dspm.max_channels = 1;
 
     dspm.header_offset = read_u32be(0x08,sf);
     /* 0x10: file size */
     /* 0x14: data size */
     dspm.header_spacing = 0x60;
-    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channel_count;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing*dspm.channels;
 
     dspm.meta_type = meta_DSP_WIIVOICE;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -1325,28 +1388,36 @@ fail:
 }
 
 
-/* WIIADPCM - Exient wrapper [Need for Speed: Hot Pursuit (Wii)] */
+/* WIIADPCM - Exient wrapper [Need for Speed: Hot Pursuit (Wii), Angry Birds: Star Wars (WiiU)] */
 VGMSTREAM* init_vgmstream_dsp_wiiadpcm(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    if (!check_extensions(sf, "adpcm"))
+    if (!is_id64be(0x00,sf, "WIIADPCM"))
         goto fail;
-    if (!is_id32be(0x00,sf, "WIIA") && !is_id32be(0x00,sf, "DPCM"))
+    if (!check_extensions(sf, "adpcm"))
         goto fail;
 
     dspm.interleave = read_u32be(0x08,sf); /* interleave offset */
-    if (dspm.interleave) {
-        dspm.interleave -= 0x10;
-    }
-    /* 0x0c: 0 when RAM (2 DSP headers), interleave size when stream (2 WIIADPCM headers) */
+    /* 0x0c: NFS = 0 when RAM (2 DSP headers), interleave size when stream (2 WIIADPCM headers) 
+     *       AB = 0 (2 WIIADPCM headers) */
 
-    dspm.channel_count = (dspm.interleave ? 2 : 1);
+    dspm.channels = (dspm.interleave ? 2 : 1);
     dspm.max_channels = 2;
 
-    dspm.header_offset = 0x10;
+    if (read_u32be(0x10,sf) != 0)
+        dspm.header_offset = 0x10; /* NFSHP */
+    else
+        dspm.header_offset = 0x20; /* ABSW */
+
+    if (dspm.interleave)
+        dspm.interleave -= dspm.header_offset;
+    dspm.interleave_first_skip = 0x60 + dspm.header_offset;
+    dspm.interleave_first = dspm.interleave - dspm.interleave_first_skip;
+
     dspm.header_spacing = dspm.interleave;
     dspm.start_offset = dspm.header_offset + 0x60;
+
 
     dspm.meta_type = meta_DSP_WIIADPCM;
     return init_vgmstream_dsp_common(sf, &dspm);
@@ -1360,13 +1431,14 @@ VGMSTREAM* init_vgmstream_dsp_cwac(STREAMFILE* sf) {
     dsp_meta dspm = {0};
 
     /* checks */
-    /* .dsp: assumed */
-    if (!check_extensions(sf, "dsp"))
-        goto fail;
     if (!is_id32be(0x00,sf, "CWAC"))
         goto fail;
 
-    dspm.channel_count  = read_u16be(0x04,sf);
+    /* .dsp: assumed */
+    if (!check_extensions(sf, "dsp"))
+        goto fail;
+
+    dspm.channels       = read_u16be(0x04,sf);
     dspm.header_offset  = read_u32be(0x08,sf);
     dspm.interleave     = read_u32be(0x0c,sf) - dspm.header_offset;
 
@@ -1375,6 +1447,104 @@ VGMSTREAM* init_vgmstream_dsp_cwac(STREAMFILE* sf) {
     dspm.start_offset = dspm.header_offset + 0x60;
 
     dspm.meta_type = meta_DSP_CWAC;
+    return init_vgmstream_dsp_common(sf, &dspm);
+fail:
+    return NULL;
+}
+
+
+/* .idsp - interleaved dsp [Harvest Moon: Another Wonderful Life (GC)] */
+VGMSTREAM* init_vgmstream_idsp_tose(STREAMFILE* sf) {
+    dsp_meta dspm = {0};
+    uint32_t blocks;
+
+    /* checks */
+    if (read_u32be(0x00,sf) != 0)
+        goto fail;
+    if (!check_extensions(sf, "idsp"))
+        goto fail;
+
+    dspm.max_channels = 4; /* mainly stereo */
+
+    /* 0x04: format? */
+    dspm.channels   = read_u16be(0x06,sf);
+    dspm.interleave = read_u32be(0x08,sf);
+    blocks          = read_u32be(0x0c,sf);
+
+    dspm.header_offset = 0x40;
+    dspm.header_spacing = 0x60;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing * dspm.channels;
+
+    if (dspm.start_offset + dspm.interleave * dspm.channels * blocks != get_streamfile_size(sf))
+        goto fail;
+
+    dspm.meta_type = meta_IDSP_TOSE;
+    return init_vgmstream_dsp_common(sf, &dspm);
+fail:
+    return NULL;
+}
+
+
+/* .KWA - interleaved dsp [Knight Wars prototype (Wii)] */
+VGMSTREAM* init_vgmstream_dsp_kwa(STREAMFILE* sf) {
+    dsp_meta dspm = {0};
+
+    /* checks */
+    if (read_u32be(0x00,sf) != 3)
+        goto fail;
+
+    if (!check_extensions(sf, "kwa"))
+        goto fail;
+
+    dspm.max_channels   = 4;
+
+    dspm.channels       = read_u32be(0x04,sf);
+    dspm.interleave     = read_u32be(0x0c,sf);
+
+    dspm.header_offset  = 0x20;
+    dspm.header_spacing = dspm.interleave;
+    dspm.start_offset = dspm.header_offset + 0x60;
+
+    dspm.interleave_first_skip = 0x60;
+    dspm.interleave_first = dspm.interleave - dspm.interleave_first_skip;
+
+    dspm.ignore_header_agreement = 1; /* Reus_2.kwa has a few more samples in channels 3+4 */
+
+    dspm.meta_type = meta_DSP_KWA;
+    return init_vgmstream_dsp_common(sf, &dspm);
+fail:
+    return NULL;
+}
+
+
+/* APEX - interleaved dsp [Ninja Gaiden 3 Razor's Edge (WiiU)] */
+VGMSTREAM* init_vgmstream_dsp_apex(STREAMFILE* sf) {
+    dsp_meta dspm = {0};
+    uint32_t stream_size;
+
+    /* checks */
+    if (!is_id32be(0x00,sf, "APEX"))
+        goto fail;
+
+    /* .dsp: assumed */
+    if (!check_extensions(sf, "dsp"))
+        goto fail;
+
+    dspm.max_channels   = 2;
+    stream_size         = read_u32be(0x04,sf);
+    /* 0x08: 1? */
+    dspm.channels       = read_u16be(0x0a,sf);
+    /* 0x0c: channel size? */
+
+    dspm.interleave     = 0x08;
+    dspm.header_offset  = 0x20;
+    dspm.header_spacing = 0x60;
+    dspm.start_offset = dspm.header_offset + dspm.header_spacing * 2;
+    /* second DSP header exists even for mono files, but has no coefs */
+
+    dspm.interleave_last = (stream_size / dspm.channels) % dspm.interleave;
+
+    dspm.meta_type = meta_DSP_APEX;
     return init_vgmstream_dsp_common(sf, &dspm);
 fail:
     return NULL;

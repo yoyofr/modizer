@@ -1,11 +1,33 @@
-#ifdef VGM_USE_VORBIS
 #include <stdio.h>
 #include <string.h>
 #include "meta.h"
 #include "../coding/coding.h"
+#include "../util/channel_mappings.h"
 #include "ogg_vorbis_streamfile.h"
 
 
+#ifdef VGM_USE_VORBIS
+static VGMSTREAM* _init_vgmstream_ogg_vorbis(STREAMFILE* sf);
+static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start, const ogg_vorbis_meta_info_t* ovmi);
+#endif
+
+VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
+#ifdef VGM_USE_VORBIS
+    return _init_vgmstream_ogg_vorbis(sf);
+#else
+    return NULL;
+#endif
+}
+
+VGMSTREAM* init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start, const ogg_vorbis_meta_info_t* ovmi) {
+#ifdef VGM_USE_VORBIS
+    return _init_vgmstream_ogg_vorbis_config(sf, start, ovmi);
+#else
+    return NULL;
+#endif
+}
+
+#ifdef VGM_USE_VORBIS
 static void um3_ogg_decryption_callback(void* ptr, size_t size, size_t nmemb, void* datasource) {
     uint8_t *ptr8 = ptr;
     size_t bytes_read = size * nmemb;
@@ -82,6 +104,20 @@ static void rpgmvo_ogg_decryption_callback(void* ptr, size_t size, size_t nmemb,
     }
 }
 
+static void at4_ogg_decryption_callback(void* ptr, size_t size, size_t nmemb, void* datasource) {
+    static const uint8_t af4_key[0x10] = {
+            0x00,0x0E,0x08,0x1E, 0x18,0x37,0x12,0x00, 0x48,0x87,0x46,0x0B, 0x9C,0x68,0xA8,0x4B
+    };
+    uint8_t *ptr8 = ptr;
+    size_t bytes_read = size * nmemb;
+    ogg_vorbis_io *io = datasource;
+    int i;
+
+    for (i = 0; i < bytes_read; i++) {
+        ptr8[i] -= af4_key[(io->offset + i) % sizeof(af4_key)];
+    }
+}
+
 
 static const uint32_t xiph_mappings[] = {
         0,
@@ -96,136 +132,222 @@ static const uint32_t xiph_mappings[] = {
 };
 
 
-/* Ogg Vorbis,  may contain loop comments */
-VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
+static VGMSTREAM* _init_vgmstream_ogg_vorbis_cfg_ovmi(STREAMFILE* sf, ogg_vorbis_io_config_data* cfg, ogg_vorbis_meta_info_t* ovmi) {
     VGMSTREAM* vgmstream = NULL;
     STREAMFILE* temp_sf = NULL;
-    ogg_vorbis_io_config_data cfg = {0};
-    ogg_vorbis_meta_info_t ovmi = {0};
-    off_t start_offset = 0;
-
-    int is_ogg = 0;
-    int is_um3 = 0;
-    int is_kovs = 0;
-    int is_sngw = 0;
-    int is_isd = 0;
-    int is_rpgmvo = 0;
-    int is_eno = 0;
-    int is_gwm = 0;
-    int is_mus = 0;
-    int is_lse = 0;
-    int is_bgm = 0;
 
 
-    /* check extension */
-    /* .ogg: standard/various, .logg: renamed for plugins
-     * .adx: KID games [Remember11 (PC)]
-     * .rof: The Rhythm of Fighters (Mobile)
-     * .acm: Planescape Torment Enhanced Edition (PC)
-     * .sod: Zone 4 (PC)
-     * .aif/laif/aif-Loop: Psychonauts (PC) raw extractions (named) */
-    if (check_extensions(sf,"ogg,logg,adx,rof,acm,sod,aif,laif,aif-Loop")) {
-        is_ogg = 1;
-    } else if (check_extensions(sf,"um3")) {
-        is_um3 = 1;
-    } else if (check_extensions(sf,"kvs,kovs")) {
-        /* .kvs: Atelier Sophie (PC), kovs: header id only? */
-        is_kovs = 1;
-    } else if (check_extensions(sf,"sngw")) { /* .sngw: Capcom [Devil May Cry 4 SE (PC), Biohazard 6 (PC)] */
-        is_sngw = 1;
-    } else if (check_extensions(sf,"isd")) { /* .isd: Inti Creates PC games */
-        is_isd = 1;
-    } else if (check_extensions(sf,"rpgmvo")) { /* .rpgmvo: RPG Maker MV games (PC) */
-        is_rpgmvo = 1;
-    } else if (check_extensions(sf,"eno")) { /* .eno: Metronomicon (PC) */
-        is_eno = 1;
-    } else if (check_extensions(sf,"gwm")) { /* .gwm: Adagio: Cloudburst (PC) */
-        is_gwm = 1;
-    } else if (check_extensions(sf,"mus")) { /* .mus: Redux - Dark Matters (PC) */
-        is_mus = 1;
-    } else if (check_extensions(sf,"lse")) { /* .lse: Labyrinth of Refrain: Coven of Dusk (PC) */
-        is_lse = 1;
-    } else if (check_extensions(sf,"bgm")) { /* .bgm: Fortissimo (PC) */
-        is_bgm = 1;
-    } else {
-        goto fail;
+    if (cfg->is_encrypted) {
+        temp_sf = setup_ogg_vorbis_streamfile(sf, cfg);
+        if (!temp_sf) goto fail;
     }
 
-    if (is_ogg) {
-        if (read_32bitBE(0x00,sf) == 0x2c444430) { /* Psychic Software [Darkwind: War on Wheels (PC)] */
-            ovmi.decryption_callback = psychic_ogg_decryption_callback;
-        }
-        else if (read_32bitBE(0x00,sf) == 0x4C325344) { /* "L2SD" instead of "OggS" [Lineage II Chronicle 4 (PC)] */
-            cfg.is_header_swap = 1;
-            cfg.is_encrypted = 1;
-        }
-        else if (read_32bitBE(0x00,sf) == 0x048686C5) { /* "OggS" XOR'ed + bitswapped [Ys VIII (PC)] */
-            cfg.key[0] = 0xF0;
-            cfg.key_len = 1;
-            cfg.is_nibble_swap = 1;
-            cfg.is_encrypted = 1;
-
-        }
-        else if (read_32bitBE(0x00,sf) == 0x00000000 && /* null instead of "OggS" [Yuppie Psycho (PC)] */
-                 read_32bitBE(0x3a,sf) == 0x4F676753) { /* "OggS" in next page */
-            cfg.is_header_swap = 1;
-            cfg.is_encrypted = 1;
-        }
-        else if (read_32bitBE(0x00,sf) != 0x4F676753 && /* random(?) swap instead of "OggS" [Tobi Tsukihime (PC)] */
-                 read_32bitBE(0x3a,sf) == 0x4F676753) { /* "OggS" in next page */
-            cfg.is_header_swap = 1;
-            cfg.is_encrypted = 1;
-        }
-        else if (read_32bitBE(0x00,sf) == 0x4F676753) { /* "OggS" (standard) */
-            ;
-        }
-        else {
-            goto fail; /* unknown/not Ogg Vorbis (ex. Wwise) */
-        }
+    if (ovmi->meta_type == 0) {
+        if (cfg->is_encrypted || ovmi->decryption_callback != NULL)
+            ovmi->meta_type = meta_OGG_encrypted;
+        else
+            ovmi->meta_type = meta_OGG_VORBIS;
     }
 
-    if (is_um3) { /* ["Ultramarine3" (???)] */
-        if (read_32bitBE(0x00,sf) != 0x4f676753) { /* "OggS" (optionally encrypted) */
-            ovmi.decryption_callback = um3_ogg_decryption_callback;
-        }
+    vgmstream = _init_vgmstream_ogg_vorbis_config(temp_sf != NULL ? temp_sf : sf, cfg->start, ovmi);
+
+    close_streamfile(temp_sf);
+    return vgmstream;
+
+fail:
+    close_streamfile(temp_sf);
+    return NULL;
+}
+
+static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config_data* cfg, ogg_vorbis_meta_info_t* ovmi) {
+
+
+    /* standard  */
+    if (is_id32be(0x00,sf, "OggS")) {
+
+        /* .ogg: common, .logg: renamed for plugins
+         * .adx: KID games [Remember11 (PC)]
+         * .rof: The Rhythm of Fighters (Mobile)
+         * .acm: Planescape Torment Enhanced Edition (PC)
+         * .sod: Zone 4 (PC)
+         * .msa: Metal Slug Attack (Mobile)
+         * .bin/lbin: Devil May Cry 3: Special Edition (PC) */
+        if (check_extensions(sf,"ogg,logg,adx,rof,acm,sod,msa,bin,lbin"))
+            return 1;
+        /* ignore others to allow stuff like .sngw */
     }
 
-    if (is_kovs) { /* Koei Tecmo PC games */
-        if (read_32bitBE(0x00,sf) != 0x4b4f5653) { /* "KOVS" */
+    /* Koei Tecmo PC games */
+    if (is_id32be(0x00,sf, "KOVS")) {
+        ovmi->loop_start = read_s32le(0x08,sf);
+        ovmi->loop_flag = (ovmi->loop_start != 0);
+        ovmi->decryption_callback = kovs_ogg_decryption_callback;
+        ovmi->meta_type = meta_OGG_KOVS;
+
+        cfg->start = 0x20;
+
+        /* .kvs: Atelier Sophie (PC)
+         * .kovs: header id only? */
+        if (!check_extensions(sf,"kvs,kovs"))
             goto fail;
-        }
-        ovmi.loop_start = read_32bitLE(0x08,sf);
-        ovmi.loop_flag = (ovmi.loop_start != 0);
-        ovmi.decryption_callback = kovs_ogg_decryption_callback;
-        ovmi.meta_type = meta_OGG_KOVS;
 
-        start_offset = 0x20;
+        return 1;
+    }
+    
+    /* [RPG Maker MV (PC), RPG Maker MZ (PC)] */
+    if (is_id64be(0x00,sf, "RPGMV\0\0\0")) {
+        ovmi->decryption_callback = rpgmvo_ogg_decryption_callback;
+
+        cfg->start = 0x10;
+
+        /* .rpgmvo: RPG Maker MV games (PC), .ogg_: RPG Maker MZ games (PC) */
+        if (!check_extensions(sf,"rpgmvo,ogg_"))
+            goto fail;
+
+        return 1;
     }
 
-    if (is_sngw) { /* [Capcom's MT Framework PC games] */
-        if (read_32bitBE(0x00,sf) != 0x4f676753) { /* "OggS" (optionally encrypted) */
-            cfg.key_len = read_streamfile(cfg.key, 0x00, 0x04, sf);
-            cfg.is_header_swap = 1;
-            cfg.is_nibble_swap = 1;
-            cfg.is_encrypted = 1;
-        }
+    /* L2SD [Lineage II Chronicle 4 (PC)] */
+    if (is_id32be(0x00,sf, "L2SD")) { 
+        cfg->is_header_swap = 1;
+        cfg->is_encrypted = 1;
 
-        ovmi.disable_reordering = 1; /* must be an MT Framework thing */
+        if (!check_extensions(sf,"ogg,logg"))
+            goto fail;
+
+        return 1;
     }
 
-    if (is_isd) { /* Inti Creates PC games */
-        const char *isl_name = NULL;
+    /* NIS's "OggS" XOR'ed + bitswapped [Ys VIII (PC), Yomawari: Midnight Shadows (PC)] */
+    if (read_u32be(0x00,sf) == 0x048686C5) { 
+        cfg->key[0] = 0xF0;
+        cfg->key_len = 0x01;
+        cfg->is_nibble_swap = 1;
+        cfg->is_encrypted = 1;
+
+        /* .bgm: Yomawari */
+        if (!check_extensions(sf,"ogg,logg,bgm"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* Psychic Software [Darkwind: War on Wheels (PC)] */
+    if (read_u32be(0x00,sf) == 0x2c444430) {
+        ovmi->decryption_callback = psychic_ogg_decryption_callback;
+
+        if (!check_extensions(sf,"ogg,logg"))
+            goto fail;
+
+        return 1;
+    }
+        
+    /* null id + check next page [Yuppie Psycho (PC)] */
+    if (read_u32be(0x00,sf) == 0x00000000 && is_id32be(0x3a,sf, "OggS")) {
+        cfg->is_header_swap = 1;
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"ogg,logg"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* random(?) id + check next page [Tobi Tsukihime (PC)] */
+    if (!is_id32be(0x00,sf, "OggS") && is_id32be(0x3a,sf, "OggS")) {
+        cfg->is_header_swap = 1;
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"ogg,logg"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* encrypted [Adventure Field 4 (PC)] */
+    if (read_u32be(0x00,sf) == 0x4F756F71) {
+        ovmi->decryption_callback = at4_ogg_decryption_callback; //TODO replace with generic descryption?
+
+        if (!check_extensions(sf,"ogg,logg"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* .gwm: Adagio: Cloudburst (PC) */
+    if (read_u32be(0x00,sf) == 0x123A3A0E) { 
+        cfg->key[0] = 0x5D;
+        cfg->key_len = 1;
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"gwm"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* .mus: Redux - Dark Matters (PC) */
+    if (read_u32be(0x00,sf) == 0x6C381C21) { 
+        static const uint8_t mus_key[16] = {
+                0x21,0x4D,0x6F,0x01,0x20,0x4C,0x6E,0x02,0x1F,0x4B,0x6D,0x03,0x20,0x4C,0x6E,0x02
+        };
+        cfg->key_len = sizeof(mus_key);
+        memcpy(cfg->key, mus_key, cfg->key_len);
+        cfg->is_header_swap = 1; /* decrypted header gives "Mus " */
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"mus"))
+            goto fail;
+
+        return 1;
+    }
+
+    /* .fish: Wonder Boy: The Dragon's Trap (PC) */
+    if (read_u32be(0x00,sf) == 0x4E7C0F0E) { 
+
+        /* init big-ish table on startup, based on original unrolled code (sub_7FF7670FD990) */
+        cfg->key_len = 0x400;
+        if (sizeof(cfg->key) < cfg->key_len)
+            goto fail;
+
+        for (int i = 0; i < 0x400 / 4; i++) {
+            uint32_t key = i;
+            for (int round = 0; round < 8; round++) {
+                uint32_t tmp1 = (key >> 1);
+                uint32_t tmp2 = -(key & 1) & 0xEDB88324;
+                key = tmp1 ^ tmp2;
+            }
+            if (key == 0)
+                key = 0xEDB88324;
+
+            put_u32le(cfg->key + (i ^ 0x2A) * 4, key);
+        }
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"fish"))
+            goto fail;
+
+        return 1;
+    }
+
+
+    /***************************************/
+    /* harder to check (could be improved) */
+
+    /* .isd: Inti Creates PC games */
+    if (check_extensions(sf,"isd")) {
+        const char* isl_name = NULL;
 
         /* check various encrypted "OggS" values */
-        if (read_32bitBE(0x00,sf) == 0xAF678753) { /* Azure Striker Gunvolt (PC) */
+        if (read_u32be(0x00,sf) == 0xAF678753) { /* Azure Striker Gunvolt (PC) */
             static const uint8_t isd_gv_key[16] = {
                     0xe0,0x00,0xe0,0x00,0xa0,0x00,0x00,0x00,0xe0,0x00,0xe0,0x80,0x40,0x40,0x40,0x00
             };
-            cfg.key_len = sizeof(isd_gv_key);
-            memcpy(cfg.key, isd_gv_key, cfg.key_len);
+            cfg->key_len = sizeof(isd_gv_key);
+            memcpy(cfg->key, isd_gv_key, cfg->key_len);
             isl_name = "GV_steam.isl";
         }
-        else if (read_32bitBE(0x00,sf) == 0x0FE787D3) { /* Mighty Gunvolt (PC) */
+        else if (read_u32be(0x00,sf) == 0x0FE787D3) { /* Mighty Gunvolt (PC) */
             static const uint8_t isd_mgv_key[120] = {
                     0x40,0x80,0xE0,0x80,0x40,0x40,0xA0,0x00,0xA0,0x40,0x00,0x80,0x00,0x40,0xA0,0x00,
                     0xC0,0x40,0xE0,0x00,0x60,0x40,0x80,0x00,0xA0,0x00,0xE0,0x00,0x60,0x40,0xC0,0x00,
@@ -236,11 +358,11 @@ VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
                     0x60,0x00,0xE0,0x80,0x00,0xC0,0x00,0x00,0x60,0x80,0x40,0x80,0x20,0x80,0x20,0x00,
                     0x80,0x40,0xE0,0x00,0x20,0x00,0x20,0x00,
             };
-            cfg.key_len = sizeof(isd_mgv_key);
-            memcpy(cfg.key, isd_mgv_key, cfg.key_len);
+            cfg->key_len = sizeof(isd_mgv_key);
+            memcpy(cfg->key, isd_mgv_key, cfg->key_len);
             isl_name = "MGV_steam.isl";
         }
-        else if (read_32bitBE(0x00,sf) == 0x0FA74753) { /* Blaster Master Zero (PC) */
+        else if (read_u32be(0x00,sf) == 0x0FA74753) { /* Blaster Master Zero (PC) */
             static const uint8_t isd_bmz_key[120] = {
                     0x40,0xC0,0x20,0x00,0x40,0xC0,0xC0,0x00,0x00,0x80,0xE0,0x80,0x80,0x40,0x20,0x00,
                     0x60,0xC0,0xC0,0x00,0xA0,0x80,0x60,0x00,0x40,0x40,0x20,0x00,0x60,0x40,0xC0,0x00,
@@ -251,15 +373,15 @@ VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
                     0x40,0x40,0x00,0x00,0x20,0x40,0x80,0x00,0xE0,0x80,0x20,0x80,0x40,0x80,0xE0,0x00,
                     0xA0,0x00,0xC0,0x80,0xE0,0x00,0x20,0x00
             };
-            cfg.key_len = sizeof(isd_bmz_key);
-            memcpy(cfg.key, isd_bmz_key, cfg.key_len);
+            cfg->key_len = sizeof(isd_bmz_key);
+            memcpy(cfg->key, isd_bmz_key, cfg->key_len);
             isl_name = "output.isl";
         }
         else {
             goto fail;
         }
 
-        cfg.is_encrypted = 1;
+        cfg->is_encrypted = 1;
 
         /* .isd have companion files in the prev folder:
          * - .ish: constant id/names (not always)
@@ -268,21 +390,21 @@ VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
          *   0x0c(2): PCM block size, 0x0e(2): PCM bps, 0x10: null, 0x18: samples (in PCM bytes)
          * - .isl: looping table (encrypted like the files) */
         if (isl_name) {
-            STREAMFILE* islFile = NULL;
+            STREAMFILE* sf_isl = NULL;
 
-            islFile = open_streamfile_by_filename(sf, isl_name);
+            sf_isl = open_streamfile_by_filename(sf, isl_name);
 
-            if (!islFile) {
+            if (!sf_isl) {
                 /* try in ../(file) too since that's how the .isl is stored on disc */
                 char isl_path[PATH_LIMIT];
                 snprintf(isl_path, sizeof(isl_path), "../%s", isl_name);
-                islFile = open_streamfile_by_filename(sf, isl_path);
+                sf_isl = open_streamfile_by_filename(sf, isl_path);
             }
 
-            if (islFile) {
+            if (sf_isl) {
                 STREAMFILE* dec_sf = NULL;
 
-                dec_sf = setup_ogg_vorbis_streamfile(islFile, cfg);
+                dec_sf = setup_ogg_vorbis_streamfile(sf_isl, cfg);
                 if (dec_sf) {
                     off_t loop_offset;
                     char basename[PATH_LIMIT];
@@ -296,10 +418,10 @@ VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
 
                         read_string(testname, sizeof(testname), loop_offset+0x2c, dec_sf);
                         if (strcmp(basename, testname) == 0) {
-                            ovmi.loop_start = read_32bitLE(loop_offset+0x1c, dec_sf);
-                            ovmi.loop_end   = read_32bitLE(loop_offset+0x20, dec_sf);
-                            ovmi.loop_end_found = 1;
-                            ovmi.loop_flag = (ovmi.loop_end != 0);
+                            ovmi->loop_start = read_32bitLE(loop_offset+0x1c, dec_sf);
+                            ovmi->loop_end   = read_32bitLE(loop_offset+0x20, dec_sf);
+                            ovmi->loop_end_found = 1;
+                            ovmi->loop_flag = (ovmi->loop_end != 0);
                             break;
                         }
 
@@ -309,106 +431,180 @@ VGMSTREAM* init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
                     close_streamfile(dec_sf);
                 }
 
-                close_streamfile(islFile);
+                close_streamfile(sf_isl);
             }
         }
+
+        return 1;
     }
 
-    if (is_rpgmvo) { /* [RPG Maker MV (PC)] */
-        if (read_32bitBE(0x00,sf) != 0x5250474D &&  /* "RPGM" */
-            read_32bitBE(0x00,sf) != 0x56000000) {  /* "V\0\0\0" */
-            goto fail;
+    /* Capcom's MT Framework PC games [Devil May Cry 4 SE (PC), Biohazard 6 (PC), Mega Man X Legacy Collection (PC)] */
+    if (check_extensions(sf,"sngw")) {
+        /* optionally(?) encrypted */
+        if (!is_id32be(0x00,sf, "OggS") && read_u32be(0x00,sf) == read_u32be(0x10,sf)) {
+            cfg->key_len = read_streamfile(cfg->key, 0x00, 0x04, sf);
+            cfg->is_header_swap = 1;
+            cfg->is_nibble_swap = 1;
+            cfg->is_encrypted = 1;
         }
-        ovmi.decryption_callback = rpgmvo_ogg_decryption_callback;
 
-        start_offset = 0x10;
+        ovmi->disable_reordering = 1; /* must be an MT Framework thing */
+
+        return 1;
     }
 
-    if (is_eno) { /* [Metronomicon (PC)] */
-        /* first byte probably derives into key, but this works too */
-        cfg.key[0] = (uint8_t)read_8bit(0x05,sf); /* regular ogg have a zero at this offset = easy key */
-        cfg.key_len = 1;
-        cfg.is_encrypted = 1;
-        start_offset = 0x01; /* "OggS" starts after key-thing */
-    }
-
-    if (is_gwm) { /* [Adagio: Cloudburst (PC)] */
-        cfg.key[0] = 0x5D;
-        cfg.key_len = 1;
-        cfg.is_encrypted = 1;
-    }
-
-    if (is_mus) { /* [Redux: Dark Matters (PC)] */
-        static const uint8_t mus_key[16] = {
-                0x21,0x4D,0x6F,0x01,0x20,0x4C,0x6E,0x02,0x1F,0x4B,0x6D,0x03,0x20,0x4C,0x6E,0x02
-        };
-        cfg.key_len = sizeof(mus_key);
-        memcpy(cfg.key, mus_key, cfg.key_len);
-        cfg.is_header_swap = 1; /* decrypted header gives "Mus " */
-        cfg.is_encrypted = 1;
-    }
-
-    if (is_lse) { /* [Nippon Ichi PC games] */
-        if (read_32bitBE(0x00,sf) == 0xFFFFFFFF) { /* [Operation Abyss: New Tokyo Legacy (PC)] */
-            cfg.key[0] = 0xFF;
-            cfg.key_len = 1;
-            cfg.is_header_swap = 1;
-            cfg.is_encrypted = 1;
+    /* Nippon Ichi PC games */
+    if (check_extensions(sf,"lse")) {
+        if (read_u32be(0x00,sf) == 0xFFFFFFFF) { /* [Operation Abyss: New Tokyo Legacy (PC)] */
+            cfg->key[0] = 0xFF;
+            cfg->key_len = 1;
+            cfg->is_header_swap = 1;
+            cfg->is_encrypted = 1;
         }
         else { /* [Operation Babel: New Tokyo Legacy (PC), Labyrinth of Refrain: Coven of Dusk (PC)] */
             int i;
             /* found at file_size-1 but this works too (same key for most files but can vary) */
-            uint8_t base_key = (uint8_t)read_8bit(0x04,sf) - 0x04;
+            uint8_t base_key = read_u8(0x04,sf) - 0x04;
 
-            cfg.key_len = 256;
-            for (i = 0; i < cfg.key_len; i++) {
-                cfg.key[i] = (uint8_t)(base_key + i);
+            cfg->key_len = 256;
+            for (i = 0; i < cfg->key_len; i++) {
+                cfg->key[i] = (uint8_t)(base_key + i);
             }
-            cfg.is_encrypted = 1;
+            cfg->is_encrypted = 1;
         }
+
+        return 1;
     }
 
-    if (is_bgm) { /* [Fortissimo (PC)] */
-        size_t file_size = get_streamfile_size(sf);
+    /* .eno: Metronomicon (PC) */
+    if (check_extensions(sf,"eno")) {
+        /* 0x00: first byte probably derives into key, but this works too */
+        cfg->key[0] = read_u8(0x05,sf); /* regular ogg have a zero at this offset = easy key */
+        cfg->key_len = 0x01;
+        cfg->is_encrypted = 1;
+        cfg->start = 0x01; /* encrypted "OggS" starts after key-thing */
+
+        return 1;
+    }
+
+    /* .bgm: Fortissimo (PC) */
+    if (check_extensions(sf,"bgm")) {
+        uint32_t file_size = get_streamfile_size(sf);
         uint8_t key[0x04];
         uint32_t xor_be;
 
-        put_32bitLE(key, (uint32_t)file_size);
-        xor_be = (uint32_t)get_32bitBE(key);
-        if ((read_32bitBE(0x00,sf) ^ xor_be) == 0x4F676753) { /* "OggS" */
+        put_u32le(key, file_size);
+        xor_be = get_u32be(key);
+        if ((read_u32be(0x00,sf) ^ xor_be) == get_id32be("OggS")) {
             int i;
-            cfg.key_len = 4;
-            for (i = 0; i < cfg.key_len; i++) {
-                cfg.key[i] = key[i];
+            cfg->key_len = 4;
+            for (i = 0; i < cfg->key_len; i++) {
+                cfg->key[i] = key[i];
             }
-            cfg.is_encrypted = 1;
+            cfg->is_encrypted = 1;
+
+            return 1;
         }
     }
 
+    /* .um3: Ultramarine / Bruns Engine files  */
+    if (check_extensions(sf,"um3")) {
+        if (!is_id32be(0x00,sf, "OggS")) {
+            ovmi->decryption_callback = um3_ogg_decryption_callback;
+        }
 
-    if (cfg.is_encrypted) {
-        temp_sf = setup_ogg_vorbis_streamfile(sf, cfg);
-        if (!temp_sf) goto fail;
+        return 1;
     }
 
-    if (ovmi.meta_type == 0) {
-        if (cfg.is_encrypted || ovmi.decryption_callback != NULL)
-            ovmi.meta_type = meta_OGG_encrypted;
-        else
-            ovmi.meta_type = meta_OGG_VORBIS;
-    }
-
-    vgmstream = init_vgmstream_ogg_vorbis_callbacks(temp_sf != NULL ? temp_sf : sf, NULL, start_offset, &ovmi);
-
-    close_streamfile(temp_sf);
-    return vgmstream;
 
 fail:
-    close_streamfile(temp_sf);
+    return 0;
+}
+
+/* Ogg Vorbis - standard .ogg with (possibly) loop comments/metadata */
+static VGMSTREAM* _init_vgmstream_ogg_vorbis_common(STREAMFILE* sf) {
+    ogg_vorbis_io_config_data cfg = {0};
+    ogg_vorbis_meta_info_t ovmi = {0};
+
+    /* checks */
+    if (!_init_vgmstream_ogg_vorbis_tests(sf, &cfg, &ovmi))
+        goto fail;
+
+    return _init_vgmstream_ogg_vorbis_cfg_ovmi(sf, &cfg, &ovmi);
+fail:
     return NULL;
 }
 
-VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* callbacks, off_t start, const ogg_vorbis_meta_info_t *ovmi) {
+/* Ogg Vorbis - encrypted .ogg [Yumekoi Tensei (PC)] */
+static VGMSTREAM* _init_vgmstream_ogg_vorbis_tink(STREAMFILE* sf) {
+    ogg_vorbis_io_config_data cfg = {0};
+    ogg_vorbis_meta_info_t ovmi = {0};
+    uint32_t start;
+
+    /* checks */
+    if (is_id32be(0x00, sf, "Tink")) {
+        start = 0x00;
+    }
+    else if (is_id32be(0x0c, sf, "Tink")) {
+        ovmi.loop_start = read_u32le(0x00, sf);
+        ovmi.loop_end = read_u32le(0x04, sf);
+        ovmi.loop_flag = read_u32le(0x0c, sf);
+        ovmi.loop_end_found = 1;
+        start = 0x0c;
+    } 
+    else {
+        goto fail;
+    } 
+
+    if (!check_extensions(sf,"u0"))
+        goto fail;
+
+    cfg.is_encrypted = 1;
+    cfg.is_header_swap = 1;
+    cfg.start = start;
+    cfg.max_offset = 0xE1F;
+    cfg.key_len = 0xE1F;
+
+    if (sizeof(cfg.key) < cfg.key_len)
+        goto fail;
+
+    /* copy key */
+    {
+        static const char* keystring = "BB3206F-F171-4885-A131-EC7FBA6FF491 Copyright 2004 Cyberworks \"TinkerBell\"., all rights reserved.";
+        int i, keystring_len;
+        start = 0;
+
+        memset(cfg.key, 0, 0x04);
+        put_u8   (cfg.key + 0x04, 0x44);
+
+        keystring_len = strlen(keystring) + 1; /* including null */
+        for (i = 0x05; i < cfg.key_len; i += keystring_len) {
+            int copy = keystring_len;
+            if (i + copy > cfg.key_len)
+                copy = cfg.key_len - i;
+            memcpy(cfg.key + i, keystring, copy);
+        }
+    }
+
+    return _init_vgmstream_ogg_vorbis_cfg_ovmi(sf, &cfg, &ovmi);
+fail:
+    return NULL;
+}
+
+static VGMSTREAM* _init_vgmstream_ogg_vorbis(STREAMFILE* sf) {
+    VGMSTREAM* v;
+
+    v = _init_vgmstream_ogg_vorbis_common(sf);
+    if (v) return v;
+
+    v = _init_vgmstream_ogg_vorbis_tink(sf);
+    if (v) return v;
+
+    return NULL;
+}
+
+
+static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start, const ogg_vorbis_meta_info_t* ovmi) {
     VGMSTREAM* vgmstream = NULL;
     ogg_vorbis_codec_data* data = NULL;
     ogg_vorbis_io io = {0};
@@ -421,9 +617,11 @@ VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* cal
     int32_t loop_length = ovmi->loop_length;
     int loop_end_found = ovmi->loop_end_found;
     int32_t loop_end = ovmi->loop_end;
+
     size_t stream_size = ovmi->stream_size ?
             ovmi->stream_size :
             get_streamfile_size(sf) - start;
+    int force_seek = 0;
     int disable_reordering = ovmi->disable_reordering;
 
 
@@ -444,17 +642,18 @@ VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* cal
         const char* comment = NULL;
 
         while (ogg_vorbis_get_comment(data, &comment)) {
+            ;VGM_LOG("OGG: user_comment=%s\n", comment);
 
-            if (strstr(comment,"loop_start=") == comment || /* PSO4 */
-                strstr(comment,"LOOP_START=") == comment || /* PSO4 */
+            if (strstr(comment,"loop_start=") == comment || /* Phantasy Star Online: Blue Burst (PC) (no loop_end pair) */
+                strstr(comment,"LOOP_START=") == comment || /* Phantasy Star Online: Blue Burst (PC), common */
                 strstr(comment,"LOOPPOINT=") == comment || /* Sonic Robo Blast 2 */
                 strstr(comment,"COMMENT=LOOPPOINT=") == comment ||
                 strstr(comment,"LOOPSTART=") == comment ||
                 strstr(comment,"um3.stream.looppoint.start=") == comment ||
                 strstr(comment,"LOOP_BEGIN=") == comment || /* Hatsune Miku: Project Diva F (PS3) */
-                strstr(comment,"LoopStart=") == comment ||  /* Devil May Cry 4 (PC) */
+                strstr(comment,"LoopStart=") == comment ||  /* Capcom games [Devil May Cry 4 (PC)] */
                 strstr(comment,"LOOP=") == comment || /* Duke Nukem 3D: 20th Anniversary World Tour */
-                strstr(comment,"XIPH_CUE_LOOPSTART=") == comment) {  /* Super Mario Run (Android) */
+                strstr(comment,"XIPH_CUE_LOOPSTART=") == comment) {  /* DeNa games [Super Mario Run (Android), FF Record Keeper (Android)] */
                 loop_start = atol(strrchr(comment,'=')+1);
                 loop_flag = (loop_start >= 0);
             }
@@ -468,25 +667,21 @@ VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* cal
             }
             else if (strstr(comment,"album=-lpe") == comment) { /* (title=-lps pair) */
                 loop_end = atol(comment+10);
-                loop_flag = 1;
                 loop_end_found = 1;
+                loop_flag = 1;
             }
             else if (strstr(comment,"LoopEnd=") == comment) { /* (LoopStart pair) */
-                if(loop_flag) {
-                    loop_length = atol(strrchr(comment,'=')+1)-loop_start;
-                    loop_length_found = 1;
-                }
+                loop_end = atol(strrchr(comment,'=')+1);
+                loop_end_found = 1;
             }
-            else if (strstr(comment,"LOOP_END=") == comment) { /* (LOOP_BEGIN pair) */
-                if(loop_flag) {
-                    loop_length = atol(strrchr(comment,'=')+1)-loop_start;
-                    loop_length_found = 1;
-                }
+            else if (strstr(comment,"LOOP_END=") == comment) { /* (LOOP_START/LOOP_BEGIN pair) */
+                loop_end = atol(strrchr(comment,'=')+1);
+                loop_end_found = 1;
             }
             else if (strstr(comment,"lp=") == comment) {
                 sscanf(strrchr(comment,'=')+1,"%d,%d", &loop_start,&loop_end);
-                loop_flag = 1;
                 loop_end_found = 1;
+                loop_flag = 1;
             }
             else if (strstr(comment,"LOOPDEFS=") == comment) { /* Fairy Fencer F: Advent Dark Force */
                 sscanf(strrchr(comment,'=')+1,"%d,%d", &loop_start,&loop_end);
@@ -499,10 +694,8 @@ VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* cal
                 loop_end_found = 1;
             }
             else if (strstr(comment, "XIPH_CUE_LOOPEND=") == comment) { /* (XIPH_CUE_LOOPSTART pair) */
-                if (loop_flag) {
-                    loop_length = atol(strrchr(comment, '=') + 1) - loop_start;
-                    loop_length_found = 1;
-                }
+                loop_end = atol(strrchr(comment, '=') + 1);
+                loop_end_found = 1;
             }
             else if (strstr(comment, "omment=") == comment) { /* Air (Android) */
                 sscanf(strstr(comment, "=LOOPSTART=") + 11, "%d,LOOPEND=%d", &loop_start, &loop_end);
@@ -522,39 +715,59 @@ VGMSTREAM* init_vgmstream_ogg_vorbis_callbacks(STREAMFILE* sf, ov_callbacks* cal
                     loop_end_found = 1;
                 }
             }
-            else if (strstr(comment,"LOOPMS=") == comment) { /* Sonic Robo Blast 2 */
-                /* Convert from milliseconds to samples. */
-                /* (x ms) * (y samples/s) / (1000 ms/s) */
-                loop_start = atol(strrchr(comment,'=')+1) * sample_rate / 1000;
+            else if (strstr(comment,"LOOPMS=") == comment) { /* Sonic Robo Blast 2 (PC) */
+                loop_start = atol(strrchr(comment,'=')+1) * sample_rate / 1000; /* ms to samples */
                 loop_flag = (loop_start >= 0);
+            }
+            else if (strstr(comment,"COMMENT=- loopTime ") == comment ||    /* Aristear Remain (PC) */
+                     strstr(comment,"COMMENT=-loopTime ") == comment) {     /* Hyakki Ryouran no Yakata x Kawarazaki-ke no Ichizoku (PC) */
+                loop_start = atol(strrchr(comment,' ')) / 1000.0f * sample_rate; /* ms to samples */
+                loop_flag = (loop_start >= 0);
+
+                /* files have all page granule positions -1 except a few close to loop. This throws off
+                 * libvorbis seeking (that uses granules), so we need manual fix = slower. Could be detected
+                 * by checking granules in the first new OggS pages (other games from the same dev don't use
+                 * loopTime nor have wrong granules though) */
+                force_seek = 1;
+            }
+
+            else if (strstr(comment,"COMMENT=*loopsample,") == comment) { /* Tsuki ni Yorisou Otome no Sahou (PC) */
+                int unk0; // always 0 (delay?)
+                int unk1; // always -1 (loop flag? but non-looped files have no comment)
+                int m = sscanf(comment,"COMMENT=*loopsample,%d,%d,%d,%d", &unk0, &loop_start, &loop_end, &unk1);
+                if (m == 4) {
+                    loop_flag = 1;
+                    loop_end_found = 1;
+                }
             }
 
             /* Hatsune Miku Project DIVA games, though only 'Arcade Future Tone' has >4ch files
              * ENCODER tag is common but ogg_vorbis_encode looks unique enough
              * (arcade ends with "2010-11-26" while consoles have "2011-02-07" */
-            if (strstr(comment, "ENCODER=ogg_vorbis_encode/") == comment) {
+            else if (strstr(comment, "ENCODER=ogg_vorbis_encode/") == comment) {
                 disable_reordering = 1;
             }
 
-            if (strstr(comment, "TITLE=") == comment) {
+            else if (strstr(comment, "TITLE=") == comment) {
                 strncpy(name, comment + 6, sizeof(name) - 1);
             }
-
-            ;VGM_LOG("OGG: user_comment=%s\n", comment);
         }
     }
 
     ogg_vorbis_set_disable_reordering(data, disable_reordering);
+    ogg_vorbis_set_force_seek(data, force_seek);
 
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channels,loop_flag);
+    vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
 
     vgmstream->codec_data = data;
     vgmstream->coding_type = coding_OGG_VORBIS;
     vgmstream->layout_type = layout_none;
     vgmstream->meta_type = ovmi->meta_type;
+    if (!vgmstream->meta_type)
+        vgmstream->meta_type = meta_OGG_VORBIS;
 
     vgmstream->sample_rate = sample_rate;
     vgmstream->stream_size = stream_size;

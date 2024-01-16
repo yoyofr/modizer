@@ -79,6 +79,8 @@ static int lz4mg_decompress(lz4mg_stream_t* strm) {
     int src_pos = 0;
     uint8_t next_len, next_val;
 
+    /* MSVC 64 19.30+ has a /O2 bug where some states aren't handled properly unless a fallthrough is used.
+     * Seems related to src_pos and doesn't seem fixed by using sub-functions or avoiding gotos. */
 
     while (1) {
         /* mostly linear state machine, but it may break anytime when reaching dst or src
@@ -154,7 +156,7 @@ static int lz4mg_decompress(lz4mg_stream_t* strm) {
                 } while (next_len == LZ4MG_VARLEN_CONTINUE);
 
                 ctx->state = SET_MATCH;
-                break;
+                //break; // Falthrough for MSVC
 
             case SET_MATCH:
                 ctx->match_len += LZ4MG_MIN_MATCH_LEN;
@@ -164,7 +166,7 @@ static int lz4mg_decompress(lz4mg_stream_t* strm) {
                     ctx->match_pos = LZ4MG_WINDOW_SIZE + ctx->match_pos;
 
                 ctx->state = COPY_MATCH;
-                break;
+                //break; // Fallthrough for MSVC
 
             case COPY_MATCH:
                  while (ctx->match_len > 0) {
@@ -190,7 +192,7 @@ static int lz4mg_decompress(lz4mg_stream_t* strm) {
             default:
                 goto fail;
         }
-	}
+    }
 
 buffer_end:
     strm->next_out  += dst_pos;
@@ -208,16 +210,16 @@ fail:
 #if 0
 /* non-streamed form for reference, assumes buffers are big enough */
 static void decompress_lz4mg(uint8_t* dst, size_t dst_size, const uint8_t* src, size_t src_size) {
-	size_t src_pos = 0;
-	size_t dst_pos = 0;
+    size_t src_pos = 0;
+    size_t dst_pos = 0;
     uint8_t token;
     int literal_len, match_len, next_len;
     int match_pos, match_offset;
     int i;
 
-	while (src_pos < src_size && dst_pos < dst_size) {
+    while (src_pos < src_size && dst_pos < dst_size) {
 
-		token = src[src_pos++];
+        token = src[src_pos++];
         if (src_pos > src_size)
             break;
 
@@ -259,7 +261,7 @@ static void decompress_lz4mg(uint8_t* dst, size_t dst_size, const uint8_t* src, 
         for(i = 0; i < match_len; i++) {
             dst[dst_pos++] = dst[match_pos++]; /* note RLE with short offsets */
         }
-	}
+    }
 }
 #endif
 

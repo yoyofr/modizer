@@ -17,9 +17,9 @@ VGMSTREAM* init_vgmstream_xnb(STREAMFILE* sf) {
 
 
     /* checks */
-    if (!check_extensions(sf,"xnb"))
-        goto fail;
     if ((read_u32be(0x00, sf) & 0xFFFFFF00) != get_id32be("XNB\0"))
+        goto fail;
+    if (!check_extensions(sf,"xnb"))
         goto fail;
 
     /* XNA Studio platforms: 'w' = Windows, 'm' = Windows Phone 7, 'x' = X360
@@ -62,10 +62,10 @@ VGMSTREAM* init_vgmstream_xnb(STREAMFILE* sf) {
         char reader_name[255+1];
         size_t string_len;
         uint8_t type_count;
-        const static char* type_sound =  "Microsoft.Xna.Framework.Content.SoundEffectReader"; /* partial "fmt" chunk or XMA */
-        const static char* type_ogg = "SoundEffectFromOggReader"; /* has extra text info after base part */
-        const static char* type_song = "Microsoft.Xna.Framework.Content.SongReader"; /* references a companion .wma */
-        const static char* type_int32 = "Microsoft.Xna.Framework.Content.Int32Reader"; /* extra crap */
+        static const char* type_sound =  "Microsoft.Xna.Framework.Content.SoundEffectReader"; /* partial "fmt" chunk or XMA */
+        static const char* type_ogg = "SoundEffectFromOggReader"; /* has extra text info after base part */
+        static const char* type_song = "Microsoft.Xna.Framework.Content.SongReader"; /* references a companion .wma */
+        static const char* type_int32 = "Microsoft.Xna.Framework.Content.Int32Reader"; /* extra crap */
 
         type_count = read_u8(offset++, sf_h);
 
@@ -184,10 +184,9 @@ VGMSTREAM* init_vgmstream_xnb(STREAMFILE* sf) {
         if (!temp_sf) goto fail;
 
         if (is_ogg) {
-#ifdef VGM_USE_VORBIS
             vgmstream = init_vgmstream_ogg_vorbis(temp_sf);
-#endif
-        } else {
+        }
+        else {
             vgmstream = init_vgmstream_riff(temp_sf);
         }
         close_streamfile(temp_sf);
@@ -260,14 +259,9 @@ VGMSTREAM* init_vgmstream_xnb(STREAMFILE* sf) {
 
 #ifdef VGM_USE_FFMPEG
         case 0x166: { /* Terraria (X360) */
-            uint8_t buf[0x100];
-            int32_t bytes, block_size, block_count;
+            int block_size = 0x10000; /* guessed */
 
-            block_size = 0x10000; /* guessed */
-            block_count = data_size / block_size + (data_size % block_size ? 1 : 0);
-
-            bytes = ffmpeg_make_riff_xma2(buf,0x100, num_samples, data_size, vgmstream->channels, vgmstream->sample_rate, block_count, block_size);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf_h, buf,bytes, start_offset,data_size);
+            vgmstream->codec_data = init_ffmpeg_xma2_raw(sf_h, start_offset, data_size, num_samples, vgmstream->channels, vgmstream->sample_rate, block_size, 0);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;

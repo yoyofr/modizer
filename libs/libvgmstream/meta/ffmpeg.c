@@ -4,11 +4,10 @@
 #ifdef VGM_USE_FFMPEG
 
 static int read_pos_file(uint8_t* buf, size_t bufsize, STREAMFILE* sf);
-static int find_ogg_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_t* p_loop_end);
+static int find_meta_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_t* p_loop_end);
 
 /* parses any format supported by FFmpeg and not handled elsewhere:
- * - MP3 (.mp3, .mus): Marc Ecko's Getting Up (PC)
- * - MPC (.mpc): Moonshine Runners (PC), Asphalt 7 (PC)
+ * - MPC (.mpc, mp+): Moonshine Runners (PC), Asphalt 7 (PC)
  * - FLAC (.flac):  Warcraft 3 Reforged (PC), Call of Duty: Ghosts (PC)
  * - DUCK (.wav): Sonic Jam (SAT), Virtua Fighter 2 (SAT)
  * - ALAC/AAC (.caf): Chrono Trigger (iOS)
@@ -23,9 +22,10 @@ static int find_ogg_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_
 VGMSTREAM* init_vgmstream_ffmpeg(STREAMFILE* sf) {
     VGMSTREAM* vgmstream = NULL;
     ffmpeg_codec_data* data = NULL;
-    int loop_flag = 0;
-    int32_t loop_start = 0, loop_end = 0, num_samples = 0;
+    int loop_flag = 0, channels, sample_rate;
+    int32_t loop_start = 0, loop_end = 0, num_samples = 0, encoder_delay = 0;
     int total_subsongs, target_subsong = sf->stream_index;
+    int faulty = 0; /* mark wonky rips in hopes people may fix them */
 
     /* no checks */
     //if (!check_extensions(sf, "..."))
@@ -35,67 +35,106 @@ VGMSTREAM* init_vgmstream_ffmpeg(STREAMFILE* sf) {
     if (get_streamfile_size(sf) <= 0x1000)
         goto fail;
 
+    // many PSP rips have poorly demuxed videos with a failty RIFF, allow for now
+#if 0
+    /* reject some formats handled elsewhere (better fail and check there than let buggy FFmpeg take over) */
+    if (check_extensions(sf, "at3"))
+        goto fail;
+#endif
+
     if (target_subsong == 0) target_subsong = 1;
 
     /* init ffmpeg */
     data = init_ffmpeg_header_offset_subsong(sf, NULL, 0, 0, get_streamfile_size(sf), target_subsong);
     if (!data) return NULL;
 
-    total_subsongs = data->streamCount; /* uncommon, ex. wmv [Lost Odyssey (X360)] */
+    total_subsongs = ffmpeg_get_subsong_count(data); /* uncommon, ex. wmv [Lost Odyssey (X360)] */
     if (target_subsong < 0 || target_subsong > total_subsongs || total_subsongs < 1) goto fail;
 
     /* try to get .pos data */
     {
-        uint8_t posbuf[4+4+4];
+        uint8_t posbuf[0x04*3];
 
-        if (read_pos_file(posbuf, 4+4+4, sf)) {
-            loop_start = get_s32le(posbuf+0);
-            loop_end = get_s32le(posbuf+4);
+        if (read_pos_file(posbuf, sizeof(posbuf), sf)) {
+            loop_start = get_s32le(posbuf+0x00);
+            loop_end = get_s32le(posbuf+0x04);
             loop_flag = 1; /* incorrect looping will be validated outside */
-            /* FFmpeg can't always determine totalSamples correctly so optionally load it (can be 0/NULL)
+            /* FFmpeg can't always determine samples correctly so optionally load it (can be 0/NULL)
              * won't crash and will output silence if no loop points and bigger than actual stream's samples */
             num_samples = get_s32le(posbuf+8);
         }
     }
 
-    /* try to read Ogg loop tags (abridged) */
-    if (loop_flag == 0 && read_u32be(0x00, sf) == 0x4F676753) { /* "OggS" */
-        loop_flag = find_ogg_loops(data, &loop_start, &loop_end);
+    /* try to read Ogg/Flac loop tags (abridged) */
+    if (!loop_flag && (is_id32be(0x00, sf, "OggS") || is_id32be(0x00, sf, "fLaC"))) {
+        loop_flag = find_meta_loops(data, &loop_start, &loop_end);
     }
 
     /* hack for AAC files (will return 0 samples if not an actual file) */
     if (!num_samples && check_extensions(sf, "aac,laac")) {
         num_samples = aac_get_samples(sf, 0x00, get_streamfile_size(sf));
+
+        if (num_samples > 0) {
+            /* FFmpeg seeks to 0 eats first frame for whatever reason */
+            ffmpeg_set_force_seek(data);
+        }
     }
 
-#ifdef VGM_USE_MPEG
     /* hack for MP3 files (will return 0 samples if not an actual file) 
      *  .mus: Marc Ecko's Getting Up (PC) */
     if (!num_samples && check_extensions(sf, "mp3,lmp3,mus")) {
         num_samples = mpeg_get_samples(sf, 0x00, get_streamfile_size(sf));
-    }
-#endif
 
-    /* hack for MPC, that seeks/resets incorrectly due to seek table shenanigans */
-    if (read_u32be(0x00, sf) == 0x4D502B07 || /* "MP+\7" (Musepack V7) */
-        read_u32be(0x00, sf) == 0x4D50434B) { /* "MPCK" (Musepack V8) */
+        /* this seems correct thankfully */
+        //ffmpeg_set_skip_samples(data, encoder_delay);
+    }
+
+    /* hack for MPC */
+    if (is_id32be(0x00, sf, "MP+\x07") ||   /* Musepack V7 */
+        is_id32be(0x00, sf, "MP+\x17") ||   /* Musepack V7 with flag (seen in FFmpeg) */
+        is_id32be(0x00, sf, "MPCK")) {      /* Musepack V8 */
+        /* FFmpeg seeks/resets incorrectly due to MPC seek table shenanigans */
         ffmpeg_set_force_seek(data);
+
+        /* FFmpeg gets this wrong as usual (specially V8 samples) */
+        mpc_get_samples(sf, 0x00, &num_samples, &encoder_delay);
+
+        ffmpeg_set_skip_samples(data, encoder_delay);
+    }
+
+    /* detect broken RIFFs */
+    if (is_id32be(0x00, sf, "RIFF")) {
+        uint32_t size = read_u32le(0x04, sf);
+        /* There is a log in RIFF too but to be extra sure and sometimes FFmpeg don't handle it (this is mainly for wrong AT3).
+         * Some proper RIFF can be parsed here too (like DUCK). */
+        if (size + 0x08 > get_streamfile_size(sf)) {
+            vgm_logi("RIFF/FFmpeg: incorrect size, file may have missing data\n");
+            faulty = 1;
+        }
+        else if (size + 0x08 < get_streamfile_size(sf)) {
+            vgm_logi("RIFF/FFmpeg: incorrect size, file may have padded data\n");
+            faulty = 1;
+        }
     }
 
     /* default but often inaccurate when calculated using bitrate (wrong for VBR) */
     if (!num_samples) {
-        num_samples = data->totalSamples; /* may be 0 if FFmpeg can't precalculate it */
+        num_samples = ffmpeg_get_samples(data); /* may be 0 if FFmpeg can't precalculate it */
     }
+
+    channels = ffmpeg_get_channels(data);
+    sample_rate = ffmpeg_get_sample_rate(data);
 
 
     /* build VGMSTREAM */
-    vgmstream = allocate_vgmstream(data->channels, loop_flag);
+    vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
-    
-    vgmstream->sample_rate = data->sampleRate;
-    vgmstream->meta_type = meta_FFMPEG;
-    vgmstream->coding_type = coding_FFmpeg;
+
+    vgmstream->meta_type = faulty ? meta_FFMPEG_faulty : meta_FFMPEG;
+    vgmstream->sample_rate = sample_rate;
+
     vgmstream->codec_data = data;
+    vgmstream->coding_type = coding_FFmpeg;
     vgmstream->layout_type = layout_none;
 
     vgmstream->num_samples = num_samples;
@@ -104,14 +143,13 @@ VGMSTREAM* init_vgmstream_ffmpeg(STREAMFILE* sf) {
     vgmstream->channel_layout = ffmpeg_get_channel_layout(vgmstream->codec_data);
 
     return vgmstream;
-    
+
 fail:
     free_ffmpeg(data);
     if (vgmstream) {
         vgmstream->codec_data = NULL;
         close_vgmstream(vgmstream);
     }
-    
     return NULL;
 }
 
@@ -155,22 +193,30 @@ fail:
 }
 
 
-/* loop tag handling could be unified with ogg_vorbis.c, but that one has a extra features too */
-static int find_ogg_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_t* p_loop_end) {
+/* loop tag handling could be unified with ogg_vorbis.c, but that one has a extra features too.
+ * Also has support for flac meta loops, that can be used by stuff like Platformer Game Engine
+ * or ZDoom/Duke Nukem 3D source ports (maybe RPG Maker too). */
+//todo call ffmpeg_get_next_tag and iterate like ogg_vorbis.c
+//todo also save title
+static int find_meta_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_t* p_loop_end) {
     char* endptr;
     const char* value;
     int loop_flag = 0;
     int32_t loop_start = -1, loop_end = -1;
 
-    // Try to detect the loop flags based on current file metadata
+    // Try to detect the loop flags based on current file metadata (ignores case)
     value = ffmpeg_get_metadata_value(data, "LoopStart");
-    if (value != NULL) {
+    if (!value)
+        value = ffmpeg_get_metadata_value(data, "LOOP_START"); /* ZDoom/DN3D */
+    if (value) {
         loop_start = strtol(value, &endptr, 10);
         loop_flag = 1;
     }
 
     value = ffmpeg_get_metadata_value(data, "LoopEnd");
-    if (value != NULL) {
+    if (!value)
+        value = ffmpeg_get_metadata_value(data, "LOOP_END"); /* ZDoom/DN3D */
+    if (value) {
         loop_end = strtol(value, &endptr, 10);
         loop_flag = 1;
     }
@@ -188,7 +234,7 @@ static int find_ogg_loops(ffmpeg_codec_data* data, int32_t* p_loop_start, int32_
 
         if (loop_end <= 0) {
             // Looks a calculation was not possible, or tag value is wrongly set. Use the end of track as end value
-            loop_end = data->totalSamples;
+            loop_end = ffmpeg_get_samples(data);
         }
 
         if (loop_start <= 0) {

@@ -263,7 +263,7 @@ UINT8 vgmGetVoicesChannelsUsedNb(UINT8 chipId) {
     
     //VGMSTREAM
 #import "../libs/libvgmstream/vgmstream.h"
-#import "../libs/libvgmstream/plugins.h"
+#import "../libs/libvgmstream/base/plugins.h"
     
     static VGMSTREAM* vgmStream = NULL;
     static STREAMFILE* vgmFile = NULL;

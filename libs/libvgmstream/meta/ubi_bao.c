@@ -1,8 +1,11 @@
 #include "meta.h"
 #include "../layout/layout.h"
 #include "../coding/coding.h"
+#include "../util/endianness.h"
 #include "ubi_bao_streamfile.h"
 
+#define BAO_MIN_VERSION 0x1B
+#define BAO_MAX_VERSION 0x2A
 
 #define BAO_MAX_LAYER_COUNT 16  /* arbitrary max */
 #define BAO_MAX_CHAIN_COUNT 128 /* POP:TFS goes up to ~100 */
@@ -32,9 +35,12 @@ typedef struct {
     off_t audio_stream_type;
     off_t audio_prefetch_size;
     size_t audio_interleave;
+    off_t audio_cue_count;
+    off_t audio_cue_size;
     int audio_fix_psx_samples;
     int audio_external_and;
     int audio_loop_and;
+    int audio_ignore_resource_size;
 
     off_t sequence_sequence_loop;
     off_t sequence_sequence_single;
@@ -78,21 +84,21 @@ typedef struct {
     ubi_bao_config cfg;
 
     /* header info */
-    off_t header_offset;
+    uint32_t header_offset;
     uint8_t header_format;
     uint32_t header_version;
     uint32_t header_id;
     uint32_t header_type;
-    size_t header_skip;     /* common sub-header size */
-    size_t header_size;     /* normal base size (not counting extra tables) */
-    size_t extra_size;      /* extra tables size */
+    uint32_t header_skip;     /* common sub-header size */
+    uint32_t header_size;     /* normal base size (not counting extra tables) */
+    uint32_t extra_size;      /* extra tables size */
 
     uint32_t stream_id;
-    size_t stream_size;
-    off_t stream_offset;
+    uint32_t stream_size;
+    uint32_t stream_offset;
     uint32_t prefetch_id;
-    size_t prefetch_size;
-    off_t prefetch_offset;
+    uint32_t prefetch_size;
+    uint32_t prefetch_offset;
 
     size_t memory_skip;
     size_t stream_skip;
@@ -142,6 +148,11 @@ VGMSTREAM* init_vgmstream_ubi_bao_pk(STREAMFILE* sf) {
     ubi_bao_header bao = { 0 };
 
     /* checks */
+    if (read_u8(0x00, sf) != 0x01)
+        goto fail;
+    if (read_u8(0x01, sf) < BAO_MIN_VERSION || read_u8(0x01, sf) > BAO_MAX_VERSION)
+        goto fail;
+
     if (!check_extensions(sf, "pk,lpk,cpk"))
         goto fail;
 
@@ -158,12 +169,17 @@ fail:
     return NULL;
 }
 
-/* .BAO - single BAO files from Ubisoft's sound engine ("DARE") games in 2008+ */
+/* .BAO - single BAO files from Ubisoft's sound engine ("DARE") games in 2007+ */
 VGMSTREAM* init_vgmstream_ubi_bao_atomic(STREAMFILE* sf) {
     ubi_bao_header bao = { 0 };
     STREAMFILE* streamData = NULL;
 
     /* checks */
+    if (read_u8(0x00, sf) != 0x01 && read_u8(0x00, sf) != 0x02) /* 0x01=AC1, 0x02=POP2008 */
+        goto fail;
+    if (read_u8(0x01, sf) < BAO_MIN_VERSION || read_u8(0x01, sf) > BAO_MAX_VERSION)
+        goto fail;
+
     if (!check_extensions(sf, "bao,"))
         goto fail;
 
@@ -171,13 +187,9 @@ VGMSTREAM* init_vgmstream_ubi_bao_atomic(STREAMFILE* sf) {
      * since BAOs reference each other by id and are named by it (though the internal BAO id may
      * be other) we can simulate it. Extension is .bao/sbao or extensionaless in some games. */
 
-    /* format: 0x01=AC1, 0x02=POP2008 */
-    if (read_8bit(0x00, sf) != 0x01 && read_8bit(0x00, sf) != 0x02)
-        goto fail;
-
     bao.is_atomic = 1;
 
-    bao.version = read_32bitBE(0x00, sf) & 0x00FFFFFF;
+    bao.version = read_u32be(0x00, sf) & 0x00FFFFFF;
     if (!config_bao_version(&bao, sf))
         goto fail;
 
@@ -266,8 +278,8 @@ static VGMSTREAM* init_vgmstream_ubi_bao_base(ubi_bao_header* bao, STREAMFILE* s
             vgmstream->interleave_block_size = bao->stream_size / bao->channels;
 
             /* mini DSP header (first 0x10 seem to contain DSP header fields like nibbles and format) */
-            dsp_read_coefs_be(vgmstream, streamHead, bao->header_offset + bao->header_size + 0x10, 0x40);
-            dsp_read_hist_be (vgmstream, streamHead, bao->header_offset + bao->header_size + 0x34, 0x40); /* after gain/initial ps */
+            dsp_read_coefs_be(vgmstream, streamHead, bao->header_offset + bao->header_size + bao->extra_size + 0x10, 0x40);
+            dsp_read_hist_be (vgmstream, streamHead, bao->header_offset + bao->header_size + bao->extra_size + 0x34, 0x40); /* after gain/initial ps */
             break;
 
 #ifdef VGM_USE_FFMPEG
@@ -275,10 +287,9 @@ static VGMSTREAM* init_vgmstream_ubi_bao_base(ubi_bao_header* bao, STREAMFILE* s
         case RAW_XMA1:
         case RAW_XMA2_OLD:
         case RAW_XMA2_NEW: {
-            uint8_t buf[0x100];
-            size_t bytes, chunk_size, data_size;
+            size_t chunk_size, data_size;
             off_t chunk_offset;
-            STREAMFILE* streamXMA;
+            STREAMFILE* sf_xma;
 
             switch(bao->codec) {
                 case RAW_XMA1:      chunk_size = 0x20; break;
@@ -328,26 +339,19 @@ static VGMSTREAM* init_vgmstream_ubi_bao_base(ubi_bao_header* bao, STREAMFILE* s
                 header_size += align_size_to_block(sec2_num * bits_per_frame, 32) / 8; /* bitstream seek table? */
                 header_size += sec3_num * 0x08;
 
-                streamXMA = streamData;
+                sf_xma = streamData;
                 chunk_offset = 0x00;
                 start_offset += header_size;
                 data_size = sec2_num * frame_size;
             }
             else {
-                streamXMA = streamHead;
+                sf_xma = streamHead;
                 chunk_offset = bao->header_offset + bao->header_size;
                 start_offset = 0x00;
                 data_size = bao->stream_size;
             }
 
-            if (bao->codec == RAW_XMA2_OLD) {
-                bytes = ffmpeg_make_riff_xma2_from_xma2_chunk(buf,0x100, chunk_offset, chunk_size, data_size, streamXMA);
-            }
-            else {
-                bytes = ffmpeg_make_riff_xma_from_fmt_chunk(buf,0x100, chunk_offset, chunk_size, data_size, streamXMA, 1);
-            }
-
-            vgmstream->codec_data = init_ffmpeg_header_offset(streamData, buf, bytes, start_offset, data_size);
+            vgmstream->codec_data = init_ffmpeg_xma_chunk(sf_xma, start_offset, data_size, chunk_offset, chunk_size);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
@@ -599,75 +603,32 @@ fail:
 }
 
 
-static size_t silence_io_read(STREAMFILE* streamfile, uint8_t *dest, off_t offset, size_t length, void* data) {
-    int i;
-    for (i = 0; i < length; i++) {
-        dest[i] = 0;
-    }
-    return length; /* pretend we read zeroes */
-}
-static size_t silence_io_size(STREAMFILE* streamfile, void* data) {
-    return 0x7FFFFFF; /* whatevs */
-}
-static STREAMFILE* setup_silence_streamfile(STREAMFILE* sf) {
-    STREAMFILE* temp_sf = NULL, *new_sf = NULL;
-
-    /* setup custom streamfile */
-    new_sf = open_wrap_streamfile(sf);
-    if (!new_sf) goto fail;
-    temp_sf = new_sf;
-
-    new_sf = open_io_streamfile(temp_sf, NULL,0, silence_io_read,silence_io_size);
-    if (!new_sf) goto fail;
-    temp_sf = new_sf;
-
-    return temp_sf;
-
-fail:
-    close_streamfile(temp_sf);
-    return NULL;
-}
-
-static VGMSTREAM* init_vgmstream_ubi_bao_silence(ubi_bao_header* bao, STREAMFILE* sf) {
+static VGMSTREAM* init_vgmstream_ubi_bao_silence(ubi_bao_header* bao) {
     VGMSTREAM* vgmstream = NULL;
-    STREAMFILE* temp_sf = NULL;
-    int channel_count, sample_rate;
+    int channels, sample_rate;
+    int32_t num_samples;
 
-    channel_count = bao->channels;
+    /* by default silences don't have settings */
+    channels = bao->channels;
+    if (channels == 0)
+        channels = 2;
     sample_rate = bao->sample_rate;
-
-    /* by default silences don't have settings so let's pretend */
-    if (channel_count == 0)
-        channel_count = 2;
     if (sample_rate == 0)
         sample_rate = 48000;
+    num_samples = bao->duration * sample_rate;
 
 
-    /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count, 0);
+    /* init the VGMSTREAM */
+    vgmstream = init_vgmstream_silence(channels, sample_rate, num_samples);
     if (!vgmstream) goto fail;
 
     vgmstream->meta_type = meta_UBI_BAO;
-    vgmstream->sample_rate = sample_rate;
-
-    vgmstream->num_samples = bao->duration * sample_rate;
     vgmstream->num_streams = bao->total_subsongs;
-    vgmstream->stream_size = vgmstream->num_samples * channel_count * 0x02; /* PCM size */
 
-    vgmstream->coding_type = coding_PCM16LE;
-    vgmstream->layout_type = layout_interleave;
-    vgmstream->interleave_block_size = 0x02;
-
-    temp_sf = setup_silence_streamfile(sf);
-    if ( !vgmstream_open_stream(vgmstream, temp_sf, 0x00) )
-        goto fail;
-
-    close_streamfile(temp_sf);
     return vgmstream;
 
 fail:
     close_vgmstream(vgmstream);
-    close_streamfile(temp_sf);
     return vgmstream;
 }
 
@@ -676,16 +637,16 @@ static VGMSTREAM* init_vgmstream_ubi_bao_header(ubi_bao_header* bao, STREAMFILE*
     VGMSTREAM* vgmstream = NULL;
 
     if (bao->total_subsongs <= 0) {
-        VGM_LOG("UBI BAO: no subsongs\n");
+        vgm_logi("UBI BAO: bank has no subsongs (ignore)\n");
         goto fail; /* not uncommon */
     }
 
-    //;VGM_LOG("UBI BAO: target at %x, h_id=%08x, s_id=%08x, p_id=%08x\n",
-    //    (uint32_t)bao->header_offset, bao->header_id, bao->stream_id, bao->prefetch_id);
-    //;VGM_LOG("UBI BAO: stream=%x, size=%x, res=%s\n",
-    //        (uint32_t)bao->stream_offset, bao->stream_size, (bao->is_external ? bao->resource_name : "internal"));
-    //;VGM_LOG("UBI BAO: type=%i, header=%x, extra=%x, prefetch=%x, size=%x\n",
-    //        bao->header_type, bao->header_size, bao->extra_size, (uint32_t)bao->prefetch_offset, bao->prefetch_size);
+    ;VGM_LOG("UBI BAO: target at %x, h_id=%08x, s_id=%08x, p_id=%08x\n",
+        (uint32_t)bao->header_offset, bao->header_id, bao->stream_id, bao->prefetch_id);
+    ;VGM_LOG("UBI BAO: stream=%x, size=%x, res=%s\n",
+            (uint32_t)bao->stream_offset, bao->stream_size, (bao->is_external ? bao->resource_name : "internal"));
+    ;VGM_LOG("UBI BAO: type=%i, header=%x, extra=%x, pre.of=%x, pre.sz=%x\n",
+            bao->header_type, bao->header_size, bao->extra_size, (uint32_t)bao->prefetch_offset, bao->prefetch_size);
 
 
     switch(bao->type) {
@@ -703,7 +664,7 @@ static VGMSTREAM* init_vgmstream_ubi_bao_header(ubi_bao_header* bao, STREAMFILE*
             break;
 
         case UBI_SILENCE:
-            vgmstream = init_vgmstream_ubi_bao_silence(bao, sf);
+            vgmstream = init_vgmstream_ubi_bao_silence(bao);
             break;
 
         default:
@@ -743,8 +704,8 @@ static int parse_pk(ubi_bao_header* bao, STREAMFILE* sf) {
 
     if (target_subsong <= 0) target_subsong = 1;
 
-    bao->version = read_32bitBE(0x00, sf) & 0x00FFFFFF;
-    index_size = read_32bitLE(0x04, sf); /* can be 0, not including  */
+    bao->version = read_u32be(0x00, sf) & 0x00FFFFFF;
+    index_size = read_u32le(0x04, sf); /* can be 0, not including  */
     /* 0x08: resource table offset, always found even if not used */
     /* 0x0c: always 0? */
     /* 0x10: unknown, null if no entries */
@@ -871,6 +832,12 @@ static int parse_type_audio(ubi_bao_header* bao, off_t offset, STREAMFILE* sf) {
     bao->loop_flag   = read_32bit(h_offset + bao->cfg.audio_loop_flag, sf) & bao->cfg.audio_loop_and;
     bao->channels    = read_32bit(h_offset + bao->cfg.audio_channels, sf);
     bao->sample_rate = read_32bit(h_offset + bao->cfg.audio_sample_rate, sf);
+
+    /* extra cue table, rare (found with DSP) [We Dare (Wii)] */
+    if (bao->cfg.audio_cue_size) {
+        //bao->cfg.audio_cue_count //not needed?
+        bao->extra_size = read_32bit(h_offset + bao->cfg.audio_cue_size, sf);
+    }
 
     /* prefetch data is in another internal BAO right after the base header */
     if (bao->cfg.audio_prefetch_size) {
@@ -1033,7 +1000,7 @@ fail:
 }
 
 /* adjust some common values */
-static int parse_values(ubi_bao_header* bao, STREAMFILE* sf) {
+static int parse_values(ubi_bao_header* bao) {
 
     if (bao->type == UBI_SEQUENCE || bao->type == UBI_SILENCE)
         return 1;
@@ -1045,7 +1012,7 @@ static int parse_values(ubi_bao_header* bao, STREAMFILE* sf) {
     }
 
     /* set codec */
-    if (bao->stream_type > 0x10) {
+    if (bao->stream_type >= 0x10) {
         VGM_LOG("UBI BAO: unknown stream_type at %x\n", (uint32_t)bao->header_offset); goto fail;
         goto fail;
     }
@@ -1159,9 +1126,13 @@ static int parse_offsets(ubi_bao_header* bao, STREAMFILE* sf) {
                     read_string(bao->resource_name,255, resources_offset + 0x04+0x04 + name_offset, sf);
 
                     if (bao->stream_size != resource_size - bao->stream_skip + bao->prefetch_size) {
-                        VGM_ASSERT(bao->stream_size != resource_size - bao->stream_skip + bao->prefetch_size,
-                                "UBI BAO: stream vs resource size mismatch at %lx\n", offset+0x10*i);
-                        goto fail;
+                        VGM_LOG("UBI BAO: stream vs resource size mismatch at %lx (res %x vs str=%x, skip=%x, pre=%x)\n", offset+0x10*i, resource_size, bao->stream_size, bao->stream_skip, bao->prefetch_size);
+
+                        /* rarely resource has more data than stream (sometimes a few bytes, others +0x100000)
+                         * sometimes short song versions, but not accessed? no samples/sizes/cues/etc in header seem to refer to that [Just Dance (Wii)]
+                         * Michael Jackson The Experience also uses prefetch size + bad size (ignored) */
+                        if (!bao->cfg.audio_ignore_resource_size && bao->prefetch_size)
+                            goto fail;
                     }
                     break;
                 }
@@ -1271,7 +1242,7 @@ static int parse_header(ubi_bao_header* bao, STREAMFILE* sf, off_t offset) {
             goto fail;
     }
 
-    if (!parse_values(bao, sf))
+    if (!parse_values(bao))
         goto fail;
 
     if (!parse_offsets(bao, sf))
@@ -1327,6 +1298,27 @@ fail:
 
 /* ************************************************************************* */
 
+/* These are all of the languages that were referenced in Assassin's Creed exe (out of each platform). */
+/* Also, additional languages were referenced in Shawn White Skateboarding (X360) exe in this order, there may be more. */
+static const char* language_bao_formats[] = {
+    "English_BAO_0x%08x",
+    "French_BAO_0x%08x",
+    "Spanish_BAO_0x%08x",
+    "Polish_BAO_0x%08x",
+    "German_BAO_0x%08x",
+    "Chinese_BAO_0x%08x",
+    "Hungarian_BAO_0x%08x",
+    "Italian_BAO_0x%08x",
+    "Japanese_BAO_0x%08x",
+    "Czech_BAO_0x%08x",
+    "Korean_BAO_0x%08x",
+    "Russian_BAO_0x%08x",
+    "Dutch_BAO_0x%08x",
+    "Danish_BAO_0x%08x",
+    "Norwegian_BAO_0x%08x",
+    "Swedish_BAO_0x%08x",
+};
+
 /* opens a file BAO's companion BAO (memory or stream) */
 static STREAMFILE* open_atomic_bao(ubi_bao_file file_type, uint32_t file_id, int is_stream, STREAMFILE* sf) {
     STREAMFILE* sf_bao = NULL;
@@ -1349,47 +1341,33 @@ static STREAMFILE* open_atomic_bao(ubi_bao_file file_type, uint32_t file_id, int
                 sf_bao = open_streamfile_by_filename(sf, buf);
                 if (sf_bao) return sf_bao;
 
-                snprintf(buf,buf_size, "English_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
+                {
+                    int i;
+                    int count = (sizeof(language_bao_formats) / sizeof(language_bao_formats[0]));
+                    for (i = 0; i < count; i++) {
+                        const char* format = language_bao_formats[i];
 
-                snprintf(buf,buf_size, "French_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Spanish_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "German_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Italian_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Japanese_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Korean_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Russian_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Czech_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                snprintf(buf,buf_size, "Polish_BAO_0x%08x", file_id);
-                sf_bao = open_streamfile_by_filename(sf, buf);
-                if (sf_bao) return sf_bao;
-
-                /* these are all of the languages that were referenced in Assassin's Creed exe (out of each platform), there may be more */
+                        snprintf(buf,buf_size, format, file_id);
+                        sf_bao = open_streamfile_by_filename(sf, buf);
+                        if (sf_bao) return sf_bao;
+                    }
+                }
+                
+                /* If all else fails, try %08x.bao/%08x.sbao nomenclature. 
+                 * (id).bao is for mimicking engine loading files by internal ID,
+                 * original names (like Common_BAO_0x5NNNNNNN, French_BAO_0x5NNNNNNN and the like) are OK too. */
+                if (file_type != UBI_FORGE_b) {
+                    /* %08x.bao nomenclature present in Assassin's Creed (Windows Vista) exe. */
+                    snprintf(buf,buf_size, "%08x.bao", file_id);
+                    sf_bao = open_streamfile_by_filename(sf, buf);
+                    if (sf_bao) return sf_bao;
+                }
+                else {
+                    /* %08x.sbao nomenclature (in addition to %08x.bao) present in Shaun White Snowboarding (Windows Vista) exe. */
+                    snprintf(buf,buf_size, "%08x.sbao", file_id);
+                    sf_bao = open_streamfile_by_filename(sf, buf);
+                    if (sf_bao) return sf_bao;
+                }
             }
             else {
                 snprintf(buf,buf_size, "BAO_0x%08x", file_id);
@@ -1397,6 +1375,11 @@ static STREAMFILE* open_atomic_bao(ubi_bao_file file_type, uint32_t file_id, int
                 if (sf_bao) return sf_bao;
 
                 strcat(buf,".bao");
+                sf_bao = open_streamfile_by_filename(sf, buf);
+                if (sf_bao) return sf_bao;
+                
+                /* Ditto. */
+                snprintf(buf,buf_size, "%08x.bao", file_id);
                 sf_bao = open_streamfile_by_filename(sf, buf);
                 if (sf_bao) return sf_bao;
             }
@@ -1521,7 +1504,10 @@ static STREAMFILE* setup_bao_streamfile(ubi_bao_header* bao, STREAMFILE* sf) {
 
             if (bao->stream_size - bao->prefetch_size != 0) {
                 new_sf = open_streamfile_by_filename(sf, bao->resource_name);
-                if (!new_sf) { VGM_LOG("UBI BAO: external stream '%s' not found\n", bao->resource_name); goto fail; }
+                if (!new_sf) {
+                    vgm_logi("UBI BAO: external file '%s' not found (put together)\n", bao->resource_name); 
+                    goto fail; 
+                }
                 stream_segments[1] = new_sf;
 
                 new_sf = open_clamp_streamfile(stream_segments[1], bao->stream_offset, (bao->stream_size - bao->prefetch_size));
@@ -1543,7 +1529,10 @@ static STREAMFILE* setup_bao_streamfile(ubi_bao_header* bao, STREAMFILE* sf) {
         }
         else if (bao->is_external) {
             new_sf = open_streamfile_by_filename(sf, bao->resource_name);
-            if (!new_sf) { VGM_LOG("UBI BAO: external stream '%s' not found\n", bao->resource_name); goto fail; }
+            if (!new_sf) {
+                vgm_logi("UBI BAO: external file '%s' not found (put together)\n", bao->resource_name);
+                goto fail;
+            }
             temp_sf = new_sf;
 
             new_sf = open_clamp_streamfile(temp_sf, bao->stream_offset, bao->stream_size);
@@ -1582,7 +1571,7 @@ static void config_bao_endian(ubi_bao_header* bao, off_t offset, STREAMFILE* sf)
      * This could be done once as all BAOs share endianness */
 
     /* negate as fields looks like LE (0xN0000000) */
-    bao->big_endian = !guess_endianness32bit(offset+bao->cfg.bao_class, sf);
+    bao->big_endian = !guess_endian32(offset+bao->cfg.bao_class, sf);
 }
 
 
@@ -1610,6 +1599,12 @@ static void config_bao_audio_m(ubi_bao_header* bao, off_t channels, off_t sample
   //bao->cfg.audio_cue_count        = cue_count;
   //bao->cfg.audio_cue_labels       = cue_labels;
     bao->cfg.audio_prefetch_size    = prefetch_size;
+}
+
+static void config_bao_audio_c(ubi_bao_header* bao, off_t cue_count, off_t cue_size) {
+    /* audio header extra */
+    bao->cfg.audio_cue_count        = cue_count;
+    bao->cfg.audio_cue_size         = cue_size;
 }
 
 static void config_bao_sequence(ubi_bao_header* bao, off_t sequence_count, off_t sequence_single, off_t sequence_loop, off_t entry_size) {
@@ -1720,7 +1715,7 @@ static int config_bao_version(ubi_bao_header* bao, STREAMFILE* sf) {
 
         /* next BAO uses machine endianness, entry should always exist
          * (maybe should use project BAO to detect?) */
-        if (guess_endianness32bit(header_size + 0x04, sf)) {
+        if (guess_endian32(header_size + 0x04, sf)) {
             version |= 0xFF00; /* signal Wii=BE, but don't modify original */
         }
     }
@@ -1784,7 +1779,7 @@ static int config_bao_version(ubi_bao_header* bao, STREAMFILE* sf) {
         case 0x001F0010: /* Prince of Persia 2008 (PC/PS3/X360)-atomic-forge, Far Cry 2 (PS3)-atomic-dunia? */
         case 0x001F0011: /* Naruto: The Broken Bond (X360)-package */
         case 0x0021000C: /* Splinter Cell: Conviction (E3 2009 Demo)(X360)-package */
-        case 0x0022000D: /* Just Dance (Wii)-package */
+        case 0x0022000D: /* Just Dance (Wii)-package, We Dare (PS3/Wii)-package */
         case 0x0022FF15: /* James Cameron's Avatar: The Game (Wii)-package */
         case 0x0022001B: /* Prince of Persia: The Forgotten Sands (Wii)-package */
             config_bao_entry(bao, 0xA4, 0x28); /* PC/Wii: 0xA8 */
@@ -1807,6 +1802,12 @@ static int config_bao_version(ubi_bao_header* bao, STREAMFILE* sf) {
             bao->cfg.codec_map[0x09] = RAW_DSP;
 
             bao->cfg.file_type = UBI_FORGE_b;
+
+            if (version == 0x0022000D) /* Just Dance (Wii) oddity */
+                bao->cfg.audio_ignore_resource_size = 1;
+            if (version == 0x0022000D) /* We Dare (Wii) */
+                config_bao_audio_c(bao, 0x68, 0x78);
+
             return 1;
 
         case 0x00220015: /* James Cameron's Avatar: The Game (PSP)-package */
@@ -1875,6 +1876,23 @@ static int config_bao_version(ubi_bao_header* bao, STREAMFILE* sf) {
                 bao->cfg.codec_map[0x06] = RAW_AT3_105;
 
             bao->cfg.file_type = UBI_FORGE_b;
+            
+            return 1;
+
+        case 0x00260000: /* Michael Jackson: The Experience (X360)-package */
+            config_bao_entry(bao, 0xB8, 0x28);
+
+            config_bao_audio_b(bao, 0x08, 0x28, 0x30, 0x3c, 1, 1); //loop?
+            config_bao_audio_m(bao, 0x4c, 0x54, 0x5c, 0x64, 0x6c, 0x7c);
+
+            config_bao_layer_m(bao, 0x00, 0x2c, 0x34,  0x4c, 0x54, 0x58,  0x00, 0x00, 1);
+            config_bao_layer_e(bao, 0x34, 0x00, 0x04, 0x08, 0x1c);
+
+            bao->cfg.codec_map[0x03] = FMT_OGG;
+            bao->cfg.codec_map[0x04] = RAW_XMA2_NEW;
+
+            bao->cfg.audio_ignore_resource_size = 1; /* leave_me_alone.pk */
+
             return 1;
 
         case 0x00270102: /* Drawsome (Wii)-package */
@@ -1929,11 +1947,10 @@ static int config_bao_version(ubi_bao_header* bao, STREAMFILE* sf) {
              * - 0x94: stream id? 0x9C: extra size */
         case 0x002A0300: /* Watch Dogs (Wii U) */
             /* similar to SC:B */
-        default: /* others possibly using BAO: Just Dance, Watch_Dogs, Far Cry Primal, Far Cry 4 */
-            VGM_LOG("UBI BAO: unknown BAO version %08x\n", bao->version);
+        default: /* others possibly using BAO: Watch_Dogs, Far Cry Primal, Far Cry 4 */
+            vgm_logi("UBI BAO: unknown BAO version %08x\n", bao->version);
             return 0;
     }
 
-    VGM_LOG("UBI BAO: unknown BAO version %08x\n", bao->version);
     return 0;
 }

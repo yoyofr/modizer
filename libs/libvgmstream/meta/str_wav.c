@@ -1,15 +1,18 @@
 #include "meta.h"
 #include "../coding/coding.h"
+#include "../util/layout_utils.h"
+#include "str_wav_streamfile.h"
 
 
-typedef enum { PSX, DSP, XBOX, WMA, IMA, XMA2 } strwav_codec;
+typedef enum { PSX, PSX_chunked, DSP, XBOX, WMA, IMA, XMA2, MPEG } strwav_codec;
 typedef struct {
-    int32_t channels;
-    int32_t sample_rate;
+    int tracks;
+    int channels;
+    int sample_rate;
     int32_t num_samples;
     int32_t loop_start;
     int32_t loop_end;
-    int32_t loop_flag;
+    int loop_flag;
     size_t interleave;
 
     off_t coefs_offset;
@@ -20,7 +23,7 @@ typedef struct {
     strwav_codec codec;
 } strwav_header;
 
-static int parse_header(STREAMFILE* sf_h, strwav_header* strwav);
+static int parse_header(STREAMFILE* sf_h, STREAMFILE* sf_b, strwav_header* strwav);
 
 
 /* STR+WAV - Blitz Games streams+header */
@@ -61,20 +64,23 @@ VGMSTREAM* init_vgmstream_str_wav(STREAMFILE* sf) {
     }
 
     /* detect version */
-    if (!parse_header(sf_h, &strwav))
+    if (!parse_header(sf_h, sf, &strwav))
         goto fail;
 
     if (strwav.flags == 0)
         goto fail;
-    if (strwav.channels > 8)
-        goto fail;
-
-    /* &0x01: loop?, &0x02: non-mono?, &0x04: stream???, &0x08: unused? */
-    if (strwav.flags > 0x07) {
-        VGM_LOG("STR+WAV: unknown flags\n");
+    /* &0x01: loop, &0x02: stereo tracks, &0x04: stream?, &0x200: has named cues? */
+    if (strwav.flags & 0xFFFFFDF8) {
+        VGM_LOG("STR+WAV: unknown flags %x\n", strwav.flags);
         goto fail;
     }
 
+    strwav.loop_flag   = strwav.flags & 0x01;
+
+    if (!strwav.channels)
+        strwav.channels = strwav.tracks * (strwav.flags & 0x02 ? 2 : 1);
+    if (strwav.channels > 8)
+        goto fail;
 
     start_offset = 0x00;
 
@@ -98,6 +104,29 @@ VGMSTREAM* init_vgmstream_str_wav(STREAMFILE* sf) {
             vgmstream->layout_type = layout_interleave;
             vgmstream->interleave_block_size = strwav.interleave;
             break;
+
+        case PSX_chunked: { /* hack */
+            //tracks are stereo blocks of size 0x20000 * tracks, containing 4 interleaves of 0x8000:
+            // | 1 2 1 2 | 3 4 3 4 | 5 6 5 6 | 1 2 1 2 | 3 4 3 4 | 5 6 5 6 | ...
+
+            vgmstream->coding_type = coding_PSX;
+            vgmstream->interleave_block_size = strwav.interleave;
+            for (int i = 0; i < strwav.tracks; i++) {
+                uint32_t chunk_size = 0x20000;
+                int layer_channels = 2;
+
+                STREAMFILE* temp_sf = setup_str_wav_streamfile(sf, 0x00, strwav.tracks, i, chunk_size);
+                if (!temp_sf) goto fail;
+
+                bool res = layered_add_sf(vgmstream, strwav.tracks, layer_channels, temp_sf);
+                close_streamfile(temp_sf);
+                if (!res)
+                    goto fail;
+            }
+            if (!layered_add_done(vgmstream))
+                goto fail;
+            break;
+        }
 
         case DSP:
             vgmstream->coding_type = coding_NGC_DSP;
@@ -146,8 +175,8 @@ VGMSTREAM* init_vgmstream_str_wav(STREAMFILE* sf) {
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
 
-            vgmstream->num_samples = ffmpeg_data->totalSamples;
-            if (vgmstream->channels != ffmpeg_data->channels)
+            vgmstream->num_samples = ffmpeg_get_samples(ffmpeg_data);
+            if (vgmstream->channels != ffmpeg_get_channels(ffmpeg_data))
                 goto fail;
 
             break;
@@ -156,21 +185,35 @@ VGMSTREAM* init_vgmstream_str_wav(STREAMFILE* sf) {
 
 #ifdef VGM_USE_FFMPEG
         case XMA2: {
-            uint8_t buf[0x100];
-            size_t stream_size;
-            size_t bytes, block_size, block_count;
+            uint32_t stream_size = get_streamfile_size(sf);
+            int block_size = 0x10000;
 
-            stream_size = get_streamfile_size(sf);
-            block_size = 0x10000;
-            block_count = stream_size / block_size; /* not accurate? */
-
-            bytes = ffmpeg_make_riff_xma2(buf,0x100, strwav.num_samples, stream_size, strwav.channels, strwav.sample_rate, block_count, block_size);
-            vgmstream->codec_data = init_ffmpeg_header_offset(sf, buf,bytes, 0x00,stream_size);
+            vgmstream->codec_data = init_ffmpeg_xma2_raw(sf, 0x00, stream_size, strwav.num_samples, strwav.channels, strwav.sample_rate, block_size, 0);
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_FFmpeg;
             vgmstream->layout_type = layout_none;
 
             xma_fix_raw_samples(vgmstream, sf, 0x00,stream_size, 0, 0,0);
+            break;
+        }
+#endif
+
+#ifdef VGM_USE_MPEG
+        case MPEG: {
+            /* regular MP3 starting with ID2, stereo tracks xN (bgm + vocals) but assuming last (or only one) could be mono */
+            int layers = (strwav.channels + 1) / 2;
+
+            for (int i = 0; i < layers; i++) {
+                uint32_t size = strwav.interleave;
+                uint32_t offset = i * size;
+                const char* ext = "mp3";
+                int layer_channels = ((layers % 2) && i + 1 == layers) ? 1 : 2;
+
+                layered_add_subfile(vgmstream, layers, layer_channels, sf, offset, size, ext, init_vgmstream_mpeg);
+            }
+
+            if (!layered_add_done(vgmstream))
+                goto fail;
             break;
         }
 #endif
@@ -195,374 +238,634 @@ fail:
 
 /* Parse header versions. Almost every game uses its own variation (struct serialization?),
  * so detection could be improved once enough versions are known. */
-static int parse_header(STREAMFILE* sf_h, strwav_header* strwav) {
+static int parse_header(STREAMFILE* sf_h, STREAMFILE* sf_b, strwav_header* strwav) {
     size_t header_size;
 
-    if (read_32bitBE(0x00,sf_h) != 0x00000000)
+    if (read_u32be(0x00,sf_h) != 0x00000000)
         goto fail;
 
     header_size = get_streamfile_size(sf_h);
+    
+    /* most variations have extra tables (at least 1 entry):
+     * - table1: samples
+     * - table2: f32 ms + cue hash (ex. 2D7FC4C5 = __EndMarker0, not unique) + optional 0x38 cue name
+     * table entries don't need to match (table2 may be slightly bigger)
+    */
 
     //todo loop start/end values may be off for some headers
 
     /* Fuzion Frenzy (Xbox)[2001] wma */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitLE(0x20,sf_h) == 0  && /* no num_samples */
-         read_32bitLE(0x24,sf_h) == read_32bitLE(0x80,sf_h) && /* sample rate repeat */
-         read_32bitLE(0x28,sf_h) == 0x10 &&
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x0c,sf_h) != header_size &&
+         read_u32le(0x24,sf_h) != 0 &&
+         read_u32le(0x24,sf_h) == read_u32le(0x80,sf_h) && /* sample rate repeat */
          header_size == 0x110 /* no value in header */
          ) {
-        strwav->num_samples = read_32bitLE(0x20,sf_h); /* 0 but will be rectified later */
-        strwav->sample_rate = read_32bitLE(0x24,sf_h);
-        strwav->flags       = read_32bitLE(0x2c,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h); /* 0 but will be rectified later */
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        /* 0x38: related to samples? */
+        /* 0x48: number of chunks */
+        strwav->tracks      = read_s32le(0x60,sf_h);
+        /* 0x80: sample rate 2 */
+
         strwav->loop_start  = 0;
         strwav->loop_end    = 0;
 
-        strwav->channels    = read_32bitLE(0x60,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = 0;
-
         strwav->codec = WMA;
-        //;VGM_LOG("STR+WAV: header Fuzion Frenzy (Xbox)\n");
+        strwav->interleave  = 0;
+        ;VGM_LOG("STR+WAV: header FF (Xbox)\n");
         return 1;
     }
 
     /* Taz: Wanted (GC)[2002] */
     /* Cubix Robots for Everyone: Showdown (GC)[2003] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitBE(0x24,sf_h) == read_32bitBE(0x90,sf_h) && /* sample rate repeat */
-         read_32bitBE(0x28,sf_h) == 0x10 &&
-         read_32bitBE(0xa0,sf_h) == header_size /* ~0x3C0 */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32be(0x0c,sf_h) != header_size &&
+         read_u32be(0x24,sf_h) != 0 &&
+         read_u32be(0x24,sf_h) == read_u32be(0x90,sf_h) && /* sample rate repeat */
+         read_u32be(0xa0,sf_h) == header_size /* ~0x3C0 */
          ) {
-        strwav->num_samples = read_32bitBE(0x20,sf_h);
-        strwav->sample_rate = read_32bitBE(0x24,sf_h);
-        strwav->flags       = read_32bitBE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitBE(0xb8,sf_h);
-        strwav->loop_end    = read_32bitBE(0xbc,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32be(0x20,sf_h);
+        strwav->sample_rate = read_s32be(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32be(0x2c,sf_h);
+        /* 0x38: related to samples? */
+        strwav->tracks      = read_s32be(0x50,sf_h);
+        /* 0x58: number of chunks */
+        /* 0x90: sample rate 2 */
+        /* 0xa0: header size */
+        strwav->loop_start  = read_s32be(0xb8,sf_h);
+        strwav->loop_end    = read_s32be(0xbc,sf_h);
+        /* 0xc0: standard DSP header */
 
-        strwav->channels    = read_32bitBE(0x50,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
-
-        strwav->coefs_offset = 0xdc;
         strwav->codec = DSP;
-        //;VGM_LOG("STR+WAV: header Taz: Wanted (GC)\n");
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+        strwav->coefs_offset = 0xdc;
+        ;VGM_LOG("STR+WAV: header TZW/CBX (GC)\n");
+        return 1;
+    }
+
+    /* Taz Wanted demo (PC)[2003] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x24,sf_h) == read_u32le(0xfc,sf_h) && /* sample rate repeat */
+         read_u32le(0x10c,sf_h) ==  header_size
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_end    = read_s32le(0x30,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        /* 0x58: number of chunks */
+        strwav->tracks      = read_s32le(0xD8,sf_h);
+        /* 0xfc: sample rate 2 */
+        /* 0x100: ? */
+        /* 0x10c: header size */
+
+        strwav->codec = IMA;
+        strwav->interleave  = strwav->tracks > 1 ? 0x10000 : 0x10000;
+        ;VGM_LOG("STR+WAV: header TAZd (PC)\n");
         return 1;
     }
 
     /* The Fairly OddParents - Breakin' da Rules (Xbox)[2003] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitLE(0x24,sf_h) == read_32bitLE(0xb0,sf_h) && /* sample rate repeat */
-         read_32bitLE(0x28,sf_h) == 0x10 &&
-         read_32bitLE(0xc0,sf_h)*0x04 + read_32bitLE(0xc4,sf_h) == header_size /* ~0xe0 + variable */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x24,sf_h) == read_u32le(0xb0,sf_h) && /* sample rate repeat */
+         read_u32le(0xc0,sf_h)*0x04 + read_u32le(0xc4,sf_h) == header_size /* ~0xe0 + variable */
          ) {
-        strwav->num_samples = read_32bitLE(0x20,sf_h);
-        strwav->sample_rate = read_32bitLE(0x24,sf_h);
-        strwav->flags       = read_32bitLE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitLE(0x38,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x70,sf_h);
+        /* 0x78: number of chunks */
+        /* 0xb0: sample rate 2 */
+        /* 0xc0: table1 entries */
+        /* 0xc4: table1 offset */
+        /* 0xdc: total frames */
+
         strwav->loop_end    = strwav->num_samples;
 
-        strwav->channels    = read_32bitLE(0x70,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = 0xD800/2;
-
         strwav->codec = XBOX;
-        //;VGM_LOG("STR+WAV: header The Fairly OddParents (Xbox)\n");
-        return 1;
-    }
-
-    /* Bad Boys II (GC)[2004] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000800 &&
-         read_32bitBE(0x24,sf_h) == read_32bitBE(0xb0,sf_h) && /* sample rate repeat */
-         read_32bitBE(0x24,sf_h) == read_32bitBE(read_32bitBE(0xe0,sf_h)+0x08,sf_h) && /* sample rate vs 1st DSP header */
-         read_32bitBE(0x28,sf_h) == 0x10 &&
-         read_32bitBE(0xc0,sf_h)*0x04 + read_32bitBE(0xc4,sf_h) == header_size /* variable + variable */
-         ) {
-        strwav->num_samples = read_32bitBE(0x20,sf_h);
-        strwav->sample_rate = read_32bitBE(0x24,sf_h);
-        strwav->flags       = read_32bitBE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitBE(0xd8,sf_h);
-        strwav->loop_end    = read_32bitBE(0xdc,sf_h);
-
-        strwav->channels    = read_32bitBE(0x70,sf_h) * read_32bitBE(0x88,sf_h); /* tracks of Nch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
-
-        strwav->dsps_table = 0xe0;
-        strwav->codec = DSP;
-        //;VGM_LOG("STR+WAV: header Bad Boys II (GC)\n");
-        return 1;
-    }
-
-    /* Bad Boys II (PS2)[2004] */
-    /* Pac-Man World 3 (PS2)[2005] */
-    if ((read_32bitBE(0x04,sf_h) == 0x00000800 ||
-            read_32bitBE(0x04,sf_h) == 0x01000800) && /* rare (PW3 mu_spectral1_explore_2) */
-         read_32bitLE(0x24,sf_h) == read_32bitLE(0x70,sf_h) && /* sample rate repeat */
-         read_32bitLE(0x28,sf_h) == 0x10 &&
-         read_32bitLE(0x78,sf_h)*0x04 + read_32bitLE(0x7c,sf_h) == header_size /* ~0xe0 + variable */
-         ) {
-        strwav->num_samples = read_32bitLE(0x20,sf_h);
-        strwav->sample_rate = read_32bitLE(0x24,sf_h);
-        strwav->flags       = read_32bitLE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitLE(0x38,sf_h);
-        strwav->interleave  = read_32bitLE(0x40,sf_h) == 1 ? 0x8000 : 0x4000;
-        strwav->loop_end    = read_32bitLE(0x54,sf_h);
-
-        strwav->channels    = read_32bitLE(0x40,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x4000 : 0x8000;
-
-        strwav->codec = PSX;
-        //;VGM_LOG("STR+WAV: header Bad Boys II (PS2)\n");
+        strwav->interleave  = strwav->tracks > 1 ? 0xD800/2 : 0xD800;
+        ;VGM_LOG("STR+WAV: header FOP (Xbox)\n");
         return 1;
     }
 
     /* Pac-Man World 3 (Xbox)[2005] */
     if ((read_u32be(0x04,sf_h) == 0x00000800 ||
-            read_u32be(0x04,sf_h) == 0x01000800) && /* rare (PW3 mu_spectral1_explore_2) */
+         read_u32be(0x04,sf_h) == 0x01000800) && /* rare, mu_spectral1_explore_2 */
          read_u32le(0x24,sf_h) == read_u32le(0xB0,sf_h) && /* sample rate repeat */
          read_u32le(0x28,sf_h) == 0x10 &&
          read_u32le(0xE0,sf_h) + read_u32le(0xE4,sf_h) * 0x40 == header_size /* ~0x100 + cues */
          ) {
-        strwav->num_samples = read_u32le(0x20,sf_h);
-        strwav->sample_rate = read_u32le(0x24,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
         strwav->flags       = read_u32le(0x2c,sf_h);
-        strwav->loop_start  = read_u32le(0x38,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x70,sf_h);
+        /* 0x78: number of chunks */
+        /* 0xb0: sample rate 2 */
+        /* 0xdc: total frames */
+        /* 0xe0: table2 offset */
+        /* 0xe4: table2 entries */
+        /* 0xf0: default hashname? */
+
         strwav->loop_end    = strwav->num_samples;
 
-        strwav->channels    = read_u32le(0x70,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0xD800/2 : 0xD800;
-
         strwav->codec = XBOX;
-        //;VGM_LOG("STR+WAV: Pac-Man World 3 (Xbox)\n");
+        strwav->interleave  = strwav->tracks > 1 ? 0xD800/2 : 0xD800;
+        ;VGM_LOG("STR+WAV: PW3 (Xbox)\n");
         return 1;
     }
 
-    /* Pac-Man World 3 (PC)[2005] */
-    if ((read_u32be(0x04,sf_h) == 0x00000800 ||
-            read_u32be(0x04,sf_h) == 0x01000800) && /* rare (PW3 mu_spectral1_explore_2) */
-         read_u32le(0x24,sf_h) == read_u32le(0x114,sf_h) && /* sample rate repeat */
-         read_u32le(0x28,sf_h) == 0x10 &&
-         read_u32le(0x130,sf_h) + read_u32le(0x134,sf_h) * 0x40 == header_size /* ~0x140 + cues */
+    /* The Fairly OddParents! - Shadow Showdown (GC)[2004] */
+    /* Bad Boys II (GC)[2004] */
+    if ( read_u32be(0x04,sf_h) == 0x00000800 &&
+         read_u32be(0x24,sf_h) == read_u32be(0xb0,sf_h) && /* sample rate repeat */
+         read_u32be(0x24,sf_h) == read_u32be(read_u32be(0xe0,sf_h)+0x08,sf_h) && /* sample rate vs 1st DSP header */
+         read_u32be(0xc0,sf_h)*0x04 + read_u32be(0xc4,sf_h) == header_size /* variable + variable */
          ) {
-        strwav->num_samples = read_u32le(0x20,sf_h);
-        strwav->sample_rate = read_u32le(0x24,sf_h);
-        strwav->flags       = read_u32le(0x2c,sf_h);
-        strwav->loop_start  = read_u32le(0x38,sf_h);
-        strwav->loop_end    = read_u32le(0x30,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32be(0x20,sf_h);
+        strwav->sample_rate = read_s32be(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32be(0x2c,sf_h);
+        /* 0x38: related to samples? */
+        strwav->tracks      = read_s32be(0x70,sf_h);
+        /* 0x78: number of chunks */
+        /* 0x88: track channels */
+        /* 0xb0: sample rate 2 */
+        /* 0xc0: table1 entries */
+        /* 0xc4: table1 offset */
 
-        strwav->channels    = read_u32le(0xF8,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
+        strwav->loop_start  = read_s32be(0xd8,sf_h);
+        strwav->loop_end    = read_s32be(0xdc,sf_h);
+        /* 0xe0: DSP offset per channel */
+        /* 0x100: standard DSP header */
 
-        strwav->codec = IMA;
-        //;VGM_LOG("STR+WAV: Pac-Man World 3 (PC)\n");
+        strwav->codec = DSP;
+        strwav->dsps_table = 0xe0;
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+        ;VGM_LOG("STR+WAV: header FOP/BB2 (GC)\n");
         return 1;
     }
 
-    /* Zapper: One Wicked Cricket! (PS2)[2005] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitLE(0x24,sf_h) == read_32bitLE(0x70,sf_h) && /* sample rate repeat */
-         read_32bitLE(0x28,sf_h) == 0x10 &&
-         read_32bitLE(0x7c,sf_h) == header_size /* ~0xD0 */
+    /* Zapper: One Wicked Cricket! Beta (GC)[2002] */
+    /* Zapper: One Wicked Cricket! (GC)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32be(0x24,sf_h) == read_u32be(0xB0,sf_h) && /* sample rate repeat */
+         read_u32be(0x88,sf_h) != 0 &&
+         read_u32le(0xc0,sf_h) == header_size /* LE! */
          ) {
-        strwav->num_samples = read_32bitLE(0x20,sf_h);
-        strwav->sample_rate = read_32bitLE(0x24,sf_h);
-        strwav->flags       = read_32bitLE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitLE(0x38,sf_h);
-        strwav->loop_end    = read_32bitLE(0x54,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32be(0x20,sf_h);
+        strwav->sample_rate = read_s32be(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32be(0x2c,sf_h);
+        /* 0x38: related to samples? */
+        strwav->tracks      = read_s32be(0x70,sf_h);
+        /* 0x78: number of chunks */
+        /* 0x88: track channels */
+        /* 0xC0: size */ 
+        /* 0xb0: sample rate 2 */
+        /* 0xc0: table1 offset LE */
 
-        strwav->channels    = read_32bitLE(0x40,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x4000 : 0x8000;
+        strwav->loop_start  = read_s32be(0xd8,sf_h);
+        strwav->loop_end    = read_s32be(0xdc,sf_h);
+        /* 0xe0: DSP offset per channel */
+        /* 0x100: standard DSP header */
+
+        strwav->codec = DSP;
+        strwav->dsps_table = 0xe0;
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+
+        ;VGM_LOG("STR+WAV: header ZP (GC)\n");
+        return 1;
+    }
+
+    /* Zapper: One Wicked Cricket! Beta (PS2)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x2c,sf_h) == 44100 && /* sample rate */
+         read_u32le(0x70,sf_h) == 0 && /* sample rate repeat? */
+         header_size == 0x78
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        /* 0x28: loop start? */
+        strwav->sample_rate = read_s32le(0x2c,sf_h);
+        /* 0x30: number of 0x800 sectors */
+        strwav->flags       = read_u32le(0x34,sf_h);
+        strwav->num_samples = read_s32le(0x5c,sf_h);
+        strwav->tracks      = read_s32le(0x60,sf_h);
+
+        strwav->loop_start  = 0;
+        strwav->loop_end    = 0;
 
         strwav->codec = PSX;
-        //;VGM_LOG("STR+WAV: header Zapper (PS2)\n");
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x8000;
+        if (strwav->tracks > 1) /* hack */
+            strwav->codec = PSX_chunked;
+        ;VGM_LOG("STR+WAV: header ZPb (PS2)\n");
         return 1;
     }
 
-    /* Zapper: One Wicked Cricket! (GC)[2005] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitBE(0x24,sf_h) == read_32bitBE(0xB0,sf_h) && /* sample rate repeat */
-         read_32bitBE(0x28,sf_h) == 0x10 &&
-         read_32bitLE(0xc0,sf_h) == header_size /* variable LE size */
+    /* Zapper: One Wicked Cricket! (PS2)[2002] */
+    /* The Fairly OddParents - Breakin' da Rules (PS2)[2003] */
+    /* The Fairly OddParents! - Shadow Showdown (PS2)[2004] */
+    /* Bad Boys II (PS2)[2004] */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 ||   /* BB2 */
+         read_u32be(0x04,sf_h) == 0x00000900) &&  /* FOP, ZP */
+         read_u32le(0x24,sf_h) == read_u32le(0x70,sf_h) && /* sample rate repeat */
+         read_u32le(0x78,sf_h)*0x04 + read_u32le(0x7c,sf_h) == header_size /* ~0xe0 + variable */
          ) {
-        strwav->num_samples = read_32bitBE(0x20,sf_h);
-        strwav->sample_rate = read_32bitBE(0x24,sf_h);
-        strwav->flags       = read_32bitBE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitBE(0xd8,sf_h);
-        strwav->loop_end    = read_32bitBE(0xdc,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x40,sf_h);
+        strwav->loop_end    = read_s32le(0x54,sf_h);
+        /* 0x70: sample rate 2 */
+        /* 0x78: table1 entries */
+        /* 0x7c: table1 offset */
+        /* 0xb4: number of 0x800 sectors */
 
-        strwav->channels    = read_32bitBE(0x70,sf_h) * read_32bitBE(0x88,sf_h); /* tracks of Nch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
-
-        strwav->dsps_table = 0xe0;
-        strwav->codec = DSP;
-        //;VGM_LOG("STR+WAV: header Zapper (GC)\n");
+        strwav->codec = PSX;
+        strwav->interleave  = strwav->tracks > 1 ? 0x4000 : 0x8000;
+        ;VGM_LOG("STR+WAV: header FOP/BB2/ZP/PW3 (PS2)\n");
         return 1;
     }
 
-    /* Zapper: One Wicked Cricket! (PC)[2005] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000900 &&
-         read_32bitLE(0x24,sf_h) == read_32bitLE(0x114,sf_h) && /* sample rate repeat */
-         read_32bitLE(0x28,sf_h) == 0x10 &&
-         read_32bitLE(0x12c,sf_h) == header_size /* ~0x130 */
+    /* Pac-Man World 3 (PS2)[2005] */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 || 
+         read_u32be(0x04,sf_h) == 0x01000800) &&  /* rare, mu_spectral1_explore_2 */
+         read_u32le(0x24,sf_h) == read_u32le(0x70,sf_h) && /* sample rate repeat */
+         read_u32le(0x78,sf_h)*0x04 + read_u32le(0x7c,sf_h) == header_size /* ~0xe0 + variable */
          ) {
-        strwav->num_samples = read_32bitLE(0x20,sf_h);
-        strwav->sample_rate = read_32bitLE(0x24,sf_h);
-        strwav->flags       = read_32bitLE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitLE(0x54,sf_h);
-        strwav->loop_end    = read_32bitLE(0x30,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x40,sf_h);
+        strwav->loop_end    = read_s32le(0x54,sf_h);
+        /* 0x70: sample rate 2 */
+        /* 0x78: table1 entries */
+        /* 0x7c: table1 offset */
+        /* 0xb4: number of 0x800 sectors */
+        /* 0xe0: table2 offset */
+        /* 0xe4: table2 entries */
 
-        strwav->channels    = read_32bitLE(0xF8,sf_h) * (strwav->flags & 0x02 ? 2 : 1); /* tracks of 2/1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
+        strwav->codec = PSX;
+        strwav->interleave  = strwav->tracks > 1 ? 0x4000 : 0x8000;
+        ;VGM_LOG("STR+WAV: header FOP/BB2/ZP/PW3 (PS2)\n");
+        return 1;
+    }
+
+    /* Taz Wanted (beta) (PC)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x0c,sf_h) != header_size &&
+         read_u32le(0x24,sf_h) != 0 &&
+         read_u32le(0xd4,sf_h) != 0 &&
+         read_u32le(0xdc,sf_h) == header_size
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        /* 0x54: number of chunks */
+        strwav->tracks      = read_s32le(0xd4,sf_h);
+        /* 0xdc: header size */
+
+        strwav->loop_end    = strwav->num_samples;
 
         strwav->codec = IMA;
-        //;VGM_LOG("STR+WAV: header Zapper (PC)\n");
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+        ;VGM_LOG("STR+WAV: header TAZb (PC)\n");
+        return 1;
+    }
+
+    /* Taz Wanted (PC)[2002] */
+    /* Zapper: One Wicked Cricket! Beta (Xbox)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x0c,sf_h) != header_size &&
+         read_u32le(0x24,sf_h) != 0 &&
+         read_u32le(0x24,sf_h) == read_u32le(0x90,sf_h) && /* sample rate repeat */
+         (read_u32le(0xa0,sf_h) == header_size ||   /* Zapper */
+          read_u32le(0xa0,sf_h) + 0x50 == header_size) /* Taz */
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x50,sf_h);
+        /* 0x58: number of chunks? */
+        /* 0x90: sample rate 2 */
+        /* 0xb8: total frames? */
+
+        strwav->loop_end    = strwav->num_samples;
+
+        strwav->codec = XBOX;
+        strwav->interleave  = strwav->tracks > 1 ? 0xD800/2 : 0xD800;
+        ;VGM_LOG("STR+WAV: header ZPb (Xbox)\n");
+        return 1;
+    }
+
+    /* Zapper: One Wicked Cricket! (Xbox)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x0c,sf_h) != header_size &&
+         read_u32le(0x24,sf_h) != 0 &&
+         read_u32le(0x24,sf_h) == read_u32le(0xb0,sf_h) && /* sample rate repeat */
+         read_u32le(0xc0,sf_h) == header_size
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        strwav->tracks      = read_s32le(0x70,sf_h);
+        /* 0x78: number of chunks? */
+        /* 0xb0: sample rate 2 */
+        /* 0xc0: header size*/
+        /* 0xd8: total frames? */
+
+        strwav->loop_end    = strwav->num_samples;
+
+        strwav->codec = XBOX;
+        strwav->interleave  = strwav->tracks > 1 ? 0xD800/2 : 0xD800;
+        ;VGM_LOG("STR+WAV: header ZP (Xbox)\n");
+        return 1;
+    }
+
+    /* Zapper: One Wicked Cricket! (PC)[2002] */
+    if ( read_u32be(0x04,sf_h) == 0x00000900 &&
+         read_u32le(0x24,sf_h) == read_u32le(0x114,sf_h) && /* sample rate repeat */
+         read_u32le(0x12c,sf_h) == header_size /* ~0x130 */
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_end    = read_s32le(0x30,sf_h);
+        /* 0x38: related to samples? */
+        /* 0x54: number of chunks */
+        strwav->loop_start  = read_s32le(0x54,sf_h);
+        strwav->tracks      = read_s32le(0xF8,sf_h);
+        /* 0x114: sample rate 2 */
+        /* 0x120: number of blocks */
+        /* 0x12c: table1 offset */
+
+        strwav->loop_start = 0; /* ??? */
+
+        strwav->codec = IMA;
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+        ;VGM_LOG("STR+WAV: header ZP (PC)\n");
+        return 1;
+    }
+
+    /* Bad Boys II (PC)[2004] */
+    /* Pac-Man World 3 (PC)[2005] */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 ||
+         read_u32be(0x04,sf_h) == 0x01000800) &&  /* rare, mu_spectral1_explore_2 */
+         read_u32le(0x24,sf_h) == read_u32le(0x114,sf_h) && /* sample rate repeat */
+         (
+           // check if the header ends at table1 (Bad Boys)
+           read_u32le(0x128,sf_h) * 0x4 + read_u32le(0x12c, sf_h) == header_size ||
+           // otherwise it ends at table2
+           read_u32le(0x130,sf_h) + read_u32le(0x134,sf_h) * 0x40 == header_size /* ~0x140 + cues */
+           )
+         ) {
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->num_samples = read_s32le(0x20,sf_h);
+        strwav->sample_rate = read_s32le(0x24,sf_h);
+        /* 0x28: 16 bps */
+        strwav->flags       = read_u32le(0x2c,sf_h);
+        strwav->loop_end    = read_s32le(0x30,sf_h);
+        strwav->loop_start  = read_s32le(0x38,sf_h);
+        /* 0x54: number of chunks */
+        strwav->tracks      = read_s32le(0xF8,sf_h);
+        /* 0x114: sample rate 2 */
+        /* 0x120: default hashname? */
+        /* 0x124: number of blocks? */
+        /* 0x128: table1 entries */
+        /* 0x12c: table1 offset */
+        /* 0x130: table2 offset */
+        /* 0x134: table2 entries */
+
+        strwav->codec = IMA;
+        strwav->interleave  = strwav->tracks > 1 ? 0x8000 : 0x10000;
+        ;VGM_LOG("STR+WAV: PW3 (PC)\n");
         return 1;
     }
 
     /* Pac-Man World 3 (GC)[2005] */
     /* SpongeBob SquarePants: Creature from the Krusty Krab (GC)[2006] */
     /* SpongeBob SquarePants: Creature from the Krusty Krab (Wii)[2006] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000800 &&
-         read_32bitBE(0x24,sf_h) == read_32bitBE(0xb0,sf_h) && /* sample rate repeat */
-         read_32bitBE(0x24,sf_h) == read_32bitBE(read_32bitBE(0xf0,sf_h)+0x08,sf_h) && /* sample rate vs 1st DSP header */
-         read_32bitBE(0x28,sf_h) == 0x10 &&
-         read_32bitBE(0xc0,sf_h)*0x04 + read_32bitBE(0xc4,sf_h) == read_32bitBE(0xe0,sf_h) && /* main size */
-        (read_32bitBE(0xe0,sf_h) + read_32bitBE(0xe4,sf_h)*0x40 == header_size || /* main size + extradata 1 (config? PMW3 cs2.wav) */
-         read_32bitBE(0xe0,sf_h) + read_32bitBE(0xe4,sf_h)*0x08 == header_size) /* main size + extradata 2 (ids? SBSP 0_0_mu_hr.wav) */
+    if ( read_u32be(0x04,sf_h) == 0x00000800 &&
+         read_u32be(0x24,sf_h) == read_u32be(0xb0,sf_h) && /* sample rate repeat */
+         read_u32be(0x24,sf_h) == read_u32be(read_u32be(0xf0,sf_h)+0x08,sf_h) && /* sample rate vs 1st DSP header */
+         read_u32be(0xc0,sf_h)*0x04 + read_u32be(0xc4,sf_h) == read_u32be(0xe0,sf_h) && /* main size */
+        (read_u32be(0xe0,sf_h) + read_u32be(0xe4,sf_h)*0x40 == header_size || /* main size + extradata 1 (config? PMW3 cs2.wav) */
+         read_u32be(0xe0,sf_h) + read_u32be(0xe4,sf_h)*0x08 == header_size) /* main size + extradata 2 (ids? SBSP 0_0_mu_hr.wav) */
          ) {
-        strwav->num_samples = read_32bitBE(0x20,sf_h);
-        strwav->sample_rate = read_32bitBE(0x24,sf_h);
-        strwav->flags       = read_32bitBE(0x2c,sf_h);
-        strwav->loop_start  = read_32bitBE(0xd8,sf_h);
-        strwav->loop_end    = read_32bitBE(0xdc,sf_h);
+        strwav->num_samples = read_s32be(0x20,sf_h);
+        strwav->sample_rate = read_s32be(0x24,sf_h);
+        strwav->flags       = read_u32be(0x2c,sf_h);
+        strwav->loop_start  = read_s32be(0xd8,sf_h);
+        strwav->loop_end    = read_s32be(0xdc,sf_h);
 
-        strwav->channels    = read_32bitBE(0x70,sf_h) * read_32bitBE(0x88,sf_h); /* tracks of Nch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 2 ? 0x8000 : 0x10000;
+        strwav->tracks      = read_s32be(0x70,sf_h);
 
-        strwav->dsps_table = 0xf0;
         strwav->codec = DSP;
-        //;VGM_LOG("STR+WAV: header SpongeBob SquarePants (GC)\n");
+        strwav->dsps_table = 0xf0;
+        strwav->interleave  = strwav->tracks >= 2 ? 0x8000 : 0x10000;
+        ;VGM_LOG("STR+WAV: header SBCKK (GC)\n");
         return 1;
     }
 
     /* SpongeBob SquarePants: Creature from the Krusty Krab (PS2)[2006] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000800 &&
-         read_32bitLE(0x08,sf_h) == 0x00000000 &&
-         read_32bitLE(0x0c,sf_h) != header_size && /* some ID */
-         (header_size == 0x74 + read_32bitLE(0x64,sf_h)*0x04 ||
-                 header_size == 0x78 + read_32bitLE(0x64,sf_h)*0x04)
+    /* Big Bumpin' (Xbox)[2006] */
+    /* Sneak King (Xbox)[2006] */
+    if ( read_u32be(0x04,sf_h) == 0x00000800 &&
+         read_u32le(0x08,sf_h) == 0x00000000 &&
+         read_u32le(0x0c,sf_h) != header_size &&
+         header_size == 
+            read_u32le(0x40,sf_h) + read_u16le(0x48,sf_h) * 0x04 +
+            read_u16le(0x4a,sf_h) * ((read_u32le(0x3c,sf_h) & 0x200) ? 0x08+0x38 : 0x08)
          ) {
-        strwav->loop_start  = read_32bitLE(0x24,sf_h); //not ok?
-        strwav->num_samples = read_32bitLE(0x30,sf_h);
-        strwav->loop_end    = read_32bitLE(0x34,sf_h);
-        strwav->sample_rate = read_32bitLE(0x38,sf_h);
-        strwav->flags       = read_32bitLE(0x3c,sf_h);
+        /* 0x08: null */
+        /* 0x0c: hashname */
+        strwav->loop_start  = read_s32le(0x24,sf_h); //ok?
+        /* 0x28: f32 time in ms */
+        strwav->num_samples = read_s32le(0x30,sf_h);
+        strwav->loop_end    = read_s32le(0x34,sf_h);
+        strwav->sample_rate = read_s32le(0x38,sf_h);
+        strwav->flags       = read_u32le(0x3c,sf_h);
+        /* 0x40: table1 offset */
+        /* 0x44: table2 offset */
+        /* 0x48: table1 entries */
+        /* 0x4a: table2 entries */
+        /* 0x4c: ? (some low number) */
+        strwav->tracks      = read_u8   (0x4e,sf_h);
+        /* 0x4f: 16 bps */
+        /* 0x54: channels per each track (ex. 2 stereo track: 0x02,0x02) */
+        /* 0x64: channels */
+        /* 0x70+: tables */
 
-        strwav->channels    = read_32bitLE(0x64,sf_h); /* tracks of 1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
-
-        strwav->codec = PSX;
-        //;VGM_LOG("STR+WAV: header SpongeBob SquarePants (PS2)\n");
+        /* no codec flags */
+        if (ps_check_format(sf_b, 0x00, 0x100)) {
+            strwav->codec = PSX;
+            strwav->interleave  = strwav->tracks > 2 ? 0x4000 : 0x8000;
+        }
+        else {
+            strwav->codec = XBOX;
+            strwav->interleave  = strwav->tracks > 1 ? 0x9000 : 0xD800;
+        }
+        ;VGM_LOG("STR+WAV: header SBCKK/BB/SK (PS2/Xbox)\n");
         return 1;
     }
 
     /* Tak and the Guardians of Gross (PS2)[2008] */
-    if ( read_32bitBE(0x04,sf_h) == 0x00000800 &&
-         read_32bitLE(0x08,sf_h) != 0x00000000 &&
-         read_32bitLE(0x0c,sf_h) == header_size && /* ~0x80+0x04*ch */
-         read_32bitLE(0x0c,sf_h) == 0x80 + read_32bitLE(0x70,sf_h)*0x04
+    /* SpongeBob's Atlantis SquarePantis (PS2)[2007] */
+    if ( read_u32be(0x04,sf_h) == 0x00000800 &&
+         read_u32le(0x08,sf_h) != 0x00000000 &&     /* some ID */
+         read_u32le(0x0c,sf_h) == header_size &&    /* ~0x7c+variable */
+         header_size == 
+            read_u32le(0x40,sf_h) + read_u16le(0x48,sf_h) * 0x04 +
+            read_u16le(0x4a,sf_h) * ((read_u32le(0x3c,sf_h) & 0x200) ? 0x08+0x38 : 0x08)
          ) {
-        strwav->loop_start  = read_32bitLE(0x24,sf_h); //not ok?
-        strwav->num_samples = read_32bitLE(0x30,sf_h);
-        strwav->loop_end    = read_32bitLE(0x34,sf_h);
-        strwav->sample_rate = read_32bitLE(0x38,sf_h);
-        strwav->flags       = read_32bitLE(0x3c,sf_h);
+        strwav->loop_start  = read_s32le(0x24,sf_h); //not ok?
+        strwav->num_samples = read_s32le(0x30,sf_h);
+        strwav->loop_end    = read_s32le(0x34,sf_h);
+        strwav->sample_rate = read_s32le(0x38,sf_h);
+        strwav->flags       = read_u32le(0x3c,sf_h);
 
-        strwav->channels    = read_32bitLE(0x70,sf_h); /* tracks of 1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+        strwav->channels    = read_s32le(0x70,sf_h); /* tracks of 1ch */
 
         strwav->codec = PSX;
-        //;VGM_LOG("STR+WAV: header Tak (PS2)\n");
+        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+        ;VGM_LOG("STR+WAV: header TKGG/SBASP (PS2)\n");
         return 1;
     }
 
     /* Tak and the Guardians of Gross (Wii)[2008] */
     /* The House of the Dead: Overkill (Wii)[2009] (not Blitz but still the same format) */
     /* All Star Karate (Wii)[2010] */
-    if ((read_32bitBE(0x04,sf_h) == 0x00000800 ||
-            read_32bitBE(0x04,sf_h) == 0x00000700) && /* rare? */
-         read_32bitLE(0x08,sf_h) != 0x00000000 &&
-         read_32bitBE(0x0c,sf_h) == header_size && /* variable per header */
-         read_32bitBE(0x7c,sf_h) != 0 && /* has DSP header */
-         read_32bitBE(0x38,sf_h) == read_32bitBE(read_32bitBE(0x7c,sf_h)+0x38,sf_h) /* sample rate vs 1st DSP header */
+    /* Karaoke Revolution (Wii)[2010] */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 ||
+         read_u32be(0x04,sf_h) == 0x00000700) && /* rare? */
+         read_u32be(0x08,sf_h) != 0x00000000 &&
+         read_u32be(0x0c,sf_h) == header_size && /* variable per header */
+         read_u32be(0x7c,sf_h) != 0 && /* has DSP header */
+         read_u32be(0x38,sf_h) == read_u32be(read_u32be(0x7c,sf_h)+0x38,sf_h) /* sample rate vs 1st DSP header */
          ) {
-        strwav->loop_start  = 0; //read_32bitLE(0x24,sf_h); //not ok?
-        strwav->num_samples = read_32bitBE(0x30,sf_h);
-        strwav->loop_end    = read_32bitBE(0x34,sf_h);
-        strwav->sample_rate = read_32bitBE(0x38,sf_h);
-        strwav->flags       = read_32bitBE(0x3c,sf_h);
+        strwav->loop_start  = 0; //read_s32be(0x24,sf_h); //not ok?
+        strwav->num_samples = read_s32be(0x30,sf_h);
+        strwav->loop_end    = read_s32be(0x34,sf_h);
+        strwav->sample_rate = read_s32be(0x38,sf_h);
+        strwav->flags       = read_u32be(0x3c,sf_h);
 
-        strwav->channels    = read_32bitBE(0x70,sf_h); /* tracks of 1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+        strwav->channels    = read_s32be(0x70,sf_h); /* tracks of 1ch */
 
-        strwav->coefs_table = 0x7c;
         strwav->codec = DSP;
-        //;VGM_LOG("STR+WAV: header Tak/HOTD:O (Wii)\n");
+        strwav->coefs_table = 0x7c;
+        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+        ;VGM_LOG("STR+WAV: header TKGG/HOTDO/ASK/KR (Wii)\n");
         return 1;
     }
 
     /* The House of the Dead: Overkill (PS3)[2009] (not Blitz but still the same format) */
-    if ((read_32bitBE(0x04,sf_h) == 0x00000800 ||
-            read_32bitBE(0x04,sf_h) == 0x00000700) && /* rare? */
-         read_32bitLE(0x08,sf_h) != 0x00000000 &&
-         read_32bitBE(0x0c,sf_h) == header_size && /* variable per header */
-         read_32bitBE(0x7c,sf_h) == 0 /* not DSP header */
+    /* Karaoke Revolution (PS3)[2010] */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 ||
+         read_u32be(0x04,sf_h) == 0x00000700) && /* rare? */
+         read_u32be(0x08,sf_h) != 0x00000000 &&
+         read_u32be(0x0c,sf_h) == header_size && /* variable per header */
+         read_u32be(0x7c,sf_h) == 0 /* not DSP header */
          ) {
         strwav->loop_start  = 0; //read_32bitLE(0x24,sf_h); //not ok?
-        strwav->num_samples = read_32bitBE(0x30,sf_h);
-        strwav->loop_end    = read_32bitBE(0x34,sf_h);
-        strwav->sample_rate = read_32bitBE(0x38,sf_h);
-        strwav->flags       = read_32bitBE(0x3c,sf_h);
+        strwav->num_samples = read_s32be(0x30,sf_h);
+        strwav->loop_end    = read_s32be(0x34,sf_h);
+        strwav->sample_rate = read_s32be(0x38,sf_h);
+        strwav->flags       = read_u32be(0x3c,sf_h);
 
-        strwav->channels    = read_32bitBE(0x70,sf_h); /* tracks of 1ch */
-        strwav->loop_flag   = strwav->flags & 0x01;
-        strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+        strwav->channels    = read_s32be(0x70,sf_h);
 
-        strwav->codec = PSX;
-        //;VGM_LOG("STR+WAV: header HOTD:O (PS3)\n");
+        /* other possibly-useful flags (see Karaoke Wii too):
+         * - 0x4b: number of tracks 
+         * - 0x60: channels per track, ex. 020202 = 3 tracks of 2ch (max 0x08 = 8)
+         * - 0xa0: sizes per track (max 0x20 = 8)
+         * - 0xc0: samples per track (max 0x20 = 8)
+         * - rest: info/seek table? */
+        if (read_s32be(0x78,sf_h) != 0) { /* KRev */
+
+            strwav->tracks      = strwav->channels / 2;
+            strwav->num_samples = strwav->loop_end; /* num_samples here seems to be data size */
+            strwav->interleave  = read_s32be(0xA0,sf_h); /* one size per file, but CBR = same for all */
+            //C0: stream samples (same as num_samples)
+
+            strwav->codec = MPEG; /* full CBR MP3 one after other */
+        }
+        else { /* HOTD */
+            strwav->channels    = read_s32be(0x70,sf_h); /* tracks of 1ch */
+            strwav->interleave  = strwav->channels > 4 ? 0x4000 : 0x8000;
+
+            strwav->codec = PSX;
+        }
+
+        ;VGM_LOG("STR+WAV: header HOTDO (PS3)\n");
         return 1;
     }
 
     /* SpongeBob's Surf & Skate Roadtrip (X360)[2011] */
-    if ((read_32bitBE(0x04,sf_h) == 0x00000800 || /* used? */
-            read_32bitBE(0x04,sf_h) == 0x00000700) &&
-         read_32bitLE(0x08,sf_h) != 0x00000000 &&
-         read_32bitBE(0x0c,sf_h) == 0x124 && /* variable, not sure about final calc */
-         read_32bitBE(0x8c,sf_h) == 0x180 /* encoder delay actually */
+    if ((read_u32be(0x04,sf_h) == 0x00000800 || /* used? */
+         read_u32be(0x04,sf_h) == 0x00000700) &&
+         read_u32be(0x08,sf_h) != 0x00000000 &&
+         read_u32be(0x0c,sf_h) == 0x124 && /* variable, not sure about final calc */
+         read_u32be(0x8c,sf_h) == 0x180 /* encoder delay actually */
          //0x4c is data_size + 0x210
          ) {
         strwav->loop_start  = 0; //read_32bitLE(0x24,sf_h); //not ok?
-        strwav->num_samples = read_32bitBE(0x30,sf_h);//todo sometimes wrong?
-        strwav->loop_end    = read_32bitBE(0x34,sf_h);
-        strwav->sample_rate = read_32bitBE(0x38,sf_h);
-        strwav->flags       = read_32bitBE(0x3c,sf_h);
+        strwav->num_samples = read_s32be(0x30,sf_h);//todo sometimes wrong?
+        strwav->loop_end    = read_s32be(0x34,sf_h);
+        strwav->sample_rate = read_s32be(0x38,sf_h);
+        strwav->flags       = read_u32be(0x3c,sf_h);
 
-        strwav->channels    = read_32bitBE(0x70,sf_h); /* multichannel XMA */
-        strwav->loop_flag   = strwav->flags & 0x01;
+        strwav->channels    = read_s32be(0x70,sf_h); /* multichannel XMA */
 
         strwav->codec = XMA2;
-        //;VGM_LOG("STR+WAV: header SBSSR (X360)\n");
+        ;VGM_LOG("STR+WAV: header SBSSR (X360)\n");
         return 1;
     }
 
