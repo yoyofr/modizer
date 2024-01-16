@@ -6757,6 +6757,7 @@ char* loadRom(const char* path, size_t romSize)
     if (xmp_load_module(xmp_ctx, (char*)[filePath UTF8String]) < 0) {
         NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
         xmp_free_context(xmp_ctx);
+        xmp_ctx=NULL;
         return 2;
     }
     
@@ -6764,6 +6765,7 @@ char* loadRom(const char* path, size_t romSize)
         NSLog(@"XMP: error initializing player");
         xmp_release_module(xmp_ctx);
         xmp_free_context(xmp_ctx);
+        xmp_ctx=NULL;
         return 3;
     }
     
