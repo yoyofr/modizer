@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------
                         SID Tune Information List (STIL)
                         -> Frequently Asked Questions <-
-                          Last Updated: December 16, 2022
+                        Last Updated: December 20, 2023
 -------------------------------------------------------------------------------
 
 General Questions
@@ -712,11 +712,11 @@ Before the first entry of each subdirectory a so-called section header line is
 placed in STIL to indicate that STIL entries following that section header
 belong to a different directory than the previous entries. The section header
 line begins with 3 '#' characters, followed by a space, followed by the full
-name of the composer/group the directory belongs to, followed by a space, then
-as many '#' characters as it takes to fill out 79 characters.
+path of the composer/group the directory belongs to, followed by a space, then
+as many '#' characters as it takes to fill out 78 characters.
 Here's an example:
 
-### Jeroen Tel ################################################################
+### /MUSICIANS/T/Tel_Jeroen ##################################################
 
 /MUSICIANS/T/Tel_Jeroen/Filename.sid
 COMMENT: This is the first STIL entry in the directory of Jeroen Tel.
@@ -732,30 +732,24 @@ composer or group, and the name is followed immediately by a forward slash
 ('/') for an opening section header and a backward slash ('\') for a closing
 section header. For example:
 
-### MUSICIANS/ ################################################################
+### /MUSICIANS/x/Section/ ####################################################
 
-### First Composer in this dir ################################################
+### First Composer in this dir ###############################################
 
 <STIL entries for the first composer go here>
 
-### Second Composer in this dir ###############################################
+### Second Composer in this dir ##############################################
 
 <STIL entries for the second composer go here>
 
-### MUSICIANS\ ################################################################
+### /MUSICIANS/x/Section\ ####################################################
 
 So, in effect, all the entries that belong to subdirectories of an HVSC root
-directory (/MUSICIANS/ in the above example) are enclosed by the opening and
-closing section headers.
+directory (/MUSICIANS/x/Section/ in the above example) are enclosed by the
+opening and closing section headers.
 
 Please note that the example given above is simplified compared to the real
-structure of the STIL. As of HVSC v3.1, the /VARIOUS hierarchy has been
-subdivided into four groups, /VARIOUS/A-F, /VARIOUS/G-L, /VARIOUS/M-R, and
-/VARIOUS/S-Z, to reflect the change in the HVSC directory structure. Therefore
-there are no STIL entries directly below /VARIOUS.
-
-Also please note that as of HVSC 46, this section is highly outdated as
-/VARIOUS no longer exists and section headers only exist for legacy reasons ;)
+structure of the STIL.
 
 If you're concerned with parsing the STIL, the best approach is to ignore
 any lines beginning with "#" and concentrate only on the STIL entries
@@ -771,7 +765,7 @@ The STIL is maintained by the STIL Administrator (also known as the HOSTILE
 (High Official STIL Executioner) ;-) under the watchful eye of the entire HVSC
 team. The administrator is currently :
 
-iAN CooG <hvsc@c64.org>
+iAN CooG <hvsc.crew (sid) gmail.com>
 
 
 Also see the "STIL CONTRIBUTORS" list further down in the FAQ for other
@@ -1154,85 +1148,85 @@ FUN STATS ABOUT THE STIL
 Top 15 Covered Artists:
 -----------------------
 
- 1) Rob Hubbard ........................................................... 384
- 2) Johann Sebastian Bach ................................................. 366
- 3) Jean Michel Jarre ..................................................... 310
- 4) Jeroen Tel ............................................................ 247
- 5) Depeche Mode .......................................................... 221
+ 1) Johann Sebastian Bach ................................................. 396
+ 2) Rob Hubbard ........................................................... 393
+ 3) Jean Michel Jarre ..................................................... 314
+ 4) Jeroen Tel ............................................................ 244
+ 5) Depeche Mode .......................................................... 223
  6) The Beatles ........................................................... 196
- 7) Chris Hülsbeck ........................................................ 174
- 8) Martin Galway ......................................................... 160
- 9) John Williams ......................................................... 159
-10) Harold Faltermeyer .................................................... 158
-    James Lord Pierpont ................................................... 158
-12) Scott Joplin .......................................................... 133
-13) Ludwig van Beethoven .................................................. 126
-14) Pet Shop Boys ......................................................... 117
-15) Madonna ............................................................... 108
+ 7) Chris Hülsbeck ........................................................ 175
+ 8) John Williams ......................................................... 164
+ 9) James Lord Pierpont ................................................... 162
+    Harold Faltermeyer .................................................... 162
+11) Martin Galway ......................................................... 161
+12) Scott Joplin  ......................................................... 137
+13) Ludwig van Beethoven .................................................. 133
+14) Pet Shop Boys ......................................................... 118
+15) Madonna ............................................................... 109
 
 Not taken into account as they are to be considered unknown artists, but for
-completeness of STIL statistics: "Traditional": 493, "<?>": 311, "Unknown": 47
+completeness of STIL statistics: "Traditional": 517, "<?>": 292, "Unknown": 54
 
 
 Top 15 Covered Tunes:
 ---------------------
 
- 1) One Horse Open Sleigh ................................................. 159
- 2) Axel F [from the movie Beverly Hills Cop] ............................. 138
- 3) Popcorn [from Music To Moog By] .......................................  95
- 4) Funeral March [from Sonate No. 2 in B flat minor Op. 35] ..............  73
- 5) Happy Birthday ........................................................  71
- 6) The Entertainer .......................................................  60
- 7) Living on Video [from Living on Video] ................................  59
- 8) Crockett's Theme [from the TV series Miami Vice] ......................  58
- 9) Airwolf Theme [from the TV series] ....................................  57
-10) Oxygene 4 [from Oxygene] ..............................................  55
-    Toccata [from Toccata and Fugue in D Minor (BWV 565)] .................  55
-12) James Bond Theme [from the James Bond series of movies] ...............  54
+ 1) One Horse Open Sleigh ................................................. 163
+ 2) Axel F [from the movie Beverly Hills Cop] ............................. 142
+ 3) Popcorn [from Music To Moog By] .......................................  96
+ 4) Happy Birthday ........................................................  76
+ 5) Funeral March [from Sonate No. 2 in B flat minor Op. 35] ..............  73
+ 6) Living on Video [from Living on Video] ................................  61
+ 7) Airwolf Theme [from the TV series] ....................................  60
+    Crockett's Theme [from the TV series Miami Vice] ......................  60
+    The Entertainer .......................................................  60
+10) Toccata [from Toccata and Fugue in D Minor (BWV 565)] .................  56
+11) James Bond Theme [from the James Bond series of movies] ...............  55
+    Oxygene 4 [from Oxygene] ..............................................  55
 13) Blue Monday ...........................................................  52
-14) In the Hall of the Mountain King [from Peer Gynt] .....................  49
-15) Main Title [from all the Star Wars movies] ............................  48
+14) In the Hall of the Mountain King [from Peer Gynt] .....................  50
+15) The X-Files [from the TV series] ......................................  49
 
 Not taken into account as the covered tunes titles are unknown, but for
-completeness of STIL statistics: "<?>" (55)
+completeness of STIL statistics: "<?>" (54)
 
 
 Top 15 Covered C64 Artists:
 ---------------------------
 
- 1) Rob Hubbard ........................................................... 384
- 2) Jeroen Tel ............................................................ 247
- 3) Chris Hülsbeck ........................................................ 174
- 4) Martin Galway ......................................................... 160
- 5) Ben Daglish ...........................................................  87
- 6) David Whittaker .......................................................  72
- 7) Matt Gray .............................................................  63
-    Thomas Mogensen (DRAX) ................................................  63
- 9) Reyn Ouwehand .........................................................  49
-10) David M. Hanlon .......................................................  37
-    Tomas Danko ...........................................................  37
-12) Mark Cooksey ..........................................................  36
+ 1) Rob Hubbard ........................................................... 393
+ 2) Jeroen Tel ............................................................ 244
+ 3) Chris Hülsbeck ........................................................ 175
+ 4) Martin Galway ......................................................... 161
+ 5) Ben Daglish ...........................................................  90
+    David Whittaker .......................................................  90
+ 7) Matt Gray .............................................................  64
+ 8) Thomas Mogensen (DRAX) ................................................  63
+ 9) Reyn Ouwehand .........................................................  51
+10) Tomas Danko ...........................................................  42
+11) David M. Hanlon .......................................................  38
+12) Mark Cooksey ..........................................................  37
 13) Johannes Bjerregaard ..................................................  34
-14) Jonathan Dunn .........................................................  27
-    Klaus Engell Grøngaard (Link) .........................................  27
-    Matt Simmonds (4-Mat) .................................................  27
+14) Matt Simmonds (4-Mat) .................................................  28
+15) Klaus Engell Grøngaard (Link) .........................................  27
+    Jonathan Dunn .........................................................  27
 
 
 Top 15 Covered C64 Tunes:
 -------------------------
 
- 1) Thalamusik [from the game Sanxion] ....................................  46
+ 1) Thalamusik [from the game Sanxion] ....................................  48
  2) Comic Bakery, Tune #1 .................................................  37
- 3) Enlightenment: Druid II, Tune #3 ......................................  34
+ 3) Enlightenment: Druid II, Tune #3 ......................................  35
  4) Ghosts'n Goblins, Tune #2 .............................................  28
  5) The Wastelands [from the C64 game The Last Ninja] .....................  23
- 6) Parallax, Tune #1 .....................................................  22
- 7) Commando, Tune #1 .....................................................  21
-    Delta, Tune #12 .......................................................  21
+ 6) Commando, Tune #1 .....................................................  22
+    Delta, Tune #12 .......................................................  22
+    Parallax, Tune #1 .....................................................  22
  9) Cybernoid II, Tune #1 .................................................  20
     Knucklebusters, Tune #1 ...............................................  20
-11) Crazy Comets, Tune #1 .................................................  17
-    Noisy Pillars, Tune #1 ................................................  17
+11) Noisy Pillars, Tune #1 ................................................  18
+12) Crazy Comets, Tune #1 .................................................  17
 13) Commando, Tune #2 .....................................................  16
     The Human Race, Tune #4 ...............................................  16
 15) Maniac Mansion, Tune #1 [from the game] ...............................  15

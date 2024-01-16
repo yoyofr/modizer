@@ -1,0 +1,336 @@
+High Voltage SID Collection: Update #80
+Date: December 24, 2023
+
+Resulting Version: 80
+ Previous Version: 79
+
+After this update, the collection should contain 58,150 SID files!
+
+This update features (all approximates):
+     577 new SIDs
+      41 fixed/better rips
+       3 repeats/bad rips eliminated
+     327 SID credit fixes
+      25 SID model/clock infos
+       7 tunes from /DEMOS/UNKNOWN/ identified
+       3 tunes from /GAMES/ identified
+      31 tunes moved out of /DEMOS/ to their composers' directories
+       9 tunes moved out of /GAMES/ to their composers' directories
+
+We are always looking for others to help make HVSC a better collection.
+If you find any errors or have new rips to add, please email:
+
+ iAN CooG  <hvsc.crew (sid) gmail.com>
+
+Thanks to all the people who have helped to make HVSC the collection that it
+is today, without your help it would be a much tougher task.
+
+
+SID RELATED NEWS:
+
+
+##############
+# PSID64 1.3 #
+##############
+
+PSID64 version 1.3 has been released by Roland Hermans. PSID64 is a tool for
+converting SID tunes into PRG files.
+
+New features:
+
+- Added support for new song length file format
+- Use Songlengths.md5 default filename when HVSC root directory is specified
+- When converting a directory to a specified output directory, use a trailing
+  slash or backslash to never append the basename to the output directory
+- Avoid grey dot artifacts on 8565 VIC-II
+- Fixed missing argument in --root command line option description
+- Added more extensive usage description and examples to README
+
+Get it from: https://csdb.dk/release/?id=234184
+
+
+#################
+# Chipsynth C64 #
+#################
+
+Chipsynth C64 by Plogue is an advanced emulation of the SID sound chip. After
+years of meticulous research, Plogue has created a highly detailed emulation
+that reproduces 32 different SID chips, covering various revisions and tonal
+characteristics.
+
+The emulation is capable of accurately playing original songs with a
+full-featured SID file player, accommodating even complex compositions with
+multiple-SID setups, sample playback, and hard filter overdrive. It aims to
+capture the diverse sounds produced by real chips in the field, offering a
+genuine and high-quality emulation experience without the use of samples.
+
+More info can be found here: https://plogue.com/products/chipsynth-c64.html
+
+
+##################
+# GTUltra v1.5.5 #
+##################
+
+GTUltra (GoatTracker Ultra) is an enhanced version of GoatTracker v2.76 Stereo
+made by Jason Page.
+
+Changes since version v1.4.2:
+
+- Fixed issue where entering values in pattern view
+- Fixed MIDI input (remember to also set MIDI port to 0 
+- Ctrl+F9 will do quick export using previous export settings and file name
+- Fixed Shift+LEFT when in pattern view and when song is playing
+- Fixed displaying of incorrect pattern number if too large when exporting
+- Fix potential for saving a corrupt .sng file
+- Fixed audio issue when entering notes or jamming
+- Added option to allow SID playback in zeropage mode in the SID export page
+- Modified SIDTracker64 mode. Now enable with EITHER Shift or Ctrl F12
+- Minor fix to Export WAV (uses sample rate from within CFG file)
+- Minor update to report correct song length when deleting / inserting patterns, etc.
+- Added Drag / Drop to load files
+- Improved jamming mode
+- KeyOff performed automatically on key release
+- Other improvements and fixes
+
+Get the latest version from:
+
+https://github.com/jpage8580/GTUltra
+
+
+###############
+# SIDevo v4.4 #
+###############
+
+SIDevo is a SID input plugin for XMPlay audio player written by Nathan Hindley.
+It's a partial rewrite of the SIDex plugin and it uses the most recent
+libsidplayfp library.
+
+Changes since v4.2:
+
+- SIDId now returns multiple players if applicable
+- Default duration of 0 seconds will no longer override HVSC song lengths
+
+Get the new version from:
+
+https://github.com/KelticDanor/xmp-SIDevo
+
+
+########################
+# Sidplay/MAC 5.1.0_74 #
+########################
+
+Sidplay/MAC 5.x is a fork of Sidplay/MAC 4.2 done by Alexander Coers.
+
+It has the following improvements since 5.0.1_44:
+
+- Changed the way how the engine is initialized
+- Sound glitches in export
+- Wrong song duration in export
+- Quick Look Preview Extension for SID tunes
+- Update to libsidplayfp version 2.5.0 and latest reSID release (VICE)
+- Small fixes to applications toolbar 
+- Rewrote buffer handling for CoreAudio to support different buffer lengths
+- Re-enabled voice solo/mute buttons in info view
+- SIDBlaster USB support
+
+Check it out:
+
+https://github.com/Alexco500/sidplay5
+
+
+#################################
+# SID Factory II build 20231002 #
+#################################
+
+SID Factory II is a cross-platform music editor made by Thomas Egeskov Petersen
+(also known as Laxity) for editing SID music that can be played on a C64.
+It is a successor of SID Factory which runs natively on a C64.
+
+The latest build is available for Windows, macOS and Linux.
+
+Changelog:
+
+Added
+- Visualizers for pulse width (per channel), filter cutoff and an indication
+  per channel if it is being filtered
+- Config option Visualizer.PulseWidth.Style to set the default style for the
+  pulse width visualizer
+- Configuration option Disk.Hide.Extensions to hide files with certain
+  extensions in the file browser. Default values are .sid, .wav and .mp3
+
+Changed
+- New default driver is 11.05.00
+- Configuration parameter Window.Scale now has a range from 1.0 to 10.0
+
+Check it out:
+
+https://csdb.dk/release/?id=235968
+
+
+#################
+# SidTool 2.3.1 #
+#################
+
+SidTool is a C64 Music Player Emulator Frontend for Windows, build to explore
+large chiptune collections. It needs .NET framework 4.8.
+
+The following has been changes:
+
+- Added multimedia keys support
+- Added sidplayfp support
+- Clicking links in charts no longer starts 2nd instance
+- Fixed minor bug when changing subsongs and restarting song
+- Download now includes SearchDB for HVSC 79
+- New Contextmenu to open Playlist song in HVSC
+- Added new Playlist columns: Release info & Sid Model
+- Fixed issue with default playtime/override playtime/songlength.md5
+- Added option to rate playlist songs 1 to 5
+- Sidtool.ini back in sidtool folder
+- Added option to ignore time settings when using playlist
+- Added search on remix64.com
+- Fixed issue where Search DB wasn't properly used
+- Search DB loaded into RAM on startup now
+- Fixed wrong shuffle icon and button behaviour
+- Added normal "Save" button
+- Added Sid & Playlist name to window title
+- Added option to memorize a Sid (e.g. prior searching)
+
+Get it from here: https://sidtool.de/
+
+
+################
+# Prg2Sid 1.15 #
+################
+
+Prg2Sid is a tool that attaches a PSID header to a ripped (prg) tune. It
+identifies some players and sets init/play accordingly. It also patches
+the header and code if needed.
+
+Since 1.08 the following has been changed:
+
+- Added optional parameters Subtunes and StartSong (suggested by Encore/Undone)
+- MusicAssembler & MusicMixer init/play addresses now are checked at $1000/$1003
+  and kept if the 2 JMPs are correct, else they are set in the sid header to
+  the actual addresses
+- Master Composer bug in the end of tune code fixed, thanks to Prof Chaos/HVSC
+- new players identified:
+  SidFactory II (v3)
+  StarBars (v1.1/1.2/1.3/1.4)
+- improved detections:
+  SidFactory II (v1 & v2), more variants
+
+Check out: https://csdb.dk/release/?id=235041
+
+
+##########################################
+# Star Bars Atari 2600 Music Editor v1.4 #
+##########################################
+
+Star Bars is a music sequencer and play routine for Atari 2600 video game
+console from the late 70's made by Alekse Eeben. The editor runs on a C64 and
+exports both PAL and NTSC Atari 2600 ROM images containing your music and the
+music player code.
+
+Star Bars uses Tiatonic Tuning to achieve 8x improved frequency resolution over
+TIA chip au naturel and it can play the full chromatic scale over 6 octaves. No
+more awful out-of-tune Atari 2600 bleeps! C-1..F-2 and E-3..F-6 are the most
+accurate note ranges. F#2..D#3 and above F#6 are a bit hazy.
+
+Registers are updated up to 32 times per frame, so using Star Bars music in
+games or demos is somewhat challenging, yet not impossible.
+
+Get it from here: https://csdb.dk/release/?id=235226
+
+
+#######################################
+# BackSID (6581/8580 SID replacement) #
+#######################################
+
+Evie Salomon released new firmware for the BackSID. BackSID is a replacement for
+the 6581/8580 SID chip. It's using the ARM Cortex M4 chip to simulate the SID.
+
+Firmware changes since v2.1.1:
+
+- Improved "SYNC" distortion
+- Option to choose Auto or Koala pots on hardware revision 3
+- Reduced overall distortion
+
+For more info: https://www.backbit.io/downloads/Firmware/BackSID/
+
+
+###################
+# Sidplayfp 2.5.1 #
+###################
+
+Libsidplayfp (and its console frontend sidplayfp) is a fork of sidplay2 born
+with the aim to improve the quality of emulating the 6581, 8580 chips and the
+surrounding C64 system in order to play SID music better.
+
+Changes since 2.5.0 release:
+
+- residfp: fix a 6581 filter bug where values could actually go negative
+- Sync resid with upstream
+
+Get the new version here: https://github.com/libsidplayfp/sidplayfp
+
+
+#################
+# SIDInfo 1.0.1 #
+#################
+
+SIDInfo is a simple utility written in C by Matti Hamalainen (ccr), that
+displays information about SID files in various formats. Includes support for
+PSID and RSID files versions 1-4, HVSC songlengths database and HVSC STIL
+database.
+
+Changes:
+
+- Fix build with recent clang versions which default to -Wstrict-prototypes
+- Backwards-incompatible change in UX: the 'Copyright' field has been
+  renamed to 'Released', as it should be per PSID standard
+- Improvements in sidlib
+- Build system improvements
+
+Check out: https://csdb.dk/release/?id=237857
+
+
+###########
+# DeepSID #
+###########
+
+DeepSID is an online SID player made by JCH of Vibrants. It emulates music
+created for the Commodore 64 home computer. It supports nice features like:
+
+- Toggling between WebSID/jsSID/SOASC for SID playback
+- SID player and year display for each song
+- Creature and play playlists
+- Rating folders and SID files
+- Comment / Discuss SID files
+- Profile / CSDb / GB64 / Player / STIL / Piano / Graph view
+- Search through HVSC / STIL
+- and much more
+
+DeepSID is continuously updated. See the Changes tab for the full change log.
+
+Check it out: https://deepsid.chordian.net/
+
+
+###################
+# SID Known v1.26 #
+###################
+
+Wilfred Bos has released SID Known v1.26. This version supports now HVSC #80.
+SID Known is a command line tool which you can use to identify SID tunes from
+SID and PRG files.
+
+This tool can be used if e.g., you want to know which SID tune is used in a
+specific C64 demo or C64 game, or you have a SID tune found or ripped and you
+want to know if it is already in your SID collection.
+
+SID Known can be used to identify music but it also helps to find out which
+tunes are not in the High Voltage SID Collection. If you find music not found
+by SID Known, it would be appreciated if you report this to the HVSC crew
+(https://hvsc.de) or post it in one of the CSDb forums (https://csdb.dk) like
+"SIDs that aren't in HVSC yet".
+
+Get the tool here: https://csdb.dk/release/?id=237970

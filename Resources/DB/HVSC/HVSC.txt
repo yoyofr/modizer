@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 78
+                                  Release 80
 
-                               December 23, 2022
+                               December 24, 2023
 
 Compiled by:
 ------------
@@ -15,7 +15,6 @@ Current Members:
     Mariusz Mlynski - POLAND
     Sebastian Sprenger (Professor Chaos) - GERMANY
     Chris Abbott <chris (sid) c64audio.com> - ENGLAND
-    Zack Thompson (Karmic) - CANADA
 
 Retired/Inactive Members:
     The Shark of INC - USA
@@ -42,6 +41,7 @@ Retired/Inactive Members:
     Stephan Schmid (Steppe/Demodungeon) - GERMANY
     Mariusz Rozwadowski (Ramos/Samar) - POLAND
     Tobias Samuelsson (McLoaf) - SWEDEN
+    Zack Thompson (Karmic) - CANADA
 
           -> Members of the C64 Historical Preservation Society! <-
 -----------------------------------------------------------------------------

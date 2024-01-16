@@ -324,9 +324,9 @@ supposed to know and use it, Delphi coder.
 I did also some C64 scene related tools and maintained some forks of
 open source/PD tools in C, with my own modifications.
 I was a member of HokutoForce (2003-2009), now retired from the cracking scene.
-My main activities on C64 are: recovering lost games for Ready64.org,
-ripping sids for HVSC and intros for intros.c64.org, hanging about in
-forums and once in a while on IRC chats.
+I helped recovering lost games for Ready64.org, focused on italian productions.
+My main activities on C64 are: ripping sids for HVSC and intros for
+intros.c64.org, hanging about in forums and once in a while on IRC chats.
 
 
 **************************************************
@@ -361,31 +361,6 @@ mostly at a C64 games forum.  The most notable thing from me out there is
 probably an actual solution to the infamous comic tie-in 'Clever & Smart';
 I had spent a week reading almost the entire 6510 code...
 
-
-*******************************
-Zack Thompson (Karmic) - CANADA
-*******************************
-
-Contributions
--------------
-Several very accurate STIL entries, started ripping tunes and providing fixes.
-
-C64 History
------------
-First off, this membership was unexpected: out of all the first scene groups I
-could've joined, the HVSC crew was not what I was expecting. Very grateful for
-their considering me.
-I've been interested in retrocomputing for about 6 years now- and I got into
-the C64 about 3 years ago. Back then I was more of a C64 gamer, but then my
-focus shifted to the demoscene.
-During this transition I discovered the HVSC, and I was absolutely amazed- a
-SID collecting project?! With over 40000 SIDs? Then I found the STIL- and I was
-even more amazed! I started contributing to it and so far have made 35
-textfiles of STIL entries! I started to make my own tunes (all covers, since I
-know nothing about composing) and then I started to learn assembly language.
-This allowed me to start ripping tunes.
-After this I got that email from iAN inviting me to the crew- my life has never
-been the same (not really :p)!
 
 
 
@@ -1055,4 +1030,30 @@ Has always supported the HVSC crew by submitting numerous bug reports.
 Due to his great eye for details he has been invited to the HVSC crew's
 quality assurance team. He even sent his first rip in 2009 (and not a
 $1000/$1003 tune!), so there's great potential to be uncovered!  ;-)
+
+
+*******************************
+Zack Thompson (Karmic) - CANADA
+*******************************
+
+Contributions
+-------------
+Several very accurate STIL entries, started ripping tunes and providing fixes.
+
+C64 History
+-----------
+First off, this membership was unexpected: out of all the first scene groups I
+could've joined, the HVSC crew was not what I was expecting. Very grateful for
+their considering me.
+I've been interested in retrocomputing for about 6 years now- and I got into
+the C64 about 3 years ago. Back then I was more of a C64 gamer, but then my
+focus shifted to the demoscene.
+During this transition I discovered the HVSC, and I was absolutely amazed- a
+SID collecting project?! With over 40000 SIDs? Then I found the STIL- and I was
+even more amazed! I started contributing to it and so far have made 35
+textfiles of STIL entries! I started to make my own tunes (all covers, since I
+know nothing about composing) and then I started to learn assembly language.
+This allowed me to start ripping tunes.
+After this I got that email from iAN inviting me to the crew- my life has never
+been the same (not really :p)!
 

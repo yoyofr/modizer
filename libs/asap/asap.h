@@ -1,191 +1,13 @@
-/* Generated automatically with "cito". Do not edit. */
-#ifndef _ASAP_H_
-#define _ASAP_H_
-typedef int cibool;
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
+// Generated automatically with "fut". Do not edit.
+#pragma once
+#include <stdbool.h>
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    typedef enum {
-        ASAPModuleType_SAP_B,
-        ASAPModuleType_SAP_C,
-        ASAPModuleType_SAP_D,
-        ASAPModuleType_SAP_S,
-        ASAPModuleType_CMC,
-        ASAPModuleType_CM3,
-        ASAPModuleType_CMR,
-        ASAPModuleType_CMS,
-        ASAPModuleType_DLT,
-        ASAPModuleType_MPT,
-        ASAPModuleType_RMT,
-        ASAPModuleType_TMC,
-        ASAPModuleType_TM2,
-        ASAPModuleType_FC
-    }
-    ASAPModuleType;
-    
-    typedef enum {
-        FlashPackItemType_LITERAL,
-        FlashPackItemType_COPY_TWO_BYTES,
-        FlashPackItemType_COPY_THREE_BYTES,
-        FlashPackItemType_COPY_MANY_BYTES,
-        FlashPackItemType_SET_ADDRESS,
-        FlashPackItemType_END_OF_STREAM
-    }
-    FlashPackItemType;
-    
-    typedef enum {
-        NmiStatus_RESET,
-        NmiStatus_ON_V_BLANK,
-        NmiStatus_WAS_V_BLANK
-    }
-    NmiStatus;
-    
-    struct ASAPWriter {
-        int outputEnd;
-        int outputOffset;
-        unsigned char *output;
-    };
-    typedef struct ASAPWriter ASAPWriter;
-
-    struct ASAPNativeModuleWriter {
-        int addressDiff;
-        int sourceOffset;
-        unsigned char const *sourceModule;
-        ASAPWriter *writer;
-    };
-    typedef struct ASAPNativeModuleWriter ASAPNativeModuleWriter;
-    
-    struct DurationParser {
-        int length;
-        int position;
-        const char *source;
-    };
-
-    typedef struct DurationParser DurationParser;
-
-
-    
-    struct FlashPackItem {
-        FlashPackItemType type;
-        int value;
-    };
-    typedef struct FlashPackItem FlashPackItem;
-    
-    struct FlashPack {
-        int compressedLength;
-        int itemsCount;
-        FlashPackItem items[64];
-        unsigned char compressed[65536];
-        int memory[65536];
-    };
-    typedef struct FlashPack FlashPack;
-    
-
-    struct PokeyChannel {
-        int audc;
-        int audf;
-        int delta;
-        int mute;
-        int out;
-        int periodCycles;
-        int tickCycle;
-        int timerCycle;
-    };
-    typedef struct PokeyChannel PokeyChannel;
-
-    
-    struct Pokey {
-        int audctl;
-        int divCycles;
-        int iirAcc;
-        cibool init;
-        int irqst;
-        int polyIndex;
-        int reloadCycles1;
-        int reloadCycles3;
-        int skctl;
-        PokeyChannel channels[4];
-        int deltaBuffer[888];
-    };
-    typedef struct Pokey Pokey;
-    struct PokeyPair {
-        int extraPokeyMask;
-        int readySamplesEnd;
-        int readySamplesStart;
-        int sampleFactor;
-        int sampleOffset;
-        unsigned char poly9Lookup[511];
-        Pokey basePokey;
-        Pokey extraPokey;
-        unsigned char poly17Lookup[16385];
-    };
-    typedef struct PokeyPair PokeyPair;
-    
-    struct ASAPInfo {
-        int channels;
-        int covoxAddr;
-        int defaultSong;
-        int fastplay;
-        int headerLen;
-        int init;
-        int music;
-        cibool ntsc;
-        int player;
-        int songs;
-        ASAPModuleType type;
-        unsigned char songPos[32];
-        char author[128];
-        char date[128];
-        int durations[32];
-        char filename[128];
-        cibool loops[32];
-        char title[128];
-    };
-    typedef struct ASAPInfo ASAPInfo;
-    
-    struct ASAP;
-    struct Cpu6502 {
-        int a;
-        int c;
-        int cycle;
-        int nz;
-        int pc;
-        int s;
-        int vdi;
-        int x;
-        int y;
-        struct ASAP *asap;
-        unsigned char memory[65536];
-    };
-    typedef struct Cpu6502 Cpu6502;
-    
-    struct ASAP {
-        int blocksPlayed;
-        int consol;
-        unsigned char covox[4];
-        int currentDuration;
-        int currentSong;
-        cibool gtiaOrCovoxPlayedThisFrame;
-        int nextEventCycle;
-        int nextPlayerCycle;
-        int nextScanlineCycle;
-        NmiStatus nmist;
-        int silenceCycles;
-        int silenceCyclesCounter;
-        int tmcPerFrameCounter;
-        ASAPInfo moduleInfo;
-        PokeyPair pokeys;
-        Cpu6502 cpu;
-    };
-    typedef struct ASAP ASAP;
-    typedef struct Cpu6502 Cpu6502;
+typedef struct ASAP ASAP;
+typedef struct ASAPInfo ASAPInfo;
+typedef struct ASAPWriter ASAPWriter;
 
 /**
  * Format of output samples.
@@ -203,366 +25,491 @@ typedef enum {
 	 * Signed 16-bit big-endian.
 	 */
 	ASAPSampleFormat_S16_B_E
-}
-ASAPSampleFormat;
+} ASAPSampleFormat;
 
 ASAP *ASAP_New(void);
 void ASAP_Delete(ASAP *self);
 
 /**
+ * Default output sample rate.
+ */
+#define ASAP_SAMPLE_RATE 44100
+
+/**
+ * Returns the output sample rate.
+ * @param self This <code>ASAP</code>.
+ */
+int ASAP_GetSampleRate(const ASAP *self);
+
+/**
+ * Sets the output sample rate.
+ * @param self This <code>ASAP</code>.
+ */
+void ASAP_SetSampleRate(ASAP *self, int sampleRate);
+
+/**
  * Enables silence detection.
  * Causes playback to stop after the specified period of silence.
+ * @param self This <code>ASAP</code>.
  * @param seconds Length of silence which ends playback. Zero disables silence detection.
  */
 void ASAP_DetectSilence(ASAP *self, int seconds);
 
 /**
- * Fills the specified buffer with generated samples.
- * @param buffer The destination buffer.
- * @param bufferLen Number of bytes to fill.
- * @param format Format of samples.
- */
-int ASAP_Generate(ASAP *self, unsigned char *buffer, int bufferLen, ASAPSampleFormat format);
-
-/**
- * Returns current playback position in blocks.
- * A block is one sample or a pair of samples for stereo.
- */
-int ASAP_GetBlocksPlayed(ASAP const *self);
-
-/**
- * Returns information about the loaded module.
- */
-ASAPInfo const *ASAP_GetInfo(ASAP const *self);
-
-/**
- * Returns POKEY channel volume - an integer between 0 and 15.
- * @param channel POKEY channel number (from 0 to 7).
- */
-int ASAP_GetPokeyChannelVolume(ASAP const *self, int channel);
-
-/**
- * Returns current playback position in milliseconds.
- */
-int ASAP_GetPosition(ASAP const *self);
-
-/**
- * Fills leading bytes of the specified buffer with WAV file header.
- * Returns the number of changed bytes.
- * @param buffer The destination buffer.
- * @param format Format of samples.
- * @param metadata Include metadata (title, author, date).
- */
-int ASAP_GetWavHeader(ASAP const *self, unsigned char *buffer, ASAPSampleFormat format, cibool metadata);
-
-/**
  * Loads music data ("module").
+ * @param self This <code>ASAP</code>.
  * @param filename Filename, used to determine the format.
  * @param module Contents of the file.
  * @param moduleLen Length of the file.
+ * @return <code>false</code> on error.
  */
-cibool ASAP_Load(ASAP *self, const char *filename, unsigned char const *module, int moduleLen);
+bool ASAP_Load(ASAP *self, const char *filename, uint8_t const *module, int moduleLen);
+
+/**
+ * Returns information about the loaded module.
+ * @param self This <code>ASAP</code>.
+ */
+const ASAPInfo *ASAP_GetInfo(const ASAP *self);
 
 /**
  * Mutes the selected POKEY channels.
+ * @param self This <code>ASAP</code>.
  * @param mask An 8-bit mask which selects POKEY channels to be muted.
  */
 void ASAP_MutePokeyChannels(ASAP *self, int mask);
 
 /**
  * Prepares playback of the specified song of the loaded module.
+ * @param self This <code>ASAP</code>.
  * @param song Zero-based song index.
  * @param duration Playback time in milliseconds, -1 means infinity.
+ * @return <code>false</code> on error.
  */
-cibool ASAP_PlaySong(ASAP *self, int song, int duration);
+bool ASAP_PlaySong(ASAP *self, int song, int duration);
 
 /**
- * Output sample rate.
+ * Returns current playback position in blocks.
+ * A block is one sample or a pair of samples for stereo.
+ * @param self This <code>ASAP</code>.
  */
-#define ASAP_SAMPLE_RATE  44100
+int ASAP_GetBlocksPlayed(const ASAP *self);
+
+/**
+ * Returns current playback position in milliseconds.
+ * @param self This <code>ASAP</code>.
+ */
+int ASAP_GetPosition(const ASAP *self);
 
 /**
  * Changes the playback position.
- * @param position The requested absolute position in milliseconds.
- */
-cibool ASAP_Seek(ASAP *self, int position);
-
-/**
- * Changes the playback position.
+ * @param self This <code>ASAP</code>.
  * @param block The requested absolute position in samples (always 44100 per second, even in stereo).
+ * @return <code>false</code> on error.
  */
-cibool ASAP_SeekSample(ASAP *self, int block);
+bool ASAP_SeekSample(ASAP *self, int block);
+
+/**
+ * Changes the playback position.
+ * @param self This <code>ASAP</code>.
+ * @param position The requested absolute position in milliseconds.
+ * @return <code>false</code> on error.
+ */
+bool ASAP_Seek(ASAP *self, int position);
+
+/**
+ * Fills leading bytes of the specified buffer with WAV file header.
+ * Returns the number of changed bytes.
+ * @param self This <code>ASAP</code>.
+ * @param buffer The destination buffer.
+ * @param format Format of samples.
+ * @param metadata Include metadata (title, author, date).
+ */
+int ASAP_GetWavHeader(const ASAP *self, uint8_t *buffer, ASAPSampleFormat format, bool metadata);
+
+/**
+ * Fills the specified buffer with generated samples.
+ * @param self This <code>ASAP</code>.
+ * @param buffer The destination buffer.
+ * @param bufferLen Number of bytes to fill.
+ * @param format Format of samples.
+ */
+int ASAP_Generate(ASAP *self, uint8_t *buffer, int bufferLen, ASAPSampleFormat format);
+
+/**
+ * Returns POKEY channel volume - an integer between 0 and 15.
+ * @param self This <code>ASAP</code>.
+ * @param channel POKEY channel number (from 0 to 7).
+ */
+int ASAP_GetPokeyChannelVolume(const ASAP *self, int channel);
 
 ASAPInfo *ASAPInfo_New(void);
 void ASAPInfo_Delete(ASAPInfo *self);
 
 /**
- * Short license notice.
- * Display after the credits.
+ * ASAP version - major part.
  */
-#define ASAPInfo_COPYRIGHT  "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
+#define ASAPInfo_VERSION_MAJOR 6
+
+/**
+ * ASAP version - minor part.
+ */
+#define ASAPInfo_VERSION_MINOR 0
+
+/**
+ * ASAP version - micro part.
+ */
+#define ASAPInfo_VERSION_MICRO 1
+
+/**
+ * ASAP version as a string.
+ */
+#define ASAPInfo_VERSION "6.0.1"
+
+/**
+ * Years ASAP was created in.
+ */
+#define ASAPInfo_YEARS "2005-2023"
 
 /**
  * Short credits for ASAP.
  */
-#define ASAPInfo_CREDITS  "Another Slight Atari Player (C) 2005-2019 Piotr Fusik\nCMC, MPT, TMC, TM2 players (C) 1994-2005 Marcin Lewandowski\nRMT player (C) 2002-2005 Radek Sterba\nDLT player (C) 2009 Marek Konopka\nCMS player (C) 1999 David Spilka\nFC player (C) 2011 Jerzy Kut\n"
+#define ASAPInfo_CREDITS "Another Slight Atari Player (C) 2005-2023 Piotr Fusik\nCMC, MPT, TMC, TM2 players (C) 1994-2005 Marcin Lewandowski\nRMT player (C) 2002-2005 Radek Sterba\nDLT player (C) 2009 Marek Konopka\nCMS player (C) 1999 David Spilka\nFC player (C) 2011 Jerzy Kut\n"
 
 /**
- * Returns author's name.
- * A nickname may be included in parentheses after the real name.
- * Multiple authors are separated with <code>" &amp; "</code>.
- * An empty string means the author is unknown.
+ * Short license notice.
+ * Display after the credits.
  */
-const char *ASAPInfo_GetAuthor(ASAPInfo const *self);
+#define ASAPInfo_COPYRIGHT "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
 
 /**
- * Returns 1 for mono or 2 for stereo.
+ * Maximum length of a supported input file.
+ * You may assume that files longer than this are not supported by ASAP.
  */
-int ASAPInfo_GetChannels(ASAPInfo const *self);
-
-int ASAPInfo_GetCovoxAddress(ASAPInfo const *self);
+#define ASAPInfo_MAX_MODULE_LENGTH 65000
 
 /**
- * Returns music creation date.
- * Some of the possible formats are:
- * <ul>
- * <li>YYYY</li>
- * <li>MM/YYYY</li>
- * <li>DD/MM/YYYY</li>
- * <li>YYYY-YYYY</li>
- * </ul>
- * An empty string means the date is unknown.
+ * Maximum length of text metadata.
  */
-const char *ASAPInfo_GetDate(ASAPInfo const *self);
+#define ASAPInfo_MAX_TEXT_LENGTH 127
 
 /**
- * Returns day of month of the music creation date.
- * -1 means the day is unknown.
+ * Maximum number of songs in a file.
  */
-int ASAPInfo_GetDayOfMonth(ASAPInfo const *self);
+#define ASAPInfo_MAX_SONGS 32
 
 /**
- * Returns 0-based index of the "main" song.
- * The specified song should be played by default.
+ * Returns the number of milliseconds represented by the given string.
+ * @param s Time in the <code>"mm:ss.xxx"</code> format.
+ * @return <code>-1</code> on error.
  */
-int ASAPInfo_GetDefaultSong(ASAPInfo const *self);
-
-/**
- * Returns length of the specified song.
- * The length is specified in milliseconds. -1 means the length is indeterminate.
- */
-int ASAPInfo_GetDuration(ASAPInfo const *self, int song);
-
-/**
- * Returns human-readable description of the filename extension.
- * @param ext Filename extension without the leading dot.
- */
-const char *ASAPInfo_GetExtDescription(const char *ext);
-
-int ASAPInfo_GetInitAddress(ASAPInfo const *self);
-
-const char *ASAPInfo_GetInstrumentName(ASAPInfo const *self, unsigned char const *module, int moduleLen, int i);
-
-/**
- * Returns information whether the specified song loops.
- * Returns:
- * <ul>
- * <li><code>true</code> if the song loops</li>
- * <li><code>false</code> if the song stops</li>
- * </ul>
- * 
- */
-cibool ASAPInfo_GetLoop(ASAPInfo const *self, int song);
-
-/**
- * Returns music creation month (1-12).
- * -1 means the month is unknown.
- */
-int ASAPInfo_GetMonth(ASAPInfo const *self);
-
-int ASAPInfo_GetMusicAddress(ASAPInfo const *self);
-
-/**
- * Returns the extension of the original module format.
- * For native modules it simply returns their extension.
- * For the SAP format it attempts to detect the original module format.
- * @param module Contents of the file.
- * @param moduleLen Length of the file.
- */
-const char *ASAPInfo_GetOriginalModuleExt(ASAPInfo const *self, unsigned char const *module, int moduleLen);
-
-int ASAPInfo_GetPlayerAddress(ASAPInfo const *self);
-
-int ASAPInfo_GetPlayerRateHz(ASAPInfo const *self);
-
-int ASAPInfo_GetPlayerRateScanlines(ASAPInfo const *self);
-
-int ASAPInfo_GetSapHeaderLength(ASAPInfo const *self);
-
-/**
- * Returns number of songs in the file.
- */
-int ASAPInfo_GetSongs(ASAPInfo const *self);
-
-/**
- * Returns music title.
- * An empty string means the title is unknown.
- */
-const char *ASAPInfo_GetTitle(ASAPInfo const *self);
-
-/**
- * Returns music title or filename.
- * If title is unknown returns filename without the path or extension.
- */
-const char *ASAPInfo_GetTitleOrFilename(ASAPInfo const *self);
-
-int ASAPInfo_GetTypeLetter(ASAPInfo const *self);
-
-/**
- * Returns music creation year.
- * -1 means the year is unknown.
- */
-int ASAPInfo_GetYear(ASAPInfo const *self);
-
-/**
- * Returns <code>true</code> for NTSC song and <code>false</code> for PAL song.
- */
-cibool ASAPInfo_IsNtsc(ASAPInfo const *self);
-
-/**
- * Checks whether the filename extension represents a module type supported by ASAP.
- * Returns <code>true</code> if the filename extension is supported by ASAP.
- * @param ext Filename extension without the leading dot.
- */
-cibool ASAPInfo_IsOurExt(const char *ext);
+int ASAPInfo_ParseDuration(const char *s);
 
 /**
  * Checks whether the filename represents a module type supported by ASAP.
  * Returns <code>true</code> if the filename is supported by ASAP.
  * @param filename Filename to check the extension of.
  */
-cibool ASAPInfo_IsOurFile(const char *filename);
+bool ASAPInfo_IsOurFile(const char *filename);
+
+/**
+ * Checks whether the filename extension represents a module type supported by ASAP.
+ * Returns <code>true</code> if the filename extension is supported by ASAP.
+ * @param ext Filename extension without the leading dot.
+ */
+bool ASAPInfo_IsOurExt(const char *ext);
 
 /**
  * Loads file information.
+ * @param self This <code>ASAPInfo</code>.
  * @param filename Filename, used to determine the format.
  * @param module Contents of the file.
  * @param moduleLen Length of the file.
+ * @return <code>false</code> on error.
  */
-cibool ASAPInfo_Load(ASAPInfo *self, const char *filename, unsigned char const *module, int moduleLen);
+bool ASAPInfo_Load(ASAPInfo *self, const char *filename, uint8_t const *module, int moduleLen);
 
 /**
- * Maximum length of a supported input file.
- * You may assume that files longer than this are not supported by ASAP.
+ * Returns author's name.
+ * A nickname may be included in parentheses after the real name.
+ * Multiple authors are separated with <code>" &amp; "</code>.
+ * An empty string means the author is unknown.
+ * @param self This <code>ASAPInfo</code>.
  */
-#define ASAPInfo_MAX_MODULE_LENGTH  65000
-
-/**
- * Maximum number of songs in a file.
- */
-#define ASAPInfo_MAX_SONGS  32
-
-/**
- * Maximum length of text metadata.
- */
-#define ASAPInfo_MAX_TEXT_LENGTH  127
-
-/**
- * Returns the number of milliseconds represented by the given string.
- * @param s Time in the <code>"mm:ss.xxx"</code> format.
- */
-int ASAPInfo_ParseDuration(const char *s);
+const char *ASAPInfo_GetAuthor(const ASAPInfo *self);
 
 /**
  * Sets author's name.
  * A nickname may be included in parentheses after the real name.
  * Multiple authors are separated with <code>" &amp; "</code>.
  * An empty string means the author is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ * @param value New author's name for the current music.
+ * @return <code>false</code> on error.
  */
-cibool ASAPInfo_SetAuthor(ASAPInfo *self, const char *value);
+bool ASAPInfo_SetAuthor(ASAPInfo *self, const char *value);
 
 /**
- * Sets music creation date.
- * Some of the possible formats are:
+ * Returns music title.
+ * An empty string means the title is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ */
+const char *ASAPInfo_GetTitle(const ASAPInfo *self);
+
+/**
+ * Sets music title.
+ * An empty string means the title is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ * @param value New title for the current music.
+ * @return <code>false</code> on error.
+ */
+bool ASAPInfo_SetTitle(ASAPInfo *self, const char *value);
+
+/**
+ * Returns music title or filename.
+ * If title is unknown returns filename without the path or extension.
+ * @param self This <code>ASAPInfo</code>.
+ */
+const char *ASAPInfo_GetTitleOrFilename(const ASAPInfo *self);
+
+/**
+ * Returns music creation date.
+ * 
+ * <p>Some of the possible formats are:
  * <ul>
  * <li>YYYY</li>
  * <li>MM/YYYY</li>
  * <li>DD/MM/YYYY</li>
  * <li>YYYY-YYYY</li>
  * </ul>
- * An empty string means the date is unknown.
+ * <p>An empty string means the date is unknown.
+ * @param self This <code>ASAPInfo</code>.
  */
-cibool ASAPInfo_SetDate(ASAPInfo *self, const char *value);
+const char *ASAPInfo_GetDate(const ASAPInfo *self);
+
+/**
+ * Sets music creation date.
+ * 
+ * <p>Some of the possible formats are:
+ * <ul>
+ * <li>YYYY</li>
+ * <li>MM/YYYY</li>
+ * <li>DD/MM/YYYY</li>
+ * <li>YYYY-YYYY</li>
+ * </ul>
+ * <p>An empty string means the date is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ * @param value New music creation date.
+ * @return <code>false</code> on error.
+ */
+bool ASAPInfo_SetDate(ASAPInfo *self, const char *value);
+
+/**
+ * Returns music creation year.
+ * -1 means the year is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetYear(const ASAPInfo *self);
+
+/**
+ * Returns music creation month (1-12).
+ * -1 means the month is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetMonth(const ASAPInfo *self);
+
+/**
+ * Returns day of month of the music creation date.
+ * -1 means the day is unknown.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetDayOfMonth(const ASAPInfo *self);
+
+/**
+ * Returns 1 for mono or 2 for stereo.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetChannels(const ASAPInfo *self);
+
+/**
+ * Returns number of songs in the file.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetSongs(const ASAPInfo *self);
+
+/**
+ * Returns 0-based index of the "main" song.
+ * The specified song should be played by default.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetDefaultSong(const ASAPInfo *self);
 
 /**
  * Sets the 0-based index of the "main" song.
+ * @param self This <code>ASAPInfo</code>.
+ * @param song New default song.
+ * @return <code>false</code> on error.
  */
-cibool ASAPInfo_SetDefaultSong(ASAPInfo *self, int song);
+bool ASAPInfo_SetDefaultSong(ASAPInfo *self, int song);
+
+/**
+ * Returns length of the specified song.
+ * The length is specified in milliseconds. -1 means the length is indeterminate.
+ * @param self This <code>ASAPInfo</code>.
+ * @param song Song to get length of, 0-based.
+ */
+int ASAPInfo_GetDuration(const ASAPInfo *self, int song);
 
 /**
  * Sets length of the specified song.
  * The length is specified in milliseconds. -1 means the length is indeterminate.
+ * @param self This <code>ASAPInfo</code>.
+ * @param song Song to set length of, 0-based.
+ * @param duration New length in milliseconds.
+ * @return <code>false</code> on error.
  */
-cibool ASAPInfo_SetDuration(ASAPInfo *self, int song, int duration);
+bool ASAPInfo_SetDuration(ASAPInfo *self, int song, int duration);
 
 /**
- * Sets information whether the specified song loops.
- * Use:
+ * Returns information whether the specified song loops.
+ * 
+ * <p>Returns:
  * <ul>
  * <li><code>true</code> if the song loops</li>
  * <li><code>false</code> if the song stops</li>
  * </ul>
- * 
+ * @param self This <code>ASAPInfo</code>.
+ * @param song Song to check for looping, 0-based.
  */
-cibool ASAPInfo_SetLoop(ASAPInfo *self, int song, cibool loop);
+bool ASAPInfo_GetLoop(const ASAPInfo *self, int song);
+
+/**
+ * Sets information whether the specified song loops.
+ * 
+ * <p>Use:
+ * <ul>
+ * <li><code>true</code> if the song loops</li>
+ * <li><code>false</code> if the song stops</li>
+ * </ul>
+ * @param self This <code>ASAPInfo</code>.
+ * @param song Song to set as looping, 0-based.
+ * @param loop <code>true</code> if the song loops.
+ * @return <code>false</code> on error.
+ */
+bool ASAPInfo_SetLoop(ASAPInfo *self, int song, bool loop);
+
+/**
+ * Returns <code>true</code> for an NTSC song and <code>false</code> for a PAL song.
+ * @param self This <code>ASAPInfo</code>.
+ */
+bool ASAPInfo_IsNtsc(const ASAPInfo *self);
+
+/**
+ * Returns <code>true</code> if NTSC can be set or removed.
+ * @param self This <code>ASAPInfo</code>.
+ */
+bool ASAPInfo_CanSetNtsc(const ASAPInfo *self);
+
+/**
+ * Marks a SAP file as NTSC or PAL.
+ * @param self This <code>ASAPInfo</code>.
+ * @param ntsc <code>true</code> for NTSC, <code>false</code> for PAL.
+ */
+void ASAPInfo_SetNtsc(ASAPInfo *self, bool ntsc);
+
+/**
+ * Returns the letter argument for the TYPE SAP tag.
+ * Returns zero for non-SAP files.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetTypeLetter(const ASAPInfo *self);
+
+/**
+ * Returns player routine rate in Atari scanlines.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetPlayerRateScanlines(const ASAPInfo *self);
+
+/**
+ * Returns approximate player routine rate in Hz.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetPlayerRateHz(const ASAPInfo *self);
+
+/**
+ * Returns the address of the module.
+ * Returns -1 if unknown.
+ * @param self This <code>ASAPInfo</code>.
+ */
+int ASAPInfo_GetMusicAddress(const ASAPInfo *self);
 
 /**
  * Causes music to be relocated.
  * Use only with <code>ASAPWriter.Write</code>.
+ * @param self This <code>ASAPInfo</code>.
+ * @param address New music address.
+ * @return <code>false</code> on error.
  */
-cibool ASAPInfo_SetMusicAddress(ASAPInfo *self, int address);
+bool ASAPInfo_SetMusicAddress(ASAPInfo *self, int address);
 
 /**
- * Sets music title.
- * An empty string means the title is unknown.
+ * Returns the address of the player initialization routine.
+ * Returns -1 if no initialization routine.
+ * @param self This <code>ASAPInfo</code>.
  */
-cibool ASAPInfo_SetTitle(ASAPInfo *self, const char *value);
+int ASAPInfo_GetInitAddress(const ASAPInfo *self);
 
 /**
- * ASAP version as a string.
+ * Returns the address of the player routine.
+ * @param self This <code>ASAPInfo</code>.
  */
-#define ASAPInfo_VERSION  "4.0.0"
+int ASAPInfo_GetPlayerAddress(const ASAPInfo *self);
 
 /**
- * ASAP version - major part.
+ * Returns the address of the COVOX chip.
+ * Returns -1 if no COVOX enabled.
+ * @param self This <code>ASAPInfo</code>.
  */
-#define ASAPInfo_VERSION_MAJOR  4
+int ASAPInfo_GetCovoxAddress(const ASAPInfo *self);
 
 /**
- * ASAP version - micro part.
+ * Returns the length of the SAP header in bytes.
+ * @param self This <code>ASAPInfo</code>.
  */
-#define ASAPInfo_VERSION_MICRO  0
+int ASAPInfo_GetSapHeaderLength(const ASAPInfo *self);
 
 /**
- * ASAP version - minor part.
+ * Returns the offset of instrument names for RMT module.
+ * Returns -1 if not an RMT module or RMT module without instrument names.
+ * @param self This <code>ASAPInfo</code>.
+ * @param module Content of the RMT file.
+ * @param moduleLen Length of the RMT file.
  */
-#define ASAPInfo_VERSION_MINOR  0
+int ASAPInfo_GetInstrumentNamesOffset(const ASAPInfo *self, uint8_t const *module, int moduleLen);
 
 /**
- * Years ASAP was created in.
+ * Returns human-readable description of the filename extension.
+ * @param ext Filename extension without the leading dot.
+ * @return <code>NULL</code> on error.
  */
-#define ASAPInfo_YEARS  "2005-2019"
+const char *ASAPInfo_GetExtDescription(const char *ext);
+
+/**
+ * Returns the extension of the original module format.
+ * For native modules it simply returns their extension.
+ * For the SAP format it attempts to detect the original module format.
+ * @param self This <code>ASAPInfo</code>.
+ * @param module Contents of the file.
+ * @param moduleLen Length of the file.
+ */
+const char *ASAPInfo_GetOriginalModuleExt(const ASAPInfo *self, uint8_t const *module, int moduleLen);
 
 ASAPWriter *ASAPWriter_New(void);
 void ASAPWriter_Delete(ASAPWriter *self);
 
 /**
- * Writes text representation of the given duration.
- * Returns the number of bytes written to <code>result</code>.
- * @param result The output buffer.
- * @param value Number of milliseconds.
+ * Maximum number of extensions returned by <code>GetSaveExts</code>.
  */
-int ASAPWriter_DurationToString(unsigned char *result, int value);
+#define ASAPWriter_MAX_SAVE_EXTS 3
 
 /**
  * Enumerates possible file types the given module can be written as.
@@ -572,29 +519,43 @@ int ASAPWriter_DurationToString(unsigned char *result, int value);
  * @param module Contents of the file.
  * @param moduleLen Length of the file.
  */
-int ASAPWriter_GetSaveExts(const char **exts, ASAPInfo const *info, unsigned char const *module, int moduleLen);
+int ASAPWriter_GetSaveExts(const char **exts, const ASAPInfo *info, uint8_t const *module, int moduleLen);
 
 /**
  * Maximum length of text representation of a duration.
  * Corresponds to the longest format which is <code>"mm:ss.xxx"</code>.
  */
-#define ASAPWriter_MAX_DURATION_LENGTH  9
+#define ASAPWriter_MAX_DURATION_LENGTH 9
 
-#define ASAPWriter_MAX_SAVE_EXTS  3
+/**
+ * Writes text representation of the given duration.
+ * Returns the number of bytes written to <code>result</code>.
+ * @param result The output buffer.
+ * @param value Number of milliseconds.
+ */
+int ASAPWriter_DurationToString(uint8_t *result, int value);
 
-void ASAPWriter_SetOutput(ASAPWriter *self, unsigned char *output, int startIndex, int endIndex);
+/**
+ * Sets the destination array for <code>Write</code>.
+ * @param self This <code>ASAPWriter</code>.
+ * @param output The destination array.
+ * @param startIndex The array offset to start writing at.
+ * @param endIndex The array offset to finish writing before.
+ */
+void ASAPWriter_SetOutput(ASAPWriter *self, uint8_t *output, int startIndex, int endIndex);
 
 /**
  * Writes the given module in a possibly different file format.
+ * @param self This <code>ASAPWriter</code>.
  * @param targetFilename Output filename, used to determine the format.
  * @param info File information got from the source file with data updated for the output file.
  * @param module Contents of the source file.
  * @param moduleLen Length of the source file.
  * @param tag Display information (xex output only).
+ * @return <code>-1</code> on error.
  */
-int ASAPWriter_Write(ASAPWriter *self, const char *targetFilename, ASAPInfo const *info, unsigned char const *module, int moduleLen, cibool tag);
+int ASAPWriter_Write(ASAPWriter *self, const char *targetFilename, const ASAPInfo *info, uint8_t const *module, int moduleLen, bool tag);
 
 #ifdef __cplusplus
 }
-#endif
 #endif

@@ -3745,13 +3745,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_ASAP) {//ASAP
-                                iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                
+                                iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                                 if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
                                 
                                 iCurrentTime=0;
-                                //numChannels=asap->moduleInfo.channels;
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -3953,13 +3953,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mod_message_updated=1;
                         }
                         if (mPlayType==MMP_ASAP) {//ASAP
-                            iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                            iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                             if (iModuleLength<1000) iModuleLength=1000;
                             ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                             
                             
                             iCurrentTime=0;
-                            //numChannels=8;//asap->moduleInfo.channels;
                             
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -4151,12 +4150,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_ASAP) {//ASAP
-                                iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                                 if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
                                 iCurrentTime=0;
-                                //numChannels=8;//asap->moduleInfo.channels;
                                 
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
@@ -4690,7 +4688,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (code==API68_MIX_ERROR) nbBytes=0;
                     }
                     if (mPlayType==MMP_ASAP) { //ASAP                        
-                        if (asap->moduleInfo.channels==2) {
+                        if (ASAPInfo_GetChannels(ASAP_GetInfo(asap))==2) {
                             nbBytes= ASAP_Generate(asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, ASAPSampleFormat_S16_L_E);
                         } else {
                             nbBytes= ASAP_Generate(asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2, ASAPSampleFormat_S16_L_E);
@@ -4707,7 +4705,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
                                     
-                                    mNewModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                    mNewModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                                     if (mNewModuleLength<1000) mNewModuleLength=1000;
                                     ASAP_PlaySong(asap, mod_currentsub, mNewModuleLength);
                                     
@@ -8256,19 +8254,19 @@ int vgmGetFileLength()
     md5_from_buffer(song_md5,33,(char*)ASAP_module,ASAP_module_len);
     song_md5[32]=0;
     
-    song = asap->moduleInfo.defaultSong;
-    duration = asap->moduleInfo.durations[song];
+    song = ASAPInfo_GetDefaultSong(ASAP_GetInfo(asap));
+    duration = ASAPInfo_GetDuration(ASAP_GetInfo(asap),song);
     
     mod_minsub=0;
-    mod_maxsub=asap->moduleInfo.songs-1;
-    mod_subsongs=asap->moduleInfo.songs;
+    mod_maxsub=ASAPInfo_GetSongs(ASAP_GetInfo(asap))-1;
+    mod_subsongs=mod_maxsub+1;
     
     
     //////////////////////////////////
     //update DB with songlength
     //////////////////////////////////
     for (int i=0;i<mod_subsongs; i++) {
-        int subsong_length=asap->moduleInfo.durations[i];
+        int subsong_length=ASAPInfo_GetDuration(ASAP_GetInfo(asap),i);
         mod_total_length+=subsong_length;
         
         short int playcount;
@@ -8310,19 +8308,19 @@ int vgmGetFileLength()
     
 //    ASAPInfo_GetExtDescription
     
-    sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap->moduleInfo.author,asap->moduleInfo.title,asap->moduleInfo.songs,asap->moduleInfo.channels);
+    sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",ASAPInfo_GetAuthor(ASAP_GetInfo(asap)),ASAPInfo_GetTitle(ASAP_GetInfo(asap)),ASAPInfo_GetSongs(ASAP_GetInfo(asap)),ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
     
-    artist=[NSString stringWithFormat:@"%s",asap->moduleInfo.author];
+    artist=[NSString stringWithFormat:@"%s",ASAPInfo_GetAuthor(ASAP_GetInfo(asap))];
     
     iModuleLength=(duration>=1000?duration:1000);
     iCurrentTime=0;
         
-    numChannels=(asap->pokeys.extraPokeyMask?8:4);//asap->moduleInfo.channels;
+    numChannels=(ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
     
     
-    if (asap->moduleInfo.title[0]) {
-        sprintf(mod_name," %s",asap->moduleInfo.title);
-        mod_title=[NSString stringWithFormat:@"%s",asap->moduleInfo.title];
+    if (ASAPInfo_GetTitle(ASAP_GetInfo(asap))[0]) {
+        sprintf(mod_name," %s",ASAPInfo_GetTitle(ASAP_GetInfo(asap)));
+        mod_title=[NSString stringWithFormat:@"%s",ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
     }
     else sprintf(mod_name," %s",mod_filename);
     
@@ -9609,7 +9607,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-            iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+            iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
             if (iModuleLength<1000) iModuleLength=1000;
             ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
             
