@@ -291,7 +291,22 @@ static int hvl_sample_to_write,mHVLinit;
 //STSOUND
 static YMMUSIC *ymMusic;
 //SC68
-static api68_t *sc68;
+//static api68_t *sc68;
+static sc68_t *sc68;
+
+extern "C" {
+
+int getNumberTraceStreams() {
+    int track=sc68_cntl(sc68,SC68_GET_TRACK);
+    int num =  sc68_used_channels(sc68, track);
+    return num;
+}
+
+short **getScopeBuffers() {
+    return NULL;
+}
+    
+}
 
 //SID
 static int mSIDFilterON,mSIDForceLoop;
@@ -1646,26 +1661,41 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 //*****************************************
 //Internal playback functions
--(api68_t*)setupSc68 {
-    api68_init_t init68;
-    
+-(sc68_t*)setupSc68 {
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *path = [bundle resourcePath];
-    NSMutableString *argData = [NSMutableString stringWithString:@"--sc68_data="];
+    NSMutableString *argData = [NSMutableString stringWithString:@"--sc68-user-path="];
     [argData appendString:path];
     //[argData appendString:@"/Replay"];    
     
     char *t = (char *)[argData UTF8String];
     char *args[] = { (char*)"sc68", t, NULL };
     
-    memset(&init68, 0, sizeof(init68));
-    init68.alloc = (void *(*)(unsigned int))malloc;
-    init68.free = free;
+    sc68_init_t init68;
+    
     init68.argc = 2;
     init68.argv = args;
     
-    api68_t* api = api68_init(&init68);
+    memset(&init68,0,sizeof(init68));
+    init68.argc = 2;
+    init68.argv = args;
+    init68.debug_set_mask = 0;
+    init68.debug_clr_mask = 0;
+    init68.msg_handler = NULL;//(sc68_msg_t) msgfct;
+    init68.flags.no_load_config = 0;
+    init68.flags.no_save_config = 1;
     
+    sc68_t* api=NULL;
+    
+    if (sc68_init(&init68)) {
+        //issues
+        return NULL;
+    } else {
+        // Create an emulator instance.
+        // You should consider using sc68_create_t struct.
+        api = sc68_create(0);
+    }
+    //
     return api;
 }
 
@@ -1996,7 +2026,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //
         // SC68
         sc68 = [self setupSc68];
-        //
         
         //ASAP
         asap = ASAP_New();
@@ -2252,9 +2281,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
             iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
             
             if (mPlayType==MMP_SC68) {//SC68
-                iCurrentTime=api68_seek(sc68, -1,NULL);
+                iCurrentTime=sc68_cntl(sc68,SC68_GET_POS);
             }
-            
+
             /*	if ((iModuleLength>0)&&(iCurrentTime>iModuleLength)) {
              if (mPlayType==8) {//SID does not track end, so use length
              //iCurrentTime=0;
@@ -3369,7 +3398,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_SC68) {//SC68
                             bGlobalSeekProgress=-1;
-                            api68_seek(sc68, mNeedSeekTime, NULL);
+                            sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime);
                         }
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
@@ -3727,7 +3756,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_SC68) {//SC68
-                                api68_music_info_t info;
+                                sc68_music_info_t info;
+                                
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
@@ -3735,9 +3765,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
                                 }
-                                api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
-                                api68_music_info( sc68, &info, mod_currentsub, NULL );
-                                iModuleLength=info.time_ms;
+                                sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
+                                sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+                                sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+                                iModuleLength=info.trk.time_ms;
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
@@ -3935,7 +3966,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mod_message_updated=1;
                         }
                         if (mPlayType==MMP_SC68) {//SC68
-                            api68_music_info_t info;
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
@@ -3943,9 +3973,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                             }
-                            api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
-                            api68_music_info( sc68, &info, mod_currentsub, NULL );
-                            iModuleLength=info.time_ms;
+                            sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
+                            sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+                            sc68_music_info_t info;
+                            sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+                            iModuleLength=info.trk.time_ms;
+                            
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
                             //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
@@ -4137,12 +4170,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_SC68) {//SC68
-                                api68_music_info_t info;
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
-                                api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
-                                api68_music_info( sc68, &info, mod_currentsub, NULL );
-                                iModuleLength=info.time_ms;
+                                sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
+                                
+                                sc68_music_info_t info;
+                                sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+                                sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+                                iModuleLength=info.trk.time_ms;
+                                
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
@@ -4663,29 +4699,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                     }
                     if (mPlayType==MMP_SC68) {//SC68
+                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
+                        int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        int code = api68_process( sc68, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE );
-                        if (code & API68_END) nbBytes=0;
+
+                        if (code==SC68_ERROR) nbBytes=0;
+                        if (code & SC68_END) nbBytes=0;
                         //if (code & API68_LOOP) nbBytes=0;
                         //if (code & API68_CHANGE) nbBytes=0;
-                        
-                        
+                                                
                         if (mChangeOfSong==0) {
                             if ((nbBytes==0)||( (iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
-                                    api68_music_info_t info;
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
-                                    api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
-                                    api68_music_info( sc68, &info, mod_currentsub, NULL );
+                                    sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                     mChangeOfSong=1;
-                                    mNewModuleLength=info.time_ms;
+                                    
+                                    sc68_music_info_t info;
+                                    sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+                                    sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+                                    mNewModuleLength=iModuleLength=info.trk.time_ms;
+                                    
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else nbBytes=0;
                             }
                         }
-                        if (code==API68_MIX_ERROR) nbBytes=0;
+                        if (code==SC68_ERROR) nbBytes=0;
+
                     }
                     if (mPlayType==MMP_ASAP) { //ASAP                        
                         if (ASAPInfo_GetChannels(ASAP_GetInfo(asap))==2) {
@@ -5873,22 +5915,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
-    if (api68_load_file(sc68,[filePath UTF8String])) {
+    
+    if (sc68_load_uri(sc68,[filePath UTF8String])) {
         NSLog(@"SC68 api68_load_file error");
         mPlayType=0;
         return -1;
     } else {
-        api68_music_info_t info;
-        api68_music_info( sc68, &info, 1, NULL );
+        sc68_music_info_t info;
+        
+        // Set track and loop (optionnal).
+        int ret=sc68_play(sc68,1/*SC68_DEF_TRACK*/,(mLoopMode?SC68_INF_LOOP:0));
+        ret=sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+        sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+        ret=sc68_play(sc68,info.dsk.track,(mLoopMode?SC68_INF_LOOP:0)); //change for default track
+        sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+        ret=sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
         if (info.title[0]) sprintf(mod_name," %s",info.title);
         else sprintf(mod_name," %s",mod_filename);
         
         mod_subsongs=info.tracks;
         mod_minsub=1;
         mod_maxsub=1+info.tracks-1;
-        mod_currentsub=1;
+        mod_currentsub=sc68_cntl(sc68,SC68_GET_TRACK);
+        if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+        if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
         
-        iModuleLength=info.time_ms;
+        iModuleLength=info.trk.time_ms;
+        
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
         iCurrentTime=0;
         
@@ -5896,10 +5949,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //update DB with songlength
         //////////////////////////////////
         for (int i=0;i<mod_subsongs; i++) {
-            api68_music_info_t info_sub;
-            api68_music_info( sc68, &info_sub, i+1, NULL );
+            sc68_music_info_t info_sub;
+            sc68_music_info( sc68, &info_sub, i+1, NULL );
             
-            int subsong_length=info_sub.time_ms;
+            int subsong_length=info_sub.trk.time_ms;
+            if (subsong_length<=0) subsong_length=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
             mod_total_length+=subsong_length;
             
             short int playcount;
@@ -5936,12 +5990,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         numChannels=2;
         
-        sprintf(mod_message,"Title.....: %s\nAuthor...: %s\nComposer...: %s\nHardware...: %s\nConverter.....: %s\nRipper...: %s\n",
-                info.title,info.author,info.composer,info.hwname,info.converter,info.ripper);
-        artist=[NSString stringWithFormat:@"%s",info.author];
+        sprintf(mod_message,"Title.....: %s\nArtist....: %s\nFormat....: %s\nHardware..: %s\nConverter.: %s\nRipper....: %s\n",
+                info.title,info.artist,info.format,info.dsk.hw,info.converter,info.ripper);
+        artist=[NSString stringWithFormat:@"%s",info.artist];
         
         return 0;
     }
+
 }
 -(int) mmp_stsoundLoad:(NSString*)filePath {  //STSOUND
     mPlayType=MMP_STSOUND;
@@ -9583,10 +9638,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-            api68_music_info_t info;
-            api68_play( sc68, mod_currentsub, (mLoopMode?0:-1));
-            api68_music_info( sc68, &info, mod_currentsub, NULL );
-            iModuleLength=info.time_ms;
+
+            sc68_play( sc68, mod_currentsub, (mLoopMode?SC68_INF_LOOP:0));
+            sc68_music_info_t info;
+            sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+            sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+            iModuleLength=info.trk.time_ms;
+            
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
             
             //Loop
@@ -9803,8 +9861,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         ymMusicDestroy(ymMusic);
     }
     if (mPlayType==MMP_SC68) {//SC68
-        api68_stop( sc68 );
-        api68_close(sc68);
+        sc68_stop(sc68);
+        sc68_close(sc68);
     }
     if (mPlayType==MMP_MDXPDX) { //MDX
         mdx_close(mdx,pdx);
@@ -10038,10 +10096,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_SC68) {
-        api68_music_info_t info;
-        api68_music_info( sc68, &info, 1, NULL );
-        
-        return [NSString stringWithFormat:@"%s",info.replay];
+        sc68_music_info_t info;
+        sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
+        iModuleLength=info.trk.time_ms;
+                
+        return [NSString stringWithFormat:@"%s",info.format];
     }
     if (mPlayType==MMP_MDXPDX) {
         if (mdx->haspdx) return @"MDX/PDX";

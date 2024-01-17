@@ -1,0 +1,153 @@
+                   Quick guide to sc68 SVN version
+                   -------------------------------
+
+                          by Benjamin Gerard
+                                   
+INTRODUCTION
+
+  This document aims  to help developers to use  sc68 version from SVN
+  repository. Basically  SVN repository only host files  which are not
+  generated  by  any  mean.    It  excludes  all  files  generated  by
+  GNU/autotools such as Makefile.in. Some files are duplicates used in
+  multiple sub-package. Those are for example sc68 autoconf m4 macros.
+
+
+QUICK-START
+
+  -1- Make a fresh directory structure
+                                   
+      $ mkdir -p sc68-svn/_build && cd sc68-svn
+
+  -2- Get sc68 source tree
+
+      $ svn checkout http://svn.code.sf.net/p/sc68/code/ sc68
+
+  -3- Prepare source tree (bootstrapping)
+
+      Require:
+        - C compiler and make (usually gcc and gmake)
+        - autoconf >= 2.63
+        - automake >= 1.11
+        - libtool  >= 2.2.6
+        - pkg-config >= 0.29
+
+        !!! Documentation being currently disabled the 3 next entries are
+        !!! not required anymore.
+                
+        - texinfo (makeinfo)
+        - help2man
+        - texinfo2man
+
+            This  tools  is part  of  indent  package  but it  is  not
+            installed by  most distribs.   A copy  of the  source file
+            texinfo2man.c has  been added for convenience  to sc68 SVN
+            repository in  tools/ directory. You can  for instance run
+            'make' there  and install  'texinfo2man' anywhere  in your
+            exec PATH.
+
+        !!! Since revision r669 as68 should be build automatically in
+        !!! most cases when it's needed. That is when compiling the
+        !!! whole sc68 meta-package, no as68 was found in the PATH
+        !!! during configure, the file libsc68/sc68/trap68.h is
+        !!! missing (it should be the case if you are building from
+        !!! source control) and it's not a cross compiling.
+
+        - as68
+
+            as68 is a 68000 macro assembler compatible with HISOFT(tm)
+            GenST(tm).  It  is  used  to  assemble  libsc68  TOS  trap
+            emulator.  It is  part of  sc68. You  can use  any working
+            version of as68,  like one from an older  sc68 package. If
+            you  don't have  a running  version  of as68  you need  to
+            compile and install it before you can build libsc68.
+
+      $ cd sc68                 # Enter top source directory.
+      $ tools/svn-bootstrap.sh  # Run bootstrap bourne shell script.
+
+      For details  on previous step you  are invited to  snoop at file
+      tools/svn-bootstrap.sh. It  should basically prepare  the source
+      tree and checks you have all required tools installed.
+
+
+  -4- Dependencies
+
+      o libao-dev (recommended) for sc68 cli program to be able to
+        generate sound and/or sound files
+
+      o zlib-dev (recommended) for libfile68 to be able to load gzipped
+        sc68 files.
+
+      o libcurl-dev (optional) for sc68 programs to be able to fetch
+        files on the network (FTP,HTTP...)
+
+      o readline or editline (very optional) for some sc68 tools
+        (mksc68 for instance) to benefit a more friendly interface.
+
+
+  -5- Build as68 (required only if as68 is missing and cross-compiling)
+
+      Build in a different  directory architecture is not required but
+      it is a good habit. This set of commands is just an example, you
+      might want to add some configure options.
+
+      $  build=$(./config.guess)        && # Guess native host
+      $  mkdir -p ../_build/$build/as68 && # Create host build dir
+      $  cd ../_build/$build/as68       && # Go there
+      $  ../../../sc68/as68/configure   && # Configure as you feel
+      $  make                           && # Build
+      $  make install                      # Install as68 (sudo)
+
+      Notice that you don't really have to install as68 you can simply
+      specify the correct path when configuring.
+
+      Furthermore It's really only necessary to build as68 separately
+      if you intend to cross compile sc68. In most cases it's possible
+      to specify directly as68 as the built program in the as68 build
+      directory (by adding something like --enable-as68
+      as68='../as68/as68' to the sc68 configure command).
+
+  -6- Build sc68
+
+      Build in a different  directory architecture is not required but
+      it is a good habit. This set of commands is just an example, you
+      might want to add some configure options.
+
+      $  build=$(./config.guess)   && # Guess native host
+      $  mkdir -p ../_build/$build && # Create host build directory
+      $  cd ../_build/$build       && # Go there
+      $  ../../sc68/configure      && # Configure as you feel.
+      $  make                         # Build
+
+      !!! If you are building a release consider using
+      !!! --disable-assert. Assert should be disable by default
+      !!! anyway.
+
+      See INSTALL file for more information on configure.  Also
+      consider using `configure --help=recursive | less' to see all
+      available options.
+
+HACKING
+
+  Having a  look to the  current code should  give you a good  idea of
+  sc68 code  conventions. Basically strict rules are  not required but
+  it is a  nice thing to try to  stick with it. If you  have to follow
+  only a fews rules you  should consider using:
+
+   - space as tab
+   - indent width of 2
+   - line width of 78
+
+  Emacs  users  may  use  the  sc68.el file  located  in  the  topmost
+  directory. This piece of emacs lisp code adds a *sc68* C-code-style.
+  One way (not the smartest) to use this style is to do this in emacs:
+
+  M-x load-file (select sc68.el file)
+  M-x c-set-style (select sc68 style)
+
+
+LINKS
+
+  svn repository : http://svn.code.sf.net/p/sc68/code
+  browse svn     : http://sourceforge.net/p/sc68/code/HEAD/tree
+  sc68 project   : http://sourceforge.net/projects/sc68
+  sc68 website   : http://sc68.atari.org (needs a total refresh)

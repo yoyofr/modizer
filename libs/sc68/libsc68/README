@@ -1,0 +1,29 @@
+                    libsc68 - sc68 engine library
+
+                 libsc68 is part of the sc68 project
+
+                    (C) 1998-2016 Benjamin Gerard
+
+
+ABOUT LIBSC68
+
+  libsc68 is the main library of the sc68 project. It implements the
+  main API. It contains of the original hardware simulation code.
+
+
+DEPENDENCIES
+
+  o file68 (required)
+
+    sc68 file and utility library.
+
+
+AUTHOR
+
+  Benjamin Gerard AKA Ben/OVR <https://sourceforge.net/users/benjihan>
+
+
+LINKS
+
+  website <http://sc68.atari.org>
+  project <https://sourceforge.net/p/sc68>

@@ -1,0 +1,59 @@
+                file68 - sc68 file and utility library
+                                   
+                  file68 is part of the sc68 project
+                       
+                    (C) 1998-2016 Benjamin Gerard
+
+
+ABOUT FILE68
+
+  file68 is the library used to load and manage sc68 compatible
+  files. That was the original idea. Over time it has become a general
+  utility library serving a lot of facilities for all sc68 related
+  projects.
+
+
+DEPENDENCIES
+
+  o unice68 (preferable)
+
+    sc68 project's to depack Atari-ST ICE packed files. It's
+    *REQUIRED* to load wildly distributed Atari-ST SNDH files that are
+    the machine de facto standard.
+
+  o zlib (recommended)
+
+    A massively spiffy yet delicately unobtrusive compression.
+    Library. Allowing to load gzipped version of the supported file
+    format. Specially for .sc68 files that are not natively
+    compressed.
+
+  o libao (optional see below)
+
+    Xiph.org cross platform audio library. It's optional but
+    recommended for building sc68 command line program. Without it the
+    player will only be able to produce a raw PCM stream. libao adds
+    support for audio output as well as common audio file recording
+    (.wav and such). If you only intend to build a plugin you probably
+    do not need it.
+
+  o libcurl (optional)
+
+    a library for transferring data with URLs. Used to extend the read
+    the reach of file68 via support remote file transfer protocol
+    supported by cURL (HTTP,FTP,SMB ... the list is long).
+
+
+AUTHOR
+
+  Benjamin Gerard AKA Ben/OVR <https://sourceforge.net/users/benjihan>
+
+
+LINKS
+
+  website <http://sc68.atari.org>
+  project <https://sourceforge.net/p/sc68>
+  sndh (Atari-ST YM2149 Archive) <http://sndh.atari.org/>
+  zlib home page <http://www.zlib.net/>
+  libao: a cross platform audio library <https://www.xiph.org/ao/>
+  cURL library for transferring data with URLs <https://curl.haxx.se/>

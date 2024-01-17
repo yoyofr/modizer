@@ -1,40 +1,94 @@
 /**
- * @ingroup   unice68_devel
- * @file      unice68/unice68.h
- * @author    Benjamin Gerard <ben@sashipa.com>
- * @date      2003/08/06
- * @brief     ICE depacker.
- *
- * $Id: unice68.h 503 2005-06-24 08:52:56Z loke $
+ * @ingroup  lib_unice68
+ * @file     unice68.h
+ * @author   Benjamin Gerard
+ * @date     2003/08/06
+ * @brief    ICE! depacker header
  */
 
-/* Copyright (C) 1998-2003 Benjamin Gerard */
+/* Copyright (c) 1998-2016 Benjamin Gerard */
 
-#ifndef _UNICE68_H_
-#define _UNICE68_H_
+#ifndef UNICE68_H
+#define UNICE68_H
 
-#ifdef __cplusplus
-extern "C" {
+#ifndef UNICE68_EXTERN
+# ifdef __cplusplus
+#   define UNICE68_EXTERN extern "C"
+# else
+#   define UNICE68_EXTERN extern
+# endif
 #endif
 
-/** @defgroup  unice68_devel  ICE 2.4 depacker library.
- *  @brief     ICE 2.4 depacker.
- *  @author    Benjamin Gerard <ben@sashipa.com>
+/**
+ *  @defgroup  lib_unice68  unice68 library
+ *  @ingroup   sc68_dev_lib
+ *  @brief     ICE! 2.4 packer and depacker.
+ *
+ *    unice68 library provides functions to pack or depack ICE! packed
+ *    buffer.  The depacker used is a rought conversion of the
+ *    original ICE 2.4 routine written in 68000 assembler. ICE packer
+ *    was (and may be still is) widely used on the Atari ST the Atari
+ *    ST. More importantly it is the packer used by
+ *    [the sndh music archive](http://dbug.kicks-ass.net/sndh/).
+ *
+ *  @note unice68 library is re-entrant (thread-safe).
+ *
+ *  @note It is pretty much impossible to implement a progressive
+ *  version of the depacker. At least the entire packed file must be
+ *  loaded before depacking it because data order is reversed.
+ *
  *  @{
  */
 
-/** Get ICE depacker version.
+#ifndef UNICE68_API
+/**
+ *  unice68 symbols specification.
  *
- *  @return version number (MAJOR*100+MINOR)
+ *  Define special atributs for importing/exporting unice68 symbols.
+ */
+# define UNICE68_API UNICE68_EXTERN
+#endif
+
+UNICE68_API
+/**
+ *  Get unice68 version number.
+ *
+ *  @retval MAJOR<<28 + MINOR<<20 + PATCH<<12 + TWEAK
+ */
+int unice68_version(void);
+
+UNICE68_API
+/**
+ *  Get unice68 version string.
+ *
+ *  @retval "unice68 MAJOR.MINOR.PATCH.TWEAK ICE! 2.35/2.40"
+ */
+const char * unice68_versionstr(void);
+
+UNICE68_API
+/**
+ *  Get ICE depacker version number.
+ *
+ *  @retval 0x240 (MAJOR*256+MINOR)
+ */
+int unice68_unice_version(void);
+
+UNICE68_API
+/**
+ *  Get ICE packer version number.
+ *
+ *  @retval 0x235 (MAJOR*256+MINOR)
  */
 int unice68_ice_version(void);
 
-/** Test ICE and get compressed and uncompresed size.
+UNICE68_API
+/**
+ *  Test ICE and get compressed and uncompresed size.
  *
- *    The unice68_get_depacked_size() function returns the uncompressed
+ *    The unice68_depacked_size() function returns the uncompressed
  *    size of a ICE compressed buffer. If p_size is not 0 it is fill with
  *    the size of the compressed data found in header (useful for stream
- *    operation). 
+ *    operation).
  *    If the value pointed by p_csize is not 0 the function assumes that it is
  *    an expected compressed size and compares it to header one. If it differs
  *    the function returns the bitwise NOT value of uncompressed data. This
@@ -47,19 +101,22 @@ int unice68_ice_version(void);
  *
  *  @return uncompressed size
  *  @retval >0   Uncompressed size
- *  @retval -1   Error, not a valid ICE packed buffer
+ *  @retval -1   Error; not a valid ICE packed buffer
  *  @retval <0   Bitwise NOT of uncompressed size but verify failed.
  *
  */
-int unice68_get_depacked_size(const void * buffer, int * p_csize);
+int unice68_depacked_size(const void * buffer, int * p_csize);
 
-/** Depack an ICE buffer to another.
+UNICE68_API
+/**
+ *  Depack an ICE buffer into another.
  *
- *   The unice68_depacker() depack src ICE compressed buffer to dest.
- *   The dest buffer is assumed to be already allocated with enought room.
+ *   The unice68_depacker() function depacks src input ICE compressed
+ *   buffer into dst output buffer.  The dst buffer is assumed to be
+ *   already allocated and large enough.
  *
- * @param  dest  destination buffer (uncompressed data).
- * @param  src   source buffer (compressed data).
+ * @param  dst   output (destination) buffer (uncompressed data).
+ * @param  src   input  (source)      buffer (compressed data).
  *
  * @return error code
  * @retval 0     succcess
@@ -69,15 +126,27 @@ int unice68_get_depacked_size(const void * buffer, int * p_csize);
  *          compressed and uncompressed data. Anyway this has not been tested
  *          and you are encouraged to add guard bands.
  */
-int unice68_depacker(void * dest, const void * src);
+int unice68_depacker(void * dst, const void * src);
+
+UNICE68_API
+/**
+ *  Pack a buffer with ice packer.
+ *
+ * @param  dst   output (destination) buffer (compressed data).
+ * @param  max   output buffer size.
+ * @param  src   input  (source)      buffer (uncompressed data).
+ * @param  len   input buffer length.
+ *
+ * @return packed size
+ * @retval -1    failure
+ *
+ * @warning  Output buffer overflow is currently not checked and will
+ *           happen if the output buffer is not large enough.
+ */
+int unice68_packer(void * dst, int max, const void * src, int len);
 
 /**
  * @}
  */
 
-#ifdef __cplusplus
-}
 #endif
-
-#endif /* #ifndef _UNICE68_H_ */
-

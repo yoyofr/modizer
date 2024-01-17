@@ -1,0 +1,48 @@
+              sc68 - an Atari ST and Amiga music player
+
+                           the sc68 project
+
+                    (C) 1998-2016 Benjamin Gerard
+
+
+
+ABOUT THE SC68 PROJECT
+
+  sc68 is a portable Atari ST and Amiga music player. This project
+  comes with many sub-projects. Some of which are required or
+  recommended. Others are optional or only intended to
+  developers. Some are just side projects. Many of the side projects
+  are plugins for existing music players (winamp, audacious,
+  foobar2000, vlc ...) or audio back-end (directshow, gstreamer).
+
+  The original sc68 player was developed in 1997 on a Acorn Risc PC
+  computer. The very first versions were able to play a standard
+  Atari-ST soundchip player on a 33mhz ARM6 CPU and I still had
+  resource to work with that computer.
+
+  To this day sc68 is still share some of the design choices made
+  at the time specifically with performance in mind.
+
+  The Amiga simulator was never the heart of the project. It was more
+  like a summer's day idea. I love have always been with the Atari-ST.
+
+  A great deal of time has been spent to rip and convert music for the
+  sc68 music database. At the moment (2016) I have mostly completely
+  stop working on that database. I help (to an extend) with the sndh
+  music database which I recommend where Atari-ST musics are
+  concerned. I will probably someday convert all sndh files back to
+  sc68 files for the sake of it.
+
+  ST FOREVER !
+
+
+AUTHOR
+
+  Benjamin Gerard AKA Ben/OVR <https://sourceforge.net/users/benjihan>
+
+
+LINKS
+
+  website <http://sc68.atari.org>
+  project <https://sourceforge.net/p/sc68>
+  sndh (Atari-ST YM2149 Archive) <http://sndh.atari.org/>

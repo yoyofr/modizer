@@ -1,0 +1,128 @@
+\input texinfo @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename unice68.info
+@include version.texi
+@include package.texi
+@settitle @command{unice68}: @value{DESCRIPTION}
+@finalout
+@c %**end of header
+
+@dircategory @value{INFOCAT}
+@direntry
+* unice68: (unice68).             @value{DESCRIPTION}.
+@end direntry
+
+@synindex cp ky
+@setchapternewpage odd
+
+@c !BEGIN INTRO
+@ifinfo
+This is Edition @value{EDITION} of @cite{The @command{unice68} Manual},
+for @command{unice68} version @value{VERSION}, last updated @value{UPDATED}.
+@c !END INTRO
+
+@c !BEGIN COPYING
+Copyright @copyright{} 1998-2009 Benjamin Gerard
+
+Permission is granted to make and distribute verbatim copies of
+this manual upon condition that the  provided the copyright notice
+and this permission notice are preserved on all copies.
+@c !END COPYING
+@end ifinfo
+
+@titlepage
+@title unice68
+@subtitle 
+@sp 1
+@subtitle Edition @value{EDITION}, for @command{unice68} version @value{VERSION} @value{UPDATED}
+@c !BEGIN AUTHORS
+@author Benjamin Gerard
+@c !END AUTHORS
+@end titlepage
+@c @page
+
+@ifinfo
+@node Top, Unice68 Program, (dir), (dir)
+@top @command{unice68}: @value{DESCRIPTION}
+
+The @command{unice68} is used to depacker ice packed files.
+
+@ignore
+@c !BEGIN NAME
+ice depacker
+@c !END NAME
+@end ignore
+
+@menu
+* Unice68 Program::             The @command{unice68} Program
+* Options Summary::             List of command line options
+* Parameters::                  Input and output
+@end menu
+
+@center manual for unice68 version @value{VERSION} edited on @value{UPDATED}
+
+@end ifinfo
+
+@node Unice68 Program, Options Summary, Top, Top
+@section The @command{unice68} Program
+
+@section Description
+@c !BEGIN DESCRIPTION
+@command{unice68} is a program to depack ice packed files.
+@c !END DESCRIPTION
+
+@c !BEGIN SYNOPSIS
+@section Synopsis
+@display
+@command{unice68 [OPTION] [--] [<input> [<output>]]}
+@end display
+@c !END SYNOPSIS
+
+@node Options Summary, Parameters, Unice68 Program, Top
+@c !BEGIN OPTIONS
+@section Options Summary
+@table @samp
+@item @option{-h}
+@itemx @option{--help}
+Display help message and exit.
+@item @option{-V}
+@itemx @option{--version}
+Display version and copyright and exit.
+@item @option{-v}
+@itemx @option{--verbose}
+Be more verbose (multiple use possible).
+@item @option{-q}
+@itemx @option{--quiet}
+Be less verbose (multiple use possible).
+@end table
+@c !END OPTIONS
+
+@node Parameters,  , Options Summary, Top
+@c !BEGIN INPUT
+@section Parameters
+@table @samp
+@item <input>
+an ice packed file. If @command{<input>} parameter is @option{-}
+or missing; stdin is used.
+@item <output>
+a regular file created containing depacked data. If @command{<output>}
+parameter is @option{-} or missing; stdout is used.
+@end table
+@c !END INPUT
+
+@ignore
+@c !BEGIN SEEALSO
+The full documentation for @command{unice68} is maintained as a
+Texinfo manual. If the @command{info} and @command{unice68} programs
+are properly installed at your site, the command
+
+@command{info unice68}
+
+should give you access to the complete manual.
+@c !END SEEALSO
+@end ignore
+
+@page
+@contents
+@bye

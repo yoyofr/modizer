@@ -49,7 +49,7 @@
 #import "hvl_replay.h"
 
 //SC68
-#import "api68.h"
+#import "sc68.h"
 
 #import "pmdmini.h"
 //#import "pmdwin/pmdwinimport.h"

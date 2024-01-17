@@ -1,0 +1,24 @@
+               sc68 - an Atari ST and Amiga music player
+                                   
+               (C) COPYRIGHT 1998-2015 Benjamin Gerard
+
+
+*Authors, maintainers and contributors*
+
+  o Benjamin Gerard <http://sourceforge.net/users/benjihan>
+    Creator, main (almost sole) developer and maintainer.
+
+  o Antti S. Lankila <http://sourceforge.net/users/alankila>
+    Contributes with his awesome BLEP synthesis.
+
+  o Vincent Penne <http://sourceforge.net/users/vincentp>
+    Original author of as68 (aka genpc).
+
+
+*Links*
+
+  sc68 website
+       <http://sc68.atari.org>
+
+  sc68 development project
+       <http://sourceforge.net/projects/sc68>

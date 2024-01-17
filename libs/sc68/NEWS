@@ -1,0 +1,60 @@
+                      ** sc68 project - NEWS **
+
+
+3.0.0b  <ben>
+
+        This is an beta version. Almost everything is as intended
+        specially the new API should be about stable.
+
+	unice68 library and program now support !ICE compression !
+
+	sndh support should be almost perfect. Also as many sndh files
+	still don't have a duration and for other internal reasons,
+	sc68 has a built-in database of all sndh files known to this
+	day including information on track duration and hardware used
+	like ste and or mfp timers.
+
+	aSIDifier is a special player that can be add to the top of
+	any music that do not use timers effect to automatically add
+	SID voices. Some musics sound awsome with it. You have to give
+	it a try.
+
+	Finally cdbg68 has been deprecated too. It's been replaced by
+	the possibility to use a remote m68k-gdb to connect mksc68 via
+	tcp.
+
+	Many plugins has been written: vlc, winamp, audacious,
+	gstreamer, foobar2000 ... Some might not be complete. The main
+	focus being vlc as it is widely spread on so many platforms.
+
+	The windows installer is back. As always using Nullsoft
+	Scriptable Installer system (NSIS). The installer can install
+	plugins and command line programs. The later exist for both
+	32-bit and 64-bit Windows architecture whereas plugins are
+	32-bit only just because their programs are 32-bit. All
+	windows plugins are independent: no dll, no replay files
+	(built-in). Also the config is saved in the registry,
+	separatly for each application using the sc68 library.
+
+
+3.0.0a  <ben>
+
+        This is an alpha version. Things might change before the
+        official release.
+
+        This is the first version of sc68 new generation. This is
+        a fresh version of this NEWS file.
+
+        There has been changes in API without backward compatibility
+        but portage should be easy.
+
+        The new BLEP YM-2149 engine is used by default. It has a
+        better sound rendering. Old (pulse) engine has been improved
+        too and enhanced by a set of user selectable filters.
+
+        Add projects for various back-end specially for gstreamer
+        which should allow sc68 files to be played with most modern
+        Linux players.
+
+        New tools for creating (mksc68) and debugging (cdbg68) sc68
+        files replacing the good old debug68.
