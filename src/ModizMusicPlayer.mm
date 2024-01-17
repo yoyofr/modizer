@@ -3397,8 +3397,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             } else mNeedSeek=0;
                         }
                         if (mPlayType==MMP_SC68) {//SC68
-                            bGlobalSeekProgress=-1;
-                            sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime);
+                            mNeedSeek=0; //not supported yet
+                            //bGlobalSeekProgress=-1;
+                            //sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime); //not implemented yet
                         }
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
