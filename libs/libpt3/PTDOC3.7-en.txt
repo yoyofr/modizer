@@ -1,0 +1,236 @@
+                Pro Tracker v3.7x module format
+
+   File extension - .m or .pt3.
+   Numbers represent offset to various areas in the module,  and
+their respective size (in decimal).
+
++0 (13) "ProTracker 3." - ID string. Vortex Tracker doesn't have
+ it!
++13 (17) "7" (or "6","5","4", or even "3" ) - subversion number.
+ You should notice, that PTv3.4vx modules and lower use other,
+ "assymetrical" volume table, and in  PTv3.3x  uses  alternative
+ note table "Pro Tracker", which isn't  the  same  as  currently
+ used table with same name.
++14 (16) " compilation of " - optional, any text with same size.
++30 (32) module name, ASCII, unused symbols filled with spaces.
++62 (4) " by " - is not checked, though " By " can be indicator
+ of linear volume table being used.
++66 (32) author name, ASCII, unused symbols filled with spaces.
+ So first 98 bytes are used for authoring string.
++98 (1) For usual AY modules: code #20.
+        For TS modules: number of patterns  N  (current  version
+        should contain #30). Patterns for first AY  has  numbers
+        going in  reverse  order  from  the  last:  N-1,N-2, ...
+        Second AY has numbers going in direct order:  0,1,2, ...
+        Position (order) list has patterns N-1,N-2,...
++99 (1) frequency  table  number:  0=Pro Tracker  (aka 1625000),
+ 1=Sound Tracker, 2=1750000 (other names,  though  unrelated  by
+ content are ASM or PSC), 3=RealSound (aka 1625000+, bad attempt
+ to move table 0 to 1.75MHz). The table occupies 192 bytes,  and
+ contains divisors for frequencies for 96 notes,  starting  with
+ the C-1. These values are directly used for AY registers. Lower
+ bytes are prior to high  bytes  (little  endian,  intel/zilog).
+ PT3 compiler stores table used  in  module,  into  player  code
+ with offset of #200 (512). Volume table  is  stored  at  offset
+ #100 (256). Current versions of PT are built without compiler.
++100 (1) tempo.
++101 (1) song end (1=single position) - not used in player.
++102 (1) song loop (0=loop to very beginning).
++103 (2) Psa_chn=offset to pattern table.
++105 (32*2) offsets from the beginning of the module to samples,
+ starting with sample 0. Two bytes per sample. Sample #0 is  not
+ used  within  current  editor  versions.  Every  unused  sample
+ contains values (0,0)
++169 (16*2)  offsets  from  the  beginning  of  the  module   to
+ ornaments, starting with ornament 0. Two  bytes  per  ornament.
+ Orament #0 is "clear" ornament, so ornaments itself consists of
+ 3 bytes 0,1,0. You can use this ornament with other  data,  but
+ it will not be clear, and no clear (ornamentless) sounds  going
+ to be possible. Every unused ornament contains zeroes.
++201 (?*3+1) position list (orders). Contains number of patterns
+ (0..84), 3 bytes per each. Code #ff means end of the table.
+ Pro Tracker v3.3x-v3.5x doesn't support >42 patterns.
+ Pro Tracker v3.6x doesn't support >46 patterns.
+ Pro Tracker v3.69x, v3.7x doesn't support >48 patterns.
++Psa_chn (?*6) pattern table. Contains offsets to data for  each
+ channel:
+   ++0 (2) track A
+   ++2 (2) track B
+   ++4 (2) track C
+ Noise channel (separate column in editor)  is  a  part  of  the
+ channel B
++? (?*?) channel data, tracks themselves.
+
+ Track data is encoded as a queue of operators:
+================================================================
+#00 - end of track.
+ Pro Tracker doesn't work with modules, which use more  than  64
+ lines. Such modules can be played with any players,  or  edited
+ in Vortex Tracker, but Pro Tracker is unable to load them.
+#01, delay, Lsl, Hsl - Gliss(Slide) effect. Delay - is the  time
+ in 1/50 of seconds, after which note divisor will be shifted by
+ Lsl+256*Hsl. This  offset  is  accumulated  by  player  in  the
+ variable, and THEN used to get final note. Thus  ornaments  are
+ applied prior to any precise frequency effects.
+ v3.7x: if delay=0, offset  is  accumulated  during  whole  note
+ being played (tone shift to fit envelope frequency, etc).
+#02, delay, Lmax, Hmax, Lsl, Hsl - Tone Portamento effect. 
+ Delay - is the time  in  1/50  of  seconds,  after  which  note
+ divisor will be shifted by Lsl+256*Hsl. Lmax+256*Hmax - is  the
+ maximum value (absolute) after reaching of which it  will  stop
+ effect.  Not  used  starting  with  PT3.6x,  because   it   can
+ accumulate wrong way.
+#03, offset - sample offset. Sample starts with specified line.
+#04, offset - ornament offset. Ornaments starts  from  specified
+ line.
+#05, YEStime, NOtime - vibrate/gate.
+#08, delay, Lsl, Hsl - envelope  slide  effect.  Envelope  value
+ gets Lsl+256*Hsl each delay frames.
+#09, tempo - tempo change  (1/50  per  tracker  line).  Ordinary
+ player (playFAS*.H) is unable to play with less than temp=2.
+ If modules uses tempo=1, use slower players.
+
+NB: effect parameters (#0x) are placed  not  after  effect  code
+itself, but after end of line(!). If multiple effects  are  used
+(which shouldn't happen anyway), first are latest  effect,  then
+before latest, and so on...
+
+#10, smp*2 - turn off  Envelope,  restart  ornament  and  change
+ sample to premultiplied value (direct table offset).
+#1x, Henv, Lenv, smp*2 - change sample number,  retrig  ornament
+ and turn on Envelope with type x-1  and  period  Lenv+256*Henv.
+ Envelope phase is retriggered, even if it's the same.
+#20-#3F - Noise offset (only used in channel B).
+#4x - Change ornament to x (Envelope doesn't stop).
+#50-#AF - Play note, and stop processing till next line.
+#B0 - Turn off Envelope.
+#B1, lines - Change pause (distance to  next  line  to  "line").
+ Work not only for current line, but  for  following  too  (till
+ another pause change happen).
+#Bx, Henv, Lenv - same as #1x, but without sample  change.  I.e.
+ just turn on Envelope of type x-1 with respective period.
+#C0 - no note (R), and STOP processing till next line.
+#Cv - change volume to v (1-15)
+#D0 - STOP processing.
+#D1-#EF - change sample (1-31)
+#Fx, smp*2 - change ornament to x and sample to next parameter
+(which is premultiplied to achieve better speed). Envelope is
+turned off.
+
+================================================================
+
++? (?*(?*4+2)) - samples.
+   ++0 (1) - loop
+   ++1 (1) - end (1=single-line sample)
+   ++2 (?*4) - sample data:
+      +++0 (1) sv +- N4 N3 N2 N1 N0 Em
+      +++1 (1) Nm ts ns Tm V3 V2 V1 V0
+ sv=1 - volume slide up/down,
+ +-   - slide up (1) or down(0),
+ N4-0 - noise frequency OR Envelope period shift (depends on 
+        noise mixer value): period shift 0-15 - down, 16-31 -
+        up (N4 interpreted as sign);
+ V3-0 - volume;
+ Tn, Nm, Em - mixer of Tone, Noise and Envelope respectively.
+        Note: 1 means disabled, 0 means enabled$
+ 
+ ts, ns=1 - accumulate tone/noise shift.
+      +++2 (2) Tone period shift (16bit unsigned).
+
++? (?*(?+2)) - ornaments.
+   ++0 (1) - loop
+   ++1 (1) - end (1=single-line ornament)
+   ++2 (?) - data: half-tone offsets (0 = no offset).
+             interpreted as 8-bit signed.
+
+Alone Coder
+
+Comments and additions are welcomed!
+
+Addition from 10.xi.02:
+1. (Sergey Bulba): Note tables "ASM" or "PSC" have nothing in
+common with respective editors. Modules from these editors
+should be imported with Sound Tracker table.
+2. Module can also use sample=0, if it's used commands with
+commands #10 and #Fx. So it can use 32 samples overall.
+3. Information about Portamento, Loop and #B1 is confirmed.
+4. Updated information about samples.
+Adition from 24.ii.03:
+5. Updated information about Envelope disabling.
+Addition from 25.iii.03:
+6. Added information that PTv3.6x supports up to 46 patterns.
+7. If ornament goes lower negative values, it clamps note to
+lowest possible note - C-1. Getting over 95 has unpredictable
+behaviour.
+Addition from 26.vii.03:
+8. Updated info about PT3.6x.
+9. Maximum module size, loaded in PT editor 0 #3300 bytes, or
+#4000 bytes for "cjf" version.
+Addition from 20.iii.04:
+10. PT3+67 can have 48 patterns, but it's not guaranteed that
+same amout will be supported in following versions.
+Addition from 29.vi.04:
+11. Updated about operators #10 and #B1.
+12. In PT3.69 you can set ornament number without affecting
+Envelope, and players are playing it so. Though VTII doesn't
+support it YET.
+Addition from 26.viii.04:
+13. If noise is enabled at particular line of sample, Envelope
+period doesn't get its accumulation.
+Addition from 27.x.04:
+14. Operator #1x (Sergey Bulba)
+Addition from 6.xi.04:
+15. (Sergey Bulba)
+Almost all tables are crafted with errors (not even close to
+ideal values for 1750000 and 1773400). More or less properly
+is the table 1 = Sound Tracker. It fits perfectly for import
+of module from almost any ZX editors. Comparing with "ideal"
+scale for 1773400 it's shifted by 2 half-tones down.
+In addition - note 24 (B-2) is ugly and should sound line A-2.
+Sadly, it's the only table which works for 1773400 classic ZX.
+
+Table #2 almost ideal for 1750000, and all notes sound as they
+displayed in editor.
+
+Unfortunately, note tables for different versions of ProTracker
+vary widely, especially table #2, which at some point could be
+called ASM/PSC, and perfectly fit for 1773400. Note table #1
+is unique in this sense - it's the same among all Pro Tracker 3
+versions.
+
+Table #0. Official name - "ProTracker". Not used anywhere except
+for PT3. It didn't get updates till PT3.4r. Starting from other
+versions of PT3.4x till now it stays modified. Doesn't fit good
+to any AY frequency.
+
+Table #1. Official name "SoundTracker". This table migrated from
+Pro Tracker 2. Modified version of note table from Sound Tracker
+editor. The only table which is the same in all versions of PT3.
+Fits for STC, STP, FTC, GTR, PT2, PT1, FLS, and for SQT with a
+stretch (from second note), also ASM and PSC. The table is
+fairly good for 1773400 Hz, but has offset by 2 half-tones down.
+So C-2 sounds as standart A#1. Note B-2, which should sound like
+A-2, actually has 1/9 frequency offset from what it should be.
+
+Table #2. Official name "ASMorPSC". When it first appeared in
+PT3.4r, it was version of ASM(PSC) table, without first two
+notes, and layed along perfect values for 1773400 Hz. Following
+PT3.4x versions have it modified very heavily, so that ASM and
+PSC modules sound not better than with table #1. First version
+work well for SQT. Modern table #2 fits perfectly for 1750000.
+Following table is nor the better.
+
+Table #3. Official name "RealSound". As previous, appeared in
+PT3.4r and received lots of updates till then. Derived from
+table #0, and shifted by 1 halftone down. Thus, it also doesn't
+fit any of standart AY frequency.
+
+16. 48 patterns. 64 lines. In TurboSound modules second module
+uses patterns number (47-patter_number), and in position (order)
+list exactly these big numbers are set.
+
+17 (19 aug 06). Addition about PT v3.7: +98; slide with delay=0.
+
+18 (08 may 07). Addition about PT v3.7x and Vortex Tracker.
+
+Translated by Dexus(Volutar) on 2023-09-30

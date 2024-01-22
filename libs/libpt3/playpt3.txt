@@ -1,0 +1,19 @@
+sample_rate 44100
+is_ym 0
+clock_rate 1750000
+frame_rate 50
+pan_a 10
+pan_b 50
+pan_c 90
+eqp_stereo_on 1
+dc_filter_on 1
+note_table -1
+
+;note tables:
+;0 0xC21
+;1 0xC22
+;2 0xEF8
+;3 0xD3E
+;4 0xD10
+;5 0xCDA /0x113
+;6 0xCDA /0x112

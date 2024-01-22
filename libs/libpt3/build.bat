@@ -1,0 +1,1 @@
+gcc.exe -o playpt3.exe playpt3.c ayumi.c pt3player.c load_text.c -lwinmm

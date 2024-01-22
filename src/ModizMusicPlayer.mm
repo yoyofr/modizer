@@ -162,6 +162,96 @@ static V2MPlayer *v2m_player;
 
 
 extern "C" {
+    //PT3
+#include "ayumi.h"
+#include "pt3player.h"
+#include "load_text.h"
+unsigned char pt3_ayreg[14];
+struct ayumi pt3_ay[10];
+int pt3_numofchips=0;
+int pt3_volume = 10000;
+struct ay_data pt3_t;
+short *pt3_sptr;
+int pt3_lastsamp=0;
+int pt3_isr_step=1;
+int pt3_lastleng=0;
+short *pt3_tmpbuf[10];
+int pt3_frame[10];
+int pt3_sample[10];
+int pt3_fast=0;
+int pt3_sample_count;
+int pt3_mute[10];
+char* pt3_music_buf;
+int pt3_music_size;
+
+void pt3_update_ayumi_state(struct ayumi* ay, uint8_t* r, int ch) {
+    func_getregs(r, ch);
+    ayumi_set_tone(ay, 0, (r[1] << 8) | r[0]);
+    ayumi_set_tone(ay, 1, (r[3] << 8) | r[2]);
+    ayumi_set_tone(ay, 2, (r[5] << 8) | r[4]);
+    ayumi_set_noise(ay, r[6]);
+    ayumi_set_mixer(ay, 0, r[7] & 1, (r[7] >> 3) & 1, r[8] >> 4);
+    ayumi_set_mixer(ay, 1, (r[7] >> 1) & 1, (r[7] >> 4) & 1, r[9] >> 4);
+    ayumi_set_mixer(ay, 2, (r[7] >> 2) & 1, (r[7] >> 5) & 1, r[10] >> 4);
+    ayumi_set_volume(ay, 0, r[8] & 0xf);
+    ayumi_set_volume(ay, 1, r[9] & 0xf);
+    ayumi_set_volume(ay, 2, r[10] & 0xf);
+    ayumi_set_envelope(ay, (r[12] << 8) | r[11]);
+    if (r[13] != 255) {
+        ayumi_set_envelope_shape(ay, r[13]);
+    }
+
+    for (int i=0; i<9; i++) {
+        if (i % 3 == 0 && pt3_mute[i] && ch == i / 3) {
+            ayumi_set_volume(ay, 0, 0);
+            ayumi_set_mixer(ay, 0, r[7] & 1, (r[7] >> 3) & 1, 0);
+        }
+        if (i % 3 == 1 && pt3_mute[i] && ch == i / 3) {
+            ayumi_set_volume(ay, 1, 0);
+            ayumi_set_mixer(ay, 1, (r[7] >> 1) & 1, (r[7] >> 4) & 1, 0);
+        }
+        if (i % 3 == 2 && pt3_mute[i] && ch == i / 3) {
+            ayumi_set_volume(ay, 2, 0);
+            ayumi_set_mixer(ay, 2, (r[7] >> 2) & 1, (r[7] >> 5) & 1, 0);
+        }
+    }
+}
+
+
+static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t, int ch)
+{
+    pt3_isr_step = t->sample_rate / t->frame_rate;
+    int isr_counter = 0;
+    int16_t *buf = (short*)snd;
+    int i = 0;
+    if (pt3_fast) pt3_isr_step /= 4;
+    pt3_lastleng=leng;
+    while (leng>0)
+    {
+        if (1) {
+            if (pt3_sample[ch] >= pt3_isr_step) {
+                func_play_tick(ch);
+                pt3_update_ayumi_state(ay,pt3_ayreg,ch);
+                pt3_sample[ch] = 0;
+                pt3_frame[ch]++;
+            }
+            ayumi_process(ay);
+            if (t->dc_filter_on) {
+                ayumi_remove_dc(ay);
+            }
+            buf[i] = (short) (ay->left * pt3_volume);
+            buf[i+1] = (short) (ay->right * pt3_volume);
+        }
+
+        pt3_sample[ch]++;
+        leng-=4;
+        i+=2;
+    }
+    return 1;
+}
+
+
+
     //KSS
 #include "kssplay.h"
 KSSPLAY *kssplay;
@@ -3401,6 +3491,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //bGlobalSeekProgress=-1;
                             //sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime); //not implemented yet
                         }
+                        if (mPlayType==MMP_PT3) {//PT3
+                            mNeedSeek=0; //not supported yet
+                            //bGlobalSeekProgress=-1;
+                        }
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
                             ASAP_Seek(asap, mNeedSeekTime);
@@ -3776,6 +3870,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mod_message_updated=1;
                             }
+                            if (mPlayType==MMP_PT3) {//PT3
+                            }
                             if (mPlayType==MMP_ASAP) {//ASAP
                                 
                                 iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
@@ -3986,6 +4082,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             iCurrentTime=0;
                             mod_message_updated=1;
                         }
+                        if (mPlayType==MMP_PT3) {//PT3
+                        }
                         if (mPlayType==MMP_ASAP) {//ASAP
                             iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                             if (iModuleLength<1000) iModuleLength=1000;
@@ -4182,6 +4280,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
+                                //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
+                                iCurrentTime=0;
+                                mod_message_updated=1;
+                            }
+                            if (mPlayType==MMP_PT3) {//PT3
+                                //[self iPhoneDrv_PlayStop];
+                                //[self iPhoneDrv_PlayStart];
+                                //iModuleLength=info.trk.time_ms;
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                //if (mLoopMode) iModuleLength=-1;
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
                                 mod_message_updated=1;
@@ -4696,8 +4804,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
                         if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         else nbBytes=0;
-                        
-                        
+                    }
+                    if (mPlayType==MMP_PT3) { //PT3
+                        pt3_renday(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[0], &pt3_t, 0);
+                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                     }
                     if (mPlayType==MMP_SC68) {//SC68
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
@@ -5283,6 +5393,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
@@ -5302,7 +5413,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
-                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
@@ -5318,6 +5429,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extSID];
     [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
     [filetype_ext addObjectsFromArray:filetype_extSC68];
+    [filetype_ext addObjectsFromArray:filetype_extPT3];
     [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
     [filetype_ext addObjectsFromArray:filetype_extUADE];
     [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
@@ -5415,6 +5527,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -5524,6 +5637,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         for (int i=0;i<[filetype_extSC68 count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extPT3 count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_ext2SF count];i++) {
@@ -5999,6 +6117,106 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     }
 
 }
+
+-(int) mmp_pt3Load:(NSString*)filePath {  //PT3
+    mPlayType=MMP_PT3;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"PT3 Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    
+    memset(&pt3_t, 0, sizeof(struct ay_data));
+    pt3_t.sample_rate = 44100;
+    pt3_t.eqp_stereo_on = 1;
+    pt3_t.dc_filter_on = 1;
+    pt3_t.is_ym = 1;
+    pt3_t.pan[0]=0.1;
+    pt3_t.pan[1]=0.5;
+    pt3_t.pan[2]=0.9;
+    pt3_t.clock_rate = 1750000;
+    pt3_t.frame_rate = 50;
+    pt3_t.note_table = -1;
+    
+        
+    for (int ch=0; ch<10; ch++) {
+        pt3_tmpbuf[ch]=0;
+    }
+    
+    for (int i=0;i<10;i++)
+        pt3_mute[i]=0;
+    
+    load_text_file("playpt3.txt", &pt3_t);
+    forced_notetable=pt3_t.note_table;
+
+    pt3_numofchips=0;
+    
+    pt3_music_size=mp_datasize;
+    pt3_music_buf=(char*)malloc(mp_datasize+1);
+    f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"PT3 Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fread(pt3_music_buf,1,pt3_music_size,f);
+    pt3_music_buf[pt3_music_size]=0;
+    fclose(f);
+    
+    
+    int num = func_setup_music((uint8_t*)pt3_music_buf, pt3_music_size, pt3_numofchips, 1);
+
+    pt3_numofchips+=num;
+    printf("Number of chips: %i\n",num);
+    
+    
+    for (int ch=0; ch<pt3_numofchips; ch++) {
+        if (!ayumi_configure(&pt3_ay[ch], pt3_t.is_ym, pt3_t.clock_rate, pt3_t.sample_rate)) {
+            printf("ayumi_configure error (wrong sample rate?)\n");
+            return 1;
+        }
+        ayumi_set_pan(&pt3_ay[ch], 0, pt3_t.pan[0], pt3_t.eqp_stereo_on);
+        ayumi_set_pan(&pt3_ay[ch], 1, pt3_t.pan[1], pt3_t.eqp_stereo_on);
+        ayumi_set_pan(&pt3_ay[ch], 2, pt3_t.pan[2], pt3_t.eqp_stereo_on);
+        if (pt3_tmpbuf[ch]==0) pt3_tmpbuf[ch] = (short*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4);
+        else pt3_tmpbuf[ch] = (short*)realloc(pt3_tmpbuf[ch],SOUND_BUFFER_SIZE_SAMPLE*4);
+        pt3_frame[ch]=0;
+        pt3_sample[ch]=0;
+        printf("Ayumi #%i configured\n",ch);
+    }
+
+//    ayumi_play(pt3_ay, &pt3_t);
+
+    
+    mod_subsongs=1;
+    mod_minsub=1;
+    mod_maxsub=1;
+    mod_currentsub=1;
+    if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+    if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    
+    iModuleLength=0;
+    
+    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+    iCurrentTime=0;
+    
+    numChannels=2;
+    
+    sprintf(mod_message,"Title.....: %s\nArtist....: %s\nFormat....: %s\nHardware..: %s\nConverter.: %s\nRipper....: %s\n",
+            "","","","","","");
+    artist=[NSString stringWithFormat:@"%s",""];
+    
+    return 0;
+}
+
 -(int) mmp_stsoundLoad:(NSString*)filePath {  //STSOUND
     mPlayType=MMP_STSOUND;
     
@@ -8740,6 +8958,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -9143,6 +9362,16 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
+    for (int i=0;i<[filetype_extPT3 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
+            break;
+        }
+    }
     for (int i=0;i<[filetype_ext2SF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
@@ -9390,6 +9619,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             case MMP_STSOUND:
                 if ([self mmp_stsoundLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
+            case MMP_PT3:
+                if ([self mmp_pt3Load:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
+                break;
             case MMP_SIDPLAY:
                 if ([self mmp_sidplayLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
@@ -9634,6 +9866,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
+        case MMP_PT3:  //PT3
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            break;
         case MMP_SC68: //SC68
             if (startPos) [self Seek:startPos];
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
@@ -9861,6 +10097,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         ymMusicStop(ymMusic);
         ymMusicDestroy(ymMusic);
     }
+    if (mPlayType==MMP_PT3) { //PT3
+        if (pt3_music_buf) free(pt3_music_buf);
+        pt3_music_buf=NULL;
+    }
     if (mPlayType==MMP_SC68) {//SC68
         sc68_stop(sc68);
         sc68_close(sc68);
@@ -9970,6 +10210,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_KSS) return @"LIBKSS";
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
+    if (mPlayType==MMP_PT3) return @"PT3";
     if (mPlayType==MMP_SC68) return @"SC68";
     if (mPlayType==MMP_MDXPDX) return @"MDX";
     if (mPlayType==MMP_GSF) return @"GSF";
@@ -10096,6 +10337,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_HVL) return (hvl_song->ht_ModType?@"HVL":@"AHX");
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";
+    if (mPlayType==MMP_PT3) return @"PT3";
     if (mPlayType==MMP_SC68) {
         sc68_music_info_t info;
         sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
@@ -10463,7 +10705,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

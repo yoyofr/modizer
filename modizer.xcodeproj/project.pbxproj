@@ -869,6 +869,8 @@
 		CC8369612B57CCC80035A4DA /* ioplug68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369312B57CCC80035A4DA /* ioplug68.c */; };
 		CC8369642B57CCC80035A4DA /* getea68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369392B57CCC80035A4DA /* getea68.c */; };
 		CC8369672B581DDA0035A4DA /* error68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83693B2B57CCC80035A4DA /* error68.c */; };
+		CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC8369922B5DD5510035A4DA /* playpt3.txt */; };
+		CC8369942B5DE5830035A4DA /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -1112,6 +1114,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59FF994E263F3312004152B8;
 			remoteInfo = libkss;
+		};
+		CC8369822B5DCF8E0035A4DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC8369722B5DCF8D0035A4DA;
+			remoteInfo = libpt3;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2480,6 +2489,8 @@
 		CC8369392B57CCC80035A4DA /* getea68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getea68.c; sourceTree = "<group>"; };
 		CC83693A2B57CCC80035A4DA /* lineC_68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lineC_68.c; sourceTree = "<group>"; };
 		CC83693B2B57CCC80035A4DA /* error68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error68.c; sourceTree = "<group>"; };
+		CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpt3.xcodeproj; path = libpt3/libpt3/libpt3.xcodeproj; sourceTree = "<group>"; };
+		CC8369922B5DD5510035A4DA /* playpt3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = playpt3.txt; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
@@ -2701,6 +2712,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC8369942B5DE5830035A4DA /* liblibpt3.a in Frameworks */,
 				59BE9380260010BD00414A42 /* libsidplayfp.a in Frameworks */,
 				591CAAEA2648FAC100168C7E /* speex.framework in Frameworks */,
 				591CAAE62648FAC100168C7E /* vo-amrwbenc.framework in Frameworks */,
@@ -3209,6 +3221,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
 				591CAAAF2648FAC100168C7E /* ffmpeg-kit-audio-4.4.LTS-ios-framework */,
 				594CB7892633236900D154E5 /* Adplug */,
 				333157371207699700815317 /* AHX */,
@@ -4056,6 +4069,7 @@
 				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
 				59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */,
 				CCB21D9C124690E000A30F62 /* Samples */,
+				CC8369912B5DD52C0035A4DA /* pt3 */,
 				CC9F0E39123DEFCC00D8EE6D /* sc68 */,
 				3396B55613297F8C001792E0 /* timidity */,
 				CC1E6260120423DF000A8A4E /* UADE */,
@@ -4792,6 +4806,22 @@
 			path = lines;
 			sourceTree = "<group>";
 		};
+		CC83697F2B5DCF8D0035A4DA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC8369832B5DCF8E0035A4DA /* liblibpt3.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC8369912B5DD52C0035A4DA /* pt3 */ = {
+			isa = PBXGroup;
+			children = (
+				CC8369922B5DD5510035A4DA /* playpt3.txt */,
+			);
+			path = pt3;
+			sourceTree = "<group>";
+		};
 		CC9B17FB12FF023600985967 /* libgsf */ = {
 			isa = PBXGroup;
 			children = (
@@ -5148,6 +5178,10 @@
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
 				},
 				{
+					ProductGroup = CC83697F2B5DCF8D0035A4DA /* Products */;
+					ProjectRef = CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */;
+				},
+				{
 					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
@@ -5364,6 +5398,13 @@
 			fileType = archive.ar;
 			path = liblibkss.a;
 			remoteRef = 59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC8369832B5DCF8E0035A4DA /* liblibpt3.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibpt3.a;
+			remoteRef = CC8369822B5DCF8E0035A4DA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -5763,6 +5804,7 @@
 				5950D83525DF070200B476B2 /* MIMETYPES.plist in Resources */,
 				33ABE5A017B0EA6D00AE0EA1 /* nowplaying_fwd@2x.png in Resources */,
 				33ABE5A117B0EA6D00AE0EA1 /* nowplaying_fwd.png in Resources */,
+				CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */,
 				33ABE5A417B142EC00AE0EA1 /* bb_list_white.png in Resources */,
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
@@ -6152,6 +6194,7 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
+					libs/libpt3,
 				);
 			};
 			name = Debug;
@@ -6218,6 +6261,7 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
+					libs/libpt3,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6572,6 +6616,7 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
+					libs/libpt3,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
