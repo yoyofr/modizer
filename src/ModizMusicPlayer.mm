@@ -218,9 +218,10 @@ void pt3_update_ayumi_state(struct ayumi* ay, uint8_t* r, int ch) {
 }
 
 
-static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t, int ch)
+static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t, int ch,int loop_allowed)
 {
     pt3_isr_step = t->sample_rate / t->frame_rate;
+    int ret=0;
     int isr_counter = 0;
     int16_t *buf = (short*)snd;
     int i = 0;
@@ -230,27 +231,29 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
     {
         if (1) {
             if (pt3_sample[ch] >= pt3_isr_step) {
-                func_play_tick(ch);
-                pt3_update_ayumi_state(ay,pt3_ayreg,ch);
+                ret=func_play_tick(ch);
+                if (buf) pt3_update_ayumi_state(ay,pt3_ayreg,ch);
                 pt3_sample[ch] = 0;
                 pt3_frame[ch]++;
             }
-            ayumi_process(ay);
-            if (t->dc_filter_on) {
-                ayumi_remove_dc(ay);
+            if (buf) {
+                ayumi_process(ay,ch);
+                if (t->dc_filter_on) {
+                    ayumi_remove_dc(ay);
+                }
+            
+                buf[i] = (short) (ay->left * pt3_volume);
+                buf[i+1] = (short) (ay->right * pt3_volume);
             }
-            buf[i] = (short) (ay->left * pt3_volume);
-            buf[i+1] = (short) (ay->right * pt3_volume);
         }
 
         pt3_sample[ch]++;
         leng-=4;
         i+=2;
+        if (ret&&(!loop_allowed)) break;
     }
-    return 1;
+    return ret;
 }
-
-
 
     //KSS
 #include "kssplay.h"
@@ -2117,6 +2120,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
         // SC68
         sc68 = [self setupSc68];
         
+        //
+        // PT3
+        for (int ch=0; ch<10; ch++) {
+            pt3_tmpbuf[ch] = (short*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4);
+        }
+                
         //ASAP
         asap = ASAP_New();
         //
@@ -4806,8 +4815,36 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         else nbBytes=0;
                     }
                     if (mPlayType==MMP_PT3) { //PT3
-                        pt3_renday(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[0], &pt3_t, 0);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        for (int ch = 0; ch<pt3_numofchips; ch++) {
+                            if (pt3_renday(pt3_tmpbuf[ch], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,mLoopMode)) {
+                                printf("PT3: loop/end point reached");
+                                if (mLoopMode) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                else nbBytes=0;
+                            }
+                        }
+                        for (int j=0; j<SOUND_BUFFER_SIZE_SAMPLE*2; j++) { //stereo = 16bit x 2
+                            int tv=0;
+                            for (int ch = 0; ch < pt3_numofchips; ch++) { //collecting
+                                tv += *(int16_t*)(pt3_tmpbuf[ch]+j);
+                                //m_voice_buff_ana[buffer_ana_gen_ofs][ch*SOUND_MAXVOICES_BUFFER_FX+j]=
+                            }
+                            buffer_ana[buffer_ana_gen_ofs][j] = (short)(tv/pt3_numofchips);
+                            
+                        }
+                        
+                        //copy voice data for oscillo view
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            for (int j=0;j<pt3_numofchips*3;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                            }
+                        }
+                        //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
+                        
+                        
+                        
+
+                        
+                        
                     }
                     if (mPlayType==MMP_SC68) {//SC68
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
@@ -6146,9 +6183,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     pt3_t.note_table = -1;
     
         
-    for (int ch=0; ch<10; ch++) {
-        pt3_tmpbuf[ch]=0;
-    }
     
     for (int i=0;i<10;i++)
         pt3_mute[i]=0;
@@ -6171,6 +6205,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     pt3_music_buf[pt3_music_size]=0;
     fclose(f);
     
+    sprintf(mod_name," %s",mod_filename);
+    //sprintf(mod_message,"%s\n",mod_name);
+    strncpy(mod_message,pt3_music_buf,99);
+    mod_message[99]=0;
+    
+    artist=[NSString stringWithFormat:@"%s",""];
     
     int num = func_setup_music((uint8_t*)pt3_music_buf, pt3_music_size, pt3_numofchips, 1);
 
@@ -6186,8 +6226,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         ayumi_set_pan(&pt3_ay[ch], 0, pt3_t.pan[0], pt3_t.eqp_stereo_on);
         ayumi_set_pan(&pt3_ay[ch], 1, pt3_t.pan[1], pt3_t.eqp_stereo_on);
         ayumi_set_pan(&pt3_ay[ch], 2, pt3_t.pan[2], pt3_t.eqp_stereo_on);
-        if (pt3_tmpbuf[ch]==0) pt3_tmpbuf[ch] = (short*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4);
-        else pt3_tmpbuf[ch] = (short*)realloc(pt3_tmpbuf[ch],SOUND_BUFFER_SIZE_SAMPLE*4);
         pt3_frame[ch]=0;
         pt3_sample[ch]=0;
         printf("Ayumi #%i configured\n",ch);
@@ -6203,16 +6241,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
     
-    iModuleLength=0;
-    
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+    if (mLoopMode) iModuleLength=-1;
+    else {
+        iModuleLength=0;
+        while (1) {
+            if (pt3_renday(NULL, SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[0], &pt3_t, 0,0)) break;
+            iModuleLength+=SOUND_BUFFER_SIZE_SAMPLE;
+        }
+        iModuleLength=iModuleLength*1000/PLAYBACK_FREQ;
+        
+        for (int ch=0; ch<pt3_numofchips; ch++) {
+            func_restart_music(ch);
+            pt3_frame[ch] = 0;
+            pt3_sample[ch] = 0;
+        }
+        
+        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    }
     iCurrentTime=0;
     
-    numChannels=2;
+    numChannels=pt3_numofchips*3;
+    m_voicesDataAvail=1;
+    numVoicesChannels=numChannels;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+    }
     
-    sprintf(mod_message,"Title.....: %s\nArtist....: %s\nFormat....: %s\nHardware..: %s\nConverter.: %s\nRipper....: %s\n",
-            "","","","","","");
-    artist=[NSString stringWithFormat:@"%s",""];
+    
     
     return 0;
 }
@@ -9582,6 +9637,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     mod_title=nil;
     
+    strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
+    
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
         //NSLog(@"pl_idx: %d",i);
@@ -10210,7 +10267,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_KSS) return @"LIBKSS";
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
-    if (mPlayType==MMP_PT3) return @"PT3";
+    if (mPlayType==MMP_PT3) return @"PT3 Player";
     if (mPlayType==MMP_SC68) return @"SC68";
     if (mPlayType==MMP_MDXPDX) return @"MDX";
     if (mPlayType==MMP_GSF) return @"GSF";
@@ -10705,7 +10762,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||(mPlayType==MMP_PT3)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
@@ -10771,6 +10828,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_PT3:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_GSF:
@@ -10817,6 +10875,8 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-PAULA",channel+1];
         case MMP_XMP:
             return [NSString stringWithFormat:@"#%d-XMP",channel+1];
+        case MMP_PT3:
+            return [NSString stringWithFormat:@"AY#%d %c",channel/3,(channel%3)+'A'];
         case MMP_ASAP:
             return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
         case MMP_GME:
@@ -10859,6 +10919,8 @@ extern "C" void adjust_amplification(void);
         case MMP_XMP:
         case MMP_GME:
             return 1;
+        case MMP_PT3:
+            return pt3_numofchips;
         case MMP_ASAP:
             return numChannels/4;
         case MMP_VGMPLAY:
@@ -10896,6 +10958,8 @@ extern "C" void adjust_amplification(void);
         case MMP_ASAP:
             if (systemIdx==0) return @"POKEY#1";
             return @"POKEY#2";
+        case MMP_PT3:
+            return [NSString stringWithFormat:@"AY#%d",systemIdx];
         case MMP_GME:
             if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
                 return @"SPC700";
@@ -10931,6 +10995,8 @@ extern "C" void adjust_amplification(void);
             return 0;
         case MMP_ASAP:
             return voiceIdx/4;
+        case MMP_PT3:
+            return voiceIdx/3;
         case MMP_VGMPLAY: {
             int idx=0;
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
@@ -11004,6 +11070,14 @@ extern "C" void adjust_amplification(void);
             if (tmp==4) return 2; //all active
             else if (tmp>0) return 1; //partially active
             return 0; //all off
+        case MMP_PT3:
+            tmp=0;
+            for (int i=systemIdx*3;i<systemIdx*3+3;i++) {
+                if (pt3_mute[i]) tmp++;
+            }
+            if (tmp==3) return 0; //all off
+            if (tmp==0) return 2; //all on
+            return 1; //partially off
         case MMP_VGMPLAY: {
             int idx=0;
             //1st reach 1st voice of systemIdx
@@ -11057,6 +11131,11 @@ extern "C" void adjust_amplification(void);
         case MMP_ASAP:
             for (int i=0;i<4;i++) {
                 [self setm_voicesStatus:active index:systemIdx*4+i];
+            }
+            break;
+        case MMP_PT3:
+            for (int i=0;i<3;i++) {
+                [self setm_voicesStatus:active index:systemIdx*3+i];
             }
             break;
         case MMP_VGMPLAY: {
@@ -11154,6 +11233,10 @@ extern "C" void adjust_amplification(void);
         case MMP_SIDPLAY:
             mSidEmuEngine->mute(channel/3,channel%3,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
             break;
+        case MMP_PT3: {
+            pt3_mute[channel]=(active?0:1);
+            break;
+        }
         case MMP_ASAP: {
             int mask=0;
             for (int i=0;i<numChannels;i++) if (m_voicesStatus[i]==0) mask|=1<<i;

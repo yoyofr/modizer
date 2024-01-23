@@ -216,7 +216,6 @@ void ayumi_play(struct ayumi ay[6], struct ay_data* t) {
 			for (int ch = 0; ch<numofchips; ch++) {
 				renday(tmpbuf[ch], i, &ay[ch], t, ch);
 			}
-
 			for (int j=0; j<i/2; j++) { //stereo = 16bit x 2
 				int tv=0;
 				for (int ch = 0; ch < numofchips; ch++) { //collecting

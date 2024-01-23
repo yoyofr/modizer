@@ -4,6 +4,14 @@
 #include <math.h>
 #include "ayumi.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../src/ModizerVoicesData.h"
+static int m_voice_ofs;
+static int smplIncr;
+static int m_voice_currentChannel;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static const double AY_dac_table[] = {
   0.0, 0.0,
   0.00999465934234, 0.00999465934234,
@@ -126,7 +134,7 @@ int update_envelope(struct ayumi* ay) {
   return ay->envelope;
 }
 
-static void update_mixer(struct ayumi* ay) {
+static void update_mixer(struct ayumi* ay,int ch) {
   int i;
   int out;
   int noise = update_noise(ay);
@@ -138,6 +146,16 @@ static void update_mixer(struct ayumi* ay) {
     out *= ay->channels[i].e_on ? envelope : ay->channels[i].volume * 2 + 1;
     ay->left += ay->dac_table[out] * ay->channels[i].pan_left;
     ay->right += ay->dac_table[out] * ay->channels[i].pan_right;
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      if (m_voice_ofs>=0) {
+          m_voice_currentChannel=ch*3+i;
+          smplIncr=1024/8;
+          m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( ay->dac_table[out]*224 );
+          m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
+          if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+      }
+      //TODO:  MODIZER changes end / YOYOFR
   }
 }
 
@@ -286,18 +304,18 @@ static double decimate(double* x) {
   return y;
 }
 
-void ayumi_skip(struct ayumi* ay) {
+void ayumi_skip(struct ayumi* ay,int ch) {
   int i;
   for (i = DECIMATE_FACTOR - 1; i >= 0; i -= 1) {
     ay->x += ay->step;
     if (ay->x >= 1) {
       ay->x -= 1;
-      update_mixer(ay);
+      update_mixer(ay,ch);
     }
   }
 }
 
-void ayumi_process(struct ayumi* ay) {
+void ayumi_process(struct ayumi* ay,int ch) {
   int i;
   double y1;
   double* c_left = ay->interpolator_left.c;
@@ -317,7 +335,7 @@ void ayumi_process(struct ayumi* ay) {
       y_right[0] = y_right[1];
       y_right[1] = y_right[2];
       y_right[2] = y_right[3];
-      update_mixer(ay);
+      update_mixer(ay,ch);
       y_left[3] = ay->left;
       y_right[3] = ay->right;
       y1 = y_left[2] - y_left[0];
