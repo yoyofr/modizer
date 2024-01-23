@@ -3501,8 +3501,25 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime); //not implemented yet
                         }
                         if (mPlayType==MMP_PT3) {//PT3
-                            mNeedSeek=0; //not supported yet
-                            //bGlobalSeekProgress=-1;
+                            int pt3_target_seek=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                            int pt3_current_pos=0;
+                            
+                            for (int ch=0; ch<pt3_numofchips; ch++) {
+                                func_restart_music(ch);
+                                pt3_frame[ch] = 0;
+                                pt3_sample[ch] = 0;
+                            }
+                            printf("seeking: %d - pos: %d\n",pt3_target_seek,pt3_current_pos);
+                            while (1) {
+                                for (int ch=0; ch<pt3_numofchips; ch++) {
+                                    pt3_renday(NULL, SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,0);
+                                }
+                                pt3_current_pos+=SOUND_BUFFER_SIZE_SAMPLE;
+                                if (pt3_current_pos>=pt3_target_seek) break;
+                            }
+                            printf("seeking: %d - pos: %d\n",pt3_target_seek,pt3_current_pos);
+                            iCurrentTime=pt3_current_pos*1000/PLAYBACK_FREQ;
+                            bGlobalSeekProgress=-1;
                         }
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
@@ -4818,7 +4835,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         for (int ch = 0; ch<pt3_numofchips; ch++) {
                             if (pt3_renday(pt3_tmpbuf[ch], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,mLoopMode)) {
-                                printf("PT3: loop/end point reached");
+                                printf("PT3: loop/end point reached\n");
                                 if (mLoopMode) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 else nbBytes=0;
                             }
@@ -10762,7 +10779,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||(mPlayType==MMP_PT3)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
