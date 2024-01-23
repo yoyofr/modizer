@@ -179,7 +179,7 @@ short *pt3_tmpbuf[10];
 int pt3_frame[10];
 int pt3_sample[10];
 int pt3_fast=0;
-int pt3_sample_count;
+int64_t pt3_sample_count;
 int pt3_mute[10];
 char* pt3_music_buf;
 int pt3_music_size;
@@ -3501,25 +3501,40 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime); //not implemented yet
                         }
                         if (mPlayType==MMP_PT3) {//PT3
-                            int pt3_target_seek=mNeedSeekTime*PLAYBACK_FREQ/1000;
-                            int pt3_current_pos=0;
+                            int64_t pt3_target_seek=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                            bGlobalSeekProgress=-1;
                             
-                            for (int ch=0; ch<pt3_numofchips; ch++) {
-                                func_restart_music(ch);
-                                pt3_frame[ch] = 0;
-                                pt3_sample[ch] = 0;
+                            if (pt3_target_seek<pt3_sample_count) {
+                                pt3_sample_count=0;
+                                for (int ch=0; ch<pt3_numofchips; ch++) {
+                                    func_restart_music(ch);
+                                    pt3_frame[ch] = 0;
+                                    pt3_sample[ch] = 0;
+                                }
                             }
-                            printf("seeking: %d - pos: %d\n",pt3_target_seek,pt3_current_pos);
+                            
                             while (1) {
                                 for (int ch=0; ch<pt3_numofchips; ch++) {
                                     pt3_renday(NULL, SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,0);
                                 }
-                                pt3_current_pos+=SOUND_BUFFER_SIZE_SAMPLE;
-                                if (pt3_current_pos>=pt3_target_seek) break;
+                                pt3_sample_count+=SOUND_BUFFER_SIZE_SAMPLE;
+                                iCurrentTime=pt3_sample_count*1000/PLAYBACK_FREQ;
+                                
+                                if (pt3_sample_count>=pt3_target_seek) break;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",pt3_sample_count*100/pt3_target_seek]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    pt3_target_seek=pt3_sample_count;
+                                    iCurrentTime=pt3_sample_count*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
-                            printf("seeking: %d - pos: %d\n",pt3_target_seek,pt3_current_pos);
-                            iCurrentTime=pt3_current_pos*1000/PLAYBACK_FREQ;
-                            bGlobalSeekProgress=-1;
                         }
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
@@ -4840,6 +4855,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 else nbBytes=0;
                             }
                         }
+                        pt3_sample_count+=SOUND_BUFFER_SIZE_SAMPLE;
                         for (int j=0; j<SOUND_BUFFER_SIZE_SAMPLE*2; j++) { //stereo = 16bit x 2
                             int tv=0;
                             for (int ch = 0; ch < pt3_numofchips; ch++) { //collecting
@@ -4856,11 +4872,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                         }
                         //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
-                        
-                        
-                        
-
-                        
                         
                     }
                     if (mPlayType==MMP_SC68) {//SC68
@@ -6255,6 +6266,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mod_minsub=1;
     mod_maxsub=1;
     mod_currentsub=1;
+    pt3_sample_count=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
     
@@ -9943,6 +9955,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         case MMP_PT3:  //PT3
             if (startPos) [self Seek:startPos];
             [self Play];
+            iCurrentTime=startPos;
             break;
         case MMP_SC68: //SC68
             if (startPos) [self Seek:startPos];
