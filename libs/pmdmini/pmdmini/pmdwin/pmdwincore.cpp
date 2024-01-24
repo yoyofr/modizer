@@ -8124,6 +8124,7 @@ char* WINAPI PMDWIN::getmemo2(char *dest, uchar *musdata, int size, int al)
 		}
 	} else {
 		*dest = '\0';
+        free(buf);
 		return NULL;
 	}
 	free(buf);
@@ -8150,6 +8151,7 @@ char* WINAPI PMDWIN::getmemo3(char *dest, uchar *musdata, int size, int al)
 			dest[MAX_MEMOBUF-1] = '\0';
 		}
 	} else {
+        free(buf);
 		*dest = '\0';
 		return NULL;
 	}

@@ -97,15 +97,14 @@ static int sampleVolume,mInterruptShoudlRestart;
 static char str_name[1024];
 static char *stil_info;//[MAX_STIL_DATA_LENGTH];
 char *mod_message;//[8192+MAX_STIL_DATA_LENGTH];
-static char mod_name[256];
-static char mod_filename[512];
+static char mod_name[1024];
+static char mod_filename[1024];
 static NSString *mod_title;
-static char archive_filename[512];
+static char archive_filename[1024];
 
 static int mSingleFileType;
 
 static char song_md5[33];
-static char file_md5[33];
 
 char mplayer_error_msg[1024];
 
@@ -1957,8 +1956,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         
         buffer_ana_flag=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
-        buffer_ana=(short int**)malloc(SOUND_BUFFER_NB*sizeof(unsigned short int *));
-        buffer_ana_cpy=(short int**)malloc(SOUND_BUFFER_NB*sizeof(unsigned short int *));
+        buffer_ana=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
+        buffer_ana_cpy=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
         buffer_ana_subofs=0;
         for (int i=0;i<SOUND_BUFFER_NB;i++) {
             buffer_ana[i]=(short int *)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
@@ -2001,7 +2000,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
         mLoopMode=0;
         mCurrentSamples=0;
         m_voice_current_sample=0;
-        file_md5[0]=0;
         
         for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
         
@@ -2242,18 +2240,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
                               kCFRunLoopCommonModes,
                               0,
                               &mAudioQueue );
-    
+    if (err) return 0;
     /* ... and its associated buffers */
     mBuffers = (AudioQueueBufferRef*)malloc( sizeof(AudioQueueBufferRef) * SOUND_BUFFER_NB );
     for (int i=0; i<SOUND_BUFFER_NB; i++) {
         AudioQueueBufferRef mBuffer;
         err = AudioQueueAllocateBuffer( mAudioQueue, SOUND_BUFFER_SIZE_SAMPLE*2*2, &mBuffer );
-        
+        if (err) return 0;
         mBuffers[i]=mBuffer;
     }
     /* Set initial playback volume */
     err = AudioQueueSetParameter( mAudioQueue, kAudioQueueParam_Volume, mVolume );
-    
+    if (err) return 0;
     
     
     return 1;//VC_Init();
@@ -6222,10 +6220,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     pt3_music_size=mp_datasize;
     pt3_music_buf=(char*)malloc(mp_datasize+1);
+    if (!pt3_music_buf) return -2;
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
         NSLog(@"PT3 Cannot open file %@",filePath);
         mPlayType=0;
+        free(pt3_music_buf);
         return -1;
     }
     
@@ -6233,8 +6233,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     pt3_music_buf[pt3_music_size]=0;
     fclose(f);
     
-    sprintf(mod_name," %s",mod_filename);
-    //sprintf(mod_message,"%s\n",mod_name);
+    // song info
+    sprintf(mod_name," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+    mod_title=[NSString stringWithUTF8String:mod_name];
     strncpy(mod_message,pt3_music_buf,99);
     mod_message[99]=0;
     
@@ -6295,8 +6296,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     for (int i=0;i<numVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[i/3];
     }
-    
-    
     
     return 0;
 }
@@ -6479,6 +6478,7 @@ char* loadRom(const char* path, size_t romSize)
     if (f==NULL) {
         NSLog(@"SID Cannot open file %@",filePath);
         mPlayType=0;
+        free(tmp_md5_data);
         return -1;
     }
     fread(tmp_md5_data,1,tmp_md5_data_size,f);
@@ -7069,6 +7069,8 @@ char* loadRom(const char* path, size_t romSize)
     
     // song info
     strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
+    printf("mod filename: %s\n",mod_filename);
+    
     sprintf(mod_name," %s",mod_filename);
     sprintf(mod_message,"%s\n",mod_name);
     numChannels=4;
@@ -7692,11 +7694,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
     
-    if (vgmStream->channels <= 0)
-    {
-        close_vgmstream(vgmStream);
-        vgmStream = NULL;
+    if (vgmStream->channels <= 0) {
         NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
+        close_vgmstream(vgmStream);
+        vgmStream = NULL;        
         src_delete(src_state);
         close_streamfile(vgmFile);
         vgmFile=NULL;
@@ -9072,12 +9073,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return 2;
     }
     
-    int tmp_md5_data_size=[_filePath length];
-    char *tmp_md5_data=(char*)malloc(tmp_md5_data_size+1);
-    strcpy(tmp_md5_data,[_filePath UTF8String]);
-    md5_from_buffer(file_md5,33,tmp_md5_data,tmp_md5_data_size);
-    mdz_safe_free(tmp_md5_data);
-    
     no_reentrant=true;
     
     detailViewControllerIphone=detailVC;
@@ -9665,8 +9660,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     m_voice_current_sample=0;
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     mod_title=nil;
-    
-    strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -11514,10 +11507,6 @@ extern "C" void adjust_amplification(void);
         default:
             break;
     }
-}
-
--(NSString *) getCurrentFilenameMD5 {
-    return [NSString stringWithFormat:@"%s",file_md5];
 }
 
 

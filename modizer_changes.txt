@@ -25,11 +25,17 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 
 3.3
 ---
-- [DB] HVSC #78
-- [DB] Modland 2023/02/25
-- [DB] Asma 2023/02/25
+- [DB] HVSC #80
+- [DB] Modland 2024/01/16
+- [DB] Asma 2024/01/16
 - [ALL] Fixed lha file crash
 - [UI] Fixed crash on ipad / landscape mode when accessing player FX menu
+- [PLAYER] ASAP update to latest version, 6.0.1
+- [PLAYER] VGMSTREAM update to latest version
+- [PLAYER] UADE/Updated musicmaker player
+- [PLAYER] SC68 updated to latest version (3.0)
+- [PLAYER] New player for ZX Spectrum PT3
+
 
 
 3.2

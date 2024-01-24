@@ -411,6 +411,5 @@ enum MMP_PLAYER_TYPE {
 -(void) setm_voicesStatus:(bool)active index:(unsigned int)channel;
 -(void) vgmStream_ChangeToSub:(int) subsong;
 
--(NSString *) getCurrentFilenameMD5;
 
 @end

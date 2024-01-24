@@ -61,6 +61,7 @@ static void add_sub_normalisation(struct uade_content *n, char *normalisation)
 	subinfo->sub = strtol(normalisation, &endptr, 10);
 	if (*endptr != ',' || subinfo->sub < 0) {
 		fprintf(stderr, "Invalid normalisation entry: %s\n", normalisation);
+        free(subinfo);
 		return;
 	}
 

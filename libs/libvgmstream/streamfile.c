@@ -470,8 +470,11 @@ STREAMFILE* open_buffer_streamfile(STREAMFILE* sf, size_t buf_size) {
     return &this_sf->vt;
 
 fail:
-    if (this_sf) free(this_sf->buf);
-    free(this_sf);
+    if (this_sf) {
+        free(this_sf->buf);
+        free(this_sf);
+    } else if (buf) free(buf);
+    
     return NULL;
 }
 STREAMFILE* open_buffer_streamfile_f(STREAMFILE* sf, size_t buffer_size) {

@@ -871,6 +871,11 @@
 		CC8369672B581DDA0035A4DA /* error68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83693B2B57CCC80035A4DA /* error68.c */; };
 		CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC8369922B5DD5510035A4DA /* playpt3.txt */; };
 		CC8369942B5DE5830035A4DA /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
+		CC83699B2B6199410035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */; };
+		CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */; };
+		CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
+		CC83699E2B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
+		CC83699F2B6199410035A4DA /* Sauron - OOOPS!.pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -2491,6 +2496,11 @@
 		CC83693B2B57CCC80035A4DA /* error68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error68.c; sourceTree = "<group>"; };
 		CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpt3.xcodeproj; path = libpt3/libpt3/libpt3.xcodeproj; sourceTree = "<group>"; };
 		CC8369922B5DD5510035A4DA /* playpt3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = playpt3.txt; sourceTree = "<group>"; };
+		CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3"; sourceTree = "<group>"; };
+		CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3"; sourceTree = "<group>"; };
+		CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KUVO - Say goodbye (6ch) (2023).pt3"; sourceTree = "<group>"; };
+		CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3"; sourceTree = "<group>"; };
+		CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sauron - OOOPS!.pt3"; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
@@ -3506,6 +3516,11 @@
 		5966D10525CFF0D100520777 /* Demoscene */ = {
 			isa = PBXGroup;
 			children = (
+				CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */,
+				CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */,
+				CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */,
+				CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */,
+				CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */,
 				598051EB262E1EBA00BB0309 /* KB--fr-08_the_product-loader.v2mz */,
 				59805202262E1FC300BB0309 /* condom corruption-maxi.mod */,
 				59805217262E210E00BB0309 /* condom corruption-maxi.png */,
@@ -5463,6 +5478,7 @@
 				CC1E5F12120154A8000A8A4E /* Icon@2x.png in Resources */,
 				CC1E5F14120154F9000A8A4E /* Icon-Small-50.png in Resources */,
 				CC1E6310120423DF000A8A4E /* eagleplayer.conf in Resources */,
+				CC83699E2B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Resources */,
 				CC1E6311120423DF000A8A4E /* AbyssHighestExperience in Resources */,
 				59909B5C1E3E786700C629AA /* tabview_gradient40Red.png in Resources */,
 				59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */,
@@ -5619,6 +5635,7 @@
 				CC1E6386120423DF000A8A4E /* RobHubbardOld in Resources */,
 				CC1E6387120423DF000A8A4E /* dummy_file in Resources */,
 				CC1E6388120423DF000A8A4E /* ScottJohnston in Resources */,
+				CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */,
 				CC1E6389120423DF000A8A4E /* SCUMM in Resources */,
 				CC1E638A120423E0000A8A4E /* SeanConnolly in Resources */,
 				CC1E638B120423E0000A8A4E /* SeanConran in Resources */,
@@ -5641,6 +5658,7 @@
 				CC1E6399120423E0000A8A4E /* SoundMon2.2 in Resources */,
 				CC1E639A120423E0000A8A4E /* SoundPlayer in Resources */,
 				CC1E639B120423E0000A8A4E /* SoundProgrammingLanguage in Resources */,
+				CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */,
 				59909B581E3E6B9A00C629AA /* tabview_gradient40Pink.png in Resources */,
 				CC1E639C120423E0000A8A4E /* Soundtracker-IV in Resources */,
 				CCB8D99717F62A18008E6A45 /* txtMenu3b_2x.png in Resources */,
@@ -5776,6 +5794,7 @@
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
+				CC83699B2B6199410035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
 				336D451A15FC9E1400F0DC00 /* video_previous_h@2x.png in Resources */,
 				33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */,
@@ -5783,6 +5802,7 @@
 				33C722D41691F877001D77A5 /* 03-loopback.png in Resources */,
 				33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */,
 				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
+				CC83699F2B6199410035A4DA /* Sauron - OOOPS!.pt3 in Resources */,
 				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
 				330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */,

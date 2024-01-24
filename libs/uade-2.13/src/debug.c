@@ -449,7 +449,7 @@ void debug (void) {
 	char *name;
 	FILE *fp;
 	int havesize=0;
-	struct stat *st;
+	struct stat *st=NULL;
 	uae_u32 fsize=0;
 	
 	if (!more_params (&inptr))
@@ -473,14 +473,17 @@ void debug (void) {
 	}
 	
 	if ((st=malloc(sizeof(struct stat)))) if(!stat(name,st)) fsize=st->st_size;
-	if (!fsize)
-	  return;
-	
+    if (!fsize) {
+        if (st) free(st);
+        return;
+    }
+              
 	if (!havesize)
 	  len = fsize;
 	
 	if (! valid_address (dst, len)) {
 	  printf ("Invalid memory block (0x %.8x - %.8x\n",dst,dst+len-1);
+        if (st) free(st);
 	  return;
 	}
 	memp = get_real_address (dst);
@@ -488,6 +491,7 @@ void debug (void) {
 	fp = fopen (name, "r");
 	if (fp == NULL) {
 	  printf ("Couldn't open file\n");
+        if (st) free(st);
 	  break;
 	}
 	
@@ -498,10 +502,11 @@ void debug (void) {
 	}
       R_fclose:
 	fclose (fp);
+          if (st) free(st);
 	break;
 	
       R_argh:
-	printf ("R command needs more arguments!\n");
+	printf ("R command needs more arguments!\n");          
 	break;
       }
       

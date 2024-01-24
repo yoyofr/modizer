@@ -25,8 +25,10 @@ void *uade_walk_directories(const char *dirname,
 	if ((dename = malloc(namelen)) == NULL)
 		return NULL;
 
-	if ((dir = opendir(dirname)) == NULL)
-		return NULL;
+    if ((dir = opendir(dirname)) == NULL) {
+        free(dename);
+        return NULL;
+    }
 
 	while ((de = readdir(dir)) != NULL) {
 
