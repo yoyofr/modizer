@@ -43,6 +43,8 @@
 #import "emuopl.h"
 #import "kemuopl.h"
 #import "temuopl.h"
+//ATARISOUND
+#import "AtariAudio.h"
 //STSOUND
 #import "YmMusic.h"
 //HVL
@@ -88,6 +90,7 @@ enum MMP_PLAYER_TYPE {
     MMP_MDXPDX,
     MMP_SC68,
     MMP_STSOUND,
+    MMP_ATARISOUND,
     MMP_HVL,
     MMP_2SF,
     MMP_SNSF,
@@ -378,6 +381,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_sc68Load:(NSString*)filePath;
 -(int) mmp_pt3Load:(NSString*)filePath;
 -(int) mmp_stsoundLoad:(NSString*)filePath;
+-(int) mmp_AtariSoundLoad:(NSString*)filePath;
 -(int) mmp_sidplayLoad:(NSString*)filePath;
 -(int) mmp_hvlLoad:(NSString*)filePath;
 -(int) mmp_uadeLoad:(NSString*)filePath;

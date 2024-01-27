@@ -876,6 +876,12 @@
 		CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
 		CC83699E2B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
 		CC83699F2B6199410035A4DA /* Sauron - OOOPS!.pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
+		CC8369A02B623D740035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */; };
+		CC8369A12B623D740035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */; };
+		CC8369A22B623D740035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
+		CC8369A32B623D740035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
+		CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
+		CC836A882B6324590035A4DA /* liblibatariaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC836A5A2B6322780035A4DA /* liblibatariaudio.a */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -1127,6 +1133,13 @@
 			remoteGlobalIDString = CC8369722B5DCF8D0035A4DA;
 			remoteInfo = libpt3;
 		};
+		CC836A592B6322780035A4DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC836A492B6322770035A4DA;
+			remoteInfo = libatariaudio;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1247,6 +1260,11 @@
 			dstPath = Samples/Demoscene;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8369A02B623D740035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Copy Files-Samples Demoscene */,
+				CC8369A12B623D740035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Copy Files-Samples Demoscene */,
+				CC8369A22B623D740035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Copy Files-Samples Demoscene */,
+				CC8369A32B623D740035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Copy Files-Samples Demoscene */,
+				CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */,
 				5980521E262E211900BB0309 /* condom corruption-maxi.png in Copy Files-Samples Demoscene */,
 				59805213262E1FDF00BB0309 /* condom corruption-maxi.mod in Copy Files-Samples Demoscene */,
 				598051F8262E1ECE00BB0309 /* KB--fr-08_the_product-loader.v2mz in Copy Files-Samples Demoscene */,
@@ -2501,6 +2519,9 @@
 		CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KUVO - Say goodbye (6ch) (2023).pt3"; sourceTree = "<group>"; };
 		CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3"; sourceTree = "<group>"; };
 		CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sauron - OOOPS!.pt3"; sourceTree = "<group>"; };
+		CC8369AC2B6320420035A4DA /* libatariaudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libatariaudio.h; sourceTree = "<group>"; };
+		CC8369AD2B6320420035A4DA /* libatariaudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libatariaudio.m; sourceTree = "<group>"; };
+		CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libatariaudio.xcodeproj; path = libatariaudio/libatariaudio.xcodeproj; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
@@ -2787,6 +2808,7 @@
 				591CAAD42648FAC100168C7E /* libvorbisenc.framework in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5966D0B925CFEDF000520777 /* libopenmpt.a in Frameworks */,
+				CC836A882B6324590035A4DA /* liblibatariaudio.a in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2813,6 +2835,7 @@
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
+				CC8369AB2B6320420035A4DA /* libatariaudio */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
@@ -3231,6 +3254,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
 				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
 				591CAAAF2648FAC100168C7E /* ffmpeg-kit-audio-4.4.LTS-ios-framework */,
 				594CB7892633236900D154E5 /* Adplug */,
@@ -4837,6 +4861,23 @@
 			path = pt3;
 			sourceTree = "<group>";
 		};
+		CC8369AB2B6320420035A4DA /* libatariaudio */ = {
+			isa = PBXGroup;
+			children = (
+				CC8369AC2B6320420035A4DA /* libatariaudio.h */,
+				CC8369AD2B6320420035A4DA /* libatariaudio.m */,
+			);
+			path = libatariaudio;
+			sourceTree = "<group>";
+		};
+		CC836A562B6322770035A4DA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC836A5A2B6322780035A4DA /* liblibatariaudio.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC9B17FB12FF023600985967 /* libgsf */ = {
 			isa = PBXGroup;
 			children = (
@@ -5189,6 +5230,10 @@
 					ProjectRef = 5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */;
 				},
 				{
+					ProductGroup = CC836A562B6322770035A4DA /* Products */;
+					ProjectRef = CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */;
+				},
+				{
 					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
 				},
@@ -5420,6 +5465,13 @@
 			fileType = archive.ar;
 			path = liblibpt3.a;
 			remoteRef = CC8369822B5DCF8E0035A4DA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC836A5A2B6322780035A4DA /* liblibatariaudio.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibatariaudio.a;
+			remoteRef = CC836A592B6322780035A4DA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -6215,6 +6267,7 @@
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
 					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
 				);
 			};
 			name = Debug;
@@ -6282,6 +6335,7 @@
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
 					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6637,6 +6691,7 @@
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
 					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

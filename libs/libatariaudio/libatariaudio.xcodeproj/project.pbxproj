@@ -1,0 +1,386 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC836A792B6322A40035A4DA /* AtariMachine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC836A5B2B6322A30035A4DA /* AtariMachine.cpp */; };
+		CC836A7A2B6322A40035A4DA /* SndhFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC836A5D2B6322A30035A4DA /* SndhFile.cpp */; };
+		CC836A7B2B6322A40035A4DA /* SteDac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC836A602B6322A30035A4DA /* SteDac.cpp */; };
+		CC836A7C2B6322A40035A4DA /* Mk68901.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC836A622B6322A30035A4DA /* Mk68901.cpp */; };
+		CC836A7D2B6322A40035A4DA /* ym2149c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC836A632B6322A40035A4DA /* ym2149c.cpp */; };
+		CC836A7E2B6322A40035A4DA /* ice_24.c in Sources */ = {isa = PBXBuildFile; fileRef = CC836A652B6322A40035A4DA /* ice_24.c */; };
+		CC836A862B6322B80035A4DA /* m68kcpu.c in Sources */ = {isa = PBXBuildFile; fileRef = CC836A6A2B6322A40035A4DA /* m68kcpu.c */; };
+		CC836A892B6464580035A4DA /* m68kops.c in Sources */ = {isa = PBXBuildFile; fileRef = CC836A6D2B6322A40035A4DA /* m68kops.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC836A472B6322770035A4DA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC836A492B6322770035A4DA /* liblibatariaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibatariaudio.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC836A5B2B6322A30035A4DA /* AtariMachine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AtariMachine.cpp; path = AtariAudio/AtariMachine.cpp; sourceTree = "<group>"; };
+		CC836A5C2B6322A30035A4DA /* ym2149c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ym2149c.h; path = AtariAudio/ym2149c.h; sourceTree = "<group>"; };
+		CC836A5D2B6322A30035A4DA /* SndhFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SndhFile.cpp; path = AtariAudio/SndhFile.cpp; sourceTree = "<group>"; };
+		CC836A5E2B6322A30035A4DA /* SteDac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SteDac.h; path = AtariAudio/SteDac.h; sourceTree = "<group>"; };
+		CC836A5F2B6322A30035A4DA /* AtariAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AtariAudio.h; path = AtariAudio/AtariAudio.h; sourceTree = "<group>"; };
+		CC836A602B6322A30035A4DA /* SteDac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SteDac.cpp; path = AtariAudio/SteDac.cpp; sourceTree = "<group>"; };
+		CC836A612B6322A30035A4DA /* SndhFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SndhFile.h; path = AtariAudio/SndhFile.h; sourceTree = "<group>"; };
+		CC836A622B6322A30035A4DA /* Mk68901.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mk68901.cpp; path = AtariAudio/Mk68901.cpp; sourceTree = "<group>"; };
+		CC836A632B6322A40035A4DA /* ym2149c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ym2149c.cpp; path = AtariAudio/ym2149c.cpp; sourceTree = "<group>"; };
+		CC836A652B6322A40035A4DA /* ice_24.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ice_24.c; sourceTree = "<group>"; };
+		CC836A662B6322A40035A4DA /* ice_24.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ice_24.h; sourceTree = "<group>"; };
+		CC836A682B6322A40035A4DA /* m68kfpu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68kfpu.c; sourceTree = "<group>"; };
+		CC836A692B6322A40035A4DA /* m68k.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m68k.h; sourceTree = "<group>"; };
+		CC836A6A2B6322A40035A4DA /* m68kcpu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68kcpu.c; sourceTree = "<group>"; };
+		CC836A6B2B6322A40035A4DA /* m68kdasm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68kdasm.c; sourceTree = "<group>"; };
+		CC836A6C2B6322A40035A4DA /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		CC836A6D2B6322A40035A4DA /* m68kops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68kops.c; sourceTree = "<group>"; };
+		CC836A6E2B6322A40035A4DA /* m68kmake.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68kmake.c; sourceTree = "<group>"; };
+		CC836A6F2B6322A40035A4DA /* m68kcpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m68kcpu.h; sourceTree = "<group>"; };
+		CC836A702B6322A40035A4DA /* m68kconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m68kconf.h; sourceTree = "<group>"; };
+		CC836A712B6322A40035A4DA /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		CC836A722B6322A40035A4DA /* history.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = history.txt; sourceTree = "<group>"; };
+		CC836A732B6322A40035A4DA /* m68kops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = m68kops.h; sourceTree = "<group>"; };
+		CC836A742B6322A40035A4DA /* m68k_in.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = m68k_in.c; sourceTree = "<group>"; };
+		CC836A752B6322A40035A4DA /* AtariMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AtariMachine.h; path = AtariAudio/AtariMachine.h; sourceTree = "<group>"; };
+		CC836A762B6322A40035A4DA /* Mk68901.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mk68901.h; path = AtariAudio/Mk68901.h; sourceTree = "<group>"; };
+		CC836A772B6322A40035A4DA /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = readme.md; path = AtariAudio/readme.md; sourceTree = "<group>"; };
+		CC836A782B6322A40035A4DA /* ym2149_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ym2149_tables.h; path = AtariAudio/ym2149_tables.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC836A462B6322770035A4DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC836A402B6322770035A4DA = {
+			isa = PBXGroup;
+			children = (
+				CC836A5F2B6322A30035A4DA /* AtariAudio.h */,
+				CC836A5B2B6322A30035A4DA /* AtariMachine.cpp */,
+				CC836A752B6322A40035A4DA /* AtariMachine.h */,
+				CC836A642B6322A40035A4DA /* external */,
+				CC836A622B6322A30035A4DA /* Mk68901.cpp */,
+				CC836A762B6322A40035A4DA /* Mk68901.h */,
+				CC836A772B6322A40035A4DA /* readme.md */,
+				CC836A5D2B6322A30035A4DA /* SndhFile.cpp */,
+				CC836A612B6322A30035A4DA /* SndhFile.h */,
+				CC836A602B6322A30035A4DA /* SteDac.cpp */,
+				CC836A5E2B6322A30035A4DA /* SteDac.h */,
+				CC836A782B6322A40035A4DA /* ym2149_tables.h */,
+				CC836A632B6322A40035A4DA /* ym2149c.cpp */,
+				CC836A5C2B6322A30035A4DA /* ym2149c.h */,
+				CC836A4B2B6322770035A4DA /* libatariaudio */,
+				CC836A4A2B6322770035A4DA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC836A4A2B6322770035A4DA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC836A492B6322770035A4DA /* liblibatariaudio.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC836A4B2B6322770035A4DA /* libatariaudio */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = libatariaudio;
+			sourceTree = "<group>";
+		};
+		CC836A642B6322A40035A4DA /* external */ = {
+			isa = PBXGroup;
+			children = (
+				CC836A652B6322A40035A4DA /* ice_24.c */,
+				CC836A662B6322A40035A4DA /* ice_24.h */,
+				CC836A672B6322A40035A4DA /* Musashi */,
+			);
+			name = external;
+			path = AtariAudio/external;
+			sourceTree = "<group>";
+		};
+		CC836A672B6322A40035A4DA /* Musashi */ = {
+			isa = PBXGroup;
+			children = (
+				CC836A682B6322A40035A4DA /* m68kfpu.c */,
+				CC836A692B6322A40035A4DA /* m68k.h */,
+				CC836A6A2B6322A40035A4DA /* m68kcpu.c */,
+				CC836A6B2B6322A40035A4DA /* m68kdasm.c */,
+				CC836A6C2B6322A40035A4DA /* Makefile */,
+				CC836A6D2B6322A40035A4DA /* m68kops.c */,
+				CC836A6E2B6322A40035A4DA /* m68kmake.c */,
+				CC836A6F2B6322A40035A4DA /* m68kcpu.h */,
+				CC836A702B6322A40035A4DA /* m68kconf.h */,
+				CC836A712B6322A40035A4DA /* readme.txt */,
+				CC836A722B6322A40035A4DA /* history.txt */,
+				CC836A732B6322A40035A4DA /* m68kops.h */,
+				CC836A742B6322A40035A4DA /* m68k_in.c */,
+			);
+			path = Musashi;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC836A482B6322770035A4DA /* libatariaudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC836A522B6322770035A4DA /* Build configuration list for PBXNativeTarget "libatariaudio" */;
+			buildPhases = (
+				CC836A452B6322770035A4DA /* Sources */,
+				CC836A462B6322770035A4DA /* Frameworks */,
+				CC836A472B6322770035A4DA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libatariaudio;
+			productName = libatariaudio;
+			productReference = CC836A492B6322770035A4DA /* liblibatariaudio.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC836A412B6322770035A4DA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CC836A482B6322770035A4DA = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CC836A442B6322770035A4DA /* Build configuration list for PBXProject "libatariaudio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC836A402B6322770035A4DA;
+			productRefGroup = CC836A4A2B6322770035A4DA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC836A482B6322770035A4DA /* libatariaudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC836A452B6322770035A4DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC836A7A2B6322A40035A4DA /* SndhFile.cpp in Sources */,
+				CC836A7D2B6322A40035A4DA /* ym2149c.cpp in Sources */,
+				CC836A892B6464580035A4DA /* m68kops.c in Sources */,
+				CC836A7E2B6322A40035A4DA /* ice_24.c in Sources */,
+				CC836A862B6322B80035A4DA /* m68kcpu.c in Sources */,
+				CC836A7C2B6322A40035A4DA /* Mk68901.cpp in Sources */,
+				CC836A792B6322A40035A4DA /* AtariMachine.cpp in Sources */,
+				CC836A7B2B6322A40035A4DA /* SteDac.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC836A502B6322770035A4DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-D_strdup=strdup",
+					"-Dm68ki_instruction_jump_table=atari_m68ki_instruction_jump_table",
+				);
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CC836A512B6322770035A4DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"-D_strdup=strdup",
+					"-Dm68ki_instruction_jump_table=atari_m68ki_instruction_jump_table",
+				);
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC836A532B6322770035A4DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC836A542B6322770035A4DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC836A442B6322770035A4DA /* Build configuration list for PBXProject "libatariaudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC836A502B6322770035A4DA /* Debug */,
+				CC836A512B6322770035A4DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC836A522B6322770035A4DA /* Build configuration list for PBXNativeTarget "libatariaudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC836A532B6322770035A4DA /* Debug */,
+				CC836A542B6322770035A4DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC836A412B6322770035A4DA /* Project object */;
+}
