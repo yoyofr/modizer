@@ -17,6 +17,7 @@ SndhFile::SndhFile()
 	m_Author = NULL;
 	m_sYear = NULL;
 	m_rawSize = 0;
+    for (int i=0;i<kSubsongCountMax;i++) m_subSongTitle[i]=NULL;
 }
 
 SndhFile::~SndhFile()
@@ -30,6 +31,10 @@ void	SndhFile::Unload()
 	free(m_Title);
 	free(m_Author);
 	free(m_sYear);
+    for (int i=0;i<kSubsongCountMax;i++) {
+        if (m_subSongTitle[i]) free(m_subSongTitle[i]);
+        m_subSongTitle[i]=NULL;
+    }
 	m_bLoaded = false;
 	m_rawBuffer = NULL;
 	m_Title = NULL;
@@ -100,7 +105,11 @@ bool	SndhFile::Load(const void* rawSndhFile, int sndhFileSize, uint32_t hostRepl
 				if (0 == strncmp(read8, "!#SN", 4))
 				{
 					assert(m_subSongCount > 0);
-					read8 += 4 + m_subSongCount * 2;			// skip 2bytes per offset
+                    read8 += 4 + m_subSongCount * 2; // skip 2bytes per offset
+                    for (int i=0;i<m_subSongCount;i++) { //read the subsong Titles
+                        m_subSongTitle[i]=_strdup(read8);
+                        read8 = skipNTString(read8);
+                    }
 				}
 				if (0 == strncmp(read8, "!#", 2))
 				{
@@ -200,7 +209,10 @@ bool	SndhFile::GetSubsongInfo(int subSongId, SubSongInfo& out) const
 	out.playerTickCount = songLen * m_playerRate;
 	out.playerTickRate = m_playerRate;
 	out.samplePerTick = m_hostReplayRate / m_playerRate;
-	out.musicName = m_Title;
+    out.musicTitle = m_Title;
+    out.musicSubTitle = NULL;
+    if (m_subSongTitle[subSongId-1])
+        if (m_subSongTitle[subSongId-1][0]) out.musicSubTitle = m_subSongTitle[subSongId-1];
 	out.musicAuthor = m_Author;
 	out.year = m_sYear;
 

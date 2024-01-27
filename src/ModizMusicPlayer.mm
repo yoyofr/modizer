@@ -3915,6 +3915,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
+                                atariSndh.InitSubSong(mod_currentsub);
+                                SndhFile::SubSongInfo info;
+                                atariSndh.GetSubsongInfo(mod_currentsub,info);
+                                
+                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
+                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
+                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
+                                             info.musicTitle,info.musicAuthor,info.year);
+                                
+                                if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+                                else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+                                
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
@@ -3922,16 +3934,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
                                 }
-                                atariSndh.InitSubSong(mod_currentsub);
-                                SndhFile::SubSongInfo info;
-                                atariSndh.GetSubsongInfo(mod_currentsub,info);
                                 
                                 iModuleLength=info.playerTickCount*1000/info.playerTickRate;
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
-                                //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
-                                mod_message_updated=1;
+                                                                                                
+                                mod_message_updated=2;
                             }
                             if (mPlayType==MMP_PT3) {//PT3
                             }
@@ -4146,6 +4155,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mod_message_updated=1;
                         }
                         if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
+                            atariSndh.InitSubSong(mod_currentsub);
+                            SndhFile::SubSongInfo info;
+                            atariSndh.GetSubsongInfo(mod_currentsub,info);
+                            
+                            if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
+                                    info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
+                            else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
+                                         info.musicTitle,info.musicAuthor,info.year);
+                            
+                            if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+                            else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+                            
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
@@ -4153,16 +4174,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                             }
-                            atariSndh.InitSubSong(mod_currentsub);
-                            SndhFile::SubSongInfo info;
-                            atariSndh.GetSubsongInfo(mod_currentsub,info);
+                            
                             
                             iModuleLength=info.playerTickCount*1000/info.playerTickRate;
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
-                            //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                             iCurrentTime=0;
-                            mod_message_updated=1;
+                            mod_message_updated=2;
                         }
                         if (mPlayType==MMP_PT3) {//PT3
                         }
@@ -4373,12 +4391,19 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 SndhFile::SubSongInfo info;
                                 atariSndh.GetSubsongInfo(mod_currentsub,info);
                                 
+                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
+                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
+                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
+                                             info.musicTitle,info.musicAuthor,info.year);
+                                
+                                if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+                                else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+                                
                                 iModuleLength=info.playerTickCount*1000/info.playerTickRate;
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
-                                //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
-                                mod_message_updated=1;
+                                mod_message_updated=2;
                             }
                             
                             if (mPlayType==MMP_PT3) {//PT3
@@ -6200,10 +6225,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
         atariSndh.GetSubsongInfo(mod_currentsub, info);
                         
-        atariSndh.InitSubSong(mod_subsongs);        
+        atariSndh.InitSubSong(mod_subsongs);
                         
-        if (info.musicName) sprintf(mod_name," %s",info.musicName);
-        else sprintf(mod_name," %s",mod_filename);
+        if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+        else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
         
         iModuleLength=info.playerTickCount*1000/info.playerTickRate;
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
@@ -6253,8 +6278,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         numChannels=2;
         
-        sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
-                info.musicName,info.musicAuthor,info.year);
+        if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
+                info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
+        else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
+                     info.musicTitle,info.musicAuthor,info.year);
         artist=[NSString stringWithFormat:@"%s",info.musicAuthor];
         
         return 0;
@@ -10576,6 +10603,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         if (kss->info) {
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:kss->info[subsong].title encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
+    } else if (mPlayType==MMP_ATARISOUND) {
+        SndhFile::SubSongInfo info;
+        atariSndh.GetSubsongInfo(subsong,info);
+        const char *str=info.musicSubTitle;
+        if (!str) str=info.musicTitle;
+        return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:str]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];;
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
 }

@@ -22,7 +22,8 @@ public:
 		int	playerTickCount;
 		int playerTickRate;
 		int samplePerTick;
-		const char* musicName;
+        const char* musicTitle;
+		const char* musicSubTitle;
 		const char* musicAuthor;
 		const char* year;
 	};
@@ -63,6 +64,7 @@ private:
 
 	int		m_defaultSubSong;
 	int		m_subSongLen[kSubsongCountMax];
+    char*   m_subSongTitle[kSubsongCountMax];
 	int		m_subSongCount;
 	int		m_playerRate;
 
