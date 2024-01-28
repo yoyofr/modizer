@@ -1256,7 +1256,7 @@ static float movePinchScale,movePinchScaleOld;
             } else playlistPos.text=[NSString stringWithFormat:@"%d of %d",mPlaylist_pos+1,mPlaylist_size];
 			btnShowSubSong.hidden=true;
 		}
-		self.pauseBarSub.hidden=YES;
+        self.pauseBarSub.hidden=YES;
 		self.playBarSub.hidden=YES;
 		self.pauseBar.hidden=YES;
 		self.playBar.hidden=YES;
@@ -1314,7 +1314,7 @@ static float movePinchScale,movePinchScaleOld;
 		mSendStatTimer=0;
 		mIsPlaying=FALSE;
 		mPaused=1;
-		self.pauseBarSub.hidden=YES;
+        self.pauseBarSub.hidden=YES;
 		self.playBarSub.hidden=YES;
 		self.pauseBar.hidden=YES;
 		self.playBar.hidden=YES;
@@ -2730,15 +2730,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         else self.playBar.hidden=NO;
         
         [self updateBarPos];
-        //		NSLog(@"yo %d",mRestart_sub);
         [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
-        //		NSLog(@"yo1");
         if (mPlayingPosRestart) {
             mPlayingPosRestart=0;
         } else sliderProgressModule.value=0;
-        //		NSLog(@"yo2");
         [mplayer Pause:YES];
-        //		NSLog(@"yo3");
         mIsPlaying=YES;
         mPaused=1;
     } else {
@@ -2752,7 +2748,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
             }
         }
-        
         self.pauseBarSub.hidden=YES;
         self.playBarSub.hidden=YES;
         self.pauseBar.hidden=YES;

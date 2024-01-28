@@ -16,6 +16,8 @@ SndhFile::SndhFile()
 	m_Title = NULL;
 	m_Author = NULL;
 	m_sYear = NULL;
+    m_Ripper = NULL;
+    m_Converter = NULL;
 	m_rawSize = 0;
     for (int i=0;i<kSubsongCountMax;i++) m_subSongTitle[i]=NULL;
 }
@@ -31,6 +33,8 @@ void	SndhFile::Unload()
 	free(m_Title);
 	free(m_Author);
 	free(m_sYear);
+    if (m_Ripper) free(m_Ripper);
+    if (m_Converter) free(m_Converter);
     for (int i=0;i<kSubsongCountMax;i++) {
         if (m_subSongTitle[i]) free(m_subSongTitle[i]);
         m_subSongTitle[i]=NULL;
@@ -39,6 +43,8 @@ void	SndhFile::Unload()
 	m_rawBuffer = NULL;
 	m_Title = NULL;
 	m_Author = NULL;
+    m_Ripper = NULL;
+    m_Converter = NULL;
 	m_sYear = NULL;
 	m_rawSize = 0;
 	m_playerRate = 0;
@@ -126,12 +132,13 @@ bool	SndhFile::Load(const void* rawSndhFile, int sndhFileSize, uint32_t hostRepl
 					m_Author = _strdup(read8 + 4);
 					read8 = skipNTString(read8 + 4);
 				}
-				else if (	(0 == strncmp(read8, "RIPP", 4)) ||
-							(0 == strncmp(read8, "CONV", 4)))
-				{
+				else if (0 == strncmp(read8, "RIPP", 4)) {
+                    m_Ripper = _strdup(read8 + 4);
 					read8 = skipNTString(read8 + 4);
-				}
-				else if ((0 == strncmp(read8, "YEAR", 4)))
+                } else if (0 == strncmp(read8, "CONV", 4)) {
+                    m_Converter = _strdup(read8 + 4);
+                    read8 = skipNTString(read8 + 4);
+                } else if ((0 == strncmp(read8, "YEAR", 4)))
 				{
 					if ( read8[4] != 0)
 						m_sYear = _strdup(read8 + 4);	// many sndh files have "" as year string
@@ -215,6 +222,8 @@ bool	SndhFile::GetSubsongInfo(int subSongId, SubSongInfo& out) const
         if (m_subSongTitle[subSongId-1][0]) out.musicSubTitle = m_subSongTitle[subSongId-1];
 	out.musicAuthor = m_Author;
 	out.year = m_sYear;
+    out.ripper = m_Ripper;
+    out.converter = m_Converter;
 
 	out.subsongCount = m_subSongCount;
 	return true;

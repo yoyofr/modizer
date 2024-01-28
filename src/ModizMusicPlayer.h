@@ -52,6 +52,7 @@
 
 //SC68
 #import "sc68.h"
+#import "file68_tdb.h"
 
 #import "pmdmini.h"
 //#import "pmdwin/pmdwinimport.h"
@@ -297,6 +298,7 @@ enum MMP_PLAYER_TYPE {
 -(BOOL) iPhoneDrv_Init;
 -(void) iPhoneDrv_Exit;
 -(BOOL) iPhoneDrv_PlayStart;
+-(BOOL) iPhoneDrv_PlayRestart;
 -(void) iPhoneDrv_PlayStop;
 -(void) iPhoneDrv_PlayWaitStop;
 -(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer;

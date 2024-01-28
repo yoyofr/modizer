@@ -26,6 +26,8 @@ public:
 		const char* musicSubTitle;
 		const char* musicAuthor;
 		const char* year;
+        const char* ripper;
+        const char* converter;
 	};
 
 	bool	Load(const void* rawSndhFile, int sndhFileSize, uint32_t hostReplayRate);
@@ -59,6 +61,8 @@ private:
 	char*	m_Title;
 	char*	m_Author;
 	char*	m_sYear;
+    char*   m_Converter;
+    char*   m_Ripper;
 	const void*	m_rawBuffer;
 	int		m_rawSize;
 

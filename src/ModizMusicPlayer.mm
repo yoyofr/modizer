@@ -382,6 +382,7 @@ static PDX_DATA *pdx;
 static int hvl_sample_to_write,mHVLinit;
 //ATARIAUDIO
 SndhFile atariSndh;
+uint32_t atariSndh_hash;
 //STSOUND
 static YMMUSIC *ymMusic;
 //SC68
@@ -2346,6 +2347,47 @@ extern volatile t_settings settings[MAX_SETTINGS];
     AudioQueueReset( mAudioQueue );
     mQueueIsBeingStopped = FALSE;
 }
+
+-(BOOL) iPhoneDrv_PlayRestart {
+    UInt32 err;
+    UInt32 i;
+    
+    mQueueIsBeingStopped = TRUE;
+    AudioQueueStop( mAudioQueue, TRUE );
+    AudioQueueReset( mAudioQueue );
+    mQueueIsBeingStopped = FALSE;
+    
+    buffer_ana_gen_ofs=buffer_ana_play_ofs=0;
+    buffer_ana_subofs=0;
+    //    genCurOffset=0;genCurOffsetCnt=0;
+    for (int i=0;i<SOUND_BUFFER_NB;i++) {
+        buffer_ana_flag[i]=0;
+        playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;//=genOffset[i]=playOffset[i]=0;
+        memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
+        memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
+        memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        memset(buffer_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        memset(tim_notes[i],0,DEFAULT_VOICES*4);
+        memset(tim_notes_cpy[i],0,DEFAULT_VOICES*4);
+        tim_voicenb[i]=tim_voicenb_cpy[i]=0;
+    }
+    
+    sampleVolume=0;
+    for (i=0; i<SOUND_BUFFER_NB; i++) {
+        memset(mBuffers[i]->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        mBuffers[i]->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
+        AudioQueueEnqueueBuffer( mAudioQueue, mBuffers[i], 0, NULL);
+        //        [self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
+        
+    }
+    bGlobalAudioPause=0;
+    /* Start the Audio Queue! */
+    //AudioQueuePrime( mAudioQueue, 0,NULL );
+    err = AudioQueueStart( mAudioQueue, NULL );
+    
+    return 1;
+}
+
 -(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer {
     /* the real processing takes place in FillAudioBuffer */
     [self iPhoneDrv_FillAudioBuffer:mBuffer];
@@ -2444,7 +2486,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 m_voice_current_sample=0;
                 iModuleLength=mNewModuleLength;
                 mChangeOfSong=0;
-                mod_message_updated=1;
+                mod_message_updated=2; //1;
                 for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=0xFFFFFFFF^0x8;
             }
             
@@ -2837,8 +2879,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             skip_first=1;
                         }
@@ -3496,7 +3537,50 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             } else mNeedSeek=0;
                         }
                         if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
-                            mNeedSeek=0;
+                            int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (mCurrentSamples >seekSample) {
+                                atariSndh.InitSubSong(mod_currentsub);
+                                mCurrentSamples=0;
+                            }
+                            
+                            while (seekSample - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
+                                atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
+                                mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
+                                                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }
+                            if (seekSample - mCurrentSamples > 0)
+                            {
+                                atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],seekSample-mCurrentSamples);
+                                mCurrentSamples = seekSample;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }
+                            
+                            //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_SC68) {//SC68
                             mNeedSeek=0; //not supported yet
@@ -3752,8 +3836,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (moveToNextSubSong==2) {
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3769,8 +3852,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (moveToNextSubSong==2) {
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3786,8 +3868,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3800,8 +3881,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                                                 
                                 while (mod_message_updated) {
@@ -3821,8 +3901,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3867,8 +3946,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 iCurrentTime=0;
                             }
@@ -3880,8 +3958,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
@@ -3901,8 +3978,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                 sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
@@ -3919,27 +3995,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 SndhFile::SubSongInfo info;
                                 atariSndh.GetSubsongInfo(mod_currentsub,info);
                                 
-                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
-                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
-                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
-                                             info.musicTitle,info.musicAuthor,info.year);
+                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                                             info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                                 
                                 if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
                                 else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
                                 
+                                iCurrentTime=0;
+                                mCurrentSamples=0;
+                                m_voice_current_sample=0;
+                                iModuleLength=info.playerTickCount*1000/info.playerTickRate;
+                                if (iModuleLength<=0) {
+                                    unsigned int frames;
+                                    int flags;
+                                    if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                                        iModuleLength=frames*1000/info.playerTickRate;
+                                    }
+                                }
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                if (mLoopMode) iModuleLength=-1;
+                                                                
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 
-                                iModuleLength=info.playerTickCount*1000/info.playerTickRate;
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
-                                if (mLoopMode) iModuleLength=-1;
-                                iCurrentTime=0;
-                                                                                                
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_PT3) {//PT3
@@ -3957,8 +4041,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3993,8 +4076,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             if (moveToNextSubSong==2) {
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             if (mLoopMode) iModuleLength=-1;
                             if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
@@ -4009,8 +4091,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             if (moveToNextSubSong==2) {
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                             if (mLoopMode) iModuleLength=-1;
@@ -4026,8 +4107,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                             if (mLoopMode) iModuleLength=-1;
@@ -4040,8 +4120,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                                                         
                             while (mod_message_updated) {
@@ -4061,8 +4140,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                             if (mLoopMode) iModuleLength=-1;
@@ -4107,8 +4185,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             iCurrentTime=0;
                         }
@@ -4120,8 +4197,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             iCurrentTime=0;
                             mCurrentSamples=0;
@@ -4139,8 +4215,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                             sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
@@ -4159,27 +4234,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             SndhFile::SubSongInfo info;
                             atariSndh.GetSubsongInfo(mod_currentsub,info);
                             
-                            if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
-                                    info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
-                            else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
-                                         info.musicTitle,info.musicAuthor,info.year);
+                            if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                                    info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                            else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                                         info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                             
                             if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
                             else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
                             
+                            iCurrentTime=0;
+                            mCurrentSamples=0;
+                            m_voice_current_sample=0;
+                            iModuleLength=info.playerTickCount*1000/info.playerTickRate;
+                            if (iModuleLength<=0) {
+                                unsigned int frames;
+                                int flags;
+                                if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                                    iModuleLength=frames*1000/info.playerTickRate;
+                                }
+                            }
+                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                            if (mLoopMode) iModuleLength=-1;
+                                                        
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
-                            
-                            
-                            iModuleLength=info.playerTickCount*1000/info.playerTickRate;
-                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
-                            if (mLoopMode) iModuleLength=-1;
-                            iCurrentTime=0;
+                                                                                    
                             mod_message_updated=2;
                         }
                         if (mPlayType==MMP_PT3) {//PT3
@@ -4196,8 +4279,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
                             } else {
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                             }
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                             if (mLoopMode) iModuleLength=-1;
@@ -4233,8 +4315,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (moveToNextSubSong==2) {
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 if (mLoopMode) iModuleLength=-1;
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
@@ -4251,8 +4332,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -4268,8 +4348,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -4282,8 +4361,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 
                                 
@@ -4304,8 +4382,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
                                 } else {
-                                    [self iPhoneDrv_PlayStop];
-                                    [self iPhoneDrv_PlayStart];
+                                    [self iPhoneDrv_PlayRestart];
                                 }
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
@@ -4347,16 +4424,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
                                     else gme_set_fade( gme_emu, iModuleLength/2,optGMEFadeOut); //Fade 1s before end
                                 } else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut );
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
                                 mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                                 
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
                                 m_voice_current_sample=0;
@@ -4369,8 +4444,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_SC68) {//SC68
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                                 sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                 
                                 sc68_music_info_t info;
@@ -4385,30 +4459,39 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
                                 atariSndh.InitSubSong(mod_currentsub);
                                 SndhFile::SubSongInfo info;
                                 atariSndh.GetSubsongInfo(mod_currentsub,info);
                                 
-                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
-                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
-                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
-                                             info.musicTitle,info.musicAuthor,info.year);
+                                if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                                             info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                                 
                                 if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
                                 else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
                                 
+                                iCurrentTime=0;
+                                mCurrentSamples=0;
+                                m_voice_current_sample=0;
                                 iModuleLength=info.playerTickCount*1000/info.playerTickRate;
+                                if (iModuleLength<=0) {
+                                    unsigned int frames;
+                                    int flags;
+                                    if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                                        iModuleLength=frames*1000/info.playerTickRate;
+                                    }
+                                }
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
-                                iCurrentTime=0;
+                                                                
+                                [self iPhoneDrv_PlayRestart];
+                                
                                 mod_message_updated=2;
                             }
                             
                             if (mPlayType==MMP_PT3) {//PT3
-                                //[self iPhoneDrv_PlayStop];
-                                //[self iPhoneDrv_PlayStart];
+                                //[self iPhoneDrv_PlayRestart];
                                 //iModuleLength=info.trk.time_ms;
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                                 //if (mLoopMode) iModuleLength=-1;
@@ -4423,8 +4506,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 iCurrentTime=0;
                                 
-                                [self iPhoneDrv_PlayStop];
-                                [self iPhoneDrv_PlayStart];
+                                [self iPhoneDrv_PlayRestart];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 
@@ -4928,11 +5010,49 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         else nbBytes=0;
                     }
                     if (mPlayType==MMP_ATARISOUND) { //ATARISOUND
-                        atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
+                        int retAtari=atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                         for (int i=SOUND_BUFFER_SIZE_SAMPLE-1;i>=0;i--) {
                             buffer_ana[buffer_ana_gen_ofs][i*2+1]=buffer_ana[buffer_ana_gen_ofs][i];
                             buffer_ana[buffer_ana_gen_ofs][i*2]=buffer_ana[buffer_ana_gen_ofs][i];
+                        }
+                        //if (loopCnt&&(mLoopMode==0)) nbBytes=0;
+                        
+                        if (mChangeOfSong==0) {
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
+                                if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    mod_currentsub++;
+                                    
+                                    atariSndh.InitSubSong(mod_currentsub);
+                                    SndhFile::SubSongInfo info;
+                                    atariSndh.GetSubsongInfo(mod_currentsub,info);
+                                    
+                                    if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                                            info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                    else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                                                 info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                    
+                                    
+                                    if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+                                    else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+                                    
+                                    mNewModuleLength=info.playerTickCount*1000/info.playerTickRate;
+                                    if (mNewModuleLength<=0) {
+                                        unsigned int frames;
+                                        int flags;
+                                        if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                                            mNewModuleLength=frames*1000/info.playerTickRate;
+                                        }
+                                    }
+                                    if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                    if (mLoopMode) mNewModuleLength=-1;
+                                    
+                                    //mod_message_updated=2;
+                                    mChangeOfSong=1;
+                                } else nbBytes=0;
+                            }
                         }
                     }
                     if (mPlayType==MMP_PT3) { //PT3
@@ -6205,7 +6325,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     fclose(f);
     
 
-    ;
+    
 
     if (!(atariSndh.Load(mp_data,mp_datasize,PLAYBACK_FREQ))) {
         NSLog(@"AtariSound load error");
@@ -6213,9 +6333,25 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         free(mp_data);
         return -1;
     } else {
-        
-        
         SndhFile::SubSongInfo info;
+        uint8_t *sndhData=(uint8_t *)atariSndh.GetRawData();
+        int sndhDataLen=atariSndh.GetRawDataSize();
+        
+        //compute hash same way sc68 does to use their timedb table
+        //
+        atariSndh_hash=0;
+        for (int i=0;i<8+24;i++) {
+            atariSndh_hash += sndhData[i];
+            atariSndh_hash += atariSndh_hash << 10;
+            atariSndh_hash ^= atariSndh_hash >> 6;
+        }
+        for (int i=0;i<sndhDataLen;i++) {
+            atariSndh_hash += sndhData[i];
+            atariSndh_hash += atariSndh_hash << 10;
+            atariSndh_hash ^= atariSndh_hash >> 6;
+        }
+        
+
         
         mod_subsongs=atariSndh.GetSubsongCount();
         mod_minsub=1;
@@ -6231,6 +6367,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
         
         iModuleLength=info.playerTickCount*1000/info.playerTickRate;
+        
+        if (iModuleLength<=0) {
+            unsigned int frames;
+            int flags;
+            if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                iModuleLength=frames*1000/info.playerTickRate;
+            }
+        }
+        
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
         iCurrentTime=0;
         
@@ -6241,6 +6386,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             atariSndh.GetSubsongInfo(i+1, info);
             
             int subsong_length=info.playerTickCount*1000/info.playerTickRate;
+            
+            if (subsong_length<=0) {
+                unsigned int frames;
+                int flags;
+                if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                    subsong_length=frames*1000/info.playerTickRate;
+                }
+            }
+            
             if (subsong_length<=0) subsong_length=optGENDefaultLength;
             mod_total_length+=subsong_length;
             
@@ -6278,10 +6432,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         numChannels=2;
         
-        if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..:%s\nArtist.........: %s\nYear.........: %s\n",
-                info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year);
-        else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear....: %s\n",
-                     info.musicTitle,info.musicAuthor,info.year);
+        if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+        else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                     info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+        
+        
         artist=[NSString stringWithFormat:@"%s",info.musicAuthor];
         
         return 0;
@@ -10167,6 +10323,35 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             break;
         case MMP_ATARISOUND:  //SNDH
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+        {
+            atariSndh.InitSubSong(mod_currentsub);
+            SndhFile::SubSongInfo info;
+            atariSndh.GetSubsongInfo(mod_currentsub,info);
+            
+            iModuleLength=info.playerTickCount*1000/info.playerTickRate;
+            if (iModuleLength<=0) {
+                unsigned int frames;
+                int flags;
+                if (timedb68_get(atariSndh_hash,mod_currentsub-1,&frames,&flags)>=0) {
+                    iModuleLength=frames*1000/info.playerTickRate;
+                }
+            }
+            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+            if (mLoopMode) iModuleLength=-1;
+            
+            if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
+                    info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+            else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
+                         info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+            
+            if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
+            else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+            
+            mod_message_updated=2;
+        }
             if (startPos) [self Seek:startPos];
             [self Play];
             break;

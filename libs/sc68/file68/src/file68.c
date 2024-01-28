@@ -422,7 +422,7 @@ int isread(vfs68_t * const is, void * data, int len, unsigned int * hptr)
     do {
       h += *k++;
       h += h << 10;
-      h ^= h >> 6;
+      h ^= h >> 6;        
     } while (--n);
     *hptr = h;
   }
@@ -1506,6 +1506,7 @@ disk68_t * file68_load(vfs68_t * is)
   if (len = read_header(is, h), len < 0) {
     /* Verify tells it is a gzip or unice file, so we may give it a try.
      */
+      printf("hash: %08X\n",hash);
     if (1) {
       void * buffer = 0;
       int l;
