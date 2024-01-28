@@ -3583,9 +3583,55 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_SC68) {//SC68
-                            mNeedSeek=0; //not supported yet
-                            //bGlobalSeekProgress=-1;
-                            //sc68_cntl(sc68,SC68_SET_POS,mNeedSeekTime); //not implemented yet
+                            int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (mCurrentSamples >seekSample) {
+                                sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
+                                mCurrentSamples=0;
+                            }
+                            
+                            while (seekSample - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
+                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
+                                int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
+                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                
+                                mCurrentSamples += nbBytes/4;
+                                                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }
+                            if (seekSample - mCurrentSamples > 0)
+                            {
+                                nbBytes=(seekSample-mCurrentSamples)/4;
+                                int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
+                                
+                                mCurrentSamples = seekSample;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }                            
+                            
+                            //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_PT3) {//PT3
                             int64_t pt3_target_seek=mNeedSeekTime*PLAYBACK_FREQ/1000;
@@ -11207,7 +11253,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_SC68)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
