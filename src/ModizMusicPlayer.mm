@@ -383,6 +383,7 @@ static int hvl_sample_to_write,mHVLinit;
 //ATARIAUDIO
 SndhFile atariSndh;
 uint32_t atariSndh_hash;
+uint32_t *atariWaveData;
 //STSOUND
 static YMMUSIC *ymMusic;
 //SC68
@@ -3629,7 +3630,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mNeedSeekTime=iCurrentTime;
                                     break;
                                 }
-                            }                            
+                            }
                             
                             //mNeedSeek=0;
                         }
@@ -5056,12 +5057,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         else nbBytes=0;
                     }
                     if (mPlayType==MMP_ATARISOUND) { //ATARISOUND
-                        int retAtari=atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
+                        int retAtari=atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE,atariWaveData);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                         for (int i=SOUND_BUFFER_SIZE_SAMPLE-1;i>=0;i--) {
                             buffer_ana[buffer_ana_gen_ofs][i*2+1]=buffer_ana[buffer_ana_gen_ofs][i];
                             buffer_ana[buffer_ana_gen_ofs][i*2]=buffer_ana[buffer_ana_gen_ofs][i];
+                            
+                            //copy voice data for oscillo view
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(signed char)(atariWaveData[i]&0xFF);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(signed char)((atariWaveData[i]>>8)&0xFF);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+2]=(signed char)((atariWaveData[i]>>16)&0xFF);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+3]=(signed char)((atariWaveData[i]>>24)&0xFF);
                         }
                         //if (loopCnt&&(mLoopMode==0)) nbBytes=0;
                         
@@ -5118,7 +5125,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //m_voice_buff_ana[buffer_ana_gen_ofs][ch*SOUND_MAXVOICES_BUFFER_FX+j]=
                             }
                             buffer_ana[buffer_ana_gen_ofs][j] = (short)(tv/pt3_numofchips);
-                            
                         }
                         
                         //copy voice data for oscillo view
@@ -6485,6 +6491,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         
         artist=[NSString stringWithFormat:@"%s",info.musicAuthor];
+        
+        atariWaveData=(uint32_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4);
+        numChannels=4;
+        m_voicesDataAvail=1;
+        numVoicesChannels=numChannels;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+        }
         
         return 0;
     }
@@ -10635,6 +10649,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_ATARISOUND) { //ATARISOUND
         if (mp_data) free(mp_data);
+        if (atariWaveData) free(atariWaveData);
+        atariWaveData=NULL;
         mp_data=NULL;
         atariSndh.Unload();
     }
@@ -11403,6 +11419,7 @@ extern "C" void adjust_amplification(void);
             return 1;
         case MMP_GSF:
             return 2;
+        case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
