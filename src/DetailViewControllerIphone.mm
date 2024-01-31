@@ -114,7 +114,7 @@ static MPVolumeView *volumeView;
 static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
-static int txtSubMenuHandle[38];
+static int txtSubMenuHandle[39];
 
 //int texturePiano;
 
