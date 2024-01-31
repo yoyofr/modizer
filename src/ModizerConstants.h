@@ -136,11 +136,11 @@
 
 #define MODLAND_HOST_DEFAULT "ftp://ftp.modland.com"
 #define MODLAND_HOST_ALT1 "ftp://ftp.amigascne.org/mirrors/ftp.modland.com"
-#define MODLAND_HOST_ALT2 "ftp://modland.ziphoid.com"
+#define MODLAND_HOST_ALT2 "aero.exotica.org.uk/pub/mirrors/modland"
 
-#define HVSC_HOST_DEFAULT "http://hvsc.perff.dk"
-#define HVSC_HOST_ALT1 "https://hvsc.etv.cx/?path=C64Music"
-#define HVSC_HOST_ALT2 "http://www.prg.dtu.dk/HVSC/C64Music"
+#define HVSC_HOST_DEFAULT "https://hvsc.brona.dk/HVSC/C64Music"
+#define HVSC_HOST_ALT1 "https://www.sannic.nl/hvsc/?dir=C64Music"
+#define HVSC_HOST_ALT2 "https://mirror.mos6581.de/hvsc/"
 
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"

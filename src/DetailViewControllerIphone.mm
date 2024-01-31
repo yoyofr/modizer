@@ -3258,9 +3258,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-30);
-                m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
-                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-30-mDevice_ww/10);
-                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82-30+82);
+                m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30-safe_bottom);
+                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-30-mDevice_ww/10-safe_bottom);
+                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82-30+82-safe_bottom);
                 if (gifAnimation) {
                     //NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
                     gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
@@ -3269,7 +3269,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
                 if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
 
-                oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
+                oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30-safe_bottom);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volWin.hidden=YES;
@@ -3282,7 +3282,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
-                else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
+                else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30-safe_bottom);
                 
                 int xofs=mDevice_hh-(24*5+36*3+8);
                 int yofs=10;
@@ -4126,8 +4126,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 {
     UIDeviceOrientation op=[[UIDevice currentDevice]orientation];
     UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
-    //NSLog(@"change orientation: %d / %d",o,op);
-    /*o = [[UIApplication sharedApplication] statusBarOrientation];
+    NSLog(@"change orientation: %d / %d",o,op);
+    o = [[UIApplication sharedApplication] statusBarOrientation];
 
     switch (o) {
         case UIInterfaceOrientationLandscapeLeft:
@@ -4143,8 +4143,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             orientationHV=(int)UIInterfaceOrientationPortrait;
             break;
     }
-    */
-    switch (op) {
+    
+    /*switch (op) {
         case UIDeviceOrientationPortrait:            // Device oriented vertically, home button on the bottom
             orientationHV=(int)UIInterfaceOrientationPortrait;
             break;
@@ -4165,7 +4165,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             break;
         default:
             orientationHV=(int)UIInterfaceOrientationPortrait;
-    }
+    }*/
 
     /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
     {
@@ -4417,7 +4417,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	coverflow.coverflowDelegate = self;
 	coverflow.dataSource = self;
     coverflow.hidden=TRUE;
-    
     
     if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad){
 		coverflow.coverSpacing = 160;
@@ -5024,6 +5023,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         btnPlayCFlow.alpha=0;
         btnPauseCFlow.alpha=0;
         btnBackCFlow.alpha=0;
+        btnNextCFlow.alpha=0;
+        btnPrevCFlow.alpha=0;
         
         coverflow.hidden=TRUE;
         lblMainCoverflow.hidden=TRUE;
@@ -5032,7 +5033,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         lblTimeFCflow.hidden=TRUE;
         btnPlayCFlow.hidden=TRUE;
         btnPauseCFlow.hidden=TRUE;
+        
         btnBackCFlow.hidden=TRUE;
+        btnNextCFlow.hidden=TRUE;
+        btnPrevCFlow.hidden=TRUE;        
     }
     
     //eq

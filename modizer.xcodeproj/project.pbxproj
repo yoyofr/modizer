@@ -870,7 +870,6 @@
 		CC8369642B57CCC80035A4DA /* getea68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369392B57CCC80035A4DA /* getea68.c */; };
 		CC8369672B581DDA0035A4DA /* error68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83693B2B57CCC80035A4DA /* error68.c */; };
 		CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC8369922B5DD5510035A4DA /* playpt3.txt */; };
-		CC8369942B5DE5830035A4DA /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
 		CC83699B2B6199410035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */; };
 		CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */; };
 		CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
@@ -881,7 +880,6 @@
 		CC8369A22B623D740035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
 		CC8369A32B623D740035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
 		CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
-		CC836A882B6324590035A4DA /* liblibatariaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC836A5A2B6322780035A4DA /* liblibatariaudio.a */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -948,6 +946,8 @@
 		CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE9BF3123D7CA6007D9462 /* modizer_logo.png */; };
 		CCD00F7F1209EA92002A1D61 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F7E1209EA92002A1D61 /* cancel.png */; };
 		CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F801209EAF5002A1D61 /* mini_cancel.png */; };
+		CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
+		CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC836A5A2B6322780035A4DA /* liblibatariaudio.a */; };
 		CCD4631E123CB8F600D063FE /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCD4631D123CB8F600D063FE /* main.mm */; };
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
@@ -2743,7 +2743,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC8369942B5DE5830035A4DA /* liblibpt3.a in Frameworks */,
+				CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */,
+				CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */,
 				59BE9380260010BD00414A42 /* libsidplayfp.a in Frameworks */,
 				591CAAEA2648FAC100168C7E /* speex.framework in Frameworks */,
 				591CAAE62648FAC100168C7E /* vo-amrwbenc.framework in Frameworks */,
@@ -2808,7 +2809,6 @@
 				591CAAD42648FAC100168C7E /* libvorbisenc.framework in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5966D0B925CFEDF000520777 /* libopenmpt.a in Frameworks */,
-				CC836A882B6324590035A4DA /* liblibatariaudio.a in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

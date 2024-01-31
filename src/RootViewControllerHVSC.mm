@@ -1747,7 +1747,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                         bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
                     else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];
                     
-                    NSLog(@"songs: %d",cur_db_entries[section][indexPath.row].songs);
+                    //NSLog(@"songs: %d",cur_db_entries[section][indexPath.row].songs);
                     
                     if (cur_db_entries[section][indexPath.row].songs>0) {
                         if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];

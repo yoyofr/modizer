@@ -339,7 +339,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     mDatabaseCreationInProgress=1;
     
     if (settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value==1) {
-        if (mUpdateToNewDB) [self createSamplesFromPackage:TRUE];  //If upgrade to new version, recreate Samples dir
+        /*if (mUpdateToNewDB) */[self createSamplesFromPackage:TRUE];
     } else [self createSamplesFromPackage:FALSE];
     
     if (quiet) [self recreateDB];
