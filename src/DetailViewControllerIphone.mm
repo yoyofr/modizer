@@ -4126,7 +4126,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 {
     UIDeviceOrientation op=[[UIDevice currentDevice]orientation];
     UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
-    NSLog(@"change orientation: %d / %d",o,op);
+    //NSLog(@"change orientation: %d / %d",o,op);
     o = [[UIApplication sharedApplication] statusBarOrientation];
 
     switch (o) {
@@ -4344,14 +4344,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 		if (!is_macOS) mDeviceType=1; //ipad
         UIScreen* mainscr = [UIScreen mainScreen];
+        
+        UIWindow *win=[UIApplication sharedApplication].keyWindow;
 
-        if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-            mDevice_hh=mainscr.bounds.size.height;
-            mDevice_ww=mainscr.bounds.size.width;
+        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=mainscr.bounds.size.height;
-            mDevice_hh=mainscr.bounds.size.width;
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
         
@@ -4364,27 +4367,22 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             [self.view.window setFrame: frame];*/
             
         }
-        
-        
         mScaleFactor=mainscr.scale;
-        
         if (mScaleFactor>=2) mDeviceType=2;
-	}
-	else {
-		
+	} else {
 		mDeviceType=0; //iphone
 		mDevice_hh=480;
 		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
-        
+        UIWindow *win=[UIApplication sharedApplication].keyWindow;
 //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
-        if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-            mDevice_hh=mainscr.bounds.size.height;
-            mDevice_ww=mainscr.bounds.size.width;
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=mainscr.bounds.size.height;
-            mDevice_hh=mainscr.bounds.size.width;
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
         mScaleFactor=mainscr.scale;
@@ -4972,6 +4970,22 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
+        if (!is_macOS) mDeviceType=1; //ipad
+        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+        if (size.height>size.width) {
+            mDevice_hh=size.height;
+            mDevice_ww=size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        } else {
+            mDevice_ww=size.height;
+            mDevice_hh=size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+    }
+    
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     //[waitingView setNeedsLayout]
 }
@@ -4988,6 +5002,44 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
+    
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        if (!is_macOS) mDeviceType=1; //ipad
+        UIScreen* mainscr = [UIScreen mainScreen];
+        
+        UIWindow *win=[UIApplication sharedApplication].keyWindow;
+        
+        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        } else {
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+    } else {
+        mDeviceType=0; //iphone
+        mDevice_hh=480;
+        mDevice_ww=320;
+        UIScreen* mainscr = [UIScreen mainScreen];
+        UIWindow *win=[UIApplication sharedApplication].keyWindow;
+//        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        } else {
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+        mScaleFactor=mainscr.scale;
+        
+        if (mScaleFactor>=2) mDeviceType=2;
+    }
     
     safe_bottom=0;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
@@ -5036,7 +5088,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         
         btnBackCFlow.hidden=TRUE;
         btnNextCFlow.hidden=TRUE;
-        btnPrevCFlow.hidden=TRUE;        
+        btnPrevCFlow.hidden=TRUE;
     }
     
     //eq
