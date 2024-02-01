@@ -1,7 +1,7 @@
 /*
  * mod2wave.h
  * ----------
- * Purpose: Module to WAV conversion (dialog + conversion code).
+ * Purpose: Module to steaming audio (WAV, MP3, etc.) conversion (dialog + conversion code).
  * Notes  : (currently none)
  * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
@@ -10,42 +10,26 @@
 
 #pragma once
 
-#include "StreamEncoder.h"
-#include "Settings.h"
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "ProgressDialog.h"
+#include "Settings.h"
+#include "StreamEncoder.h"
+#include "StreamEncoderSettings.h"
+#include "../soundlib/Snd_defs.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Direct To Disk Recording
-
-
-struct StoredTags
-{
-	Setting<mpt::ustring> artist;
-	Setting<mpt::ustring> album;
-	Setting<mpt::ustring> trackno;
-	Setting<mpt::ustring> year;
-	Setting<mpt::ustring> url;
-
-	Setting<mpt::ustring> genre;
-
-	StoredTags(SettingsContainer &conf);
-
-};
-
+class CSoundFile;
 
 struct CWaveConvertSettings
 {
 	std::vector<EncoderFactoryBase*> EncoderFactories;
-	std::vector<std::shared_ptr<Encoder::Settings> > EncoderSettings;
+	std::vector<std::unique_ptr<EncoderSettingsConf>> EncoderSettings;
 
 	Setting<mpt::ustring> EncoderName;
 	std::size_t EncoderIndex;
-
-	SampleFormat FinalSampleFormat;
 
 	StoredTags storedTags;
 	FileTags Tags;
@@ -53,6 +37,7 @@ struct CWaveConvertSettings
 	int repeatCount;
 	ORDERINDEX minOrder, maxOrder;
 	SAMPLEINDEX sampleSlot;
+	SEQUENCEINDEX minSequence, maxSequence;
 
 	bool normalize : 1;
 	bool silencePlugBuffers : 1;
@@ -62,24 +47,23 @@ struct CWaveConvertSettings
 	void SelectEncoder(std::size_t index);
 	EncoderFactoryBase *GetEncoderFactory() const;
 	const Encoder::Traits *GetTraits() const;
-	Encoder::Settings &GetEncoderSettings() const;
+	EncoderSettingsConf &GetEncoderSettings() const;
+	Encoder::Settings GetEncoderSettingsWithDetails() const;
 	CWaveConvertSettings(SettingsContainer &conf, const std::vector<EncoderFactoryBase*> &encFactories);
 };
 
 
-//================================
 class CWaveConvert: public CDialog
-//================================
 {
 public:
 	CWaveConvertSettings m_Settings;
 	const Encoder::Traits *encTraits;
 	CSoundFile &m_SndFile;
-	uint64 m_dwFileLimit, m_dwSongLimit;
+	uint64 m_dwSongLimit;
 	ORDERINDEX m_nNumOrders;
 
 	CComboBox m_CbnFileType, m_CbnSampleRate, m_CbnChannels, m_CbnDither, m_CbnSampleFormat, m_CbnSampleSlot;
-	CSpinButtonCtrl m_SpinLoopCount, m_SpinMinOrder, m_SpinMaxOrder;
+	CSpinButtonCtrl m_SpinLoopCount, m_SpinMinOrder, m_SpinMaxOrder, m_SpinMinSequence, m_SpinMaxSequence;
 
 	bool m_bGivePlugsIdleTime;
 	bool m_bChannelMode;		// Render by channel
@@ -90,7 +74,6 @@ public:
 	CEdit m_EditGenre;
 
 private:
-	void OnShowEncoderInfo();
 	void FillFileTypes();
 	void FillSamplerates();
 	void FillChannels();
@@ -108,10 +91,9 @@ public:
 
 public:
 	void UpdateDialog();
-	virtual BOOL OnInitDialog();
-	virtual void DoDataExchange(CDataExchange *pDX);
-	virtual void OnOK();
-	afx_msg void OnCheckSizeLimit();
+	BOOL OnInitDialog() override;
+	void DoDataExchange(CDataExchange *pDX) override;
+	void OnOK() override;
 	afx_msg void OnCheckTimeLimit();
 	afx_msg void OnCheckChannelMode();
 	afx_msg void OnCheckInstrMode();
@@ -127,28 +109,26 @@ public:
 };
 
 
-//==========================================
 class CDoWaveConvert: public CProgressDialog
-//==========================================
 {
 public:
 	const CWaveConvertSettings &m_Settings;
 	CSoundFile &m_SndFile;
-	const mpt::PathString &m_lpszFileName;
+	std::ostream &fileStream;
 	const CString &caption;
-	uint64 m_dwFileLimit, m_dwSongLimit;
+	uint64 m_dwSongLimit;
 	bool m_bGivePlugsIdleTime;
 
 public:
-	CDoWaveConvert(CSoundFile &sndFile, const mpt::PathString &filename, const CString &caption, const CWaveConvertSettings &settings, CWnd *parent = NULL)
+	CDoWaveConvert(CSoundFile &sndFile, std::ostream &f, const CString &caption, const CWaveConvertSettings &settings, CWnd *parent = NULL)
 		: CProgressDialog(parent)
-		, m_SndFile(sndFile)
 		, m_Settings(settings)
-		, m_lpszFileName(filename)
+		, m_SndFile(sndFile)
+		, fileStream(f)
 		, caption(caption)
-		, m_dwFileLimit(0), m_dwSongLimit(0)
+		, m_dwSongLimit(0)
 	{ }
-	void Run();
+	void Run() override;
 };
 
 

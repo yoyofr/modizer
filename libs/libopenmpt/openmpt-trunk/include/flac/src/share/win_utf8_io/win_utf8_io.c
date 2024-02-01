@@ -1,5 +1,5 @@
 /* libFLAC - Free Lossless Audio Codec library
- * Copyright (C) 2013-2016  Xiph.Org Foundation
+ * Copyright (C) 2013-2023  Xiph.Org Foundation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,11 +33,22 @@
 #  include <config.h>
 #endif
 
+#include <io.h>
 #include <windows.h>
 #include "share/win_utf8_io.h"
-#include "share/windows_unicode_filenames.h"
 
 #define UTF8_BUFFER_SIZE 32768
+
+/* detect whether it is Windows APP (UWP) or standard Win32 envionment */
+#ifdef WINAPI_FAMILY_PARTITION
+	#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+		#define FLAC_WINDOWS_APP 1
+	#else
+		#define FLAC_WINDOWS_APP 0
+	#endif
+#else
+	#define FLAC_WINDOWS_APP 0
+#endif
 
 static int local_vsnprintf(char *str, size_t size, const char *fmt, va_list va)
 {
@@ -101,20 +112,23 @@ static wchar_t *wchar_from_utf8(const char *str)
 /* retrieve WCHAR commandline, expand wildcards and convert everything to UTF-8 */
 int get_utf8_argv(int *argc, char ***argv)
 {
+#if !FLAC_WINDOWS_APP
 	typedef int (__cdecl *wgetmainargs_t)(int*, wchar_t***, wchar_t***, int, int*);
 	wgetmainargs_t wgetmainargs;
 	HMODULE handle;
+#endif // !FLAC_WINDOWS_APP
 	int wargc;
 	wchar_t **wargv;
 	wchar_t **wenv;
 	char **utf8argv;
 	int ret, i;
 
-#if 0 // OpenMPT
-	if ((handle = LoadLibrary("msvcrt.dll")) == NULL) return 1;
-#else // OpenMPT
-	if ((handle = LoadLibrary(TEXT("msvcrt.dll"))) == NULL) return 1; // OpenMPT
-#endif // OpenMPT
+#if FLAC_WINDOWS_APP
+	wargc = __argc;
+	wargv = __wargv;
+	wenv = _wenviron;
+#else // !FLAC_WINDOWS_APP
+	if ((handle = LoadLibraryW(L"msvcrt.dll")) == NULL) return 1;
 	if ((wgetmainargs = (wgetmainargs_t)GetProcAddress(handle, "__wgetmainargs")) == NULL) {
 		FreeLibrary(handle);
 		return 1;
@@ -125,8 +139,11 @@ int get_utf8_argv(int *argc, char ***argv)
 		FreeLibrary(handle);
 		return 1;
 	}
+#endif // !FLAC_WINDOWS_APP
 	if ((utf8argv = (char **)calloc(wargc, sizeof(char*))) == NULL) {
+	#if !FLAC_WINDOWS_APP
 		FreeLibrary(handle);
+	#endif // !FLAC_WINDOWS_APP
 		return 1;
 	}
 
@@ -138,10 +155,11 @@ int get_utf8_argv(int *argc, char ***argv)
 		}
 	}
 
+#if !FLAC_WINDOWS_APP
 	FreeLibrary(handle); /* do not free it when wargv or wenv are still in use */
+#endif // !FLAC_WINDOWS_APP
 
 	if (ret == 0) {
-		flac_set_utf8_filenames(true);
 		*argc = wargc;
 		*argv = utf8argv;
 	} else {
@@ -151,6 +169,31 @@ int get_utf8_argv(int *argc, char ***argv)
 	}
 
 	return ret;
+}
+
+/* similar to CreateFileW but accepts UTF-8 encoded lpFileName */
+HANDLE WINAPI CreateFile_utf8(const char *lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+{
+	wchar_t *wname;
+	HANDLE handle = INVALID_HANDLE_VALUE;
+
+	if ((wname = wchar_from_utf8(lpFileName)) != NULL) {
+#if !FLAC_WINDOWS_APP
+		handle = CreateFileW(wname, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+#else // FLAC_WINDOWS_APP
+		CREATEFILE2_EXTENDED_PARAMETERS params;
+		params.dwSize = sizeof(params);
+		params.dwFileAttributes = dwFlagsAndAttributes & 0xFFFF;
+		params.dwFileFlags = dwFlagsAndAttributes & 0xFFF00000;
+		params.dwSecurityQosFlags = dwFlagsAndAttributes & 0x000F0000;
+		params.lpSecurityAttributes = lpSecurityAttributes;
+		params.hTemplateFile = hTemplateFile;
+		handle = CreateFile2(wname, dwDesiredAccess, dwShareMode, dwCreationDisposition, &params);
+#endif // FLAC_WINDOWS_APP
+		free(wname);
+	}
+
+	return handle;
 }
 
 /* return number of characters in the UTF-8 string */
@@ -168,16 +211,19 @@ size_t strlen_utf8(const char *str)
 int win_get_console_width(void)
 {
 	int width = 80;
+#if !FLAC_WINDOWS_APP
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if(hOut != INVALID_HANDLE_VALUE && hOut != NULL)
 		if (GetConsoleScreenBufferInfo(hOut, &csbi) != 0)
 			width = csbi.dwSize.X;
+#endif // !FLAC_WINDOWS_APP
 	return width;
 }
 
 /* print functions */
 
+#if !FLAC_WINDOWS_APP
 static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
 {
 	DWORD out;
@@ -207,6 +253,7 @@ static int wprint_console(FILE *stream, const wchar_t *text, size_t len)
 		return ret;
 	return len;
 }
+#endif // !FLAC_WINDOWS_APP
 
 int printf_utf8(const char *format, ...)
 {
@@ -247,11 +294,105 @@ int vfprintf_utf8(FILE *stream, const char *format, va_list argptr)
 			ret = -1;
 			break;
 		}
+#if !FLAC_WINDOWS_APP
 		ret = wprint_console(stream, wout, wcslen(wout));
+#else // FLAC_WINDOWS_APP
+		OutputDebugStringW(wout);
+		ret = 0;
+#endif // FLAC_WINDOWS_APP
 	} while(0);
 
 	free(utmp);
 	free(wout);
+
+	return ret;
+}
+
+/* file functions */
+
+FILE* fopen_utf8(const char *filename, const char *mode)
+{
+	wchar_t *wname = NULL;
+	wchar_t *wmode = NULL;
+	FILE *f = NULL;
+
+	do {
+		if (!(wname = wchar_from_utf8(filename))) break;
+		if (!(wmode = wchar_from_utf8(mode))) break;
+		f = _wfopen(wname, wmode);
+	} while(0);
+
+	free(wname);
+	free(wmode);
+
+	return f;
+}
+
+int stat64_utf8(const char *path, struct __stat64 *buffer)
+{
+	wchar_t *wpath;
+	int ret;
+
+	if (!(wpath = wchar_from_utf8(path))) return -1;
+	ret = _wstat64(wpath, buffer);
+	free(wpath);
+
+	return ret;
+}
+
+int chmod_utf8(const char *filename, int pmode)
+{
+	wchar_t *wname;
+	int ret;
+
+	if (!(wname = wchar_from_utf8(filename))) return -1;
+	ret = _wchmod(wname, pmode);
+	free(wname);
+
+	return ret;
+}
+
+int utime_utf8(const char *filename, struct utimbuf *times)
+{
+	wchar_t *wname;
+	struct __utimbuf64 ut;
+	int ret;
+
+	if (!(wname = wchar_from_utf8(filename))) return -1;
+	ut.actime = times->actime;
+	ut.modtime = times->modtime;
+	ret = _wutime64(wname, &ut);
+	free(wname);
+
+	return ret;
+}
+
+int unlink_utf8(const char *filename)
+{
+	wchar_t *wname;
+	int ret;
+
+	if (!(wname = wchar_from_utf8(filename))) return -1;
+	ret = _wunlink(wname);
+	free(wname);
+
+	return ret;
+}
+
+int rename_utf8(const char *oldname, const char *newname)
+{
+	wchar_t *wold = NULL;
+	wchar_t *wnew = NULL;
+	int ret = -1;
+
+	do {
+		if (!(wold = wchar_from_utf8(oldname))) break;
+		if (!(wnew = wchar_from_utf8(newname))) break;
+		ret = _wrename(wold, wnew);
+	} while(0);
+
+	free(wold);
+	free(wnew);
 
 	return ret;
 }

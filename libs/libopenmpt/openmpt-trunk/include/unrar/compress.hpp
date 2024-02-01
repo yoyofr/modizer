@@ -6,8 +6,18 @@
 class PackDef
 {
   public:
+    // Maximum LZ match length we can encode even for short distances.
     static const uint MAX_LZ_MATCH = 0x1001;
+
+    // We increment LZ match length for longer distances, because shortest
+    // matches are not allowed for them. Maximum length increment is 3
+    // for distances larger than 256KB (0x40000). Here we define the maximum
+    // incremented LZ match. Normally packer does not use it, but we must be
+    // ready to process it in corrupt archives.
+    static const uint MAX_INC_LZ_MATCH = MAX_LZ_MATCH + 3;
+
     static const uint MAX3_LZ_MATCH = 0x101; // Maximum match length for RAR v3.
+    static const uint MAX3_INC_LZ_MATCH = MAX3_LZ_MATCH + 3;
     static const uint LOW_DIST_REP_COUNT = 16;
 
     static const uint NC    = 306; /* alphabet = {0, 1, 2, ..., NC - 1} */

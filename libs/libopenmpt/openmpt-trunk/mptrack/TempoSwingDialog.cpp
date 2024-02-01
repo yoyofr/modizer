@@ -11,12 +11,13 @@
 #include "stdafx.h"
 #include "TempoSwingDialog.h"
 #include "Mainfrm.h"
+#include "MPTrackUtil.h"
+#include "resource.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 void CTempoSwingDlg::RowCtls::SetValue(TempoSwing::value_type v)
-//--------------------------------------------------------------
 {
 	int32 val = Util::muldivr(static_cast<int32>(v) - TempoSwing::Unity, CTempoSwingDlg::SliderUnity, TempoSwing::Unity);
 	valueSlider.SetPos(val);
@@ -24,7 +25,6 @@ void CTempoSwingDlg::RowCtls::SetValue(TempoSwing::value_type v)
 
 
 TempoSwing::value_type CTempoSwingDlg::RowCtls::GetValue() const
-//--------------------------------------------------------------
 {
 	return Util::muldivr(valueSlider.GetPos(), TempoSwing::Unity, SliderUnity) + TempoSwing::Unity;
 }
@@ -33,10 +33,10 @@ TempoSwing::value_type CTempoSwingDlg::RowCtls::GetValue() const
 BEGIN_MESSAGE_MAP(CTempoSwingDlg, CDialog)
 	//{{AFX_MSG_MAP(CTempoSwingDlg)
 	ON_WM_VSCROLL()
-	ON_COMMAND(IDC_BUTTON1,	OnReset)
-	ON_COMMAND(IDC_BUTTON2,	OnUseGlobal)
-	ON_COMMAND(IDC_CHECK1,	OnToggleGroup)
-	ON_EN_CHANGE(IDC_EDIT1, OnGroupChanged)
+	ON_COMMAND(IDC_BUTTON1,	&CTempoSwingDlg::OnReset)
+	ON_COMMAND(IDC_BUTTON2,	&CTempoSwingDlg::OnUseGlobal)
+	ON_COMMAND(IDC_CHECK1,	&CTempoSwingDlg::OnToggleGroup)
+	ON_EN_CHANGE(IDC_EDIT1, &CTempoSwingDlg::OnGroupChanged)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -56,7 +56,6 @@ CTempoSwingDlg::CTempoSwingDlg(CWnd *parent, const TempoSwing &currentTempoSwing
 
 
 void CTempoSwingDlg::DoDataExchange(CDataExchange* pDX)
-//-----------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHECK1, m_checkGroup);
@@ -66,7 +65,6 @@ void CTempoSwingDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CTempoSwingDlg::OnInitDialog()
-//---------------------------------
 {
 	struct Measurements
 	{
@@ -120,7 +118,7 @@ BOOL CTempoSwingDlg::OnInitDialog()
 	CMainFrame::GetMainFrame()->GetClientRect(mainWindowRect);
 
 	const int realHeight = static_cast<int>(m_tempoSwing.size()) * m.rowHeight;
-	const int displayHeight = std::min<int>(realHeight, mainWindowRect.bottom - windowRect.Height() - m.paddingTop - m.footerHeight);
+	const int displayHeight = std::min(realHeight, static_cast<int>(mainWindowRect.bottom - windowRect.Height() - m.paddingTop - m.footerHeight));
 
 	CRect containerRect;
 	m_container.GetClientRect(containerRect);
@@ -155,11 +153,10 @@ BOOL CTempoSwingDlg::OnInitDialog()
 	m_controls.resize(m_tempoSwing.size());
 	for(size_t i = 0; i < m_controls.size(); i++)
 	{
-		auto r = m_controls[i] = std::make_shared<RowCtls>();
+		m_controls[i] = std::make_unique<RowCtls>();
+		auto &r = m_controls[i];
 		// Row label
-		TCHAR s[16];
-		wsprintf(s, _T("Row %u:"), i + 1);
-		r->rowLabel.Create(s, WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, CRect(rect.left, rect.top, rect.right, rect.top + m.rowHeight), &m_container);
+		r->rowLabel.Create(MPT_CFORMAT("Row {}:")(i + 1), WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, CRect(rect.left, rect.top, rect.right, rect.top + m.rowHeight), &m_container);
 		r->rowLabel.SetFont(GetFont());
 
 		// Value label
@@ -203,13 +200,12 @@ BOOL CTempoSwingDlg::OnInitDialog()
 
 
 void CTempoSwingDlg::OnOK()
-//-------------------------
 {
 	CDialog::OnOK();
 	// If this is the default setup, just clear the vector.
 	if(m_pattern == PATTERNINDEX_INVALID)
 	{
-		if(static_cast<size_t>(std::count(m_tempoSwing.begin(), m_tempoSwing.end(), TempoSwing::Unity)) == m_tempoSwing.size())
+		if(static_cast<size_t>(std::count(m_tempoSwing.begin(), m_tempoSwing.end(), static_cast<TempoSwing::value_type>(TempoSwing::Unity))) == m_tempoSwing.size())
 		{
 			m_tempoSwing.clear();
 		}
@@ -225,7 +221,6 @@ void CTempoSwingDlg::OnOK()
 
 
 void CTempoSwingDlg::OnCancel()
-//-----------------------------
 {
 	CDialog::OnCancel();
 	OnClose();
@@ -233,7 +228,6 @@ void CTempoSwingDlg::OnCancel()
 
 
 void CTempoSwingDlg::OnClose()
-//----------------------------
 {
 	// Restore original swing properties after preview
 	if(m_pattern == PATTERNINDEX_INVALID)
@@ -247,7 +241,6 @@ void CTempoSwingDlg::OnClose()
 
 
 void CTempoSwingDlg::OnReset()
-//----------------------------
 {
 	for(size_t i = 0; i < m_controls.size(); i++)
 	{
@@ -258,7 +251,6 @@ void CTempoSwingDlg::OnReset()
 
 
 void CTempoSwingDlg::OnUseGlobal()
-//--------------------------------
 {
 	if(m_sndFile.m_tempoSwing.empty())
 	{
@@ -274,7 +266,6 @@ void CTempoSwingDlg::OnUseGlobal()
 
 
 void CTempoSwingDlg::OnToggleGroup()
-//----------------------------------
 {
 	const BOOL checked = m_checkGroup.GetCheck() != BST_UNCHECKED;
 	GetDlgItem(IDC_EDIT1)->EnableWindow(checked);
@@ -283,7 +274,6 @@ void CTempoSwingDlg::OnToggleGroup()
 
 
 void CTempoSwingDlg::OnGroupChanged()
-//-----------------------------------
 {
 	int val = GetDlgItemInt(IDC_EDIT1);
 	if(val > 0) m_groupSize = std::min(val, static_cast<int>(m_tempoSwing.size()));
@@ -291,7 +281,6 @@ void CTempoSwingDlg::OnGroupChanged()
 
 
 void CTempoSwingDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
-//-----------------------------------------------------------------------------
 {
 	if(pScrollBar == &m_scrollBar)
 	{
@@ -334,14 +323,14 @@ void CTempoSwingDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
 		case SB_PAGELEFT:		// Scroll one page left.
 			if(curpos > minpos)
 			{
-				curpos = MAX(minpos, curpos - (int)sbInfo.nPage);
+				curpos = std::max(minpos, curpos - static_cast<int>(sbInfo.nPage));
 			}
 			break;
 
 		case SB_PAGERIGHT:		// Scroll one page right.
 			if(curpos < maxpos)
 			{
-				curpos = MIN(maxpos, curpos + (int)sbInfo.nPage);
+				curpos = std::min(maxpos, curpos + static_cast<int>(sbInfo.nPage));
 			}
 			break;
 
@@ -369,13 +358,12 @@ void CTempoSwingDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
 BEGIN_MESSAGE_MAP(CTempoSwingDlg::SliderContainer, CDialog)
 	//{{AFX_MSG_MAP(CTempoSwingDlg::SliderContainer)
 	ON_WM_HSCROLL()
-	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, OnToolTipNotify)
+	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, &CTempoSwingDlg::SliderContainer::OnToolTipNotify)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
 void CTempoSwingDlg::SliderContainer::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
-//----------------------------------------------------------------------------------------------
 {
 	if(m_parent.m_checkGroup.GetCheck() != BST_UNCHECKED)
 	{
@@ -416,7 +404,7 @@ void CTempoSwingDlg::SliderContainer::OnHScroll(UINT nSBCode, UINT nPos, CScroll
 	for(size_t i = 0; i < m_parent.m_tempoSwing.size(); i++)
 	{
 		TCHAR s[32];
-		wsprintf(s, _T("%u%%"), Util::muldivr(m_parent.m_tempoSwing[i], 100, TempoSwing::Unity));
+		wsprintf(s, _T("%i%%"), Util::muldivr(m_parent.m_tempoSwing[i], 100, TempoSwing::Unity));
 		m_parent.m_controls[i]->valueLabel.SetWindowText(s);
 	}
 
@@ -425,9 +413,8 @@ void CTempoSwingDlg::SliderContainer::OnHScroll(UINT nSBCode, UINT nPos, CScroll
 
 
 BOOL CTempoSwingDlg::SliderContainer::OnToolTipNotify(UINT, NMHDR *pNMHDR, LRESULT *)
-//-----------------------------------------------------------------------------------
 {
-	TOOLTIPTEXT *pTTT = (TOOLTIPTEXTA*)pNMHDR;
+	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT*)pNMHDR;
 	for(size_t i = 0; i < m_parent.m_controls.size(); i++)
 	{
 		if((HWND)pNMHDR->idFrom == m_parent.m_controls[i]->valueSlider.m_hWnd)

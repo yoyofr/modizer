@@ -13,27 +13,15 @@
 #include "openmpt123_config.hpp"
 #include "openmpt123.hpp"
 
-#if defined(MPT_WITH_MMIO)
+#include "mpt/base/detect.hpp"
+
+#if MPT_OS_WINDOWS && !MPT_OS_WINDOWS_WINRT
 
 namespace openmpt123 {
 
-#define CHECKED(x) do { \
-	HRESULT err = x; \
-	if ( err != 0 ) { \
-		throw exception( "error writing wave file" ); \
-	} \
-} while(0)
-
-#define UNCHECKED(x) do { \
-	HRESULT err = x; \
-	if ( err != 0 ) { \
-		log << "error writing wave file" << std::endl; \
-	} \
-} while(0)
-
 class mmio_stream_raii : public file_audio_stream_base {
 private:
-	std::ostream & log;
+	concat_stream<mpt::ustring> & log;
 	commandlineflags flags;
 	WAVEFORMATEX waveformatex;
 	HMMIO mmio;
@@ -41,25 +29,36 @@ private:
 	MMCKINFO fmt__chunk;
 	MMCKINFO data_chunk;
 	MMIOINFO data_info;
+private:
+	void CHECKED( HRESULT err ) {
+		if ( err != 0 ) {
+			throw exception( MPT_USTRING("error writing wave file") );
+		}
+	}
+	void UNCHECKED( HRESULT err ) {
+		if ( err != 0 ) {
+			log << MPT_USTRING("error writing wave file") << lf;
+		}
+	}
 public:
-	mmio_stream_raii( const std::string & filename, const commandlineflags & flags_, std::ostream & log_ ) : log(log_), flags(flags_), mmio(NULL) {
+	mmio_stream_raii( const mpt::native_path & filename, const commandlineflags & flags_, concat_stream<mpt::ustring> & log_ ) : log(log_), flags(flags_), mmio(NULL) {
 
 		ZeroMemory( &waveformatex, sizeof( WAVEFORMATEX ) );
 		waveformatex.cbSize = 0;
 		waveformatex.wFormatTag = flags.use_float ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM;
-		waveformatex.nChannels = flags.channels;
+		waveformatex.nChannels = static_cast<WORD>( flags.channels );
 		waveformatex.nSamplesPerSec = flags.samplerate;
 		waveformatex.wBitsPerSample = flags.use_float ? 32 : 16;
-		waveformatex.nBlockAlign = flags.channels * ( waveformatex.wBitsPerSample / 8 );
+		waveformatex.nBlockAlign = static_cast<WORD>( flags.channels * ( waveformatex.wBitsPerSample / 8 ) );
 		waveformatex.nAvgBytesPerSec = waveformatex.nSamplesPerSec * waveformatex.nBlockAlign;
 
-		#if defined(WIN32) && defined(UNICODE)
-			wchar_t * tmp = _wcsdup( utf8_to_wstring( filename ).c_str() );
+		#if defined(UNICODE)
+			wchar_t * tmp = _wcsdup( filename.AsNative().c_str() );
 			mmio = mmioOpen( tmp, NULL, MMIO_ALLOCBUF | MMIO_READWRITE | MMIO_CREATE );
 			free( tmp );
 			tmp = 0;
 		#else
-			char * tmp = strdup( filename.c_str() );
+			char * tmp = strdup( filename.AsNative().c_str() );
 			mmio = mmioOpen( tmp, NULL, MMIO_ALLOCBUF | MMIO_READWRITE | MMIO_CREATE );
 			free( tmp );
 			tmp = 0;
@@ -88,7 +87,7 @@ public:
 
 	}
 				
-	void write( const std::vector<float*> buffers, std::size_t frames ) {
+	void write( const std::vector<float*> buffers, std::size_t frames ) override {
 		for ( std::size_t frame = 0; frame < frames; frame++ ) {
 			for ( std::size_t channel = 0; channel < buffers.size(); channel++ ) {
 				if ( data_info.pchEndWrite - data_info.pchNext < static_cast<long>( sizeof( float ) ) ) {
@@ -101,7 +100,7 @@ public:
 		}
 	}
 
-	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) {
+	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) override {
 		for ( std::size_t frame = 0; frame < frames; frame++ ) {
 			for ( std::size_t channel = 0; channel < buffers.size(); channel++ ) {
 				if ( data_info.pchEndWrite - data_info.pchNext < static_cast<long>( sizeof( std::int16_t ) ) ) {
@@ -129,10 +128,8 @@ public:
 	}
 };
 
-#undef CHECKED
-
 } // namespace openmpt123
 
-#endif // MPT_WITH_MMIO
+#endif // MPT_OS_WINDOWS && !MPT_OS_WINDOWS_WINRT
 
 #endif // OPENMPT123_MMIO_HPP

@@ -2,27 +2,16 @@
  project "opusfile"
   uuid "f8517509-9317-4a46-b5ed-06ae5a399e6c"
   language "C"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "opusfile"
-  dofile "../../build/premake/premake-defaults-LIBorDLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "default"
   targetname "openmpt-opusfile"
-  local extincludedirs = {
-   "../../include/ogg/include",
-   "../../include/opus/include",
-	}
-	filter { "action:vs*" }
-		includedirs ( extincludedirs )
-	filter { "not action:vs*" }
-		sysincludedirs ( extincludedirs )
-	filter {}
+	
+	mpt_use_ogg()
+	mpt_use_opus()
+	
   includedirs {
    "../../include/opusfile/include",
   }
-	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
 	filter {}
   files {
    "../../include/opusfile/include/opusfile.h",
@@ -31,10 +20,36 @@
    "../../include/opusfile/src/*.c",
    "../../include/opusfile/src/*.h",
   }
-  links { "ogg", "opus" }
   filter { "action:vs*" }
     buildoptions { "/wd4267" }
-  filter {}
+	filter {}
+		if _OPTIONS["clang"] then
+			buildoptions {
+				"-Wno-bitwise-op-parentheses",
+				"-Wno-logical-op-parentheses",
+				"-Wno-shift-op-parentheses",
+				"-Wno-unused-but-set-variable",
+				"-Wno-unused-const-variable",
+			}
+		end
+	filter {}
   filter { "kind:SharedLib" }
    files { "../../build/premake/def/ext-opusfile.def" }
   filter {}
+
+function mpt_use_opusfile ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include/opusfile/include",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include/opusfile/include",
+		}
+	filter {}
+	links {
+		"opusfile",
+	}
+	filter {}
+end

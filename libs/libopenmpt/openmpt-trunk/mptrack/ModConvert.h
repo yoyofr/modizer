@@ -10,10 +10,12 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
 // Warning types
-enum enmWarnings
+enum ConversionWarning
 {
 	wInstrumentsToSamples = 0,
 	wResizedPatterns,
@@ -26,6 +28,7 @@ enum enmWarnings
 	wInstrumentTuning,
 	wMODGlobalVars,
 	wMOD31Samples,
+	wAdlibInstruments,
 	wRestartPos,
 	wChannelVolSurround,
 	wChannelPanning,

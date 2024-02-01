@@ -1,11 +1,11 @@
 /*
-* Load_c67.cpp
-* ------------
-* Purpose: C67 (CDFM Composer) module loader
-* Notes  : C67 is the composer format; 670 files can be converted back to C67 using the converter that comes with CDFM.
-* Authors: OpenMPT Devs
-* The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
-*/
+ * Load_c67.cpp
+ * ------------
+ * Purpose: C67 (CDFM Composer) module loader
+ * Notes  : C67 is the composer format; 670 files can be converted back to C67 using the converter that comes with CDFM.
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
 
 
 #include "stdafx.h"
@@ -26,13 +26,16 @@ MPT_BINARY_STRUCT(C67SampleHeader, 16)
 
 struct C67FileHeader
 {
-	uint8 speed;
-	uint8 restartPos;
-	char  sampleNames[32][13];
+	using InstrName = std::array<char, 13>;
+	using OPLInstr = std::array<uint8, 11>;
+
+	uint8           speed;
+	uint8           restartPos;
+	InstrName       sampleNames[32];
 	C67SampleHeader samples[32];
-	char  fmInstrNames[32][13];
-	uint8 fmInstr[32][11];
-	uint8 orders[256];
+	InstrName       fmInstrNames[32];
+	OPLInstr        fmInstr[32];
+	uint8           orders[256];
 };
 
 MPT_BINARY_STRUCT(C67FileHeader, 1954)
@@ -69,7 +72,7 @@ static bool ValidateHeader(const C67FileHeader &fileHeader)
 				return false;
 			}
 		}
-		if(!anyNonSilent && (fileHeader.samples[smp].length != 0 || memcmp(fileHeader.fmInstr[smp], "\0\0\0\0\0\0\0\0\0\0\0", 11)))
+		if(!anyNonSilent && (fileHeader.samples[smp].length != 0 || fileHeader.fmInstr[smp] != C67FileHeader::OPLInstr{{}}))
 		{
 			anyNonSilent = true;
 		}
@@ -112,7 +115,7 @@ static void TranslateVolume(ModCommand &m, uint8 volume, bool isFM)
 
 	volume &= 0x0F;
 	m.volcmd = VOLCMD_VOLUME;
-	m.vol = isFM ? fmVolume[volume] : (4u + volume * 4u);
+	m.vol = isFM ? fmVolume[volume] : static_cast<ModCommand::VOL>((4u + volume * 4u));
 }
 
 
@@ -134,7 +137,7 @@ bool CSoundFile::ReadC67(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
-	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	if(!file.CanRead(mpt::saturate_cast<FileReader::pos_type>(GetHeaderMinimumAdditionalSize(fileHeader))))
 	{
 		return false;
 	}
@@ -168,6 +171,7 @@ bool CSoundFile::ReadC67(FileReader &file, ModLoadingFlags loadFlags)
 	m_nSamples = 64;
 	m_nChannels = 4 + 9;
 	m_playBehaviour.set(kOPLBeatingOscillators);
+	m_SongFlags.set(SONG_IMPORTED);
 
 	// Pan PCM channels only
 	for(CHANNELINDEX chn = 0; chn < 4; chn++)
@@ -229,8 +233,8 @@ bool CSoundFile::ReadC67(FileReader &file, ModLoadingFlags loadFlags)
 				ModCommand &m = *pattern.GetpModCommand(row, cmd);
 				const auto [note, instrVol] = patChunk.ReadArray<uint8, 2>();
 				bool fmChn = (cmd >= 4);
-				m.note = NOTE_MIN + (fmChn ? 12 : 36) + (note & 0x0F) + ((note >> 4) & 0x07) * 12;
-				m.instr = (fmChn ? 33 : 1) + (instrVol >> 4) + ((note & 0x80) >> 3);
+				m.note = static_cast<ModCommand::NOTE>(NOTE_MIN + (fmChn ? 12 : 36) + (note & 0x0F) + ((note >> 4) & 0x07) * 12);
+				m.instr = static_cast<ModCommand::INSTR>((fmChn ? 33 : 1) + (instrVol >> 4) + ((note & 0x80) >> 3));
 				TranslateVolume(m, instrVol, fmChn);
 			} else if(cmd >= 0x20 && cmd <= 0x2C)
 			{

@@ -1,5 +1,5 @@
 /*
- * ctrl_com.cpp
+ * Ctrl_com.cpp
  * ------------
  * Purpose: Song comments tab, upper panel.
  * Notes  : (currently none)
@@ -10,14 +10,17 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
+#include "Ctrl_com.h"
+#include "Globals.h"
+#include "InputHandler.h"
 #include "Mainfrm.h"
 #include "Moddoc.h"
-#include "Globals.h"
-#include "Ctrl_com.h"
+#include "Mptrack.h"
+#include "TrackerSettings.h"
 #include "view_com.h"
-#include "InputHandler.h"
 #include "../soundlib/mod_specifications.h"
+#include "mpt/format/join.hpp"
+#include "mpt/string/utility.hpp"
 
 
 //#define MPT_COMMENTS_LONG_LINES_WRAP
@@ -33,13 +36,12 @@ OPENMPT_NAMESPACE_BEGIN
 
 BEGIN_MESSAGE_MAP(CCtrlComments, CModControlDlg)
 	//{{AFX_MSG_MAP(CCtrlComments)
-	ON_EN_UPDATE(IDC_EDIT_COMMENTS,		OnCommentsUpdated)
-	ON_EN_CHANGE(IDC_EDIT_COMMENTS,		OnCommentsChanged)
+	ON_EN_UPDATE(IDC_EDIT_COMMENTS, &CCtrlComments::OnCommentsUpdated)
+	ON_EN_CHANGE(IDC_EDIT_COMMENTS, &CCtrlComments::OnCommentsChanged)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 void CCtrlComments::DoDataExchange(CDataExchange* pDX)
-//----------------------------------------------------
 {
 	CModControlDlg::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCtrlComments)
@@ -49,39 +51,32 @@ void CCtrlComments::DoDataExchange(CDataExchange* pDX)
 
 
 CCtrlComments::CCtrlComments(CModControlView &parent, CModDoc &document) : CModControlDlg(parent, document)
-//---------------------------------------------------------------------------------------------------------
 {
-	m_nLockCount = 0;
-	m_Reformatting = false;
-	charWidth = 0;
 }
 
 
 CRuntimeClass *CCtrlComments::GetAssociatedViewClass()
-//----------------------------------------------------
 {
 	return RUNTIME_CLASS(CViewComments);
 }
 
 
 void CCtrlComments::OnActivatePage(LPARAM)
-//----------------------------------------
 {
 	// Don't stop generating VU meter messages
 	m_modDoc.SetNotifications(Notification::Default);
 	m_modDoc.SetFollowWnd(m_hWnd);
+	m_EditComments.SetFocus();
 }
 
 
 void CCtrlComments::OnDeactivatePage()
-//------------------------------------
 {
 	CModControlDlg::OnDeactivatePage();
 }
 
 
 BOOL CCtrlComments::OnInitDialog()
-//--------------------------------
 {
 	CModControlDlg::OnInitDialog();
 	// Initialize comments
@@ -95,8 +90,10 @@ BOOL CCtrlComments::OnInitDialog()
 }
 
 
+Setting<LONG> &CCtrlComments::GetSplitPosRef() { return TrackerSettings::Instance().glCommentsWindowHeight; }
+
+
 void CCtrlComments::RecalcLayout()
-//--------------------------------
 {
 	CRect rcClient, rect;
 	int cx0, cy0;
@@ -127,7 +124,6 @@ void CCtrlComments::RecalcLayout()
 
 
 void CCtrlComments::UpdateView(UpdateHint hint, CObject *pHint)
-//-------------------------------------------------------------
 {
 	CommentHint commentHint = hint.ToType<CommentHint>();
 	if (pHint == this || !commentHint.GetType()[HINT_MODCOMMENTS | HINT_MPTOPTIONS | HINT_MODTYPE]) return;
@@ -137,7 +133,7 @@ void CCtrlComments::UpdateView(UpdateHint hint, CObject *pHint)
 	static FontSetting previousFont;
 	FontSetting font = TrackerSettings::Instance().commentsFont;
 	// Point size to pixels
-	int32_t fontSize = -MulDiv(font.size, m_nDPIy, 720);
+	int32 fontSize = -MulDiv(font.size, m_nDPIy, 720);
 	if(previousFont != font)
 	{
 		previousFont = font;
@@ -145,7 +141,7 @@ void CCtrlComments::UpdateView(UpdateHint hint, CObject *pHint)
 			font.flags[FontSetting::Italic] ? TRUE :FALSE, FALSE, FALSE,
 			DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-			FIXED_PITCH | FF_MODERN, font.name.c_str());
+			FIXED_PITCH | FF_MODERN, mpt::ToCString(font.name));
 	}
 	m_EditComments.SendMessage(WM_SETFONT, (WPARAM)CMainFrame::GetCommentsFont());
 	CDC * pDC = m_EditComments.GetDC();
@@ -170,7 +166,7 @@ void CCtrlComments::UpdateView(UpdateHint hint, CObject *pHint)
 		}
 		text[i] = c;
 	}
-	CString new_text = text.c_str();
+	CString new_text = mpt::ToCString(m_sndFile.GetCharsetInternal(), text);
 	CString old_text;
 	m_EditComments.GetWindowText(old_text);
 	if(new_text != old_text)
@@ -189,7 +185,6 @@ void CCtrlComments::UpdateView(UpdateHint hint, CObject *pHint)
 
 
 void CCtrlComments::OnCommentsUpdated()
-//-------------------------------------
 {
 
 #if defined(MPT_COMMENTS_LONG_LINES_TRUNCATE) || defined(MPT_COMMENTS_LONG_LINES_WRAP)
@@ -264,7 +259,7 @@ void CCtrlComments::OnCommentsUpdated()
 
 #elif defined(MPT_COMMENTS_LONG_LINES_TRUNCATE)
 
-	std::vector<std::string> lines = mpt::String::Split<std::string>(std::string(text.GetString()), std::string("\r\n"));
+	std::vector<std::string> lines = mpt::split(std::string(text.GetString()), std::string("\r\n"));
 	for(std::size_t i = 0; i < lines.size(); ++i)
 	{
 		if(i > 0)
@@ -298,7 +293,7 @@ void CCtrlComments::OnCommentsUpdated()
 			pos += lines[i].length();
 		}
 	}
-	lines_new = mpt::String::Combine(lines, std::string("\r\n"));
+	lines_new = mpt::join_format(lines, std::string("\r\n"));
 
 #endif
 
@@ -316,7 +311,6 @@ void CCtrlComments::OnCommentsUpdated()
 
 
 void CCtrlComments::OnCommentsChanged()
-//-------------------------------------
 {
 	if(m_nLockCount)
 		return;
@@ -324,7 +318,7 @@ void CCtrlComments::OnCommentsChanged()
 	CString text;
 	m_EditComments.GetWindowText(text);
 	m_EditComments.SetModify(FALSE);
-	if(m_sndFile.m_songMessage.SetFormatted(text.GetString(), SongMessage::leCRLF))
+	if(m_sndFile.m_songMessage.SetFormatted(mpt::ToCharset(m_sndFile.GetCharsetInternal(), text), SongMessage::leCRLF))
 	{
 		m_modDoc.SetModified();
 		m_modDoc.UpdateAllViews(nullptr, CommentHint(), this);
@@ -333,16 +327,18 @@ void CCtrlComments::OnCommentsChanged()
 
 
 BOOL CCtrlComments::PreTranslateMessage(MSG *pMsg)
-//------------------------------------------------
 {
 	if(pMsg->message == WM_KEYDOWN && pMsg->wParam == 'A' && GetKeyState(VK_CONTROL) < 0)
 	{
 		// Ctrl-A is not handled by multiline edit boxes
 		if(::GetFocus() == m_EditComments.m_hWnd)
 			m_EditComments.SetSel(0, -1);
-	} else if(pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB && CMainFrame::GetMainFrame()->GetInputHandler()->GetModifierMask() == 0)
+	} else if(pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_TAB && CMainFrame::GetMainFrame()->GetInputHandler()->GetModifierMask() == ModNone)
 	{
-		CString tabs(_T(' '), 4 - (m_EditComments.LineIndex() % 4));
+		int selStart, selEnd;
+		m_EditComments.GetSel(selStart, selEnd);
+		int posInLine = (selStart - m_EditComments.LineIndex(m_EditComments.LineFromChar(selStart)));
+		CString tabs(_T(' '), 4 - (posInLine % 4));
 		m_EditComments.ReplaceSel(tabs, TRUE);
 		m_EditComments.SetSel(-1, -1, TRUE);
 		return TRUE;

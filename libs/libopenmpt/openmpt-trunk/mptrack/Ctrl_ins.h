@@ -1,5 +1,5 @@
 /*
- * ctrl_ins.h
+ * Ctrl_ins.h
  * ----------
  * Purpose: Instrument tab, upper panel.
  * Notes  : (currently none)
@@ -11,29 +11,31 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "CDecimalSupport.h"
+#include "Globals.h"
+#include "../soundlib/modcommand.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
+class CModDoc;
 class CNoteMapWnd;
 class CCtrlInstruments;
 
-
-//===============================
 class CNoteMapWnd: public CStatic
-//===============================
 {
 protected:
 	CModDoc &m_modDoc;
 	CCtrlInstruments &m_pParent;
-	HFONT m_hFont;
-	UINT m_nNote, m_nOldNote, m_nOldIns;
-	INSTRUMENTINDEX m_nInstrument;
-	int m_nPlayingNote;
-	int m_cxFont, m_cyFont;
-	COLORREF colorText, colorTextSel;
-	bool m_bIns : 1;
-	bool m_undo : 1;
+	UINT m_nNote = (NOTE_MIDDLEC - NOTE_MIN), m_nOldNote = 0, m_nOldIns = 0;
+	INSTRUMENTINDEX m_nInstrument = 0;
+	int m_cxFont = 0, m_cyFont = 0;
+	CHANNELINDEX m_noteChannel = 0;
+	ModCommand::NOTE m_nPlayingNote = NOTE_NONE;
+
+	bool m_bIns = false;
+	bool m_undo = true;
 
 private:
 	void MapTranspose(int nAmount);
@@ -41,37 +43,31 @@ private:
 
 public:
 	CNoteMapWnd(CCtrlInstruments &parent, CModDoc &document)
-		: m_pParent(parent)
-		, m_modDoc(document)
-		, m_nPlayingNote(-1)
-		, m_nNote(NOTE_MIDDLEC - NOTE_MIN)
-		, m_nInstrument(0)
-		, m_cxFont(0)
-		, m_cyFont(0)
-		, m_hFont(NULL)
-		, m_nOldNote(0)
-		, m_nOldIns(0)
-		, m_bIns(false)
-		, m_undo(true)
-	{ }
+		: m_modDoc(document)
+		, m_pParent(parent)
+	{
+		EnableActiveAccessibility();
+	}
 	void SetCurrentInstrument(INSTRUMENTINDEX nIns);
 	void SetCurrentNote(UINT nNote);
-	void EnterNote(UINT note); //rewbs.customKeys - handle notes separately from other input.
-	bool HandleChar(WPARAM c); //rewbs.customKeys
-	bool HandleNav(WPARAM k);  //rewbs.customKeys
-	void PlayNote(int note); //rewbs.customKeys
-	void StopNote(int note); //rewbs.customKeys
+	void EnterNote(UINT note);
+	bool HandleChar(WPARAM c);
+	bool HandleNav(WPARAM k);
+	void PlayNote(UINT note);
+	void StopNote();
+
+	void UpdateAccessibleTitle();
 
 public:
 	//{{AFX_VIRTUAL(CNoteMapWnd)
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	BOOL PreTranslateMessage(MSG* pMsg) override;
+	HRESULT get_accName(VARIANT varChild, BSTR *pszName) override;
 	//}}AFX_VIRTUAL
 
 protected:
 	//{{AFX_MSG(CNoteMapWnd)
 	afx_msg void OnLButtonDown(UINT, CPoint);
 	afx_msg void OnMButtonDown(UINT flags, CPoint pt) { OnLButtonDown(flags, pt); }
-	afx_msg void OnLButtonUp(UINT, CPoint);
 	afx_msg void OnRButtonDown(UINT, CPoint);
 	afx_msg void OnLButtonDblClk(UINT, CPoint);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
@@ -84,6 +80,7 @@ protected:
 	afx_msg void OnMapTransposeUp();
 	afx_msg void OnMapTransposeDown();
 	afx_msg void OnMapReset();
+	afx_msg void OnTransposeSamples();
 	afx_msg void OnMapRemove();
 	afx_msg void OnEditSample(UINT nID);
 	afx_msg void OnEditSampleMap();
@@ -94,12 +91,8 @@ protected:
 };
 
 
-//===========================================
 class CCtrlInstruments: public CModControlDlg
-//===========================================
 {
-	friend class PrepareInstrUndo;
-
 protected:
 	CModControlBar m_ToolBar;
 	CSpinButtonCtrl m_SpinInstrument, m_SpinFadeOut, m_SpinGlobalVol, m_SpinPanning;
@@ -108,55 +101,52 @@ protected:
 	CEdit m_EditName, m_EditFileName, m_EditGlobalVol, m_EditPanning, m_EditFadeOut;
 	CNumberEdit m_EditPPS, m_EditPWD;
 	CButton m_CheckPanning, m_CheckCutOff, m_CheckResonance, velocityStyle;
-	CSliderCtrl m_SliderVolSwing, m_SliderPanSwing, m_SliderCutSwing, m_SliderResSwing, 
-		        m_SliderCutOff, m_SliderResonance;
+	CSliderCtrl m_SliderVolSwing, m_SliderPanSwing, m_SliderCutSwing, m_SliderResSwing, m_SliderCutOff, m_SliderResonance;
 	CNoteMapWnd m_NoteMap;
 	CSliderCtrl m_SliderAttack;
 	CSpinButtonCtrl m_SpinAttack;
 	//Tuning
 	CComboBox m_ComboTuning;
+	// Pitch/Tempo lock
+	CNumberEdit m_EditPitchTempoLock;
+	CButton m_CheckPitchTempoLock;
 
-	INSTRUMENTINDEX m_nInstrument;
-	bool m_openendPluginListWithMouse : 1;
-	bool m_startedHScroll : 1;
-	bool m_startedEdit : 1;
+	INSTRUMENTINDEX m_nInstrument = 1;
+	bool m_openendPluginListWithMouse = false;
+	bool m_startedHScroll = false;
+	bool m_startedEdit = false;
 
 	void UpdateTuningComboBox();
 	void BuildTuningComboBox();
 
 	void UpdatePluginList();
-
-	//Pitch/Tempo lock
-	CNumberEdit m_EditPitchTempoLock;
-	CButton m_CheckPitchTempoLock;
-
 	
 public:
 	CCtrlInstruments(CModControlView &parent, CModDoc &document);
-	virtual ~CCtrlInstruments();
 
 public:
 	void SetModified(InstrumentHint hint, bool updateAll);
 	BOOL SetCurrentInstrument(UINT nIns, BOOL bUpdNum=TRUE);
 	bool InsertInstrument(bool duplicate);
 	bool OpenInstrument(const mpt::PathString &fileName);
-	bool OpenInstrument(CSoundFile &sndFile, INSTRUMENTINDEX nInstr);
+	bool OpenInstrument(const CSoundFile &sndFile, INSTRUMENTINDEX nInstr);
+	void SaveInstrument(bool doBatchSave);
 	BOOL EditSample(UINT nSample);
-	VOID UpdateFilterText();
-	Setting<LONG> &GetSplitPosRef() {return TrackerSettings::Instance().glInstrumentWindowHeight;} 	//rewbs.varWindowSize
+	void UpdateFilterText();
 
 public:
 	//{{AFX_VIRTUAL(CCtrlInstruments)
-	virtual BOOL OnInitDialog();
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	virtual CRuntimeClass *GetAssociatedViewClass();
-	virtual void RecalcLayout();
-	virtual void OnActivatePage(LPARAM);
-	virtual void OnDeactivatePage();
-	virtual void UpdateView(UpdateHint hint, CObject *pObj = nullptr);
-	virtual LRESULT OnModCtrlMsg(WPARAM wParam, LPARAM lParam);
-	virtual BOOL GetToolTipText(UINT uId, LPSTR pszText);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	Setting<LONG> &GetSplitPosRef() override;
+	BOOL OnInitDialog() override;
+	void DoDataExchange(CDataExchange* pDX) override;	// DDX/DDV support
+	CRuntimeClass *GetAssociatedViewClass() override;
+	void RecalcLayout() override;
+	void OnActivatePage(LPARAM) override;
+	void OnDeactivatePage() override;
+	void UpdateView(UpdateHint hint, CObject *pObj = nullptr) override;
+	LRESULT OnModCtrlMsg(WPARAM wParam, LPARAM lParam) override;
+	BOOL GetToolTipText(UINT uId, LPTSTR pszText) override;
+	BOOL PreTranslateMessage(MSG* pMsg) override;
 	//}}AFX_VIRTUAL
 protected:
 	void PrepareUndo(const char *description);
@@ -173,6 +163,8 @@ protected:
 	afx_msg void OnInstrumentDuplicate() { InsertInstrument(true); }
 	afx_msg void OnInstrumentOpen();
 	afx_msg void OnInstrumentSave();
+	afx_msg void OnInstrumentSaveOne() { SaveInstrument(false); }
+	afx_msg void OnInstrumentSaveAll() { SaveInstrument(true); }
 	afx_msg void OnInstrumentPlay();
 	afx_msg void OnNameChanged();
 	afx_msg void OnFileNameChanged();

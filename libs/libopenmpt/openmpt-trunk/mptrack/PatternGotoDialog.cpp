@@ -9,9 +9,8 @@
 
 
 #include "stdafx.h"
-#include "mptrack.h"
 #include "PatternGotoDialog.h"
-#include ".\patterngotodialog.h"
+#include "resource.h"
 #include "Sndfile.h"
 
 
@@ -20,103 +19,90 @@ OPENMPT_NAMESPACE_BEGIN
 
 // CPatternGotoDialog dialog
 
-IMPLEMENT_DYNAMIC(CPatternGotoDialog, CDialog)
-CPatternGotoDialog::CPatternGotoDialog(CWnd* pParent /*=NULL*/)
-	: CDialog(CPatternGotoDialog::IDD, pParent)
-	, m_nRow(0)
-	, m_nChannel(0)
-	, m_nPattern(0)
-	, m_nOrder(0)
-{
-	m_bControlLock=false;
-	::CreateDialog(NULL, MAKEINTRESOURCE(IDD), pParent->m_hWnd, NULL); 
-}
+CPatternGotoDialog::CPatternGotoDialog(CWnd *pParent, ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CSoundFile &sndFile)
+	: CDialog(IDD_EDIT_GOTO, pParent)
+	, m_SndFile(sndFile)
+	, m_nRow(row)
+	, m_nChannel(chan)
+	, m_nPattern(pat)
+	, m_nOrder(ord)
+	, m_nActiveOrder(ord)
+{ }
 
-CPatternGotoDialog::~CPatternGotoDialog()
-{
-}
 
 void CPatternGotoDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	UINT temp;
-	temp = m_nRow; DDX_Text(pDX, IDC_GOTO_ROW, temp); m_nRow = static_cast<ROWINDEX>(temp);
-	temp = m_nChannel; DDX_Text(pDX, IDC_GOTO_CHAN, temp); m_nChannel = static_cast<CHANNELINDEX>(temp);
-	temp = m_nPattern; DDX_Text(pDX, IDC_GOTO_PAT, temp); m_nPattern = static_cast<PATTERNINDEX>(temp);
-	temp = m_nOrder; DDX_Text(pDX, IDC_GOTO_ORD, temp); m_nOrder = static_cast<ORDERINDEX>(temp);
+	DDX_Control(pDX, IDC_SPIN1, m_SpinRow);
+	DDX_Control(pDX, IDC_SPIN2, m_SpinChannel);
+	DDX_Control(pDX, IDC_SPIN3, m_SpinPattern);
+	DDX_Control(pDX, IDC_SPIN4, m_SpinOrder);
 }
 
 
 BEGIN_MESSAGE_MAP(CPatternGotoDialog, CDialog)
-	ON_EN_CHANGE(IDC_GOTO_PAT, OnEnChangeGotoPat)
-	ON_EN_CHANGE(IDC_GOTO_ORD, OnEnChangeGotoOrd)
+	ON_EN_CHANGE(IDC_GOTO_PAT, &CPatternGotoDialog::OnPatternChanged)
+	ON_EN_CHANGE(IDC_GOTO_ORD, &CPatternGotoDialog::OnOrderChanged)
+	ON_EN_CHANGE(IDC_GOTO_ROW, &CPatternGotoDialog::OnRowChanged)
+	ON_EN_CHANGE(IDC_EDIT5,    &CPatternGotoDialog::OnTimeChanged)
+	ON_EN_CHANGE(IDC_EDIT6,    &CPatternGotoDialog::OnTimeChanged)
 END_MESSAGE_MAP()
 
 
-// CPatternGotoDialog message handlers
-
-void CPatternGotoDialog::UpdatePos(ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CSoundFile &sndFile)
+BOOL CPatternGotoDialog::OnInitDialog()
 {
-	m_nRow = row;
-	m_nChannel = chan;
-	m_nPattern = pat;
-	m_nActiveOrder = ord;
-	m_nOrder = ord;
-	m_pSndFile = &sndFile;
+	CDialog::OnInitDialog();
+	HICON icon = ::LoadIcon(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_MODULETYPE));
+	SetIcon(icon, FALSE);
+	SetIcon(icon, TRUE);
+
+	UpdateNumRows();
+	m_SpinChannel.SetRange32(1, m_SndFile.GetNumChannels());
+	m_SpinPattern.SetRange32(0, std::max(m_SndFile.Patterns.GetNumPatterns(), PATTERNINDEX(1)) - 1);
+	m_SpinOrder.SetRange32(0, std::max(m_SndFile.Order().GetLengthTailTrimmed(), ORDERINDEX(1)) - 1);
+	SetDlgItemInt(IDC_GOTO_ROW, m_nRow);
+	SetDlgItemInt(IDC_GOTO_CHAN, m_nChannel);
+	SetDlgItemInt(IDC_GOTO_PAT, m_nPattern);
+	SetDlgItemInt(IDC_GOTO_ORD, m_nOrder);
+	UpdateTime();
+	UnlockControls();
+	return TRUE;
 }
 
 void CPatternGotoDialog::OnOK()
 {
-	UpdateData();
-	
-	bool validated = true;
-	
-	// Does pattern exist?
-	if(validated && !m_pSndFile->Patterns.IsValidPat(static_cast<PATTERNINDEX>(m_nPattern)))
-	{
-		validated = false;
-	}
-	
-	// Does order match pattern?
-	if(validated && m_pSndFile->Order[m_nOrder] != m_nPattern)
-	{
-		validated = false;
-	}
+	const auto &Order = m_SndFile.Order();
+	m_nRow = mpt::saturate_cast<ROWINDEX>(GetDlgItemInt(IDC_GOTO_ROW));
+	m_nChannel = mpt::saturate_cast<CHANNELINDEX>(GetDlgItemInt(IDC_GOTO_CHAN));
 
-	// Does pattern have enough rows?
-	if(validated && m_pSndFile->Patterns[m_nPattern].GetNumRows() <= m_nRow)
+	// Valid order item?
+	if(m_nOrder >= Order.size())
 	{
-		validated = false;
+		MessageBeep(MB_ICONWARNING);
+		GetDlgItem(IDC_GOTO_ORD)->SetFocus();
+		return;
 	}
-	
-	// Does track have enough channels?
-	if(validated && m_pSndFile->m_nChannels < m_nChannel)
+	// Does order match pattern? Does pattern exist?
+	if(Order[m_nOrder] != m_nPattern || !Order.IsValidPat(m_nOrder))
 	{
-		validated = false;
+		MessageBeep(MB_ICONWARNING);
+		GetDlgItem(IDC_GOTO_PAT)->SetFocus();
+		return;
 	}
 
+	LimitMax(m_nRow, m_SndFile.Patterns[m_nPattern].GetNumRows() - ROWINDEX(1));
+	Limit(m_nChannel, CHANNELINDEX(1), m_SndFile.GetNumChannels());
 
-	if (validated)
-	{
-		CDialog::OnOK();
-	} else
-	{
-		CDialog::OnCancel();
-	}
-
-
+	CDialog::OnOK();
 }
 
-void CPatternGotoDialog::OnEnChangeGotoPat()
-//------------------------------------------
+void CPatternGotoDialog::OnPatternChanged()
 {
 	if(ControlsLocked())
-	{
-		return;				//the change to textbox did not come from user.
-	}
-		
-	UpdateData();
-	m_nOrder = m_pSndFile->Order.FindOrder(static_cast<PATTERNINDEX>(m_nPattern), static_cast<ORDERINDEX>(m_nActiveOrder));
+		return;  // The change to textbox did not come from user.
+
+	m_nPattern = mpt::saturate_cast<PATTERNINDEX>(GetDlgItemInt(IDC_GOTO_PAT));
+	m_nOrder = m_SndFile.Order().FindOrder(m_nPattern, m_nActiveOrder);
 
 	if(m_nOrder == ORDERINDEX_INVALID)
 	{
@@ -124,30 +110,93 @@ void CPatternGotoDialog::OnEnChangeGotoPat()
 	}
 
 	LockControls();
-	UpdateData(FALSE);
+	SetDlgItemInt(IDC_GOTO_ORD, m_nOrder);
+	UpdateNumRows();
+	UpdateTime();
 	UnlockControls();
 }
 
-void CPatternGotoDialog::OnEnChangeGotoOrd()
+
+void CPatternGotoDialog::OnOrderChanged()
 {
 	if(ControlsLocked())
-	{
-		return;				//the change to textbox did not come from user.
-	}
+		return;  // The change to textbox did not come from user.
 
-	UpdateData();
-
-	if(m_nOrder<m_pSndFile->Order.size())
+	m_nOrder = mpt::saturate_cast<ORDERINDEX>(GetDlgItemInt(IDC_GOTO_ORD));
+	if(m_SndFile.Order().IsValidPat(m_nOrder))
 	{
-		PATTERNINDEX candidatePattern = m_pSndFile->Order[m_nOrder];
-		if(candidatePattern < m_pSndFile->Patterns.Size() && m_pSndFile->Patterns[candidatePattern])
-		{
-			m_nPattern = candidatePattern;
-		}
+		m_nPattern = m_SndFile.Order()[m_nOrder];
 	}
 
 	LockControls();
-	UpdateData(FALSE);
+	SetDlgItemInt(IDC_GOTO_PAT, m_nPattern);
+	UpdateNumRows();
+	UpdateTime();
+	UnlockControls();
+}
+
+
+void CPatternGotoDialog::OnRowChanged()
+{
+	if(ControlsLocked())
+		return;  // The change to textbox did not come from user.
+
+	m_nRow = mpt::saturate_cast<ROWINDEX>(GetDlgItemInt(IDC_GOTO_ROW));
+	UpdateTime();
+}
+
+
+void CPatternGotoDialog::OnTimeChanged()
+{
+	if(ControlsLocked())
+		return;  // The change to textbox did not come from user.
+
+	BOOL success = TRUE;
+	auto minutes = GetDlgItemInt(IDC_EDIT5, &success);
+	if(!success)
+		return;
+	auto seconds = GetDlgItemInt(IDC_EDIT6, &success);
+	if(!success)
+		return;
+
+	auto result = m_SndFile.GetLength(eNoAdjust, GetLengthTarget(minutes * 60.0 + seconds)).back();
+	if(!result.targetReached)
+		return;
+
+	m_nOrder = result.lastOrder;
+	m_nRow = result.lastRow;
+	if(m_SndFile.Order().IsValidPat(m_nOrder))
+		m_nPattern = m_SndFile.Order()[m_nOrder];
+
+	LockControls();
+	SetDlgItemInt(IDC_GOTO_ORD, m_nOrder);
+	SetDlgItemInt(IDC_GOTO_ROW, m_nRow);
+	SetDlgItemInt(IDC_GOTO_PAT, m_nPattern);
+	UnlockControls();
+}
+
+
+void CPatternGotoDialog::UpdateNumRows()
+{
+	const ROWINDEX maxRow = (m_SndFile.Patterns.IsValidPat(m_nPattern) ? m_SndFile.Patterns[m_nPattern].GetNumRows() : MAX_PATTERN_ROWS) - 1;
+	m_SpinRow.SetRange32(0, maxRow);
+	if(m_nRow > maxRow)
+	{
+		m_nRow = maxRow;
+		SetDlgItemInt(IDC_GOTO_ROW, m_nRow);
+	}
+}
+
+
+void CPatternGotoDialog::UpdateTime()
+{
+	const double length = m_SndFile.GetPlaybackTimeAt(m_nOrder, m_nRow, false, false);
+	if(length < 0.0)
+		return;
+	const double minutes = std::floor(length / 60.0), seconds = std::fmod(length, 60.0);
+	LockControls();
+	SetDlgItemInt(IDC_EDIT5, static_cast<int>(minutes));
+	SetDlgItemInt(IDC_EDIT6, static_cast<int>(seconds));
 	UnlockControls();
 }
 

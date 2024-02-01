@@ -1,11 +1,23 @@
+/*
+ * AboutDialog.cpp
+ * ---------------
+ * Purpose: About dialog with credits, system information and a fancy demo effect.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+
+
 #include "stdafx.h"
-#include "resource.h"
 #include "AboutDialog.h"
-#include "PNG.h"
+#include "Image.h"
 #include "Mptrack.h"
 #include "TrackerSettings.h"
-#include "BuildVariants.h"
+#include "mpt/format/join.hpp"
+#include "mpt/string/utility.hpp"
+#include "resource.h"
 #include "../common/version.h"
+#include "../misc/mptWine.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -23,79 +35,70 @@ END_MESSAGE_MAP()
 
 
 CRippleBitmap::CRippleBitmap()
-//----------------------------
 {
-	bitmapSrc = PNG::ReadPNG(MAKEINTRESOURCE(IDB_MPTRACK));
-	bitmapTarget = new PNG::Bitmap(bitmapSrc->width, bitmapSrc->height);
-	offset1.assign(bitmapSrc->GetNumPixels(), 0);
-	offset2.assign(bitmapSrc->GetNumPixels(), 0);
-	frontBuf = offset2.data();
-	backBuf = offset1.data();
-	activity = true;
-	lastFrame = 0;
-	frame = false;
-	damp = true;
-	showMouse = true;
+	m_bitmapSrc = LoadPixelImage(GetResource(MAKEINTRESOURCE(IDB_MPTRACK), _T("PNG")));
+	m_bitmapTarget = std::make_unique<RawGDIDIB>(m_bitmapSrc->Width(), m_bitmapSrc->Height());
+	m_offset1.assign(m_bitmapSrc->Pixels().size(), 0);
+	m_offset2.assign(m_bitmapSrc->Pixels().size(), 0);
+	m_frontBuf = m_offset2.data();
+	m_backBuf = m_offset1.data();
 
 	// Pre-fill first and last row of output bitmap, since those won't be touched.
-	const PNG::Pixel *in1 = bitmapSrc->GetPixels(), *in2 = bitmapSrc->GetPixels() + (bitmapSrc->height - 1) * bitmapSrc->width;
-	PNG::Pixel *out1 = bitmapTarget->GetPixels(), *out2 = bitmapTarget->GetPixels() + (bitmapSrc->height - 1) * bitmapSrc->width;
-	for(uint32_t i = 0; i < bitmapSrc->width; i++)
+	const RawGDIDIB::Pixel *in1 = m_bitmapSrc->Pixels().data(), *in2 = m_bitmapSrc->Pixels().data() + (m_bitmapSrc->Height() - 1) * m_bitmapSrc->Width();
+	RawGDIDIB::Pixel *out1 = m_bitmapTarget->Pixels().data(), *out2 = m_bitmapTarget->Pixels().data() + (m_bitmapSrc->Height() - 1) * m_bitmapSrc->Width();
+	for(uint32 i = 0; i < m_bitmapSrc->Width(); i++)
 	{
 		*(out1++) = *(in1++);
 		*(out2++) = *(in2++);
 	}
 
-	MemsetZero(bi);
-	bi.biSize = sizeof(BITMAPINFOHEADER);
-	bi.biWidth = bitmapSrc->width;
-	bi.biHeight = -(int32_t)bitmapSrc->height;
-	bi.biPlanes = 1;
-	bi.biBitCount = 32;
-	bi.biCompression = BI_RGB;
-	bi.biSizeImage = bitmapSrc->width * bitmapSrc->height * 4;
-
+	MemsetZero(m_bi);
+	m_bi.biSize = sizeof(BITMAPINFOHEADER);
+	m_bi.biWidth = m_bitmapSrc->Width();
+	m_bi.biHeight = -(int32)m_bitmapSrc->Height();
+	m_bi.biPlanes = 1;
+	m_bi.biBitCount = 32;
+	m_bi.biCompression = BI_RGB;
+	m_bi.biSizeImage = m_bitmapSrc->Width() * m_bitmapSrc->Height() * 4;
 }
 
 
 CRippleBitmap::~CRippleBitmap()
-//-----------------------------
 {
-	if(!showMouse)
+	if(!m_showMouse)
 	{
 		ShowCursor(TRUE);
 	}
-	delete bitmapSrc;
-	delete bitmapTarget;
 }
 
 
 void CRippleBitmap::OnMouseMove(UINT nFlags, CPoint point)
-//--------------------------------------------------------
 {
 
 	// Rate limit in order to avoid too may ripples.
 	DWORD now = timeGetTime();
-	if(now - lastRipple < UPDATE_INTERVAL)
+	if(now - m_lastRipple < UPDATE_INTERVAL)
 		return;
-	lastRipple = now;
+	m_lastRipple = now;
 
 	// Initiate ripples at cursor location
-	Limit(point.x, 1, int(bitmapSrc->width) - 2);
-	Limit(point.y, 2, int(bitmapSrc->height) - 3);
-	int32_t *p = backBuf + point.x + point.y * bitmapSrc->width;
+	point.x = Util::ScalePixelsInv(point.x, m_hWnd);
+	point.y = Util::ScalePixelsInv(point.y, m_hWnd);
+	Limit(point.x, 1, int(m_bitmapSrc->Width()) - 2);
+	Limit(point.y, 2, int(m_bitmapSrc->Height()) - 3);
+	int32 *p = m_backBuf + point.x + point.y * m_bitmapSrc->Width();
 	p[0] += (nFlags & MK_LBUTTON) ? 50 : 150;
 	p[0] += (nFlags & MK_MBUTTON) ? 150 : 0;
 
-	int32_t w = bitmapSrc->width;
+	int32 w = m_bitmapSrc->Width();
 	// Make the initial point of this ripple a bit "fatter".
-	p[-1] += p[0] / 2;     p[1] += p[0] / 2;
-	p[-w] += p[0] / 2;     p[w] += p[0] / 2;
+	p[-1]     += p[0] / 2; p[1]      += p[0] / 2;
+	p[-w]     += p[0] / 2; p[w]      += p[0] / 2;
 	p[-w - 1] += p[0] / 4; p[-w + 1] += p[0] / 4;
-	p[w - 1] += p[0] / 4;  p[w + 1] += p[0] / 4;
+	p[w - 1]  += p[0] / 4; p[w + 1]  += p[0] / 4;
 
-	damp = !(nFlags & MK_RBUTTON);
-	activity = true;
+	m_damp = !(nFlags & MK_RBUTTON);
+	m_activity = true;
 
 	// Wine will only ever generate MouseLeave message when the message
 	// queue is completely empty and the hover timeout has expired.
@@ -103,7 +106,7 @@ void CRippleBitmap::OnMouseMove(UINT nFlags, CPoint point)
 	// control.
 	// Avoid hiding the mouse cursor on Wine. Interferring with the users input
 	// methods is an absolute no-go.
-	if(mpt::Windows::IsWine())
+	if(mpt::OS::Windows::IsWine())
 	{
 		return;
 	}
@@ -114,27 +117,25 @@ void CRippleBitmap::OnMouseMove(UINT nFlags, CPoint point)
 	me.dwFlags = TME_LEAVE | TME_HOVER;
 	me.dwHoverTime = 1500;
 
-	if(TrackMouseEvent(&me) && showMouse)
+	if(TrackMouseEvent(&me) && m_showMouse)
 	{
 		ShowCursor(FALSE);
-		showMouse = false;
+		m_showMouse = false;
 	}
 }
 
 
 void CRippleBitmap::OnMouseLeave()
-//--------------------------------
 {
-	if(!showMouse)
+	if(!m_showMouse)
 	{
 		ShowCursor(TRUE);
-		showMouse = true;
+		m_showMouse = true;
 	}
 }
 
 
 void CRippleBitmap::OnPaint()
-//---------------------------
 {
 	CPaintDC dc(this);
 
@@ -142,58 +143,57 @@ void CRippleBitmap::OnPaint()
 	GetClientRect(rect);
 	StretchDIBits(dc.m_hDC,
 		0, 0, rect.Width(), rect.Height(),
-		0, 0, bitmapTarget->width, bitmapTarget->height,
-		bitmapTarget->GetPixels(),
-		reinterpret_cast<BITMAPINFO *>(&bi), DIB_RGB_COLORS, SRCCOPY);
+		0, 0, m_bitmapTarget->Width(), m_bitmapTarget->Height(),
+		m_bitmapTarget->Pixels().data(),
+		reinterpret_cast<BITMAPINFO *>(&m_bi), DIB_RGB_COLORS, SRCCOPY);
 }
 
 
 bool CRippleBitmap::Animate()
-//---------------------------
 {
 	// Were there any pixels being moved in the last frame?
-	if(!activity)
+	if(!m_activity)
 		return false;
 
 	DWORD now = timeGetTime();
-	if(now - lastFrame < UPDATE_INTERVAL)
+	if(now - m_lastFrame < UPDATE_INTERVAL)
 		return true;
-	lastFrame = now;
-	activity = false;
+	m_lastFrame = now;
+	m_activity = false;
 
-	frontBuf = &(frame ? offset2 : offset1)[0];
-	backBuf = &(frame ? offset1 : offset2)[0];
+	m_frontBuf = (m_frame ? m_offset2 : m_offset1).data();
+	m_backBuf = (m_frame ? m_offset1 : m_offset2).data();
 
 	// Spread the ripples...
-	const int32_t w = bitmapSrc->width, h = bitmapSrc->height;
-	const int32_t numPixels = w * (h - 2);
-	const int32_t *back = backBuf + w;
-	int32_t *front = frontBuf + w;
-	for(int32_t i = numPixels; i != 0; i--, back++, front++)
+	const int32 w = m_bitmapSrc->Width(), h = m_bitmapSrc->Height();
+	const int32 numPixels = w * (h - 2);
+	const int32 *back = m_backBuf + w;
+	int32 *front = m_frontBuf + w;
+	for(int32 i = numPixels; i != 0; i--, back++, front++)
 	{
 		(*front) = (back[-1] + back[1] + back[w] + back[-w]) / 2 - (*front);
-		if(damp) (*front) -= (*front) >> 5;
+		if(m_damp) (*front) -= (*front) >> 5;
 	}
 
 	// ...and compute the final picture.
-	const int32_t *offset = frontBuf + w;
-	const PNG::Pixel *pixelIn = bitmapSrc->GetPixels() + w;
-	PNG::Pixel *pixelOut = bitmapTarget->GetPixels() + w;
-	PNG::Pixel *limitMin = bitmapSrc->GetPixels(), *limitMax = bitmapSrc->GetPixels() + bitmapSrc->GetNumPixels() - 1;
-	for(int32_t i = numPixels; i != 0; i--, pixelIn++, pixelOut++, offset++)
+	const int32 *offset = m_frontBuf + w;
+	const RawGDIDIB::Pixel *pixelIn = m_bitmapSrc->Pixels().data() + w;
+	RawGDIDIB::Pixel *pixelOut = m_bitmapTarget->Pixels().data() + w;
+	RawGDIDIB::Pixel *limitMin = m_bitmapSrc->Pixels().data(), *limitMax = m_bitmapSrc->Pixels().data() + m_bitmapSrc->Pixels().size() - 1;
+	for(int32 i = numPixels; i != 0; i--, pixelIn++, pixelOut++, offset++)
 	{
 		// Compute pixel displacement
-		const int32_t xOff = offset[-1] - offset[1];
-		const int32_t yOff = offset[-w] - offset[w];
+		const int32 xOff = offset[-1] - offset[1];
+		const int32 yOff = offset[-w] - offset[w];
 
 		if(xOff | yOff)
 		{
-			const PNG::Pixel *p = pixelIn + xOff + yOff * w;
+			const RawGDIDIB::Pixel *p = pixelIn + xOff + yOff * w;
 			Limit(p, limitMin, limitMax);
 			// Add a bit of shading depending on how far we're displacing the pixel...
-			pixelOut->r = (uint8_t)Clamp(p->r + (p->r * xOff) / 32, 0, 255);
-			pixelOut->g = (uint8_t)Clamp(p->g + (p->g * xOff) / 32, 0, 255);
-			pixelOut->b = (uint8_t)Clamp(p->b + (p->b * xOff) / 32, 0, 255);
+			pixelOut->r = mpt::saturate_cast<uint8>(p->r + (p->r * xOff) / 32);
+			pixelOut->g = mpt::saturate_cast<uint8>(p->g + (p->g * xOff) / 32);
+			pixelOut->b = mpt::saturate_cast<uint8>(p->b + (p->b * xOff) / 32);
 			// ...and mix it with original picture
 			pixelOut->r = (pixelOut->r + pixelIn->r) / 2u;
 			pixelOut->g = (pixelOut->g + pixelIn->g) / 2u;
@@ -205,14 +205,14 @@ bool CRippleBitmap::Animate()
 			pixelOut[-w].r = (pixelOut->r + pixelOut[-w].r) / 2u;
 			pixelOut[-w].g = (pixelOut->g + pixelOut[-w].g) / 2u;
 			pixelOut[-w].b = (pixelOut->b + pixelOut[-w].b) / 2u;
-			activity = true;	// Also use this to update activity status...
+			m_activity = true;	// Also use this to update activity status...
 		} else
 		{
 			*pixelOut = *pixelIn;
 		}
 	}
 
-	frame = !frame;
+	m_frame = !m_frame;
 
 	InvalidateRect(NULL, FALSE);
 
@@ -220,25 +220,15 @@ bool CRippleBitmap::Animate()
 }
 
 
-CAboutDlg::CAboutDlg()
-//--------------------
-{
-	m_TimerID = 0;
-
-}
-
-
 CAboutDlg::~CAboutDlg()
-//---------------------
 {
-	instance = NULL;
+	instance = nullptr;
 }
 
 
 void CAboutDlg::OnOK()
-//--------------------
 {
-	instance = NULL;
+	instance = nullptr;
 	if(m_TimerID != 0)
 	{
 		KillTimer(m_TimerID);
@@ -250,25 +240,24 @@ void CAboutDlg::OnOK()
 
 
 void CAboutDlg::OnCancel()
-//------------------------
 {
 	OnOK();
 }
 
 
 BOOL CAboutDlg::OnInitDialog()
-//----------------------------
 {
 	CDialog::OnInitDialog();
 
 	mpt::ustring app;
-	app += mpt::format(MPT_USTRING("OpenMPT %1 bit"))(sizeof(void*) * 8)
-		+ (!BuildVariants().CurrentBuildIsModern() ? MPT_USTRING(" for older Windows") : MPT_USTRING(""))
-		+ MPT_USTRING("\n");
-	app += MPT_USTRING("Version ") + mpt::ToUnicode(mpt::CharsetUTF8, MptVersion::GetVersionStringSimple()) + MPT_USTRING("\n");
-	app += MPT_USTRING("\n");
-	app += MptVersion::GetURL("website") + MPT_USTRING("\n");
-	SetDlgItemText(IDC_EDIT3, mpt::ToCString(mpt::String::Replace(app, MPT_USTRING("\n"), MPT_USTRING("\r\n"))));
+	app += MPT_UFORMAT("OpenMPT{} ({} ({} bit))")(
+			mpt::ToUnicode(mpt::Charset::ASCII, OPENMPT_BUILD_VARIANT_MONIKER),
+			mpt::OS::Windows::Name(mpt::OS::Windows::GetProcessArchitecture()),
+			mpt::arch_bits)
+		+ U_("\n");
+	app += U_("Version ") + Build::GetVersionStringSimple() + U_("\n\n");
+	app += Build::GetURL(Build::Url::Website) + U_("\n");
+	SetDlgItemText(IDC_EDIT3, mpt::ToCString(mpt::replace(app, U_("\n"), U_("\r\n"))));
 
 	m_bmp.SubclassDlgItem(IDC_BITMAP1, this);
 
@@ -277,6 +266,7 @@ BOOL CAboutDlg::OnInitDialog()
 	m_Tab.InsertItem(TCIF_TEXT, 2, _T("Credits"), 0, 0, 0, 0);
 	m_Tab.InsertItem(TCIF_TEXT, 3, _T("License"), 0, 0, 0, 0);
 	m_Tab.InsertItem(TCIF_TEXT, 4, _T("Resources"), 0, 0, 0, 0);
+	if(mpt::OS::Windows::IsWine()) m_Tab.InsertItem(TCIF_TEXT, 5, _T("Wine"), 0, 0, 0, 0);
 	m_Tab.SetCurSel(0);
 
 	OnTabChange(nullptr, nullptr);
@@ -288,13 +278,11 @@ BOOL CAboutDlg::OnInitDialog()
 	}
 	m_TimerID = SetTimer(TIMERID_ABOUT_DEFAULT, CRippleBitmap::UPDATE_INTERVAL, nullptr);
 
-	return TRUE;	// return TRUE unless you set the focus to a control
-	// EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE;
 }
 
 
 void CAboutDlg::OnTimer(UINT_PTR nIDEvent)
-//----------------------------------------
 {
 	if(nIDEvent == m_TimerID)
 	{
@@ -305,166 +293,168 @@ void CAboutDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CAboutDlg::OnTabChange(NMHDR * /*pNMHDR*/ , LRESULT * /*pResult*/ )
 {
-	m_TabEdit.SetWindowText(mpt::ToCString(mpt::String::Replace(GetTabText(m_Tab.GetCurSel()), MPT_USTRING("\n"), MPT_USTRING("\r\n"))));
+	m_TabEdit.SetWindowText(mpt::ToCString(mpt::replace(GetTabText(m_Tab.GetCurSel()), U_("\n"), U_("\r\n"))));
 }
+
+
+#ifdef MPT_ENABLE_ARCH_INTRINSICS
+static mpt::ustring CPUFeaturesToString(mpt::arch::current::feature_flags procSupport)
+{
+	std::vector<mpt::ustring> features;
+#if MPT_COMPILER_MSVC
+#if defined(MPT_ENABLE_ARCH_X86)
+	features.push_back(U_("x86"));
+#endif
+#if defined(MPT_ENABLE_ARCH_AMD64)
+	features.push_back(U_("amd64"));
+#endif
+	struct ProcFlag
+	{
+		decltype(procSupport) flag;
+		const mpt::uchar *name;
+	};
+	static constexpr ProcFlag flags[] =
+	{
+		{ mpt::arch::current::feature::none, UL_("") },
+#if defined(MPT_ENABLE_ARCH_X86) || defined(MPT_ENABLE_ARCH_AMD64)
+		{ mpt::arch::x86::feature::mmx, UL_("mmx") },
+		{ mpt::arch::x86::feature::sse, UL_("sse") },
+		{ mpt::arch::x86::feature::sse2, UL_("sse2") },
+		{ mpt::arch::x86::feature::sse3, UL_("sse3") },
+		{ mpt::arch::x86::feature::ssse3, UL_("ssse3") },
+		{ mpt::arch::x86::feature::sse4_1, UL_("sse4.1") },
+		{ mpt::arch::x86::feature::sse4_2, UL_("sse4.2") },
+		{ mpt::arch::x86::feature::avx, UL_("avx") },
+		{ mpt::arch::x86::feature::avx2, UL_("avx2") },
+#endif
+	};
+	for(const auto &f : flags)
+	{
+		if(procSupport & f.flag) features.push_back(f.name);
+	}
+#else
+	MPT_UNUSED_VARIABLE(procSupport);
+#endif
+	return mpt::join_format(features, U_(" "));
+}
+#endif // MPT_ENABLE_ARCH_INTRINSICS
 
 
 mpt::ustring CAboutDlg::GetTabText(int tab)
 {
-	const mpt::ustring lf = MPT_USTRING("\n");
+	const mpt::ustring lf = U_("\n");
+	const mpt::ustring yes = U_("yes");
+	const mpt::ustring no = U_("no");
+#ifdef MPT_ENABLE_ARCH_INTRINSICS
+	const mpt::arch::current::cpu_info CPUInfo = mpt::arch::get_cpu_info();
+#endif // MPT_ENABLE_ARCH_INTRINSICS
 	mpt::ustring text;
 	switch(tab)
 	{
 		case 0:
-			text += MPT_USTRING("OpenMPT - Open ModPlug Tracker") + lf;
-			text += lf;
-			text += mpt::format(MPT_USTRING("Version: %1"))(mpt::ToUnicode(mpt::CharsetUTF8, MptVersion::GetVersionStringExtended())) + lf;
-			text += mpt::format(MPT_USTRING("Source Code: %1"))(mpt::ToUnicode(mpt::CharsetUTF8, MptVersion::GetSourceInfo().GetUrlWithRevision() + " " + MptVersion::GetSourceInfo().GetStateString())) + lf;
-			text += mpt::format(MPT_USTRING("Build Date: %1"))(mpt::ToUnicode(mpt::CharsetUTF8, MptVersion::GetBuildDateString())) + lf;
-			text += mpt::format(MPT_USTRING("Compiler: %1"))(mpt::ToUnicode(mpt::CharsetUTF8, MptVersion::GetBuildCompilerString())) + lf;
-			text += mpt::format(MPT_USTRING("Required Windows Kernel Level: %1"))(mpt::Windows::Version::VersionToString(mpt::Windows::Version::GetMinimumKernelLevel())) + lf;
-			text += mpt::format(MPT_USTRING("Required Windows API Level: %1"))(mpt::Windows::Version::VersionToString(mpt::Windows::Version::GetMinimumAPILevel())) + lf;
+			text = U_("OpenMPT - Open ModPlug Tracker\n\n")
+				+ MPT_UFORMAT("Version: {}\n")(Build::GetVersionStringExtended())
+				+ MPT_UFORMAT("Source Code: {}\n")(SourceInfo::Current().GetUrlWithRevision() + UL_(" ") + SourceInfo::Current().GetStateString())
+				+ MPT_UFORMAT("Build Date: {}\n")(Build::GetBuildDateString())
+				+ MPT_UFORMAT("Compiler: {}\n")(Build::GetBuildCompilerString())
+				+ MPT_UFORMAT("Architecture: {}\n")(mpt::OS::Windows::Name(mpt::OS::Windows::GetProcessArchitecture()))
+				+ MPT_UFORMAT("Required Windows Kernel Level: {}\n")(mpt::OS::Windows::Version::GetName(mpt::OS::Windows::Version::GetMinimumKernelLevel()))
+				+ MPT_UFORMAT("Required Windows API Level: {}\n")(mpt::OS::Windows::Version::GetName(mpt::OS::Windows::Version::GetMinimumAPILevel()));
 			{
-				text += MPT_USTRING("Required CPU features: ");
+				text += U_("Required CPU features: ");
 				std::vector<mpt::ustring> features;
-				#if MPT_COMPILER_MSVC
-					#if defined(_M_X64)
-						features.push_back(MPT_USTRING("x86-64"));
-						if(GetMinimumAVXVersion() >= 1) features.push_back(MPT_USTRING("avx"));
-						if(GetMinimumAVXVersion() >= 2) features.push_back(MPT_USTRING("avx2"));
-					#elif defined(_M_IX86)
-						if(GetMinimumSSEVersion() <= 0 && GetMinimumAVXVersion() <= 0 ) features.push_back(MPT_USTRING("fpu"));
-						if(GetMinimumSSEVersion() >= 1) features.push_back(MPT_USTRING("cmov"));
-						if(GetMinimumSSEVersion() >= 1) features.push_back(MPT_USTRING("sse"));
-						if(GetMinimumSSEVersion() >= 2) features.push_back(MPT_USTRING("sse2"));
-						if(GetMinimumAVXVersion() >= 1) features.push_back(MPT_USTRING("avx"));
-						if(GetMinimumAVXVersion() >= 2) features.push_back(MPT_USTRING("avx2"));
-					#else
-						if(GetMinimumSSEVersion() <= 0 && GetMinimumAVXVersion() <= 0 ) features.push_back(MPT_USTRING("fpu"));
-						if(GetMinimumSSEVersion() >= 1) features.push_back(MPT_USTRING("cmov"));
-						if(GetMinimumSSEVersion() >= 1) features.push_back(MPT_USTRING("sse"));
-						if(GetMinimumSSEVersion() >= 2) features.push_back(MPT_USTRING("sse2"));
-						if(GetMinimumAVXVersion() >= 1) features.push_back(MPT_USTRING("avx"));
-						if(GetMinimumAVXVersion() >= 2) features.push_back(MPT_USTRING("avx2"));
+				#ifdef MPT_ENABLE_ARCH_INTRINSICS
+					#if MPT_ARCH_AMD64
+						features.push_back(U_("x86-64"));
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::avx) features.push_back(U_("avx"));
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::avx2) features.push_back(U_("avx2"));
+					#elif MPT_ARCH_X86
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::sse) features.push_back(U_("sse"));
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::sse2) features.push_back(U_("sse2"));
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::avx) features.push_back(U_("avx"));
+						if(mpt::arch::current::assumed_features() & mpt::arch::current::feature::avx2) features.push_back(U_("avx2"));
 					#endif
 				#endif
-				text += mpt::String::Combine(features, MPT_USTRING(" "));
+				text += mpt::join_format(features, U_(" "));
 				text += lf;
 			}
-			{
-				text += MPT_USTRING("Optional CPU features used: ");
-				std::vector<mpt::ustring> features;
-				#if MPT_COMPILER_MSVC && defined(ENABLE_ASM)
-					#if defined(ENABLE_X86)
-						features.push_back(MPT_USTRING("x86"));
-						if(GetProcSupport() & PROCSUPPORT_FPU) features.push_back(MPT_USTRING("fpu"));
-						if(GetProcSupport() & PROCSUPPORT_CMOV) features.push_back(MPT_USTRING("cmov"));
-					#endif
-					#if defined(ENABLE_X64)
-						features.push_back(MPT_USTRING("x86-64"));
-					#endif
-					#if defined(ENABLE_MMX)
-						if(GetProcSupport() & PROCSUPPORT_MMX) features.push_back(MPT_USTRING("mmx"));
-					#endif
-					#if defined(ENABLE_SSE)
-						if(GetProcSupport() & PROCSUPPORT_SSE) features.push_back(MPT_USTRING("sse"));
-					#endif
-					#if defined(ENABLE_SSE2)
-						if(GetProcSupport() & PROCSUPPORT_SSE2) features.push_back(MPT_USTRING("sse2"));
-					#endif
-					#if defined(ENABLE_SSE3)
-						if(GetProcSupport() & PROCSUPPORT_SSE3) features.push_back(MPT_USTRING("sse3"));
-						if(GetProcSupport() & PROCSUPPORT_SSSE3) features.push_back(MPT_USTRING("ssse3"));
-					#endif
-					#if defined(ENABLE_SSE4)
-						if(GetProcSupport() & PROCSUPPORT_SSE4_1) features.push_back(MPT_USTRING("sse4.1"));
-						if(GetProcSupport() & PROCSUPPORT_SSE4_2) features.push_back(MPT_USTRING("sse4.2"));
-					#endif
-					#if defined(ENABLE_X86_AMD)
-						if(GetProcSupport() & PROCSUPPORT_AMD_MMXEXT) features.push_back(MPT_USTRING("mmxext"));
-						if(GetProcSupport() & PROCSUPPORT_AMD_3DNOW) features.push_back(MPT_USTRING("3dnow"));
-						if(GetProcSupport() & PROCSUPPORT_AMD_3DNOWEXT) features.push_back(MPT_USTRING("3dnowext"));
-					#endif
-				#endif
-				text += mpt::String::Combine(features, MPT_USTRING(" "));
-				text += lf;
-			}
+#ifdef MPT_ENABLE_ARCH_INTRINSICS
+			text += MPT_UFORMAT("Optional CPU features used: {}\n")(CPUFeaturesToString(CPU::GetEnabledFeatures()));
+#endif // MPT_ENABLE_ARCH_INTRINSICS
 			text += lf;
-			if(GetProcSupport() & PROCSUPPORT_CPUID)
-			{
-				text += mpt::format(MPT_USTRING("CPU: %1, Family %2, Model %3, Stepping %4"))
-					( mpt::ToUnicode(mpt::CharsetASCII, (std::strlen(ProcVendorID) > 0) ? std::string(ProcVendorID) : std::string("Generic"))
-					, ProcFamily
-					, ProcModel
-					, ProcStepping
-					) + lf;
-			} else
-			{
-				text += MPT_USTRING("Generic without CPUID") + lf;
-			}
-			text += mpt::format(MPT_USTRING("Operating System: %1"))(mpt::Windows::Version::Current().GetName()) + lf;
-			text += lf;
-			text += mpt::format(MPT_USTRING("OpenMPT Path%2: %1"))(theApp.GetAppDirPath(), theApp.IsPortableMode() ? MPT_USTRING(" (portable)") : MPT_USTRING("")) + lf;
-			text += mpt::format(MPT_USTRING("Settings%2: %1"))(theApp.GetConfigFileName(), theApp.IsPortableMode() ? MPT_USTRING(" (portable)") : MPT_USTRING("")) + lf;
+			text += MPT_UFORMAT("System Architecture: {}\n")(mpt::OS::Windows::Name(mpt::OS::Windows::GetHostArchitecture()));
+#ifdef MPT_ENABLE_ARCH_INTRINSICS
+#if MPT_ARCH_X86 || MPT_ARCH_AMD64
+			text += MPT_UFORMAT("CPU: {}, Family {}, Model {}, Stepping {}\n")
+				( mpt::ToUnicode(mpt::Charset::ASCII, (CPUInfo.get_vendor_string().length() > 0) ? CPUInfo.get_vendor_string() : std::string("Generic"))
+				, CPUInfo.get_family()
+				, CPUInfo.get_model()
+				, CPUInfo.get_stepping()
+				);
+			text += MPT_UFORMAT("CPU Name: {}\n")(mpt::ToUnicode(mpt::Charset::ASCII, (CPUInfo.get_brand_string().length() > 0) ? CPUInfo.get_brand_string() : std::string("")));
+#endif
+			text += MPT_UFORMAT("Available CPU features: {}\n")(CPUFeaturesToString(CPUInfo.get_features()));
+#endif // MPT_ENABLE_ARCH_INTRINSICS
+			text += MPT_UFORMAT("Operating System: {}\n\n")(mpt::OS::Windows::Version::GetCurrentName());
+			text += MPT_UFORMAT("OpenMPT Install Path{1}: {0}\n")(theApp.GetInstallPath(), theApp.IsPortableMode() ? U_(" (portable)") : U_(""));
+			text += MPT_UFORMAT("OpenMPT Executable Path{1}: {0}\n")(theApp.GetInstallBinArchPath(), theApp.IsPortableMode() ? U_(" (portable)") : U_(""));
+			text += MPT_UFORMAT("Settings{1}: {0}\n")(theApp.GetConfigFileName(), theApp.IsPortableMode() ? U_(" (portable)") : U_(""));
 			break;
 		case 1:
 			{
-				if(!TrackerSettings::Instance().ComponentsKeepLoaded)
+			std::vector<std::string> components = ComponentManager::Instance()->GetRegisteredComponents();
+			if(!TrackerSettings::Instance().ComponentsKeepLoaded)
 				{
-					text += MPT_USTRING("Components are loaded and unloaded as needed.") + lf;
-					text += lf;
-					std::vector<std::string> components = ComponentManager::Instance()->GetRegisteredComponents();
-					for(std::size_t i = 0; i < components.size(); ++i)
+					text += U_("Components are loaded and unloaded as needed.\n\n");
+					for(const auto &component : components)
 					{
-						ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(components[i]);
-						mpt::ustring name = mpt::ToUnicode(mpt::CharsetASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
+						ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(component);
+						mpt::ustring name = mpt::ToUnicode(mpt::Charset::ASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
 						if(!info.settingsKey.empty())
 						{
-							name = mpt::ToUnicode(mpt::CharsetASCII, info.settingsKey);
+							name = mpt::ToUnicode(mpt::Charset::ASCII, info.settingsKey);
 						}
 						text += name + lf;
 					}
 				} else
 				{
-					std::vector<std::string> components = ComponentManager::Instance()->GetRegisteredComponents();
 					for(int available = 1; available >= 0; --available)
 					{
 						if(available)
 						{
-							text += MPT_USTRING("Loaded Components:") + lf;
+							text += U_("Loaded Components:\n");
 						} else
 						{
-							text += lf;
-							text += MPT_USTRING("Unloaded Components:") + lf;
+							text += U_("\nUnloaded Components:\n");
 						}
-						for(std::size_t i = 0; i < components.size(); ++i)
+						for(const auto &component : components)
 						{
-							ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(components[i]);
+							ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(component);
 							if(available  && info.state != ComponentStateAvailable) continue;
 							if(!available && info.state == ComponentStateAvailable) continue;
-							mpt::ustring name = mpt::ToUnicode(mpt::CharsetASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
+							mpt::ustring name = mpt::ToUnicode(mpt::Charset::ASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
 							if(!info.settingsKey.empty())
 							{
-								name = mpt::ToUnicode(mpt::CharsetASCII, info.settingsKey);
+								name = mpt::ToUnicode(mpt::Charset::ASCII, info.settingsKey);
 							}
-							text += mpt::format(MPT_USTRING("%1: %2"))
+							text += MPT_UFORMAT("{}: {}")
 								( name
-								, info.state == ComponentStateAvailable ? MPT_USTRING("ok") :
-									info.state == ComponentStateUnavailable? MPT_USTRING("missing") :
-									info.state == ComponentStateUnintialized ? MPT_USTRING("not loaded") :
-									info.state == ComponentStateBlocked ? MPT_USTRING("blocked") :
-									info.state == ComponentStateUnregistered ? MPT_USTRING("unregistered") :
-									MPT_USTRING("unknown")
+								, info.state == ComponentStateAvailable ? U_("ok") :
+									info.state == ComponentStateUnavailable? U_("missing") :
+									info.state == ComponentStateUnintialized ? U_("not loaded") :
+									info.state == ComponentStateBlocked ? U_("blocked") :
+									info.state == ComponentStateUnregistered ? U_("unregistered") :
+									U_("unknown")
 								);
 							if(info.type != ComponentTypeUnknown)
 							{
-								text += mpt::format(MPT_USTRING(" (%1)"))
-									( info.type == ComponentTypeBuiltin ? MPT_USTRING("builtin") :
-										info.type == ComponentTypeSystem ? MPT_USTRING("system") :
-										info.type == ComponentTypeSystemInstallable ? MPT_USTRING("system, optional") :
-										info.type == ComponentTypeBundled ? MPT_USTRING("bundled") :
-										info.type == ComponentTypeForeign ? MPT_USTRING("foreign") :
-										MPT_USTRING("unknown")
+								text += MPT_UFORMAT(" ({})")
+									( info.type == ComponentTypeBuiltin ? U_("builtin") :
+										info.type == ComponentTypeSystem ? U_("system") :
+										info.type == ComponentTypeSystemInstallable ? U_("system, optional") :
+										info.type == ComponentTypeBundled ? U_("bundled") :
+										info.type == ComponentTypeForeign ? U_("foreign") :
+										U_("unknown")
 									);
 							}
 							text += lf;
@@ -474,21 +464,105 @@ mpt::ustring CAboutDlg::GetTabText(int tab)
 			}
 			break;
 		case 2:
-			text += MptVersion::GetFullCreditsString();
+			text += Build::GetFullCreditsString();
 			break;
 		case 3:
-			text += MptVersion::GetLicenseString();
+			text += Build::GetLicenseString();
 			break;
 		case 4:
-			text += lf;
-			text += MPT_USTRING("Website: ") + lf + MptVersion::GetURL("website") + lf;
-			text += lf;
-			text += MPT_USTRING("Forum: ") + lf + MptVersion::GetURL("forum") + lf;
-			text += lf;
-			text += MPT_USTRING("Bug Tracker: ") + lf + MptVersion::GetURL("bugtracker") + lf;
-			text += lf;
-			text += MPT_USTRING("Updates: ") + lf + MptVersion::GetURL("updates") + lf;
-			text += lf;
+			text += U_("Website:\n") + Build::GetURL(Build::Url::Website);
+			text += U_("\n\nForum:\n") + Build::GetURL(Build::Url::Forum);
+			text += U_("\n\nBug Tracker:\n") + Build::GetURL(Build::Url::Bugtracker);
+			text += U_("\n\nUpdates:\n") + Build::GetURL(Build::Url::Updates);
+			break;
+		case 5:
+			try
+			{
+				if(!theApp.GetWine())
+				{
+					text += U_("Wine integration not available.\n");
+				} else
+				{
+
+					mpt::Wine::Context & wine = *theApp.GetWine();
+					
+					text += MPT_UFORMAT("Windows: {}\n")
+						( mpt::osinfo::windows::Version::Current().IsWindows() ? yes : no
+						);
+					text += MPT_UFORMAT("Windows version: {}\n")
+						( 
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::Win81) ? U_("Windows 8.1") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::Win8) ? U_("Windows 8") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::Win7) ? U_("Windows 7") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::WinVista) ? U_("Windows Vista") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::WinXP) ? U_("Windows XP") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::Win2000) ? U_("Windows 2000") :
+						mpt::osinfo::windows::Version::Current().IsAtLeast(mpt::osinfo::windows::Version::WinNT4) ? U_("Windows NT4") :
+						U_("unknown")
+						);
+					text += MPT_UFORMAT("Windows original: {}\n")
+						( mpt::OS::Windows::IsOriginal() ? yes : no
+						);
+
+					text += U_("\n");
+
+					text += MPT_UFORMAT("Wine: {}\n")
+						( mpt::OS::Windows::IsWine() ? yes : no
+						);
+					text += MPT_UFORMAT("Wine Version: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.VersionContext().RawVersion())
+						);
+					text += MPT_UFORMAT("Wine Build ID: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.VersionContext().RawBuildID())
+						);
+					text += MPT_UFORMAT("Wine Host Sys Name: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.VersionContext().RawHostSysName())
+						);
+					text += MPT_UFORMAT("Wine Host Release: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.VersionContext().RawHostRelease())
+						);
+
+					text += U_("\n");
+
+					text += MPT_UFORMAT("uname -m: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.Uname_m())
+						);
+					text += MPT_UFORMAT("HOME: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.HOME())
+						);
+					text += MPT_UFORMAT("XDG_DATA_HOME: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.XDG_DATA_HOME())
+						);
+					text += MPT_UFORMAT("XDG_CACHE_HOME: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.XDG_CACHE_HOME())
+						);
+					text += MPT_UFORMAT("XDG_CONFIG_HOME: {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.XDG_CONFIG_HOME())
+						);
+
+					text += U_("\n");
+
+					text += MPT_UFORMAT("OpenMPT folder: {}\n")
+						( theApp.GetInstallPath().ToUnicode()
+						);
+					text += MPT_UFORMAT("OpenMPT folder (host): {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.PathToPosix(theApp.GetInstallPath()))
+						);
+					text += MPT_UFORMAT("OpenMPT config folder: {}\n")
+						( theApp.GetConfigPath().ToUnicode()
+						);
+					text += MPT_UFORMAT("OpenMPT config folder (host): {}\n")
+						( mpt::ToUnicode(mpt::Charset::UTF8, wine.PathToPosix(theApp.GetConfigPath()))
+						);
+					text += MPT_UFORMAT("Host root: {}\n")
+						( wine.PathToWindows("/").ToUnicode()
+						);
+
+				}
+			} catch(const mpt::Wine::Exception & e)
+			{
+				text += U_("Exception: ") + mpt::get_exception_text<mpt::ustring>(e) + U_("\n");
+			}
 			break;
 	}
 	return text;

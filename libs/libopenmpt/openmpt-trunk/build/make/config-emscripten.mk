@@ -1,35 +1,149 @@
 
-CC  = emcc
-CXX = em++
+ifeq ($(origin CC),default)
+CC  = emcc -c
+endif
+ifeq ($(origin CXX),default)
+CXX = em++ -c
+endif
+ifeq ($(origin LD),default)
 LD  = em++
+endif
+ifeq ($(origin AR),default)
 AR  = emar
+endif
+LINK.cc = em++ $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
 
-CPPFLAGS += 
-CXXFLAGS += -std=c++11 -fPIC -O2 -s DISABLE_EXCEPTION_CATCHING=0 -s PRECISE_F32=1 -ffast-math 
-CFLAGS   += -std=c99   -fPIC -O2 -s DISABLE_EXCEPTION_CATCHING=0 -s PRECISE_F32=1 -ffast-math -fno-strict-aliasing 
-LDFLAGS  += -O2 -s DISABLE_EXCEPTION_CATCHING=0 -s PRECISE_F32=1 -s EXPORT_NAME="'libopenmpt'"
-LDLIBS   += 
+EMSCRIPTEN_TARGET?=default
+EMSCRIPTEN_THREADS?=0
+EMSCRIPTEN_PORTS?=0
+
+ifneq ($(STDCXX),)
+CXXFLAGS_STDCXX = -std=$(STDCXX)
+else ifeq ($(shell printf '\n' > bin/empty.cpp ; if $(CXX) -std=c++20 -c bin/empty.cpp -o bin/empty.out > /dev/null 2>&1 ; then echo 'c++20' ; fi ), c++20)
+CXXFLAGS_STDCXX = -std=c++20
+else
+CXXFLAGS_STDCXX = -std=c++17
+endif
+ifneq ($(STDC),)
+CFLAGS_STDC = -std=$(STDC)
+else ifeq ($(shell printf '\n' > bin/empty.c ; if $(CC) -std=c17 -c bin/empty.c -o bin/empty.out > /dev/null 2>&1 ; then echo 'c17' ; fi ), c17)
+CFLAGS_STDC = -std=c17
+else
+CFLAGS_STDC = -std=c11
+endif
+CXXFLAGS += $(CXXFLAGS_STDCXX)
+CFLAGS += $(CFLAGS_STDC)
+
+CPPFLAGS +=
+CXXFLAGS += -fPIC
+CFLAGS   += -fPIC
+LDFLAGS  +=
+LDLIBS   +=
 ARFLAGS  := rcs
 
-# help older and slower compilers with huge functions
-#LDFLAGS += -s OUTLINING_LIMIT=16000
+ifeq ($(EMSCRIPTEN_THREADS),1)
+CXXFLAGS += -pthread
+CFLAGS   += -pthread
+LDFLAGS  += -pthread
+endif
 
-# allow growing heap (might be slower, especially with V8 (as used by Chrome))
-#LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
-# limit memory to 64MB, faster but loading modules bigger than about 16MB will not work
-#LDFLAGS += -s TOTAL_MEMORY=67108864
+ifeq ($(EMSCRIPTEN_PORTS),1)
+CXXFLAGS += -s USE_ZLIB=1 -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -DMPT_WITH_ZLIB -DMPT_WITH_MPG123 -DMPT_WITH_VORBIS -DMPT_WITH_VORBISFILE -DMPT_WITH_OGG
+CFLAGS   += -s USE_ZLIB=1 -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -DMPT_WITH_ZLIB -DMPT_WITH_MPG123 -DMPT_WITH_VORBIS -DMPT_WITH_VORBISFILE -DMPT_WITH_OGG
+LDFLAGS  += -s USE_ZLIB=1 -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1
+NO_MINIZ=1
+NO_MINIMP3=1
+NO_STBVORBIS=1
+endif
+
+CXXFLAGS += -Oz
+CFLAGS   += -Oz
+LDFLAGS  += -Oz
+
+# Enable LTO as recommended by Emscripten
+#CXXFLAGS += -flto=thin
+#CFLAGS   += -flto=thin
+#LDFLAGS  += -flto=thin -Wl,--thinlto-jobs=all
+# As per recommendation in <https://github.com/emscripten-core/emscripten/issues/15638#issuecomment-982772770>,
+# thinLTO is not as well tested as full LTO. Stick to full LTO for now.
+CXXFLAGS += -flto
+CFLAGS   += -flto
+LDFLAGS  += -flto
+
+ifeq ($(EMSCRIPTEN_TARGET),default)
+# emits whatever is emscripten's default, currently (13.1.51) this is the same as "wasm" below.
+CPPFLAGS += 
+CXXFLAGS += 
+CFLAGS   += 
+LDFLAGS  += 
 
 LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
 
-CXXFLAGS_WARNINGS += -Wmissing-declarations
-CFLAGS_WARNINGS   += -Wmissing-prototypes
+else ifeq ($(EMSCRIPTEN_TARGET),all)
+# emits native wasm AND javascript with full wasm optimizations.
+CPPFLAGS += 
+CXXFLAGS += 
+CFLAGS   += 
+LDFLAGS  += -s WASM=2 -s LEGACY_VM_SUPPORT=1
+
+# work-around <https://github.com/emscripten-core/emscripten/issues/17897>.
+CXXFLAGS += -fno-inline-functions
+CFLAGS   += -fno-inline-functions
+LDFLAGS  += -fno-inline-functions
+
+LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
+
+else ifeq ($(EMSCRIPTEN_TARGET),audioworkletprocessor)
+# emits an es6 module in a single file suitable for use in an AudioWorkletProcessor
+CPPFLAGS += -DMPT_BUILD_AUDIOWORKLETPROCESSOR
+CXXFLAGS += 
+CFLAGS   += 
+LDFLAGS  += -s WASM=1 -s WASM_ASYNC_COMPILATION=0 -s MODULARIZE=1 -s EXPORT_ES6=1 -s SINGLE_FILE=1
+
+LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
+
+else ifeq ($(EMSCRIPTEN_TARGET),wasm)
+# emits native wasm.
+CPPFLAGS += 
+CXXFLAGS += 
+CFLAGS   += 
+LDFLAGS  += -s WASM=1
+
+LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
+
+else ifeq ($(EMSCRIPTEN_TARGET),js)
+# emits only plain javascript with plain javascript focused optimizations.
+CPPFLAGS += 
+CXXFLAGS += 
+CFLAGS   += 
+LDFLAGS  += -s WASM=0 -s LEGACY_VM_SUPPORT=1
+
+# work-around <https://github.com/emscripten-core/emscripten/issues/17897>.
+CXXFLAGS += -fno-inline-functions
+CFLAGS   += -fno-inline-functions
+LDFLAGS  += -fno-inline-functions
+
+LDFLAGS += -s ALLOW_MEMORY_GROWTH=1
+
+endif
+
+CXXFLAGS += -s DISABLE_EXCEPTION_CATCHING=0
+CFLAGS   += -s DISABLE_EXCEPTION_CATCHING=0 -fno-strict-aliasing
+LDFLAGS  += -s DISABLE_EXCEPTION_CATCHING=0 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s ERROR_ON_MISSING_LIBRARIES=1 -s EXPORT_NAME="'libopenmpt'"
+SO_LDFLAGS += -s EXPORTED_FUNCTIONS="['_malloc','_free']"
+
+include build/make/warnings-clang.mk
 
 REQUIRES_RUNPREFIX=1
 
 EXESUFFIX=.js
 SOSUFFIX=.js
-RUNPREFIX=nodejs 
-TEST_LDFLAGS= --pre-js build/make/test-pre.js 
+RUNPREFIX=node 
+TEST_LDFLAGS= -lnodefs.js 
+
+ifeq ($(EMSCRIPTEN_THREADS),1)
+RUNPREFIX+=--experimental-wasm-threads --experimental-wasm-bulk-memory 
+endif
 
 DYNLINK=0
 SHARED_LIB=1
@@ -37,30 +151,31 @@ STATIC_LIB=0
 EXAMPLES=1
 OPENMPT123=0
 SHARED_SONAME=0
+NO_SHARED_LINKER_FLAG=1
 
 # Disable the generic compiler optimization flags as emscripten is sufficiently different.
 # Optimization flags are hard-coded for emscripten in this file.
 DEBUG=0
-OPTIMIZE=0
-OPTIMIZE_SIZE=0
+OPTIMIZE=none
 
+IS_CROSS=1
+
+ifeq ($(ALLOW_LGPL),1)
+LOCAL_ZLIB=1
+LOCAL_MPG123=1
+LOCAL_OGG=1
+LOCAL_VORBIS=1
+else
 NO_ZLIB=1
-NO_LTDL=1
-NO_DL=1
 NO_MPG123=1
 NO_OGG=1
 NO_VORBIS=1
 NO_VORBISFILE=1
+endif
 NO_PORTAUDIO=1
 NO_PORTAUDIOCPP=1
 NO_PULSEAUDIO=1
-NO_SDL=1
 NO_SDL2=1
 NO_FLAC=1
 NO_SNDFILE=1
 
-# disable stb_vorbis unless we also have minimp3
-ifeq ($(USE_MINIMP3),1)
-else
-NO_STBVORBIS=1
-endif

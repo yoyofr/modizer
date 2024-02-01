@@ -50,11 +50,11 @@ public:
 	};
 
 protected:
-	std::vector<float> m_delayLine;	// Echo delay line
-	uint32 m_bufferSize;			// Delay line length in frames
-	uint32 m_writePos;				// Current write position in the delay line
-	uint32 m_delayTime;				// In frames
-	uint32 m_sampleRate;
+	std::vector<float> m_delayLine;  // Echo delay line
+	uint32 m_bufferSize = 0;         // Delay line length in frames
+	uint32 m_writePos = 0;           // Current write position in the delay line
+	uint32 m_delayTime = 0;          // In frames
+	uint32 m_sampleRate = 0;
 
 	// Echo calculation coefficients
 	float m_PMix, m_NMix;
@@ -65,10 +65,9 @@ protected:
 	PluginChunk m_chunk;
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
-	DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
+	DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
-	void Release() override { delete this; }
 	void SaveAllParameters() override;
 	void RestoreAllParameters(int32 program) override;
 	int32 GetUID() const override { int32le id; memcpy(&id, "Echo", 4); return id; }

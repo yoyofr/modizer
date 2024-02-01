@@ -10,11 +10,15 @@
 
 
 #include "stdafx.h"
-#include <ostream>
 #include "ITCompression.h"
-#include "../common/misc_util.h"
-#include "../common/mptIO.h"
 #include "ModSample.h"
+#include "SampleCopy.h"
+#include "../common/misc_util.h"
+#include "mpt/io/base.hpp"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
+
+#include <ostream>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -183,7 +187,9 @@ void ITCompression::CompressBlock(const typename Properties::sample_t *data, Smp
 
 int8 ITCompression::GetWidthChangeSize(int8 w, bool is16)
 {
-	MPT_ASSERT(w > 0 && static_cast<unsigned int>(w) <= CountOf(ITWidthChangeSize));
+	MPT_ASSERT(w > 0 && static_cast<unsigned int>(w) <= std::size(ITWidthChangeSize));
+	// cppcheck false-positive
+	// cppcheck-suppress negativeIndex
 	int8 wcs = ITWidthChangeSize[w - 1];
 	if(w <= 6 && is16)
 		wcs++;
@@ -201,7 +207,7 @@ void ITCompression::SquishRecurse(int8 sWidth, int8 lWidth, int8 rWidth, int8 wi
 		return;
 	}
 
-	MPT_ASSERT(width >= 0 && static_cast<unsigned int>(width) < CountOf(Properties::lowerTab));
+	MPT_ASSERT(width >= 0 && static_cast<unsigned int>(width) < std::size(Properties::lowerTab));
 
 	SmpLength i = offset;
 	SmpLength end = offset + length;
@@ -274,7 +280,7 @@ void ITCompression::WriteBits(int8 width, int v)
 {
 	while(width > remBits)
 	{
-		byteVal |= (v << bitPos);
+		byteVal |= static_cast<uint8>(v << bitPos);
 		width -= remBits;
 		v >>= remBits;
 		bitPos = 0;
@@ -285,7 +291,7 @@ void ITCompression::WriteBits(int8 width, int v)
 
 	if(width > 0)
 	{
-		byteVal |= (v & ((1 << width) - 1)) << bitPos;
+		byteVal |= static_cast<uint8>((v & ((1 << width) - 1)) << bitPos);
 		remBits -= width;
 		bitPos += width;
 	}

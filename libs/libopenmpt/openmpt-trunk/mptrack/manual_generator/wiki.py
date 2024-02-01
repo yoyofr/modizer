@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # OpenMPT help file scraper
-# by coda and Saga Musix
+# by coda (https://coda.s3m.us/) and Saga Musix (https://sagamusix.de/)
 # This script downloads the OpenMPT manual TOC and then downloads all pages
 # from that TOC. The pages are parsed and all required image files are fetched.
 # The script also generates the appropriate files that can be fed into the
@@ -9,14 +9,16 @@
 from urllib.request import urlopen, urlretrieve
 import re, os, shutil, subprocess
 
-base_url = 'http://wiki.openmpt.org'
+base_url = 'https://wiki.openmpt.org'
+base_url_regex = 'https?://wiki.openmpt.org'
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 shutil.rmtree('html', ignore_errors=True)
 shutil.copytree('source', 'html')
 
-style = urlopen(base_url + '/load.php?debug=false&lang=en&modules=mediawiki.legacy.common%2Cshared|mediawiki.ui.button|skins.vector.styles&only=styles&skin=vector&*').read().decode('UTF-8')
+style = urlopen(base_url + '/load.php?debug=false&lang=en&modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.page.gallery.styles%7Cmediawiki.skinning.interface%7Cskins.vector.styles%7Csite.styles&only=styles&skin=vector').read().decode('UTF-8')
+
 # Remove a few unused CSS classes
 style = re.sub(r'\}(\w+)?[\.#]vector([\w >]+)\{.+?\}', '}', style)
 style_file = open('html/style.css', 'w')
@@ -25,7 +27,7 @@ style_file.close()
 
 toc_page = urlopen(base_url + '/index.php?title=Manual:_CHM_TOC&action=render').read().decode('UTF-8')
 
-pages = re.findall('href="' + base_url + '/(.+?)"', toc_page)
+pages = re.findall('href="' + base_url_regex + '/(.+?)"', toc_page)
 
 def destname(p):
     p = p.split(':_')[1]
@@ -91,12 +93,14 @@ for p in pages:
     # Remove comments
     content = re.sub(r'<!--(.+?)-->', '', content, flags = re.DOTALL)
     # Fix local URLs
-    content = re.sub(r'<a href="' + base_url + '/File:', '<a href="', content)
-    content = re.sub(r'<a href="' + base_url + '/(Manual:.+?)"', fix_internal_links, content)
+    content = re.sub(r'<a href="' + base_url_regex + '/File:', '<a href="', content)
+    content = re.sub(r'<a href="' + base_url_regex + '/(Manual:.+?)"', fix_internal_links, content)
     content = re.sub(r'<a href="/(Manual:.+?)"', fix_internal_links, content)
     # Remove templates that shouldn't turn up in the manual
     content = re.sub(r'<div class="todo".+?</div>', '', content, flags = re.DOTALL);
     content = re.sub(r'<p class="newversion".+?</p>', '', content, flags = re.DOTALL);
+    # Don't need this attribute in our CHM
+    content = re.sub(r' rel="nofollow"', '', content);
     
     section = re.match(r'(.+)/', title(p))
     section_str = ''
@@ -106,6 +110,7 @@ for p in pages:
     content = """<!DOCTYPE html>
     <html lang="en">
     <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link href="style.css" rel="stylesheet">
     <link href="help.css" rel="stylesheet">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -131,7 +136,7 @@ toc.write("""
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <HTML>
 <HEAD>
-<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<meta name="GENERATOR" content="OpenMPT Help Generator">
 <!-- Sitemap 1.0 -->
 </HEAD><BODY>
 <OBJECT type="text/site properties">
@@ -151,9 +156,10 @@ def toc_parse_chapter(m):
     </OBJECT>"""
 
 toc_text = re.sub(r'<!--(.+?)-->', '', toc_page, flags = re.DOTALL)
-toc_text = re.sub(r'<div(.+?)/div>', '', toc_text, flags = re.DOTALL)
-toc_text = re.sub(r'<a href="' + base_url + '/(.+?)".*?>(.+?)</a>', toc_parse, toc_text)
-toc_text = re.sub(r'<li> ([^<]+)$', toc_parse_chapter, toc_text, flags = re.MULTILINE)
+toc_text = re.sub(r'<div(.+?)>', '', toc_text, flags = re.DOTALL)
+toc_text = re.sub(r'</div>', '', toc_text, flags = re.DOTALL)
+toc_text = re.sub(r'<a href="' + base_url_regex + '/(.+?)".*?>(.+?)</a>', toc_parse, toc_text)
+toc_text = re.sub(r'<li>([^<]+)$', toc_parse_chapter, toc_text, flags = re.MULTILINE)
 toc.write(toc_text)
 
 toc.write("""
@@ -161,7 +167,7 @@ toc.write("""
 """)
 toc.close()
 
-if(subprocess.call(['htmlhelp/hhc.exe', '"html/OpenMPT Manual.hhp"']) != 1):
+if(subprocess.call(['../../build/tools/htmlhelp/hhc.exe', '"html/OpenMPT Manual.hhp"']) != 1):
     raise Exception("Something went wrong during manual creation!")
 try:
     os.remove('../../packageTemplate/html/OpenMPT Manual.chm')

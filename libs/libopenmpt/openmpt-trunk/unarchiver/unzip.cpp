@@ -18,7 +18,7 @@
 #if defined(MPT_WITH_ZLIB) && defined(MPT_WITH_MINIZIP)
 #include <contrib/minizip/unzip.h>
 #elif defined(MPT_WITH_MINIZ)
-#include <miniz/miniz.c>
+#include <miniz/miniz.h>
 #endif
 
 
@@ -47,7 +47,7 @@ struct ZipFileAbstraction
 	static uLong ZCALLBACK fread_mem(voidpf opaque, voidpf, void *buf, uLong size)
 	{
 		FileReader &file = *static_cast<FileReader *>(opaque);
-		return mpt::saturate_cast<uLong>(file.ReadRaw(mpt::void_cast<mpt::byte*>(buf), size));
+		return mpt::saturate_cast<uLong>(file.ReadRaw(mpt::span(mpt::void_cast<std::byte*>(buf), size)).size());
 	}
 
 	static uLong ZCALLBACK fwrite_mem(voidpf, voidpf, const void *, uLong)
@@ -79,11 +79,11 @@ struct ZipFileAbstraction
 		default:
 			return -1;
 		}
-		if(!Util::TypeCanHoldValue<FileReader::off_t>(destination))
+		if(!mpt::in_range<FileReader::pos_type>(destination))
 		{
 			return 1;
 		}
-		return (file.Seek(static_cast<FileReader::off_t>(destination)) ? 0 : 1);
+		return (file.Seek(static_cast<FileReader::pos_type>(destination)) ? 0 : 1);
 	}
 
 	static int ZCALLBACK fclose_mem(voidpf, voidpf)
@@ -99,7 +99,6 @@ struct ZipFileAbstraction
 
 
 CZipArchive::CZipArchive(FileReader &file)
-//----------------------------------------
 	: ArchiveBase(file)
 	, zipFile(nullptr)
 {
@@ -137,7 +136,7 @@ CZipArchive::CZipArchive(FileReader &file)
 				if(unzGetGlobalComment(zipFile, commentData.data(), info.size_comment) >= 0)
 				{
 					commentData[info.size_comment - 1] = '\0';
-					comment = mpt::ToUnicode(mpt::IsUTF8(commentData.data()) ? mpt::CharsetUTF8 : mpt::CharsetCP437, commentData.data());
+					comment = mpt::ToUnicode(mpt::IsUTF8(commentData.data()) ? mpt::Charset::UTF8 : mpt::Charset::CP437, commentData.data());
 				}
 			}
 		}
@@ -152,12 +151,12 @@ CZipArchive::CZipArchive(FileReader &file)
 	{
 		ArchiveFileInfo fileinfo;
 
-		fileinfo.type = ArchiveFileNormal;
+		fileinfo.type = ArchiveFileType::Normal;
 		
 		unz_file_info info;
 		char name[256];
 		unzGetCurrentFileInfo(zipFile, &info, name, sizeof(name), nullptr, 0, nullptr, 0);
-		fileinfo.name = mpt::PathString::FromUnicode(mpt::ToUnicode((info.flag & (1<<11)) ? mpt::CharsetUTF8 : mpt::CharsetCP437, std::string(name)));
+		fileinfo.name = mpt::PathString::FromUnicode(mpt::ToUnicode((info.flag & (1<<11)) ? mpt::Charset::UTF8 : mpt::Charset::CP437, std::string(name)));
 		fileinfo.size = info.uncompressed_size;
 
 		unzGetFilePos(zipFile, &curFile);
@@ -173,14 +172,12 @@ CZipArchive::CZipArchive(FileReader &file)
 
 
 CZipArchive::~CZipArchive()
-//-------------------------
 {
 	unzClose(zipFile);
 }
 
 
 bool CZipArchive::ExtractFile(std::size_t index)
-//----------------------------------------------
 {
 	if(index >= contents.size())
 	{
@@ -220,15 +217,31 @@ bool CZipArchive::ExtractFile(std::size_t index)
 #elif defined(MPT_WITH_MINIZ)
 
 
+static size_t miniz_user_read(void *pOpaque, mz_uint64 file_ofs, void *pBuf, size_t n)
+{
+	FileReader &file = *mpt::void_ptr<FileReader>(pOpaque);
+	if(!mpt::in_range<FileReader::pos_type>(file_ofs))
+	{
+		return 0;
+	}
+	if(!file.Seek(static_cast<FileReader::pos_type>(file_ofs)))
+	{
+		return 0;
+	}
+	return file.ReadRaw(mpt::as_span(mpt::void_cast<std::byte*>(pBuf), n)).size();
+}
+
+
 CZipArchive::CZipArchive(FileReader &file) : ArchiveBase(file)
-//------------------------------------------------------------
 {
 	zipFile = new mz_zip_archive();
 	
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(zipFile);
 	
-	MemsetZero(*zip);
-	if(!mz_zip_reader_init_mem(zip, file.GetRawData(), file.GetLength(), 0))
+	(*zip) = {};
+	zip->m_pIO_opaque = mpt::void_ptr<FileReader>(&file);
+	zip->m_pRead = &miniz_user_read;
+	if(!mz_zip_reader_init(zip, file.GetLength(), 0))
 	{
 		delete zip;
 		zip = nullptr;
@@ -243,21 +256,20 @@ CZipArchive::CZipArchive(FileReader &file) : ArchiveBase(file)
 	for(mz_uint i = 0; i < mz_zip_reader_get_num_files(zip); ++i)
 	{
 		ArchiveFileInfo info;
-		info.type = ArchiveFileInvalid;
-		mz_zip_archive_file_stat stat;
-		MemsetZero(stat);
+		info.type = ArchiveFileType::Invalid;
+		mz_zip_archive_file_stat stat = {};
 		if(mz_zip_reader_file_stat(zip, i, &stat))
 		{
-			info.type = ArchiveFileNormal;
-			info.name = mpt::PathString::FromUnicode(mpt::ToUnicode((stat.m_bit_flag & (1<<11)) ? mpt::CharsetUTF8 : mpt::CharsetCP437, stat.m_filename));
+			info.type = ArchiveFileType::Normal;
+			info.name = mpt::PathString::FromUnicode(mpt::ToUnicode((stat.m_bit_flag & (1<<11)) ? mpt::Charset::UTF8 : mpt::Charset::CP437, stat.m_filename));
 			info.size = stat.m_uncomp_size;
 		}
 		if(mz_zip_reader_is_file_a_directory(zip, i))
 		{
-			info.type = ArchiveFileSpecial;
+			info.type = ArchiveFileType::Special;
 		} else if(mz_zip_reader_is_file_encrypted(zip, i))
 		{
-			info.type = ArchiveFileSpecial;
+			info.type = ArchiveFileType::Special;
 		}
 		contents.push_back(info);
 	}
@@ -266,7 +278,6 @@ CZipArchive::CZipArchive(FileReader &file) : ArchiveBase(file)
 
 
 CZipArchive::~CZipArchive()
-//-------------------------
 {
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(zipFile);
 
@@ -282,7 +293,6 @@ CZipArchive::~CZipArchive()
 
 
 bool CZipArchive::ExtractFile(std::size_t index)
-//----------------------------------------------
 {
 	mz_zip_archive *zip = static_cast<mz_zip_archive*>(zipFile);
 
@@ -293,8 +303,7 @@ bool CZipArchive::ExtractFile(std::size_t index)
 
 	mz_uint bestFile = index;
 
-	mz_zip_archive_file_stat stat;
-	MemsetZero(stat);
+	mz_zip_archive_file_stat stat = {};
 	mz_zip_reader_file_stat(zip, bestFile, &stat);
 	if(stat.m_uncomp_size >= std::numeric_limits<std::size_t>::max())
 	{
@@ -311,7 +320,7 @@ bool CZipArchive::ExtractFile(std::size_t index)
 	{
 		return false;
 	}
-	comment = mpt::ToUnicode(mpt::CharsetCP437, std::string(stat.m_comment, stat.m_comment + stat.m_comment_size));
+	comment = mpt::ToUnicode(mpt::Charset::CP437, std::string(stat.m_comment, stat.m_comment + stat.m_comment_size));
 	return true;
 }
 

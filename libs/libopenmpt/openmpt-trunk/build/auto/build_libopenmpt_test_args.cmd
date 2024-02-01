@@ -6,15 +6,14 @@ cd ..\..
 
 set MY_DIR=%CD%
 
-call "build\auto\setup_arguments.cmd" %1 %2 %3 %4
+call "build\auto\setup_arguments.cmd" %1 %2 %3 %4 %5 %6
 
 call "build\auto\setup_%MPT_VS_VER%.cmd"
 
 
 
 cd "build\%MPT_VS_WITHTARGET%" || goto error
- devenv libopenmpt_test.sln /clean "Release|%MPT_VS_ARCH%" || goto error
- devenv libopenmpt_test.sln /build "Release|%MPT_VS_ARCH%" || goto error
+ msbuild libopenmpt_test.sln /target:Build /property:Configuration=Release;Platform=%MPT_VS_ARCH% /maxcpucount /verbosity:minimal || goto error
 cd ..\.. || goto error
 
 

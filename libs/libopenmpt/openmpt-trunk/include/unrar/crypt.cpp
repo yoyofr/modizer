@@ -11,18 +11,9 @@
 CryptData::CryptData()
 {
   Method=CRYPT_NONE;
-  memset(KDF3Cache,0,sizeof(KDF3Cache));
-  memset(KDF5Cache,0,sizeof(KDF5Cache));
   KDF3CachePos=0;
   KDF5CachePos=0;
   memset(CRCTab,0,sizeof(CRCTab));
-}
-
-
-CryptData::~CryptData()
-{
-  cleandata(KDF3Cache,sizeof(KDF3Cache));
-  cleandata(KDF5Cache,sizeof(KDF5Cache));
 }
 
 
@@ -56,15 +47,18 @@ bool CryptData::SetCryptKeys(bool Encrypt,CRYPT_METHOD Method,
      SecPassword *Password,const byte *Salt,
      const byte *InitV,uint Lg2Cnt,byte *HashKey,byte *PswCheck)
 {
-  if (!Password->IsSet() || Method==CRYPT_NONE)
+  if (Method==CRYPT_NONE || !Password->IsSet())
     return false;
 
   CryptData::Method=Method;
 
   wchar PwdW[MAXPASSWORD];
   Password->Get(PwdW,ASIZE(PwdW));
+  PwdW[Min(MAXPASSWORD_RAR,MAXPASSWORD)-1]=0; // For compatibility with existing archives.
+
   char PwdA[MAXPASSWORD];
   WideToChar(PwdW,PwdA,ASIZE(PwdA));
+  PwdA[Min(MAXPASSWORD_RAR,MAXPASSWORD)-1]=0; // For compatibility with existing archives.
 
   switch(Method)
   {
@@ -92,6 +86,21 @@ bool CryptData::SetCryptKeys(bool Encrypt,CRYPT_METHOD Method,
 }
 
 
+// Use the current system time to additionally randomize data.
+static void TimeRandomize(byte *RndBuf,size_t BufSize)
+{
+  static uint Count=0;
+  RarTime CurTime;
+  CurTime.SetCurrentTime();
+  uint64 Random=CurTime.GetWin()+clock();
+  for (size_t I=0;I<BufSize;I++)
+  {
+    byte RndByte = byte (Random >> ( (I & 7) * 8 ));
+    RndBuf[I]=byte( (RndByte ^ I) + Count++);
+  }
+}
+
+
 
 
 // Fill buffer with random data.
@@ -100,10 +109,10 @@ void GetRnd(byte *RndBuf,size_t BufSize)
   bool Success=false;
 #if defined(_WIN_ALL)
   HCRYPTPROV hProvider = 0;
-	if (CryptAcquireContext(&hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+  if (CryptAcquireContext(&hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
   {
-	  Success=CryptGenRandom(hProvider, (DWORD)BufSize, RndBuf) == TRUE;
-	  CryptReleaseContext(hProvider, 0);
+    Success=CryptGenRandom(hProvider, (DWORD)BufSize, RndBuf) == TRUE;
+    CryptReleaseContext(hProvider, 0);
   }
 #elif defined(_UNIX)
   FILE *rndf = fopen("/dev/urandom", "r");
@@ -115,15 +124,5 @@ void GetRnd(byte *RndBuf,size_t BufSize)
 #endif
   // We use this code only as the last resort if code above failed.
   if (!Success)
-  {
-    static uint Count=0;
-    RarTime CurTime;
-    CurTime.SetCurrentTime();
-    uint64 Random=CurTime.GetRaw()+clock();
-    for (size_t I=0;I<BufSize;I++)
-    {
-      byte RndByte = byte (Random >> ( (I & 7) * 8 ));
-      RndBuf[I]=byte( (RndByte ^ I) + Count++);
-    }
-  }
+    TimeRandomize(RndBuf,BufSize);
 }

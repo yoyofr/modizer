@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 
 #ifdef ENABLE_TESTS
 #ifndef MODPLUG_TRACKER
@@ -19,8 +21,12 @@
 //#define MPT_TEST_CXX11
 
 
-#include "../common/Endianness.h"
-#include "../common/FlagSet.h"
+#include "mpt/test/test.hpp"
+
+#include <type_traits>
+
+#include "mpt/base/bit.hpp"
+#include "openmpt/base/FlagSet.hpp"
 #include "../soundlib/Snd_defs.h"
 
 
@@ -28,6 +34,23 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 namespace Test {
+
+
+
+class mpt_test_reporter
+	: public mpt::test::silent_reporter
+{
+public:
+	mpt_test_reporter() = default;
+	~mpt_test_reporter() override = default;
+public:
+	void case_run(const mpt::source_location & loc) override;
+	void case_run(const mpt::source_location & loc, const char * text_e) override;
+	void case_run(const mpt::source_location & loc, const char * text_ex, const char * text_e) override;
+	void case_run(const mpt::source_location & loc, const char * text_a, const char * text_cmp, const char * text_b) override;
+	void case_result(const mpt::source_location & loc, const mpt::test::result & result) override;
+};
+
 
 
 extern int fail_count;
@@ -47,19 +70,6 @@ enum Fatality
 };
 
 
-struct Context
-{
-public:
-	const char * const file;
-	const int line;
-public:
-	Context(const char * file, int line);
-	Context(const Context &c);
-};
-
-#define MPT_TEST_CONTEXT_CURRENT() (Test::Context( __FILE__ , __LINE__ ))
-
-
 struct TestFailed
 {
 	std::string values;
@@ -74,18 +84,20 @@ struct ToStringHelper
 {
 	std::string operator () (const T &x)
 	{
-		return mpt::ToString(x);
+		return mpt::afmt::val(x);
 	}
 };
 
 #ifdef MPT_TEST_CXX11
 
 template<>
-struct ToStringHelper<mpt::endian_type>
+struct ToStringHelper<mpt::endian>
 {
-	std::string operator () (const mpt::endian_type &x)
+	std::string operator () (const mpt::endian &x)
 	{
-		return mpt::ToString(x.value);
+		if(x == mpt::endian::big) return "big";
+		if(x == mpt::endian::little) return "little";
+		return "unknown";
 	}
 };
 
@@ -94,7 +106,7 @@ struct ToStringHelper<FlagSet<enum_t, store_t> >
 {
 	std::string operator () (const FlagSet<enum_t, store_t> &x)
 	{
-		return mpt::ToString(x.GetRaw());
+		return mpt::afmt::val(x.GetRaw());
 	}
 };
 
@@ -103,7 +115,7 @@ struct ToStringHelper<enum_value_type<enum_t> >
 {
 	std::string operator () (const enum_value_type<enum_t> &x)
 	{
-		return mpt::ToString(x.as_bits());
+		return mpt::afmt::val(x.as_bits());
 	}
 };
 
@@ -112,7 +124,7 @@ struct ToStringHelper<std::pair<Ta, Tb> >
 {
 	std::string operator () (const std::pair<Ta, Tb> &x)
 	{
-		return std::string("{") + mpt::ToString(x.first) + std::string(",") + mpt::ToString(x.second) + std::string("}");
+		return std::string("{") + mpt::afmt::val(x.first) + std::string(",") + mpt::afmt::val(x.second) + std::string("}");
 	}
 };
 
@@ -121,7 +133,7 @@ struct ToStringHelper<FPInt<FRACT, T> >
 {
 	std::string operator () (const FPInt<FRACT, T> &x)
 	{
-		return std::string("FPInt<") + mpt::ToString(FRACT) + std::string(",") + mpt::ToString(typeid(T).name()) + std::string(">{") + mpt::ToString(x.GetInt()) + std::string(".") + mpt::ToString(x.GetFract()) + std::string("}");
+		return std::string("FPInt<") + mpt::afmt::val(FRACT) + std::string(",") + mpt::afmt::val(typeid(T).name()) + std::string(">{") + mpt::afmt::val(x.GetInt()) + std::string(".") + mpt::afmt::val(x.GetFract()) + std::string("}");
 	}
 };
 
@@ -130,7 +142,7 @@ struct ToStringHelper<SamplePosition>
 {
 	std::string operator () (const SamplePosition &x)
 	{
-		return mpt::ToString(x.GetInt()) + std::string(".") + std::string("0x") + mpt::fmt::hex0<8>(x.GetFract());
+		return mpt::afmt::val(x.GetInt()) + std::string(".") + std::string("0x") + mpt::afmt::hex0<8>(x.GetFract());
 	}
 };
 
@@ -138,18 +150,6 @@ struct ToStringHelper<SamplePosition>
 
 
 namespace Test {
-
-// We do not generally have type_traits from C++03-TR1
-// and std::numeric_limits does not provide a is_integer which is useable as template argument.
-template <typename T> struct is_integer : public std::false_type { };
-template <> struct is_integer<signed short>     : public std::true_type { };
-template <> struct is_integer<signed int>       : public std::true_type { };
-template <> struct is_integer<signed long>      : public std::true_type { };
-template <> struct is_integer<signed long long> : public std::true_type { };
-template <> struct is_integer<unsigned short>     : public std::true_type { };
-template <> struct is_integer<unsigned int>       : public std::true_type { };
-template <> struct is_integer<unsigned long>      : public std::true_type { };
-template <> struct is_integer<unsigned long long> : public std::true_type { };
 
 class Testcase
 {
@@ -159,11 +159,11 @@ private:
 	Fatality const fatality;
 	Verbosity const verbosity;
 	const char * const desc;
-	Context const context;
+	mpt::source_location const loc;
 
 public:
 
-	Testcase(Fatality fatality, Verbosity verbosity, const char * const desc, const Context &context);
+	Testcase(Fatality fatality, Verbosity verbosity, const char * const desc, const mpt::source_location &loc);
 
 public:
 
@@ -209,7 +209,7 @@ private:
 	template <typename Tx, typename Ty, typename Teps>
 	inline bool IsEqualEpsilon(const Tx &x, const Ty &y, const Teps &eps)
 	{
-		return mpt::abs(x - y) <= eps;
+		return std::abs(x - y) <= eps;
 	}
 
 public:
@@ -221,9 +221,9 @@ private:
 	template <typename Tx, typename Ty>
 	MPT_NOINLINE void TypeCompareHelper(const Tx &x, const Ty &y)
 	{
-		if(!IsEqual(x, y, is_integer<Tx>(), is_integer<Ty>()))
+		if(!IsEqual(x, y, std::is_integral<Tx>(), std::is_integral<Ty>()))
 		{
-			throw TestFailed(mpt::String::Print("%1 != %2", ToStringHelper<Tx>()(x), ToStringHelper<Ty>()(y)));
+			throw TestFailed(MPT_AFORMAT("{} != {}")(ToStringHelper<Tx>()(x), ToStringHelper<Ty>()(y)));
 			//throw TestFailed();
 		}
 	}
@@ -233,7 +233,7 @@ private:
 	{
 		if(!IsEqualEpsilon(x, y, eps))
 		{
-			throw TestFailed(mpt::String::Print("%1 != %2", ToStringHelper<Tx>()(x), ToStringHelper<Ty>()(y)));
+			throw TestFailed(MPT_AFORMAT("{} != {}")(ToStringHelper<Tx>()(x), ToStringHelper<Ty>()(y)));
 			//throw TestFailed();
 		}
 	}
@@ -278,11 +278,11 @@ public:
 		}
 	}
 
-	#define VERIFY_EQUAL(x,y)               Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
-	#define VERIFY_EQUAL_NONCONT(x,y)       Test::Testcase(Test::FatalityStop    , Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
-	#define VERIFY_EQUAL_QUIET_NONCONT(x,y) Test::Testcase(Test::FatalityStop    , Test::VerbosityQuiet , #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
+	#define VERIFY_EQUAL(x,y)               Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
+	#define VERIFY_EQUAL_NONCONT(x,y)       Test::Testcase(Test::FatalityStop    , Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
+	#define VERIFY_EQUAL_QUIET_NONCONT(x,y) Test::Testcase(Test::FatalityStop    , Test::VerbosityQuiet , #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;} )
 
-	#define VERIFY_EQUAL_EPS(x,y,eps)       Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;}, (eps) )
+	#define VERIFY_EQUAL_EPS(x,y,eps)       Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( [&](){return (x) ;}, [&](){return (y) ;}, (eps) )
 
 #else
 
@@ -294,9 +294,9 @@ public:
 		ShowStart();
 		try
 		{
-			if(!IsEqual(x, y, is_integer<Tx>(), is_integer<Ty>()))
+			if(!IsEqual(x, y, std::is_integral<Tx>(), std::is_integral<Ty>()))
 			{
-				//throw TestFailed(mpt::String::Print("%1 != %2", x, y));
+				//throw TestFailed(MPT_AFORMAT("{} != {}")(x, y));
 				throw TestFailed();
 			}
 			ReportPassed();
@@ -314,7 +314,7 @@ public:
 		{
 			if(!IsEqualEpsilon(x, y, eps))
 			{
-				//throw TestFailed(mpt::String::Print("%1 != %2", x, y));
+				//throw TestFailed(MPT_AFORMAT("{} != {}")(x, y));
 				throw TestFailed();
 			}
 			ReportPassed();
@@ -324,11 +324,11 @@ public:
 		}
 	}
 
-	#define VERIFY_EQUAL(x,y)               Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( (x) , (y) )
-	#define VERIFY_EQUAL_NONCONT(x,y)       Test::Testcase(Test::FatalityStop    , Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( (x) , (y) )
-	#define VERIFY_EQUAL_QUIET_NONCONT(x,y) Test::Testcase(Test::FatalityStop    , Test::VerbosityQuiet , #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( (x) , (y) )
+	#define VERIFY_EQUAL(x,y)               Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( (x) , (y) )
+	#define VERIFY_EQUAL_NONCONT(x,y)       Test::Testcase(Test::FatalityStop    , Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( (x) , (y) )
+	#define VERIFY_EQUAL_QUIET_NONCONT(x,y) Test::Testcase(Test::FatalityStop    , Test::VerbosityQuiet , #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( (x) , (y) )
 
-	#define VERIFY_EQUAL_EPS(x,y,eps)       Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_TEST_CONTEXT_CURRENT() )( (x) , (y), (eps) )
+	#define VERIFY_EQUAL_EPS(x,y,eps)       Test::Testcase(Test::FatalityContinue, Test::VerbosityNormal, #x " == " #y , MPT_SOURCE_LOCATION_CURRENT() )( (x) , (y), (eps) )
 
 #endif
 
@@ -336,8 +336,8 @@ public:
 
 
 #define DO_TEST(func) \
-MPT_DO { \
-	Test::Testcase test(Test::FatalityStop, Test::VerbosityVerbose, #func , MPT_TEST_CONTEXT_CURRENT() ); \
+do { \
+	Test::Testcase test(Test::FatalityStop, Test::VerbosityVerbose, #func , MPT_SOURCE_LOCATION_CURRENT() ); \
 	try { \
 		test.ShowStart(); \
 		fail_count = 0; \
@@ -349,7 +349,7 @@ MPT_DO { \
 	} catch(...) { \
 		test.ReportException(); \
 	} \
-} MPT_WHILE_0
+} while(0)
 
 
 } // namespace Test

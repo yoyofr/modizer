@@ -152,7 +152,7 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		return false;
 	}
-	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	if(!file.CanRead(mpt::saturate_cast<FileReader::pos_type>(GetHeaderMinimumAdditionalSize(fileHeader))))
 	{
 		return false;
 	}
@@ -168,6 +168,8 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 	m_nDefaultSpeed = fileHeader.defaultSpeed;
 	m_nDefaultTempo.Set(80);
 	m_nDefaultGlobalVolume = MAX_GLOBAL_VOLUME;
+	m_SongFlags = SONG_LINEARSLIDES;
+	m_playBehaviour.set(kPeriodsAreHertz);
 
 	m_modFormat.formatName = U_("Farandole Composer");
 	m_modFormat.type = U_("far");
@@ -252,11 +254,8 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 		// Read pattern data
 		for(ROWINDEX row = 0; row < numRows; row++)
 		{
-			PatternRow rowBase = Patterns[pat].GetRow(row);
-			for(CHANNELINDEX chn = 0; chn < 16; chn++)
+			for(ModCommand &m : Patterns[pat].GetRow(row))
 			{
-				ModCommand &m = rowBase[chn];
-
 				const auto [note, instr, volume, effect] = patternChunk.ReadArray<uint8, 4>();
 
 				if(note > 0 && note <= 72)
@@ -265,21 +264,24 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 					m.instr = instr + 1;
 				}
 
-				if(m.note != NOTE_NONE || volume > 0)
+				if(volume > 0 && volume <= 16)
 				{
-					m.volcmd = VOLCMD_VOLUME;
-					m.vol = (Clamp(volume, uint8(1), uint8(16)) - 1u) * 4u;
+					m.SetVolumeCommand(VOLCMD_VOLUME, static_cast<ModCommand::VOL>((volume - 1u) * 64u / 15u));
 				}
 				
 				m.param = effect & 0x0F;
 
 				switch(effect >> 4)
 				{
-				case 0x03:	// Porta to note
+				case 0x01:
+				case 0x02:
+					m.param |= 0xF0;
+					break;
+				case 0x03:	// Porta to note (TODO: Parameter is number of rows the portamento should take)
 					m.param <<= 2;
 					break;
 				case 0x04:	// Retrig
-					m.param = 6 / (1 + (m.param & 0xf)) + 1; // ugh?
+					m.param = static_cast<ModCommand::PARAM>(6 / (1 + (m.param & 0xf)) + 1); // ugh?
 					break;
 				case 0x06:	// Vibrato speed
 				case 0x07:	// Volume slide up
@@ -287,13 +289,13 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 					break;
 				case 0x0A:	// Volume-portamento (what!)
 					m.volcmd = VOLCMD_VOLUME;
-					m.vol = (m.param << 2) + 4;
+					m.vol = static_cast<ModCommand::VOL>((m.param << 2) + 4);
 					break;
 				case 0x0B:	// Panning
 					m.param |= 0x80;
 					break;
 				case 0x0C:	// Note offset
-					m.param = 6 / (1 + m.param) + 1;
+					m.param = static_cast<ModCommand::PARAM>(6 / (1 + m.param) + 1);
 					m.param |= 0x0D;
 				}
 				m.command = farEffects[effect >> 4];

@@ -11,12 +11,16 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 
 #include "../common/misc_util.h"
-#include "../common/mptMutex.h"
+#include "mpt/mutex/mutex.hpp"
+#include "mpt/parse/parse.hpp"
 
 #include <map>
 #include <set>
+#include <variant>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -38,34 +42,12 @@ enum SettingType
 class SettingValue
 {
 private:
-	bool valueBool;
-	int32 valueInt;
-	double valueFloat;
-	mpt::ustring valueString;
-	std::vector<mpt::byte> valueBinary;
-	SettingType type;
+	std::variant<std::monostate, bool, int32, double, mpt::ustring, std::vector<std::byte>> value;
 	std::string typeTag;
-	void Init()
-	{
-		valueBool = false;
-		valueInt = 0;
-		valueFloat = 0.0;
-		valueString = mpt::ustring();
-		valueBinary.clear();
-		type = SettingTypeNone;
-		typeTag = std::string();
-	}
 public:
 	bool operator == (const SettingValue &other) const
 	{
-		return type == other.type
-			&& typeTag == other.typeTag
-			&& valueBool == other.valueBool
-			&& valueInt == other.valueInt
-			&& valueFloat == other.valueFloat
-			&& valueString == other.valueString
-			&& valueBinary == other.valueBinary
-			;
+		return value == other.value && typeTag == other.typeTag;
 	}
 	bool operator != (const SettingValue &other) const
 	{
@@ -73,11 +55,9 @@ public:
 	}
 	SettingValue()
 	{
-		Init();
 	}
 	SettingValue(const SettingValue &other)
 	{
-		Init();
 		*this = other;
 	}
 	SettingValue & operator = (const SettingValue &other)
@@ -86,140 +66,85 @@ public:
 		{
 			return *this;
 		}
-		MPT_ASSERT(type == SettingTypeNone || (type == other.type && typeTag == other.typeTag));
-		type = other.type;
-		valueBool = other.valueBool;
-		valueInt = other.valueInt;
-		valueFloat = other.valueFloat;
-		valueString = other.valueString;
-		valueBinary = other.valueBinary;
+		MPT_ASSERT(value.index() == 0 || (value.index() == other.value.index() && typeTag == other.typeTag));
+		value = other.value;
 		typeTag = other.typeTag;
 		return *this;
 	}
 	SettingValue(bool val)
+		: value(val)
 	{
-		Init();
-		type = SettingTypeBool;
-		valueBool = val;
 	}
 	SettingValue(int32 val)
+		: value(val)
 	{
-		Init();
-		type = SettingTypeInt;
-		valueInt = val;
 	}
 	SettingValue(double val)
+		: value(val)
 	{
-		Init();
-		type = SettingTypeFloat;
-		valueFloat = val;
 	}
-	SettingValue(const char *val)
-	{
-		Init();
-		type = SettingTypeString;
-		valueString = mpt::ToUnicode(mpt::CharsetLocale, val);
-	}
-	SettingValue(const std::string &val)
-	{
-		Init();
-		type = SettingTypeString;
-		valueString = mpt::ToUnicode(mpt::CharsetLocale, val);
-	}
-	SettingValue(const wchar_t *val)
-	{
-		Init();
-		type = SettingTypeString;
-		valueString = mpt::ToUnicode(val);
-	}
-	SettingValue(const std::wstring &val)
-	{
-		Init();
-		type = SettingTypeString;
-		valueString = mpt::ToUnicode(val);
-	}
-#if MPT_USTRING_MODE_UTF8
 	SettingValue(const mpt::ustring &val)
+		: value(val)
 	{
-		Init();
-		type = SettingTypeString;
-		valueString = val;
 	}
-#endif
-	SettingValue(const std::vector<mpt::byte> &val)
+	SettingValue(const std::vector<std::byte> &val)
+		: value(val)
 	{
-		Init();
-		type = SettingTypeBinary;
-		valueBinary =  val;
 	}
 	SettingValue(bool val, const std::string &typeTag_)
+		: value(val)
+		, typeTag(typeTag_)
 	{
-		Init();
-		type = SettingTypeBool;
-		typeTag = typeTag_;
-		valueBool = val;
 	}
 	SettingValue(int32 val, const std::string &typeTag_)
+		: value(val)
+		, typeTag(typeTag_)
 	{
-		Init();
-		type = SettingTypeInt;
-		typeTag = typeTag_;
-		valueInt = val;
 	}
 	SettingValue(double val, const std::string &typeTag_)
+		: value(val)
+		, typeTag(typeTag_)
 	{
-		Init();
-		type = SettingTypeFloat;
-		typeTag = typeTag_;
-		valueFloat = val;
 	}
-	SettingValue(const char *val, const std::string &typeTag_)
-	{
-		Init();
-		type = SettingTypeString;
-		typeTag = typeTag_;
-		valueString = mpt::ToUnicode(mpt::CharsetLocale, val);
-	}
-	SettingValue(const std::string &val, const std::string &typeTag_)
-	{
-		Init();
-		type = SettingTypeString;
-		typeTag = typeTag_;
-		valueString = mpt::ToUnicode(mpt::CharsetLocale, val);
-	}
-	SettingValue(const wchar_t *val, const std::string &typeTag_)
-	{
-		Init();
-		type = SettingTypeString;
-		typeTag = typeTag_;
-		valueString = mpt::ToUnicode(val);
-	}
-	SettingValue(const std::wstring &val, const std::string &typeTag_)
-	{
-		Init();
-		type = SettingTypeString;
-		typeTag = typeTag_;
-		valueString = mpt::ToUnicode(val);
-	}
-#if MPT_USTRING_MODE_UTF8
 	SettingValue(const mpt::ustring &val, const std::string &typeTag_)
+		: value(val)
+		, typeTag(typeTag_)
 	{
-		Init();
-		type = SettingTypeString;
-		typeTag = typeTag_;
-		valueString = val;
 	}
-#endif
-	SettingValue(const std::vector<mpt::byte> &val, const std::string &typeTag_)
+	SettingValue(const std::vector<std::byte> &val, const std::string &typeTag_)
+		: value(val)
+		, typeTag(typeTag_)
 	{
-		Init();
-		type = SettingTypeBinary;
-		typeTag = typeTag_;
-		valueBinary =  val;
 	}
+	// these need to be explicitly deleted because otherwise the bool overload will catch the pointers
+	SettingValue(const char *val) = delete;
+	SettingValue(const wchar_t *val) = delete;
+	SettingValue(const char *val, const std::string &typeTag_) = delete;
+	SettingValue(const wchar_t *val, const std::string &typeTag_) = delete;
 	SettingType GetType() const
 	{
-		return type;
+		SettingType result = SettingTypeNone;
+		if(std::holds_alternative<bool>(value))
+		{
+			result = SettingTypeBool;
+		}
+		if(std::holds_alternative<int32>(value))
+		{
+			result = SettingTypeInt;
+		}
+		if(std::holds_alternative<double>(value))
+		{
+			result = SettingTypeFloat;
+		}
+		if(std::holds_alternative<mpt::ustring>(value))
+		{
+			result = SettingTypeString;
+		}
+		if(std::holds_alternative<std::vector<std::byte>>(value))
+		{
+			result = SettingTypeBinary;
+		}
+		return result;
 	}
 	bool HasTypeTag() const
 	{
@@ -232,44 +157,32 @@ public:
 	template <typename T>
 	T as() const
 	{
-		return static_cast<T>(*this);
+		return *this;
 	}
 	operator bool () const
 	{
-		MPT_ASSERT(type == SettingTypeBool);
-		return valueBool;
+		MPT_ASSERT(std::holds_alternative<bool>(value));
+		return std::get<bool>(value);			
 	}
 	operator int32 () const
 	{
-		MPT_ASSERT(type == SettingTypeInt);
-		return valueInt;
+		MPT_ASSERT(std::holds_alternative<int32>(value));
+		return std::get<int32>(value);			
 	}
 	operator double () const
 	{
-		MPT_ASSERT(type == SettingTypeFloat);
-		return valueFloat;
+		MPT_ASSERT(std::holds_alternative<double>(value));
+		return std::get<double>(value);			
 	}
-	operator std::string () const
-	{
-		MPT_ASSERT(type == SettingTypeString);
-		return mpt::ToCharset(mpt::CharsetLocale, valueString);
-	}
-	operator std::wstring () const
-	{
-		MPT_ASSERT(type == SettingTypeString);
-		return mpt::ToWide(valueString);
-	}
-#if MPT_USTRING_MODE_UTF8
 	operator mpt::ustring () const
 	{
-		MPT_ASSERT(type == SettingTypeString);
-		return valueString;
+		MPT_ASSERT(std::holds_alternative<mpt::ustring>(value));
+		return std::get<mpt::ustring>(value);			
 	}
-#endif
-	operator std::vector<mpt::byte> () const
+	operator std::vector<std::byte> () const
 	{
-		MPT_ASSERT(type == SettingTypeBinary);
-		return valueBinary;
+		MPT_ASSERT(std::holds_alternative<std::vector<std::byte>>(value));
+		return std::get<std::vector<std::byte>>(value);			
 	}
 	mpt::ustring FormatTypeAsString() const;
 	mpt::ustring FormatValueAsString() const;
@@ -278,14 +191,14 @@ public:
 
 
 template<typename T>
-std::vector<mpt::byte> EncodeBinarySetting(const T &val)
+std::vector<std::byte> EncodeBinarySetting(const T &val)
 {
-	std::vector<mpt::byte> result(sizeof(T));
+	std::vector<std::byte> result(sizeof(T));
 	std::memcpy(result.data(), &val, sizeof(T));
 	return result;
 }
 template<typename T>
-T DecodeBinarySetting(const std::vector<mpt::byte> &val)
+T DecodeBinarySetting(const std::vector<std::byte> &val)
 {
 	T result = T();
 	if(val.size() >= sizeof(T))
@@ -313,20 +226,31 @@ inline T FromSettingValue(const SettingValue &val)
 // You may use the SettingValue(value, typeTag) constructor in ToSettingValue
 // and check the typeTag FromSettingsValue to implement runtime type-checking for custom types.
 
-template<> inline SettingValue ToSettingValue(const CString &val) { return SettingValue(mpt::ToWide(val)); }
-template<> inline CString FromSettingValue(const SettingValue &val) { return mpt::ToCString(val.as<std::wstring>()); }
+template<> inline SettingValue ToSettingValue(const std::string &val) { return SettingValue(mpt::ToUnicode(mpt::Charset::Locale, val)); }
+template<> inline std::string FromSettingValue(const SettingValue &val) { return mpt::ToCharset(mpt::Charset::Locale, val.as<mpt::ustring>()); }
 
-template<> inline SettingValue ToSettingValue(const mpt::PathString &val) { return SettingValue(val.AsNative()); }
-template<> inline mpt::PathString FromSettingValue(const SettingValue &val) { return mpt::PathString::FromNative(val); }
+template<> inline SettingValue ToSettingValue(const mpt::lstring &val) { return SettingValue(mpt::ToUnicode(val)); }
+template<> inline mpt::lstring FromSettingValue(const SettingValue &val) { return mpt::ToLocale(val.as<mpt::ustring>()); }
+
+#if !MPT_USTRING_MODE_WIDE
+template<> inline SettingValue ToSettingValue(const std::wstring &val) { return SettingValue(mpt::ToUnicode(val)); }
+template<> inline std::wstring FromSettingValue(const SettingValue &val) { return mpt::ToWide(val.as<mpt::ustring>()); }
+#endif
+
+template<> inline SettingValue ToSettingValue(const CString &val) { return SettingValue(mpt::ToUnicode(val)); }
+template<> inline CString FromSettingValue(const SettingValue &val) { return mpt::ToCString(val.as<mpt::ustring>()); }
+
+template<> inline SettingValue ToSettingValue(const mpt::PathString &val) { return SettingValue(val.ToUnicode()); }
+template<> inline mpt::PathString FromSettingValue(const SettingValue &val) { return mpt::PathString::FromUnicode(val); }
 
 template<> inline SettingValue ToSettingValue(const float &val) { return SettingValue(double(val)); }
 template<> inline float FromSettingValue(const SettingValue &val) { return float(val.as<double>()); }
 
 template<> inline SettingValue ToSettingValue(const int64 &val) { return SettingValue(mpt::ufmt::dec(val), "int64"); }
-template<> inline int64 FromSettingValue(const SettingValue &val) { return ConvertStrTo<int64>(val.as<mpt::ustring>()); }
+template<> inline int64 FromSettingValue(const SettingValue &val) { return mpt::parse<int64>(val.as<mpt::ustring>()); }
 
 template<> inline SettingValue ToSettingValue(const uint64 &val) { return SettingValue(mpt::ufmt::dec(val), "uint64"); }
-template<> inline uint64 FromSettingValue(const SettingValue &val) { return ConvertStrTo<uint64>(val.as<mpt::ustring>()); }
+template<> inline uint64 FromSettingValue(const SettingValue &val) { return mpt::parse<uint64>(val.as<mpt::ustring>()); }
 
 template<> inline SettingValue ToSettingValue(const uint32 &val) { return SettingValue(int32(val)); }
 template<> inline uint32 FromSettingValue(const SettingValue &val) { return uint32(val.as<int32>()); }
@@ -351,6 +275,7 @@ private:
 	bool dirty;
 public:
 	SettingState()
+		: dirty(false)
 	{
 		return;
 	}
@@ -430,9 +355,9 @@ public:
 	{
 		return;
 	}
-	SettingPath(const AnyStringLocale &section_, const AnyStringLocale &key_)
-		: section(section_)
-		, key(key_)
+	SettingPath(mpt::ustring section_, mpt::ustring key_)
+		: section(std::move(section_))
+		, key(std::move(key_))
 	{
 		return;
 	}
@@ -464,7 +389,7 @@ public:
 	}
 	mpt::ustring FormatAsString() const
 	{
-		return section + MPT_USTRING(".") + key;
+		return section + U_(".") + key;
 	}
 };
 
@@ -482,6 +407,9 @@ public:
 	virtual SettingValue ReadSetting(const SettingPath &path, const SettingValue &def) const = 0;
 	virtual void WriteSetting(const SettingPath &path, const SettingValue &val) = 0;
 	virtual void RemoveSetting(const SettingPath &path) = 0;
+	virtual void RemoveSection(const mpt::ustring &section) = 0;
+protected:
+	virtual ~ISettingsBackend() = default;
 };
 
 
@@ -489,6 +417,8 @@ class ISettingChanged
 {
 public:
 	virtual void SettingChanged(const SettingPath &changedPath) = 0;
+protected:
+	virtual ~ISettingChanged() = default;
 };
 
 enum SettingFlushMode
@@ -503,8 +433,8 @@ class SettingsContainer
 {
 
 public:
-	typedef std::map<SettingPath,SettingState> SettingsMap;
-	typedef std::map<SettingPath,std::set<ISettingChanged*> > SettingsListenerMap;
+	using SettingsMap = std::map<SettingPath,SettingState>;
+	using SettingsListenerMap = std::map<SettingPath,std::set<ISettingChanged*>>;
 	void WriteSettings();
 private:
 	mutable SettingsMap map;
@@ -513,16 +443,18 @@ private:
 private:
 	ISettingsBackend *backend;
 private:
-	bool immediateFlush;
+	bool immediateFlush = false;
 	SettingValue BackendsReadSetting(const SettingPath &path, const SettingValue &def) const;
 	void BackendsWriteSetting(const SettingPath &path, const SettingValue &val);
 	void BackendsRemoveSetting(const SettingPath &path);
+	void BackendsRemoveSection(const mpt::ustring &section);
 	void NotifyListeners(const SettingPath &path);
 	SettingValue ReadSetting(const SettingPath &path, const SettingValue &def) const;
 	bool IsDefaultSetting(const SettingPath &path) const;
 	void WriteSetting(const SettingPath &path, const SettingValue &val, SettingFlushMode flushMode);
 	void ForgetSetting(const SettingPath &path);
 	void RemoveSetting(const SettingPath &path);
+	void RemoveSection(const mpt::ustring &section);
 private:
 	SettingsContainer(const SettingsContainer &other); // disable
 	SettingsContainer& operator = (const SettingsContainer &other); // disable
@@ -535,17 +467,17 @@ public:
 		return FromSettingValue<T>(ReadSetting(path, ToSettingValue<T>(def)));
 	}
 	template <typename T>
-	T Read(const AnyStringLocale &section, const AnyStringLocale &key, const T &def = T()) const
+	T Read(mpt::ustring section, mpt::ustring key, const T &def = T()) const
 	{
-		return FromSettingValue<T>(ReadSetting(SettingPath(section, key), ToSettingValue<T>(def)));
+		return FromSettingValue<T>(ReadSetting(SettingPath(std::move(section), std::move(key)), ToSettingValue<T>(def)));
 	}
 	bool IsDefault(const SettingPath &path) const
 	{
 		return IsDefaultSetting(path);
 	}
-	bool IsDefault(const AnyStringLocale &section, const AnyStringLocale &key) const
+	bool IsDefault(mpt::ustring section, mpt::ustring key) const
 	{
-		return IsDefaultSetting(SettingPath(section, key));
+		return IsDefaultSetting(SettingPath(std::move(section), std::move(key)));
 	}
 	template <typename T>
 	void Write(const SettingPath &path, const T &val, SettingFlushMode flushMode = SettingWriteBack)
@@ -553,26 +485,30 @@ public:
 		WriteSetting(path, ToSettingValue<T>(val), flushMode);
 	}
 	template <typename T>
-	void Write(const AnyStringLocale &section, const AnyStringLocale &key, const T &val, SettingFlushMode flushMode = SettingWriteBack)
+	void Write(mpt::ustring section, mpt::ustring key, const T &val, SettingFlushMode flushMode = SettingWriteBack)
 	{
-		WriteSetting(SettingPath(section, key), ToSettingValue<T>(val), flushMode);
+		WriteSetting(SettingPath(std::move(section), std::move(key)), ToSettingValue<T>(val), flushMode);
 	}
 	void Forget(const SettingPath &path)
 	{
 		ForgetSetting(path);
 	}
-	void Forget(const AnyStringLocale &section, const AnyStringLocale &key)
+	void Forget(mpt::ustring section, mpt::ustring key)
 	{
-		ForgetSetting(SettingPath(section, key));
+		ForgetSetting(SettingPath(std::move(section), std::move(key)));
 	}
 	void ForgetAll();
 	void Remove(const SettingPath &path)
 	{
 		RemoveSetting(path);
 	}
-	void Remove(const AnyStringLocale &section, const AnyStringLocale &key)
+	void Remove(mpt::ustring section, mpt::ustring key)
 	{
-		RemoveSetting(SettingPath(section, key));
+		RemoveSetting(SettingPath(std::move(section), std::move(key)));
+	}
+	void Remove(const mpt::ustring &section)
+	{
+		RemoveSection(section);
 	}
 	void Flush();
 	~SettingsContainer();
@@ -612,16 +548,12 @@ private:
 	SettingsContainer &conf;
 	const SettingPath path;
 public:
-	Setting(const Setting &other)
-		: conf(other.conf)
-		, path(other.path)
-	{
-		return;
-	}
+	Setting(const Setting &other) = delete;
+	Setting & operator = (const Setting &other) = delete;
 public:
-	Setting(SettingsContainer &conf_, const AnyStringLocale &section, const AnyStringLocale &key, const T&def)
+	Setting(SettingsContainer &conf_, mpt::ustring section, mpt::ustring key, const T&def)
 		: conf(conf_)
-		, path(section, key)
+		, path(std::move(section), std::move(key))
 	{
 		conf.Read(path, def); // set default value
 	}
@@ -640,11 +572,11 @@ public:
 		conf.Write(path, val);
 		return *this;
 	}
-	operator const T () const
+	operator T () const
 	{
 		return conf.Read<T>(path);
 	}
-	const T Get() const
+	T Get() const
 	{
 		return conf.Read<T>(path);
 	}
@@ -672,21 +604,16 @@ private:
 	SettingsContainer &conf;
 	const SettingPath path;
 public:
-	CachedSetting(const CachedSetting &other)
-		: value(other.value)
-		, conf(other.conf)
-		, path(other.path)
-	{
-		conf.Register(this, path);
-	}
+	CachedSetting(const CachedSetting &other) = delete;
+	CachedSetting & operator = (const CachedSetting &other) = delete;
 public:
-	CachedSetting(SettingsContainer &conf_, const AnyStringLocale &section, const AnyStringLocale &key, const T&def)
+	CachedSetting(SettingsContainer &conf_, mpt::ustring section, mpt::ustring key, const T&def)
 		: value(def)
 		, conf(conf_)
-		, path(section, key)
+		, path(std::move(section), std::move(key))
 	{
 		{
-			MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+			mpt::lock_guard<mpt::mutex> l(valueMutex);
 			value = conf.Read(path, def);
 		}
 		conf.Register(this, path);
@@ -697,7 +624,7 @@ public:
 		, path(path_)
 	{
 		{
-			MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+			mpt::lock_guard<mpt::mutex> l(valueMutex);
 			value = conf.Read(path, def);
 		}
 		conf.Register(this, path);
@@ -713,7 +640,7 @@ public:
 	CachedSetting & operator = (const T &val)
 	{
 		{
-			MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+			mpt::lock_guard<mpt::mutex> l(valueMutex);
 			value = val;
 		}
 		conf.Write(path, val);
@@ -721,22 +648,22 @@ public:
 	}
 	operator T () const
 	{
-		MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+		mpt::lock_guard<mpt::mutex> l(valueMutex);
 		return value;
 	}
-	const T Get() const
+	T Get() const
 	{
-		MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+		mpt::lock_guard<mpt::mutex> l(valueMutex);
 		return value;
 	}
 	bool IsDefault() const
 	{
-		conf.IsDefault(path);
+		return conf.IsDefault(path);
 	}
 	CachedSetting & Update()
 	{
 		{
-			MPT_LOCK_GUARD<mpt::mutex> l(valueMutex);
+			mpt::lock_guard<mpt::mutex> l(valueMutex);
 			value = conf.Read<T>(path);
 		}
 		return *this;
@@ -762,26 +689,28 @@ class IniFileSettingsBackend : public ISettingsBackend
 private:
 	const mpt::PathString filename;
 private:
-	std::vector<mpt::byte> ReadSettingRaw(const SettingPath &path, const std::vector<mpt::byte> &def) const;
-	std::wstring ReadSettingRaw(const SettingPath &path, const std::wstring &def) const;
+	std::vector<std::byte> ReadSettingRaw(const SettingPath &path, const std::vector<std::byte> &def) const;
+	mpt::ustring ReadSettingRaw(const SettingPath &path, const mpt::ustring &def) const;
 	double ReadSettingRaw(const SettingPath &path, double def) const;
 	int32 ReadSettingRaw(const SettingPath &path, int32 def) const;
 	bool ReadSettingRaw(const SettingPath &path, bool def) const;
-	void WriteSettingRaw(const SettingPath &path, const std::vector<mpt::byte> &val);
-	void WriteSettingRaw(const SettingPath &path, const std::wstring &val);
+	void WriteSettingRaw(const SettingPath &path, const std::vector<std::byte> &val);
+	void WriteSettingRaw(const SettingPath &path, const mpt::ustring &val);
 	void WriteSettingRaw(const SettingPath &path, double val);
 	void WriteSettingRaw(const SettingPath &path, int32 val);
 	void WriteSettingRaw(const SettingPath &path, bool val);
 	void RemoveSettingRaw(const SettingPath &path);
-	static std::wstring GetSection(const SettingPath &path);
-	static std::wstring GetKey(const SettingPath &path);
+	void RemoveSectionRaw(const mpt::ustring &section);
+	static mpt::winstring GetSection(const SettingPath &path);
+	static mpt::winstring GetKey(const SettingPath &path);
 public:
 	IniFileSettingsBackend(const mpt::PathString &filename);
-	~IniFileSettingsBackend();
-	void ConvertToUnicode(const std::wstring &backupTag = std::wstring());
-	virtual SettingValue ReadSetting(const SettingPath &path, const SettingValue &def) const;
-	virtual void WriteSetting(const SettingPath &path, const SettingValue &val);
-	virtual void RemoveSetting(const SettingPath &path);
+	~IniFileSettingsBackend() override;
+	void ConvertToUnicode(const mpt::ustring &backupTag = mpt::ustring());
+	virtual SettingValue ReadSetting(const SettingPath &path, const SettingValue &def) const override;
+	virtual void WriteSetting(const SettingPath &path, const SettingValue &val) override;
+	virtual void RemoveSetting(const SettingPath &path) override;
+	virtual void RemoveSection(const mpt::ustring &section) override;
 	const mpt::PathString& GetFilename() const { return filename; }
 };
 
@@ -789,14 +718,14 @@ class IniFileSettingsContainer : private IniFileSettingsBackend, public Settings
 {
 public:
 	IniFileSettingsContainer(const mpt::PathString &filename);
-	~IniFileSettingsContainer();
+	~IniFileSettingsContainer() override;
 };
 
 class DefaultSettingsContainer : public IniFileSettingsContainer
 {
 public:
 	DefaultSettingsContainer();
-	~DefaultSettingsContainer();
+	~DefaultSettingsContainer() override;
 };
 
 

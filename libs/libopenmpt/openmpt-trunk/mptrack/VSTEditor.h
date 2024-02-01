@@ -10,38 +10,52 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "AbstractVstEditor.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 
-//==============================================
-class COwnerVstEditor: public CAbstractVstEditor
-//==============================================
+class CVstPlugin;
+
+class COwnerVstEditor : public CAbstractVstEditor
 {
 protected:
 	CStatic m_plugWindow;
+	int m_width = 0, m_height = 0;
 
 public:
 	COwnerVstEditor(CVstPlugin &plugin);
-	virtual ~COwnerVstEditor() { };
+	~COwnerVstEditor() override = default;
 
-	DECLARE_MESSAGE_MAP()
+	// Plugins may request to change the GUI size.
+	bool IsResizable() const override { return true; }
+	bool SetSize(int contentWidth, int contentHeight) override;
+
+	void UpdateParamDisplays() override;
+
+	bool OpenEditor(CWnd *parent) override;
+	void DoClose() override;
+
+protected:
 	afx_msg BOOL OnEraseBkgnd(CDC *) { return TRUE; }
 	afx_msg void OnPaint();
 
-	// Plugins may request to change the GUI size.
-	virtual bool IsResizable() const { return true; };
-	virtual bool SetSize(int contentWidth, int contentHeight);
+	LRESULT OnPreTranslateKeyDown(WPARAM wParam, LPARAM lParam) { return HandlePreTranslateMessage(WM_KEYDOWN, wParam, lParam); }
+	LRESULT OnPreTranslateKeyUp(WPARAM wParam, LPARAM lParam) { return HandlePreTranslateMessage(WM_KEYUP, wParam, lParam); }
+	LRESULT OnPreTranslateSysKeyDown(WPARAM wParam, LPARAM lParam) { return HandlePreTranslateMessage(WM_SYSKEYDOWN, wParam, lParam); }
+	LRESULT OnPreTranslateSysKeyUp(WPARAM wParam, LPARAM lParam) { return HandlePreTranslateMessage(WM_SYSKEYUP, wParam, lParam); }
+	LRESULT HandlePreTranslateMessage(UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		MSG msg = {m_plugWindow, message, wParam, lParam, 0, {}};
+		return HandleKeyMessage(msg);
+	}
 
-	// Overridden:
-	virtual void UpdateParamDisplays() { CAbstractVstEditor::UpdateParamDisplays(); static_cast<CVstPlugin &>(m_VstPlugin).Dispatch(effEditIdle, 0, 0, nullptr, 0.0f); };	//we trust that the plugin GUI can update its display with a bit of idle time.
-
-	virtual bool OpenEditor(CWnd *parent);
-	virtual void DoClose();
+	DECLARE_MESSAGE_MAP()
 };
 
-#endif // NO_VST
+#endif // MPT_WITH_VST
 
 OPENMPT_NAMESPACE_END

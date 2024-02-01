@@ -15,11 +15,14 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-void ModChannel::Reset(ResetFlags resetMask, const CSoundFile &sndFile, CHANNELINDEX sourceChannel)
+void ModChannel::Reset(ResetFlags resetMask, const CSoundFile &sndFile, CHANNELINDEX sourceChannel, ChannelFlags muteFlag)
 {
 	if(resetMask & resetSetPosBasic)
 	{
-		nNote = nNewNote = NOTE_NONE;
+		// IT compatibility: Initial "last note memory" of channel is C-0 (so a lonely instrument number without note will play that note).
+		// Test case: InitialNoteMemory.it
+		nNote = nNewNote = (sndFile.m_playBehaviour[kITInitialNoteMemory] ? NOTE_MIN : NOTE_NONE);
+		nArpeggioLastNote = lastMidiNoteWithoutArp = NOTE_NONE;
 		nNewIns = nOldIns = 0;
 		pModSample = nullptr;
 		pModInstrument = nullptr;
@@ -36,12 +39,16 @@ void ModChannel::Reset(ResetFlags resetMask, const CSoundFile &sndFile, CHANNELI
 			nRetrigParam = 1;
 			nRetrigCount = 0;
 		}
+		microTuning = 0;
 		nTremorCount = 0;
 		nEFxSpeed = 0;
 		prevNoteOffset = 0;
 		lastZxxParam = 0xFF;
 		isFirstTick = false;
+		triggerNote = false;
 		isPreviewNote = false;
+		isPaused = false;
+		portaTargetReached = false;
 		rowCommand.Clear();
 	}
 
@@ -81,6 +88,11 @@ void ModChannel::Reset(ResetFlags resetMask, const CSoundFile &sndFile, CHANNELI
 			dwFlags = sndFile.ChnSettings[sourceChannel].dwFlags;
 			nPan = sndFile.ChnSettings[sourceChannel].nPan;
 			nGlobalVol = sndFile.ChnSettings[sourceChannel].nVolume;
+			if(dwFlags[CHN_MUTE])
+			{
+				dwFlags.reset(CHN_MUTE);
+				dwFlags.set(muteFlag);
+			}
 		} else
 		{
 			dwFlags.reset();
@@ -115,16 +127,15 @@ void ModChannel::UpdateInstrumentVolume(const ModSample *smp, const ModInstrumen
 }
 
 
-ModCommand::NOTE ModChannel::GetPluginNote(bool realNoteMapping) const
+ModCommand::NOTE ModChannel::GetPluginNote(bool ignoreArpeggio) const
 {
-	if(nArpeggioLastNote != NOTE_NONE)
+	if(nArpeggioLastNote != NOTE_NONE && !ignoreArpeggio)
 	{
-		// If an arpeggio is playing, this definitely the last playing note, which may be different from the arpeggio base note stored in nNote.
+		// If an arpeggio is playing, this definitely the last playing note, which may be different from the arpeggio base note stored in nLastNote.
 		return nArpeggioLastNote;
 	}
-	ModCommand::NOTE plugNote = mpt::saturate_cast<ModCommand::NOTE>(nNote - nTranspose);
-	// Caution: When in compatible mode, ModChannel::nNote stores the "real" note, not the mapped note!
-	if(realNoteMapping && pModInstrument != nullptr && plugNote >= NOTE_MIN && plugNote < (std::size(pModInstrument->NoteMap) + NOTE_MIN))
+	ModCommand::NOTE plugNote = nLastNote;
+	if(pModInstrument != nullptr && plugNote >= NOTE_MIN && plugNote < (std::size(pModInstrument->NoteMap) + NOTE_MIN))
 	{
 		plugNote = pModInstrument->NoteMap[plugNote - NOTE_MIN];
 	}
@@ -146,6 +157,28 @@ void ModChannel::SetInstrumentPan(int32 pan, const CSoundFile &sndFile)
 }
 
 
+void ModChannel::RestorePanAndFilter()
+{
+	if(nRestorePanOnNewNote > 0)
+	{
+		nPan = (nRestorePanOnNewNote & 0x7FFF) - 1;
+		if(nRestorePanOnNewNote & 0x8000)
+			dwFlags.set(CHN_SURROUND);
+		nRestorePanOnNewNote = 0;
+	}
+	if(nRestoreResonanceOnNewNote > 0)
+	{
+		nResonance = nRestoreResonanceOnNewNote - 1;
+		nRestoreResonanceOnNewNote = 0;
+	}
+	if(nRestoreCutoffOnNewNote > 0)
+	{
+		nCutOff = nRestoreCutoffOnNewNote - 1;
+		nRestoreCutoffOnNewNote = 0;
+	}
+}
+
+
 void ModChannel::RecalcTuningFreq(Tuning::RATIOTYPE vibratoFactor, Tuning::NOTEINDEXTYPE arpeggioSteps, const CSoundFile &sndFile)
 {
 	if(!HasCustomTuning())
@@ -156,7 +189,35 @@ void ModChannel::RecalcTuningFreq(Tuning::RATIOTYPE vibratoFactor, Tuning::NOTEI
 	if(sndFile.m_playBehaviour[kITRealNoteMapping] && note >= NOTE_MIN && note <= NOTE_MAX)
 		note = pModInstrument->NoteMap[note - NOTE_MIN];
 
-	nPeriod = mpt::saturate_round<uint32>((nC5Speed << FREQ_FRACBITS) * vibratoFactor * pModInstrument->pTuning->GetRatio(note - NOTE_MIDDLEC + arpeggioSteps, nFineTune + m_PortamentoFineSteps));
+	nPeriod = mpt::saturate_round<uint32>(static_cast<float>(nC5Speed) * vibratoFactor * pModInstrument->pTuning->GetRatio(static_cast<Tuning::NOTEINDEXTYPE>(note - NOTE_MIDDLEC + arpeggioSteps), nFineTune + m_PortamentoFineSteps) * (1 << FREQ_FRACBITS));
+}
+
+
+// IT command S73-S7E
+void ModChannel::InstrumentControl(uint8 param, const CSoundFile &sndFile)
+{
+	param &= 0x0F;
+	switch(param)
+	{
+		case 0x3: nNNA = NewNoteAction::NoteCut; break;
+		case 0x4: nNNA = NewNoteAction::Continue; break;
+		case 0x5: nNNA = NewNoteAction::NoteOff; break;
+		case 0x6: nNNA = NewNoteAction::NoteFade; break;
+		case 0x7: VolEnv.flags.reset(ENV_ENABLED); break;
+		case 0x8: VolEnv.flags.set(ENV_ENABLED); break;
+		case 0x9: PanEnv.flags.reset(ENV_ENABLED); break;
+		case 0xA: PanEnv.flags.set(ENV_ENABLED); break;
+		case 0xB: PitchEnv.flags.reset(ENV_ENABLED); break;
+		case 0xC: PitchEnv.flags.set(ENV_ENABLED); break;
+		case 0xD:  // S7D: Enable pitch envelope, force to play as pitch envelope
+		case 0xE:  // S7E: Enable pitch envelope, force to play as filter envelope
+			if(sndFile.GetType() == MOD_TYPE_MPT)
+			{
+				PitchEnv.flags.set(ENV_ENABLED);
+				PitchEnv.flags.set(ENV_FILTER, param != 0xD);
+			}
+			break;
+	}
 }
 
 

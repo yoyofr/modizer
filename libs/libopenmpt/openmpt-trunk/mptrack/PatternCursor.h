@@ -10,13 +10,13 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "../soundlib/Snd_defs.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-//=================
 class PatternCursor
-//=================
 {
 	friend class PatternRect;
 
@@ -51,12 +51,6 @@ public:
 	PatternCursor(ROWINDEX row = 0, CHANNELINDEX channel = 0, Columns column = firstColumn)
 	{
 		Set(row, channel, column);
-	};
-
-	// Construct cursor from another cursor.
-	PatternCursor(const PatternCursor &other)
-	{
-		Set(other);
 	};
 
 	// Construct cursor from a given row and another cursor's horizontal position (channel + column).
@@ -116,7 +110,7 @@ public:
 	// Move the cursor relatively.
 	void Move(int rows, int channels, int columns)
 	{
-		int row = MAX(0, static_cast<int>(GetRow()) + rows);
+		int row = std::max(int(0), static_cast<int>(GetRow()) + rows);
 		int chn = static_cast<int>(GetChannel()) + channels;
 		int col = static_cast<int>(GetColumnType() + columns);
 
@@ -181,7 +175,7 @@ public:
 	// Ensure that the point lies within a given pattern size.
 	void Sanitize(ROWINDEX maxRows, CHANNELINDEX maxChans)
 	{
-		ROWINDEX row = MIN(GetRow(), maxRows - 1);
+		ROWINDEX row = std::min(GetRow(), static_cast<ROWINDEX>(maxRows - 1));
 		CHANNELINDEX chn = GetChannel();
 		Columns col = GetColumnType();
 
@@ -209,9 +203,7 @@ public:
 };
 
 
-//===============
 class PatternRect
-//===============
 {
 protected:
 	PatternCursor upperLeft, lowerRight;

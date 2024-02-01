@@ -37,19 +37,18 @@ MPT_BINARY_STRUCT(DIGIFileHeader, 610)
 
 static void ReadDIGIPatternEntry(FileReader &file, ModCommand &m)
 {
-	CSoundFile::ReadMODPatternEntry(file, m);
-	CSoundFile::ConvertModCommand(m);
+	const auto [command, param] = CSoundFile::ReadMODPatternEntry(file, m);
+	CSoundFile::ConvertModCommand(m, command, param);
 	if(m.command == CMD_MODCMDEX)
 	{
 		switch(m.param & 0xF0)
 		{
 		case 0x30:
-			// E30 / E31: Play sample backwards (with some weird parameters that we won't support for now)
-			if(m.param <= 0x31)
-			{
-				m.command = CMD_S3MCMDEX;
-				m.param = 0x9F;
-			}
+			// E3x: Play sample backwards (E30 stops sample when it reaches the beginning, any other value plays it from the beginning including regular loop)
+			// The play direction is also reset if a new note is played on the other channel linked to this channel.
+			// The behaviour is rather broken when there is no note next to the ommand.
+			m.command = CMD_DIGIREVERSESAMPLE;
+			m.param &= 0x0F;
 			break;
 		case 0x40:
 			// E40: Stop playing sample
@@ -129,8 +128,8 @@ bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
 
 	m_modFormat.formatName = U_("DigiBooster");
 	m_modFormat.type = U_("digi");
-	m_modFormat.madeWithTracker = mpt::format(U_("Digi Booster %1.%2"))(fileHeader.versionInt >> 4, fileHeader.versionInt & 0x0F);
-	m_modFormat.charset = mpt::Charset::ISO8859_1;
+	m_modFormat.madeWithTracker = MPT_UFORMAT("Digi Booster {}.{}")(fileHeader.versionInt >> 4, fileHeader.versionInt & 0x0F);
+	m_modFormat.charset = mpt::Charset::Amiga_no_C1;
 
 	ReadOrderFromArray(Order(), fileHeader.orders, fileHeader.lastOrdIndex + 1);
 
@@ -186,15 +185,13 @@ bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
 			// Compressed patterns are stored in row-major order...
 			for(ROWINDEX row = 0; row < 64; row++)
 			{
-				PatternRow patRow = Patterns[pat].GetRow(row);
+				
 				uint8 bit = 0x80;
-				for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++, bit >>= 1)
+				for(ModCommand &m : Patterns[pat].GetRow(row))
 				{
 					if(eventMask[row] & bit)
-					{
-						ModCommand &m = patRow[chn];
 						ReadDIGIPatternEntry(patternChunk, m);
-					}
+					bit >>= 1;
 				}
 			}
 		} else

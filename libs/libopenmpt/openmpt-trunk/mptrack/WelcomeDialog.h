@@ -10,24 +10,25 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "../common/mptPathString.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-//===============================
 class WelcomeDlg : public CDialog
-//===============================
 {
 protected:
-	mpt::PathString vstPath;
+	mpt::PathString m_vstPath;
 
 public:
 	WelcomeDlg(CWnd *parent);
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual void PostNcDestroy() { CDialog::PostNcDestroy(); delete this; }
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	void OnCancel() override;
+	void PostNcDestroy() override { CDialog::PostNcDestroy(); delete this; }
 
 	afx_msg void OnOptions();
 	afx_msg void OnScanPlugins();

@@ -2,38 +2,30 @@
  project "in_openmpt"
   uuid "D75AEB78-5537-49BD-9085-F92DEEFA84E8"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname )
   vpaths { ["*"] = "../../libopenmpt/" }
-  mpt_projectname = "in_openmpt"
-  dofile "../../build/premake/premake-defaults-DLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  local extincludedirs = {
-   "../..",
-   "../../include",
-  }
-	filter { "action:vs*" }
-		includedirs ( extincludedirs )
-	filter { "not action:vs*" }
-		sysincludedirs ( extincludedirs )
-	filter {}
+  mpt_kind "shared"
+  warnings "Extra"
+	
+	mpt_use_libopenmpt()
+	mpt_use_winamp()
+	
   includedirs {
    "../..",
    "$(IntDir)/svn_version",
-   "../../build/svn_version",
   }
   files {
-   "../../libopenmpt/in_openmpt.cpp",
-   "../../libopenmpt/libopenmpt_plugin_settings.hpp",
-   "../../libopenmpt/libopenmpt_plugin_gui.hpp",
-   "../../libopenmpt/libopenmpt_plugin_gui.cpp",
-   "../../libopenmpt/libopenmpt_plugin_gui.rc",
-   "../../libopenmpt/resource.h",
+   "../../libopenmpt/in_openmpt/in_openmpt.cpp",
+   "../../libopenmpt/plugin-common/libopenmpt_plugin_settings.hpp",
+   "../../libopenmpt/plugin-common/libopenmpt_plugin_gui.hpp",
+   "../../libopenmpt/plugin-common/libopenmpt_plugin_gui.cpp",
+   "../../libopenmpt/plugin-common/libopenmpt_plugin_gui.rc",
+   "../../libopenmpt/plugin-common/resource.h",
   }
 	
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resdefines {
-			"MPT_BUILD_VER_FILENAME=\"" .. mpt_projectname .. ".dll\"",
-			"MPT_BUILD_VER_FILEDESC=\"" .. mpt_projectname .. "\"",
+			"MPT_BUILD_VER_FILENAME=\"" .. "in_openmpt" .. ".dll\"",
+			"MPT_BUILD_VER_FILEDESC=\"" .. "in_openmpt" .. "\"",
 		}
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resincludedirs {
@@ -50,16 +42,11 @@
 		resdefines { "MPT_BUILD_VER_EXE" }
 	filter {}
 
-  characterset "Unicode"
-  flags { "MFC" }
-  links { "libopenmpt", "zlib", "vorbis", "ogg" }
-  links { "delayimp" }
-  linkoptions {
-   "/DELAYLOAD:mf.dll",
-   "/DELAYLOAD:mfplat.dll",
-   "/DELAYLOAD:mfreadwrite.dll",
---   "/DELAYLOAD:mfuuid.dll", -- static library
-   "/DELAYLOAD:propsys.dll",
-  }
+	mpt_use_mfc()
+	defines { "MPT_WITH_MFC" }
+	if _OPTIONS["charset"] ~= "Unicode" then
+		defines { "NO_WARN_MBCS_MFC_DEPRECATION" }
+	end
+
   filter {}
   prebuildcommands { "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)" }

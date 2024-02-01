@@ -1,3 +1,5 @@
+static bool AnyMessageDisplayed=false; // For console -idn switch.
+
 // Purely user interface function. Gets and returns user input.
 UIASKREP_RESULT uiAskReplace(wchar *Name,size_t MaxNameSize,int64 FileSize,RarTime *FileTime,uint Flags)
 {
@@ -18,7 +20,10 @@ UIASKREP_RESULT uiAskReplace(wchar *Name,size_t MaxNameSize,int64 FileSize,RarTi
   {
     itoa(FileSize,SizeText2,ASIZE(SizeText2));
     FileTime->GetText(DateStr2,ASIZE(DateStr2),false);
-    eprintf(St(MAskReplace),Name,SizeText1,DateStr1,SizeText2,DateStr2);
+    if ((Flags & UIASKREP_F_EXCHSRCDEST)==0)
+      eprintf(St(MAskReplace),Name,SizeText1,DateStr1,SizeText2,DateStr2);
+    else
+      eprintf(St(MAskReplace),Name,SizeText2,DateStr2,SizeText1,DateStr1);
   }
 
   bool AllowRename=(Flags & UIASKREP_F_NORENAME)==0;
@@ -66,7 +71,10 @@ bool uiStartFileExtract(const wchar *FileName,bool Extract,bool Test,bool Skip)
 
 void uiExtractProgress(int64 CurFileSize,int64 TotalFileSize,int64 CurSize,int64 TotalSize)
 {
-  int CurPercent=ToPercent(CurSize,TotalSize);
+  // We set the total size to 0 to update only the current progress and keep
+  // the total progress intact in WinRAR. Unlike WinRAR, console RAR has only
+  // the total progress and updates it with current values in such case.
+  int CurPercent=TotalSize!=0 ? ToPercent(CurSize,TotalSize) : ToPercent(CurFileSize,TotalFileSize);
   mprintf(L"\b\b\b\b%3d%%",CurPercent);
 }
 
@@ -80,6 +88,19 @@ void uiProcessProgress(const char *Command,int64 CurSize,int64 TotalSize)
 
 void uiMsgStore::Msg()
 {
+  // When creating volumes, AnyMessageDisplayed must be reset for UIEVENT_NEWARCHIVE,
+  // so it ignores this and all earlier messages like UIEVENT_PROTECTEND
+  // and UIEVENT_PROTECTEND, because they precede "Creating archive" message
+  // and do not interfere with -idn and file names. If we do not ignore them,
+  // uiEolAfterMsg() in uiStartFileAddit() can cause unneeded carriage return
+  // in archiving percent after creating a new volume with -v -idn (and -rr
+  // for UIEVENT_PROTECT*) switches. AnyMessageDisplayed is set for messages
+  // after UIEVENT_NEWARCHIVE, so archiving percent with -idn is moved to
+  // next line and does not delete their last characters.
+  // Similarly we ignore UIEVENT_RRTESTINGEND for volumes, because it is issued
+  // before "Testing archive" and would add an excessive \n otherwise.
+  AnyMessageDisplayed=(Code!=UIEVENT_NEWARCHIVE && Code!=UIEVENT_RRTESTINGEND);
+
   switch(Code)
   {
     case UIERROR_SYSERRMSG:
@@ -96,9 +117,13 @@ void uiMsgStore::Msg()
       Log(Str[0],St(MDataBadCRC),Str[1],Str[0]);
       break;
     case UIERROR_BADPSW:
+      Log(Str[0],St(MWrongFilePassword),Str[1]);
+      break;
+    case UIWAIT_BADPSW:
       Log(Str[0],St(MWrongPassword));
       break;
     case UIERROR_MEMORY:
+      mprintf(L"\n");
       Log(NULL,St(MErrOutMem));
       break;
     case UIERROR_FILEOPEN:
@@ -114,6 +139,7 @@ void uiMsgStore::Msg()
       Log(NULL,St(MErrSeek),Str[0]);
       break;
     case UIERROR_FILEREAD:
+      mprintf(L"\n");
       Log(Str[0],St(MErrRead),Str[1]);
       break;
     case UIERROR_FILEWRITE:
@@ -122,6 +148,9 @@ void uiMsgStore::Msg()
 #ifndef SFX_MODULE
     case UIERROR_FILEDELETE:
       Log(Str[0],St(MCannotDelete),Str[1]);
+      break;
+    case UIERROR_RECYCLEFAILED:
+      Log(Str[0],St(MRecycleFailed));
       break;
     case UIERROR_FILERENAME:
       Log(Str[0],St(MErrRename),Str[1],Str[2]);
@@ -146,10 +175,15 @@ void uiMsgStore::Msg()
     case UIERROR_HLINKCREATE:
       Log(NULL,St(MErrCreateLnkH),Str[0]);
       break;
+    case UIERROR_NOLINKTARGET:
+      Log(NULL,St(MErrLnkTarget));
+      mprintf(L"     "); // For progress percent.
+      break;
     case UIERROR_NEEDADMIN:
       Log(NULL,St(MNeedAdmin));
       break;
     case UIERROR_ARCBROKEN:
+      mprintf(L"\n"); // So it is not merged with preceding UIERROR_HEADERBROKEN.
       Log(Str[0],St(MErrBrokenArc));
       break;
     case UIERROR_HEADERBROKEN:
@@ -177,7 +211,11 @@ void uiMsgStore::Msg()
       Log(Str[0],St(MUnknownMeth),Str[1]);
       break;
     case UIERROR_UNKNOWNENCMETHOD:
-      Log(Str[0],St(MUnkEncMethod),Str[1]);
+      {
+        wchar Msg[256];
+        swprintf(Msg,ASIZE(Msg),St(MUnkEncMethod),Str[1]);
+        Log(Str[0],L"%s: %s",Msg,Str[2]);
+      }
       break;
 #ifndef SFX_MODULE
    case UIERROR_RENAMING:
@@ -210,8 +248,12 @@ void uiMsgStore::Msg()
       break;
     case UIERROR_INVALIDNAME:
       Log(Str[0],St(MInvalidName),Str[1]);
+      mprintf(L"\n"); // Needed when called from CmdExtract::ExtractCurrentFile.
       break;
 #ifndef SFX_MODULE
+    case UIERROR_OPFAILED:
+      Log(NULL,St(MOpFailed));
+      break;
     case UIERROR_NEWRARFORMAT:
       Log(Str[0],St(MNewRarFormat));
       break;
@@ -221,6 +263,7 @@ void uiMsgStore::Msg()
       break;
     case UIERROR_MISSINGVOL:
       Log(Str[0],St(MAbsNextVol),Str[0]);
+      mprintf(L"     "); // For progress percent.
       break;
 #ifndef SFX_MODULE
     case UIERROR_NEEDPREVVOL:
@@ -228,6 +271,9 @@ void uiMsgStore::Msg()
       break;
     case UIERROR_UNKNOWNEXTRA:
       Log(Str[0],St(MUnknownExtra),Str[1]);
+      break;
+    case UIERROR_CORRUPTEXTRA:
+      Log(Str[0],St(MCorruptExtra),Str[1],Str[2]);
       break;
 #endif
 #if !defined(SFX_MODULE) && defined(_WIN_ALL)
@@ -282,7 +328,22 @@ void uiMsgStore::Msg()
     case UIERROR_ULINKEXIST:
       Log(NULL,St(MSymLinkExists),Str[0]);
       break;
-
+    case UIERROR_READERRTRUNCATED:
+      Log(NULL,St(MErrReadTrunc),Str[0]);
+      break;
+    case UIERROR_READERRCOUNT:
+      Log(NULL,St(MErrReadCount),Num[0]);
+      break;
+    case UIERROR_DIRNAMEEXISTS:
+      Log(NULL,St(MDirNameExists));
+      break;
+    case UIERROR_TRUNCPSW:
+      eprintf(St(MTruncPsw),Num[0]);
+      eprintf(L"\n");
+      break;
+    case UIERROR_ADJUSTVALUE:
+      Log(NULL,St(MAdjustValue),Str[0],Str[1]);
+      break;
 
 #ifndef SFX_MODULE
     case UIMSG_STRING:
@@ -323,6 +384,9 @@ void uiMsgStore::Msg()
       mprintf(St(MFAT32Size));
       mprintf(L"     "); // For progress percent.
       break;
+    case UIMSG_SKIPENCARC:
+      Log(NULL,St(MSkipEncArc),Str[0]);
+      break;
 
 
 
@@ -333,15 +397,25 @@ void uiMsgStore::Msg()
 }
 
 
-bool uiGetPassword(UIPASSWORD_TYPE Type,const wchar *FileName,SecPassword *Password)
+bool uiGetPassword(UIPASSWORD_TYPE Type,const wchar *FileName,
+                   SecPassword *Password,CheckPassword *CheckPwd)
 {
-  return GetConsolePassword(Type,FileName,Password);
+  // Unlike GUI we cannot provide Cancel button here, so we use the empty
+  // password to abort. Otherwise user not knowing a password would need to
+  // press Ctrl+C multiple times to quit from infinite password request loop.
+  return GetConsolePassword(Type,FileName,Password) && Password->IsSet();
+}
+
+
+bool uiIsGlobalPasswordSet()
+{
+  return false;
 }
 
 
 void uiAlarm(UIALARM_TYPE Type)
 {
-  if (uiSoundEnabled)
+  if (uiSoundNotify==SOUND_NOTIFY_ON)
   {
     static clock_t LastTime=-10; // Negative to always beep first time.
     if ((MonoClock()-LastTime)/CLOCKS_PER_SEC>5)
@@ -366,11 +440,15 @@ bool uiAskNextVolume(wchar *VolName,size_t MaxSize)
 }
 
 
-bool uiAskRepeatRead(const wchar *FileName)
+void uiAskRepeatRead(const wchar *FileName,bool &Ignore,bool &All,bool &Retry,bool &Quit)
 {
-  mprintf(L"\n");
-  Log(NULL,St(MErrRead),FileName);
-  return Ask(St(MRetryAbort))==1;
+  eprintf(St(MErrReadInfo));
+  int Code=Ask(St(MIgnoreAllRetryQuit));
+
+  Ignore=(Code==1);
+  All=(Code==2);
+  Quit=(Code==4);
+  Retry=!Ignore && !All && !Quit; // Default also for invalid input, not just for 'Retry'.
 }
 
 
@@ -392,3 +470,15 @@ const wchar *uiGetMonthName(int Month)
   return St(MonthID[Month]);
 }
 #endif
+
+
+void uiEolAfterMsg()
+{
+  if (AnyMessageDisplayed)
+  {
+    // Avoid deleting several last characters of any previous error message
+    // with percentage indicator in -idn mode.
+    AnyMessageDisplayed=false;
+    mprintf(L"\n");
+  }
+}

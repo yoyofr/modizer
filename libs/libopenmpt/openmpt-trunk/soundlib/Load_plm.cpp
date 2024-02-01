@@ -131,7 +131,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		return false;
 	}
-	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	if(!file.CanRead(mpt::saturate_cast<FileReader::pos_type>(GetHeaderMinimumAdditionalSize(fileHeader))))
 	{
 		return false;
 	}
@@ -148,6 +148,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 	InitializeGlobals(MOD_TYPE_PLM);
 	InitializeChannels();
 	m_SongFlags = SONG_ITOLDEFFECTS;
+	m_playBehaviour.set(kApplyOffsetWithoutNote);
 
 	m_modFormat.formatName = U_("Disorder Tracker 2");
 	m_modFormat.type = U_("plm");
@@ -229,7 +230,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 	const ROWINDEX rowsPerPat = 64;
 	uint32 maxPos = 0;
 
-	static constexpr ModCommand::COMMAND effTrans[] =
+	static constexpr EffectCommand effTrans[] =
 	{
 		CMD_NONE,
 		CMD_PORTAMENTOUP,
@@ -267,7 +268,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 		file.ReadStruct(patHeader);
 		if(!patHeader.numRows) continue;
 
-		static_assert(ORDERINDEX_MAX >= ((mpt::limits<decltype(ord.x)>::max)() + 255) / rowsPerPat);
+		static_assert(ORDERINDEX_MAX >= (std::numeric_limits<decltype(ord.x)>::max() + 255) / rowsPerPat);
 		ORDERINDEX curOrd = static_cast<ORDERINDEX>(ord.x / rowsPerPat);
 		ROWINDEX curRow = static_cast<ROWINDEX>(ord.x % rowsPerPat);
 		const CHANNELINDEX numChannels = std::min(patHeader.numChannels.get(), static_cast<uint8>(fileHeader.numChannels - ord.y));
@@ -295,7 +296,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				const auto [note, instr, volume, command, param] = file.ReadArray<uint8, 5>();
 				if(note > 0 && note < 0x90)
-					lastNote[c] = m->note = (note >> 4) * 12 + (note & 0x0F) + 12 + NOTE_MIN;
+					lastNote[c] = m->note = static_cast<ModCommand::NOTE>((note >> 4) * 12 + (note & 0x0F) + 12 + NOTE_MIN);
 				else
 					m->note = NOTE_NONE;
 				m->instr = instr;
@@ -305,7 +306,7 @@ bool CSoundFile::ReadPLM(FileReader &file, ModLoadingFlags loadFlags)
 				else
 					m->volcmd = VOLCMD_NONE;
 
-				if(command < CountOf(effTrans))
+				if(command < std::size(effTrans))
 				{
 					m->command = effTrans[command];
 					m->param = param;

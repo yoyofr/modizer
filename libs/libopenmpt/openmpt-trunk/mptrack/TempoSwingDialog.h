@@ -10,14 +10,14 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 class CSoundFile;
 #include "../soundlib/Snd_defs.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-//==================================
 class CTempoSwingDlg: public CDialog
-//==================================
 {
 protected:
 	// Scrollable container for the sliders
@@ -42,7 +42,7 @@ protected:
 		void SetValue(TempoSwing::value_type v);
 		TempoSwing::value_type GetValue() const;
 	};
-	std::vector<std::shared_ptr<RowCtls>> m_controls;
+	std::vector<std::unique_ptr<RowCtls>> m_controls;
 
 	CButton m_checkGroup;
 	CScrollBar m_scrollBar;
@@ -61,10 +61,10 @@ public:
 	CTempoSwingDlg(CWnd *parent, const TempoSwing &currentTempoSwing, CSoundFile &sndFile, PATTERNINDEX pattern = PATTERNINDEX_INVALID);
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual void OnCancel();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	void OnCancel() override;
 	void OnClose();
 	afx_msg void OnReset();
 	afx_msg void OnUseGlobal();

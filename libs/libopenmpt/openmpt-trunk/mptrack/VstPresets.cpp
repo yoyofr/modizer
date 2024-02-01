@@ -1,7 +1,7 @@
 /*
  * VstPresets.cpp
  * --------------
- * Purpose: VST plugin preset / bank handling
+ * Purpose: Plugin preset / bank handling
  * Notes  : (currently none)
  * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
@@ -11,13 +11,17 @@
 #include "stdafx.h"
 
 #ifndef NO_PLUGINS
+#include "VstPresets.h"
+#ifdef MPT_WITH_VST
+#include "Vstplug.h"
+#endif // MPT_WITH_VST
+#include "../common/FileReader.h"
 #include "../soundlib/Sndfile.h"
 #include "../soundlib/plugins/PlugInterface.h"
-#ifndef NO_VST
-#include "Vstplug.h"
-#endif // NO_VST
-#include "VstPresets.h"
-#include "../common/FileReader.h"
+#include "mpt/io/base.hpp"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
+
 #include <ostream>
 
 
@@ -26,20 +30,19 @@ OPENMPT_NAMESPACE_BEGIN
 // This part of the header is identical for both presets and banks.
 struct ChunkHeader
 {
-	char    chunkMagic[4];	///< 'CcnK'
-	int32be byteSize;		///< size of this chunk, excl. magic + byteSize
+	char    chunkMagic[4];	// 'CcnK'
+	int32be byteSize;		// Size of this chunk, excluding magic + byteSize
 
-	char    fxMagic[4];		///< 'FxBk' (regular) or 'FBCh' (opaque chunk)
-	int32be version;		///< format version (1 or 2)
-	int32be fxID;			///< fx unique ID
-	int32be fxVersion;		///< fx version
+	char    fxMagic[4];		// 'FxBk' (regular) or 'FBCh' (opaque chunk)
+	int32be version;		// Format version (1 or 2)
+	int32be fxID;			// Plugin unique ID
+	int32be fxVersion;		// Plugin version
 };
 
 MPT_BINARY_STRUCT(ChunkHeader, 24)
 
 
 VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
-//------------------------------------------------------------------------------
 {
 	const bool firstChunk = file.GetPosition() == 0;
 	ChunkHeader header;
@@ -51,32 +54,32 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 	{
 		return wrongPlugin;
 	}
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 	CVstPlugin *vstPlug = dynamic_cast<CVstPlugin *>(&plugin);
-#endif
+#endif // MPT_WITH_VST
 
 	if(!memcmp(header.fxMagic, "FxCk", 4) || !memcmp(header.fxMagic, "FPCh", 4))
 	{
 		// Program
 		PlugParamIndex numParams = file.ReadUint32BE();
 
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 		if(vstPlug != nullptr)
 		{
-			VstPatchChunkInfo info;
+			Vst::VstPatchChunkInfo info;
 			info.version = 1;
 			info.pluginUniqueID = header.fxID;
 			info.pluginVersion = header.fxVersion;
 			info.numElements = numParams;
-			MemsetZero(info.future);
-			vstPlug->Dispatch(effBeginLoadProgram, 0, 0, &info, 0.0f);
+			MemsetZero(info.reserved);
+			vstPlug->Dispatch(Vst::effBeginLoadProgram, 0, 0, &info, 0.0f);
 		}
-#endif
+#endif // MPT_WITH_VST
 		plugin.BeginSetProgram();
 
-		char prgName[28];
+		std::string prgName;
 		file.ReadString<mpt::String::maybeNullTerminated>(prgName, 28);
-		plugin.SetCurrentProgramName(prgName);
+		plugin.SetCurrentProgramName(mpt::ToCString(mpt::Charset::Locale, prgName));
 
 		if(!memcmp(header.fxMagic, "FxCk", 4))
 		{
@@ -86,18 +89,19 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 			}
 			for(PlugParamIndex p = 0; p < numParams; p++)
 			{
-				plugin.SetParameter(p, file.ReadFloatBE());
+				const auto value = file.ReadFloatBE();
+				plugin.SetParameter(p, std::isfinite(value) ? value : 0.0f);
 			}
 		} else
 		{
 			uint32 chunkSize = file.ReadUint32BE();
 			// Some nasty plugins (e.g. SmartElectronix Ambience) write to our memory block.
 			// Directly writing to a memory-mapped file block results in a crash...
-			char *chunkData = new (std::nothrow) char[chunkSize];
+			std::byte *chunkData = new (std::nothrow) std::byte[chunkSize];
 			if(chunkData)
 			{
-				file.ReadRaw(chunkData, chunkSize);
-				plugin.SetChunk(chunkSize, chunkData, false);
+				file.ReadRaw(mpt::span(chunkData, chunkSize));
+				plugin.SetChunk(mpt::as_span(chunkData, chunkSize), false);
 				delete[] chunkData;
 			} else
 			{
@@ -112,18 +116,18 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 		uint32 currentProgram = file.ReadUint32BE();
 		file.Skip(124);
 
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 		if(vstPlug != nullptr)
 		{
-			VstPatchChunkInfo info;
+			Vst::VstPatchChunkInfo info;
 			info.version = 1;
 			info.pluginUniqueID = header.fxID;
 			info.pluginVersion = header.fxVersion;
 			info.numElements = numProgs;
-			MemsetZero(info.future);
-			vstPlug->Dispatch(effBeginLoadBank, 0, 0, &info, 0.0f);
+			MemsetZero(info.reserved);
+			vstPlug->Dispatch(Vst::effBeginLoadBank, 0, 0, &info, 0.0f);
 		}
-#endif
+#endif // MPT_WITH_VST
 
 		if(!memcmp(header.fxMagic, "FxBk", 4))
 		{
@@ -144,11 +148,11 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 			uint32 chunkSize = file.ReadUint32BE();
 			// Some nasty plugins (e.g. SmartElectronix Ambience) write to our memory block.
 			// Directly writing to a memory-mapped file block results in a crash...
-			char *chunkData = new (std::nothrow) char[chunkSize];
+			std::byte *chunkData = new (std::nothrow) std::byte[chunkSize];
 			if(chunkData)
 			{
-				file.ReadRaw(chunkData, chunkSize);
-				plugin.SetChunk(chunkSize, chunkData, true);
+				file.ReadRaw(mpt::span(chunkData, chunkSize));
+				plugin.SetChunk(mpt::as_span(chunkData, chunkSize), true);
 				delete[] chunkData;
 			} else
 			{
@@ -166,7 +170,6 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 
 
 bool VSTPresets::SaveFile(std::ostream &f, IMixPlugin &plugin, bool bank)
-//-----------------------------------------------------------------------
 {
 	if(!bank)
 	{
@@ -193,12 +196,12 @@ bool VSTPresets::SaveFile(std::ostream &f, IMixPlugin &plugin, bool bank)
 
 		if(writeChunk)
 		{
-			char *chunk = nullptr;
-			uint32 chunkSize = mpt::saturate_cast<uint32>(plugin.GetChunk(chunk, true));
-			if(chunkSize && chunk)
+			auto chunk = plugin.GetChunk(true);
+			uint32 chunkSize = mpt::saturate_cast<uint32>(chunk.size());
+			if(chunkSize)
 			{
 				mpt::IO::WriteIntBE(f, chunkSize);
-				mpt::IO::WriteRaw(f, chunk, chunkSize);
+				mpt::IO::WriteRaw(f, chunk.data(), chunkSize);
 			} else
 			{
 				// The plugin returned no chunk! Gracefully go back and save parameters instead...
@@ -228,7 +231,6 @@ bool VSTPresets::SaveFile(std::ostream &f, IMixPlugin &plugin, bool bank)
 
 
 void VSTPresets::SaveProgram(std::ostream &f, IMixPlugin &plugin)
-//---------------------------------------------------------------
 {
 	bool writeChunk = plugin.ProgramsAreChunks();
 	ChunkHeader header;
@@ -246,17 +248,17 @@ void VSTPresets::SaveProgram(std::ostream &f, IMixPlugin &plugin)
 	mpt::IO::WriteIntBE(f, numParams);
 
 	char name[28];
-	mpt::String::Write<mpt::String::maybeNullTerminated>(name, mpt::ToCharset(mpt::CharsetLocale, plugin.GetCurrentProgramName()));
+	mpt::String::WriteBuf(mpt::String::maybeNullTerminated, name) = mpt::ToCharset(mpt::Charset::Locale, plugin.GetCurrentProgramName());
 	mpt::IO::WriteRaw(f, name, 28);
 
 	if(writeChunk)
 	{
-		char *chunk = nullptr;
-		uint32 chunkSize = mpt::saturate_cast<uint32>(plugin.GetChunk(chunk, false));
-		if(chunkSize && chunk)
+		auto chunk = plugin.GetChunk(false);
+		uint32 chunkSize = mpt::saturate_cast<uint32>(chunk.size());
+		if(chunkSize)
 		{
 			mpt::IO::WriteIntBE(f, chunkSize);
-			mpt::IO::WriteRaw(f, chunk, chunkSize);
+			mpt::IO::WriteRaw(f, chunk.data(), chunkSize);
 		} else
 		{
 			// The plugin returned no chunk! Gracefully go back and save parameters instead...
@@ -265,10 +267,12 @@ void VSTPresets::SaveProgram(std::ostream &f, IMixPlugin &plugin)
 	}
 	if(!writeChunk)
 	{
+		plugin.BeginGetProgram();
 		for(uint32 p = 0; p < numParams; p++)
 		{
 			mpt::IO::Write(f, IEEE754binary32BE(plugin.GetParameter(p)));
 		}
+		plugin.EndGetProgram();
 	}
 
 	// Now we know the correct chunk size.
@@ -283,20 +287,27 @@ void VSTPresets::SaveProgram(std::ostream &f, IMixPlugin &plugin)
 
 // Translate error code to string. Returns nullptr if there was no error.
 const char *VSTPresets::GetErrorMessage(ErrorCode code)
-//-----------------------------------------------------
 {
+	const char *result = nullptr;
 	switch(code)
 	{
 	case VSTPresets::invalidFile:
-		return "This does not appear to be a valid preset file.";
+		result = "This does not appear to be a valid preset file.";
+		break;
 	case VSTPresets::wrongPlugin:
-		return "This file appears to be for a different plugin.";
+		result = "This file appears to be for a different plugin.";
+		break;
 	case VSTPresets::wrongParameters:
-		return "The number of parameters in this file is incompatible with the current plugin.";
+		result = "The number of parameters in this file is incompatible with the current plugin.";
+		break;
 	case VSTPresets::outOfMemory:
-		return "Not enough memory to load preset data.";
+		result = "Not enough memory to load preset data.";
+		break;
+	case VSTPresets::noError:
+		result = nullptr;
+		break;
 	}
-	return nullptr;
+	return result;
 }
 
 #endif // NO_PLUGINS

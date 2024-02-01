@@ -1,7 +1,7 @@
 /*
  * mod2wave.cpp
  * ------------
- * Purpose: Module to WAV conversion (dialog + conversion code).
+ * Purpose: Module to steaming audio (WAV, MP3, etc.) conversion (dialog + conversion code).
  * Notes  : (currently none)
  * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
@@ -9,22 +9,29 @@
 
 
 #include "stdafx.h"
-#include "mptrack.h"
-#include "Sndfile.h"
-#include "Dlsbank.h"
-#include "mainfrm.h"
-#include "mpdlgs.h"
 #include "mod2wave.h"
+#include "Dlsbank.h"
+#include "Mainfrm.h"
+#include "Mpdlgs.h"
+#include "Mptrack.h"
+#include "Reporting.h"
+#include "Sndfile.h"
 #include "WAVTools.h"
+#include "../common/Dither.h"
+#include "../common/mptFileIO.h"
+#include "../common/mptFileTemporary.h"
 #include "../common/mptString.h"
 #include "../common/version.h"
-#include "../soundbase/SampleFormatCopy.h"
-#include "../soundlib/MixerLoops.h"
-#include "../soundlib/Dither.h"
 #include "../soundlib/AudioReadTarget.h"
+#include "../soundlib/MixerLoops.h"
 #include "../soundlib/plugins/PlugInterface.h"
+#include "mpt/audio/span.hpp"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
+#include "mpt/io_file/fstream.hpp"
+#include "openmpt/soundbase/Dither.hpp"
 
-#include "../common/mptFileIO.h"
+#include <variant>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -32,32 +39,14 @@ OPENMPT_NAMESPACE_BEGIN
 
 extern const TCHAR *gszChnCfgNames[3];
 
-static CSoundFile::samplecount_t ReadInterleaved(CSoundFile &sndFile, void *outputBuffer, CSoundFile::samplecount_t count, SampleFormat sampleFormat, Dither &dither)
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+template <typename Tsample>
+static CSoundFile::samplecount_t ReadInterleaved(CSoundFile &sndFile, Tsample *outputBuffer, std::size_t channels, CSoundFile::samplecount_t count, DithersOpenMPT &dithers)
 {
 	sndFile.ResetMixStat();
-	AudioReadTargetBufferInterleavedDynamic target(sampleFormat, false, dither, outputBuffer);
+	MPT_ASSERT(sndFile.m_MixerSettings.gnChannels == channels);
+	AudioTargetBuffer<mpt::audio_span_interleaved<Tsample>, DithersOpenMPT> target(mpt::audio_span_interleaved<Tsample>(outputBuffer, channels, count), dithers);
 	return sndFile.Read(count, target);
-}
-
-
-static mpt::ustring GetDefaultYear()
-//----------------------------------
-{
-	return mpt::ToUnicode(CTime::GetCurrentTime().Format("%Y"));
-}
-
-
-StoredTags::StoredTags(SettingsContainer &conf)
-//---------------------------------------------
-	: artist(conf, "Export", "TagArtist", TrackerSettings::Instance().defaultArtist)
-	, album(conf, "Export", "TagAlbum", MPT_USTRING(""))
-	, trackno(conf, "Export", "TagTrackNo", MPT_USTRING(""))
-	, year(conf, "Export", "TagYear", GetDefaultYear())
-	, url(conf, "Export", "TagURL", MPT_USTRING(""))
-	, genre(conf, "Export", "TagGenre", MPT_USTRING(""))
-{
-	return;
 }
 
 
@@ -65,30 +54,28 @@ StoredTags::StoredTags(SettingsContainer &conf)
 // CWaveConvert - setup for converting a wave file
 
 BEGIN_MESSAGE_MAP(CWaveConvert, CDialog)
-	ON_COMMAND(IDC_CHECK1,			OnCheckSizeLimit)
-	ON_COMMAND(IDC_CHECK2,			OnCheckTimeLimit)
-	ON_COMMAND(IDC_CHECK4,			OnCheckChannelMode)
-	ON_COMMAND(IDC_CHECK6,			OnCheckInstrMode)
-	ON_COMMAND(IDC_RADIO1,			UpdateDialog)
-	ON_COMMAND(IDC_RADIO2,			UpdateDialog)
-	ON_COMMAND(IDC_RADIO3,			OnExportModeChanged)
-	ON_COMMAND(IDC_RADIO4,			OnExportModeChanged)
-	ON_COMMAND(IDC_PLAYEROPTIONS,	OnPlayerOptions)
-	ON_COMMAND(IDC_BUTTON1,			OnShowEncoderInfo)
-	ON_CBN_SELCHANGE(IDC_COMBO5,	OnFileTypeChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnSamplerateChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO4,	OnChannelsChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO6,	OnDitherChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnFormatChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO9,	OnSampleSlotChanged)
+	ON_COMMAND(IDC_CHECK2,			&CWaveConvert::OnCheckTimeLimit)
+	ON_COMMAND(IDC_CHECK4,			&CWaveConvert::OnCheckChannelMode)
+	ON_COMMAND(IDC_CHECK6,			&CWaveConvert::OnCheckInstrMode)
+	ON_COMMAND(IDC_RADIO1,			&CWaveConvert::UpdateDialog)
+	ON_COMMAND(IDC_RADIO2,			&CWaveConvert::UpdateDialog)
+	ON_COMMAND(IDC_RADIO3,			&CWaveConvert::UpdateDialog)
+	ON_COMMAND(IDC_RADIO4,			&CWaveConvert::OnExportModeChanged)
+	ON_COMMAND(IDC_RADIO5,			&CWaveConvert::OnExportModeChanged)
+	ON_COMMAND(IDC_PLAYEROPTIONS,	&CWaveConvert::OnPlayerOptions)
+	ON_CBN_SELCHANGE(IDC_COMBO5,	&CWaveConvert::OnFileTypeChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CWaveConvert::OnSamplerateChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO4,	&CWaveConvert::OnChannelsChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO6,	&CWaveConvert::OnDitherChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2,	&CWaveConvert::OnFormatChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO9,	&CWaveConvert::OnSampleSlotChanged)
 END_MESSAGE_MAP()
 
 
 CWaveConvert::CWaveConvert(CWnd *parent, ORDERINDEX minOrder, ORDERINDEX maxOrder, ORDERINDEX numOrders, CSoundFile &sndFile, const std::vector<EncoderFactoryBase*> &encFactories)
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	: CDialog(IDD_WAVECONVERT, parent)
-	, m_SndFile(sndFile)
 	, m_Settings(theApp.GetSettings(), encFactories)
+	, m_SndFile(sndFile)
 {
 	ASSERT(!encFactories.empty());
 	encTraits = m_Settings.GetTraits();
@@ -100,15 +87,14 @@ CWaveConvert::CWaveConvert(CWnd *parent, ORDERINDEX minOrder, ORDERINDEX maxOrde
 		m_Settings.maxOrder = maxOrder;
 	}
 	m_Settings.repeatCount = 1;
+	m_Settings.minSequence = m_Settings.maxSequence = m_SndFile.Order.GetCurrentSequenceIndex();
 	m_nNumOrders = numOrders;
 
-	m_dwFileLimit = 0;
 	m_dwSongLimit = 0;
 }
 
 
 void CWaveConvert::DoDataExchange(CDataExchange *pDX)
-//---------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO5,	m_CbnFileType);
@@ -119,6 +105,8 @@ void CWaveConvert::DoDataExchange(CDataExchange *pDX)
 	DDX_Control(pDX, IDC_SPIN3,		m_SpinMinOrder);
 	DDX_Control(pDX, IDC_SPIN4,		m_SpinMaxOrder);
 	DDX_Control(pDX, IDC_SPIN5,		m_SpinLoopCount);
+	DDX_Control(pDX, IDC_SPIN6,		m_SpinMinSequence);
+	DDX_Control(pDX, IDC_SPIN7,		m_SpinMaxSequence);
 	DDX_Control(pDX, IDC_COMBO9,	m_CbnSampleSlot);
 
 	DDX_Control(pDX, IDC_COMBO3,	m_CbnGenre);
@@ -132,7 +120,6 @@ void CWaveConvert::DoDataExchange(CDataExchange *pDX)
 
 
 BOOL CWaveConvert::OnInitDialog()
-//-------------------------------
 {
 	CDialog::OnInitDialog();
 
@@ -143,17 +130,25 @@ BOOL CWaveConvert::OnInitDialog()
 	CheckDlgButton(IDC_CHECK6, BST_UNCHECKED);
 
 	const bool selection = (m_Settings.minOrder != ORDERINDEX_INVALID && m_Settings.maxOrder != ORDERINDEX_INVALID);
-	CheckRadioButton(IDC_RADIO1, IDC_RADIO2, selection ? IDC_RADIO2 : IDC_RADIO1);
+	CheckRadioButton(IDC_RADIO1, IDC_RADIO3, selection ? IDC_RADIO2 : IDC_RADIO1);
 	if(selection)
 	{
 		SetDlgItemInt(IDC_EDIT3, m_Settings.minOrder);
 		SetDlgItemInt(IDC_EDIT4, m_Settings.maxOrder);
 	}
-	m_SpinMinOrder.SetRange(0, m_nNumOrders);
-	m_SpinMaxOrder.SetRange(0, m_nNumOrders);
+	m_SpinMinOrder.SetRange32(0, m_nNumOrders);
+	m_SpinMaxOrder.SetRange32(0, m_nNumOrders);
+
+	const SEQUENCEINDEX numSequences = m_SndFile.Order.GetNumSequences();
+	const BOOL enableSeq = numSequences > 1 ? TRUE : FALSE;
+	GetDlgItem(IDC_RADIO3)->EnableWindow(enableSeq);
+	m_SpinMinSequence.SetRange32(1, numSequences);
+	m_SpinMaxSequence.SetRange32(1, numSequences);
+	SetDlgItemInt(IDC_EDIT12, m_Settings.minSequence + 1);
+	SetDlgItemInt(IDC_EDIT13, m_Settings.maxSequence + 1);
 
 	SetDlgItemInt(IDC_EDIT5, m_Settings.repeatCount, FALSE);
-	m_SpinLoopCount.SetRange(1, int16_max);
+	m_SpinLoopCount.SetRange32(1, int16_max);
 
 	FillFileTypes();
 	FillSamplerates();
@@ -178,9 +173,9 @@ BOOL CWaveConvert::OnInitDialog()
 	GetDlgItem(IDC_GIVEPLUGSIDLETIME)->EnableWindow(FALSE);
 	GetDlgItem(IDC_RENDERSILENCE)->EnableWindow(FALSE);
 #ifndef NO_PLUGINS
-	for(PLUGINDEX i = 0; i < MAX_MIXPLUGINS; i++)
+	for(const auto &plug : m_SndFile.m_MixPlugins)
 	{
-		if(m_SndFile.m_MixPlugins[i].pMixPlugin != nullptr)
+		if(plug.pMixPlugin != nullptr)
 		{
 			GetDlgItem(IDC_GIVEPLUGSIDLETIME)->EnableWindow(TRUE);
 			GetDlgItem(IDC_RENDERSILENCE)->EnableWindow(TRUE);
@@ -197,13 +192,13 @@ BOOL CWaveConvert::OnInitDialog()
 	CString s;
 	for(SAMPLEINDEX smp = 1; smp <= m_SndFile.GetNumSamples(); smp++)
 	{
-		s.Format(_T("%02u: %s%s"), smp, m_SndFile.GetSample(smp).HasSampleData() ? _T("*") : _T(""), m_SndFile.GetSampleName(smp));
+		s.Format(_T("%02u: %s%s"), smp, m_SndFile.GetSample(smp).HasSampleData() ? _T("*") : _T(""), mpt::ToCString(m_SndFile.GetCharsetInternal(), m_SndFile.GetSampleName(smp)).GetString());
 		m_CbnSampleSlot.SetItemData(m_CbnSampleSlot.AddString(s), smp);
 	}
 	if(m_Settings.sampleSlot > m_SndFile.GetNumSamples()) m_Settings.sampleSlot = 0;
 	m_CbnSampleSlot.SetCurSel(m_Settings.sampleSlot);
 
-	CheckRadioButton(IDC_RADIO3, IDC_RADIO4, m_Settings.outputToSample ? IDC_RADIO4 : IDC_RADIO3);
+	CheckRadioButton(IDC_RADIO4, IDC_RADIO5, m_Settings.outputToSample ? IDC_RADIO5 : IDC_RADIO4);
 
 	UpdateDialog();
 	return TRUE;
@@ -211,10 +206,9 @@ BOOL CWaveConvert::OnInitDialog()
 
 
 void CWaveConvert::LoadTags()
-//---------------------------
 {
-	m_Settings.Tags.title = mpt::ToUnicode(mpt::CharsetLocale, m_SndFile.GetTitle());
-	m_Settings.Tags.comments = mpt::ToUnicode(mpt::CharsetLocale, m_SndFile.m_songMessage.GetFormatted(SongMessage::leLF));
+	m_Settings.Tags.title = mpt::ToUnicode(mpt::Charset::Locale, m_SndFile.GetTitle());
+	m_Settings.Tags.comments = mpt::ToUnicode(mpt::Charset::Locale, m_SndFile.m_songMessage.GetFormatted(SongMessage::leLF));
 	m_Settings.Tags.artist = m_SndFile.m_songArtist;
 	m_Settings.Tags.album = m_Settings.storedTags.album;
 	m_Settings.Tags.trackno = m_Settings.storedTags.trackno;
@@ -225,7 +219,6 @@ void CWaveConvert::LoadTags()
 
 
 void CWaveConvert::SaveTags()
-//---------------------------
 {
 	m_Settings.storedTags.artist = m_Settings.Tags.artist;
 	m_Settings.storedTags.album = m_Settings.Tags.album;
@@ -237,11 +230,8 @@ void CWaveConvert::SaveTags()
 
 
 void CWaveConvert::FillTags()
-//---------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
-
-	const bool canTags = encTraits->canTags;
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 
 	DWORD_PTR dwFormat = m_CbnSampleFormat.GetItemData(m_CbnSampleFormat.GetCurSel());
 	Encoder::Mode mode = (Encoder::Mode)((dwFormat >> 24) & 0xff);
@@ -249,14 +239,17 @@ void CWaveConvert::FillTags()
 	CheckDlgButton(IDC_CHECK3, encTraits->canCues?encSettings.Cues?TRUE:FALSE:FALSE);
 	::EnableWindow(::GetDlgItem(m_hWnd, IDC_CHECK3), encTraits->canCues?TRUE:FALSE);
 
-	CheckDlgButton(IDC_CHECK7, canTags?encSettings.Tags?TRUE:FALSE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_CHECK7), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_COMBO3), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT11), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT6), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT7), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT8), canTags?TRUE:FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT9), canTags?TRUE:FALSE);
+	const BOOL canTags = encTraits->canTags ? TRUE : FALSE;
+	CheckDlgButton(IDC_CHECK7, encSettings.Tags ? canTags : FALSE);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_CHECK7), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_COMBO3), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT11), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT6), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT7), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT8), canTags);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT9), canTags);
+	m_CbnGenre.EnableWindow(canTags?TRUE:FALSE);
+	m_EditGenre.EnableWindow(canTags?TRUE:FALSE);
 
 	if((encTraits->modesWithFixedGenres & mode) && !encTraits->genres.empty())
 	{
@@ -280,29 +273,13 @@ void CWaveConvert::FillTags()
 }
 
 
-void CWaveConvert::OnShowEncoderInfo()
-//------------------------------------
-{
-	mpt::ustring info;
-	info += MPT_USTRING("Format: ");
-	info += encTraits->fileDescription;
-	info += MPT_USTRING("\r\n");
-	info += MPT_USTRING("Encoder: ");
-	info += encTraits->encoderName;
-	info += MPT_USTRING("\r\n");
-	info += mpt::String::Replace(encTraits->description, MPT_USTRING("\n"), MPT_USTRING("\r\n"));
-	Reporting::Information(info, "Encoder Information");
-}
-
-
 void CWaveConvert::FillFileTypes()
-//--------------------------------
 {
 	m_CbnFileType.ResetContent();
 	int sel = 0;
 	for(std::size_t i = 0; i < m_Settings.EncoderFactories.size(); ++i)
 	{
-		int ndx = m_CbnFileType.AddString(mpt::ToCString(m_Settings.EncoderFactories[i]->GetTraits().fileShortDescription));
+		int ndx = m_CbnFileType.AddString(MPT_CFORMAT("{} ({})")(mpt::ToCString(m_Settings.EncoderFactories[i]->GetTraits().fileShortDescription), mpt::ToCString(m_Settings.EncoderFactories[i]->GetTraits().fileDescription)));
 		m_CbnFileType.SetItemData(ndx, i);
 		if(m_Settings.EncoderIndex == i)
 		{
@@ -314,14 +291,14 @@ void CWaveConvert::FillFileTypes()
 
 
 void CWaveConvert::FillSamplerates()
-//----------------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 	m_CbnSampleRate.CComboBox::ResetContent();
 	int sel = -1;
+	std::vector<uint32> samplerates = (!encTraits->samplerates.empty() ? encTraits->samplerates : TrackerSettings::Instance().GetSampleRates());
 	if(TrackerSettings::Instance().ExportDefaultToSoundcardSamplerate)
 	{
-		for(auto samplerate : encTraits->samplerates)
+		for(auto samplerate : samplerates)
 		{
 			if(samplerate == TrackerSettings::Instance().MixerSamplerate)
 			{
@@ -329,9 +306,9 @@ void CWaveConvert::FillSamplerates()
 			}
 		}
 	}
-	for(auto samplerate : encTraits->samplerates)
+	for(auto samplerate : samplerates)
 	{
-		int ndx = m_CbnSampleRate.AddString(mpt::ToCString(mpt::String::Print(MPT_USTRING("%1 Hz"), samplerate)));
+		int ndx = m_CbnSampleRate.AddString(MPT_CFORMAT("{} Hz")(samplerate));
 		m_CbnSampleRate.SetItemData(ndx, samplerate);
 		if(samplerate == encSettings.Samplerate)
 		{
@@ -347,9 +324,8 @@ void CWaveConvert::FillSamplerates()
 
 
 void CWaveConvert::FillChannels()
-//-------------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 	m_CbnChannels.CComboBox::ResetContent();
 	int sel = 0;
 	for(int channels = 4; channels >= 1; channels /= 2)
@@ -358,7 +334,7 @@ void CWaveConvert::FillChannels()
 		{
 			continue;
 		}
-		if(IsDlgButtonChecked(IDC_RADIO4) != BST_UNCHECKED)
+		if(IsDlgButtonChecked(IDC_RADIO5) != BST_UNCHECKED)
 		{
 			if(channels > 2)
 			{
@@ -378,20 +354,19 @@ void CWaveConvert::FillChannels()
 
 
 void CWaveConvert::FillFormats()
-//------------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 	m_CbnSampleFormat.CComboBox::ResetContent();
 	int sel = -1;
-	DWORD_PTR dwSamplerate = m_CbnSampleRate.GetItemData(m_CbnSampleRate.GetCurSel());
-	LONG_PTR nChannels = m_CbnChannels.GetItemData(m_CbnChannels.GetCurSel());
+	int samplerate = static_cast<int>(m_CbnSampleRate.GetItemData(m_CbnSampleRate.GetCurSel()));
+	int channels = static_cast<int>(m_CbnChannels.GetItemData(m_CbnChannels.GetCurSel()));
 	if(encTraits->modes & Encoder::ModeQuality)
 	{
 		for(int quality = 100; quality >= 0; quality -= 10)
 		{
 			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(m_Settings.GetEncoderFactory()->DescribeQuality(quality * 0.01f)));
 			m_CbnSampleFormat.SetItemData(ndx, (Encoder::ModeQuality<<24) | (quality<<0));
-			if(encSettings.Mode == Encoder::ModeQuality && Util::Round<int>(encSettings.Quality*100.0f) == quality)
+			if(encSettings.Mode == Encoder::ModeQuality && mpt::saturate_round<int>(encSettings.Quality*100.0f) == quality)
 			{
 				sel = ndx;
 			}
@@ -401,6 +376,10 @@ void CWaveConvert::FillFormats()
 	{
 		for(int bitrate = static_cast<int>(encTraits->bitrates.size()-1); bitrate >= 0; --bitrate)
 		{
+			if(!m_Settings.GetEncoderFactory()->IsBitrateSupported(samplerate, channels, encTraits->bitrates[bitrate]))
+			{
+				continue;
+			}
 			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(m_Settings.GetEncoderFactory()->DescribeBitrateVBR(encTraits->bitrates[bitrate])));
 			m_CbnSampleFormat.SetItemData(ndx, (Encoder::ModeVBR<<24) | (encTraits->bitrates[bitrate]<<0));
 			if(encSettings.Mode == Encoder::ModeVBR && static_cast<int>(encSettings.Bitrate) == encTraits->bitrates[bitrate])
@@ -413,6 +392,10 @@ void CWaveConvert::FillFormats()
 	{
 		for(int bitrate = static_cast<int>(encTraits->bitrates.size()-1); bitrate >= 0; --bitrate)
 		{
+			if(!m_Settings.GetEncoderFactory()->IsBitrateSupported(samplerate, channels, encTraits->bitrates[bitrate]))
+			{
+				continue;
+			}
 			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(m_Settings.GetEncoderFactory()->DescribeBitrateABR(encTraits->bitrates[bitrate])));
 			m_CbnSampleFormat.SetItemData(ndx, (Encoder::ModeABR<<24) | (encTraits->bitrates[bitrate]<<0));
 			if(encSettings.Mode == Encoder::ModeABR && static_cast<int>(encSettings.Bitrate) == encTraits->bitrates[bitrate])
@@ -425,6 +408,10 @@ void CWaveConvert::FillFormats()
 	{
 		for(int bitrate = static_cast<int>(encTraits->bitrates.size()-1); bitrate >= 0; --bitrate)
 		{
+			if(!m_Settings.GetEncoderFactory()->IsBitrateSupported(samplerate, channels, encTraits->bitrates[bitrate]))
+			{
+				continue;
+			}
 			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(m_Settings.GetEncoderFactory()->DescribeBitrateCBR(encTraits->bitrates[bitrate])));
 			m_CbnSampleFormat.SetItemData(ndx, (Encoder::ModeCBR<<24) | (encTraits->bitrates[bitrate]<<0));
 			if(encSettings.Mode == Encoder::ModeCBR && static_cast<int>(encSettings.Bitrate) == encTraits->bitrates[bitrate])
@@ -433,69 +420,68 @@ void CWaveConvert::FillFormats()
 			}
 		}
 	}
-	if(encTraits->modes & Encoder::ModeEnumerated)
+	if(encTraits->modes & Encoder::ModeLossless)
 	{
+		bool allBig = true;
+		bool allLittle = true;
+		for(const auto &format : encTraits->formats)
+		{
+			if(format.endian != mpt::endian::little)
+			{
+				allLittle = false;
+			}
+			if(format.endian != mpt::endian::big)
+			{
+				allBig = false;
+			}
+		}
+		bool showEndian = !(allBig || allLittle);
 		for(std::size_t i = 0; i < encTraits->formats.size(); ++i)
 		{
 			const Encoder::Format &format = encTraits->formats[i];
-			if(format.Samplerate != (int)dwSamplerate || format.Channels != nChannels)
+			mpt::ustring description;
+			switch(format.encoding)
 			{
-				continue;
-			}
-			if(i > 0xffff)
-			{
-				// too may formats
+			case Encoder::Format::Encoding::Float:
+				description = MPT_UFORMAT("{} Bit Floating Point")(format.bits);
+				break;
+			case Encoder::Format::Encoding::Integer:
+				description = MPT_UFORMAT("{} Bit")(format.bits);
+				break;
+			case Encoder::Format::Encoding::Alaw:
+				description = U_("A-law");
+				break;
+			case Encoder::Format::Encoding::ulaw:
+				description = MPT_UTF8("\xce\xbc-law");
+				break;
+			case Encoder::Format::Encoding::Unsigned:
+				description = MPT_UFORMAT("{} Bit (unsigned)")(format.bits);
 				break;
 			}
-			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(format.Description));
-			m_CbnSampleFormat.SetItemData(ndx, i & 0xffff);
-			if(encSettings.Mode & Encoder::ModeEnumerated && (int)i == encSettings.Format)
+			if(showEndian && format.bits != 8 && format.encoding != Encoder::Format::Encoding::Alaw && format.encoding != Encoder::Format::Encoding::ulaw)
+			{
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch"
+#endif // MPT_COMPILER_CLANG
+				switch(format.endian)
+				{
+				case mpt::endian::big:
+					description += U_(" Big-Endian");
+					break;
+				case mpt::endian::little:
+					description += U_(" Little-Endian");
+					break;
+				}
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
+			}
+			int ndx = m_CbnSampleFormat.AddString(mpt::ToCString(description));
+			m_CbnSampleFormat.SetItemData(ndx, format.AsInt());
+			if(encSettings.Mode & Encoder::ModeLossless && format == encSettings.Format2)
 			{
 				sel = ndx;
-			}
-		}
-		if(sel == -1 && encSettings.Mode & Encoder::ModeEnumerated && encTraits->defaultBitrate != 0)
-		{
-			// select enumerated format based on bitrate
-			for(int ndx = 0; ndx < m_CbnSampleFormat.GetCount(); ++ndx)
-			{
-				int i = (int)((m_CbnSampleFormat.GetItemData(ndx) >> 0) & 0xffff);
-				const Encoder::Format &format = encTraits->formats[i];
-				if(format.Bitrate != 0 && encSettings.Bitrate == format.Bitrate)
-				{
-					sel = ndx;
-				}
-			}
-			if(sel == -1)
-			{
-				// select enumerated format based on default bitrate
-				for(int ndx = 0; ndx < m_CbnSampleFormat.GetCount(); ++ndx)
-				{
-					int i = (int)((m_CbnSampleFormat.GetItemData(ndx) >> 0) & 0xffff);
-					const Encoder::Format &format = encTraits->formats[i];
-					if(format.Bitrate == encTraits->defaultBitrate)
-					{
-						sel = ndx;
-					}
-				}
-			}
-		}
-		if(sel == -1 && encSettings.Mode & Encoder::ModeEnumerated && encTraits->defaultBitrate == 0)
-		{
-			// select enumerated format based on sampleformat
-			for(int ndx = 0; ndx < m_CbnSampleFormat.GetCount(); ++ndx)
-			{
-				int i = (int)((m_CbnSampleFormat.GetItemData(ndx) >> 0) & 0xffff);
-				const Encoder::Format &format = encTraits->formats[i];
-				int32 currentFormat = encSettings.Format;
-				if(encSettings.Format < 0 || (std::size_t)currentFormat >= encTraits->formats.size())
-				{ // out of bounds
-					continue;
-				}
-				if(format.Sampleformat != SampleFormatInvalid && encTraits->formats[currentFormat].Sampleformat == format.Sampleformat)
-				{
-					sel = ndx;
-				}
 			}
 		}
 	}
@@ -508,25 +494,24 @@ void CWaveConvert::FillFormats()
 
 
 void CWaveConvert::FillDither()
-//-----------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 	m_CbnDither.CComboBox::ResetContent();
-	int format = m_CbnSampleFormat.GetItemData(m_CbnSampleFormat.GetCurSel()) & 0xffff;
-	if((encTraits->modes & Encoder::ModeEnumerated) && encTraits->formats[format].Sampleformat != SampleFormatInvalid && encTraits->formats[format].Sampleformat != SampleFormatFloat32)
+	int format = m_CbnSampleFormat.GetItemData(m_CbnSampleFormat.GetCurSel()) & 0xffffff;
+	if((encTraits->modes & Encoder::ModeLossless) && !Encoder::Format::FromInt(format).GetSampleFormat().IsFloat())
 	{
 		m_CbnDither.EnableWindow(TRUE);
-		for(int dither = 0; dither < NumDitherModes; ++dither)
+		for(std::size_t dither = 0; dither < DithersOpenMPT::GetNumDithers(); ++dither)
 		{
-			int ndx = m_CbnDither.AddString(mpt::ToCString(Dither::GetModeName((DitherMode)dither) + MPT_USTRING(" dither")));
+			int ndx = m_CbnDither.AddString(mpt::ToCString(DithersOpenMPT::GetModeName(dither) + U_(" dither")));
 			m_CbnDither.SetItemData(ndx, dither);
 		}
 	} else
 	{
 		m_CbnDither.EnableWindow(FALSE);
-		for(int dither = 0; dither < NumDitherModes; ++dither)
+		for(std::size_t dither = 0; dither < DithersOpenMPT::GetNumDithers(); ++dither)
 		{
-			int ndx = m_CbnDither.AddString(mpt::ToCString(Dither::GetModeName(DitherNone) + MPT_USTRING(" dither")));
+			int ndx = m_CbnDither.AddString(mpt::ToCString(DithersOpenMPT::GetModeName(DithersOpenMPT::GetNoDither()) + U_(" dither")));
 			m_CbnDither.SetItemData(ndx, dither);
 		}
 	}
@@ -535,7 +520,6 @@ void CWaveConvert::FillDither()
 
 
 void CWaveConvert::OnFileTypeChanged()
-//------------------------------------
 {
 	SaveEncoderSettings();
 	DWORD_PTR dwFileType = m_CbnFileType.GetItemData(m_CbnFileType.GetCurSel());
@@ -550,7 +534,6 @@ void CWaveConvert::OnFileTypeChanged()
 
 
 void CWaveConvert::OnSamplerateChanged()
-//--------------------------------------
 {
 	SaveEncoderSettings();
 	FillFormats();
@@ -559,7 +542,6 @@ void CWaveConvert::OnSamplerateChanged()
 
 
 void CWaveConvert::OnChannelsChanged()
-//------------------------------------
 {
 	SaveEncoderSettings();
 	FillFormats();
@@ -568,14 +550,12 @@ void CWaveConvert::OnChannelsChanged()
 
 
 void CWaveConvert::OnDitherChanged()
-//----------------------------------
 {
 	SaveEncoderSettings();
 }
 
 
 void CWaveConvert::OnFormatChanged()
-//----------------------------------
 {
 	SaveEncoderSettings();
 	FillDither();
@@ -584,32 +564,39 @@ void CWaveConvert::OnFormatChanged()
 
 
 void CWaveConvert::UpdateDialog()
-//-------------------------------
 {
-	CheckDlgButton(IDC_CHECK1, (m_dwFileLimit) ? BST_CHECKED : 0);
 	CheckDlgButton(IDC_CHECK2, (m_dwSongLimit) ? BST_CHECKED : 0);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT1), (m_dwFileLimit) ? TRUE : FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT2), (m_dwSongLimit) ? TRUE : FALSE);
+	GetDlgItem(IDC_EDIT2)->EnableWindow(m_dwSongLimit ? TRUE : FALSE);
 
 	// Repeat / selection play
-	BOOL bSel = (IsDlgButtonChecked(IDC_RADIO2) != BST_UNCHECKED) ? TRUE : FALSE;
-	GetDlgItem(IDC_EDIT3)->EnableWindow(bSel);
-	GetDlgItem(IDC_EDIT4)->EnableWindow(bSel);
-	GetDlgItem(IDC_EDIT5)->EnableWindow(!bSel);
-	m_SpinLoopCount.EnableWindow(!bSel);
+	int sel = GetCheckedRadioButton(IDC_RADIO1, IDC_RADIO3);
+
+	GetDlgItem(IDC_EDIT3)->EnableWindow(sel == IDC_RADIO2);
+	GetDlgItem(IDC_EDIT4)->EnableWindow(sel == IDC_RADIO2);
+	m_SpinMinOrder.EnableWindow(sel == IDC_RADIO2);
+	m_SpinMaxOrder.EnableWindow(sel == IDC_RADIO2);
+
+	GetDlgItem(IDC_EDIT5)->EnableWindow(sel == IDC_RADIO1);
+	m_SpinLoopCount.EnableWindow(sel == IDC_RADIO1);
+
+	const SEQUENCEINDEX numSequences = m_SndFile.Order.GetNumSequences();
+	const BOOL enableSeq = (numSequences > 1 && sel == IDC_RADIO3) ? TRUE : FALSE;
+	GetDlgItem(IDC_EDIT12)->EnableWindow(enableSeq);
+	GetDlgItem(IDC_EDIT13)->EnableWindow(enableSeq);
+	m_SpinMinSequence.EnableWindow(enableSeq);
+	m_SpinMaxSequence.EnableWindow(enableSeq);
 
 	// No free slots => Cannot do instrument- or channel-based export to sample
-	BOOL canDoMultiExport = (bSel /* normal export */ || m_CbnSampleSlot.GetItemData(0) == 0 /* "free slot" is in list */) ? TRUE : FALSE;
+	BOOL canDoMultiExport = (IsDlgButtonChecked(IDC_RADIO4) != BST_UNCHECKED /* normal export */ || m_CbnSampleSlot.GetItemData(0) == 0 /* "free slot" is in list */) ? TRUE : FALSE;
 	GetDlgItem(IDC_CHECK4)->EnableWindow(canDoMultiExport);
 	GetDlgItem(IDC_CHECK6)->EnableWindow(canDoMultiExport);
 }
 
 
 void CWaveConvert::OnExportModeChanged()
-//--------------------------------------
 {
 	SaveEncoderSettings();
-	bool sampleExport = (IsDlgButtonChecked(IDC_RADIO4) != BST_UNCHECKED);
+	bool sampleExport = (IsDlgButtonChecked(IDC_RADIO5) != BST_UNCHECKED);
 	m_CbnFileType.EnableWindow(sampleExport ? FALSE : TRUE);
 	m_CbnSampleSlot.EnableWindow(sampleExport && !IsDlgButtonChecked(IDC_CHECK4) && !IsDlgButtonChecked(IDC_CHECK6));
 	if(sampleExport)
@@ -629,9 +616,8 @@ void CWaveConvert::OnExportModeChanged()
 
 
 void CWaveConvert::OnSampleSlotChanged()
-//--------------------------------------
 {
-	CheckRadioButton(IDC_RADIO3, IDC_RADIO4, IDC_RADIO4);
+	CheckRadioButton(IDC_RADIO4, IDC_RADIO5, IDC_RADIO5);
 	// When choosing a specific sample slot, we cannot use per-channel or per-instrument export
 	int sel = m_CbnSampleSlot.GetCurSel();
 	if(sel >= 0 && m_CbnSampleSlot.GetItemData(sel) > 0)
@@ -643,29 +629,12 @@ void CWaveConvert::OnSampleSlotChanged()
 }
 
 
-void CWaveConvert::OnCheckSizeLimit()
-//-----------------------------------
-{
-	if (IsDlgButtonChecked(IDC_CHECK1))
-	{
-		m_dwFileLimit = GetDlgItemInt(IDC_EDIT1, NULL, FALSE);
-		if (!m_dwFileLimit)
-		{
-			m_dwFileLimit = 1000;
-			SetDlgItemText(IDC_EDIT1, _T("1000"));
-		}
-	} else m_dwFileLimit = 0;
-	UpdateDialog();
-}
-
-
 void CWaveConvert::OnPlayerOptions()
-//----------------------------------
 {
 	CPropertySheet dlg(_T("Mixer Settings"), this);
 	COptionsMixer mixerpage;
 	dlg.AddPage(&mixerpage);
-#if !defined(NO_REVERB) || !defined(NO_DSP) || !defined(NO_EQ) || !defined(NO_AGC) || !defined(NO_EQ)
+#if !defined(NO_REVERB) || !defined(NO_DSP) || !defined(NO_EQ) || !defined(NO_AGC)
 	COptionsPlayer dsppage;
 	dlg.AddPage(&dsppage);
 #endif
@@ -674,7 +643,6 @@ void CWaveConvert::OnPlayerOptions()
 
 
 void CWaveConvert::OnCheckTimeLimit()
-//-----------------------------------
 {
 	if (IsDlgButtonChecked(IDC_CHECK2))
 	{
@@ -691,7 +659,6 @@ void CWaveConvert::OnCheckTimeLimit()
 
 // Channel render is mutually exclusive with instrument render
 void CWaveConvert::OnCheckChannelMode()
-//-------------------------------------
 {
 	if(IsDlgButtonChecked(IDC_CHECK4) != BST_UNCHECKED)
 	{
@@ -704,7 +671,6 @@ void CWaveConvert::OnCheckChannelMode()
 
 // Channel render is mutually exclusive with instrument render
 void CWaveConvert::OnCheckInstrMode()
-//-----------------------------------
 {
 	if(IsDlgButtonChecked(IDC_CHECK6) != BST_UNCHECKED)
 	{
@@ -716,9 +682,7 @@ void CWaveConvert::OnCheckInstrMode()
 
 
 void CWaveConvert::OnOK()
-//-----------------------
 {
-	if (m_dwFileLimit) m_dwFileLimit = GetDlgItemInt(IDC_EDIT1, NULL, FALSE);
 	if (m_dwSongLimit) m_dwSongLimit = GetDlgItemInt(IDC_EDIT2, NULL, FALSE);
 
 	const bool selection = IsDlgButtonChecked(IDC_RADIO2) != BST_UNCHECKED;
@@ -727,16 +691,28 @@ void CWaveConvert::OnOK()
 		// Play selection
 		m_Settings.minOrder = static_cast<ORDERINDEX>(GetDlgItemInt(IDC_EDIT3, NULL, FALSE));
 		m_Settings.maxOrder = static_cast<ORDERINDEX>(GetDlgItemInt(IDC_EDIT4, NULL, FALSE));
-	}
-	if(!selection || m_Settings.maxOrder < m_Settings.minOrder)
+		if(m_Settings.minOrder > m_Settings.maxOrder)
+			std::swap(m_Settings.minOrder, m_Settings.maxOrder);
+	} else
 	{
 		m_Settings.minOrder = m_Settings.maxOrder = ORDERINDEX_INVALID;
+	}
+	if(IsDlgButtonChecked(IDC_RADIO3))
+	{
+		const UINT maxSequence = m_SndFile.Order.GetNumSequences();
+		m_Settings.minSequence = static_cast<SEQUENCEINDEX>(std::clamp(GetDlgItemInt(IDC_EDIT12, NULL, FALSE), 1u, maxSequence) - 1u);
+		m_Settings.maxSequence = static_cast<SEQUENCEINDEX>(std::clamp(GetDlgItemInt(IDC_EDIT13, NULL, FALSE), 1u, maxSequence) - 1u);
+		if(m_Settings.minSequence > m_Settings.maxSequence)
+			std::swap(m_Settings.minSequence, m_Settings.maxSequence);
+	} else
+	{
+		m_Settings.minSequence = m_Settings.maxSequence = m_SndFile.Order.GetCurrentSequenceIndex();
 	}
 
 	m_Settings.repeatCount = static_cast<uint16>(GetDlgItemInt(IDC_EDIT5, NULL, FALSE));
 	m_Settings.normalize = IsDlgButtonChecked(IDC_CHECK5) != BST_UNCHECKED;
 	m_Settings.silencePlugBuffers = IsDlgButtonChecked(IDC_RENDERSILENCE) != BST_UNCHECKED;
-	m_Settings.outputToSample = IsDlgButtonChecked(IDC_RADIO4) != BST_UNCHECKED;
+	m_Settings.outputToSample = IsDlgButtonChecked(IDC_RADIO5) != BST_UNCHECKED;
 	m_bGivePlugsIdleTime = IsDlgButtonChecked(IDC_GIVEPLUGSIDLETIME) != BST_UNCHECKED;
 	if (m_bGivePlugsIdleTime)
 	{
@@ -758,9 +734,11 @@ void CWaveConvert::OnOK()
 
 	SaveEncoderSettings();
 
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 
 	m_Settings.Tags = FileTags();
+
+	m_Settings.Tags.encoder = Version::Current().GetOpenMPTVersionString();
 
 	if(encSettings.Tags)
 	{
@@ -790,17 +768,17 @@ void CWaveConvert::OnOK()
 
 		m_EditYear.GetWindowText(tmp);
 		m_Settings.Tags.year = mpt::ToUnicode(tmp);
-		if(m_Settings.Tags.year == MPT_USTRING("0"))
+		if(m_Settings.Tags.year == U_("0"))
 		{
 			m_Settings.Tags.year = mpt::ustring();
 		}
 
 		if(!m_SndFile.m_songMessage.empty())
 		{
-			m_Settings.Tags.comments = mpt::ToUnicode(mpt::CharsetLocale, m_SndFile.m_songMessage.GetFormatted(SongMessage::leLF));
+			m_Settings.Tags.comments = mpt::ToUnicode(mpt::Charset::Locale, m_SndFile.m_songMessage.GetFormatted(SongMessage::leLF));
 		}
 
-		m_Settings.Tags.bpm = mpt::ToUString(m_SndFile.GetCurrentBPM());
+		m_Settings.Tags.bpm = mpt::ufmt::val(m_SndFile.GetCurrentBPM());
 
 		SaveTags();
 
@@ -812,32 +790,23 @@ void CWaveConvert::OnOK()
 
 
 void CWaveConvert::SaveEncoderSettings()
-//--------------------------------------
 {
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	EncoderSettingsConf &encSettings = m_Settings.GetEncoderSettings();
 
 	encSettings.Samplerate = static_cast<uint32>(m_CbnSampleRate.GetItemData(m_CbnSampleRate.GetCurSel()));
 	encSettings.Channels = static_cast<uint16>(m_CbnChannels.GetItemData(m_CbnChannels.GetCurSel()));
 	DWORD_PTR dwFormat = m_CbnSampleFormat.GetItemData(m_CbnSampleFormat.GetCurSel());
 
-	if(encTraits->modes & Encoder::ModeEnumerated)
+	if(encTraits->modes & Encoder::ModeLossless)
 	{
-		int format = (int)((dwFormat >> 0) & 0xffff);
-		if(encTraits->formats[format].Sampleformat == SampleFormatInvalid)
-		{
-			m_Settings.FinalSampleFormat = SampleFormatFloat32;
-		} else
-		{
-			m_Settings.FinalSampleFormat = encTraits->formats[format].Sampleformat;
-		}
+		int format = (int)((dwFormat >> 0) & 0xffffff);
 		encSettings.Dither = static_cast<int>(m_CbnDither.GetItemData(m_CbnDither.GetCurSel()));
-		encSettings.Format = format;
-		encSettings.Mode = Encoder::ModeEnumerated;
-		encSettings.Bitrate = encTraits->formats[format].Bitrate != 0 ? encTraits->formats[format].Bitrate : encTraits->defaultBitrate;
+		encSettings.Format2 = Encoder::Format::FromInt(format);
+		encSettings.Mode = Encoder::ModeLossless;
+		encSettings.Bitrate = 0;
 		encSettings.Quality = encTraits->defaultQuality;
 	} else
 	{
-		m_Settings.FinalSampleFormat = SampleFormatFloat32;
 		encSettings.Dither = static_cast<int>(m_CbnDither.GetItemData(m_CbnDither.GetCurSel()));
 		Encoder::Mode mode = (Encoder::Mode)((dwFormat >> 24) & 0xff);
 		int quality = (int)((dwFormat >> 0) & 0xff);
@@ -845,7 +814,7 @@ void CWaveConvert::SaveEncoderSettings()
 		encSettings.Mode = mode;
 		encSettings.Bitrate = bitrate;
 		encSettings.Quality = static_cast<float>(quality) * 0.01f;
-		encSettings.Format = -1;
+		encSettings.Format2 = { Encoder::Format::Encoding::Float, 32, mpt::get_endian() };
 	}
 	
 	encSettings.Cues = IsDlgButtonChecked(IDC_CHECK3) ? true : false;
@@ -856,7 +825,6 @@ void CWaveConvert::SaveEncoderSettings()
 
 
 std::size_t CWaveConvertSettings::FindEncoder(const mpt::ustring &name) const
-//---------------------------------------------------------------------------
 {
 	for(std::size_t i = 0; i < EncoderFactories.size(); ++i)
 	{
@@ -865,50 +833,53 @@ std::size_t CWaveConvertSettings::FindEncoder(const mpt::ustring &name) const
 			return i;
 		}
 	}
-	return EncoderFactories.size() > 2 ? 2 : 0;
+	return 0;
 }
 
 
 void CWaveConvertSettings::SelectEncoder(std::size_t index)
-//---------------------------------------------------------
 {
-	ASSERT(!EncoderFactories.empty());
-	ASSERT(index < EncoderFactories.size());
+	MPT_ASSERT(!EncoderFactories.empty());
+	MPT_ASSERT(index < EncoderFactories.size());
 	EncoderIndex = index;
 	EncoderName = EncoderFactories[EncoderIndex]->GetTraits().encoderSettingsName;
 }
 
 
 EncoderFactoryBase *CWaveConvertSettings::GetEncoderFactory() const
-//-----------------------------------------------------------------
 {
-	ASSERT(!EncoderFactories.empty());
+	MPT_ASSERT(!EncoderFactories.empty());
 	return EncoderFactories[EncoderIndex];
 }
 
 
 const Encoder::Traits *CWaveConvertSettings::GetTraits() const
-//------------------------------------------------------------
 {
-	ASSERT(!EncoderFactories.empty());
+	MPT_ASSERT(!EncoderFactories.empty());
 	return &EncoderFactories[EncoderIndex]->GetTraits();
 }
 
 
-Encoder::Settings &CWaveConvertSettings::GetEncoderSettings() const
-//-----------------------------------------------------------------
+EncoderSettingsConf &CWaveConvertSettings::GetEncoderSettings() const
 {
-	ASSERT(!EncoderSettings.empty());
+	MPT_ASSERT(!EncoderSettings.empty());
 	return *(EncoderSettings[EncoderIndex]);
 }
 
 
+Encoder::Settings CWaveConvertSettings::GetEncoderSettingsWithDetails() const
+{
+	MPT_ASSERT(!EncoderSettings.empty());
+	Encoder::Settings settings = static_cast<Encoder::Settings>(*(EncoderSettings[EncoderIndex]));
+	settings.Details = static_cast<Encoder::StreamSettings>(TrackerSettings::Instance().ExportStreamEncoderSettings);
+	return settings;
+}
+
+
 CWaveConvertSettings::CWaveConvertSettings(SettingsContainer &conf, const std::vector<EncoderFactoryBase*> &encFactories)
-//-----------------------------------------------------------------------------------------------------------------------
 	: EncoderFactories(encFactories)
-	, EncoderName(conf, "Export", encFactories.size() > 2 ? "LossyEncoder" : "LosslessEncoder", MPT_USTRING(""))
+	, EncoderName(conf, U_("Export"), U_("Encoder"), U_(""))
 	, EncoderIndex(FindEncoder(EncoderName))
-	, FinalSampleFormat(SampleFormatInt16)
 	, storedTags(conf)
 	, repeatCount(0)
 	, minOrder(ORDERINDEX_INVALID), maxOrder(ORDERINDEX_INVALID)
@@ -917,24 +888,23 @@ CWaveConvertSettings::CWaveConvertSettings(SettingsContainer &conf, const std::v
 	, silencePlugBuffers(false)
 	, outputToSample(false)
 {
-	for(std::size_t i = 0; i < EncoderFactories.size(); ++i)
+	Tags.encoder = Version::Current().GetOpenMPTVersionString();
+	for(const auto & factory : EncoderFactories)
 	{
-		const Encoder::Traits &encTraits = EncoderFactories[i]->GetTraits();
+		const Encoder::Traits &encTraits = factory->GetTraits();
 		EncoderSettings.push_back(
-			std::shared_ptr<Encoder::Settings>(
-				new Encoder::Settings(
-					conf,
-					encTraits.encoderSettingsName,
-					encTraits.canCues,
-					encTraits.canTags,
-					encTraits.defaultSamplerate,
-					encTraits.defaultChannels,
-					encTraits.defaultMode,
-					encTraits.defaultBitrate,
-					encTraits.defaultQuality,
-					encTraits.defaultFormat,
-					encTraits.defaultDitherType
-				)
+			std::make_unique<EncoderSettingsConf>(
+				conf,
+				encTraits.encoderSettingsName,
+				encTraits.canCues,
+				encTraits.canTags,
+				encTraits.defaultSamplerate,
+				encTraits.defaultChannels,
+				encTraits.defaultMode,
+				encTraits.defaultBitrate,
+				encTraits.defaultQuality,
+				encTraits.defaultFormat,
+				encTraits.defaultDitherType
 			)
 		);
 	}
@@ -946,62 +916,47 @@ CWaveConvertSettings::CWaveConvertSettings(SettingsContainer &conf, const std::v
 // CDoWaveConvert: save a mod as a wave file
 
 void CDoWaveConvert::Run()
-//------------------------
 {
-	static char buffer[MIXBUFFERSIZE * 4 * 4]; // channels * sizeof(biggestsample)
-	static float floatbuffer[MIXBUFFERSIZE * 4]; // channels
-	static int mixbuffer[MIXBUFFERSIZE * 4]; // channels
 
-	TCHAR s[80];
-	UINT ok = IDOK, pos = 0;
-	uint64 ullSamples = 0, ullMaxSamples;
+	UINT ok = IDOK;
+	uint64 ullSamples = 0;
 
-	if(m_lpszFileName.empty())
-	{
-		EndDialog(IDCANCEL);
-		return;
-	}
-
+	std::vector<float> normalizeBufferData;
+	float *normalizeBuffer = nullptr;
 	float normalizePeak = 0.0f;
-	const mpt::PathString normalizeFileName = mpt::CreateTempFileName(MPT_PATHSTRING("OpenMPT"));
-	mpt::fstream normalizeFile;
+	const mpt::PathString normalizeFileName = mpt::TemporaryPathname{}.GetPathname();
+	std::optional<mpt::IO::fstream> normalizeFile;
 	if(m_Settings.normalize)
 	{
+		normalizeBufferData.resize(MIXBUFFERSIZE * 4);
+		normalizeBuffer = normalizeBufferData.data();
 		// Ensure this temporary file is marked as temporary in the file system, to increase the chance it will never be written to disk
-		::CloseHandle(::CreateFileW(normalizeFileName.AsNative().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL));
-
-		normalizeFile.open(normalizeFileName, std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
+		if(HANDLE hFile = ::CreateFile(normalizeFileName.AsNative().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL); hFile != INVALID_HANDLE_VALUE)
+		{
+			::CloseHandle(hFile);
+		}
+		normalizeFile.emplace(normalizeFileName, std::ios::binary | std::ios::in | std::ios::out | std::ios::trunc);
 	}
 
-	mpt::ofstream fileStream(m_lpszFileName, std::ios::binary | std::ios::trunc);
-
-	if(!fileStream)
-	{
-		Reporting::Error("Could not open file for writing. Is it open in another application?");
-		EndDialog(IDCANCEL);
-		return;
-	}
-
-	Encoder::Settings &encSettings = m_Settings.GetEncoderSettings();
+	const Encoder::Settings encSettings = m_Settings.GetEncoderSettingsWithDetails();
 	const uint32 samplerate = encSettings.Samplerate;
 	const uint16 channels = encSettings.Channels;
 
 	ASSERT(m_Settings.GetEncoderFactory() && m_Settings.GetEncoderFactory()->IsAvailable());
-	IAudioStreamEncoder *fileEnc = m_Settings.GetEncoderFactory()->ConstructStreamEncoder(fileStream);
 
 	// Silence mix buffer of plugins, for plugins that don't clear their reverb buffers and similar stuff when they are reset
 #ifndef NO_PLUGINS
 	if(m_Settings.silencePlugBuffers)
 	{
 		SetText(_T("Clearing plugin buffers"));
-		for(PLUGINDEX i = 0; i < MAX_MIXPLUGINS; i++)
+		for(auto &plug : m_SndFile.m_MixPlugins)
 		{
-			if(m_SndFile.m_MixPlugins[i].pMixPlugin != nullptr)
+			if(plug.pMixPlugin != nullptr)
 			{
 				// Render up to 20 seconds per plugin
 				for(int j = 0; j < 20; j++)
 				{
-					const float maxVal = m_SndFile.m_MixPlugins[i].pMixPlugin->RenderSilence(samplerate);
+					const float maxVal = plug.pMixPlugin->RenderSilence(samplerate);
 					if(maxVal <= FLT_EPSILON)
 					{
 						break;
@@ -1019,7 +974,6 @@ void CDoWaveConvert::Run()
 	}
 #endif // NO_PLUGINS
 
-	MixerSettings oldmixersettings = m_SndFile.m_MixerSettings;
 	MixerSettings mixersettings = TrackerSettings::Instance().GetMixerSettings();
 	mixersettings.m_nMaxMixChannels = MAX_CHANNELS; // always use max mixing channels when rendering
 	mixersettings.gdwMixingFreq = samplerate;
@@ -1032,71 +986,119 @@ void CDoWaveConvert::Run()
 #endif
 	}
 
-	Dither dither(theApp.BestPRNG());
-	dither.SetMode((DitherMode)encSettings.Dither.Get());
+	DithersOpenMPT dithers(theApp.PRNG(), encSettings.Dither, encSettings.Channels);
 
 	m_SndFile.ResetChannels();
 	m_SndFile.SetMixerSettings(mixersettings);
 	m_SndFile.SetResamplerSettings(TrackerSettings::Instance().GetResamplerSettings());
 	m_SndFile.InitPlayer(true);
-	if(!m_dwFileLimit) m_dwFileLimit = Util::MaxValueOfType(m_dwFileLimit) >> 10;
-	m_dwFileLimit <<= 10;
 
-	fileEnc->SetFormat(encSettings);
-	if(encSettings.Tags)
+	// Tags must be known at the stream start,
+	// so that the encoder class could write them before audio data if mandated by the format,
+	// otherwise they should just be cached by the encoder.
+	std::unique_ptr<IAudioStreamEncoder> fileEnc = m_Settings.GetEncoderFactory()->ConstructStreamEncoder(fileStream, encSettings, m_Settings.Tags);
+
+	std::variant<
+		std::unique_ptr<std::array<double, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<float, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<int32, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<int24, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<int16, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<int8, MIXBUFFERSIZE * 4>>,
+		std::unique_ptr<std::array<uint8, MIXBUFFERSIZE * 4>>> bufferData;
+	union AnyBufferSamplePointer
 	{
-		// Tags must be written before audio data,
-		// so that the encoder class could write them before audio data if mandated by the format,
-		// otherwise they should just be cached by the encoder.
-		fileEnc->WriteMetatags(m_Settings.Tags);
+		double *float64;
+		float *float32;
+		int32 *int32;
+		int24 *int24;
+		int16 *int16;
+		int8 *int8;
+		uint8 *uint8;
+		void *any;
+	};
+	AnyBufferSamplePointer buffer;
+	buffer.any = nullptr;
+	switch(fileEnc->GetSampleFormat())
+	{
+	case SampleFormat::Float64:
+		bufferData = std::make_unique<std::array<double, MIXBUFFERSIZE * 4>>();
+		buffer.float64 = std::get<0>(bufferData)->data();
+		break;
+	case SampleFormat::Float32:
+		bufferData = std::make_unique<std::array<float, MIXBUFFERSIZE * 4>>();
+		buffer.float32 = std::get<1>(bufferData)->data();
+		break;
+	case SampleFormat::Int32:
+		bufferData = std::make_unique<std::array<int32, MIXBUFFERSIZE * 4>>();
+		buffer.int32 = std::get<2>(bufferData)->data();
+		break;
+	case SampleFormat::Int24:
+		bufferData = std::make_unique<std::array<int24, MIXBUFFERSIZE * 4>>();
+		buffer.int24 = std::get<3>(bufferData)->data();
+		break;
+	case SampleFormat::Int16:
+		bufferData = std::make_unique<std::array<int16, MIXBUFFERSIZE * 4>>();
+		buffer.int16 = std::get<4>(bufferData)->data();
+		break;
+	case SampleFormat::Int8:
+		bufferData = std::make_unique<std::array<int8, MIXBUFFERSIZE * 4>>();
+		buffer.int8 = std::get<5>(bufferData)->data();
+		break;
+	case SampleFormat::Unsigned8:
+		bufferData = std::make_unique<std::array<uint8, MIXBUFFERSIZE * 4>>();
+		buffer.uint8 = std::get<6>(bufferData)->data();
+		break;
 	}
 
-	ullMaxSamples = m_dwFileLimit / (channels * ((m_Settings.FinalSampleFormat.GetBitsPerSample()+7) / 8));
+	uint64 ullMaxSamples = uint64_max / (channels * ((fileEnc->GetSampleFormat().GetBitsPerSample()+7) / 8));
 	if (m_dwSongLimit)
 	{
-		uint64 l = (uint64)m_dwSongLimit * samplerate;
-		if (l < ullMaxSamples) ullMaxSamples = l;
+		LimitMax(ullMaxSamples, m_dwSongLimit * samplerate);
 	}
 
 	// Calculate maximum samples
-	uint64 max = ullMaxSamples;
-	uint64 l = static_cast<uint64>(m_SndFile.GetSongTime() + 0.5) * samplerate * std::max<uint64>(1, 1 + m_SndFile.GetRepeatCount());
+	uint64 max = m_dwSongLimit ? ullMaxSamples : uint64_max;
 
 	// Reset song position tracking
 	m_SndFile.ResetPlayPos();
 	m_SndFile.m_SongFlags.reset(SONG_PATTERNLOOP);
 	ORDERINDEX startOrder = 0;
+	GetLengthTarget target;
 	if(m_Settings.minOrder != ORDERINDEX_INVALID && m_Settings.maxOrder != ORDERINDEX_INVALID)
 	{
-		startOrder = m_Settings.minOrder;
-		m_SndFile.m_nMaxOrderPosition = m_Settings.maxOrder + 1;
 		m_SndFile.SetRepeatCount(0);
-
-		// Weird calculations ahead...
-		ORDERINDEX dwOrds = m_SndFile.Order.GetLengthFirstEmpty();
-		PATTERNINDEX maxPatterns = m_Settings.maxOrder - m_Settings.minOrder + 1;
-		if((maxPatterns < dwOrds) && (dwOrds > 0)) l = (l * maxPatterns) / dwOrds;
+		startOrder = m_Settings.minOrder;
+		ORDERINDEX endOrder = m_Settings.maxOrder;
+		while(!m_SndFile.Order().IsValidPat(endOrder) && endOrder > startOrder)
+		{
+			endOrder--;
+		}
+		if(m_SndFile.Order().IsValidPat(endOrder))
+		{
+			target = GetLengthTarget(endOrder, m_SndFile.Patterns[m_SndFile.Order()[endOrder]].GetNumRows() - 1);
+		}
+		target.StartPos(m_SndFile.Order.GetCurrentSequenceIndex(), startOrder, 0);
+		m_SndFile.m_nMaxOrderPosition = endOrder + 1;
 	} else
 	{
 		m_SndFile.SetRepeatCount(std::max(0, m_Settings.repeatCount - 1));
 	}
+	uint64 l = mpt::saturate_round<uint64>(m_SndFile.GetLength(eNoAdjust, target).front().duration * samplerate * (1 + m_SndFile.GetRepeatCount()));
+
 	m_SndFile.SetCurrentOrder(startOrder);
 	m_SndFile.GetLength(eAdjust, GetLengthTarget(startOrder, 0));	// adjust playback variables / visited rows vector
 	m_SndFile.m_PlayState.m_nCurrentOrder = startOrder;
 
 	if (l < max) max = l;
 
-	SetRange(0, static_cast<uint32>(max >> 14));
+	SetRange(0, max);
+	EnableTaskbarProgress();
 
 	// No pattern cue points yet
-	m_SndFile.m_PatternCuePoints.clear();
-	m_SndFile.m_PatternCuePoints.reserve(m_SndFile.Order.GetLength());
-
-	CString progressStr;
-	if(m_Settings.normalize)
-		progressStr =  _T("Rendering ") + caption + _T("... (%umn%02us, %umn%02us remaining)");
-	else
-		progressStr =  _T("Writing ") + caption + _T("... (%lluKB, %umn%02us, %umn%02us remaining)");
+	std::vector<PatternCuePoint> patternCuePoints;
+	patternCuePoints.reserve(m_SndFile.Order().size());
+	m_SndFile.m_PatternCuePoints = &patternCuePoints;
 
 	// Process the conversion
 
@@ -1111,26 +1113,42 @@ void CDoWaveConvert::Run()
 	m_SndFile.m_SongFlags.reset(SONG_STEP | SONG_PATTERNLOOP);
 	mainFrame->InitRenderer(&m_SndFile);
 
-	ITaskbarList3 *taskBarList = nullptr;
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_ALL, IID_ITaskbarList3, (void**)&taskBarList);
-	if(taskBarList != nullptr)
-	{
-		taskBarList->SetProgressState(mainFrame->m_hWnd, TBPF_NORMAL);
-	}
-
-	for (UINT n = 0; ; n++)
+	while(true)
 	{
 		UINT lRead = 0;
-		if(m_Settings.normalize || m_Settings.FinalSampleFormat == SampleFormatFloat32)
+		if(m_Settings.normalize)
 		{
-			lRead = ReadInterleaved(m_SndFile, floatbuffer, MIXBUFFERSIZE, SampleFormatFloat32, dither);
+			lRead = ReadInterleaved(m_SndFile, normalizeBuffer, channels, MIXBUFFERSIZE, dithers);
 		} else
 		{
-			lRead = ReadInterleaved(m_SndFile, buffer, MIXBUFFERSIZE, m_Settings.FinalSampleFormat, dither);
+			switch(fileEnc->GetSampleFormat())
+			{
+			case SampleFormat::Float64:
+				lRead = ReadInterleaved(m_SndFile, buffer.float64, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Float32:
+				lRead = ReadInterleaved(m_SndFile, buffer.float32, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Int32:
+				lRead = ReadInterleaved(m_SndFile, buffer.int32, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Int24:
+				lRead = ReadInterleaved(m_SndFile, buffer.int24, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Int16:
+				lRead = ReadInterleaved(m_SndFile, buffer.int16, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Int8:
+				lRead = ReadInterleaved(m_SndFile, buffer.int8, channels, MIXBUFFERSIZE, dithers);
+				break;
+			case SampleFormat::Unsigned8:
+				lRead = ReadInterleaved(m_SndFile, buffer.uint8, channels, MIXBUFFERSIZE, dithers);
+				break;
+			}
 		}
 
 		// Process cue points (add base offset), if there are any to process.
-		for(auto iter = m_SndFile.m_PatternCuePoints.rbegin(); iter != m_SndFile.m_PatternCuePoints.rend(); ++iter)
+		for(auto iter = patternCuePoints.rbegin(); iter != patternCuePoints.rend(); ++iter)
 		{
 			if(iter->processed)
 			{
@@ -1154,7 +1172,7 @@ void CDoWaveConvert::Run()
 		{
 
 			std::size_t countSamples = lRead * m_SndFile.m_MixerSettings.gnChannels;
-			const float *src = floatbuffer;
+			const float *src = normalizeBuffer;
 			while(countSamples--)
 			{
 				const float val = *src;
@@ -1163,35 +1181,52 @@ void CDoWaveConvert::Run()
 				src++;
 			}
 
-			normalizeFile.write(reinterpret_cast<const char*>(floatbuffer), lRead * m_SndFile.m_MixerSettings.gnChannels * sizeof(float));
-			if(!normalizeFile)
+			if(!mpt::IO::WriteRaw(*normalizeFile, mpt::as_span(reinterpret_cast<const std::byte*>(normalizeBuffer), lRead * m_SndFile.m_MixerSettings.gnChannels * sizeof(float))))
+			{
 				break;
+			}
 
 		} else
 		{
 
-			const std::streampos oldPos = fileStream.tellp();
-			if(m_Settings.FinalSampleFormat == SampleFormatFloat32)
+			const std::streamoff oldPos = static_cast<std::streamoff>(fileStream.tellp());
+			switch(fileEnc->GetSampleFormat())
 			{
-				fileEnc->WriteInterleaved(lRead, floatbuffer);
-			} else
-			{
-				fileEnc->WriteInterleavedConverted(lRead, buffer);
+			case SampleFormat::Float64:
+				fileEnc->WriteInterleaved(lRead, buffer.float64);
+				break;
+			case SampleFormat::Float32:
+				fileEnc->WriteInterleaved(lRead, buffer.float32);
+				break;
+			case SampleFormat::Int32:
+				fileEnc->WriteInterleaved(lRead, buffer.int32);
+				break;
+			case SampleFormat::Int24:
+				fileEnc->WriteInterleaved(lRead, buffer.int24);
+				break;
+			case SampleFormat::Int16:
+				fileEnc->WriteInterleaved(lRead, buffer.int16);
+				break;
+			case SampleFormat::Int8:
+				fileEnc->WriteInterleaved(lRead, buffer.int8);
+				break;
+			case SampleFormat::Unsigned8:
+				fileEnc->WriteInterleaved(lRead, buffer.uint8);
+				break;
 			}
-			const std::streampos newPos = fileStream.tellp();
+			const std::streamoff newPos = static_cast<std::streamoff>(fileStream.tellp());
 			bytesWritten += static_cast<uint64>(newPos - oldPos);
 
-			if(bytesWritten >= m_dwFileLimit)
-			{
-				break;
-			} else if(!fileStream)
+			if(!fileStream)
 			{
 				break;
 			}
 
 		}
-		if (ullSamples >= ullMaxSamples)
+		if(m_dwSongLimit && (ullSamples >= ullMaxSamples))
+		{
 			break;
+		}
 
 		auto currentTime = timeGetTime();
 		if((currentTime - prevTime) >= 16)
@@ -1206,21 +1241,14 @@ void CDoWaveConvert::Run()
 			}
 
 			if(m_Settings.normalize)
-				_stprintf(s, progressStr, seconds / 60, seconds % 60, timeRemaining / 60, timeRemaining % 60u);
-			else
-				_stprintf(s, progressStr, bytesWritten >> 10, seconds / 60, seconds % 60u, timeRemaining / 60, timeRemaining % 60u);
-			SetText(s);
-
-			if(static_cast<uint32>(ullSamples >> 14) != pos)
 			{
-				pos = static_cast<uint32>(ullSamples >> 14);
-				SetProgress(pos);
+				SetText(MPT_CFORMAT("Rendering {}... ({}mn{}s, {}mn{}s remaining)")(caption, seconds / 60, mpt::ufmt::dec0<2>(seconds % 60u), timeRemaining / 60, mpt::ufmt::dec0<2>(timeRemaining % 60u)));
+			} else
+			{
+				SetText(MPT_CFORMAT("Writing {}... ({}kB, {}mn{}s, {}mn{}s remaining)")(caption, bytesWritten >> 10, seconds / 60, mpt::ufmt::dec0<2>(seconds % 60u), timeRemaining / 60, mpt::ufmt::dec0<2>(timeRemaining % 60u)));
 			}
 
-			if(taskBarList != nullptr)
-			{
-				taskBarList->SetProgressValue(mainFrame->m_hWnd, ullSamples, max);
-			}
+			SetProgress(ullSamples);
 		}
 		ProcessMessages();
 
@@ -1237,53 +1265,92 @@ void CDoWaveConvert::Run()
 
 	if(m_Settings.normalize)
 	{
-		SetRange(0, 100);
-
 		const float normalizeFactor = (normalizePeak != 0.0f) ? (1.0f / normalizePeak) : 1.0f;
 
 		const uint64 framesTotal = ullSamples;
 		int lastPercent = -1;
 
-		normalizeFile.seekp(0);
+		mpt::IO::SeekAbsolute(*normalizeFile, 0);
 
 		uint64 framesProcessed = 0;
 		uint64 framesToProcess = framesTotal;
+
+		SetRange(0, framesTotal);
+
 		while(framesToProcess)
 		{
-			const std::size_t framesChunk = std::min<std::size_t>(mpt::saturate_cast<std::size_t>(framesToProcess), MIXBUFFERSIZE);
+			const std::size_t framesChunk = std::min(mpt::saturate_cast<std::size_t>(framesToProcess), std::size_t(MIXBUFFERSIZE));
 			const uint32 samplesChunk = static_cast<uint32>(framesChunk * channels);
 			
-			normalizeFile.read(reinterpret_cast<char*>(floatbuffer), samplesChunk * sizeof(float));
-			if(normalizeFile.gcount() != static_cast<std::streamsize>(samplesChunk * sizeof(float)))
+			const std::size_t bytes = samplesChunk * sizeof(float);
+			if(mpt::IO::ReadRaw(*normalizeFile, mpt::as_span(reinterpret_cast<std::byte*>(normalizeBuffer), bytes)).size() != bytes)
+			{
 				break;
+			}
 
 			for(std::size_t i = 0; i < samplesChunk; ++i)
 			{
-				floatbuffer[i] *= normalizeFactor;
+				normalizeBuffer[i] *= normalizeFactor;
 			}
 
-			const std::streampos oldPos = fileStream.tellp();
-			if(m_Settings.FinalSampleFormat == SampleFormatFloat32)
-			{
-				fileEnc->WriteInterleaved(framesChunk, floatbuffer);
-			} else
-			{
-				// Convert float buffer to mixbuffer format so we can apply dither.
-				// This can probably be changed in the future when dither supports floating point input directly.
-				FloatToMonoMix(floatbuffer, mixbuffer, samplesChunk, MIXING_SCALEF);
-				dither.Process(mixbuffer, framesChunk, channels, m_Settings.FinalSampleFormat.GetBitsPerSample());
-				switch(m_Settings.FinalSampleFormat.value)
+			const std::streamoff oldPos = static_cast<std::streamoff>(fileStream.tellp());
+			std::visit(
+				[&](auto& ditherInstance)
 				{
-					case SampleFormatUnsigned8: ConvertInterleavedFixedPointToInterleaved<MIXING_FRACTIONAL_BITS,false>(reinterpret_cast<uint8*>(buffer), mixbuffer, channels, framesChunk); break;
-					case SampleFormatInt16:     ConvertInterleavedFixedPointToInterleaved<MIXING_FRACTIONAL_BITS,false>(reinterpret_cast<int16*>(buffer), mixbuffer, channels, framesChunk); break;
-					case SampleFormatInt24:     ConvertInterleavedFixedPointToInterleaved<MIXING_FRACTIONAL_BITS,false>(reinterpret_cast<int24*>(buffer), mixbuffer, channels, framesChunk); break;
-					case SampleFormatInt32:     ConvertInterleavedFixedPointToInterleaved<MIXING_FRACTIONAL_BITS,false>(reinterpret_cast<int32*>(buffer), mixbuffer, channels, framesChunk); break;
-					default: ASSERT(false); break;
-				}
-				fileEnc->WriteInterleavedConverted(framesChunk, buffer);
+					switch(fileEnc->GetSampleFormat())
+					{
+					case SampleFormat::Unsigned8:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<uint8>(buffer.uint8, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Int8:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<int8>(buffer.int8, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Int16:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<int16>(buffer.int16, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Int24:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<int24>(buffer.int24, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Int32:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<int32>(buffer.int32, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Float32:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<float>(buffer.float32, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					case SampleFormat::Float64:
+						ConvertBufferMixInternalToBuffer<false>(mpt::audio_span_interleaved<double>(buffer.float64, channels, framesChunk), mpt::audio_span_interleaved<const MixSampleFloat>(normalizeBuffer, channels, framesChunk), ditherInstance, channels, framesChunk);
+						break;
+					default: MPT_ASSERT_NOTREACHED(); break;
+					}
+				},
+				dithers.Variant()
+			);
+			switch(fileEnc->GetSampleFormat())
+			{
+			case SampleFormat::Float64:
+				fileEnc->WriteInterleaved(framesChunk, buffer.float64);
+				break;
+			case SampleFormat::Float32:
+				fileEnc->WriteInterleaved(framesChunk, buffer.float32);
+				break;
+			case SampleFormat::Int32:
+				fileEnc->WriteInterleaved(framesChunk, buffer.int32);
+				break;
+			case SampleFormat::Int24:
+				fileEnc->WriteInterleaved(framesChunk, buffer.int24);
+				break;
+			case SampleFormat::Int16:
+				fileEnc->WriteInterleaved(framesChunk, buffer.int16);
+				break;
+			case SampleFormat::Int8:
+				fileEnc->WriteInterleaved(framesChunk, buffer.int8);
+				break;
+			case SampleFormat::Unsigned8:
+				fileEnc->WriteInterleaved(framesChunk, buffer.uint8);
+				break;
 			}
-			const std::streampos newPos = fileStream.tellp();
-			bytesWritten += static_cast<std::size_t>(newPos - oldPos);
+			const std::streamoff newPos = static_cast<std::streamoff>(fileStream.tellp());
+			bytesWritten += static_cast<uint64>(newPos - oldPos);
 
 			auto currentTime = timeGetTime();
 			if((currentTime - prevTime) >= 16)
@@ -1293,15 +1360,9 @@ void CDoWaveConvert::Run()
 				int percent = static_cast<int>(100 * framesProcessed / framesTotal);
 				if(percent != lastPercent)
 				{
-					_stprintf(s, _T("Normalizing... (%d%%)"), percent);
-					SetText(s);
-					SetProgress(percent);
+					SetText(MPT_CFORMAT("Normalizing... ({}%)")(percent));
+					SetProgress(framesProcessed);
 					lastPercent = percent;
-
-					if(taskBarList != nullptr)
-					{
-						taskBarList->SetProgressValue(mainFrame->m_hWnd, percent, 100);
-					}
 				}
 				ProcessMessages();
 			}
@@ -1310,12 +1371,12 @@ void CDoWaveConvert::Run()
 			framesToProcess -= framesChunk;
 		}
 
-		normalizeFile.flush();
-		normalizeFile.close();
+		mpt::IO::Flush(*normalizeFile);
+		normalizeFile.reset();
 		for(int retry=0; retry<10; retry++)
 		{
 			// stupid virus scanners
-			if(DeleteFileW(normalizeFileName.AsNative().c_str()) != EACCES)
+			if(DeleteFile(normalizeFileName.AsNative().c_str()) != EACCES)
 			{
 				break;
 			}
@@ -1324,33 +1385,24 @@ void CDoWaveConvert::Run()
 
 	}
 
-	if(m_SndFile.m_PatternCuePoints.size() > 0)
+	if(!patternCuePoints.empty())
 	{
 		if(encSettings.Cues)
 		{
 			std::vector<uint64> cues;
-			cues.reserve(m_SndFile.m_PatternCuePoints.size());
-			for(const auto &cue : m_SndFile.m_PatternCuePoints)
+			cues.reserve(patternCuePoints.size());
+			for(const auto &cue : patternCuePoints)
 			{
-				cues.push_back(static_cast<uint32>(cue.offset));
+				cues.push_back(cue.offset);
 			}
 			fileEnc->WriteCues(cues);
 		}
-		m_SndFile.m_PatternCuePoints.clear();
 	}
+	m_SndFile.m_PatternCuePoints = nullptr;
 
-	fileEnc->Finalize();
-	delete fileEnc;
+	fileEnc->WriteFinalize();
+
 	fileEnc = nullptr;
-
-	fileStream.flush();
-	fileStream.close();
-
-	if(taskBarList)
-	{
-		taskBarList->SetProgressState(mainFrame->m_hWnd, TBPF_NOPROGRESS);
-		taskBarList->Release();
-	}
 
 	CMainFrame::UpdateAudioParameters(m_SndFile, TRUE);
 	EndDialog(ok);

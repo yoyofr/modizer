@@ -16,6 +16,8 @@
 #ifndef MODPLUG_TRACKER
 
 
+#include "mpt/string/utility.hpp"
+
 #include <exception>
 #include <iostream>
 
@@ -28,36 +30,79 @@ OPENMPT_NAMESPACE_BEGIN
 namespace Test {
 
 
+
+void mpt_test_reporter::case_run(const mpt::source_location& loc)
+{
+	std::cout << "TEST..: " << MPT_AFORMAT("{}({}):")(loc.file_name() ? loc.file_name() : "", loc.line()) << ": " << std::endl;
+}
+
+void mpt_test_reporter::case_run(const mpt::source_location& loc, const char* text_e)
+{
+	std::cout << "TEST..: " << MPT_AFORMAT("{}({}): {}")(loc.file_name() ? loc.file_name() : "", loc.line(), text_e) << ": " << std::endl;
+}
+
+void mpt_test_reporter::case_run(const mpt::source_location& loc, const char* text_ex, const char* text_e)
+{
+	if(text_ex)
+	{
+		std::cout << "TEST..: " << MPT_AFORMAT("{}({}): {} throws {}")(loc.file_name() ? loc.file_name() : "", loc.line(), text_e, text_ex) << ": " << std::endl;
+	} else
+	{
+		std::cout << "TEST..: " << MPT_AFORMAT("{}({}): {} throws")(loc.file_name() ? loc.file_name() : "", loc.line(), text_e) << ": " << std::endl;
+	}
+}
+
+void mpt_test_reporter::case_run(const mpt::source_location& loc, const char* text_a, const char* text_cmp, const char* text_b)
+{
+	std::cout << "TEST..: " << MPT_AFORMAT("{}({}): {} {} {}")(loc.file_name() ? loc.file_name() : "", loc.line(), text_a, text_cmp, text_b) << ": " << std::endl;
+}
+
+void mpt_test_reporter::case_result(const mpt::source_location& loc, const mpt::test::result& result)
+{
+	MPT_UNUSED(loc);
+	if(std::holds_alternative<mpt::test::result_success>(result.info))
+	{
+		std::cout << "RESULT: PASS" << std::endl;
+	} else if(std::holds_alternative<mpt::test::result_failure>(result.info))
+	{
+		fail_count++;
+		std::cout << "RESULT: FAIL" << std::endl;
+		std::cout.flush();
+		std::cerr << "FAIL: " << "FAILURE: " << std::get<mpt::test::result_failure>(result.info).text << std::endl;
+		std::cerr.flush();
+	} else if(std::holds_alternative<mpt::test::result_unexpected_exception>(result.info))
+	{
+		fail_count++;
+		std::cout << "RESULT: FAIL" << std::endl;
+		std::cout.flush();
+		std::cerr << "FAIL: " << "UNEXPECTED EXCEPTION: " << std::get<mpt::test::result_unexpected_exception>(result.info).text << std::endl;
+		std::cerr.flush();
+	} else
+	{
+		fail_count++;
+		std::cout << "RESULT: FAIL" << std::endl;
+		std::cout.flush();
+		std::cerr << "FAIL: " << "UNKOWN" << std::endl;
+		std::cerr.flush();
+	}
+}
+
+
+
 int fail_count = 0;
 
 
 static std::string remove_newlines(std::string str)
 {
-	return mpt::String::Replace(mpt::String::Replace(str, "\n", " "), "\r", " ");
+	return mpt::replace(mpt::replace(str, std::string("\n"), std::string(" ")), std::string("\r"), std::string(" "));
 }
 
 
-Context::Context(const char * file, int line)
-	: file(file)
-	, line(line)
-{
-	return;
-}
-
-
-Context::Context(const Context &c)
-	: file(c.file)
-	, line(c.line)
-{
-	return;
-}
-
-
-Testcase::Testcase(Fatality fatality, Verbosity verbosity, const char * const desc, const Context &context)
+Testcase::Testcase(Fatality fatality, Verbosity verbosity, const char * const desc, const mpt::source_location &loc)
 	: fatality(fatality)
 	, verbosity(verbosity)
 	, desc(desc)
-	, context(context)
+	, loc(loc)
 {
 	return;
 }
@@ -65,7 +110,7 @@ Testcase::Testcase(Fatality fatality, Verbosity verbosity, const char * const de
 
 std::string Testcase::AsString() const
 {
-	return mpt::String::Print("%1(%2): %3", context.file, context.line, remove_newlines(desc));
+	return MPT_AFORMAT("{}({}): {}")(loc.file_name() ? loc.file_name() : "", loc.line(), remove_newlines(desc));
 }
 
 
@@ -195,19 +240,18 @@ void Testcase::ReportException()
 
 #if defined(MPT_ASSERT_HANDLER_NEEDED)
 
-MPT_NOINLINE void AssertHandler(const char *file, int line, const char *function, const char *expr, const char *msg)
-//------------------------------------------------------------------------------------------------------------------
+MPT_NOINLINE void AssertHandler(const mpt::source_location &loc, const char *expr, const char *msg)
 {
 	Test::fail_count++;
 	if(msg)
 	{
-		mpt::log::Logger().SendLogMessage(mpt::log::Context(file, line, function), LogError, "ASSERT",
-			MPT_USTRING("ASSERTION FAILED: ") + mpt::ToUnicode(mpt::CharsetASCII, msg) + MPT_USTRING(" (") + mpt::ToUnicode(mpt::CharsetASCII, expr) + MPT_USTRING(")")
+		mpt::log::GlobalLogger().SendLogMessage(loc, LogError, "ASSERT",
+			U_("ASSERTION FAILED: ") + mpt::ToUnicode(mpt::Charset::ASCII, msg) + U_(" (") + mpt::ToUnicode(mpt::Charset::ASCII, expr) + U_(")")
 			);
 	} else
 	{
-		mpt::log::Logger().SendLogMessage(mpt::log::Context(file, line, function), LogError, "ASSERT",
-			MPT_USTRING("ASSERTION FAILED: ") + mpt::ToUnicode(mpt::CharsetASCII, expr)
+		mpt::log::GlobalLogger().SendLogMessage(loc, LogError, "ASSERT",
+			U_("ASSERTION FAILED: ") + mpt::ToUnicode(mpt::Charset::ASCII, expr)
 			);
 	}
 	#if defined(MPT_BUILD_FATAL_ASSERTS)

@@ -21,8 +21,9 @@ OPENMPT_NAMESPACE_BEGIN
 // Font Definitions
 
 // Medium Font (Default)
-const PATTERNFONT gDefaultPatternFont = 
+static constexpr PATTERNFONT gDefaultPatternFont = 
 {
+	nullptr,
 	nullptr,
 	92,13,	// Column Width & Height
 	0,0,	// Clear location
@@ -50,8 +51,9 @@ const PATTERNFONT gDefaultPatternFont =
 //////////////////////////////////////////////////
 // Small Font
 
-const PATTERNFONT gSmallPatternFont = 
+static constexpr PATTERNFONT gSmallPatternFont =
 {
+	nullptr,
 	nullptr,
 	70,11,	// Column Width & Height
 	92,0,	// Clear location
@@ -82,24 +84,31 @@ const PATTERNFONT gSmallPatternFont =
 const PATTERNFONT *PatternFont::currentFont = nullptr;
 
 static MODPLUGDIB customFontBitmap;
+static MODPLUGDIB customFontBitmapASCII;
 
 static void DrawChar(HDC hDC, WCHAR ch, int x, int y, int w, int h)
-//-----------------------------------------------------------------
 {
 	CRect rect(x, y, x + w, y + h);
-	::DrawTextW(hDC, &ch, 1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	::DrawTextW(hDC, &ch, 1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
 }
 
 static void DrawChar(HDC hDC, CHAR ch, int x, int y, int w, int h)
-//----------------------------------------------------------------
 {
 	CRect rect(x, y, x + w, y + h);
-	::DrawTextA(hDC, &ch, 1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	::DrawTextA(hDC, &ch, 1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
 }
+
+#if MPT_CXX_AT_LEAST(20)
+static void DrawChar(HDC hDC, char8_t ch8, int x, int y, int w, int h)
+{
+	CRect rect(x, y, x + w, y + h);
+	CHAR ch = mpt::unsafe_char_convert<char>(ch8);
+	::DrawTextA(hDC, &ch, 1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+}
+#endif
 
 template<typename char_t>
 static void DrawString(HDC hDC, const char_t *text, int len, int x, int y, int w, int h)
-//--------------------------------------------------------------------------------------
 {
 	for(int i = 0; i < len; i++)
 	{
@@ -109,7 +118,6 @@ static void DrawString(HDC hDC, const char_t *text, int len, int x, int y, int w
 }
 
 void PatternFont::UpdateFont(HWND hwnd)
-//-------------------------------------
 {
 	FontSetting font = TrackerSettings::Instance().patternFont;
 	const PATTERNFONT *builtinFont = nullptr;
@@ -127,7 +135,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 		return;
 	}
 
-	static PATTERNFONT pf = { 0 };
+	static PATTERNFONT pf{};
 	currentFont = &pf;
 
 	static FontSetting previousFont;
@@ -139,6 +147,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 	previousFont = font;
 	DeleteFontData();
 	pf.dib = &customFontBitmap;
+	pf.dibASCII = nullptr;
 
 	// Upscale built-in font?
 	if(builtinFont != nullptr)
@@ -146,22 +155,22 @@ void PatternFont::UpdateFont(HWND hwnd)
 		// Copy and scale original 4-bit bitmap
 		LimitMax(font.size, 10);
 		font.size++;
-		MemCopy(customFontBitmap.bmiHeader, CMainFrame::bmpNotes->bmiHeader);
+		customFontBitmap.bmiHeader = CMainFrame::bmpNotes->bmiHeader;
 		customFontBitmap.bmiHeader.biWidth *= font.size;
 		customFontBitmap.bmiHeader.biHeight *= font.size;
 		customFontBitmap.bmiHeader.biSizeImage = customFontBitmap.bmiHeader.biWidth * customFontBitmap.bmiHeader.biHeight / 2;
-		customFontBitmap.lpDibBits = new uint8_t[customFontBitmap.bmiHeader.biSizeImage];
+		customFontBitmap.lpDibBits = new uint8[customFontBitmap.bmiHeader.biSizeImage];
 
 		// Upscale the image (ugly code ahead)
-		const uint8_t *origPixels = CMainFrame::bmpNotes->lpDibBits;
-		uint8_t *scaledPixels = customFontBitmap.lpDibBits;
+		const uint8 *origPixels = CMainFrame::bmpNotes->lpDibBits;
+		uint8 *scaledPixels = customFontBitmap.lpDibBits;
 		const int bytesPerLine = customFontBitmap.bmiHeader.biWidth / 2, scaleBytes = bytesPerLine * font.size;
 		bool outPos = false;
 		for(int y = 0; y < CMainFrame::bmpNotes->bmiHeader.biHeight; y++, scaledPixels += scaleBytes - bytesPerLine)
 		{
 			for(int x = 0; x < CMainFrame::bmpNotes->bmiHeader.biWidth; x++)
 			{
-				uint8_t pixel = *origPixels;
+				uint8 pixel = *origPixels;
 				if(x % 2u == 0)
 				{
 					pixel >>= 4;
@@ -196,7 +205,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 		pf.nClrY = builtinFont->nClrY * font.size;
 		pf.nSpaceX = builtinFont->nSpaceX * font.size;
 		pf.nSpaceY = builtinFont->nSpaceY * font.size;
-		for(size_t i = 0; i < CountOf(pf.nEltWidths); i++)
+		for(std::size_t i = 0; i < std::size(pf.nEltWidths); i++)
 		{
 			pf.nEltWidths[i] = builtinFont->nEltWidths[i] * font.size;
 			pf.padding[i] = builtinFont->padding[i] * font.size;
@@ -247,7 +256,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 	font.size = -MulDiv(font.size, Util::GetDPIy(hwnd), 720);
 
 	CFont gdiFont;
-	gdiFont.CreateFont(font.size, 0, 0, 0, font.flags[FontSetting::Bold] ? FW_BOLD : FW_NORMAL, font.flags[FontSetting::Italic] ? TRUE : FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_RASTER_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH | FF_DONTCARE, font.name.c_str());
+	gdiFont.CreateFont(font.size, 0, 0, 0, font.flags[FontSetting::Bold] ? FW_BOLD : FW_NORMAL, font.flags[FontSetting::Italic] ? TRUE : FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_RASTER_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FIXED_PITCH | FF_DONTCARE, mpt::ToCString(font.name));
 	CFont *oldFont = hDC.SelectObject(&gdiFont);
 
 	CPoint pt = hDC.GetTextExtent(_T("W"));
@@ -297,20 +306,22 @@ void PatternFont::UpdateFont(HWND hwnd)
 	pf.paramLoMargin = 0;				// Margin for second digit of parameter
 	pf.spacingY = charHeight;
 
+	{
+
 	pf.dib->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	pf.dib->bmiHeader.biWidth = ((width + 7) & ~7);	// 4-byte alignment
-	pf.dib->bmiHeader.biHeight = -(int32_t)height;
+	pf.dib->bmiHeader.biHeight = -(int32)height;
 	pf.dib->bmiHeader.biSizeImage = pf.dib->bmiHeader.biWidth * height / 2;
 	pf.dib->bmiHeader.biPlanes = 1;
 	pf.dib->bmiHeader.biBitCount = 4;
 	pf.dib->bmiHeader.biCompression = BI_RGB;
-	pf.dib->lpDibBits = new uint8_t[pf.dib->bmiHeader.biSizeImage];
+	pf.dib->lpDibBits = new uint8[pf.dib->bmiHeader.biSizeImage];
 	pf.dib->bmiColors[0] = rgb2quad(RGB(0x00, 0x00, 0x00));
 	pf.dib->bmiColors[15] = rgb2quad(RGB(0xFF, 0xFF, 0xFF));
 
-	uint8_t *data = nullptr;
+	uint8 *data = nullptr;
 	HBITMAP bitmap = ::CreateDIBSection(hDC, (BITMAPINFO *)&pf.dib->bmiHeader, DIB_RGB_COLORS, (void **)&data, nullptr, 0);
-	if(data == nullptr)
+	if(!bitmap)
 	{
 		hDC.SelectObject(oldFont);
 		gdiFont.DeleteObject();
@@ -326,13 +337,15 @@ void PatternFont::UpdateFont(HWND hwnd)
 	hDC.SetTextAlign(TA_TOP | TA_LEFT);
 
 	// Empty cells (dots - i-th bit set = dot in the i-th column of a cell)
-	const uint8_t dots[5] = { 1 | 2 | 4, 2 | 4, 2 | 4, 1, 1 | 2 };
-	for(size_t cell = 0, offset = 0; cell < CountOf(dots); cell++)
+	const uint8 dots[5] = { 1 | 2 | 4, 2 | 4, 2 | 4, 1, 1 | 2 };
+	const auto dotStr = TrackerSettings::Instance().patternFontDot.Get();
+	auto dotChar = dotStr.empty() ? UC_(' ') : dotStr[0];
+	for(int cell = 0, offset = 0; cell < static_cast<int>(std::size(dots)); cell++)
 	{
-		uint8_t dot = dots[cell];
+		uint8 dot = dots[cell];
 		for(int i = 0; dot != 0; i++)
 		{
-			if(dot & 1) DrawChar(hDC, '.', pf.nClrX + offset + i * charWidth, pf.nClrY, charWidth, charHeight);
+			if(dot & 1) DrawChar(hDC, dotChar, pf.nClrX + offset + i * charWidth, pf.nClrY, charWidth, charHeight);
 			dot >>= 1;
 		}
 		offset += pf.nEltWidths[cell];
@@ -366,7 +379,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 
 	// Volume commands
 	const char volEffects[]= " vpcdabuhlrgfe:o";
-	STATIC_ASSERT(CountOf(volEffects) - 1 == MAX_VOLCMDS);
+	static_assert(mpt::array_size<decltype(volEffects)>::size - 1 == MAX_VOLCMDS);
 	for(int i = 0; i < MAX_VOLCMDS; i++)
 	{
 		DrawChar(hDC, volEffects[i], pf.nVolX, pf.nVolY + i * charHeight, charWidth, charHeight);
@@ -386,6 +399,7 @@ void PatternFont::UpdateFont(HWND hwnd)
 	DrawChar(hDC, '-', pf.nAlphaAM_X, pf.nAlphaAM_Y + 15 * charHeight, charWidth, charHeight);
 	DrawChar(hDC, ':', pf.nAlphaNZ_X, pf.nAlphaNZ_Y + 15 * charHeight, charWidth, charHeight);
 	DrawChar(hDC, '+', pf.nAlphaAM_X, pf.nAlphaAM_Y + 16 * charHeight, charWidth, charHeight);
+	DrawChar(hDC, '*', pf.nAlphaNZ_X, pf.nAlphaNZ_Y + 16 * charHeight, charWidth, charHeight);
 	DrawChar(hDC, 'd', pf.nAlphaAM_X, pf.nAlphaAM_Y + 17 * charHeight, charWidth, charHeight);
 
 	::GdiFlush();
@@ -399,18 +413,68 @@ void PatternFont::UpdateFont(HWND hwnd)
 	}
 
 	hDC.SelectObject(oldBitmap);
+	DeleteBitmap(bitmap);
+
+	}
+
+	{
+
+		pf.dibASCII = &customFontBitmapASCII;
+
+		pf.dibASCII->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		pf.dibASCII->bmiHeader.biWidth = ((charWidth * 128 + 7) & ~7);	// 4-byte alignment
+		pf.dibASCII->bmiHeader.biHeight = -(int32)charHeight;
+		pf.dibASCII->bmiHeader.biSizeImage = pf.dibASCII->bmiHeader.biWidth * charHeight / 2;
+		pf.dibASCII->bmiHeader.biPlanes = 1;
+		pf.dibASCII->bmiHeader.biBitCount = 4;
+		pf.dibASCII->bmiHeader.biCompression = BI_RGB;
+		pf.dibASCII->lpDibBits = new uint8[pf.dibASCII->bmiHeader.biSizeImage];
+		pf.dibASCII->bmiColors[0] = rgb2quad(RGB(0x00, 0x00, 0x00));
+		pf.dibASCII->bmiColors[15] = rgb2quad(RGB(0xFF, 0xFF, 0xFF));
+
+		uint8 *data = nullptr;
+		HBITMAP bitmap = ::CreateDIBSection(hDC, (BITMAPINFO *)&pf.dibASCII->bmiHeader, DIB_RGB_COLORS, (void **)&data, nullptr, 0);
+		if(!bitmap)
+		{
+			hDC.SelectObject(oldFont);
+			gdiFont.DeleteObject();
+			hDC.DeleteDC();
+			currentFont = &gDefaultPatternFont;
+			return;
+		}
+		HGDIOBJ oldBitmap = hDC.SelectObject(bitmap);
+
+		hDC.FillSolidRect(0, 0, pf.dibASCII->bmiHeader.biWidth, -pf.dibASCII->bmiHeader.biHeight, RGB(0xFF, 0xFF, 0xFF));
+		hDC.SetTextColor(RGB(0x00, 0x00, 0x00));
+		hDC.SetBkColor(RGB(0xFF, 0xFF, 0xFF));
+		hDC.SetTextAlign(TA_TOP | TA_LEFT);
+
+		for(uint32 c = 32; c < 128; ++c)
+		{
+			DrawChar(hDC, (char)(unsigned char)c, charWidth * c, 0, charWidth, charHeight);
+		}
+		::GdiFlush();
+
+		std::memcpy(pf.dibASCII->lpDibBits, data, pf.dibASCII->bmiHeader.biSizeImage);
+
+		hDC.SelectObject(oldBitmap);
+		DeleteBitmap(bitmap);
+
+	}
+
 	hDC.SelectObject(oldFont);
 	gdiFont.DeleteObject();
-	DeleteBitmap(bitmap);
+
 	hDC.DeleteDC();
 }
 
 
 void PatternFont::DeleteFontData()
-//--------------------------------
 {
 	delete[] customFontBitmap.lpDibBits;
 	customFontBitmap.lpDibBits = nullptr;
+	delete[] customFontBitmapASCII.lpDibBits;
+	customFontBitmapASCII.lpDibBits = nullptr;
 }
 
 OPENMPT_NAMESPACE_END

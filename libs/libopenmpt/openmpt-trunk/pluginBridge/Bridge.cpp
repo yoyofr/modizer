@@ -3,43 +3,46 @@
  * ----------
  * Purpose: VST plugin bridge (plugin side)
  * Notes  : (currently none)
- * Authors: Johannes Schultz (OpenMPT Devs)
+ * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
 
 
-// TODO
-// Translate VstIntPtr size in remaining structs: VstVariableIo, VstOfflineTask, VstAudioFile, VstWindow (all these are currently not supported by OpenMPT, so not urgent at all)
-// Optimize out audioMasterProcessEvents the same way as effProcessEvents?
-// Find a nice solution for audioMasterIdle that doesn't break TAL-Elek7ro-II
-// Kirnu and Combo F GUI deadlocks during playback
+// TODO: Translate pointer-sized members in remaining structs: VstVariableIo, VstOfflineTask, VstAudioFile, VstWindow (all these are currently not supported by OpenMPT, so not urgent at all)
 
-// Low priority:
-// Re-enable DEP in OpenMPT?
-// Clean up code :)
-
-#ifndef MODPLUG_TRACKER
-#define MODPLUG_TRACKER
-#endif
-#include "../common/BuildSettings.h"
-#include "../common/typedefs.h"
+#include "openmpt/all/BuildSettings.hpp"
+#include "../common/mptBaseMacros.h"
+#include "../common/mptBaseTypes.h"
+#include "../common/mptBaseUtils.h"
 #include <Windows.h>
 #include <ShellAPI.h>
 #include <ShlObj.h>
 #include <CommDlg.h>
 #include <tchar.h>
 #include <algorithm>
+#include <string>
 
-
-#ifdef _DEBUG
-#include <intrin.h>
-#undef assert
-#define assert(x) MPT_MAYBE_CONSTANT_IF(!(x)) { if(IsDebuggerPresent()) __debugbreak(); ::MessageBoxA(NULL, #x, "Debug Assertion Failed", MB_ICONERROR); }
-#else
-#define assert(x)
+#if defined(MPT_BUILD_MSVC)
+#pragma comment(lib, "comdlg32.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "shell32.lib")
 #endif
 
-#include "../common/WriteMemoryDump.h"
+
+#if MPT_BUILD_DEBUG
+#include <intrin.h>
+#define MPT_ASSERT(x) \
+	MPT_MAYBE_CONSTANT_IF(!(x)) \
+	{ \
+		if(IsDebuggerPresent()) \
+			__debugbreak(); \
+		::MessageBoxA(nullptr, "Debug Assertion Failed:\n\n" #x, "OpenMPT Plugin Bridge", MB_ICONERROR); \
+	}
+#else
+#define MPT_ASSERT(x)
+#endif
+
+#include "../misc/WriteMemoryDump.h"
 #include "Bridge.h"
 
 
@@ -55,12 +58,11 @@ static LONG WINAPI CrashHandler(_EXCEPTION_POINTERS *pExceptionInfo)
 		CreateDirectoryW(filename.c_str(), nullptr);
 
 		tempPath[0] = 0;
-		const int ch = GetDateFormatW(LOCALE_SYSTEM_DEFAULT, 0, nullptr, L"'PluginBridge 'yyyy'-'MM'-'dd ", tempPath, CountOf(tempPath));
-		if(ch) GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0, nullptr, L"HH'.'mm'.'ss'.dmp'", tempPath + ch - 1, CountOf(tempPath) - ch + 1);
+		const int ch = GetDateFormatW(LOCALE_SYSTEM_DEFAULT, 0, nullptr, L"'PluginBridge 'yyyy'-'MM'-'dd ", tempPath, mpt::saturate_cast<int>(std::size(tempPath)));
+		if(ch)
+			GetTimeFormatW(LOCALE_SYSTEM_DEFAULT, 0, nullptr, L"HH'.'mm'.'ss'.dmp'", tempPath + ch - 1, mpt::saturate_cast<int>(std::size(tempPath)) - ch + 1);
 		filename += tempPath;
-		static_assert(CountOf(tempPath) > 3, "");
-
-		OPENMPT_NAMESPACE::WriteMemoryDump(pExceptionInfo, filename.c_str(), OPENMPT_NAMESPACE::PluginBridge::fullMemDump);
+		OPENMPT_NAMESPACE::WriteMemoryDump(pExceptionInfo, filename.c_str(), OPENMPT_NAMESPACE::PluginBridge::m_fullMemDump);
 	}
 
 	// Let Windows handle the exception...
@@ -72,238 +74,198 @@ int _tmain(int argc, TCHAR *argv[])
 {
 	if(argc != 2)
 	{
-		MessageBox(NULL, _T("This executable is part of OpenMPT. You do not need to run it by yourself."), _T("OpenMPT Plugin Bridge"), 0);
+		MessageBox(nullptr, _T("This executable is part of OpenMPT. You do not need to run it by yourself."), _T("OpenMPT Plugin Bridge"), 0);
 		return -1;
 	}
 
 	::SetUnhandledExceptionFilter(CrashHandler);
 
 	// We don't need COM, but some plugins do and don't initialize it themselves.
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	// Note 1: Which plugins? This was added in r6459 on 2016-05-31 but with no remark whether it fixed a specific plugin,
+	//         but the fix doesn't seem to make a lot of sense since back then no plugin code was ever running on the main thread.
+	//         Could it have been for file dialogs, which were added a while before?
+	// Note 2: M1 editor crashes if it runs on this thread and it was initialized with COINIT_MULTITHREADED
+	const bool comInitialized = SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
 
-	OPENMPT_NAMESPACE::PluginBridge::InitializeStaticVariables();
-	uint32 parentProcessId = _ttoi(argv[1]);
-	new OPENMPT_NAMESPACE::PluginBridge(argv[0], OpenProcess(SYNCHRONIZE, FALSE, parentProcessId));
+	OPENMPT_NAMESPACE::PluginBridge::MainLoop(argv);
 
-	WaitForSingleObject(OPENMPT_NAMESPACE::PluginBridge::sigQuit, INFINITE);
+	if(comInitialized)
+		CoUninitialize();
+
 	return 0;
 }
 
 
-int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
+int WINAPI WinMain(_In_ HINSTANCE /*hInstance*/, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPSTR /*lpCmdLine*/, _In_ int /*nCmdShow*/)
 {
-	LPWSTR *argv;
-	int argc;
-	argv = CommandLineToArgvW(GetCommandLine(), &argc);
+	int argc = 0;
+	auto argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	return _tmain(argc, argv);
 }
 
 
 OPENMPT_NAMESPACE_BEGIN
 
-LONG PluginBridge::instanceCount = 0;
-Event PluginBridge::sigQuit;
-bool PluginBridge::fullMemDump = false;
+using namespace Vst;
+
+std::vector<BridgeCommon *> BridgeCommon::m_plugins;
+HWND BridgeCommon::m_communicationWindow = nullptr;
+int BridgeCommon::m_instanceCount = 0;
+thread_local bool BridgeCommon::m_isAudioThread = false;
 
 // This is kind of a back-up pointer in case we couldn't sneak our pointer into the AEffect struct yet.
 // It always points to the last initialized PluginBridge object.
-PluginBridge *PluginBridge::latestInstance = nullptr;
-WNDCLASSEX PluginBridge::windowClass;
-#define WINDOWCLASSNAME _T("OpenMPTPluginBridge")
+PluginBridge *PluginBridge::m_latestInstance = nullptr;
+ATOM PluginBridge::m_editorClassAtom = 0;
+bool PluginBridge::m_fullMemDump = false;
 
-
-// Initialize static stuff like the editor window class
-void PluginBridge::InitializeStaticVariables()
+void PluginBridge::MainLoop(TCHAR *argv[])
 {
-	windowClass.cbSize = sizeof(WNDCLASSEX);
-	windowClass.style = CS_HREDRAW | CS_VREDRAW;
-	windowClass.lpfnWndProc = WindowProc;
-	windowClass.cbClsExtra = 0;
-	windowClass.cbWndExtra = 0;
-	windowClass.hInstance = GetModuleHandle(NULL);
-	windowClass.hIcon = NULL;
-	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	windowClass.hbrBackground  = NULL;
-	windowClass.lpszMenuName = NULL;
-	windowClass.lpszClassName = WINDOWCLASSNAME;
-	windowClass.hIconSm = NULL;
-	RegisterClassEx(&windowClass);
+	WNDCLASSEX editorWndClass;
+	editorWndClass.cbSize = sizeof(WNDCLASSEX);
+	editorWndClass.style = CS_HREDRAW | CS_VREDRAW;
+	editorWndClass.lpfnWndProc = WindowProc;
+	editorWndClass.cbClsExtra = 0;
+	editorWndClass.cbWndExtra = 0;
+	editorWndClass.hInstance = GetModuleHandle(nullptr);
+	editorWndClass.hIcon = nullptr;
+	editorWndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	editorWndClass.hbrBackground = nullptr;
+	editorWndClass.lpszMenuName = nullptr;
+	editorWndClass.lpszClassName = _T("OpenMPTPluginBridgeEditor");
+	editorWndClass.hIconSm = nullptr;
+	m_editorClassAtom = RegisterClassEx(&editorWndClass);
 
-	sigQuit.Create();
+	CreateCommunicationWindow(WindowProc);
+	SetTimer(m_communicationWindow, TIMER_IDLE, 20, IdleTimerProc);
+
+	uint32 parentProcessId = _ttoi(argv[1]);
+	new PluginBridge(argv[0], OpenProcess(SYNCHRONIZE, FALSE, parentProcessId));
+
+	MSG msg;
+	while(::GetMessage(&msg, nullptr, 0, 0))
+	{
+		// Let host pre-process key messages like it does for non-bridged plugins
+		if(msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)
+		{
+			HWND owner = nullptr;
+			for(HWND hwnd = msg.hwnd; hwnd != nullptr; hwnd = GetParent(hwnd))
+			{
+				// Does it come from a child window? (e.g. Kirnu editor)
+				if(GetClassWord(hwnd, GCW_ATOM) == m_editorClassAtom)
+				{
+					owner = GetParent(GetParent(hwnd));
+					break;
+				}
+				// Does the message come from a top-level window? This is required e.g. for the slider pop-up windows and patch browser in Synth1.
+				if(!(GetWindowLong(hwnd, GWL_STYLE) & WS_CHILD))
+				{
+					owner = GetWindow(hwnd, GW_OWNER);
+					break;
+				}
+			}
+			// Send to top-level VST editor window in host
+			if(owner && SendMessage(owner, msg.message + WM_BRIDGE_KEYFIRST - WM_KEYFIRST, msg.wParam, msg.lParam))
+				continue;
+		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	DestroyWindow(m_communicationWindow);
 }
 
 
-PluginBridge::PluginBridge(const wchar_t *memName, HANDLE otherProcess_)
-	: window(NULL), isProcessing(0), nativeEffect(nullptr), needIdle(false), closeInstance(false)
+PluginBridge::PluginBridge(const wchar_t *memName, HANDLE otherProcess)
 {
-	PluginBridge::latestInstance = this;
-	InterlockedIncrement(&instanceCount);
+	PluginBridge::m_latestInstance = this;
 
-	if(!queueMem.Open(memName)
-		|| !CreateSignals(memName))
+	m_thisPluginID = static_cast<int32>(m_plugins.size());
+	m_plugins.push_back(this);
+
+	if(!m_queueMem.Open(memName)
+	   || !CreateSignals(memName))
 	{
-		MessageBox(NULL, _T("Could not connect to OpenMPT."), _T("OpenMPT Plugin Bridge"), 0);
+		MessageBox(nullptr, _T("Could not connect to OpenMPT."), _T("OpenMPT Plugin Bridge"), 0);
 		delete this;
 		return;
 	}
 
-	sharedMem = reinterpret_cast<SharedMemLayout *>(queueMem.view);
+	m_sharedMem = m_queueMem.Data<SharedMemLayout>();
 
 	// Store parent process handle so that we can terminate the bridge process when OpenMPT closes (e.g. through a crash).
-	otherProcess.DuplicateFrom(otherProcess_);
+	m_otherProcess.DuplicateFrom(otherProcess);
 
-	sigThreadExit.Create(true);
-	otherThread = mpt::UnmanagedThreadMember<PluginBridge, &PluginBridge::RenderThread>(this);
+	m_sigThreadExit.Create(true);
+	DWORD dummy = 0;	// For Win9x
+	m_audioThread = CreateThread(NULL, 0, &PluginBridge::AudioThread, this, 0, &dummy);
 
-	mpt::UnmanagedThreadMember<PluginBridge, &PluginBridge::MessageThread>(this);
+	m_sharedMem->bridgeCommWindow = m_communicationWindow;
+	m_sharedMem->bridgePluginID = m_thisPluginID;
+	m_sigBridgeReady.Trigger();
 }
 
 
 PluginBridge::~PluginBridge()
 {
-	SignalObjectAndWait(sigThreadExit, otherThread, INFINITE, FALSE);
-
-	sharedMem = nullptr;
-	queueMem.Close();
-	processMem.Close();
-
-	if(InterlockedDecrement(&instanceCount) == 0)
-	{
-		sigQuit.Trigger();
-	}
+	SignalObjectAndWait(m_sigThreadExit, m_audioThread, INFINITE, FALSE);
+	CloseHandle(m_audioThread);
+	BridgeMessage dispatchMsg;
+	dispatchMsg.Dispatch(effClose, 0, 0, 0, 0.0f, 0);
+	DispatchToPlugin(dispatchMsg.dispatch);
+	m_plugins[m_thisPluginID] = nullptr;
+	if(m_instanceCount == 1)
+		PostQuitMessage(0);
 }
 
 
-void PluginBridge::MessageThread()
+void PluginBridge::RequestDelete()
 {
-	msgThreadID = GetCurrentThreadId();
-
-	const HANDLE objects[] = { sigToBridge.send, sigToHost.ack, otherProcess };
-	DWORD result;
-	do
-	{
-		// Wait for incoming messages, time out periodically for idle messages and window refresh
-		result = WaitForMultipleObjects(CountOf(objects), objects, FALSE, 15);
-		if(result == WAIT_OBJECT_0)
-		{
-			ParseNextMessage();
-		} else if(result == WAIT_OBJECT_0 + 1)
-		{
-			// Message got answered
-			for(auto &msg : sharedMem->toHost)
-			{
-				if(InterlockedCompareExchange(&msg.header.status, MsgHeader::delivered, MsgHeader::done) == MsgHeader::done)
-				{
-					ackSignals[msg.header.signalID].Confirm();
-				}
-			}
-		}
-		if(needIdle && nativeEffect)
-		{
-			Dispatch(effIdle, 0, 0, nullptr, 0.0f);
-			needIdle = false;
-		}
-		if(window)
-		{
-			Dispatch(effEditIdle, 0, 0, nullptr, 0.0f);
-		}
-		// Normally we would only need this block if there's an editor window, but the 4klang VSTi creates
-		// its custom window in the message thread, and it will freeze if we don't dispatch messages here...
-		MSG msg;
-		while(::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
-		}
-	} while(result != WAIT_OBJECT_0 + 2 && result != WAIT_FAILED && !closeInstance);
-
-	if(!closeInstance)
-	{
-		// Close any possible waiting queries
-		for(auto &sig : ackSignals)
-		{
-			sig.Send();
-		}
-		BridgeMessage msg;
-		msg.Dispatch(effClose, 0, 0, 0, 0.0f, 0);
-		DispatchToPlugin(&msg.dispatch);
-	}
-	delete this;
+	PostMessage(m_communicationWindow, WM_BRIDGE_DELETE_PLUGIN, m_thisPluginID, 0);
 }
 
 
 // Send an arbitrary message to the host.
-// Returns a pointer to the message, as processed by the host.
+// Returns true if the message was processed by the host.
 bool PluginBridge::SendToHost(BridgeMessage &sendMsg)
 {
-	const bool inMsgThread = GetCurrentThreadId() == msgThreadID;
-	BridgeMessage *addr = CopyToSharedMemory(sendMsg, sharedMem->toHost);
-	if(addr == nullptr)
+	auto &messages = m_sharedMem->ipcMessages;
+	const auto msgID = CopyToSharedMemory(sendMsg, messages);
+	if(msgID < 0)
+		return false;
+	BridgeMessage &sharedMsg = messages[msgID];
+
+	if(!m_isAudioThread)
 	{
+		if(SendMessage(m_sharedMem->hostCommWindow, WM_BRIDGE_MESSAGE_TO_HOST, m_otherPluginID, msgID) == WM_BRIDGE_SUCCESS)
+		{
+			sharedMsg.CopyTo(sendMsg);
+			return true;
+		}
 		return false;
 	}
 
-	sigToHost.Send();
+	// Audio thread: Use signals instead of window messages
+	m_sharedMem->audioThreadToHostMsgID = msgID;
+	m_sigToHostAudio.Send();
 
 	// Wait until we get the result from the host.
 	DWORD result;
-	if(inMsgThread)
+	const HANDLE objects[] = {m_sigToHostAudio.confirm, m_sigToBridgeAudio.send, m_otherProcess};
+	do
 	{
-		// Since this is the message thread, we must handle messages directly.
-		const HANDLE objects[] = { sigToHost.ack, sigToBridge.send, otherProcess };
-		do
+		result = WaitForMultipleObjects(mpt::saturate_cast<DWORD>(std::size(objects)), objects, FALSE, INFINITE);
+		if(result == WAIT_OBJECT_0)
 		{
-			result = WaitForMultipleObjects(CountOf(objects), objects, FALSE, INFINITE);
-			if(result == WAIT_OBJECT_0)
-			{
-				// Some message got answered - is it our message?
-				bool done = false;
-				for(size_t i = 0; i < CountOf(sharedMem->toHost); i++)
-				{
-					BridgeMessage &msg = sharedMem->toHost[i];
-					if(InterlockedCompareExchange(&msg.header.status, MsgHeader::delivered, MsgHeader::done) == MsgHeader::done)
-					{
-						if(&msg != addr)
-						{
-							ackSignals[msg.header.signalID].Confirm();
-						} else
-						{
-							// This is our message!
-							addr->CopyFromSharedMemory(sendMsg);
-							done = true;
-						}
-					}
-				}
-				if(done)
-				{
-					break;
-				}
-			} else if(result == WAIT_OBJECT_0 + 1)
-			{
-				ParseNextMessage();
-			}
-		} while(result != WAIT_OBJECT_0 + 2 && result != WAIT_FAILED);
-	} else
-	{
-		// Wait until the message thread notifies us.
-		Signal &ackHandle = ackSignals[addr->header.signalID];
-		const HANDLE objects[] = { ackHandle.ack, ackHandle.send, otherProcess };
-		do
+			// Message got answered
+			sharedMsg.CopyTo(sendMsg);
+			break;
+		} else if(result == WAIT_OBJECT_0 + 1)
 		{
-			result = WaitForMultipleObjects(CountOf(objects), objects, FALSE, 100);
-			if(result == WAIT_TIMEOUT)
-			{
-				MSG msg;
-				while(::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-				{
-					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
-				}
-				continue;
-			}
-		} while (result == WAIT_TIMEOUT);
-		addr->CopyFromSharedMemory(sendMsg);
-	}
+			ParseNextMessage(m_sharedMem->audioThreadToBridgeMsgID);
+			m_sigToBridgeAudio.Confirm();
+		}
+	} while(result != WAIT_OBJECT_0 + 2 && result != WAIT_FAILED);
 
 	return (result == WAIT_OBJECT_0);
 }
@@ -312,19 +274,14 @@ bool PluginBridge::SendToHost(BridgeMessage &sendMsg)
 // Copy AEffect to shared memory.
 void PluginBridge::UpdateEffectStruct()
 {
-	if(nativeEffect == nullptr)
-	{
+	if(m_nativeEffect == nullptr)
 		return;
-	} else if(otherPtrSize == 4)
-	{
-		sharedMem->effect32.FromNative(*nativeEffect);
-	} else if(otherPtrSize == 8)
-	{
-		sharedMem->effect64.FromNative(*nativeEffect);
-	} else
-	{
-		assert(false);
-	}
+	else if(m_otherPtrSize == 4)
+		m_sharedMem->effect32.FromNative(*m_nativeEffect);
+	else if(m_otherPtrSize == 8)
+		m_sharedMem->effect64.FromNative(*m_nativeEffect);
+	else
+		MPT_ASSERT(false);
 }
 
 
@@ -333,11 +290,11 @@ void PluginBridge::CreateProcessingFile(std::vector<char> &dispatchData)
 {
 	static uint32 plugId = 0;
 	wchar_t mapName[64];
-	swprintf(mapName, CountOf(mapName), L"Local\\openmpt-%d-%d", GetCurrentProcessId(), plugId++);
+	swprintf(mapName, std::size(mapName), L"Local\\openmpt-%u-%u", GetCurrentProcessId(), plugId++);
 
 	PushToVector(dispatchData, mapName[0], sizeof(mapName));
 
-	if(!processMem.Create(mapName, sizeof(ProcessMsg) + mixBufSize * (nativeEffect->numInputs + nativeEffect->numOutputs) * sizeof(double)))
+	if(!m_processMem.Create(mapName, sizeof(ProcessMsg) + m_mixBufSize * (m_nativeEffect->numInputs + m_nativeEffect->numOutputs) * sizeof(double)))
 	{
 		SendErrorMessage(L"Could not initialize plugin bridge audio memory.");
 		return;
@@ -346,116 +303,101 @@ void PluginBridge::CreateProcessingFile(std::vector<char> &dispatchData)
 
 
 // Receive a message from the host and translate it.
-void PluginBridge::ParseNextMessage()
+void PluginBridge::ParseNextMessage(int msgID)
 {
-	assert(GetCurrentThreadId() == msgThreadID);
-
-	for(auto &msg : sharedMem->toBridge)
+	auto &msg = m_sharedMem->ipcMessages[msgID];
+	switch(msg.header.type)
 	{
-		if(InterlockedCompareExchange(&msg.header.status, MsgHeader::received, MsgHeader::sent) == MsgHeader::sent)
-		{
-			switch(msg.header.type)
-			{
-			case MsgHeader::newInstance:
-				NewInstance(&msg.newInstance);
-				break;
-			case MsgHeader::init:
-				InitBridge(&msg.init);
-				break;
-			case MsgHeader::dispatch:
-				DispatchToPlugin(&msg.dispatch);
-				break;
-			case MsgHeader::setParameter:
-				SetParameter(&msg.parameter);
-				break;
-			case MsgHeader::getParameter:
-				GetParameter(&msg.parameter);
-				break;
-
-			case MsgHeader::automate:
-				AutomateParameters();
-				break;
-			}
-
-			InterlockedExchange(&msg.header.status, MsgHeader::done);
-			sigToBridge.Confirm();
-		}
+	case MsgHeader::newInstance:
+		NewInstance(msg.newInstance);
+		break;
+	case MsgHeader::init:
+		InitBridge(msg.init);
+		break;
+	case MsgHeader::dispatch:
+		DispatchToPlugin(msg.dispatch);
+		break;
+	case MsgHeader::setParameter:
+		SetParameter(msg.parameter);
+		break;
+	case MsgHeader::getParameter:
+		GetParameter(msg.parameter);
+		break;
+	case MsgHeader::automate:
+		AutomateParameters();
+		break;
 	}
 }
 
 
 // Create a new bridge instance within this one (creates a new thread).
-void PluginBridge::NewInstance(NewInstanceMsg *msg)
+void PluginBridge::NewInstance(NewInstanceMsg &msg)
 {
-	msg->memName[CountOf(msg->memName) - 1] = 0;
-	new PluginBridge(msg->memName, otherProcess);
+	msg.memName[mpt::array_size<decltype(msg.memName)>::size - 1] = 0;
+	new PluginBridge(msg.memName, m_otherProcess);
 }
 
 
 // Load the plugin.
-void PluginBridge::InitBridge(InitMsg *msg)
+void PluginBridge::InitBridge(InitMsg &msg)
 {
-	otherPtrSize = msg->hostPtrSize;
-	mixBufSize = msg->mixBufSize;
-	fullMemDump = msg->fullMemDump != 0;
-	msg->result = 0;
-	msg->str[CountOf(msg->str) - 1] = 0;
+	m_otherPtrSize = msg.hostPtrSize;
+	m_mixBufSize = msg.mixBufSize;
+	m_otherPluginID = msg.pluginID;
+	m_fullMemDump = msg.fullMemDump != 0;
+	msg.result = 0;
+	msg.str[mpt::array_size<decltype(msg.str)>::size - 1] = 0;
 
 #ifdef _CONSOLE
 	SetConsoleTitleW(msg->str);
 #endif
 
-	nativeEffect = nullptr;
+	m_nativeEffect = nullptr;
 	__try
 	{
-		library = LoadLibraryW(msg->str);
+		m_library = LoadLibraryW(msg.str);
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		library = nullptr;
+		m_library = nullptr;
 	}
 
-	if(library == nullptr)
+	if(m_library == nullptr)
 	{
-		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-			GetLastError(),
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			msg->str,
-			CountOf(msg->str),
-			NULL);
+		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg.str, mpt::saturate_cast<DWORD>(std::size(msg.str)), nullptr);
+		RequestDelete();
 		return;
 	}
 
-	typedef AEffect * (VSTCALLBACK * PVSTPLUGENTRY)(audioMasterCallback);
-	PVSTPLUGENTRY pMainProc = (PVSTPLUGENTRY)GetProcAddress(library, "VSTPluginMain");
-	if(pMainProc == nullptr)
+	auto mainProc = (Vst::MainProc)GetProcAddress(m_library, "VSTPluginMain");
+	if(mainProc == nullptr)
 	{
-		pMainProc = (PVSTPLUGENTRY)GetProcAddress(library, "main");
+		mainProc = (Vst::MainProc)GetProcAddress(m_library, "main");
 	}
 
-	if(pMainProc != nullptr)
+	if(mainProc != nullptr)
 	{
 		__try
 		{
-			nativeEffect = pMainProc(MasterCallback);
+			m_nativeEffect = mainProc(MasterCallback);
 		} __except(EXCEPTION_EXECUTE_HANDLER)
 		{
-			nativeEffect = nullptr;
+			m_nativeEffect = nullptr;
 		}
 	}
 
-	if(nativeEffect == nullptr || nativeEffect->dispatcher == nullptr || nativeEffect->magic != kEffectMagic)
+	if(m_nativeEffect == nullptr || m_nativeEffect->dispatcher == nullptr || m_nativeEffect->magic != kEffectMagic)
 	{
-		FreeLibrary(library);
-		library = nullptr;
-		
-		wcscpy(msg->str, L"File is not a valid plugin");
-		closeInstance = true;
+		FreeLibrary(m_library);
+		m_library = nullptr;
+
+		wcscpy(msg.str, L"File is not a valid plugin");
+		RequestDelete();
 		return;
 	}
 
-	nativeEffect->resvd1 = ToVstPtr(this);
+	m_nativeEffect->reservedForHost1 = this;
 
-	msg->result = 1;
+	msg.result = 1;
 
 	UpdateEffectStruct();
 
@@ -473,7 +415,7 @@ void PluginBridge::SendErrorMessage(const wchar_t *str)
 
 
 // Wrapper for VST dispatch call with structured exception handling.
-static VstIntPtr DispatchSEH(AEffect *effect, VstInt32 opCode, VstInt32 index, VstIntPtr value, void *ptr, float opt, bool &exception)
+static intptr_t DispatchSEH(AEffect *effect, VstOpcodeToPlugin opCode, int32 index, intptr_t value, void *ptr, float opt, bool &exception)
 {
 	__try
 	{
@@ -490,9 +432,9 @@ static VstIntPtr DispatchSEH(AEffect *effect, VstInt32 opCode, VstInt32 index, V
 
 
 // Host-to-plugin opcode dispatcher
-void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
+void PluginBridge::DispatchToPlugin(DispatchMsg &msg)
 {
-	if(nativeEffect == nullptr)
+	if(m_nativeEffect == nullptr)
 	{
 		return;
 	}
@@ -504,18 +446,18 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 	MappedMemory auxMem;
 
 	// Content of ptr is usually stored right after the message header, ptr field indicates size.
-	void *ptr = (msg->ptr != 0) ? (msg + 1) : nullptr;
-	if(msg->size > sizeof(BridgeMessage))
+	void *ptr = (msg.ptr != 0) ? (&msg + 1) : nullptr;
+	if(msg.size > sizeof(BridgeMessage))
 	{
 		if(!auxMem.Open(static_cast<const wchar_t *>(ptr)))
 		{
 			return;
 		}
-		ptr = auxMem.view;
+		ptr = auxMem.Data();
 	}
 	void *origPtr = ptr;
 
-	switch(msg->opcode)
+	switch(msg.opcode)
 	{
 	case effGetProgramName:
 	case effGetParamLabel:
@@ -534,8 +476,8 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 
 	case effMainsChanged:
 		// [value]: 0 means "turn off", 1 means "turn on"
-		SetThreadPriority(otherThread, msg->value ? THREAD_PRIORITY_ABOVE_NORMAL : THREAD_PRIORITY_NORMAL);
-		sharedMem->tailSize = static_cast<int32>(Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f));
+		::SetThreadPriority(m_audioThread, msg.value ? THREAD_PRIORITY_ABOVE_NORMAL : THREAD_PRIORITY_NORMAL);
+		m_sharedMem->tailSize = static_cast<int32>(Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f));
 		break;
 
 	case effEditGetRect:
@@ -547,22 +489,20 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 		// HWND in [ptr] - Note: Window handles are interoperable between 32-bit and 64-bit applications in Windows (http://msdn.microsoft.com/en-us/library/windows/desktop/aa384203%28v=vs.85%29.aspx)
 		{
 			TCHAR str[_MAX_PATH];
-			GetModuleFileName(library, str, CountOf(str));
+			GetModuleFileName(m_library, str, mpt::saturate_cast<DWORD>(std::size(str)));
 
-			windowParent = reinterpret_cast<HWND>(msg->ptr);
-			ptr = window = CreateWindow(
-				WINDOWCLASSNAME,
-				str,
-				WS_POPUP,
-				CW_USEDEFAULT, CW_USEDEFAULT,
-				1, 1,
-				NULL,
-				NULL,
-				windowClass.hInstance,
-				NULL);
-
-			// Opening two shared KORG M1 editor instances makes the second instance crash the bridge if there is no parent at this point.
-			SetParent(window, windowParent);
+			const auto parentWindow = reinterpret_cast<HWND>(msg.ptr);
+			ptr = m_window = CreateWindow(
+			    MAKEINTATOM(m_editorClassAtom),
+			    str,
+			    WS_CHILD | WS_VISIBLE,
+			    CW_USEDEFAULT, CW_USEDEFAULT,
+			    1, 1,
+			    parentWindow,
+			    nullptr,
+			    GetModuleHandle(nullptr),
+			    nullptr);
+			SetWindowLongPtr(m_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 		}
 		break;
 
@@ -573,16 +513,15 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 
 	case effProcessEvents:
 		// VstEvents* in [ptr]
-		TranslateBridgeToVSTEvents(eventCache, ptr);
-		ptr = &eventCache[0];
-
+		TranslateBridgeToVstEvents(m_eventCache, ptr);
+		ptr = m_eventCache.data();
 		break;
 
 	case effOfflineNotify:
 		// VstAudioFile* in [ptr]
-		extraData.resize(sizeof(VstAudioFile *) * static_cast<size_t>(msg->value));
-		ptr = &extraData[0];
-		for(int64 i = 0; i < msg->value; i++)
+		extraData.resize(sizeof(VstAudioFile *) * static_cast<size_t>(msg.value));
+		ptr = extraData.data();
+		for(int64 i = 0; i < msg.value; i++)
 		{
 			// TODO create pointers
 		}
@@ -591,9 +530,9 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 	case effOfflinePrepare:
 	case effOfflineRun:
 		// VstOfflineTask* in [ptr]
-		extraData.resize(sizeof(VstOfflineTask *) * static_cast<size_t>(msg->value));
-		ptr = &extraData[0];
-		for(int64 i = 0; i < msg->value; i++)
+		extraData.resize(sizeof(VstOfflineTask *) * static_cast<size_t>(msg.value));
+		ptr = extraData.data();
+		for(int64 i = 0; i < msg.value; i++)
 		{
 			// TODO create pointers
 		}
@@ -602,31 +541,33 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 	case effSetSpeakerArrangement:
 	case effGetSpeakerArrangement:
 		// VstSpeakerArrangement* in [value] and [ptr]
-		msg->value = reinterpret_cast<int64>(ptr) + sizeof(VstSpeakerArrangement);
+		msg.value = reinterpret_cast<int64>(ptr) + sizeof(VstSpeakerArrangement);
 		break;
 
 	case effVendorSpecific:
 		// Let's implement some custom opcodes!
-		if(msg->index == kVendorOpenMPT)
+		if(msg.index == kVendorOpenMPT)
 		{
-			msg->result = 1;
-			switch(msg->value)
+			msg.result = 1;
+			switch(msg.value)
 			{
 			case kUpdateEffectStruct:
 				UpdateEffectStruct();
 				break;
 			case kUpdateEventMemName:
-				eventMem.Open(static_cast<const wchar_t *>(ptr));
+				if(ptr)
+					m_eventMem.Open(static_cast<const wchar_t *>(ptr));
 				break;
 			case kCacheProgramNames:
+				if(ptr)
 				{
 					int32 progMin = static_cast<const int32 *>(ptr)[0];
-					int32 progMax  = static_cast<const int32 *>(ptr)[1];
+					int32 progMax = static_cast<const int32 *>(ptr)[1];
 					char *name = static_cast<char *>(ptr);
 					for(int32 i = progMin; i < progMax; i++)
 					{
 						strcpy(name, "");
-						if(nativeEffect->numPrograms <= 0 || Dispatch(effGetProgramNameIndexed, i, -1, name, 0) != 1)
+						if(m_nativeEffect->numPrograms <= 0 || Dispatch(effGetProgramNameIndexed, i, -1, name, 0) != 1)
 						{
 							// Fallback: Try to get current program name.
 							strcpy(name, "");
@@ -647,11 +588,12 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 				}
 				break;
 			case kCacheParameterInfo:
+				if(ptr)
 				{
 					int32 paramMin = static_cast<const int32 *>(ptr)[0];
-					int32 paramMax  = static_cast<const int32 *>(ptr)[1];
+					int32 paramMax = static_cast<const int32 *>(ptr)[1];
 					ParameterInfo *param = static_cast<ParameterInfo *>(ptr);
-					for(int32 i = paramMin; i < paramMax; i++)
+					for(int32 i = paramMin; i < paramMax; i++, param++)
 					{
 						strcpy(param->name, "");
 						strcpy(param->label, "");
@@ -659,21 +601,31 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 						Dispatch(effGetParamName, i, 0, param->name, 0.0f);
 						Dispatch(effGetParamLabel, i, 0, param->label, 0.0f);
 						Dispatch(effGetParamDisplay, i, 0, param->display, 0.0f);
-						param->name[CountOf(param->label) - 1] = '\0';
-						param->label[CountOf(param->label) - 1] = '\0';
-						param->display[CountOf(param->display) - 1] = '\0';
+						param->name[mpt::array_size<decltype(param->label)>::size - 1] = '\0';
+						param->label[mpt::array_size<decltype(param->label)>::size - 1] = '\0';
+						param->display[mpt::array_size<decltype(param->display)>::size - 1] = '\0';
 
 						if(Dispatch(effGetParameterProperties, i, 0, &param->props, 0.0f) != 1)
 						{
 							memset(&param->props, 0, sizeof(param->props));
-							strncpy(param->props.label, param->name, CountOf(param->props.label));
+							strncpy(param->props.label, param->name, std::size(param->props.label));
 						}
-						param++;
+					}
+				}
+				break;
+			case kBeginGetProgram:
+				if(ptr)
+				{
+					int32 numParams = static_cast<int32>((msg.size - sizeof(DispatchMsg)) / sizeof(float));
+					float *params = static_cast<float *>(ptr);
+					for(int32 i = 0; i < numParams; i++)
+					{
+						params[i] = m_nativeEffect->getParameter(m_nativeEffect, i);
 					}
 				}
 				break;
 			default:
-				msg->result = 0;
+				msg.result = 0;
 			}
 			return;
 		}
@@ -683,28 +635,28 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 	if(extraDataSize != 0)
 	{
 		extraData.resize(extraDataSize, 0);
-		ptr = &extraData[0];
+		ptr = extraData.data();
 	}
 
-	//std::cout << "about to dispatch " << msg->opcode << " to effect...";
+	//std::cout << "about to dispatch " << msg.opcode << " to effect...";
 	//std::flush(std::cout);
 	bool exception = false;
-	msg->result = static_cast<int32>(DispatchSEH(nativeEffect, msg->opcode, msg->index, static_cast<VstIntPtr>(msg->value), ptr, msg->opt, exception));
-	if(exception)
+	msg.result = static_cast<int32>(DispatchSEH(m_nativeEffect, static_cast<VstOpcodeToPlugin>(msg.opcode), msg.index, static_cast<intptr_t>(msg.value), ptr, msg.opt, exception));
+	if(exception && msg.opcode != effClose)
 	{
-		msg->type = MsgHeader::exceptionMsg;
+		msg.type = MsgHeader::exceptionMsg;
 		return;
 	}
 	//std::cout << "done" << std::endl;
 
 	// Post-fix some opcodes
-	switch(msg->opcode)
+	switch(msg.opcode)
 	{
 	case effClose:
-		nativeEffect = nullptr;
-		FreeLibrary(library);
-		library = nullptr;
-		closeInstance = true;
+		m_nativeEffect = nullptr;
+		FreeLibrary(m_library);
+		m_library = nullptr;
+		RequestDelete();
 		return;
 
 	case effGetProgramName:
@@ -719,57 +671,58 @@ void PluginBridge::DispatchToPlugin(DispatchMsg *msg)
 	case effGetProductString:
 	case effShellGetNextPlugin:
 		// Name in [ptr]
-		extraData.back() = 0;
-		vst_strncpy(static_cast<char *>(origPtr), &extraData[0], static_cast<size_t>(msg->ptr - 1));
-		break;
+		{
+			extraData.back() = 0;
+			char *dst = static_cast<char *>(origPtr);
+			size_t length = static_cast<size_t>(msg.ptr - 1);
+			strncpy(dst, extraData.data(), length);
+			dst[length] = 0;
+			break;
+		}
 
 	case effEditGetRect:
 		// ERect** in [ptr]
 		{
-			ERect *rectPtr = *reinterpret_cast<ERect **>(&extraData[0]);
-			if(rectPtr != nullptr)
+			ERect *rectPtr = *reinterpret_cast<ERect **>(extraData.data());
+			if(rectPtr != nullptr && origPtr != nullptr)
 			{
-				assert(static_cast<size_t>(msg->ptr) >= sizeof(ERect));
-				memcpy(origPtr, rectPtr, std::min<size_t>(sizeof(ERect), static_cast<size_t>(msg->ptr)));
-				windowSize = *rectPtr;
+				MPT_ASSERT(static_cast<size_t>(msg.ptr) >= sizeof(ERect));
+				std::memcpy(origPtr, rectPtr, std::min(sizeof(ERect), static_cast<size_t>(msg.ptr)));
+				m_windowWidth = rectPtr->right - rectPtr->left;
+				m_windowHeight = rectPtr->bottom - rectPtr->top;
 
 				// For plugins that don't know their size until after effEditOpen is done.
-				if(window)
+				if(m_window)
 				{
-					SetWindowPos(window, NULL, 0, 0, windowSize.right - windowSize.left, windowSize.bottom - windowSize.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+					SetWindowPos(m_window, nullptr, 0, 0, m_windowWidth, m_windowHeight, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 				}
 			}
+			break;
 		}
-		break;
-
-	case effEditOpen:
-		SetProp(window, _T("MPT"), this);
-		ShowWindow(window, SW_SHOW);
-		break;
 
 	case effEditClose:
-		DestroyWindow(window);
-		window = NULL;
+		DestroyWindow(m_window);
+		m_window = nullptr;
 		break;
 
 	case effGetChunk:
 		// void** in [ptr] for chunk data address
-		if(getChunkMem.Create(static_cast<const wchar_t *>(origPtr), msg->result))
+		if(m_getChunkMem.Create(static_cast<const wchar_t *>(origPtr), msg.result))
 		{
-			memcpy(getChunkMem.view, *reinterpret_cast<void **>(&extraData[0]), msg->result);
+			std::memcpy(m_getChunkMem.Data(), *reinterpret_cast<void **>(extraData.data()), msg.result);
 		}
 		break;
 	}
 
-	UpdateEffectStruct();	// Regularly update the struct
+	UpdateEffectStruct();  // Regularly update the struct
 }
 
 
-VstIntPtr PluginBridge::Dispatch(VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt)
+intptr_t PluginBridge::Dispatch(VstOpcodeToPlugin opcode, int32 index, intptr_t value, void *ptr, float opt)
 {
 	__try
 	{
-		return nativeEffect->dispatcher(nativeEffect, opcode, index, value, ptr, opt);
+		return m_nativeEffect->dispatcher(m_nativeEffect, opcode, index, value, ptr, opt);
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{
 		SendErrorMessage(L"Exception in dispatch()!");
@@ -779,27 +732,27 @@ VstIntPtr PluginBridge::Dispatch(VstInt32 opcode, VstInt32 index, VstIntPtr valu
 
 
 // Set a plugin parameter.
-void PluginBridge::SetParameter(ParameterMsg *msg)
+void PluginBridge::SetParameter(ParameterMsg &msg)
 {
 	__try
 	{
-		nativeEffect->setParameter(nativeEffect, msg->index, msg->value);
+		m_nativeEffect->setParameter(m_nativeEffect, msg.index, msg.value);
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		msg->type = MsgHeader::exceptionMsg;
+		msg.type = MsgHeader::exceptionMsg;
 	}
 }
 
 
 // Get a plugin parameter.
-void PluginBridge::GetParameter(ParameterMsg *msg)
+void PluginBridge::GetParameter(ParameterMsg &msg)
 {
 	__try
 	{
-		msg->value = nativeEffect->getParameter(nativeEffect, msg->index);
+		msg.value = m_nativeEffect->getParameter(m_nativeEffect, msg.index);
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		msg->type = MsgHeader::exceptionMsg;
+		msg.type = MsgHeader::exceptionMsg;
 	}
 }
 
@@ -809,11 +762,12 @@ void PluginBridge::AutomateParameters()
 {
 	__try
 	{
-		uint32 numEvents = InterlockedExchange(&sharedMem->automationQueue.pendingEvents, 0);
-		const AutomationQueue::Parameter *param = sharedMem->automationQueue.params;
-		for(uint32 i = 0; i < numEvents; i++, param++)
+		const AutomationQueue::Parameter *param = m_sharedMem->automationQueue.params;
+		const AutomationQueue::Parameter *paramEnd = param + std::min(m_sharedMem->automationQueue.pendingEvents.exchange(0), static_cast<int32>(std::size(m_sharedMem->automationQueue.params)));
+		while(param != paramEnd)
 		{
-			nativeEffect->setParameter(nativeEffect, param->index, param->value);
+			m_nativeEffect->setParameter(m_nativeEffect, param->index, param->value);
+			param++;
 		}
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{
@@ -823,31 +777,34 @@ void PluginBridge::AutomateParameters()
 
 
 // Audio rendering thread
-void PluginBridge::RenderThread()
+DWORD WINAPI PluginBridge::AudioThread(LPVOID param)
 {
-	const HANDLE objects[] = { sigProcess.send, sigThreadExit };
+	static_cast<PluginBridge*>(param)->AudioThread();
+	return 0;
+}
+void PluginBridge::AudioThread()
+{
+	m_isAudioThread = true;
+
+	const HANDLE objects[] = {m_sigProcessAudio.send, m_sigToBridgeAudio.send, m_sigThreadExit, m_otherProcess};
 	DWORD result = 0;
 	do
 	{
-		result = WaitForMultipleObjects(CountOf(objects), objects, FALSE, INFINITE);
+		result = WaitForMultipleObjects(mpt::saturate_cast<DWORD>(std::size(objects)), objects, FALSE, INFINITE);
 		if(result == WAIT_OBJECT_0)
 		{
-			ProcessMsg *msg = static_cast<ProcessMsg *>(processMem.view);
-			InterlockedExchange(&isProcessing, 1);
+			ProcessMsg *msg = m_processMem.Data<ProcessMsg>();
 			AutomateParameters();
 
-			sharedMem->tailSize = static_cast<int32>(Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f));
+			m_sharedMem->tailSize = static_cast<int32>(Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f));
+			m_isProcessing = true;
 
 			// Prepare VstEvents.
-			if(eventMem.Good())
+			if(auto *events = m_eventMem.Data<int32>(); events != nullptr && *events != 0)
 			{
-				VstEvents *events = reinterpret_cast<VstEvents *>(eventMem.view);
-				if(events->numEvents)
-				{
-					TranslateBridgeToVSTEvents(eventCache, events);
-					events->numEvents = 0;
-					Dispatch(effProcessEvents, 0, 0, &eventCache[0], 0.0f);
-				}
+				TranslateBridgeToVstEvents(m_eventCache, events);
+				*events = 0;
+				Dispatch(effProcessEvents, 0, 0, m_eventCache.data(), 0.0f);
 			}
 
 			switch(msg->processType)
@@ -863,23 +820,36 @@ void PluginBridge::RenderThread()
 				break;
 			}
 
-			InterlockedExchange(&isProcessing, 0);
-			sigProcess.Confirm();
+			m_isProcessing = false;
+			m_sigProcessAudio.Confirm();
+		} else if(result == WAIT_OBJECT_0 + 1)
+		{
+			ParseNextMessage(m_sharedMem->audioThreadToBridgeMsgID);
+			m_sigToBridgeAudio.Confirm();
+		} else if(result == WAIT_OBJECT_0 + 2)
+		{
+			// Main thread asked for termination
+			break;
+		} else if(result == WAIT_OBJECT_0 + 3)
+		{
+			// Host process died
+			RequestDelete();
+			break;
 		}
-	} while(result != WAIT_OBJECT_0 + 1 && result != WAIT_OBJECT_0 + 2 && result != WAIT_FAILED);
+	} while(result != WAIT_FAILED);
 }
 
 
 // Process audio.
 void PluginBridge::Process()
 {
-	if(nativeEffect->process)
+	if(m_nativeEffect->process)
 	{
 		float **inPointers, **outPointers;
 		int32 sampleFrames = BuildProcessPointers(inPointers, outPointers);
 		__try
 		{
-			nativeEffect->process(nativeEffect, inPointers, outPointers, sampleFrames);
+			m_nativeEffect->process(m_nativeEffect, inPointers, outPointers, sampleFrames);
 		} __except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			SendErrorMessage(L"Exception in process()!");
@@ -891,13 +861,13 @@ void PluginBridge::Process()
 // Process audio.
 void PluginBridge::ProcessReplacing()
 {
-	if(nativeEffect->processReplacing)
+	if(m_nativeEffect->processReplacing)
 	{
 		float **inPointers, **outPointers;
 		int32 sampleFrames = BuildProcessPointers(inPointers, outPointers);
 		__try
 		{
-			nativeEffect->processReplacing(nativeEffect, inPointers, outPointers, sampleFrames);
+			m_nativeEffect->processReplacing(m_nativeEffect, inPointers, outPointers, sampleFrames);
 		} __except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			SendErrorMessage(L"Exception in processReplacing()!");
@@ -909,13 +879,13 @@ void PluginBridge::ProcessReplacing()
 // Process audio.
 void PluginBridge::ProcessDoubleReplacing()
 {
-	if(nativeEffect->processDoubleReplacing)
+	if(m_nativeEffect->processDoubleReplacing)
 	{
 		double **inPointers, **outPointers;
 		int32 sampleFrames = BuildProcessPointers(inPointers, outPointers);
 		__try
 		{
-			nativeEffect->processDoubleReplacing(nativeEffect, inPointers, outPointers, sampleFrames);
+			m_nativeEffect->processDoubleReplacing(m_nativeEffect, inPointers, outPointers, sampleFrames);
 		} __except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			SendErrorMessage(L"Exception in processDoubleReplacing()!");
@@ -925,36 +895,34 @@ void PluginBridge::ProcessDoubleReplacing()
 
 
 // Helper function to build the pointer arrays required by the VST process functions.
-template<typename buf_t>
+template <typename buf_t>
 int32 PluginBridge::BuildProcessPointers(buf_t **(&inPointers), buf_t **(&outPointers))
 {
-	assert(processMem.Good());
-	ProcessMsg *msg = static_cast<ProcessMsg *>(processMem.view);
+	MPT_ASSERT(m_processMem.Good());
+	ProcessMsg &msg = *m_processMem.Data<ProcessMsg>();
 
-	size_t numPtrs = msg->numInputs + msg->numOutputs;
-	samplePointers.resize(numPtrs, 0);
+	const size_t numPtrs = msg.numInputs + msg.numOutputs;
+	m_sampleBuffers.resize(numPtrs, 0);
 
 	if(numPtrs)
 	{
-		buf_t *offset = reinterpret_cast<buf_t *>(msg + 1);
+		buf_t *offset = reinterpret_cast<buf_t *>(&msg + 1);
 		for(size_t i = 0; i < numPtrs; i++)
 		{
-			samplePointers[i] = offset;
-			offset += msg->sampleFrames;
+			m_sampleBuffers[i] = offset;
+			offset += msg.sampleFrames;
 		}
-		inPointers = reinterpret_cast<buf_t **>(&samplePointers[0]);
-		outPointers = inPointers + msg->numInputs;
+		inPointers = reinterpret_cast<buf_t **>(m_sampleBuffers.data());
+		outPointers = inPointers + msg.numInputs;
 	}
 
-	return msg->sampleFrames;
+	return msg.sampleFrames;
 }
 
 
 // Send a message to the host.
-VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt)
+intptr_t PluginBridge::DispatchToHost(VstOpcodeToHost opcode, int32 index, intptr_t value, void *ptr, float opt)
 {
-	const bool processing = InterlockedExchangeAdd(&isProcessing, 0) != 0;
-
 	std::vector<char> dispatchData(sizeof(DispatchMsg), 0);
 	int64 ptrOut = 0;
 	char *ptrC = static_cast<char *>(ptr);
@@ -973,18 +941,42 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 
 	case audioMasterGetTime:
 		// VstTimeInfo* in [return value]
-		if(processing)
+		if(m_isProcessing)
 		{
 			// During processing, read the cached time info. It won't change during the call
 			// and we can save some valuable inter-process calls that way.
-			return ToVstPtr<VstTimeInfo>(&sharedMem->timeInfo);
+			return ToIntPtr<VstTimeInfo>(&m_sharedMem->timeInfo);
 		}
 		break;
 
 	case audioMasterProcessEvents:
 		// VstEvents* in [ptr]
-		TranslateVSTEventsToBridge(dispatchData, static_cast<VstEvents *>(ptr), otherPtrSize);
+		if(ptr == nullptr)
+			return 0;
+		TranslateVstEventsToBridge(dispatchData, *static_cast<VstEvents *>(ptr), m_otherPtrSize);
 		ptrOut = dispatchData.size() - sizeof(DispatchMsg);
+		// If we are currently processing, try to return the events as part of the process call
+		if(m_isAudioThread && m_isProcessing && m_eventMem.Good())
+		{
+			auto *memBytes = m_eventMem.Data<char>();
+			auto *eventBytes = m_eventMem.Data<char>() + sizeof(int32);
+			int32 &memNumEvents = *m_eventMem.Data<int32>();
+			const auto memEventsSize = BridgeVstEventsSize(memBytes);
+			if(m_eventMem.Size() >= static_cast<size_t>(ptrOut) + memEventsSize)
+			{
+				// Enough shared memory for possibly pre-existing and new events; add new events at the end
+				memNumEvents += static_cast<VstEvents *>(ptr)->numEvents;
+				std::memcpy(eventBytes + memEventsSize, dispatchData.data() + sizeof(DispatchMsg) + sizeof(int32), static_cast<size_t>(ptrOut) - sizeof(int32));
+				return 1;
+			} else if(memNumEvents)
+			{
+				// Not enough memory; merge what we have and what we want to add so that it arrives in the correct order
+				dispatchData.insert(dispatchData.begin() + sizeof(DispatchMsg) + sizeof(int32), eventBytes, eventBytes + memEventsSize);
+				*reinterpret_cast<int32 *>(dispatchData.data() + sizeof(DispatchMsg)) += memNumEvents;
+				memNumEvents = 0;
+				ptrOut += memEventsSize;
+			}
+		}
 		break;
 
 	case audioMasterSetTime:
@@ -1003,10 +995,10 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 			}
 			break;
 		}
-		MPT_FALLTHROUGH;
+		[[fallthrough]];
 	case audioMasterIOChanged:
 		// We need to be sure that the new values are known to the master.
-		if(nativeEffect != nullptr)
+		if(m_nativeEffect != nullptr)
 		{
 			UpdateEffectStruct();
 			CreateProcessingFile(dispatchData);
@@ -1015,13 +1007,13 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 		break;
 
 	case audioMasterNeedIdle:
-		needIdle = true;
+		m_needIdle = true;
 		return 1;
 
 	case audioMasterSizeWindow:
-		if(window)
+		if(m_window)
 		{
-			SetWindowPos(window, NULL, 0, 0, index, static_cast<int>(value), SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+			SetWindowPos(m_window, nullptr, 0, 0, index, static_cast<int>(value), SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 		}
 		break;
 
@@ -1046,10 +1038,8 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 	case audioMasterOfflineWrite:
 	case audioMasterOfflineGetCurrentPass:
 	case audioMasterOfflineGetCurrentMetaPass:
-		// TODO
-		assert(false);
+		// Currently not supported in OpenMPT
 		return 0;
-		break;
 
 	case audioMasterSetOutputSampleRate:
 		break;
@@ -1092,10 +1082,27 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 		break;
 
 	case audioMasterOpenFileSelector:
+		// VstFileSelect* in [ptr]
+		if(ptr != nullptr)
+		{
+			auto &fileSel = *static_cast<VstFileSelect *>(ptr);
+			fileSel.returnMultiplePaths = nullptr;
+			fileSel.numReturnPaths = 0;
+			TranslateVstFileSelectToBridge(dispatchData, fileSel, m_otherPtrSize);
+			ptrOut = dispatchData.size() - sizeof(DispatchMsg) + 65536; // enough space for return paths
+		}
+		break;
+
 	case audioMasterCloseFileSelector:
 		// VstFileSelect* in [ptr]
-		return VstFileSelector(opcode == audioMasterCloseFileSelector, static_cast<VstFileSelect *>(ptr));
-		break;
+		if(auto *fileSel = static_cast<VstFileSelect *>(ptr); fileSel != nullptr && fileSel->reserved == 1)
+		{
+			fileSel->returnPath = nullptr;
+			fileSel->returnMultiplePaths = nullptr;
+		}
+		m_fileSelectCache.clear();
+		m_fileSelectCache.shrink_to_fit();
+		return 1;
 
 	case audioMasterEditFile:
 		break;
@@ -1107,8 +1114,9 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 		break;
 
 	default:
-#ifdef _DEBUG
-		if(ptr != nullptr) __debugbreak();
+#ifdef MPT_BUILD_DEBUG
+		if(ptr != nullptr)
+			__debugbreak();
 #endif
 		break;
 	}
@@ -1118,11 +1126,11 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 		// In case we only reserve space and don't copy stuff over...
 		dispatchData.resize(sizeof(DispatchMsg) + static_cast<size_t>(ptrOut), 0);
 	}
-	
+
 	uint32 extraSize = static_cast<uint32>(dispatchData.size() - sizeof(DispatchMsg));
 
 	// Create message header
-	BridgeMessage *msg = reinterpret_cast<BridgeMessage *>(&dispatchData[0]);
+	BridgeMessage *msg = reinterpret_cast<BridgeMessage *>(dispatchData.data());
 	msg->Dispatch(opcode, index, value, ptrOut, opt, extraSize);
 
 	const bool useAuxMem = dispatchData.size() > sizeof(BridgeMessage);
@@ -1132,12 +1140,12 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 		// Extra data doesn't fit in message - use secondary memory
 		wchar_t auxMemName[64];
 		static_assert(sizeof(DispatchMsg) + sizeof(auxMemName) <= sizeof(BridgeMessage), "Check message sizes, this will crash!");
-		swprintf(auxMemName, CountOf(auxMemName), L"Local\\openmpt-%d-auxmem-%d", GetCurrentProcessId(), GetCurrentThreadId());
+		swprintf(auxMemName, std::size(auxMemName), L"Local\\openmpt-%u-auxmem-%u", GetCurrentProcessId(), GetCurrentThreadId());
 		if(auxMem.Create(auxMemName, extraSize))
 		{
 			// Move message data to shared memory and then move shared memory name to message data
-			memcpy(auxMem.view, &dispatchData[sizeof(DispatchMsg)], extraSize);
-			memcpy(&dispatchData[sizeof(DispatchMsg)], auxMemName, sizeof(auxMemName));
+			std::memcpy(auxMem.Data(), &dispatchData[sizeof(DispatchMsg)], extraSize);
+			std::memcpy(&dispatchData[sizeof(DispatchMsg)], auxMemName, sizeof(auxMemName));
 		} else
 		{
 			return 0;
@@ -1153,298 +1161,161 @@ VstIntPtr PluginBridge::DispatchToHost(VstInt32 opcode, VstInt32 index, VstIntPt
 	//std::cout << "done." << std::endl;
 	const DispatchMsg *resultMsg = &msg->dispatch;
 
-	const char *extraData = useAuxMem ? static_cast<const char *>(auxMem.view) : reinterpret_cast<const char *>(resultMsg + 1);
+	const char *extraData = useAuxMem ? auxMem.Data<const char>() : reinterpret_cast<const char *>(resultMsg + 1);
 	// Post-fix some opcodes
 	switch(opcode)
 	{
 	case audioMasterGetTime:
 		// VstTimeInfo* in [return value]
-		return ToVstPtr<VstTimeInfo>(&sharedMem->timeInfo);
+		return ToIntPtr<VstTimeInfo>(&m_sharedMem->timeInfo);
 
 	case audioMasterGetOutputSpeakerArrangement:
 	case audioMasterGetInputSpeakerArrangement:
 		// VstSpeakerArrangement* in [return value]
-		memcpy(&host2PlugMem.speakerArrangement, extraData, sizeof(VstSpeakerArrangement));
-		return ToVstPtr<VstSpeakerArrangement>(&host2PlugMem.speakerArrangement);
+		std::memcpy(&m_host2PlugMem.speakerArrangement, extraData, sizeof(VstSpeakerArrangement));
+		return ToIntPtr<VstSpeakerArrangement>(&m_host2PlugMem.speakerArrangement);
 
 	case audioMasterGetVendorString:
 	case audioMasterGetProductString:
 		// Name in [ptr]
 		strcpy(ptrC, extraData);
 		break;
-	
+
 	case audioMasterGetDirectory:
 		// Name in [return value]
-		vst_strncpy(host2PlugMem.name, extraData, CountOf(host2PlugMem.name) - 1);
-		return ToVstPtr<char>(host2PlugMem.name);
+		strncpy(m_host2PlugMem.name, extraData, std::size(m_host2PlugMem.name) - 1);
+		m_host2PlugMem.name[std::size(m_host2PlugMem.name) - 1] = 0;
+		return ToIntPtr<char>(m_host2PlugMem.name);
+
+	case audioMasterOpenFileSelector:
+		if(resultMsg->result != 0 && ptr != nullptr)
+		{
+			TranslateBridgeToVstFileSelect(m_fileSelectCache, extraData, static_cast<size_t>(ptrOut));
+			auto &fileSel = *static_cast<VstFileSelect *>(ptr);
+			const auto &fileSelResult = *reinterpret_cast<const VstFileSelect *>(m_fileSelectCache.data());
+
+			if((fileSel.command == kVstFileLoad || fileSel.command == kVstFileSave))
+			{
+				if(FourCC("VOPM") == m_nativeEffect->uniqueID)
+				{
+					fileSel.sizeReturnPath = _MAX_PATH;
+				}
+			} else if(fileSel.command == kVstDirectorySelect)
+			{
+				if(FourCC("VSTr") == m_nativeEffect->uniqueID && fileSel.returnPath != nullptr && fileSel.sizeReturnPath == 0)
+				{
+					// Old versions of reViSiT (which still relied on the host's file selector) seem to be dodgy.
+					// They report a path size of 0, but when using an own buffer, they will crash.
+					// So we'll just assume that reViSiT can handle long enough (_MAX_PATH) paths here.
+					fileSel.sizeReturnPath = static_cast<int32>(strlen(fileSelResult.returnPath) + 1);
+				}
+			}
+			fileSel.numReturnPaths = fileSelResult.numReturnPaths;
+			fileSel.reserved = 1;
+			if(fileSel.command == kVstMultipleFilesLoad)
+			{
+				fileSel.returnMultiplePaths = fileSelResult.returnMultiplePaths;
+			} else if(fileSel.returnPath != nullptr && fileSel.sizeReturnPath != 0)
+			{
+				// Plugin provides memory
+				const auto len = strnlen(fileSelResult.returnPath, fileSel.sizeReturnPath - 1);
+				strncpy(fileSel.returnPath, fileSelResult.returnPath, len);
+				fileSel.returnPath[len] = '\0';
+				fileSel.reserved = 0;
+			} else
+			{
+				fileSel.returnPath = fileSelResult.returnPath;
+				fileSel.sizeReturnPath = fileSelResult.sizeReturnPath;
+			}
+		}
+		break;
 
 	case audioMasterGetChunkFile:
 		// Name in [ptr]
 		strcpy(ptrC, extraData);
 		break;
+
+	default:
+		// nothing
+		break;
 	}
 
-	return static_cast<VstIntPtr>(resultMsg->result);
-}
-
-
-// Helper function for file selection dialog stuff.
-// Note: This has been mostly copied from Vstplug.cpp. Ugly, but serializing this over the bridge would be even uglier.
-VstIntPtr PluginBridge::VstFileSelector(bool destructor, VstFileSelect *fileSel)
-{
-	if(fileSel == nullptr)
-	{
-		return 0;
-	}
-
-	if(!destructor)
-	{
-		fileSel->returnMultiplePaths = nullptr;
-		fileSel->nbReturnPath = 0;
-		fileSel->reserved = 0;
-
-		if(fileSel->command != kVstDirectorySelect)
-		{
-			// Plugin wants to load or save a file.
-			std::string extensions, workingDir;
-			for(VstInt32 i = 0; i < fileSel->nbFileTypes; i++)
-			{
-				VstFileType *pType = &(fileSel->fileTypes[i]);
-				extensions += pType->name;
-				extensions.push_back(0);
-#if (defined(WIN32) || (defined(WINDOWS) && WINDOWS == 1))
-				extensions += "*.";
-				extensions += pType->dosType;
-#elif defined(MAC) && MAC == 1
-				extensions += "*";
-				extensions += pType->macType;
-#elif defined(UNIX) && UNIX == 1
-				extensions += "*.";
-				extensions += pType->unixType;
-#else
-#error Platform-specific code missing
-#endif
-				extensions.push_back(0);
-			}
-			extensions.push_back(0);
-
-			if(fileSel->initialPath != nullptr)
-			{
-				workingDir = fileSel->initialPath;
-			} else
-			{
-				// Plugins are probably looking for presets...?
-				//workingDir = TrackerSettings::Instance().PathPluginPresets.GetWorkingDir();
-			}
-
-			std::string filenameBuffer(uint16_max, 0);
-
-			const bool multiSelect = (fileSel->command == kVstMultipleFilesLoad);
-			const bool load = (fileSel->command != kVstFileSave);
-			OPENFILENAMEA ofn;
-			memset(&ofn, 0, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = window;
-			ofn.hInstance = NULL;
-			ofn.lpstrFilter = extensions.c_str();
-			ofn.lpstrCustomFilter = NULL;
-			ofn.nMaxCustFilter = 0;
-			ofn.nFilterIndex = 0;
-			ofn.lpstrFile = &filenameBuffer[0];
-			ofn.nMaxFile = static_cast<DWORD>(filenameBuffer.size());
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = workingDir.empty() ? NULL : workingDir.c_str();
-			ofn.lpstrTitle = NULL;
-			ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | (multiSelect ? OFN_ALLOWMULTISELECT : 0) | (load ? 0 : (OFN_OVERWRITEPROMPT | OFN_NOREADONLYRETURN));
-			ofn.nFileOffset = 0;
-			ofn.nFileExtension = 0;
-			ofn.lpstrDefExt = NULL;
-			ofn.lCustData = reinterpret_cast<LPARAM>(this);
-			ofn.lpfnHook = NULL;
-			ofn.lpTemplateName = NULL;
-			ofn.pvReserved = NULL;
-			ofn.dwReserved = 0;
-			ofn.FlagsEx = 0;
-
-			BOOL result = load ? GetOpenFileNameA(&ofn) : GetSaveFileNameA(&ofn);
-
-			if(!result)
-			{
-				return 0;
-			}
-
-			if(multiSelect)
-			{
-				// Multiple files might have been selected
-				size_t numFiles = 0;
-				const char *currentFile = ofn.lpstrFile + ofn.nFileOffset;
-				while(currentFile[0] != 0)
-				{
-					numFiles++;
-					currentFile += lstrlenA(currentFile) + 1;
-				}
-
-				fileSel->nbReturnPath = static_cast<VstInt32>(numFiles);
-				fileSel->returnMultiplePaths = new (std::nothrow) char *[fileSel->nbReturnPath];
-
-				currentFile = ofn.lpstrFile + ofn.nFileOffset;
-				for(size_t i = 0; i < numFiles; i++)
-				{
-					int len = lstrlenA(currentFile);
-					char *fname = new (std::nothrow) char[ofn.nFileOffset + len + 1];
-					lstrcpyA(fname, ofn.lpstrFile);
-					lstrcatA(fname, "\\");
-					lstrcpyA(fname + ofn.nFileOffset, currentFile);
-					fileSel->returnMultiplePaths[i] = fname;
-
-					currentFile += len + 1;
-				}
-				
-			} else
-			{
-				// Single path
-
-				// VOPM doesn't initialize required information properly (it doesn't memset the struct to 0)...
-				if(CCONST('V', 'O', 'P', 'M') == nativeEffect->uniqueID)
-				{
-					fileSel->sizeReturnPath = _MAX_PATH;
-				}
-
-				if(fileSel->returnPath == nullptr || fileSel->sizeReturnPath == 0)
-				{
-					// Provide some memory for the return path.
-					fileSel->sizeReturnPath = lstrlenA(ofn.lpstrFile) + 1;
-					fileSel->returnPath = new (std::nothrow) char[fileSel->sizeReturnPath];
-					if(fileSel->returnPath == nullptr)
-					{
-						return 0;
-					}
-					fileSel->returnPath[fileSel->sizeReturnPath - 1] = '\0';
-					fileSel->reserved = 1;
-				} else
-				{
-					fileSel->reserved = 0;
-				}
-				strncpy(fileSel->returnPath, ofn.lpstrFile, fileSel->sizeReturnPath - 1);
-				fileSel->nbReturnPath = 1;
-				fileSel->returnMultiplePaths = nullptr;
-			}
-			return 1;
-		} else
-		{
-			// Plugin wants a directory
-			CHAR path[MAX_PATH];
-
-			BROWSEINFOA bi;
-			memset(&bi, 0, sizeof(bi));
-			bi.hwndOwner = window;
-			bi.lpszTitle = fileSel->title;
-			bi.pszDisplayName = path;
-			bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
-			bi.lpfn = NULL;
-			bi.lParam = NULL;
-			LPITEMIDLIST pid = SHBrowseForFolderA(&bi);
-			if(pid != NULL && SHGetPathFromIDListA(pid, path))
-			{
-				if(CCONST('V', 'S', 'T', 'r') == nativeEffect->uniqueID && fileSel->returnPath != nullptr && fileSel->sizeReturnPath == 0)
-				{
-					// old versions of reViSiT (which still relied on the host's file selection code) seem to be dodgy.
-					// They report a path size of 0, but when using an own buffer, they will crash.
-					// So we'll just assume that reViSiT can handle long enough (_MAX_PATH) paths here.
-					fileSel->sizeReturnPath = lstrlenA(path) + 1;
-					fileSel->returnPath[fileSel->sizeReturnPath - 1] = '\0';
-				}
-				if(fileSel->returnPath == nullptr || fileSel->sizeReturnPath == 0)
-				{
-					// Provide some memory for the return path.
-					fileSel->sizeReturnPath = lstrlenA(path) + 1;
-					fileSel->returnPath = new char[fileSel->sizeReturnPath];
-					if(fileSel->returnPath == nullptr)
-					{
-						return 0;
-					}
-					fileSel->returnPath[fileSel->sizeReturnPath - 1] = '\0';
-					fileSel->reserved = 1;
-				} else
-				{
-					fileSel->reserved = 0;
-				}
-				strncpy(fileSel->returnPath, path, fileSel->sizeReturnPath - 1);
-				fileSel->nbReturnPath = 1;
-				return 1;
-			}
-			return 0;
-		}
-	} else
-	{
-		// Close file selector - delete allocated strings.
-		if(fileSel->command == kVstMultipleFilesLoad && fileSel->returnMultiplePaths != nullptr)
-		{
-			for(VstInt32 i = 0; i < fileSel->nbReturnPath; i++)
-			{
-				if(fileSel->returnMultiplePaths[i] != nullptr)
-				{
-					delete[] fileSel->returnMultiplePaths[i];
-				}
-			}
-			delete[] fileSel->returnMultiplePaths;
-			fileSel->returnMultiplePaths = nullptr;
-		} else
-		{
-			if(fileSel->reserved == 1 && fileSel->returnPath != nullptr)
-			{
-				delete[] fileSel->returnPath;
-				fileSel->returnPath = nullptr;
-			}
-		}
-		return 1;
-	}
+	return static_cast<intptr_t>(resultMsg->result);
 }
 
 
 // Helper function for sending messages to the host.
-VstIntPtr VSTCALLBACK PluginBridge::MasterCallback(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt)
+intptr_t VSTCALLBACK PluginBridge::MasterCallback(AEffect *effect, VstOpcodeToHost opcode, int32 index, intptr_t value, void *ptr, float opt)
 {
-	PluginBridge *instance = (effect != nullptr && effect->resvd1 != 0) ? FromVstPtr<PluginBridge>(effect->resvd1) : PluginBridge::latestInstance;
+	PluginBridge *instance = (effect != nullptr && effect->reservedForHost1 != nullptr) ? static_cast<PluginBridge *>(effect->reservedForHost1) : PluginBridge::m_latestInstance;
 	return instance->DispatchToHost(opcode, index, value, ptr, opt);
 }
 
 
 LRESULT CALLBACK PluginBridge::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	PluginBridge *that = reinterpret_cast<PluginBridge *>(GetProp(hwnd, _T("MPT")));
+	PluginBridge *that = nullptr;
+	if(hwnd == m_communicationWindow && wParam < m_plugins.size())
+		that = static_cast<PluginBridge *>(m_plugins[wParam]);
+	else // Editor windows
+		that = reinterpret_cast<PluginBridge *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
 	if(that == nullptr)
-	{
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
-	}
 
 	switch(uMsg)
 	{
-	case WM_NCACTIVATE:
-		if(wParam == TRUE)
-		{
-			// Window is activated - put the plugin window into foreground
-			SetWindowPos(GetParent(that->windowParent), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_ASYNCWINDOWPOS);
-		}
-		break;
-
-	case WM_SYSKEYUP:
-	case WM_SYSKEYDOWN:
-	case WM_KEYUP:
-	case WM_KEYDOWN:
-		// Let the host handle these keys, too.
-		// Allow focus stealing as the host might show a message box as a response to a key shortcut.
-		AllowSetForegroundWindow(ASFW_ANY);
-		PostMessage(GetParent(that->windowParent), uMsg, wParam, lParam);
-		break;
-
 	case WM_ERASEBKGND:
 		// Pretend that we erased the background
 		return 1;
+
+	case WM_SIZE:
+	{
+		// For plugins that change their size but do not notify the host, e.g. Roland D-50
+		RECT rect{0, 0, 0, 0};
+		GetClientRect(hwnd, &rect);
+		const int width = rect.right - rect.left, height = rect.bottom - rect.top;
+		if(width > 0 && height > 0 && (width != that->m_windowWidth || height != that->m_windowHeight))
+		{
+			that->m_windowWidth = width;
+			that->m_windowHeight = height;
+			that->DispatchToHost(audioMasterSizeWindow, width, height, nullptr, 0.0f);
+		}
+		break;
+	}
+
+	case WM_BRIDGE_MESSAGE_TO_BRIDGE:
+		that->ParseNextMessage(static_cast<int>(lParam));
+		return WM_BRIDGE_SUCCESS;
+
+	case WM_BRIDGE_DELETE_PLUGIN:
+		delete that;
+		return 0;
 	}
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+void PluginBridge::IdleTimerProc(HWND, UINT, UINT_PTR idTimer, DWORD)
+{
+	if(idTimer != TIMER_IDLE)
+		return;
+	for(auto *plugin : m_plugins)
+	{
+		auto *that = static_cast<PluginBridge *>(plugin);
+		if(that == nullptr)
+			continue;
+		if(that->m_needIdle)
+		{
+			that->Dispatch(effIdle, 0, 0, nullptr, 0.0f);
+			that->m_needIdle = false;
+		}
+		if(that->m_window)
+		{
+			that->Dispatch(effEditIdle, 0, 0, nullptr, 0.0f);
+		}
+	}
 }
 
 

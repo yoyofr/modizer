@@ -10,15 +10,15 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "modcommand.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 class CSoundFile;
 
-//==============
 class EffectInfo
-//==============
 {
 protected:
 	const CSoundFile &sndFile;
@@ -29,20 +29,20 @@ public:
 
 	// Effects Description
 	
-	bool GetEffectName(LPSTR pszDescription, ModCommand::COMMAND command, UINT param, bool bXX = false) const; // bXX: Nxx: ...
+	bool GetEffectName(CString &pszDescription, ModCommand::COMMAND command, UINT param, bool addCommandFormat = false) const; // addCommandFormat: Prepend "Nxx: ..."
 	// Get size of list of known effect commands
 	UINT GetNumEffects() const;
 	// Get range information, effect name, etc... from a given effect.
-	bool GetEffectInfo(UINT ndx, LPSTR s, bool bXX = false, ModCommand::PARAM *prangeMin = nullptr, ModCommand::PARAM *prangeMax = nullptr) const;
+	bool GetEffectInfo(UINT ndx, CString *s, bool addCommandFormat = false, ModCommand::PARAM *prangeMin = nullptr, ModCommand::PARAM *prangeMax = nullptr) const;
 	// Get effect index in effect list from effect command + param
 	LONG GetIndexFromEffect(ModCommand::COMMAND command, ModCommand::PARAM param) const;
 	// Get effect command + param from effect index
-	ModCommand::COMMAND GetEffectFromIndex(UINT ndx, ModCommand::PARAM &refParam) const;
-	ModCommand::COMMAND GetEffectFromIndex(UINT ndx) const;
+	EffectCommand GetEffectFromIndex(UINT ndx, ModCommand::PARAM &refParam) const;
+	EffectCommand GetEffectFromIndex(UINT ndx) const;
 	// Get parameter mask from effect (for extended effects)
 	UINT GetEffectMaskFromIndex(UINT ndx) const;
 	// Get precise effect name, also with explanation of effect parameter
-	bool GetEffectNameEx(LPSTR pszName, UINT ndx, UINT param, CHANNELINDEX chn = CHANNELINDEX_INVALID) const;
+	bool GetEffectNameEx(CString &pszName, const ModCommand &m, uint32 param, CHANNELINDEX chn) const;
 	// Check whether an effect is extended (with parameter nibbles)
 	bool IsExtendedEffect(UINT ndx) const;
 	// Map an effect value to slider position
@@ -57,11 +57,11 @@ public:
 	// Get effect index in effect list from volume command
 	LONG GetIndexFromVolCmd(ModCommand::VOLCMD volcmd) const;
 	// Get volume command from effect index
-	ModCommand::VOLCMD GetVolCmdFromIndex(UINT ndx) const;
+	VolumeCommand GetVolCmdFromIndex(UINT ndx) const;
 	// Get range information, effect name, etc... from a given effect.
-	bool GetVolCmdInfo(UINT ndx, LPSTR s, ModCommand::VOL *prangeMin = nullptr, ModCommand::VOL *prangeMax = nullptr) const;
+	bool GetVolCmdInfo(UINT ndx, CString *s, ModCommand::VOL *prangeMin = nullptr, ModCommand::VOL *prangeMax = nullptr) const;
 	// Get effect name and parameter description
-	bool GetVolCmdParamInfo(const ModCommand &m, LPSTR s) const;
+	bool GetVolCmdParamInfo(const ModCommand &m, CString *s) const;
 };
 
 OPENMPT_NAMESPACE_END

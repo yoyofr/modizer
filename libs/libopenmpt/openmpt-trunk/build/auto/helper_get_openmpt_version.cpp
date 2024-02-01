@@ -1,13 +1,16 @@
 
+#define LIBOPENMPT_BUILD
+#include "common/BuildSettings.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
 
-#define OPENMPT_NAMESPACE_BEGIN
-#define OPENMPT_NAMESPACE_END
 #include "common/versionNumber.h"
-
 #include "libopenmpt/libopenmpt_version.h"
+
+#define VER_HELPER_STRINGIZE(x) #x
+#define VER_STRINGIZE(x)        VER_HELPER_STRINGIZE(x)
 
 int main( int argc, char * argv [] ) {
 	std::vector<std::string> args = std::vector<std::string>( argv, argv + argc );
@@ -21,7 +24,19 @@ int main( int argc, char * argv [] ) {
 			std::cout << "unknown" << std::endl;
 
 		} else if ( arg == "openmpt" ) {
-			std::cout << MPT_VERSION_STR << std::endl;
+			std::cout << VER_STRINGIZE(VER_MAJORMAJOR) << "." << VER_STRINGIZE(VER_MAJOR) << "." << VER_STRINGIZE(VER_MINOR) << "." << VER_STRINGIZE(VER_MINORMINOR) << std::endl;
+
+		} else if ( arg == "openmpt-version-majormajor" ) {
+			std::cout << VER_STRINGIZE(VER_MAJORMAJOR) << std::endl;
+
+		} else if ( arg == "openmpt-version-major" ) {
+			std::cout << VER_STRINGIZE(VER_MAJOR) << std::endl;
+
+		} else if ( arg == "openmpt-version-minor" ) {
+			std::cout << VER_STRINGIZE(VER_MINOR) << std::endl;
+
+		} else if ( arg == "openmpt-version-minorminor" ) {
+			std::cout << VER_STRINGIZE(VER_MINORMINOR) << std::endl;
 
 #ifdef OPENMPT_API_VERSION_MAJOR
 		} else if ( arg == "libopenmpt-version-major" ) {

@@ -1,5 +1,5 @@
 /*
- * ctrl_smp.h
+ * Ctrl_smp.h
  * ----------
  * Purpose: Sample tab, upper panel.
  * Notes  : (currently none)
@@ -11,8 +11,13 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
+#include "Globals.h"
+#include "Undo.h"
+#include "UpdateHints.h"
 #include "../soundlib/SampleIO.h"
-#include "FadeLaws.h"
+#include "../tracklib/FadeLaws.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -23,12 +28,10 @@ enum OpenSampleTypes
 };
 MPT_DECLARE_ENUM(OpenSampleTypes)
 
-//=======================================
 class CCtrlSamples: public CModControlDlg
-//=======================================
 {
 protected:
-	friend class CDoPitchShiftTimeStretch;
+	friend class DoPitchShiftTimeStretch;
 
 	struct SampleSelectionPoints
 	{
@@ -45,57 +48,66 @@ protected:
 	CSpinButtonCtrl m_SpinVolume, m_SpinGlobalVol, m_SpinPanning, m_SpinVibSweep, m_SpinVibDepth, m_SpinVibRate;
 	CSpinButtonCtrl m_SpinLoopStart, m_SpinLoopEnd, m_SpinSustainStart, m_SpinSustainEnd;
 	CSpinButtonCtrl m_SpinFineTune, m_SpinSample;
+	CSpinButtonCtrl m_SpinSequenceMs, m_SpinSeekWindowMs, m_SpinOverlap, m_SpinStretchAmount;
 	CComboBox m_ComboAutoVib, m_ComboLoopType, m_ComboSustainType, m_ComboZoom, m_CbnBaseNote;
 	CButton m_CheckPanning;
-	SAMPLEINDEX m_nSample;
-	double m_dTimeStretchRatio; //rewbs.timeStretchMods
-	uint32 m_nSequenceMs;
-	uint32 m_nSeekWindowMs;
-	uint32 m_nOverlapMs;
-	SampleIO m_nPreviousRawFormat;
-	bool finetuneBoxActive : 1;
-	bool rememberRawFormat : 1;
+	double m_dTimeStretchRatio = 100;
+	uint32 m_nSequenceMs = 0;
+	uint32 m_nSeekWindowMs = 0;
+	uint32 m_nOverlapMs = 0;
+	SAMPLEINDEX m_nSample = 1;
+	INSTRUMENTINDEX m_editInstrumentName = INSTRUMENTINDEX_INVALID;
+	bool m_rememberRawFormat = false;
+	bool m_startedEdit = false;
 
 	CComboBox m_ComboPitch, m_ComboQuality, m_ComboFFT;
-
-	void UpdateTimeStretchParameterString();
-	void ReadTimeStretchParameters();
-
-	// Applies amplification to sample. Negative values
-	// can be used to invert phase.
-	void ApplyAmplify(int32 nAmp, bool fadeIn, bool fadeOut, Fade::Law fadeLaw);
-	void ApplyResample(uint32_t newRate, ResamplingMode mode);
-
-	SampleSelectionPoints GetSelectionPoints();
-	void SetSelectionPoints(SmpLength nStart, SmpLength nEnd);
-
-	void PropagateAutoVibratoChanges();
 
 public:
 	CCtrlSamples(CModControlView &parent, CModDoc &document);
 	~CCtrlSamples();
 
+protected:
+	bool IsOPLInstrument() const;
+	
 	bool SetCurrentSample(SAMPLEINDEX nSmp, LONG lZoom = -1, bool bUpdNum = true);
 	bool InsertSample(bool duplicate, int8 *confirm = nullptr);
 	bool OpenSample(const mpt::PathString &fileName, FlagSet<OpenSampleTypes> types = OpenSampleKnown | OpenSampleRaw);
 	bool OpenSample(const CSoundFile &sndFile, SAMPLEINDEX nSample);
-	Setting<LONG> &GetSplitPosRef() {return TrackerSettings::Instance().glSampleWindowHeight;} 	//rewbs.varWindowSize
+	void OpenSamples(const std::vector<mpt::PathString> &files, FlagSet<OpenSampleTypes> types);
+	void SaveSample(bool doBatchSave);
+
+	void Normalize(bool allSamples);
+	void RemoveDCOffset(bool allSamples);
+
+	void UpdateTimeStretchParameters();
+	void ReadTimeStretchParameters();
+
+	void ApplyAmplify(const double amp, const double fadeInStart, const double fadeOutEnd, const bool fadeIn, const bool fadeOut, const Fade::Law fadeLaw);
+	void ApplyResample(SAMPLEINDEX smp, uint32 newRate, ResamplingMode mode, bool ignoreSelection = false, bool updatePatternCommands = false);
+
+	SampleSelectionPoints GetSelectionPoints();
+	void SetSelectionPoints(SmpLength nStart, SmpLength nEnd);
+
+	void PropagateAutoVibratoChanges();
+	void SetFinetune(int step);
 
 public:
 	//{{AFX_VIRTUAL(CCtrlSamples)
-	virtual BOOL OnInitDialog();
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	virtual CRuntimeClass *GetAssociatedViewClass();
-	virtual void RecalcLayout();
-	virtual void OnActivatePage(LPARAM);
-	virtual void OnDeactivatePage();
-	virtual void UpdateView(UpdateHint hint, CObject *pObj = nullptr);
-	virtual LRESULT OnModCtrlMsg(WPARAM wParam, LPARAM lParam);
-	virtual BOOL GetToolTipText(UINT uId, TCHAR *pszText);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	Setting<LONG> &GetSplitPosRef() override;
+	BOOL OnInitDialog() override;
+	void DoDataExchange(CDataExchange* pDX) override;	// DDX/DDV support
+	CRuntimeClass *GetAssociatedViewClass() override;
+	void RecalcLayout() override;
+	void OnActivatePage(LPARAM) override;
+	void OnDeactivatePage() override;
+	void UpdateView(UpdateHint hint, CObject *pObj = nullptr) override;
+	LRESULT OnModCtrlMsg(WPARAM wParam, LPARAM lParam) override;
+	BOOL GetToolTipText(UINT uId, LPTSTR pszText) override;
+	BOOL PreTranslateMessage(MSG* pMsg) override;
 	//}}AFX_VIRTUAL
 protected:
 	//{{AFX_MSG(CCtrlSamples)
+	afx_msg void OnEditFocus();
 	afx_msg void OnSampleChanged();
 	afx_msg void OnZoomChanged();
 	afx_msg void OnPrevInstrument();
@@ -107,6 +119,8 @@ protected:
 	afx_msg void OnSampleOpenKnown();
 	afx_msg void OnSampleOpenRaw();
 	afx_msg void OnSampleSave();
+	afx_msg void OnSampleSaveOne() { SaveSample(false); }
+	afx_msg void OnSampleSaveAll() { SaveSample(true); }
 	afx_msg void OnSamplePlay();
 	afx_msg void OnNormalize();
 	afx_msg void OnAmplify();
@@ -136,16 +150,21 @@ protected:
 	afx_msg void OnVibSweepChanged();
 	afx_msg void OnVibRateChanged();
 	afx_msg void OnXFade();
+	afx_msg void OnStereoSeparation();
 	afx_msg void OnKeepSampleOnDisk();
 	afx_msg void OnVScroll(UINT, UINT, CScrollBar *);
-	afx_msg LRESULT OnCustomKeyMsg(WPARAM, LPARAM); //rewbs.customKeys
+	afx_msg LRESULT OnCustomKeyMsg(WPARAM, LPARAM);
 	afx_msg void OnXButtonUp(UINT nFlags, UINT nButton, CPoint point);
 
 	afx_msg void OnPitchShiftTimeStretch();
 	afx_msg void OnEnableStretchToSize();
 	afx_msg void OnEstimateSampleSize();
 
-	MPT_NOINLINE void SetModified(SampleHint hint, bool updateAll, bool waveformModified);
+	afx_msg void OnInitOPLInstrument();
+
+	MPT_NOINLINE void SetModified(SAMPLEINDEX smp, SampleHint hint, bool updateAll, bool waveformModified);
+	void SetModified(SampleHint hint, bool updateAll, bool waveformModified) { SetModified(m_nSample, hint, updateAll, waveformModified); }
+	void PrepareUndo(const char *description, sampleUndoTypes type = sundo_none, SmpLength start = 0, SmpLength end = 0);
 
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

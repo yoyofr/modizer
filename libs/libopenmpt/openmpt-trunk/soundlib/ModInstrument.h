@@ -10,24 +10,25 @@
 
 #pragma once
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
 #include "modcommand.h"
 #include "tuningbase.h"
 #include "Snd_defs.h"
-#include "../common/FlagSet.h"
+#include "openmpt/base/FlagSet.hpp"
 #include "../common/misc_util.h"
+#include <map>
 #include <set>
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+struct ModChannel;
 
 // Instrument Nodes
 struct EnvelopeNode
 {
-	typedef uint16 tick_t;
-	typedef uint8 value_t;
+	using tick_t = uint16;
+	using value_t = uint8;
 
 	tick_t tick = 0;   // Envelope node position (x axis)
 	value_t value = 0; // Envelope node value (y axis)
@@ -61,7 +62,7 @@ struct InstrumentEnvelope : public std::vector<EnvelopeNode>
 	uint32 size() const { return static_cast<uint32>(std::vector<EnvelopeNode>::size()); }
 
 	using std::vector<EnvelopeNode>::push_back;
-	void push_back(EnvelopeNode::tick_t tick, EnvelopeNode::value_t value) { push_back(EnvelopeNode(tick, value)); }
+	void push_back(EnvelopeNode::tick_t tick, EnvelopeNode::value_t value) { emplace_back(tick, value); }
 };
 
 // Instrument Struct
@@ -75,12 +76,13 @@ struct ModInstrument
 
 	ResamplingMode resampling = SRCMODE_DEFAULT;  // Resampling mode
 
-	FlagSet<InstrumentFlags> dwFlags;        // Instrument flags
-	NewNoteAction nNNA = NNA_NOTECUT;        // New note action
-	DuplicateCheckType nDCT = DCT_NONE;      // Duplicate check type (i.e. which condition will trigger the duplicate note action)
-	DuplicateNoteAction nDNA = DNA_NOTECUT;  // Duplicate note action
-	uint8 nPanSwing = 0;                     // Random panning factor (0...64)
-	uint8 nVolSwing = 0;                     // Random volume factor (0...100)
+	FlagSet<InstrumentFlags> dwFlags;                         // Instrument flags
+	NewNoteAction nNNA = NewNoteAction::NoteCut;              // New note action
+	DuplicateCheckType nDCT = DuplicateCheckType::None;       // Duplicate check type (i.e. which condition will trigger the duplicate note action)
+	DuplicateNoteAction nDNA = DuplicateNoteAction::NoteCut;  // Duplicate note action
+
+	uint8 nPanSwing = 0;  // Random panning factor (0...64)
+	uint8 nVolSwing = 0;  // Random volume factor (0...100)
 
 	uint8 nIFC = 0;                                 // Default filter cutoff (0...127). Used if the high bit is set
 	uint8 nIFR = 0;                                 // Default filter resonance (0...127). Used if the high bit is set
@@ -88,14 +90,14 @@ struct ModInstrument
 	uint8 nResSwing = 0;                            // Random resonance factor (0...64)
 	FilterMode filterMode = FilterMode::Unchanged;  // Default filter mode
 
-	int8 nPPS = 0;                               // Pitch/Pan separation (i.e. how wide the panning spreads, -32...32)
-	uint8 nPPC = NOTE_MIDDLEC - NOTE_MIN;        // Pitch/Pan centre (zero-based)
+	int8 nPPS = 0;                         // Pitch/Pan separation (i.e. how wide the panning spreads, -32...32)
+	uint8 nPPC = NOTE_MIDDLEC - NOTE_MIN;  // Pitch/Pan centre (zero-based)
 
 	uint16 wMidiBank = 0;    // MIDI Bank (1...16384). 0 = Don't send.
 	uint8 nMidiProgram = 0;  // MIDI Program (1...128). 0 = Don't send.
 	uint8 nMidiChannel = 0;  // MIDI Channel (1...16). 0 = Don't send. 17 = Mapped (Send to tracker channel modulo 16).
 	uint8 nMidiDrumKey = 0;  // Drum set note mapping (currently only used by the .MID loader)
-	int8 midiPWD = 2;        // MIDI Pitch Wheel Depth in semitones
+	int8 midiPWD = 2;        // MIDI Pitch Wheel Depth and CMD_FINETUNE depth in semitones
 	PLUGINDEX nMixPlug = 0;  // Plugin assigned to this instrument (0 = no plugin, 1 = first plugin)
 
 	PlugVelocityHandling pluginVelocityHandling = PLUGIN_VELOCITYHANDLING_CHANNEL;  // How to deal with plugin velocity
@@ -121,7 +123,7 @@ struct ModInstrument
 	// WHEN adding new members here, ALSO update InstrumentExtensions.cpp
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	ModInstrument(SAMPLEINDEX sample = 0);
+	explicit ModInstrument(SAMPLEINDEX sample = 0);
 
 	// Assign all notes to a given sample.
 	void AssignSample(SAMPLEINDEX sample)
@@ -132,11 +134,12 @@ struct ModInstrument
 	// Reset note mapping (i.e. every note is mapped to itself)
 	void ResetNoteMap()
 	{
-		for(size_t n = 0; n < std::size(NoteMap); n++)
-		{
-			NoteMap[n] = static_cast<uint8>(n + 1);
-		}
+		std::iota(NoteMap.begin(), NoteMap.end(), static_cast<uint8>(NOTE_MIN));
 	}
+
+	// If the instrument has a non-default note mapping and can be simplified to use the default note mapping by transposing samples,
+	// the list of samples that would need to be transposed and the corresponding transpose values are returned - otherwise an empty map.
+	std::map<SAMPLEINDEX, int8> CanConvertToDefaultNoteMap() const;
 
 	// Transpose entire note mapping by given number of semitones
 	void Transpose(int8 amount);
@@ -149,7 +152,7 @@ struct ModInstrument
 	void SetResonance(uint8 resonance, bool enable) { nIFR = std::min(resonance, uint8(0x7F)) | (enable ? 0x80 : 0x00); }
 
 	bool HasValidMIDIChannel() const { return (nMidiChannel >= 1 && nMidiChannel <= 17); }
-	uint8 GetMIDIChannel(const CSoundFile &sndFile, CHANNELINDEX chn) const;
+	uint8 GetMIDIChannel(const ModChannel &channel, CHANNELINDEX chn) const;
 
 	void SetTuning(CTuning *pT)
 	{

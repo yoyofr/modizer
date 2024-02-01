@@ -26,7 +26,7 @@ FindFile::~FindFile()
 
 void FindFile::SetMask(const wchar *Mask)
 {
-  wcscpy(FindMask,Mask);
+  wcsncpyz(FindMask,Mask,ASIZE(FindMask));
   FirstCall=true;
 }
 
@@ -53,7 +53,7 @@ bool FindFile::Next(FindData *fd,bool GetSymLink)
     wcsncpyz(DirName,FindMask,ASIZE(DirName));
     RemoveNameFromPath(DirName);
     if (*DirName==0)
-      wcscpy(DirName,L".");
+      wcsncpyz(DirName,L".",ASIZE(DirName));
     char DirNameA[NM];
     WideToChar(DirName,DirNameA,ASIZE(DirNameA));
     if ((dirp=opendir(DirNameA))==NULL)
@@ -64,32 +64,32 @@ bool FindFile::Next(FindData *fd,bool GetSymLink)
   }
   while (1)
   {
+    wchar Name[NM];
     struct dirent *ent=readdir(dirp);
     if (ent==NULL)
       return false;
     if (strcmp(ent->d_name,".")==0 || strcmp(ent->d_name,"..")==0)
       continue;
-    wchar Name[NM];
     if (!CharToWide(ent->d_name,Name,ASIZE(Name)))
       uiMsg(UIERROR_INVALIDNAME,UINULL,Name);
 
     if (CmpName(FindMask,Name,MATCH_NAMES))
     {
       wchar FullName[NM];
-      wcscpy(FullName,FindMask);
+      wcsncpyz(FullName,FindMask,ASIZE(FullName));
       *PointToName(FullName)=0;
       if (wcslen(FullName)+wcslen(Name)>=ASIZE(FullName)-1)
       {
         uiMsg(UIERROR_PATHTOOLONG,FullName,L"",Name);
         return false;
       }
-      wcscat(FullName,Name);
+      wcsncatz(FullName,Name,ASIZE(FullName));
       if (!FastFind(FullName,fd,GetSymLink))
       {
         ErrHandler.OpenErrorMsg(FullName);
         continue;
       }
-      wcscpy(fd->Name,FullName);
+      wcsncpyz(fd->Name,FullName,ASIZE(fd->Name));
       break;
     }
   }
@@ -119,7 +119,7 @@ bool FindFile::FastFind(const wchar *FindMask,FindData *fd,bool GetSymLink)
   if (hFind==INVALID_HANDLE_VALUE)
     return false;
   FindClose(hFind);
-#else
+#elif defined(_UNIX)
   char FindMaskA[NM];
   WideToChar(FindMask,FindMaskA,ASIZE(FindMaskA));
 
@@ -144,9 +144,9 @@ bool FindFile::FastFind(const wchar *FindMask,FindData *fd,bool GetSymLink)
     }
   fd->FileAttr=st.st_mode;
   fd->Size=st.st_size;
-  fd->mtime=st.st_mtime;
-  fd->atime=st.st_atime;
-  fd->ctime=st.st_ctime;
+
+  File::StatToRarTime(st,&fd->mtime,&fd->ctime,&fd->atime);
+
   wcsncpyz(fd->Name,FindMask,ASIZE(fd->Name));
 #endif
   fd->Flags=0;
@@ -173,9 +173,14 @@ HANDLE FindFile::Win32Find(HANDLE hFind,const wchar *Mask,FindData *fd)
     if (hFind==INVALID_HANDLE_VALUE)
     {
       int SysErr=GetLastError();
-      fd->Error=(SysErr!=ERROR_FILE_NOT_FOUND &&
-                 SysErr!=ERROR_PATH_NOT_FOUND &&
-                 SysErr!=ERROR_NO_MORE_FILES);
+      // We must not issue an error for "file not found" and "path not found",
+      // because it is normal to not find anything for wildcard mask when
+      // archiving. Also searching for non-existent file is normal in some
+      // other modules, like WinRAR scanning for winrar_theme_description.txt
+      // to check if any themes are available.
+      fd->Error=SysErr!=ERROR_FILE_NOT_FOUND && 
+                SysErr!=ERROR_PATH_NOT_FOUND &&
+                SysErr!=ERROR_NO_MORE_FILES;
     }
   }
   else
@@ -194,9 +199,9 @@ HANDLE FindFile::Win32Find(HANDLE hFind,const wchar *Mask,FindData *fd)
     fd->ftCreationTime=FindData.ftCreationTime;
     fd->ftLastAccessTime=FindData.ftLastAccessTime;
     fd->ftLastWriteTime=FindData.ftLastWriteTime;
-    fd->mtime=FindData.ftLastWriteTime;
-    fd->ctime=FindData.ftCreationTime;
-    fd->atime=FindData.ftLastAccessTime;
+    fd->mtime.SetWinFT(&FindData.ftLastWriteTime);
+    fd->ctime.SetWinFT(&FindData.ftCreationTime);
+    fd->atime.SetWinFT(&FindData.ftLastAccessTime);
 
 
   }

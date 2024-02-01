@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "archive.h"
 
 
@@ -24,9 +26,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 #ifdef MPT_WITH_LHASA
 
-//====================================
 class CLhaArchive : public ArchiveBase
-//====================================
 {
 private:
 	LHAInputStream *inputstream;
@@ -38,7 +38,7 @@ public:
 	CLhaArchive(FileReader &file);
 	virtual ~CLhaArchive();
 public:
-	virtual bool ExtractFile(std::size_t index);
+	bool ExtractFile(std::size_t index) override;
 };
 
 #endif // MPT_WITH_LHASA

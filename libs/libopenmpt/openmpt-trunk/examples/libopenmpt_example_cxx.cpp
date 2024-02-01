@@ -11,19 +11,49 @@
  * Usage: libopenmpt_example_cxx SOMEMODULE
  */
 
+#if defined( __MINGW32__ ) && !defined( __MINGW64__ )
+#include <sys/types.h>
+#endif
+
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <new>
 #include <stdexcept>
 #include <vector>
 
 #include <libopenmpt/libopenmpt.hpp>
 
+#if defined( __clang__ )
+#if ( ( __clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__ ) >= 40000 )
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-dynamic-exception-spec"
+#endif
+#endif
 #include <portaudiocpp/PortAudioCpp.hxx>
+#if defined( __clang__ )
+#if ( ( __clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__ ) >= 40000 )
+#pragma clang diagnostic pop
+#endif
+#endif
 
+#if defined( __DJGPP__ )
+#include <crt0.h>
+#endif /* __DJGPP__ */
+
+#if defined( __DJGPP__ )
+/* clang-format off */
+extern "C" int _crt0_startup_flags = 0
+	| _CRT0_FLAG_NONMOVE_SBRK          /* force interrupt compatible allocation */
+	| _CRT0_DISABLE_SBRK_ADDRESS_WRAP  /* force NT compatible allocation */
+	| _CRT0_FLAG_LOCK_MEMORY           /* lock all code and data at program startup */
+	| 0;
+/* clang-format on */
+#endif /* __DJGPP__ */
 #if ( defined( _WIN32 ) || defined( WIN32 ) ) && ( defined( _UNICODE ) || defined( UNICODE ) )
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) || ( defined( __clang__ ) && !defined( _MSC_VER ) )
 // mingw-w64 g++ does only default to special C linkage for "main", but not for "wmain" (see <https://sourceforge.net/p/mingw-w64/wiki2/Unicode%20apps/>).
+extern "C" int wmain( int /*argc*/, wchar_t * /*argv*/[] );
 extern "C" int wmain( int argc, wchar_t * argv[] ) {
 #else
 int wmain( int argc, wchar_t * argv[] ) {
@@ -31,34 +61,63 @@ int wmain( int argc, wchar_t * argv[] ) {
 #else
 int main( int argc, char * argv[] ) {
 #endif
+#if defined( __DJGPP__ )
+	/* clang-format off */
+	_crt0_startup_flags &= ~_CRT0_FLAG_LOCK_MEMORY;  /* disable automatic locking for all further memory allocations */
+	/* clang-format on */
+#endif /* __DJGPP__ */
 	try {
 		if ( argc != 2 ) {
 			throw std::runtime_error( "Usage: libopenmpt_example_cxx SOMEMODULE" );
 		}
-		const std::size_t buffersize = 480;
-#if defined( LIBOPENMPT_QUIRK_NO_CSTDINT )
-		const openmpt::std::int32_t samplerate = 48000;
-#else
-		const std::int32_t samplerate = 48000;
-#endif
-		std::vector<float> left( buffersize );
-		std::vector<float> right( buffersize );
-		const float * const buffers[2] = { left.data(), right.data() };
+		constexpr std::size_t buffersize = 480;
+		constexpr std::int32_t samplerate = 48000;
 		std::ifstream file( argv[1], std::ios::binary );
 		openmpt::module mod( file );
 		portaudio::AutoSystem portaudio_initializer;
 		portaudio::System & portaudio = portaudio::System::instance();
+		std::vector<float> left( buffersize );
+		std::vector<float> right( buffersize );
+		std::vector<float> interleaved_buffer( buffersize * 2 );
+		bool is_interleaved = false;
+#if defined( _MSC_VER ) && defined( _PREFAST_ )
+		// work-around bug in VS2019 MSVC 16.5.5 static analyzer
+		is_interleaved = false;
 		portaudio::DirectionSpecificStreamParameters outputstream_parameters( portaudio.defaultOutputDevice(), 2, portaudio::FLOAT32, false, portaudio.defaultOutputDevice().defaultHighOutputLatency(), 0 );
 		portaudio::StreamParameters stream_parameters( portaudio::DirectionSpecificStreamParameters::null(), outputstream_parameters, samplerate, paFramesPerBufferUnspecified, paNoFlag );
 		portaudio::BlockingStream stream( stream_parameters );
+#else
+		portaudio::BlockingStream stream = [&]()
+		{
+			try {
+				is_interleaved = false;
+				portaudio::DirectionSpecificStreamParameters outputstream_parameters( portaudio.defaultOutputDevice(), 2, portaudio::FLOAT32, false, portaudio.defaultOutputDevice().defaultHighOutputLatency(), 0 );
+				portaudio::StreamParameters stream_parameters( portaudio::DirectionSpecificStreamParameters::null(), outputstream_parameters, samplerate, paFramesPerBufferUnspecified, paNoFlag );
+				return portaudio::BlockingStream( stream_parameters );
+			} catch ( const portaudio::PaException & e ) {
+				if ( e.paError() != paSampleFormatNotSupported ) {
+					throw;
+				}
+				is_interleaved = true;
+				portaudio::DirectionSpecificStreamParameters outputstream_parameters( portaudio.defaultOutputDevice(), 2, portaudio::FLOAT32, true, portaudio.defaultOutputDevice().defaultHighOutputLatency(), 0 );
+				portaudio::StreamParameters stream_parameters( portaudio::DirectionSpecificStreamParameters::null(), outputstream_parameters, samplerate, paFramesPerBufferUnspecified, paNoFlag );
+				return portaudio::BlockingStream( stream_parameters );
+			}
+		}();
+#endif
 		stream.start();
 		while ( true ) {
-			std::size_t count = mod.read( samplerate, buffersize, left.data(), right.data() );
+			std::size_t count = is_interleaved ? mod.read_interleaved_stereo( samplerate, buffersize, interleaved_buffer.data() ) : mod.read( samplerate, buffersize, left.data(), right.data() );
 			if ( count == 0 ) {
 				break;
 			}
 			try {
-				stream.write( buffers, static_cast<unsigned long>( count ) );
+				if ( is_interleaved ) {
+					stream.write( interleaved_buffer.data(), static_cast<unsigned long>( count ) );
+				} else {
+					const float * const buffers[2] = { left.data(), right.data() };
+					stream.write( buffers, static_cast<unsigned long>( count ) );
+				}
 			} catch ( const portaudio::PaException & pa_exception ) {
 				if ( pa_exception.paError() != paOutputUnderflowed ) {
 					throw;
@@ -66,6 +125,9 @@ int main( int argc, char * argv[] ) {
 			}
 		}
 		stream.stop();
+	} catch ( const std::bad_alloc & ) {
+		std::cerr << "Error: " << std::string( "out of memory" ) << std::endl;
+		return 1;
 	} catch ( const std::exception & e ) {
 		std::cerr << "Error: " << std::string( e.what() ? e.what() : "unknown error" ) << std::endl;
 		return 1;

@@ -10,33 +10,30 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #ifndef NO_PLUGINS
 
-#include <vector>
 #include "MIDIMapping.h"
 #include "CListCtrl.h"
+
 
 OPENMPT_NAMESPACE_BEGIN
 
 class CSoundFile;
+class CMIDIMapper;
 
-// CMIDIMappingDialog dialog
-
-//=======================================
 class CMIDIMappingDialog : public CDialog
-//=======================================
 {
 public:
 	CMIDIMappingDirective m_Setting;
 
 protected:
-	CSoundFile& m_rSndFile;
-	CMIDIMapper& m_rMIDIMapper;
+	CSoundFile &m_sndFile;
+	CMIDIMapper &m_rMIDIMapper;
 	HWND oldMIDIRecondWnd;
 
-
 	// Dialog Data
-	enum { IDD = IDD_MIDIPARAMCONTROL };
 	CComboBox m_ControllerCBox;
 	CComboBox m_PluginCBox;
 	CComboBox m_PlugParamCBox;
@@ -45,8 +42,10 @@ protected:
 	CListCtrlEx m_List;
 	CSpinButtonCtrl m_SpinMoveMapping;
 
+	uint8 m_lastCC = uint8_max;
+
 public:
-	CMIDIMappingDialog(CWnd* pParent, CSoundFile& rSndfile);
+	CMIDIMappingDialog(CWnd *pParent, CSoundFile &rSndfile);
 	~CMIDIMappingDialog();
 
 protected:
@@ -56,8 +55,10 @@ protected:
 	int InsertItem(const CMIDIMappingDirective &m, int insertAt);
 	void SelectItem(int i);
 
-	virtual BOOL OnInitDialog();
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void SetModified();
+
+	BOOL OnInitDialog() override;
+	void DoDataExchange(CDataExchange* pDX) override;	// DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
 

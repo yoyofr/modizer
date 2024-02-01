@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "CListCtrl.h"
 #if MPT_USTRING_MODE_WIDE
 #include <unordered_map>
@@ -19,34 +21,60 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-//==========================================
-class COptionsAdvanced: public CPropertyPage
-//==========================================
+class SettingPath;
+
+#ifndef _AFX_NO_MFC_CONTROLS_IN_DIALOGS
+
+class CAdvancedSettingsList : public CMFCListCtrlEx
 {
+private:
+	std::vector<SettingPath> & m_indexToPath;
+public:
+	CAdvancedSettingsList(std::vector<SettingPath> & indexToPath) : m_indexToPath(indexToPath) {}
+	COLORREF OnGetCellBkColor(int nRow, int nColumn) override;
+	COLORREF OnGetCellTextColor(int nRow, int nColumn) override;
+};
+
+#endif // !_AFX_NO_MFC_CONTROLS_IN_DIALOGS
+
+
+class COptionsAdvanced: public CPropertyPage
+{
+#ifndef _AFX_NO_MFC_CONTROLS_IN_DIALOGS
+	using ListCtrl = CAdvancedSettingsList;
+#else  // _AFX_NO_MFC_CONTROLS_IN_DIALOGS
+	using ListCtrl = CListCtrlEx;
+#endif // !_AFX_NO_MFC_CONTROLS_IN_DIALOGS
+
 protected:
-	CListCtrlEx m_List;
+	ListCtrl m_List;
 #if MPT_USTRING_MODE_WIDE
-	typedef std::unordered_map<mpt::ustring, int> GroupMap;
+	using GroupMap = std::unordered_map<mpt::ustring, int>;
 #else
-	typedef std::map<mpt::ustring, int> GroupMap;
+	using GroupMap = std::map<mpt::ustring, int>;
 #endif
 	std::vector<SettingPath> m_indexToPath;
 	GroupMap m_groups;
-	bool m_listGrouped;
+	bool m_listGrouped = false;
 
 public:
-	COptionsAdvanced():CPropertyPage(IDD_OPTIONS_ADVANCED), m_listGrouped(false) {}
+	COptionsAdvanced();
+	~COptionsAdvanced();
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL PreTranslateMessage(MSG *msg);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL PreTranslateMessage(MSG *msg) override;
+
 	afx_msg void OnOptionDblClick(NMHDR *, LRESULT *);
 	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
 	afx_msg void OnFindStringChanged() { ReInit(); }
 	afx_msg void OnSaveNow();
+#ifdef _AFX_NO_MFC_CONTROLS_IN_DIALOGS
+	afx_msg void OnCustomDrawList(NMHDR* pNMHDR, LRESULT* pResult);
+#endif // _AFX_NO_MFC_CONTROLS_IN_DIALOGS
 
 	void ReInit();
 

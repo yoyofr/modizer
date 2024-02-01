@@ -1,3 +1,4 @@
+//$ nobt
 //$ nocpp
 
 /**
@@ -6,11 +7,12 @@
  * @brief Real-valued FFT transform class.
  *
  * This file includes FFT object implementation. All created FFT objects are
- * kept in a global list after use for future reusal. Such approach minimizes
- * time necessary to initialize the FFT object of the required length.
+ * kept in a global list after use, for a future reusal. Such approach
+ * minimizes time necessary to initialize the FFT object of the required
+ * length.
  *
- * r8brain-free-src Copyright (c) 2013-2014 Aleksey Vaneev
- * See the "License.txt" file for license.
+ * r8brain-free-src Copyright (c) 2013-2022 Aleksey Vaneev
+ * See the "LICENSE" file for license.
  */
 
 #ifndef R8B_CDSPREALFFT_INCLUDED
@@ -18,7 +20,11 @@
 
 #include "r8bbase.h"
 
-#if !R8B_IPP
+#if R8B_PFFFT_DOUBLE
+	#include "pffft_double/pffft_double.h"
+#elif R8B_PFFFT
+	#include "pffft.h"
+#elif !R8B_IPP
 	#include "fft4g.h"
 #endif // !R8B_IPP
 
@@ -34,8 +40,8 @@ namespace r8b {
  * Uses functions from the FFT package by: Copyright(C) 1996-2001 Takuya OOURA
  * http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html
  *
- * Also uses Intel IPP library functions if available (the R8B_IPP=1 macro was
- * defined). Note that IPP library's FFT functions are 2-3 times more
+ * Also uses Intel IPP library functions if available (if the R8B_IPP=1 macro
+ * was defined). Note that IPP library's FFT functions are 2-3 times more
  * efficient on the modern Intel Core i7-3770K processor than Ooura's
  * functions. It may be worthwhile investing in IPP. Note, that FFT functions
  * take less than 20% of the overall sample rate conversion time. However,
@@ -89,11 +95,31 @@ public:
 
 	void forward( double* const p ) const
 	{
+	#if R8B_FLOATFFT
+
+		float* const op = (float*) p;
+		int i;
+
+		for( i = 0; i < Len; i++ )
+		{
+			op[ i ] = (float) p[ i ];
+		}
+
+	#endif // R8B_FLOATFFT
+
 	#if R8B_IPP
 
 		ippsFFTFwd_RToPerm_64f( p, p, SPtr, WorkBuffer );
 
-	#else // R8B_IPP
+	#elif R8B_PFFFT
+
+		pffft_transform_ordered( setup, op, op, work, PFFFT_FORWARD );
+
+	#elif R8B_PFFFT_DOUBLE
+
+		pffftd_transform_ordered( setup, p, p, work, PFFFT_FORWARD );
+
+	#else // R8B_PFFFT_DOUBLE
 
 		ooura_fft :: rdft( Len, 1, p, wi.getPtr(), wd.getPtr() );
 
@@ -113,11 +139,32 @@ public:
 
 		ippsFFTInv_PermToR_64f( p, p, SPtr, WorkBuffer );
 
-	#else // R8B_IPP
+	#elif R8B_PFFFT
+
+		pffft_transform_ordered( setup, (float*) p, (float*) p, work,
+			PFFFT_BACKWARD );
+
+	#elif R8B_PFFFT_DOUBLE
+
+		pffftd_transform_ordered( setup, p, p, work, PFFFT_BACKWARD );
+
+	#else // R8B_PFFFT_DOUBLE
 
 		ooura_fft :: rdft( Len, -1, p, wi.getPtr(), wd.getPtr() );
 
 	#endif // R8B_IPP
+
+	#if R8B_FLOATFFT
+
+		const float* const ip = (const float*) p;
+		int i;
+
+		for( i = Len - 1; i >= 0; i-- )
+		{
+			p[ i ] = ip[ i ];
+		}
+
+	#endif // R8B_FLOATFFT
 	}
 
 	/**
@@ -126,14 +173,29 @@ public:
 	 * object's block length. Input blocks should have been produced with the
 	 * forward() function of *this object.
 	 *
-	 * @param ip1 Input data block 1.
-	 * @param ip2 Input data block 2.
-	 * @param[out] op Output data block, should not be equal to ip1 nor ip2.
+	 * @param aip1 Input data block 1.
+	 * @param aip2 Input data block 2.
+	 * @param[out] aop Output data block, should not be equal to aip1 nor
+	 * aip2.
 	 */
 
-	void multiplyBlocks( const double* const ip1, const double* const ip2,
-		double* const op ) const
+	void multiplyBlocks( const double* const aip1, const double* const aip2,
+		double* const aop ) const
 	{
+	#if R8B_FLOATFFT
+
+		const float* const ip1 = (const float*) aip1;
+		const float* const ip2 = (const float*) aip2;
+		float* const op = (float*) aop;
+
+	#else // R8B_FLOATFFT
+
+		const double* const ip1 = aip1;
+		const double* const ip2 = aip2;
+		double* const op = aop;
+
+	#endif // R8B_FLOATFFT
+
 	#if R8B_IPP
 
 		ippsMulPerm_64f( (Ipp64f*) ip1, (Ipp64f*) ip2, (Ipp64f*) op, Len );
@@ -156,52 +218,33 @@ public:
 	}
 
 	/**
-	 * Function is similar to the multiplyBlocks() function, but instead of
-	 * replacing data in the output buffer, the data is summed with the output
-	 * buffer.
-	 *
-	 * @param ip1 Input data block 1.
-	 * @param ip2 Input data block 2.
-	 * @param[out] op Output data block, should not be equal to ip1 nor ip2.
-	 */
-
-	void multiplyBlocksAdd( const double* const ip1, const double* const ip2,
-		double* const op ) const
-	{
-		op[ 0 ] += ip1[ 0 ] * ip2[ 0 ];
-		op[ 1 ] += ip1[ 1 ] * ip2[ 1 ];
-
-	#if R8B_IPP
-
-		ippsAddProduct_64fc( (const Ipp64fc*) ( ip1 + 2 ),
-			(const Ipp64fc*) ( ip2 + 2 ), (Ipp64fc*) ( op + 2 ),
-			( Len >> 1 ) - 1 );
-
-	#else // R8B_IPP
-
-		int i = 2;
-
-		while( i < Len )
-		{
-			op[ i ] += ip1[ i ] * ip2[ i ] - ip1[ i + 1 ] * ip2[ i + 1 ];
-			op[ i + 1 ] += ip1[ i ] * ip2[ i + 1 ] + ip1[ i + 1 ] * ip2[ i ];
-			i += 2;
-		}
-
-	#endif // R8B_IPP
-	}
-
-	/**
 	 * Function multiplies two complex-valued data blocks in-place. Length of
 	 * both data blocks should be equal to *this object's block length. Blocks
 	 * should have been produced with the forward() function of *this object.
 	 *
-	 * @param ip Input data block 1.
-	 * @param[in,out] op Output/input data block 2.
+	 * @param aip Input data block 1.
+	 * @param[in,out] aop Output/input data block 2.
 	 */
 
-	void multiplyBlocks( const double* const ip, double* const op ) const
+	void multiplyBlocks( const double* const aip, double* const aop ) const
 	{
+	#if R8B_FLOATFFT
+
+		const float* const ip = (const float*) aip;
+		float* const op = (float*) aop;
+		float t;
+
+	#else // R8B_FLOATFFT
+
+		const double* const ip = aip;
+		double* const op = aop;
+
+		#if !R8B_IPP
+		double t;
+		#endif // !R8B_IPP
+
+	#endif // R8B_FLOATFFT
+
 	#if R8B_IPP
 
 		ippsMulPerm_64f( (Ipp64f*) op, (Ipp64f*) ip, (Ipp64f*) op, Len );
@@ -215,7 +258,7 @@ public:
 
 		while( i < Len )
 		{
-			const double t = op[ i ] * ip[ i ] - op[ i + 1 ] * ip[ i + 1 ];
+			t = op[ i ] * ip[ i ] - op[ i + 1 ] * ip[ i + 1 ];
 			op[ i + 1 ] = op[ i ] * ip[ i + 1 ] + op[ i + 1 ] * ip[ i ];
 			op[ i ] = t;
 			i += 2;
@@ -231,82 +274,158 @@ public:
 	 * Blocks should have been produced with the forward() function of *this
 	 * object.
 	 *
-	 * @param ip Input data block 1, "zero-phase" response.
-	 * @param[in,out] op Output/input data block 2.
+	 * @param aip Input data block 1, "zero-phase" response. This block should
+	 * be first transformed via the convertToZP() function.
+	 * @param[in,out] aop Output/input data block 2.
 	 */
 
-	void multiplyBlocksZ( const double* const ip, double* const op ) const
+	void multiplyBlocksZP( const double* const aip, double* const aop ) const
 	{
-		op[ 0 ] *= ip[ 0 ];
-		op[ 1 ] *= ip[ 1 ];
+	#if R8B_FLOATFFT
 
-		int i = 2;
+		const float* const ip = (const float*) aip;
+		float* const op = (float*) aop;
 
-		while( i < Len )
+	#else // R8B_FLOATFFT
+
+		const double* ip = aip;
+		double* op = aop;
+
+	#endif // R8B_FLOATFFT
+
+	// SIMD implementations assume that pointers are address-aligned.
+
+	#if !R8B_FLOATFFT && defined( R8B_SSE2 )
+
+		int c8 = Len >> 3;
+
+		while( c8 != 0 )
+		{
+			const __m128d iv1 = _mm_load_pd( ip );
+			const __m128d iv2 = _mm_load_pd( ip + 2 );
+			const __m128d ov1 = _mm_load_pd( op );
+			const __m128d ov2 = _mm_load_pd( op + 2 );
+			_mm_store_pd( op, _mm_mul_pd( iv1, ov1 ));
+			_mm_store_pd( op + 2, _mm_mul_pd( iv2, ov2 ));
+
+			const __m128d iv3 = _mm_load_pd( ip + 4 );
+			const __m128d ov3 = _mm_load_pd( op + 4 );
+			const __m128d iv4 = _mm_load_pd( ip + 6 );
+			const __m128d ov4 = _mm_load_pd( op + 6 );
+			_mm_store_pd( op + 4, _mm_mul_pd( iv3, ov3 ));
+			_mm_store_pd( op + 6, _mm_mul_pd( iv4, ov4 ));
+
+			ip += 8;
+			op += 8;
+			c8--;
+		}
+
+		int c = Len & 7;
+
+		while( c != 0 )
+		{
+			*op *= *ip;
+			ip++;
+			op++;
+			c--;
+		}
+
+	#elif !R8B_FLOATFFT && defined( R8B_NEON )
+
+		int c8 = Len >> 3;
+
+		while( c8 != 0 )
+		{
+			const float64x2_t iv1 = vld1q_f64( ip );
+			const float64x2_t iv2 = vld1q_f64( ip + 2 );
+			const float64x2_t ov1 = vld1q_f64( op );
+			const float64x2_t ov2 = vld1q_f64( op + 2 );
+			vst1q_f64( op, vmulq_f64( iv1, ov1 ));
+			vst1q_f64( op + 2, vmulq_f64( iv2, ov2 ));
+
+			const float64x2_t iv3 = vld1q_f64( ip + 4 );
+			const float64x2_t iv4 = vld1q_f64( ip + 6 );
+			const float64x2_t ov3 = vld1q_f64( op + 4 );
+			const float64x2_t ov4 = vld1q_f64( op + 6 );
+			vst1q_f64( op + 4, vmulq_f64( iv3, ov3 ));
+			vst1q_f64( op + 6, vmulq_f64( iv4, ov4 ));
+
+			ip += 8;
+			op += 8;
+			c8--;
+		}
+
+		int c = Len & 7;
+
+		while( c != 0 )
+		{
+			*op *= *ip;
+			ip++;
+			op++;
+			c--;
+		}
+
+	#else // SIMD
+
+		int i;
+
+		for( i = 0; i < Len; i++ )
 		{
 			op[ i ] *= ip[ i ];
-			op[ i + 1 ] *= ip[ i ];
-			i += 2;
 		}
+
+	#endif // SIMD
 	}
 
 	/**
-	 * Function performs in-place spectrum squaring. May cause aliasing
-	 * if the filter was not zero-padded before the forward() function call.
+	 * Function converts the specified forward-transformed block into
+	 * "zero-phase" form suitable for use with the multiplyBlocksZP()
+	 * function.
 	 *
-	 * @param[in,out] p Pointer to data block to square, length should be
-	 * equal to *this object's getLen(). This data block should contain
-	 * complex spectrum data, previously obtained via the forward() function.
+	 * @param[in,out] ap Block to transform.
 	 */
 
-	void sqr( double* const p ) const
+	void convertToZP( double* const ap ) const
 	{
-		p[ 0 ] *= p[ 0 ];
-		p[ 1 ] *= p[ 1 ];
+	#if R8B_FLOATFFT
 
-	#if R8B_IPP
+		float* const p = (float*) ap;
 
-		ippsSqr_64fc( (Ipp64fc*) ( p + 2 ), (Ipp64fc*) ( p + 2 ),
-			( Len >> 1 ) - 1 );
+	#else // R8B_FLOATFFT
 
-	#else // R8B_IPP
+		double* const p = ap;
+
+	#endif // R8B_FLOATFFT
 
 		int i = 2;
 
 		while( i < Len )
 		{
-			const double r = p[ i ] * p[ i ] - p[ i + 1 ] * p[ i + 1 ];
-			p[ i + 1 ] = p[ i ] * ( p[ i + 1 ] + p[ i + 1 ]);
-			p[ i ] = r;
+			p[ i + 1 ] = p[ i ];
 			i += 2;
 		}
-
-	#endif // R8B_IPP
 	}
 
 private:
 	int LenBits; ///< Length of FFT block (expressed as Nth power of 2).
-		///<
 	int Len; ///< Length of FFT block (number of real values).
-		///<
 	double InvMulConst; ///< Inverse FFT multiply constant.
-		///<
 	CDSPRealFFT* Next; ///< Next object in a singly-linked list.
-		///<
 
 	#if R8B_IPP
 		IppsFFTSpec_R_64f* SPtr; ///< Pointer to initialized data buffer
 			///< to be passed to IPP's FFT functions.
-			///<
 		CFixedBuffer< unsigned char > SpecBuffer; ///< Working buffer.
-			///<
 		CFixedBuffer< unsigned char > WorkBuffer; ///< Working buffer.
-			///<
-	#else // R8B_IPP
+	#elif R8B_PFFFT
+		PFFFT_Setup* setup; ///< PFFFT setup object.
+		CFixedBuffer< float > work; ///< Working buffer.
+	#elif R8B_PFFFT_DOUBLE
+		PFFFTD_Setup* setup; ///< PFFFTD setup object.
+		CFixedBuffer< double > work; ///< Working buffer.
+	#else // R8B_PFFFT_DOUBLE
 		CFixedBuffer< int > wi; ///< Working buffer (ints).
-			///<
 		CFixedBuffer< double > wd; ///< Working buffer (doubles).
-			///<
 	#endif // R8B_IPP
 
 	/**
@@ -342,7 +461,6 @@ private:
 
 	private:
 		CDSPRealFFT* Object; ///< FFT object being kept.
-			///<
 	};
 
 	CDSPRealFFT()
@@ -362,7 +480,11 @@ private:
 		, Len( 1 << aLenBits )
 	#if R8B_IPP
 		, InvMulConst( 1.0 / Len )
-	#else // R8B_IPP
+	#elif R8B_PFFFT
+		, InvMulConst( 1.0 / Len )
+	#elif R8B_PFFFT_DOUBLE
+		, InvMulConst( 1.0 / Len )
+	#else // R8B_PFFFT_DOUBLE
 		, InvMulConst( 2.0 / Len )
 	#endif // R8B_IPP
 	{
@@ -382,7 +504,17 @@ private:
 		ippsFFTInit_R_64f( &SPtr, LenBits, IPP_FFT_NODIV_BY_ANY,
 			ippAlgHintFast, SpecBuffer, InitBuffer );
 
-	#else // R8B_IPP
+	#elif R8B_PFFFT
+
+		setup = pffft_new_setup( Len, PFFFT_REAL );
+		work.alloc( Len );
+
+	#elif R8B_PFFFT_DOUBLE
+
+		setup = pffftd_new_setup( Len, PFFFT_REAL );
+		work.alloc( Len );
+
+	#else // R8B_PFFFT_DOUBLE
 
 		wi.alloc( (int) ceil( 2.0 + sqrt( (double) ( Len >> 1 ))));
 		wi[ 0 ] = 0;
@@ -393,6 +525,12 @@ private:
 
 	~CDSPRealFFT()
 	{
+		#if R8B_PFFFT
+			pffft_destroy_setup( setup );
+		#elif R8B_PFFFT_DOUBLE
+			pffftd_destroy_setup( setup );
+		#endif // R8B_PFFFT_DOUBLE
+
 		delete Next;
 	}
 };
@@ -484,13 +622,10 @@ public:
 
 private:
 	CDSPRealFFT* Object; ///< FFT object.
-		///<
 
 	static CSyncObject StateSync; ///< FFTObjects synchronizer.
-		///<
 	static CDSPRealFFT :: CObjKeeper FFTObjects[]; ///< Pool of FFT objects of
 		///< various lengths.
-		///<
 
 	/**
 	 * Function acquires FFT object from the global pool.
@@ -539,16 +674,16 @@ private:
  *
  * @param[in,out] Kernel Filter kernel buffer.
  * @param KernelLen Filter kernel's length, in samples.
- * @param LenMult Kernel length multiplier. Used as a coefficient of the
- * "oversampling" in the frequency domain. Such oversampling is needed to
+ * @param LenMult Kernel length multiplier. Used as a coefficient of
+ * oversampling in the frequency domain. Such oversampling is needed to
  * improve the precision of the minimum-phase transform. If the filter's
  * attenuation is high, this multiplier should be increased or otherwise the
  * required attenuation will not be reached due to "smoothing" effect of this
  * transform.
  * @param DoFinalMul "True" if the final multiplication after transform should
- * be performed or not. Such multiplication returns the gain of the signal to
- * its original value. This parameter can be set to "false" if normalization
- * of the resulting filter kernel is planned to be used.
+ * be performed. Such multiplication returns the gain of the signal to its
+ * original value. This parameter can be set to "false" if normalization of
+ * the resulting filter kernel is planned to be used.
  * @param[out] DCGroupDelay If not NULL, this variable receives group delay
  * at DC offset, in samples (can be a non-integer value).
  */
@@ -568,8 +703,8 @@ inline void calcMinPhaseTransform( double* const Kernel, const int KernelLen,
 	CFixedBuffer< double > ip( Len );
 	CFixedBuffer< double > ip2( Len2 + 1 );
 
-	memcpy( &ip[ 0 ], Kernel, KernelLen * sizeof( double ));
-	memset( &ip[ KernelLen ], 0, ( Len - KernelLen ) * sizeof( double ));
+	memcpy( &ip[ 0 ], Kernel, KernelLen * sizeof( ip[ 0 ]));
+	memset( &ip[ KernelLen ], 0, ( Len - KernelLen ) * sizeof( ip[ 0 ]));
 
 	CDSPRealFFTKeeper ffto( LenBits );
 	ffto -> forward( ip );
@@ -577,36 +712,49 @@ inline void calcMinPhaseTransform( double* const Kernel, const int KernelLen,
 	// Create the "log |c|" spectrum while saving the original power spectrum
 	// in the "ip2" buffer.
 
-	ip2[ 0 ] = ip[ 0 ];
-	ip[ 0 ] = log( fabs( ip[ 0 ]) + 1e-50 );
-	ip2[ Len2 ] = ip[ 1 ];
-	ip[ 1 ] = log( fabs( ip[ 1 ]) + 1e-50 );
+	#if R8B_FLOATFFT
+		float* const aip = (float*) &ip[ 0 ];
+		float* const aip2 = (float*) &ip2[ 0 ];
+		const float nzbias = 1e-35;
+	#else // R8B_FLOATFFT
+		double* const aip = &ip[ 0 ];
+		double* const aip2 = &ip2[ 0 ];
+		const double nzbias = 1e-300;
+	#endif // R8B_FLOATFFT
+
+	aip2[ 0 ] = aip[ 0 ];
+	aip[ 0 ] = log( fabs( aip[ 0 ]) + nzbias );
+	aip2[ Len2 ] = aip[ 1 ];
+	aip[ 1 ] = log( fabs( aip[ 1 ]) + nzbias );
 
 	for( i = 1; i < Len2; i++ )
 	{
-		ip2[ i ] = sqrt( ip[ i * 2 ] * ip[ i * 2 ] +
-			ip[ i * 2 + 1 ] * ip[ i * 2 + 1 ]);
+		aip2[ i ] = sqrt( aip[ i * 2 ] * aip[ i * 2 ] +
+			aip[ i * 2 + 1 ] * aip[ i * 2 + 1 ]);
 
-		ip[ i * 2 ] = log( ip2[ i ] + 1e-50 );
-		ip[ i * 2 + 1 ] = 0.0;
+		aip[ i * 2 ] = log( aip2[ i ] + nzbias );
+		aip[ i * 2 + 1 ] = 0.0;
 	}
 
 	// Convert to cepstrum and apply discrete Hilbert transform.
 
 	ffto -> inverse( ip );
 
+	const double m1 = ffto -> getInvMulConst();
+	const double m2 = -m1;
+
 	ip[ 0 ] = 0.0;
 
 	for( i = 1; i < Len2; i++ )
 	{
-		ip[ i ] *= ffto -> getInvMulConst();
+		ip[ i ] *= m1;
 	}
 
 	ip[ Len2 ] = 0.0;
 
 	for( i = Len2 + 1; i < Len; i++ )
 	{
-		ip[ i ] *= -ffto -> getInvMulConst();
+		ip[ i ] *= m2;
 	}
 
 	// Convert Hilbert-transformed cepstrum back to the "log |c|" spectrum and
@@ -615,14 +763,13 @@ inline void calcMinPhaseTransform( double* const Kernel, const int KernelLen,
 
 	ffto -> forward( ip );
 
-	ip[ 0 ] = ip2[ 0 ];
-	ip[ 1 ] = ip2[ Len2 ];
+	aip[ 0 ] = aip2[ 0 ];
+	aip[ 1 ] = aip2[ Len2 ];
 
 	for( i = 1; i < Len2; i++ )
 	{
-		const double p = ip2[ i ];
-		ip[ i * 2 + 0 ] = cos( ip[ i * 2 + 1 ]) * p;
-		ip[ i * 2 + 1 ] = sin( ip[ i * 2 + 1 ]) * p;
+		aip[ i * 2 + 0 ] = cos( aip[ i * 2 + 1 ]) * aip2[ i ];
+		aip[ i * 2 + 1 ] = sin( aip[ i * 2 + 1 ]) * aip2[ i ];
 	}
 
 	ffto -> inverse( ip );
@@ -631,20 +778,17 @@ inline void calcMinPhaseTransform( double* const Kernel, const int KernelLen,
 	{
 		for( i = 0; i < KernelLen; i++ )
 		{
-			Kernel[ i ] = ip[ i ] * ffto -> getInvMulConst();
+			Kernel[ i ] = ip[ i ] * m1;
 		}
 	}
 	else
 	{
-		memcpy( &Kernel[ 0 ], &ip[ 0 ], KernelLen * sizeof( double ));
+		memcpy( &Kernel[ 0 ], &ip[ 0 ], KernelLen * sizeof( Kernel[ 0 ]));
 	}
 
 	if( DCGroupDelay != NULL )
 	{
-		double tmp;
-
-		calcFIRFilterResponseAndGroupDelay( Kernel, KernelLen, 0.0,
-			tmp, tmp, *DCGroupDelay );
+		*DCGroupDelay = calcFIRFilterGroupDelay( Kernel, KernelLen, 0.0 );
 	}
 }
 

@@ -9,21 +9,21 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "archive.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-//====================================
 class CZipArchive : public ArchiveBase
-//====================================
 {
 protected:
 	void *zipFile;
 public:
 	CZipArchive(FileReader &file);
-	virtual ~CZipArchive();
+	~CZipArchive() override;
 public:
-	virtual bool ExtractFile(std::size_t index);
+	bool ExtractFile(std::size_t index) override;
 };
 
 OPENMPT_NAMESPACE_END

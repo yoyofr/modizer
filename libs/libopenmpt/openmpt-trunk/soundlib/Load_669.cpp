@@ -1,7 +1,7 @@
 /*
  * Load_669.cpp
  * ------------
- * Purpose: 669 Composer / UNIS 669 module loader
+ * Purpose: Composer 669 / UNIS 669 module loader
  * Notes  : <opinion humble="false">This is better than Schism's 669 loader</opinion> :)
  *          (some of this code is "heavily inspired" by Storlek's code from Schism Tracker, and improvements have been made where necessary.)
  * Authors: Olivier Lapicque
@@ -17,10 +17,10 @@ OPENMPT_NAMESPACE_BEGIN
 
 struct _669FileHeader
 {
-	char  magic[2];			// 'if' (0x6669, ha ha) or 'JN'
-	char  songMessage[108];	// Song Message
-	uint8 samples;			// number of samples (1-64)
-	uint8 patterns;			// number of patterns (1-128)
+	char  magic[2];          // 'if' (0x6669, ha ha) or 'JN'
+	char  songMessage[108];  // Song Message
+	uint8 samples;           // number of samples (1-64)
+	uint8 patterns;          // number of patterns (1-128)
 	uint8 restartPos;
 	uint8 orders[128];
 	uint8 tempoList[128];
@@ -50,8 +50,7 @@ struct _669Sample
 		if(mptSmp.nLoopEnd > mptSmp.nLength && mptSmp.nLoopStart == 0)
 		{
 			mptSmp.nLoopEnd = 0;
-		}
-		if(mptSmp.nLoopEnd != 0)
+		} else if(mptSmp.nLoopEnd != 0)
 		{
 			mptSmp.uFlags = CHN_LOOP;
 			mptSmp.SanitizeLoops();
@@ -71,20 +70,22 @@ static bool ValidateHeader(const _669FileHeader &fileHeader)
 	{
 		return false;
 	}
-	for(std::size_t i = 0; i < CountOf(fileHeader.breaks); i++)
+	uint8 invalidCharCount = 0;
+	for(const char c : fileHeader.songMessage)
+	{
+		if(c > 0 && c <= 31 && ++invalidCharCount > 40)
+			return false;
+	}
+	for(std::size_t i = 0; i < std::size(fileHeader.breaks); i++)
 	{
 		if(fileHeader.orders[i] >= 128 && fileHeader.orders[i] < 0xFE)
-		{
 			return false;
-		}
 		if(fileHeader.orders[i] < 128 && fileHeader.tempoList[i] == 0)
-		{
 			return false;
-		}
+		if(fileHeader.tempoList[i] > 15)
+			return false;
 		if(fileHeader.breaks[i] >= 64)
-		{
 			return false;
-		}
 	}
 	return true;
 }
@@ -129,7 +130,7 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 	
-	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	if(!file.CanRead(mpt::saturate_cast<FileReader::pos_type>(GetHeaderMinimumAdditionalSize(fileHeader))))
 	{
 		return false;
 	}
@@ -140,9 +141,10 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 	m_nDefaultTempo.Set(78);
 	m_nDefaultSpeed = 4;
 	m_nChannels = 8;
-#ifdef MODPLUG_TRACEKR
+	m_playBehaviour.set(kPeriodsAreHertz);
+#ifdef MODPLUG_TRACKER
 	// 669 uses frequencies rather than periods, so linear slides mode will sound better in the higher octaves.
-	m_SongFlags.set(SONG_LINEARSLIDES);
+	//m_SongFlags.set(SONG_LINEARSLIDES);
 #endif // MODPLUG_TRACKER
 
 	m_modFormat.formatName = U_("Composer 669");
@@ -169,7 +171,7 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 	m_songMessage.ReadFixedLineLength(mpt::byte_cast<const std::byte*>(fileHeader.songMessage), 108, 36, 0);
 
 	// Reading Orders
-	ReadOrderFromArray(Order(), fileHeader.orders, MPT_ARRAY_COUNT(fileHeader.orders), 0xFF, 0xFE);
+	ReadOrderFromArray(Order(), fileHeader.orders, std::size(fileHeader.orders), 0xFF, 0xFE);
 	if(Order()[fileHeader.restartPos] < fileHeader.patterns)
 		Order().SetRestartPos(fileHeader.restartPos);
 
@@ -192,20 +194,20 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 
 		static constexpr ModCommand::COMMAND effTrans[] =
 		{
-			CMD_PORTAMENTOUP,	// Slide up (param * 80) Hz on every tick
-			CMD_PORTAMENTODOWN,	// Slide down (param * 80) Hz on every tick
-			CMD_TONEPORTAMENTO,	// Slide to note by (param * 40) Hz on every tick
-			CMD_S3MCMDEX,		// Add (param * 80) Hz to sample frequency
-			CMD_VIBRATO,		// Add (param * 669) Hz on every other tick
-			CMD_SPEED,			// Set ticks per row
-			CMD_PANNINGSLIDE,	// Extended UNIS 669 effect
-			CMD_RETRIG,			// Extended UNIS 669 effect
+			CMD_PORTAMENTOUP,    // Slide up (param * 80) Hz on every tick
+			CMD_PORTAMENTODOWN,  // Slide down (param * 80) Hz on every tick
+			CMD_TONEPORTAMENTO,  // Slide to note by (param * 40) Hz on every tick
+			CMD_S3MCMDEX,        // Add (param * 80) Hz to sample frequency
+			CMD_VIBRATO,         // Add (param * 669) Hz on every other tick
+			CMD_SPEED,           // Set ticks per row
+			CMD_PANNINGSLIDE,    // Extended UNIS 669 effect
+			CMD_RETRIG,          // Extended UNIS 669 effect
 		};
 
 		uint8 effect[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 		for(ROWINDEX row = 0; row < 64; row++)
 		{
-			PatternRow m = Patterns[pat].GetRow(row);
+			ModCommand *m = Patterns[pat].GetpModCommand(row, 0);
 
 			for(CHANNELINDEX chn = 0; chn < 8; chn++, m++)
 			{
@@ -223,7 +225,7 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 				if(noteInstr <= 0xFE)
 				{
 					m->volcmd = VOLCMD_VOLUME;
-					m->vol = ((vol * 64 + 8) / 15);
+					m->vol = static_cast<ModCommand::VOL>((vol * 64 + 8) / 15);
 				}
 
 				if(effParam != 0xFF)
@@ -242,8 +244,9 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 
 				m->param = effect[chn] & 0x0F;
 
+				// Weird stuff happening in corehop.669 with effects > 8... they seem to do the same thing as if the high bit wasn't set, but the sample also behaves strangely.
 				uint8 command = effect[chn] >> 4;
-				if(command < static_cast<uint8>(CountOf(effTrans)))
+				if(command < static_cast<uint8>(std::size(effTrans)))
 				{
 					m->command = effTrans[command];
 				} else

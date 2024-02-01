@@ -10,6 +10,9 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+#include "../soundlib/Snd_defs.h"
+
 OPENMPT_NAMESPACE_BEGIN
 
 class CMoveFXSlotDialog : public CDialog
@@ -23,8 +26,6 @@ protected:
 
 	CComboBox m_CbnEmptySlots;
 
-	enum { IDD = IDD_MOVEFXSLOT };
-
 public:
 	CMoveFXSlotDialog(CWnd *pParent, PLUGINDEX currentSlot, const std::vector<PLUGINDEX> &emptySlots, PLUGINDEX defaultIndex, bool clone, bool hasChain);
 	PLUGINDEX GetSlot() const { return m_EmptySlots[m_nToSlot]; }
@@ -32,10 +33,10 @@ public:
 	bool DoMoveChain() const { return moveChain; }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void DoDataExchange(CDataExchange *pDX) override;  // DDX/DDV support
 
-	virtual void OnOK();
-	virtual BOOL OnInitDialog();
+	void OnOK() override;
+	BOOL OnInitDialog() override;
 };
 
 OPENMPT_NAMESPACE_END

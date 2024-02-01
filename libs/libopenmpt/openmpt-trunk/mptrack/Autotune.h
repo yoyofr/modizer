@@ -10,60 +10,56 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "../soundlib/Snd_defs.h"
 #include "resource.h"
 
+
 OPENMPT_NAMESPACE_BEGIN
 
-//============
+
+struct ModSample;
+
+
 class Autotune
-//============
 {
 protected:
-	ModSample &sample;
-	MODTYPE modType;
+	ModSample &m_sample;
+	MODTYPE m_modType;
 
-	SmpLength selectionStart, selectionEnd;
+	SmpLength m_selectionStart, m_selectionEnd;
 
-	int16 *sampleData;
-	SmpLength sampleLength;
+	int16 *m_sampleData = nullptr;
+	SmpLength m_sampleLength = 0;
 
 public:
-	Autotune(ModSample &smp, MODTYPE type, SmpLength selStart, SmpLength selEnd) : sample(smp), modType(type), selectionStart(selStart), selectionEnd(selEnd)
-	{
-		sampleData = nullptr;
-		sampleLength = 0;
-	};
+	Autotune(ModSample &smp, MODTYPE type, SmpLength selStart, SmpLength selEnd) : m_sample(smp), m_modType(type), m_selectionStart(selStart), m_selectionEnd(selEnd)
+	{ };
 
 	~Autotune()
 	{
-		delete[] sampleData;
+		delete[] m_sampleData;
 	}
 
 	bool CanApply() const;
 	bool Apply(double pitchReference, int targetNote);
 
 protected:
-	static double FrequencyToNote(double freq, double pitchReference);
-	static double NoteToFrequency(double note, double pitchReference);
-	static SmpLength NoteToShift(uint32 sampleFreq, int note, double pitchReference);
 
 	template <class T>
 	void CopySamples(const T* origSample, SmpLength sampleLoopStart, SmpLength sampleLoopEnd);
 
 	bool PrepareSample(SmpLength maxShift);
 
-	static DWORD WINAPI AutotuneThread(void *info);
 };
 
 
-//=================================
 class CAutotuneDlg : public CDialog
-//=================================
 {
 protected:
-	static int pitchReference;	// Pitch reference (440Hz by default)
-	static int targetNote;		// Note which the sample should be tuned to (C by default)
+	static int m_pitchReference;	// Pitch reference (440Hz by default)
+	static int m_targetNote;		// Note which the sample should be tuned to (C by default)
 
 	CComboBox m_CbnNoteBox;
 
@@ -71,14 +67,13 @@ public:
 	CAutotuneDlg(CWnd *parent) : CDialog(IDD_AUTOTUNE, parent)
 	{ };
 
-	int GetPitchReference() const { return pitchReference; }
-	int GetTargetNote() const { return targetNote; }
+	int GetPitchReference() const { return m_pitchReference; }
+	int GetTargetNote() const { return m_targetNote; }
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual void OnCancel();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	void DoDataExchange(CDataExchange* pDX) override;
 
 };
 

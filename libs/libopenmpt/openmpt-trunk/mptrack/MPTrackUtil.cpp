@@ -10,62 +10,75 @@
 
 #include "stdafx.h"
 #include "MPTrackUtil.h"
-#include "Mptrack.h"
-#include "../common/misc_util.h"
-
-#include <io.h> // for _taccess
-#include <time.h>
 
 
 OPENMPT_NAMESPACE_BEGIN
 
-/*
- * Loads resource.
- * [in] lpName and lpType: parameters passed to FindResource().
- * [out] pData: Pointer to loaded resource data, nullptr if load not successful.
- * [out] nSize: Size of the data in bytes, zero if load not succesfull.
- * [out] hglob: HGLOBAL returned by LoadResource-function.
- * Return: pData.
- */
-LPCCH LoadResource(LPCTSTR lpName, LPCTSTR lpType, LPCCH& pData, size_t& nSize, HGLOBAL& hglob)
-//---------------------------------------------------------------------------------------------
+
+static bool CreateShellLink(const IID &type, const mpt::PathString &path, const mpt::PathString &target, const mpt::ustring &description)
 {
-	pData = nullptr;
-	nSize = 0;
-	hglob = nullptr;
-	HINSTANCE hInstance = AfxGetInstanceHandle();
-	HRSRC hrsrc = FindResource(hInstance, lpName, lpType); 
-	if (hrsrc != NULL)
+	HRESULT hres = 0;
+	IShellLink *psl = nullptr;
+	hres = CoCreateInstance(type, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&psl);
+	if(SUCCEEDED(hres))
 	{
-		hglob = LoadResource(hInstance, hrsrc);
-		if (hglob != NULL)
+		IPersistFile *ppf = nullptr;
+		psl->SetPath(target.AsNative().c_str()); 
+		psl->SetDescription(mpt::ToWin(description).c_str());
+		hres = psl->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf);
+		if(SUCCEEDED(hres))
 		{
-			pData = reinterpret_cast<const char*>(LockResource(hglob));
-			nSize = SizeofResource(hInstance, hrsrc);
+			hres = ppf->Save(path.ToWide().c_str(), TRUE);
+			ppf->Release();
+			ppf = nullptr;
 		}
+		psl->Release();
+		psl = nullptr;
 	}
-	return pData;
+	return SUCCEEDED(hres);
 }
 
 
-// Returns WinAPI error message corresponding to error code returned by GetLastError().
-CString GetErrorMessage(DWORD nErrorCode)
-//---------------------------------------
+bool CreateShellFolderLink(const mpt::PathString &path, const mpt::PathString &target, const mpt::ustring &description)
 {
-	LPTSTR lpMsgBuf = NULL;
+	return CreateShellLink(CLSID_FolderShortcut, path, target, description);
+}
 
-	FormatMessage(  FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL,
-					nErrorCode,
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-					(LPTSTR)&lpMsgBuf,
-					0,
-					NULL );
 
-	CString msg = lpMsgBuf;
-	LocalFree(lpMsgBuf);
+bool CreateShellFileLink(const mpt::PathString &path, const mpt::PathString &target, const mpt::ustring &description)
+{
+	return CreateShellLink(CLSID_ShellLink, path, target, description);
+}
 
-	return msg;
+
+mpt::const_byte_span GetResource(LPCTSTR lpName, LPCTSTR lpType)
+{
+	HINSTANCE hInstance = AfxGetInstanceHandle();
+	HRSRC hRsrc = FindResource(hInstance, lpName, lpType); 
+	if(hRsrc == NULL)
+	{
+		return mpt::const_byte_span();
+	}
+	HGLOBAL hGlob = LoadResource(hInstance, hRsrc);
+	if(hGlob == NULL)
+	{
+		return mpt::const_byte_span();
+	}
+	return mpt::const_byte_span(mpt::void_cast<const std::byte *>(LockResource(hGlob)), SizeofResource(hInstance, hRsrc));
+	// no need to call FreeResource(hGlob) or free hRsrc, according to MSDN
+}
+
+
+CString LoadResourceString(UINT nID)
+{
+	CString str;
+	BOOL resourceLoaded = str.LoadString(nID);
+	MPT_ASSERT(resourceLoaded);
+	if(!resourceLoaded)
+	{
+		return _T("");
+	}
+	return str;
 }
 
 

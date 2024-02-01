@@ -10,32 +10,36 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "CDecimalSupport.h"
+#include "ResizableDialog.h"
+#include "resource.h"
+#include "../soundlib/Sndfile.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class Version;
 class CModDoc;
 class CDLSBank;
 
-//===============================
 class CModTypeDlg: public CDialog
-//===============================
 {
-public:
+protected:
 	CComboBox m_TypeBox, m_ChannelsBox, m_TempoModeBox, m_PlugMixBox;
 	CButton m_CheckBox1, m_CheckBox2, m_CheckBox3, m_CheckBox4, m_CheckBox5, m_CheckBoxPT1x, m_CheckBoxFt2VolRamp, m_CheckBoxAmigaLimits;
-	HICON m_warnIcon;
+	HICON m_warnIcon = nullptr;
 
 	CSoundFile &sndFile;
+public:
 	TempoSwing m_tempoSwing;
 	PlayBehaviourSet m_playBehaviour;
-	CHANNELINDEX m_nChannels;
-	MODTYPE m_nType;
-	bool initialized;
+	CHANNELINDEX m_nChannels = 0;
+	MODTYPE m_nType = MOD_TYPE_NONE;
+	bool initialized = false;
 
 public:
-	CModTypeDlg(CSoundFile &sf, CWnd *parent) : CDialog(IDD_MODDOC_MODTYPE, parent), sndFile(sf) { m_nType = MOD_TYPE_NONE; m_nChannels = 0; }
+	CModTypeDlg(CSoundFile &sf, CWnd *parent) : CDialog(IDD_MODDOC_MODTYPE, parent), sndFile(sf) { }
 	bool VerifyData();
 	void UpdateDialog();
 	void OnPTModeChanged();
@@ -46,14 +50,13 @@ public:
 
 protected:
 	void UpdateChannelCBox();
-	CString FormatVersionNumber(DWORD version);
+	CString FormatVersionNumber(Version version);
 
 protected:
 	//{{AFX_VIRTUAL(CModTypeDlg)
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 	//}}AFX_VIRTUAL
 
 	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
@@ -62,75 +65,59 @@ protected:
 };
 
 
-//===============================================
-class CLegacyPlaybackSettingsDlg : public CDialog
-//===============================================
+class CLegacyPlaybackSettingsDlg : public ResizableDialog
 {
 protected:
 	CCheckListBox m_CheckList;
-	PlayBehaviourSet &m_playBehaviour;
+	PlayBehaviourSet m_playBehaviour;
 	MODTYPE m_modType;
 
 public:
 	CLegacyPlaybackSettingsDlg(CWnd *parent, PlayBehaviourSet &playBehaviour, MODTYPE modType)
-		: CDialog(IDD_LEGACY_PLAYBACK, parent)
-		, m_playBehaviour(playBehaviour)
-		, m_modType(modType)
-	{ }
+	    : ResizableDialog{IDD_LEGACY_PLAYBACK, parent}
+	    , m_playBehaviour{playBehaviour}
+	    , m_modType{modType}
+	{
+	}
+
+	PlayBehaviourSet GetPlayBehaviour() const { return m_playBehaviour; }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
 
 	afx_msg void OnSelectDefaults();
 	afx_msg void UpdateSelectDefaults();
+	afx_msg void OnFilterStringChanged();
 
 	DECLARE_MESSAGE_MAP()
 };
 
 
-//===============================
-class CShowLogDlg: public CDialog
-//===============================
-{
-public:
-	LPCSTR m_lpszLog, m_lpszTitle;
-
-public:
-	CShowLogDlg(CWnd *parent = nullptr):CDialog(IDD_SHOWLOG, parent) { m_lpszLog = NULL; m_lpszTitle = NULL; }
-	UINT ShowLog(LPCSTR pszLog, LPCSTR lpszTitle=NULL);
-
-protected:
-	virtual BOOL OnInitDialog();
-};
-
-
-//======================================
 class CRemoveChannelsDlg: public CDialog
-//======================================
 {
 public:
 	CSoundFile &sndFile;
 	std::vector<bool> m_bKeepMask;
-	CHANNELINDEX m_nChannels, m_nRemove;
-	CListBox m_RemChansList;		//rewbs.removeChansDlgCleanup
+	CHANNELINDEX m_nRemove;
+	CListBox m_RemChansList;
 	bool m_ShowCancel;
 
 public:
-	CRemoveChannelsDlg(CSoundFile &sf, CHANNELINDEX nChns, bool showCancel = true, CWnd *parent=NULL) : CDialog(IDD_REMOVECHANNELS, parent), sndFile(sf)
+	CRemoveChannelsDlg(CSoundFile &sf, CHANNELINDEX toRemove, bool showCancel = true, CWnd *parent = nullptr)
+	    : CDialog{IDD_REMOVECHANNELS, parent}
+	    , sndFile{sf}
+	    , m_bKeepMask(sf.GetNumChannels(), true)
+	    , m_nRemove{toRemove}
+	    , m_ShowCancel{showCancel}
 	{
-		m_nChannels = sndFile.GetNumChannels(); 
-		m_nRemove = nChns;
-		m_bKeepMask.assign(m_nChannels, true);
-		m_ShowCancel = showCancel;
 	}
 
 protected:
 	//{{AFX_VIRTUAL(CRemoveChannelsDlg)
-	virtual void DoDataExchange(CDataExchange* pDX); //rewbs.removeChansDlgCleanup
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange *pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 	//}}AFX_VIRTUAL
 	//{{AFX_MSG(CRemoveChannelsDlg)
 	afx_msg void OnChannelChanged();
@@ -139,20 +126,28 @@ protected:
 };
 
 
+class InfoDialog : protected ResizableDialog
+{
+private:
+	mpt::winstring m_caption, m_content;
+
+public:
+	InfoDialog(CWnd *parent = nullptr);
+	void SetCaption(mpt::winstring caption);
+	void SetContent(mpt::winstring content);
+	using ResizableDialog::DoModal;
+
+protected:
+	BOOL OnInitDialog() override;
+};
+
 ////////////////////////////////////////////////////////////////////////
 // Sound Banks
 
-//========================================
-class CSoundBankProperties: public CDialog
-//========================================
+class CSoundBankProperties : public InfoDialog
 {
-protected:
-	std::string m_szInfo;
-	mpt::PathString fileName;
-
 public:
 	CSoundBankProperties(const CDLSBank &bank, CWnd *parent = nullptr);
-	virtual BOOL OnInitDialog();
 };
 
 
@@ -166,36 +161,39 @@ enum
 	KBDNOTIFY_LBUTTONUP,
 };
 
-//=================================
 class CKeyboardControl: public CWnd
-//=================================
 {
 public:
 	enum
 	{
-		KEYFLAG_NORMAL=0,
-		KEYFLAG_REDDOT,
-		KEYFLAG_BRIGHTDOT,
-		KEYFLAG_MAX
+		KEYFLAG_NORMAL    = 0x00,
+		KEYFLAG_REDDOT    = 0x01,
+		KEYFLAG_BRIGHTDOT = 0x02,
 	};
 protected:
-	HWND m_hParent;
+	CWnd *m_parent = nullptr;
 	CFont m_font;
-	UINT m_nOctaves;
-	int m_nSelection;
-	bool m_bCapture, m_bCursorNotify;
+	int m_nOctaves = 1;
+	int m_nSelection = -1;
+	bool m_mouseCapture = false, m_cursorNotify = false;
+	bool m_mouseDown = false;
+
 	uint8 KeyFlags[NOTE_MAX]; // 10 octaves max
 	SAMPLEINDEX m_sampleNum[NOTE_MAX];
 
 public:
-	CKeyboardControl() { m_hParent = NULL; m_nOctaves = 1; m_nSelection = -1; m_bCapture = FALSE; }
+	CKeyboardControl() = default;
 
 public:
-	void Init(HWND parent, UINT nOctaves=1, bool cursNotify = false);
+	void Init(CWnd *parent, int octaves = 1, bool cursorNotify = false);
 	void SetFlags(UINT key, uint8 flags) { if (key < NOTE_MAX) KeyFlags[key] = flags; }
 	uint8 GetFlags(UINT key) const { return (key < NOTE_MAX) ? KeyFlags[key] : 0; }
 	void SetSample(UINT key, SAMPLEINDEX sample) { if (key < NOTE_MAX) m_sampleNum[key] = sample; }
 	SAMPLEINDEX GetSample(UINT key) const { return (key < NOTE_MAX) ? m_sampleNum[key] : 0; }
+
+protected:
+	void DrawKey(CPaintDC &dc, const CRect rect, int key, bool black) const;
+
 	afx_msg void OnDestroy();
 	afx_msg void OnPaint();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -208,9 +206,7 @@ public:
 /////////////////////////////////////////////////////////////////////////
 // Sample Map
 
-//=================================
 class CSampleMapDlg: public CDialog
-//=================================
 {
 protected:
 	enum MouseAction
@@ -230,13 +226,13 @@ protected:
 	MouseAction mouseAction;
 
 public:
-	CSampleMapDlg(CSoundFile &sf, INSTRUMENTINDEX nInstr, CWnd *parent=NULL) : CDialog(IDD_EDITSAMPLEMAP, parent), mouseAction(mouseUnknown), sndFile(sf)
+	CSampleMapDlg(CSoundFile &sf, INSTRUMENTINDEX nInstr, CWnd *parent=NULL) : CDialog(IDD_EDITSAMPLEMAP, parent), sndFile(sf), mouseAction(mouseUnknown)
 		{ m_nInstrument = nInstr; }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 	afx_msg void OnUpdateSamples();
 	afx_msg void OnUpdateKeyboard();
 	afx_msg void OnUpdateOctave();
@@ -249,20 +245,17 @@ protected:
 /////////////////////////////////////////////////////////////////////////
 // Edit history dialog
 
-//===================================
-class CEditHistoryDlg: public CDialog
-//===================================
+class CEditHistoryDlg: public ResizableDialog
 {
-
 protected:
-	CModDoc *m_pModDoc;
+	CModDoc &m_modDoc;
 
 public:
-	CEditHistoryDlg(CWnd *parent, CModDoc *pModDoc) : CDialog(IDD_EDITHISTORY, parent) { m_pModDoc = pModDoc; }
+	CEditHistoryDlg(CWnd *parent, CModDoc &modDoc)
+	    : ResizableDialog(IDD_EDITHISTORY, parent), m_modDoc(modDoc) {}
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	BOOL OnInitDialog() override;
 	afx_msg void OnClearHistory();
 	DECLARE_MESSAGE_MAP()
 };
@@ -271,52 +264,50 @@ protected:
 /////////////////////////////////////////////////////////////////////////
 // Generic input dialog
 
-//=============================
 class CInputDlg: public CDialog
-//=============================
 {
 protected:
 	CNumberEdit m_edit;
 	CSpinButtonCtrl m_spin;
 	CString m_description;
-	double m_minValueDbl, m_maxValueDbl;
-	int32 m_minValueInt, m_maxValueInt;
+	double m_minValueDbl = 0.0, m_maxValueDbl = 0.0;
+	int32 m_minValueInt = 0, m_maxValueInt = 0;
+	int32 m_maxLength = 0;
 
 public:
+	int32 resultAsInt = 0;
+	double resultAsDouble = 0.0;
 	CString resultAsString;
-	double resultAsDouble;
-	int32 resultAsInt;
 
 public:
 	// Initialize text input box
-	CInputDlg(CWnd *parent, const TCHAR *desc, const TCHAR *defaultString) : CDialog(IDD_INPUT, parent)
+	CInputDlg(CWnd *parent, const TCHAR *desc, const TCHAR *defaultString, int32 maxLength = -1) : CDialog(IDD_INPUT, parent)
 		, m_description(desc)
+		, m_maxLength(maxLength)
 		, resultAsString(defaultString)
-		, m_minValueDbl(0), m_maxValueDbl(0), resultAsDouble(0)
-		, m_minValueInt(0), m_maxValueInt(0), resultAsInt(0)
 	{ }
 	// Initialize numeric input box (float)
 	CInputDlg(CWnd *parent, const TCHAR *desc, double minVal, double maxVal, double defaultNumber) : CDialog(IDD_INPUT, parent)
 		, m_description(desc)
-		, m_minValueDbl(minVal), m_maxValueDbl(maxVal), resultAsDouble(defaultNumber)
-		, m_minValueInt(0), m_maxValueInt(0), resultAsInt(0)
+		, m_minValueDbl(minVal), m_maxValueDbl(maxVal)
+		, resultAsDouble(defaultNumber)
 	{ }
 	CInputDlg(CWnd *parent, const TCHAR *desc, float minVal, float maxVal, float defaultNumber) : CDialog(IDD_INPUT, parent)
 		, m_description(desc)
-		, m_minValueDbl(minVal), m_maxValueDbl(maxVal), resultAsDouble(defaultNumber)
-		, m_minValueInt(0), m_maxValueInt(0), resultAsInt(0)
+		, m_minValueDbl(minVal), m_maxValueDbl(maxVal)
+		, resultAsDouble(defaultNumber)
 	{ }
 	// Initialize numeric input box (int)
 	CInputDlg(CWnd *parent, const TCHAR *desc, int32 minVal, int32 maxVal, int32 defaultNumber) : CDialog(IDD_INPUT, parent)
 		, m_description(desc)
-		, m_minValueDbl(0), m_maxValueDbl(0), resultAsDouble(0)
-		, m_minValueInt(minVal), m_maxValueInt(maxVal), resultAsInt(defaultNumber)
+		, m_minValueInt(minVal), m_maxValueInt(maxVal)
+		, resultAsInt(defaultNumber)
 	{ }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange *pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 };
 
 
@@ -326,11 +317,10 @@ protected:
 // Enums for message entries. See dlg_misc.cpp for the array of entries.
 enum enMsgBoxHidableMessage
 {
-	ModSaveHint						= 0,
-	ItCompatibilityExportTip		= 1,
-	ConfirmSignUnsignWhenPlaying	= 2,
-	XMCompatibilityExportTip		= 3,
-	CompatExportDefaultWarning		= 4,
+	ModSaveHint                = 0,
+	ItCompatibilityExportTip   = 1,
+	XMCompatibilityExportTip   = 2,
+	CompatExportDefaultWarning = 3,
 	enMsgBoxHidableMessage_count
 };
 

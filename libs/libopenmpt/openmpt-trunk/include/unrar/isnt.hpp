@@ -9,4 +9,8 @@ enum WINNT_VERSION {
 
 DWORD WinNT();
 
+
+// Replace it with actual check when available.
+bool IsWindows11OrGreater();
+
 #endif

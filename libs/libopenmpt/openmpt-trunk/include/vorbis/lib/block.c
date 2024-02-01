@@ -6,12 +6,11 @@
  * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
  *                                                                  *
  * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2015             *
- * by the Xiph.Org Foundation http://www.xiph.org/                  *
+ * by the Xiph.Org Foundation https://xiph.org/                     *
  *                                                                  *
  ********************************************************************
 
  function: PCM data vector blocking, windowing and dis/reassembly
- last mod: $Id: block.c 19457 2015-03-03 00:15:29Z giles $
 
  Handle windowing, overlap-add, etc of the PCM vectors.  This is made
  more amusing by Vorbis' current two allowed block sizes.
@@ -393,9 +392,9 @@ float **vorbis_analysis_buffer(vorbis_dsp_state *v, int vals){
   private_state *b=v->backend_state;
 
   /* free header, header1, header2 */
-  if(b->header)_ogg_free(b->header);b->header=NULL;
-  if(b->header1)_ogg_free(b->header1);b->header1=NULL;
-  if(b->header2)_ogg_free(b->header2);b->header2=NULL;
+  if(b->header){_ogg_free(b->header);b->header=NULL;}
+  if(b->header1){_ogg_free(b->header1);b->header1=NULL;}
+  if(b->header2){_ogg_free(b->header2);b->header2=NULL;}
 
   /* Do we have enough storage space for the requested buffer? If not,
      expand the PCM (and envelope) storage */

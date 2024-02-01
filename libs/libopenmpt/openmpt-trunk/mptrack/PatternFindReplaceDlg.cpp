@@ -10,20 +10,18 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
-#include "Mainfrm.h"
-#include "View_pat.h"
-#include "PatternFindReplace.h"
 #include "PatternFindReplaceDlg.h"
+#include "Mptrack.h"
+#include "PatternFindReplace.h"
+#include "View_pat.h"
+#include "mpt/parse/parse.hpp"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 // CFindRangeDlg: Find a range of values.
 
-//==================================
 class CFindRangeDlg : public CDialog
-//==================================
 {
 public:
 	enum DisplayMode
@@ -51,14 +49,14 @@ public:
 	int GetMaxVal() const { return m_maxVal; }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX)
+	void DoDataExchange(CDataExchange* pDX) override
 	{
 		CDialog::DoDataExchange(pDX);
 		DDX_Control(pDX, IDC_COMBO1, m_cbnMin);
 		DDX_Control(pDX, IDC_COMBO2, m_cbnMax);
 	}
 
-	virtual BOOL OnInitDialog()
+	BOOL OnInitDialog() override
 	{
 		CDialog::OnInitDialog();
 
@@ -96,11 +94,11 @@ protected:
 		return TRUE;
 	}
 
-	virtual void OnOK()
+	void OnOK() override
 	{
 		CDialog::OnOK();
-		m_minVal = m_cbnMin.GetItemData(m_cbnMin.GetCurSel());
-		m_maxVal = m_cbnMax.GetItemData(m_cbnMax.GetCurSel());
+		m_minVal = static_cast<int>(m_cbnMin.GetItemData(m_cbnMin.GetCurSel()));
+		m_maxVal = static_cast<int>(m_cbnMax.GetItemData(m_cbnMax.GetCurSel()));
 		if(m_maxVal < m_minVal)
 			std::swap(m_minVal, m_maxVal);
 	}
@@ -108,30 +106,29 @@ protected:
 
 
 BEGIN_MESSAGE_MAP(CFindReplaceTab, CPropertyPage)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnNoteChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnInstrChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO3,	OnVolCmdChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO4,	OnVolumeChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO5,	OnEffectChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO6,	OnParamChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO7,	OnPCParamChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CFindReplaceTab::OnNoteChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2,	&CFindReplaceTab::OnInstrChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO3,	&CFindReplaceTab::OnVolCmdChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO4,	&CFindReplaceTab::OnVolumeChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO5,	&CFindReplaceTab::OnEffectChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO6,	&CFindReplaceTab::OnParamChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO7,	&CFindReplaceTab::OnPCParamChanged)
 
-	ON_CBN_EDITCHANGE(IDC_COMBO4,	OnVolumeChanged)
-	ON_CBN_EDITCHANGE(IDC_COMBO6,	OnParamChanged)
+	ON_CBN_EDITCHANGE(IDC_COMBO4,	&CFindReplaceTab::OnVolumeChanged)
+	ON_CBN_EDITCHANGE(IDC_COMBO6,	&CFindReplaceTab::OnParamChanged)
 
-	ON_COMMAND(IDC_CHECK1,			OnCheckNote)
-	ON_COMMAND(IDC_CHECK2,			OnCheckInstr)
-	ON_COMMAND(IDC_CHECK3,			OnCheckVolCmd)
-	ON_COMMAND(IDC_CHECK4,			OnCheckVolume)
-	ON_COMMAND(IDC_CHECK5,			OnCheckEffect)
-	ON_COMMAND(IDC_CHECK6,			OnCheckParam)
+	ON_COMMAND(IDC_CHECK1,			&CFindReplaceTab::OnCheckNote)
+	ON_COMMAND(IDC_CHECK2,			&CFindReplaceTab::OnCheckInstr)
+	ON_COMMAND(IDC_CHECK3,			&CFindReplaceTab::OnCheckVolCmd)
+	ON_COMMAND(IDC_CHECK4,			&CFindReplaceTab::OnCheckVolume)
+	ON_COMMAND(IDC_CHECK5,			&CFindReplaceTab::OnCheckEffect)
+	ON_COMMAND(IDC_CHECK6,			&CFindReplaceTab::OnCheckParam)
 
-	ON_COMMAND(IDC_CHECK7,			OnCheckChannelSearch)
+	ON_COMMAND(IDC_CHECK7,			&CFindReplaceTab::OnCheckChannelSearch)
 END_MESSAGE_MAP()
 
 
 void CFindReplaceTab::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO1, m_cbnNote);
@@ -145,9 +142,8 @@ void CFindReplaceTab::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CFindReplaceTab::OnInitDialog()
-//----------------------------------
 {
-	TCHAR s[256];
+	CString s;
 
 	CPropertyPage::OnInitDialog();
 	// Search flags
@@ -192,6 +188,33 @@ BOOL CFindReplaceTab::OnInitDialog()
 		SetDlgItemInt(IDC_EDIT2, m_settings.findChnMax + 1);
 		static_cast<CSpinButtonCtrl *>(GetDlgItem(IDC_SPIN1))->SetRange32(1, m_sndFile.GetNumChannels());
 		static_cast<CSpinButtonCtrl *>(GetDlgItem(IDC_SPIN2))->SetRange32(1, m_sndFile.GetNumChannels());
+
+		// Pre-fill with selected pattern data
+		if(!flags[FindReplace::Note] && m_initialValues.note != NOTE_NONE)
+		{
+			m_settings.findNoteMin = m_settings.findNoteMax = m_initialValues.note;
+		}
+		if(!flags[FindReplace::Instr] && m_initialValues.instr != 0)
+		{
+			m_settings.findInstrMin = m_settings.findInstrMax = m_initialValues.instr;
+		}
+		if(IsPCEvent())
+		{
+			if(!flags[FindReplace::PCParam] && m_initialValues.GetValueVolCol() != 0)
+				m_settings.findParamMin = m_settings.findParamMax = m_initialValues.GetValueVolCol();
+			if(!flags[FindReplace::PCValue] && m_initialValues.GetValueEffectCol() != 0)
+				m_settings.findVolumeMin = m_settings.findVolumeMax = m_initialValues.GetValueEffectCol();
+		} else
+		{
+			if(!flags[FindReplace::VolCmd] && m_initialValues.volcmd != VOLCMD_NONE)
+				m_settings.findVolCmd = m_initialValues.volcmd;
+			if(!flags[FindReplace::Volume] && m_initialValues.volcmd != VOLCMD_NONE)
+				m_settings.findVolumeMin = m_settings.findVolumeMax = m_initialValues.vol;
+			if(!flags[FindReplace::Command] && m_initialValues.command != CMD_NONE)
+				m_settings.findCommand = m_initialValues.command;
+			if(!flags[FindReplace::Param] && m_initialValues.command != CMD_NONE)
+				m_settings.findParamMin = m_settings.findParamMax = m_initialValues.param;
+		}
 	}
 
 	// Note
@@ -246,11 +269,11 @@ BOOL CFindReplaceTab::OnInitDialog()
 	// Volume Command
 	m_cbnVolCmd.SetRedraw(FALSE);
 	m_cbnVolCmd.InitStorage(m_effectInfo.GetNumVolCmds(), 15);
-	m_cbnVolCmd.SetItemData(m_cbnVolCmd.AddString(" None"), (DWORD_PTR)-1);
+	m_cbnVolCmd.SetItemData(m_cbnVolCmd.AddString(_T(" None")), (DWORD_PTR)-1);
 	UINT count = m_effectInfo.GetNumVolCmds();
 	for (UINT n=0; n<count; n++)
 	{
-		if(m_effectInfo.GetVolCmdInfo(n, s) && s[0])
+		if(m_effectInfo.GetVolCmdInfo(n, &s) && !s.IsEmpty())
 		{
 			m_cbnVolCmd.SetItemData(m_cbnVolCmd.AddString(s), n);
 		}
@@ -270,11 +293,11 @@ BOOL CFindReplaceTab::OnInitDialog()
 	{
 		m_cbnCommand.SetRedraw(FALSE);
 		m_cbnCommand.InitStorage(m_effectInfo.GetNumEffects(), 20);
-		m_cbnCommand.SetItemData(m_cbnCommand.AddString(" None"), (DWORD_PTR)-1);
+		m_cbnCommand.SetItemData(m_cbnCommand.AddString(_T(" None")), (DWORD_PTR)-1);
 		count = m_effectInfo.GetNumEffects();
 		for (UINT n=0; n<count; n++)
 		{
-			if(m_effectInfo.GetEffectInfo(n, s, true) && s[0])
+			if(m_effectInfo.GetEffectInfo(n, &s, true) && !s.IsEmpty())
 			{
 				m_cbnCommand.SetItemData(m_cbnCommand.AddString(s), n);
 			}
@@ -297,7 +320,6 @@ BOOL CFindReplaceTab::OnInitDialog()
 
 
 bool CFindReplaceTab::IsPCEvent() const
-//-------------------------------------
 {
 	if(m_isReplaceTab)
 	{
@@ -312,7 +334,6 @@ bool CFindReplaceTab::IsPCEvent() const
 
 
 void CFindReplaceTab::UpdateInstrumentList()
-//------------------------------------------
 {
 	const bool isPCEvent = IsPCEvent();
 	if(m_cbnInstr.GetCount() != 0 && !!GetWindowLongPtr(m_cbnInstr.m_hWnd, GWLP_USERDATA) == isPCEvent)
@@ -352,14 +373,14 @@ void CFindReplaceTab::UpdateInstrumentList()
 		AddPluginNamesToCombobox(m_cbnInstr, m_sndFile.m_MixPlugins, false);
 	} else
 	{
-		TCHAR s[256];
+		CString s;
 		for(INSTRUMENTINDEX n = 1; n < MAX_INSTRUMENTS; n++)
 		{
-			wsprintf(s, _T("%03d:"), n);
+			s.Format(_T("%03d:"), n);
 			if(m_sndFile.GetNumInstruments())
-				_tcscat(s, m_sndFile.GetInstrumentName(n));
+				s += mpt::ToCString(m_sndFile.GetCharsetInternal(), m_sndFile.GetInstrumentName(n));
 			else
-				_tcscat(s, m_sndFile.m_szNames[n]);
+				s += mpt::ToCString(m_sndFile.GetCharsetInternal(), m_sndFile.m_szNames[n]);
 			m_cbnInstr.SetItemData(m_cbnInstr.AddString(s), n);
 		}
 	}
@@ -370,7 +391,6 @@ void CFindReplaceTab::UpdateInstrumentList()
 
 
 void CFindReplaceTab::UpdateParamList()
-//-------------------------------------
 {
 	const bool isPCEvent = IsPCEvent();
 	if(m_cbnInstr.GetCount() == 0 || !!GetWindowLongPtr(m_cbnInstr.m_hWnd, GWLP_USERDATA) != isPCEvent)
@@ -378,9 +398,10 @@ void CFindReplaceTab::UpdateParamList()
 		SetWindowLongPtr(m_cbnInstr.m_hWnd, GWLP_USERDATA, isPCEvent);
 	}
 
-	int effectIndex = m_cbnCommand.GetItemData(m_cbnCommand.GetCurSel());
+	int effectIndex = static_cast<int>(m_cbnCommand.GetItemData(m_cbnCommand.GetCurSel()));
 	ModCommand::PARAM n = 0; // unused parameter adjustment
 	ModCommand::COMMAND cmd = m_effectInfo.GetEffectFromIndex(effectIndex, n);
+	const UINT mask = m_effectInfo.GetEffectMaskFromIndex(effectIndex);
 	if(m_isReplaceTab)
 		m_settings.replaceCommand = cmd;
 	else
@@ -394,26 +415,28 @@ void CFindReplaceTab::UpdateParamList()
 	if(oldcount)
 		oldcount -= m_isReplaceTab ? 2 : 1;
 
-	auto findParamMin = m_settings.findParamMin;
+	auto findParam = m_isReplaceTab ? m_settings.replaceParam : m_settings.findParamMin;
 	if(isExtended)
 	{
-		findParamMin &= 0x0F;
-	}
-	if(isExtended && !IsDlgButtonChecked(IDC_CHECK6))
-	{
-		UINT mask = m_effectInfo.GetEffectMaskFromIndex(effectIndex);
-		m_settings.findParamMin = (m_settings.findParamMin & 0x0F) | mask;
-		m_settings.findParamMax = (m_settings.findParamMax & 0x0F) | mask;
+		findParam &= 0x0F;
+		if(!m_isReplaceTab && !IsDlgButtonChecked(IDC_CHECK6))
+		{
+			m_settings.findParamMin = (m_settings.findParamMin & 0x0F) | mask;
+			m_settings.findParamMax = (m_settings.findParamMax & 0x0F) | mask;
+		} else if(m_isReplaceTab)
+		{
+			m_settings.replaceParam |= mask;
+		}
 	}
 
 	if(oldcount != newcount)
 	{
 		TCHAR s[16];
 		int newpos;
-		if(oldcount)
-			newpos = m_cbnParam.GetItemData(m_cbnParam.GetCurSel());
+		if(oldcount && m_cbnParam.GetCurSel() != CB_ERR)
+			newpos = static_cast<int>(m_cbnParam.GetItemData(m_cbnParam.GetCurSel()));
 		else
-			newpos = (m_isReplaceTab ? m_settings.replaceParam : findParamMin);
+			newpos = findParam;
 		Limit(newpos, 0, newcount - 1);
 		m_cbnParam.SetRedraw(FALSE);
 		m_cbnParam.ResetContent();
@@ -429,6 +452,12 @@ void CFindReplaceTab::UpdateParamList()
 				sel = 0;
 			else if(m_settings.replaceParamAction == FindReplace::ReplaceMultiply)
 				sel = 1;
+
+			m_settings.replaceParam = newpos;
+			if(isExtended)
+			{
+				m_settings.replaceParam = (m_settings.replaceParam & 0x0F) | mask;
+			}
 		} else
 		{
 			m_cbnParam.SetItemData(m_cbnParam.AddString(_T("Range")), kFindRange);
@@ -452,7 +481,6 @@ void CFindReplaceTab::UpdateParamList()
 
 
 void CFindReplaceTab::UpdateVolumeList()
-//--------------------------------------
 {
 	TCHAR s[256];
 	const bool isPCEvent = IsPCEvent();
@@ -464,7 +492,7 @@ void CFindReplaceTab::UpdateVolumeList()
 	m_cbnParam.EnableWindow(enable);
 
 	// Update plugin parameter list
-	int plug = m_cbnInstr.GetItemData(m_cbnInstr.GetCurSel());
+	int plug = static_cast<int>(m_cbnInstr.GetItemData(m_cbnInstr.GetCurSel()));
 	if(isPCEvent && (m_cbnPCParam.GetCount() == 0 || GetWindowLongPtr(m_cbnPCParam.m_hWnd, GWLP_USERDATA) != plug))
 	{
 		SetWindowLongPtr(m_cbnPCParam.m_hWnd, GWLP_USERDATA, plug);
@@ -484,7 +512,7 @@ void CFindReplaceTab::UpdateVolumeList()
 			m_cbnPCParam.InitStorage(ModCommand::maxColumnValue, 20);
 			for(int i = 0; i < ModCommand::maxColumnValue; i++)
 			{
-				wsprintf(s, _T("%02u: Parameter %02u"), i, i);
+				wsprintf(s, _T("%02u: Parameter %02u"), static_cast<unsigned int>(i), static_cast<unsigned int>(i));
 				m_cbnPCParam.SetItemData(m_cbnPCParam.AddString(s), i);
 			}
 		}
@@ -502,10 +530,10 @@ void CFindReplaceTab::UpdateVolumeList()
 	{
 		rangeMin = 0;
 		rangeMax = ModCommand::maxColumnValue;
-		curVal = (m_isReplaceTab ? m_settings.replaceParam : m_settings.findParamMin);
+		curVal = (m_isReplaceTab ? m_settings.replaceVolume : m_settings.findVolumeMin);
 	} else
 	{
-		int effectIndex = m_cbnVolCmd.GetItemData(m_cbnVolCmd.GetCurSel());
+		int effectIndex = static_cast<int>(m_cbnVolCmd.GetItemData(m_cbnVolCmd.GetCurSel()));
 		ModCommand::VOLCMD cmd = m_effectInfo.GetVolCmdFromIndex(effectIndex);
 		if(m_isReplaceTab)
 			m_settings.replaceVolCmd = cmd;
@@ -531,7 +559,7 @@ void CFindReplaceTab::UpdateVolumeList()
 		int sel = -1;
 		int newpos;
 		if (oldcount)
-			newpos = m_cbnVolume.GetItemData(m_cbnVolume.GetCurSel());
+			newpos = static_cast<int>(m_cbnVolume.GetItemData(m_cbnVolume.GetCurSel()));
 		else
 			newpos = curVal;
 		Limit(newpos, 0, newcount - 1);
@@ -571,10 +599,9 @@ void CFindReplaceTab::UpdateVolumeList()
 
 
 void CFindReplaceTab::OnNoteChanged()
-//-----------------------------------
 {
 	CheckOnChange(IDC_CHECK1);
-	int item = m_cbnNote.GetItemData(m_cbnNote.GetCurSel());
+	int item = static_cast<int>(m_cbnNote.GetItemData(m_cbnNote.GetCurSel()));
 	if(m_isReplaceTab)
 	{
 		m_settings.replaceNoteAction = FindReplace::ReplaceRelative;
@@ -627,10 +654,9 @@ void CFindReplaceTab::OnNoteChanged()
 
 
 void CFindReplaceTab::OnInstrChanged()
-//------------------------------------
 {
 	CheckOnChange(IDC_CHECK2);
-	int item = m_cbnInstr.GetItemData(m_cbnInstr.GetCurSel());
+	int item = static_cast<int>(m_cbnInstr.GetItemData(m_cbnInstr.GetCurSel()));
 	if(m_isReplaceTab)
 	{
 		m_settings.replaceInstrAction = FindReplace::ReplaceRelative;
@@ -679,10 +705,9 @@ void CFindReplaceTab::OnInstrChanged()
 
 
 void CFindReplaceTab::RelativeOrMultiplyPrompt(CComboBox &comboBox, FindReplace::ReplaceMode &action, int &value, int range, bool isHex)
-//--------------------------------------------------------------------------------------------------------------------------------------
 {
 	int sel = comboBox.GetCurSel();
-	int item = comboBox.GetItemData(sel);
+	int item = static_cast<int>(comboBox.GetItemData(sel));
 
 	if(sel == CB_ERR)
 	{
@@ -707,12 +732,13 @@ void CFindReplaceTab::RelativeOrMultiplyPrompt(CComboBox &comboBox, FindReplace:
 		{
 			if(isHex)
 			{
-				std::string sHex(m_cbnParam.GetWindowTextLengthA(), ' ');
-				m_cbnParam.GetWindowTextA(&sHex[0], sHex.length() + 1);
-				item = mpt::String::Parse::HexToUnsignedInt(sHex);
+				int len = ::GetWindowTextLengthA(m_cbnParam);
+				std::string sHex(len, 0);
+				::GetWindowTextA(m_cbnParam, &sHex[0], len + 1);
+				item = mpt::parse_hex<unsigned int>(sHex);
 			} else
 			{
-				item = ConvertStrTo<int>(s);
+				item = mpt::parse<int>(s);
 			}
 		}
 	}
@@ -759,12 +785,11 @@ void CFindReplaceTab::RelativeOrMultiplyPrompt(CComboBox &comboBox, FindReplace:
 
 
 void CFindReplaceTab::OnVolumeChanged()
-//-------------------------------------
 {
 	CheckOnChange(IDC_CHECK4);
 	int item = m_cbnVolume.GetCurSel();
 	if(item != CB_ERR)
-		item = m_cbnVolume.GetItemData(item);
+		item = static_cast<int>(m_cbnVolume.GetItemData(item));
 	else
 		item = GetDlgItemInt(IDC_COMBO4);
 
@@ -794,22 +819,22 @@ void CFindReplaceTab::OnVolumeChanged()
 
 
 void CFindReplaceTab::OnParamChanged()
-//------------------------------------
 {
 	CheckOnChange(IDC_CHECK6);
 	int item = m_cbnParam.GetCurSel();
 	if(item != CB_ERR)
 	{
-		item = m_cbnParam.GetItemData(item);
+		item = static_cast<int>(m_cbnParam.GetItemData(item));
 	} else
 	{
-		std::string s(m_cbnParam.GetWindowTextLengthA(), ' ');
-		m_cbnParam.GetWindowTextA(&s[0], s.length() + 1);
-		item = mpt::String::Parse::HexToUnsignedInt(s);
+		int len = ::GetWindowTextLengthA(m_cbnParam);
+		std::string s(len, 0);
+		::GetWindowTextA(m_cbnParam, &s[0], len + 1);
+		item = mpt::parse_hex<unsigned int>(s);
 	}
 
 	// Apply parameter value mask if required (e.g. SDx has mask D0).
-	int effectIndex = m_cbnCommand.GetItemData(m_cbnCommand.GetCurSel());
+	int effectIndex = static_cast<int>(m_cbnCommand.GetItemData(m_cbnCommand.GetCurSel()));
 	UINT mask = (effectIndex > -1) ? m_effectInfo.GetEffectMaskFromIndex(effectIndex) : 0;
 
 	if(m_isReplaceTab)
@@ -841,10 +866,9 @@ void CFindReplaceTab::OnParamChanged()
 
 
 void CFindReplaceTab::OnPCParamChanged()
-//--------------------------------------
 {
 	CheckOnChange(IDC_CHECK3);
-	int item = m_cbnPCParam.GetItemData(m_cbnPCParam.GetCurSel());
+	int item = static_cast<int>(m_cbnPCParam.GetItemData(m_cbnPCParam.GetCurSel()));
 
 	if(m_isReplaceTab)
 	{
@@ -871,7 +895,6 @@ void CFindReplaceTab::OnPCParamChanged()
 
 
 void CFindReplaceTab::OnCheckChannelSearch()
-//------------------------------------------
 {
 	if (!m_isReplaceTab)
 	{
@@ -885,7 +908,6 @@ void CFindReplaceTab::OnCheckChannelSearch()
 
 
 void CFindReplaceTab::OnOK()
-//--------------------------
 {
 	// Search flags
 	FlagSet<FindReplace::Flags> &flags = m_isReplaceTab ? m_settings.replaceFlags : m_settings.findFlags;

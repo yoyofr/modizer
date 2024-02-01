@@ -13,14 +13,24 @@
 #include "openmpt123_config.hpp"
 #include "openmpt123.hpp"
 
+#include "mpt/base/detect.hpp"
+
 #if defined(MPT_WITH_PORTAUDIO)
 
 #include <portaudio.h>
+#if defined(MPT_BUILD_MSVC) && MPT_COMPILER_MSVC && MPT_ARCH_X86
+extern "C" {
+void PaUtil_InitializeX86PlainConverters(void);
+}
+#endif
+
 
 namespace openmpt123 {
 
+inline constexpr auto portaudio_encoding = mpt::common_encoding::utf8;
+
 struct portaudio_exception : public exception {
-	portaudio_exception( PaError code ) throw() : exception( Pa_GetErrorText( code ) ) { }
+	portaudio_exception( PaError code ) : exception( mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetErrorText( code ) ) ) { }
 };
 
 typedef void (*PaUtilLogCallback ) (const char *log);
@@ -30,14 +40,14 @@ extern "C" void PaUtil_SetDebugPrintFunction(PaUtilLogCallback  cb);
 
 class portaudio_raii {
 private:
-	std::ostream & log;
+	concat_stream<mpt::ustring> & log;
 	bool log_set;
 	bool portaudio_initialized;
-	static std::ostream * portaudio_log_stream;
+	static concat_stream<mpt::ustring> * portaudio_log_stream;
 private:
 	static void portaudio_log_function( const char * log ) {
 		if ( portaudio_log_stream ) {
-			*portaudio_log_stream << "PortAudio: " << log;
+			*portaudio_log_stream << MPT_USTRING("PortAudio: ") << mpt::transcode<mpt::ustring>( portaudio_encoding, log );
 		}
 	}
 protected:
@@ -49,13 +59,13 @@ protected:
 			return;
 		}
 		if ( e == paOutputUnderflowed ) {
-			log << "PortAudio warning: " << Pa_GetErrorText( e ) << std::endl;
+			log << MPT_USTRING("PortAudio warning: ") << mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetErrorText( e ) ) << lf;
 			return;
 		}
 		throw portaudio_exception( e );
 	}
 public:
-	portaudio_raii( bool verbose, std::ostream & log ) : log(log), log_set(false), portaudio_initialized(false) {
+	portaudio_raii( bool verbose, concat_stream<mpt::ustring> & log ) : log(log), log_set(false), portaudio_initialized(false) {
 		if ( verbose ) {
 			portaudio_log_stream = &log;
 		} else {
@@ -65,10 +75,13 @@ public:
 		PaUtil_SetDebugPrintFunction( portaudio_log_function );
 		log_set = true;
 #endif
+#if defined(MPT_BUILD_MSVC) && MPT_COMPILER_MSVC && MPT_ARCH_X86
+		PaUtil_InitializeX86PlainConverters();
+#endif
 		check_portaudio_error( Pa_Initialize() );
 		portaudio_initialized = true;
 		if ( verbose ) {
-			*portaudio_log_stream << std::endl;
+			*portaudio_log_stream << lf;
 		}
 	}
 	~portaudio_raii() {
@@ -86,7 +99,7 @@ public:
 	}
 };
 
-std::ostream * portaudio_raii::portaudio_log_stream = 0;
+concat_stream<mpt::ustring> * portaudio_raii::portaudio_log_stream = 0;
 
 class portaudio_stream_blocking_raii : public portaudio_raii, public write_buffers_interface {
 private:
@@ -96,7 +109,7 @@ private:
 	std::vector<float> sampleBufFloat;
 	std::vector<std::int16_t> sampleBufInt;
 public:
-	portaudio_stream_blocking_raii( commandlineflags & flags, std::ostream & log )
+	portaudio_stream_blocking_raii( commandlineflags & flags, concat_stream<mpt::ustring> & log )
 		: portaudio_raii(flags.verbose, log)
 		, stream(NULL)
 		, interleaved(false)
@@ -104,9 +117,7 @@ public:
 	{
 		PaStreamParameters streamparameters;
 		std::memset( &streamparameters, 0, sizeof(PaStreamParameters) );
-		std::istringstream device_string( flags.device );
-		int device = -1;
-		device_string >> device;
+		const int device = mpt::parse_or<int>( flags.device, -1 );
 		streamparameters.device = ( device == -1 ) ? Pa_GetDefaultOutputDevice() : device;
 		streamparameters.channelCount = flags.channels;
 		streamparameters.sampleFormat = ( flags.use_float ? paFloat32 : paInt16 ) | paNonInterleaved;
@@ -120,18 +131,18 @@ public:
 			streamparameters.suggestedLatency = flags.buffer * 0.001;
 		}
 		unsigned long framesperbuffer = 0;
-		if ( flags.mode != ModeUI ) {
+		if ( flags.mode != Mode::UI ) {
 			framesperbuffer = paFramesPerBufferUnspecified;
 			flags.period = 50;
-			flags.period = std::min<std::int32_t>( flags.period, flags.buffer / 3 );
+			flags.period = std::min( flags.period, flags.buffer / 3 );
 		} else if ( flags.period == default_high ) {
 			framesperbuffer = paFramesPerBufferUnspecified;
 			flags.period = 50;
-			flags.period = std::min<std::int32_t>( flags.period, flags.buffer / 3 );
+			flags.period = std::min( flags.period, flags.buffer / 3 );
 		} else if ( flags.period == default_low ) {
 			framesperbuffer = paFramesPerBufferUnspecified;
 			flags.period = 10;
-			flags.period = std::min<std::int32_t>( flags.period, flags.buffer / 3 );
+			flags.period = std::min( flags.period, flags.buffer / 3 );
 		} else {
 			framesperbuffer = flags.period * flags.samplerate / 1000;
 		}
@@ -140,16 +151,16 @@ public:
 		}
 		flags.apply_default_buffer_sizes();
 		if ( flags.verbose ) {
-			log << "PortAudio:" << std::endl;
-			log << " device: "
+			log << MPT_USTRING("PortAudio:") << lf;
+			log << MPT_USTRING(" device: ")
 				<< streamparameters.device
-				<< " [ " << Pa_GetHostApiInfo( Pa_GetDeviceInfo( streamparameters.device )->hostApi )->name << " / " << Pa_GetDeviceInfo( streamparameters.device )->name << " ] "
-				<< std::endl;
-			log << " low latency: " << Pa_GetDeviceInfo( streamparameters.device )->defaultLowOutputLatency << std::endl;
-			log << " high latency: " << Pa_GetDeviceInfo( streamparameters.device )->defaultHighOutputLatency << std::endl;
-			log << " suggested latency: " << streamparameters.suggestedLatency << std::endl;
-			log << " frames per buffer: " << framesperbuffer << std::endl;
-			log << " ui redraw: " << flags.period << std::endl;
+				<< MPT_USTRING(" [ ") << mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetHostApiInfo( Pa_GetDeviceInfo( streamparameters.device )->hostApi )->name ) << MPT_USTRING(" / ") << mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetDeviceInfo( streamparameters.device )->name ) << MPT_USTRING(" ] ")
+				<< lf;
+			log << MPT_USTRING(" low latency: ") << Pa_GetDeviceInfo( streamparameters.device )->defaultLowOutputLatency << lf;
+			log << MPT_USTRING(" high latency: ") << Pa_GetDeviceInfo( streamparameters.device )->defaultHighOutputLatency << lf;
+			log << MPT_USTRING(" suggested latency: ") << streamparameters.suggestedLatency << lf;
+			log << MPT_USTRING(" frames per buffer: ") << framesperbuffer << lf;
+			log << MPT_USTRING(" ui redraw: ") << flags.period << lf;
 		}
 		PaError e = PaError();
 		e = Pa_OpenStream( &stream, NULL, &streamparameters, flags.samplerate, framesperbuffer, ( flags.dither > 0 ) ? paNoFlag : paDitherOff, NULL, NULL );
@@ -165,11 +176,11 @@ public:
 		}
 		check_portaudio_error( Pa_StartStream( stream ) );
 		if ( flags.verbose ) {
-			log << " channels: " << streamparameters.channelCount << std::endl;
-			log << " sampleformat: " << ( ( ( streamparameters.sampleFormat & ~paNonInterleaved ) == paFloat32 ) ? "paFloat32" : "paInt16" ) << std::endl;
-			log << " latency: " << Pa_GetStreamInfo( stream )->outputLatency << std::endl;
-			log << " samplerate: " << Pa_GetStreamInfo( stream )->sampleRate << std::endl;
-			log << std::endl;
+			log << MPT_USTRING(" channels: ") << streamparameters.channelCount << lf;
+			log << MPT_USTRING(" sampleformat: ") << ( ( ( streamparameters.sampleFormat & ~paNonInterleaved ) == paFloat32 ) ? MPT_USTRING("paFloat32") : MPT_USTRING("paInt16") ) << lf;
+			log << MPT_USTRING(" latency: ") << Pa_GetStreamInfo( stream )->outputLatency << lf;
+			log << MPT_USTRING(" samplerate: ") << Pa_GetStreamInfo( stream )->sampleRate << lf;
+			log << lf;
 		}
 	}
 	~portaudio_stream_blocking_raii() {
@@ -187,7 +198,7 @@ private:
 	template<typename Tsample>
 	void write_frames( const Tsample * buffer, std::size_t frames ) {
 		while ( frames > 0 ) {
-			unsigned long chunk_frames = static_cast<unsigned long>( std::min<std::size_t>( frames, std::numeric_limits<unsigned long>::max() ) );
+			unsigned long chunk_frames = static_cast<unsigned long>( std::min( static_cast<std::uint64_t>( frames ), static_cast<std::uint64_t>( std::numeric_limits<unsigned long>::max() ) ) );
 			check_portaudio_error( Pa_WriteStream( stream, buffer, chunk_frames ) );
 			buffer += chunk_frames * channels;
 			frames -= chunk_frames;
@@ -196,7 +207,7 @@ private:
 	template<typename Tsample>
 	void write_frames( std::vector<Tsample*> buffers, std::size_t frames ) {
 		while ( frames > 0 ) {
-			unsigned long chunk_frames = static_cast<unsigned long>( std::min<std::size_t>( frames, std::numeric_limits<unsigned long>::max() ) );
+			unsigned long chunk_frames = static_cast<unsigned long>( std::min( static_cast<std::uint64_t>( frames ), static_cast<std::uint64_t>( std::numeric_limits<unsigned long>::max() ) ) );
 			check_portaudio_error( Pa_WriteStream( stream, buffers.data(), chunk_frames ) );
 			for ( std::size_t channel = 0; channel < channels; ++channel ) {
 				buffers[channel] += chunk_frames;
@@ -205,7 +216,7 @@ private:
 		}
 	}
 public:
-	void write( const std::vector<float*> buffers, std::size_t frames ) {
+	void write( const std::vector<float*> buffers, std::size_t frames ) override {
 		if ( interleaved ) {
 			sampleBufFloat.clear();
 			for ( std::size_t frame = 0; frame < frames; ++frame ) {
@@ -218,7 +229,7 @@ public:
 			write_frames( buffers, frames );
 		}
 	}
-	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) {
+	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) override {
 		if ( interleaved ) {
 			sampleBufInt.clear();
 			for ( std::size_t frame = 0; frame < frames; ++frame ) {
@@ -231,15 +242,15 @@ public:
 			write_frames( buffers, frames );
 		}
 	}
-	bool unpause() {
+	bool unpause() override {
 		check_portaudio_error( Pa_StartStream( stream ) );
 		return true;
 	}
-	bool pause() {
+	bool pause() override {
 		check_portaudio_error( Pa_StopStream( stream ) );
 		return true;
 	}
-	bool sleep( int ms ) {
+	bool sleep( int ms ) override {
 		Pa_Sleep( ms );
 		return true;
 	}
@@ -247,35 +258,35 @@ public:
 
 #define portaudio_stream_raii portaudio_stream_blocking_raii
 
-static std::string show_portaudio_devices( std::ostream & log ) {
-	std::ostringstream devices;
-	devices << " portaudio:" << std::endl;
+static mpt::ustring show_portaudio_devices( concat_stream<mpt::ustring> & log ) {
+	string_concat_stream<mpt::ustring> devices;
+	devices << MPT_USTRING(" portaudio:") << lf;
 	portaudio_raii portaudio( false, log );
 	for ( PaDeviceIndex i = 0; i < Pa_GetDeviceCount(); ++i ) {
 		if ( Pa_GetDeviceInfo( i ) && Pa_GetDeviceInfo( i )->maxOutputChannels > 0 ) {
-			devices << "    " << i << ": ";
+			devices << MPT_USTRING("    ") << i << MPT_USTRING(": ");
 			if ( Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi ) && Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi )->name ) {
-				devices << Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi )->name;
+				devices << mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi )->name );
 			} else {
-				devices << "Host API " << Pa_GetDeviceInfo( i )->hostApi;
+				devices << MPT_USTRING("Host API ") << Pa_GetDeviceInfo( i )->hostApi;
 			}
 			if ( Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi ) ) {
 				if ( i == Pa_GetHostApiInfo( Pa_GetDeviceInfo( i )->hostApi )->defaultOutputDevice ) {
-					devices << " (default)";
+					devices << MPT_USTRING(" (default)");
 				}
 			}
-			devices << " - ";
+			devices << MPT_USTRING(" - ");
 			if ( Pa_GetDeviceInfo( i )->name ) {
-				devices << Pa_GetDeviceInfo( i )->name;
+				devices << mpt::transcode<mpt::ustring>( portaudio_encoding, Pa_GetDeviceInfo( i )->name );
 			} else {
-				devices << "Device " << i;
+				devices << MPT_USTRING("Device ") << i;
 			}
-			devices << " (";
-			devices << "high latency: " << Pa_GetDeviceInfo( i )->defaultHighOutputLatency;
-			devices << ", ";
-			devices << "low latency: " << Pa_GetDeviceInfo( i )->defaultLowOutputLatency;
-			devices << ")";
-			devices << std::endl;
+			devices << MPT_USTRING(" (");
+			devices << MPT_USTRING("high latency: ") << Pa_GetDeviceInfo( i )->defaultHighOutputLatency;
+			devices << MPT_USTRING(", ");
+			devices << MPT_USTRING("low latency: ") << Pa_GetDeviceInfo( i )->defaultLowOutputLatency;
+			devices << MPT_USTRING(")");
+			devices << lf;
 		}
 	}
 	return devices.str();

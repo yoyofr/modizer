@@ -10,11 +10,11 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
-//=========================================
 class COptionsGeneral: public CPropertyPage
-//=========================================
 {
 protected:
 	CEdit m_defaultArtist;
@@ -22,18 +22,19 @@ protected:
 	CCheckListBox m_CheckList;
 
 public:
-	COptionsGeneral() : CPropertyPage(IDD_OPTIONS_GENERAL) {}
+	COptionsGeneral();
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
+
 	afx_msg void OnOptionSelChanged();
 	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
 	afx_msg void OnBrowseTemplate();
-	afx_msg void OnDefaultTypeChanged() { CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO1); OnSettingsChanged(); }
-	afx_msg void OnTemplateChanged() { CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO3); OnSettingsChanged(); }
+	afx_msg void OnDefaultTypeChanged();
+	afx_msg void OnTemplateChanged();
 
 	DECLARE_MESSAGE_MAP();
 };

@@ -31,8 +31,7 @@ typedef struct _REPARSE_DATA_BUFFER {
 
 bool CreateReparsePoint(CommandData *Cmd,const wchar *Name,FileHeader *hd)
 {
-  return false;	// OPENMPT ADDITION
-  /*	// OPENMPT ADDITION
+  return false;	/* // OPENMPT ADDITION
   static bool PrivSet=false;
   if (!PrivSet)
   {
@@ -42,7 +41,7 @@ bool CreateReparsePoint(CommandData *Cmd,const wchar *Name,FileHeader *hd)
     PrivSet=true;
   }
 
-  const DWORD BufSize=sizeof(REPARSE_DATA_BUFFER)+2*NM+1024;
+  const DWORD BufSize=sizeof(REPARSE_DATA_BUFFER)+2*NM*sizeof(wchar)+1024;
   Array<byte> Buf(BufSize);
   REPARSE_DATA_BUFFER *rdb=(REPARSE_DATA_BUFFER *)&Buf[0];
 
@@ -67,24 +66,42 @@ bool CreateReparsePoint(CommandData *Cmd,const wchar *Name,FileHeader *hd)
   // IsFullPath is not really needed here, AbsPath check is enough.
   // We added it just for extra safety, in case some Windows version would
   // allow to create absolute targets with SYMLINK_FLAG_RELATIVE.
+  // Use hd->FileName instead of Name, since Name can include the destination
+  // path as a prefix, which can confuse IsRelativeSymlinkSafe algorithm.
   if (!Cmd->AbsoluteLinks && (AbsPath || IsFullPath(hd->RedirName) ||
-      !IsRelativeSymlinkSafe(hd->FileName,hd->RedirName)))
+      !IsRelativeSymlinkSafe(Cmd,hd->FileName,Name,hd->RedirName)))
     return false;
 
-  CreatePath(Name,true);
+  CreatePath(Name,true,Cmd->DisableNames);
+
+  // Overwrite prompt was already issued and confirmed earlier, so we can
+  // remove existing symlink or regular file here. PrepareToDelete was also
+  // called earlier inside of uiAskReplaceEx.
+  if (FileExist(Name))
+    if (IsDir(GetFileAttr(Name)))
+      DelDir(Name);
+    else
+      DelFile(Name);
 
   // 'DirTarget' check is important for Unix symlinks to directories.
   // Unix symlinks do not have their own 'directory' attribute.
   if (hd->Dir || hd->DirTarget)
   {
     if (!CreateDirectory(Name,NULL))
+    {
+      uiMsg(UIERROR_DIRCREATE,UINULL,Name);
+      ErrHandler.SetErrorCode(RARX_CREATE);
       return false;
+    }
   }
   else
   {
     HANDLE hFile=CreateFile(Name,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
     if (hFile == INVALID_HANDLE_VALUE)
+    {
+      ErrHandler.CreateErrorMsg(Name);
       return false;
+    }
     CloseHandle(hFile);
   }
 
@@ -138,7 +155,11 @@ bool CreateReparsePoint(CommandData *Cmd,const wchar *Name,FileHeader *hd)
                OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT| 
                FILE_FLAG_BACKUP_SEMANTICS,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
+  {
+    ErrHandler.CreateErrorMsg(Name);
+    ErrHandler.SetErrorCode(RARX_CREATE);
     return false;
+  }
 
   DWORD Returned;
   if (!DeviceIoControl(hFile,FSCTL_SET_REPARSE_POINT,rdb, 
@@ -147,7 +168,10 @@ bool CreateReparsePoint(CommandData *Cmd,const wchar *Name,FileHeader *hd)
   { 
     CloseHandle(hFile);
     uiMsg(UIERROR_SLINKCREATE,UINULL,Name);
-    if (GetLastError()==ERROR_PRIVILEGE_NOT_HELD)
+
+    DWORD LastError=GetLastError();
+    if ((LastError==ERROR_ACCESS_DENIED || LastError==ERROR_PRIVILEGE_NOT_HELD) &&
+        !IsUserAdmin())
       uiMsg(UIERROR_NEEDADMIN);
     ErrHandler.SysErrMsg();
     ErrHandler.SetErrorCode(RARX_CREATE);

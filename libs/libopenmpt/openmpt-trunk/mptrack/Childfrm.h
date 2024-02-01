@@ -1,5 +1,5 @@
 /*
- * ChildFrm.h
+ * Childfrm.h
  * ----------
  * Purpose: Implementation of tab interface class.
  * Notes  : (currently none)
@@ -10,64 +10,67 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "PatternCursor.h"
+#include "WindowMessages.h"
+
+#include "../common/FileReaderFwd.h"
+#include "../soundlib/plugins/PluginStructs.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 class CModControlView;
 class CModControlDlg;
-class FileReader;
-class CChildFrame;
 
-typedef struct _GENERALVIEWSTATE
+struct GENERALVIEWSTATE
 {
-	DWORD cbStruct;
-	PlugParamIndex nParam;
-	CHANNELINDEX nTab;
-	PLUGINDEX nPlugin;
-} GENERALVIEWSTATE;
+	PlugParamIndex nParam = 0;
+	CHANNELINDEX nTab = 0;
+	PLUGINDEX nPlugin = 0;
+	bool initialized = false;
+};
 
 
-typedef struct PATTERNVIEWSTATE
+struct PATTERNVIEWSTATE
 {
-	DWORD cbStruct;
-	PATTERNINDEX nPattern;
-	PatternCursor cursor;
+	PATTERNINDEX nPattern = 0;
+	PatternCursor cursor = 0;
 	PatternRect selection;
-	PatternCursor::Columns nDetailLevel;
-	ORDERINDEX nOrder;
-	ORDERINDEX initialOrder;
-} PATTERNVIEWSTATE;
+	PatternCursor::Columns nDetailLevel = PatternCursor::firstColumn;
+	ORDERINDEX nOrder = 0;
+	ORDERINDEX initialOrder = ORDERINDEX_INVALID;
+	bool initialized = false;
+};
 
-typedef struct SAMPLEVIEWSTATE
+struct SAMPLEVIEWSTATE
 {
-	SmpLength dwScrollPos;
-	SmpLength dwBeginSel;
-	SmpLength dwEndSel;
-	SAMPLEINDEX nSample;
-	SAMPLEINDEX initialSample;
-} SAMPLEVIEWSTATE;
+	SmpLength dwScrollPos = 0;
+	SmpLength dwBeginSel = 0;
+	SmpLength dwEndSel = 0;
+	SAMPLEINDEX nSample = 0;
+	SAMPLEINDEX initialSample = 0;
+};
 
 
-typedef struct INSTRUMENTVIEWSTATE
+struct INSTRUMENTVIEWSTATE
 {
-	DWORD cbStruct;
-	EnvelopeType nEnv;
-	INSTRUMENTINDEX initialInstrument;
-	bool bGrid;
-} INSTRUMENTVIEWSTATE;
+	float zoom = 4;
+	EnvelopeType nEnv = ENV_VOLUME;
+	INSTRUMENTINDEX initialInstrument = 0;
+	bool bGrid = false;
+	bool initialized = false;
+};
 
-typedef struct COMMENTVIEWSTATE
+struct COMMENTVIEWSTATE
 {
-	DWORD cbStruct;
-	UINT nId;
-} COMMENTVIEWSTATE;
+	UINT nId = 0;
+	bool initialized = false;
+};
 
 
 
-//====================================
 class CChildFrame: public CMDIChildWnd
-//====================================
 {
 	friend class CModControlDlg;
 	DECLARE_DYNCREATE(CChildFrame)
@@ -75,6 +78,7 @@ public:
 	CChildFrame();
 
 protected:
+	static CChildFrame *m_lastActiveFrame;
 	static int glMdiOpenCount;
 
 // Attributes
@@ -96,8 +100,9 @@ public:
 	BOOL ChangeViewClass(CRuntimeClass* pNewViewClass, CCreateContext* pContext=NULL);
 	void ForceRefresh();
 	void SavePosition(BOOL bExit=FALSE);
-	CHAR* GetCurrentViewClassName();
-	LRESULT SendViewMessage(UINT uMsg, LPARAM lParam=0) const;
+	const char *GetCurrentViewClassName() const;
+	LRESULT SendCtrlMessage(UINT uMsg, LPARAM lParam = 0) const;
+	LRESULT SendViewMessage(UINT uMsg, LPARAM lParam = 0) const;
 	LRESULT ActivateView(UINT nId, LPARAM lParam) { return ::SendMessage(m_hWndCtrl, WM_MOD_ACTIVATEVIEW, nId, lParam); }
 	HWND GetHwndCtrl() const { return m_hWndCtrl; }
 	HWND GetHwndView() const { return m_hWndView; }
@@ -113,37 +118,35 @@ public:
 	std::string SerializeView() const;
 	void DeserializeView(FileReader &file);
 
+	void ToggleViews();
+
+	static CChildFrame *LastActiveFrame() { return m_lastActiveFrame; }
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CChildFrame)
 	public:
-	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual void CChildFrame::OnMDIActivate(BOOL bActivate, CWnd *pActivateWnd, CWnd *pDeactivateWnd);
-	virtual void ActivateFrame(int nCmdShow);
-	virtual void OnUpdateFrameTitle(BOOL bAddToTitle);
+	BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext) override;
+	BOOL PreCreateWindow(CREATESTRUCT& cs) override;
+	void ActivateFrame(int nCmdShow) override;
+	void OnUpdateFrameTitle(BOOL bAddToTitle) override;
 	//}}AFX_VIRTUAL
 
 // Implementation
 public:
 	virtual ~CChildFrame();
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
 
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CChildFrame)
 	afx_msg void OnDestroy();
 	afx_msg BOOL OnNcActivate(BOOL bActivate);
+	afx_msg void OnMDIActivate(BOOL bActivate, CWnd *pActivateWnd, CWnd *pDeactivateWnd);
 	afx_msg LRESULT OnChangeViewClass(WPARAM, LPARAM lParam);
 	afx_msg LRESULT OnInstrumentSelected(WPARAM, LPARAM lParam);
 	afx_msg BOOL OnToolTipText(UINT, NMHDR* pNMHDR, LRESULT* pResult);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnSetFocus(CWnd* pOldWnd); //rewbs.customKeysAutoEffects
 };
 
 /////////////////////////////////////////////////////////////////////////////

@@ -9,14 +9,19 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
+#include "mod2midi.h"
 #include "Mainfrm.h"
 #include "Moddoc.h"
-#include "../common/StringFixer.h"
+#include "Mptrack.h"
+#include "Reporting.h"
+#include "resource.h"
 #include "../common/mptFileIO.h"
-#include "mod2midi.h"
+#include "../common/mptStringBuffer.h"
 #include "../soundlib/plugins/PlugInterface.h"
 #include "../soundlib/plugins/PluginManager.h"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
+
 #include <sstream>
 
 #ifndef NO_PLUGINS
@@ -26,9 +31,9 @@ OPENMPT_NAMESPACE_BEGIN
 namespace MidiExport
 {
 	// MIDI file resolution
-	const int32 ppq = 480;
+	constexpr int32 ppq = 480;
 
-	enum StringType
+	enum StringType : uint8
 	{
 		kText = 1,
 		kCopyright = 2,
@@ -39,21 +44,41 @@ namespace MidiExport
 		kCue = 7,
 	};
 
-	class MidiTrack : public IMidiPlugin
+	class MidiTrack final : public IMidiPlugin
 	{
+		struct MidiChannelState
+		{
+			MidiChannelState()
+			{
+				lastModChannel.fill(CHANNELINDEX_INVALID);
+				panning.fill(64);
+			}
+
+			std::array<CHANNELINDEX, 16> lastModChannel;
+			std::array<uint8, 16> panning;
+		};
+
 		ModInstrument m_instr;
-		const ModInstrument *m_oldInstr;
+		const ModInstrument *const m_oldInstr;
 		const CSoundFile &m_sndFile;
-		MidiTrack *m_tempoTrack;	// Pointer to tempo track, nullptr if this is the tempo track
+		const GetLengthType &m_songLength;
+		MidiTrack *const m_tempoTrack;  // Pointer to tempo track, nullptr if this is the tempo track
+		decltype(m_MidiCh) *m_lastMidiCh = nullptr;
+		std::shared_ptr<MidiChannelState> m_channelState;
+		std::array<decltype(m_instr.midiPWD), 16> m_pitchWheelDepth = { 0 };
+
+		std::vector<std::array<char, 4>> m_queuedEvents;
 
 		std::ostringstream f;
-		double m_tempo;
-		double m_ticks;								// MIDI ticks since previous event
-		CSoundFile::samplecount_t m_samplePos;		// Current sample position
-		CSoundFile::samplecount_t m_prevEventTime;	// Sample position of previous event
+		double m_tempo = 0.0;
+		double m_ticks = 0.0;                           // MIDI ticks since previous event
+		CSoundFile::samplecount_t m_samplePos = 0;      // Current sample position
+		CSoundFile::samplecount_t m_prevEventTime = 0;  // Sample position of previous event
 		uint32 m_sampleRate;
-		uint32 m_oldSigNumerator;
-		int32 m_oldGlobalVol;
+		uint32 m_oldSigNumerator = 0;
+		int32 m_oldGlobalVol = -1;
+		const bool m_overlappingInstruments;
+		bool m_wroteLoopStart = false;
 
 		// Calculate how many MIDI ticks have passed since the last written event
 		void UpdateTicksSinceLastEvent()
@@ -65,56 +90,72 @@ namespace MidiExport
 		// Write delta tick count since last event
 		void WriteTicks()
 		{
-			uint32 ticks = (m_ticks <= 0) ? 0 : Util::Round<uint32>(m_ticks);
+			uint32 ticks = (m_ticks <= 0) ? 0 : mpt::saturate_round<uint32>(m_ticks);
 			mpt::IO::WriteVarInt(f, ticks);
 			m_ticks -= ticks;
+		}
+
+		// Update MIDI channel states in non-overlapping export mode so that all plugins have the same view
+		void SynchronizeMidiChannelState()
+		{
+			if(m_tempoTrack != nullptr && !m_overlappingInstruments)
+			{
+				if(m_tempoTrack->m_lastMidiCh != nullptr && m_tempoTrack->m_lastMidiCh != &m_MidiCh)
+					m_MidiCh = *m_tempoTrack->m_lastMidiCh;
+				m_tempoTrack->m_lastMidiCh = &m_MidiCh;
+			}
+		}
+
+		void SynchronizeMidiPitchWheelDepth(CHANNELINDEX trackerChn)
+		{
+			if(trackerChn >= std::size(m_sndFile.m_PlayState.Chn))
+				return;
+			const auto midiCh = GetMidiChannel(m_sndFile.m_PlayState.Chn[trackerChn], trackerChn);
+			if(!m_overlappingInstruments && m_tempoTrack && m_tempoTrack->m_pitchWheelDepth[midiCh] != m_instr.midiPWD)
+				WritePitchWheelDepth(static_cast<MidiChannel>(midiCh + MidiFirstChannel));
 		}
 
 	public:
 
 		operator ModInstrument& () { return m_instr; }
 
-		MidiTrack(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct, MidiTrack *tempoTrack, const char *name, const ModInstrument *oldInstr)
+		MidiTrack(VSTPluginLib &factory, CSoundFile &sndFile, const GetLengthType &songLength, SNDMIXPLUGIN &mixStruct, MidiTrack *tempoTrack, const mpt::ustring &name, const ModInstrument *oldInstr, bool overlappingInstruments)
 			: IMidiPlugin(factory, sndFile, mixStruct)
 			, m_oldInstr(oldInstr)
 			, m_sndFile(sndFile)
+			, m_songLength(songLength)
 			, m_tempoTrack(tempoTrack)
-			, m_tempo(0.0)
-			, m_ticks(0.0)
-			, m_samplePos(0), m_prevEventTime(0)
 			, m_sampleRate(sndFile.GetSampleRate())
-			, m_oldSigNumerator(0)
-			, m_oldGlobalVol(-1)
+			, m_overlappingInstruments(overlappingInstruments)
 		{
 			// Write instrument / song name
 			WriteString(kTrackName, name);
-
-			// This is the tempo track, don't write any playback-related stuff
-			if(tempoTrack == nullptr) return;
-
 			m_pMixStruct->pMixPlugin = this;
+			if(m_tempoTrack == nullptr || m_overlappingInstruments)
+				m_channelState = std::make_shared<MidiChannelState>();
+			else
+				m_channelState = m_tempoTrack->m_channelState;
 		}
 
-		void WritePitchWheelDepth()
+		void WritePitchWheelDepth(MidiChannel midiChOverride = MidiNoChannel)
 		{
 			// Set up MIDI pitch wheel depth
-			uint8 firstCh = m_instr.nMidiChannel, lastCh = m_instr.nMidiChannel;
-			if(firstCh == MidiMappedChannel || firstCh == MidiNoChannel)
+			uint8 firstCh = 0, lastCh = 15;
+			if(midiChOverride != MidiNoChannel)
+				firstCh = lastCh = midiChOverride - MidiFirstChannel;
+			else if(m_instr.nMidiChannel != MidiMappedChannel && m_instr.nMidiChannel != MidiNoChannel)
+				firstCh = lastCh = m_instr.nMidiChannel - MidiFirstChannel;
+			
+			for(uint8 i = firstCh; i <= lastCh; i++)
 			{
-				firstCh = 0;
-				lastCh = 16;
-			} else
-			{
-				firstCh--;
-			}
-			for(uint8 i = firstCh; i < lastCh; i++)
-			{
-				uint8 ch = 0xB0 | i;
-				uint8 msg[12] = { 0x00, ch, 0x64, 0x00, 0x00, ch, 0x65, 0x00, 0x00, ch, 0x06, static_cast<uint8>(mpt::abs(m_instr.midiPWD)) };
-				mpt::IO::WriteRaw(f, msg, 12);
+				const uint8 ch = 0xB0 | i;
+				const uint8 msg[] = { ch, 0x64, 0x00, 0x00, ch, 0x65, 0x00, 0x00, ch, 0x06, static_cast<uint8>(std::abs(m_instr.midiPWD)) };
+				WriteTicks();
+				mpt::IO::WriteRaw(f, msg, sizeof(msg));
+				if(m_tempoTrack)
+					m_tempoTrack->m_pitchWheelDepth[i] = m_instr.midiPWD;
 			}
 		}
-
 
 		void UpdateGlobals()
 		{
@@ -129,23 +170,21 @@ namespace MidiExport
 			const bool sigChanged = timeSigNumerator != m_oldSigNumerator;
 			const bool volChanged = m_sndFile.m_PlayState.m_nGlobalVolume != m_oldGlobalVol;
 
-			UpdateTicksSinceLastEvent();
-
-			if(curTempo > 0.0) m_tempo = curTempo;
+			if(curTempo > 0.0)
+				m_tempo = curTempo;
 			m_oldSigNumerator = timeSigNumerator;
 			m_oldGlobalVol = m_sndFile.m_PlayState.m_nGlobalVolume;
 
 			if(m_tempoTrack != nullptr)
-			{
 				return;
-			}
+
 			// This is the tempo track
 			if(tempoChanged && curTempo > 0.0)
 			{
 				// Write MIDI tempo
 				WriteTicks();
 
-				uint32 mspq = Util::Round<uint32>(60000000.0 / curTempo);
+				uint32 mspq = mpt::saturate_round<uint32>(60000000.0 / curTempo);
 				uint8 msg[6] = { 0xFF, 0x51, 0x03, static_cast<uint8>(mspq >> 16), static_cast<uint8>(mspq >> 8), static_cast<uint8>(mspq) };
 				mpt::IO::WriteRaw(f, msg, 6);
 			}
@@ -168,16 +207,46 @@ namespace MidiExport
 				uint8 msg[9] = { 0xF0, 0x07, 0x7F, 0x7F, 0x04, 0x01, static_cast<uint8>(midiVol & 0x7F), static_cast<uint8>((midiVol >> 7) & 0x7F), 0xF7 };
 				mpt::IO::WriteRaw(f, msg, 9);
 			}
+
+			if(!m_tempoTrack && !m_wroteLoopStart && m_sndFile.m_PlayState.m_nRow == m_songLength.lastRow && m_sndFile.m_PlayState.m_nCurrentOrder == m_songLength.lastOrder)
+			{
+				WriteString(kCue, U_("loopStart"));
+				m_wroteLoopStart = true;
+			}
 		}
 
-
-		virtual void Process(float *, float *, uint32 numFrames)
+		void Process(float *, float *, uint32 numFrames) override
 		{
 			UpdateGlobals();
-			if(m_tempoTrack != nullptr) m_tempoTrack->UpdateGlobals();
+			if(m_tempoTrack != nullptr)
+				m_tempoTrack->UpdateGlobals();
+
+			for(uint8 midiCh = 0; midiCh < 16; midiCh++)
+			{
+				if(m_channelState->lastModChannel[midiCh] == CHANNELINDEX_INVALID)
+					continue;
+				char newPanning = static_cast<char>(std::clamp(m_sndFile.m_PlayState.Chn[m_channelState->lastModChannel[midiCh]].nRealPan / 2, 0, 127));
+				if(m_channelState->panning[midiCh] == newPanning)
+					continue;
+				m_channelState->panning[midiCh] = newPanning;
+				std::array<char, 4> midiData = {static_cast<char>(0xB0 | midiCh), 0x0A, newPanning, 0};
+				m_queuedEvents.push_back(midiData);
+			}
+
+			for(const auto &midiData : m_queuedEvents)
+			{
+				WriteTicks();
+				mpt::IO::WriteRaw(f, midiData.data(), MIDIEvents::GetEventLength(midiData[0]));
+			}
+			m_queuedEvents.clear();
 
 			m_samplePos += numFrames;
-			if(m_tempoTrack != nullptr) m_tempoTrack->m_samplePos = std::max(m_tempoTrack->m_samplePos, m_samplePos);
+			if(m_tempoTrack != nullptr)
+			{
+				m_tempoTrack->m_samplePos = std::max(m_tempoTrack->m_samplePos, m_samplePos);
+				m_tempoTrack->UpdateTicksSinceLastEvent();
+			}
+			UpdateTicksSinceLastEvent();
 		}
 
 		// Write end marker and return the stream
@@ -185,160 +254,174 @@ namespace MidiExport
 		{
 			HardAllNotesOff();
 			UpdateTicksSinceLastEvent();
-			WriteTicks();
 
+			if(!m_tempoTrack && m_wroteLoopStart)
+				WriteString(kCue, U_("loopEnd"));
+
+			WriteTicks();
 			uint8 msg[3] = { 0xFF, 0x2F, 0x00 };
 			mpt::IO::WriteRaw(f, msg, 3);
 
 			return f;
 		}
 
-		void WriteString(StringType strType, const mpt::ustring &str)
+		void WriteString(StringType strType, const mpt::ustring &ustr)
 		{
-			WriteString(strType, mpt::ToCharset(mpt::CharsetLocaleOrUTF8, str));
-		}
-
-		void WriteString(StringType strType, const std::string &str)
-		{
-			if(str.length() > 0)
+			std::string str = mpt::ToCharset(mpt::Charset::Locale, ustr);
+			if(!str.empty())
 			{
-				uint8 msg[3] = { 0x00, 0xFF, static_cast<uint8>(strType) };
-				mpt::IO::WriteRaw(f, msg, 3);
+				WriteTicks();
+				uint8 msg[2] = { 0xFF, strType };
+				mpt::IO::WriteRaw(f, msg, 2);
 				mpt::IO::WriteVarInt(f, str.length());
-				mpt::IO::WriteRaw(f, str.c_str(), str.length());
+				mpt::IO::WriteRaw(f, str.data(), str.length());
 			}
 		}
 
-		void WriteString(StringType strType, const char *str)
+		void Release() override { }
+		int32 GetUID() const override { return 0; }
+		int32 GetVersion() const override { return 0; }
+		void Idle() override { }
+		uint32 GetLatency() const override { return 0; }
+
+		int32 GetNumPrograms() const override { return 0; }
+		int32 GetCurrentProgram() override { return 0; }
+		void SetCurrentProgram(int32) override { }
+
+		PlugParamIndex GetNumParameters() const override { return 0; }
+		PlugParamValue GetParameter(PlugParamIndex) override { return 0; }
+		void SetParameter(PlugParamIndex, PlugParamValue) override { }
+
+		float RenderSilence(uint32) override { return 0.0f; }
+
+		bool MidiSend(uint32 midiCode) override
 		{
-			const size_t len = strlen(str);
-			if(len > 0)
+			std::array<char, 4> midiData;
+			memcpy(midiData.data(), &midiCode, 4);
+
+			// Note-On events go last to prevent early note-off in a situation like this:
+			// ... ..|C-5 01
+			// C-5 01|=== ..
+			if(MIDIEvents::GetTypeFromEvent(midiCode) == MIDIEvents::evNoteOn)
 			{
-				uint8 msg[3] = { 0x00, 0xFF, static_cast<uint8>(strType) };
-				mpt::IO::WriteRaw(f, msg, 3);
-				mpt::IO::WriteVarInt(f, len);
-				mpt::IO::WriteRaw(f, str, len);
+				m_queuedEvents.push_back(midiData);
+				return true;
 			}
-		}
-
-		virtual void Release() { }
-		virtual int32 GetUID() const { return 0; }
-		virtual int32 GetVersion() const { return 0; }
-		virtual void Idle() { }
-		virtual uint32 GetLatency() const { return 0; }
-
-		virtual int32 GetNumPrograms() const { return 0; }
-		virtual int32 GetCurrentProgram() { return 0; }
-		virtual void SetCurrentProgram(int32) { }
-
-		virtual PlugParamIndex GetNumParameters() const { return 0; }
-		virtual PlugParamValue GetParameter(PlugParamIndex) { return 0; }
-		virtual void SetParameter(PlugParamIndex, PlugParamValue) { }
-
-		virtual float RenderSilence(uint32) { return 0.0f; }
-
-		virtual bool MidiSend(uint32 dwMidiCode)
-		{
-			UpdateGlobals();
-			UpdateTicksSinceLastEvent();
-
 			WriteTicks();
-			char midiData[4];
-			memcpy(midiData, &dwMidiCode, 4);
-			// TODO: If channels are shared between tracks, program change events need to be inserted!
-			if((midiData[0] & 0xF0) != 0xF0 && m_instr.nMidiChannel == MidiMappedChannel)
-			{
-				// Avoid putting things on channel 10, so we just put everything on the first 8 channels.
-				midiData[0] &= 0xF7;
-			}
-			mpt::IO::WriteRaw(f, midiData, MIDIEvents::GetEventLength(midiData[0]));
+			mpt::IO::WriteRaw(f, midiData.data(), MIDIEvents::GetEventLength(midiData[0]));
 			return true;
 		}
 
-		virtual bool MidiSysexSend(const void *message, uint32 length)
+		bool MidiSysexSend(mpt::const_byte_span sysex) override
 		{
-			UpdateGlobals();
-			UpdateTicksSinceLastEvent();
-
-			if(length > 1)
+			if(sysex.size() > 1)
 			{
 				WriteTicks();
 				mpt::IO::WriteIntBE<uint8>(f, 0xF0);
-				mpt::IO::WriteVarInt(f, static_cast<uint32>(length - 1));
-				mpt::IO::WriteRaw(f, static_cast<const mpt::byte *>(message) + 1, length - 1);
+				mpt::IO::WriteVarInt(f, mpt::saturate_cast<uint32>(sysex.size() - 1));
+				mpt::IO::WriteRaw(f, sysex.data() + 1, sysex.size() - 1);
 			}
 			return true;
 		}
 
-#if 0
-		virtual void MidiCC(uint8 nMidiCh, MIDIEvents::MidiCC nController, uint8 nParam, CHANNELINDEX trackChannel)
+		uint8 GetMidiChannel(const ModChannel &chn, CHANNELINDEX trackChannel) const override
 		{
-			if(m_instr.nMidiChannel == MidiMappedChannel)
+			if(m_instr.nMidiChannel == MidiMappedChannel && trackChannel < std::size(m_sndFile.m_PlayState.Chn))
 			{
-				// For "mapped" mode, distribute tracker channels evenly over MIDI channels, but avoid channel 10 (drums)
-				nMidiCh = trackChannel % 15u;
-				if(nMidiCh >= 9) nMidiCh++;
+				// For mapped channels, distribute tracker channels evenly over MIDI channels, but avoid channel 10 (drums)
+				uint8 midiCh = trackChannel % 15u;
+				if(midiCh >= 9)
+					midiCh++;
+				return midiCh;
 			}
-			IMidiPlugin::MidiCC(nMidiCh, nController, nParam, trackChannel);
+			return IMidiPlugin::GetMidiChannel(chn, trackChannel);
 		}
-#endif
 
-		virtual void MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, uint16 note, uint16 vol, CHANNELINDEX trackChannel)
+		void MidiCommand(const ModInstrument &instr, uint16 note, uint16 vol, CHANNELINDEX trackChannel) override
 		{
-#if 0
-			if(m_instr.nMidiChannel == MidiMappedChannel)
-			{
-				// For "mapped" mode, distribute tracker channels evenly over MIDI channels, but avoid channel 10 (drums)
-				nMidiCh = trackChannel % 15u;
-				if(nMidiCh >= 9) nMidiCh++;
-			}
-#endif
 			if(note == NOTE_NOTECUT && (m_oldInstr == nullptr || !(m_oldInstr->nMixPlug != 0 && m_oldInstr->HasValidMIDIChannel())))
 			{
 				// The default implementation does things with Note Cut that we don't want here: it cuts all notes.
 				note = NOTE_KEYOFF;
 			}
-			IMidiPlugin::MidiCommand(nMidiCh, nMidiProg, wMidiBank, note, vol, trackChannel);
+			SynchronizeMidiChannelState();
+			if(trackChannel < std::size(m_sndFile.m_PlayState.Chn))
+				m_channelState->lastModChannel[GetMidiChannel(m_sndFile.m_PlayState.Chn[trackChannel], trackChannel)] = trackChannel;
+			IMidiPlugin::MidiCommand(instr, note, vol, trackChannel);
 		}
 
-		virtual void HardAllNotesOff()
+		void MidiPitchBendRaw(int32 pitchbend, CHANNELINDEX trackerChn) override
 		{
-			for(uint8 mc = 0; mc < CountOf(m_MidiCh); mc++)
+			SynchronizeMidiChannelState();
+			SynchronizeMidiPitchWheelDepth(trackerChn);
+			IMidiPlugin::MidiPitchBendRaw(pitchbend, trackerChn);
+		}
+
+		void MidiPitchBend(int32 increment, int8 pwd, CHANNELINDEX trackerChn) override
+		{
+			SynchronizeMidiChannelState();
+			SynchronizeMidiPitchWheelDepth(trackerChn);
+			IMidiPlugin::MidiPitchBend(increment, pwd, trackerChn);
+		}
+
+		void MidiTonePortamento(int32 increment, uint8 newNote, int8 pwd, CHANNELINDEX trackerChn) override
+		{
+			SynchronizeMidiChannelState();
+			SynchronizeMidiPitchWheelDepth(trackerChn);
+			IMidiPlugin::MidiTonePortamento(increment, newNote, pwd, trackerChn);
+		}
+
+		void MidiVibrato(int32 depth, int8 pwd, CHANNELINDEX trackerChn) override
+		{
+			SynchronizeMidiChannelState();
+			SynchronizeMidiPitchWheelDepth(trackerChn);
+			IMidiPlugin::MidiVibrato(depth, pwd, trackerChn);
+		}
+
+		bool IsNotePlaying(uint8 note, CHANNELINDEX trackerChn) override
+		{
+			SynchronizeMidiChannelState();
+			return IMidiPlugin::IsNotePlaying(note, trackerChn);
+		}
+
+		void HardAllNotesOff() override
+		{
+			for(uint8 mc = 0; mc < m_MidiCh.size(); mc++)
 			{
 				PlugInstrChannel &channel = m_MidiCh[mc];
-				for(size_t i = 0; i < CountOf(channel.noteOnMap); i++)
+				for(size_t i = 0; i < std::size(channel.noteOnMap); i++)
 				{
-					for(CHANNELINDEX c = 0; c < CountOf(channel.noteOnMap[i]); c++)
+					for(auto &c : channel.noteOnMap[i])
 					{
-						while(channel.noteOnMap[i][c])
+						while(c != 0)
 						{
 							MidiSend(MIDIEvents::NoteOff(mc, static_cast<uint8>(i), 0));
-							channel.noteOnMap[i][c]--;
+							c--;
 						}
 					}
 				}
 			}
 		}
 
-		virtual void Resume() { }
-		virtual void Suspend() { }
-		virtual void PositionChanged() { }
+		void Resume() override { }
+		void Suspend() override { }
+		void PositionChanged() override { }
 
-		virtual bool IsInstrument() const { return true; }
-		virtual bool CanRecieveMidiEvents() { return true; }
-		virtual bool ShouldProcessSilence() { return true; }
+		bool IsInstrument() const override { return true; }
+		bool CanRecieveMidiEvents() override { return true; }
+		bool ShouldProcessSilence() override { return true; }
 #ifdef MODPLUG_TRACKER
-		virtual CString GetDefaultEffectName() { return CString(); }
-		virtual CString GetParamName(PlugParamIndex) { return CString(); }
-		virtual CString GetParamLabel(PlugParamIndex) { return CString(); }
-		virtual CString GetParamDisplay(PlugParamIndex) { return CString(); }
-		virtual CString GetCurrentProgramName() { return CString(); }
-		virtual void SetCurrentProgramName(const CString &) { }
-		virtual CString GetProgramName(int32) { return CString(); }
-		virtual bool HasEditor() const { return false; }
+		CString GetDefaultEffectName() override { return {}; }
+		CString GetParamName(PlugParamIndex) override { return {}; }
+		CString GetParamLabel(PlugParamIndex) override { return {}; }
+		CString GetParamDisplay(PlugParamIndex) override { return {}; }
+		CString GetCurrentProgramName() override { return {}; }
+		void SetCurrentProgramName(const CString &) override { }
+		CString GetProgramName(int32) override { return {}; }
+		bool HasEditor() const override { return false; }
 #endif // MODPLUG_TRACKER
-		virtual int GetNumInputChannels() const { return 0; }
-		virtual int GetNumOutputChannels() const { return 0; }
+		int GetNumInputChannels() const override { return 0; }
+		int GetNumOutputChannels() const override { return 0; }
 	};
 
 
@@ -346,37 +429,38 @@ namespace MidiExport
 	{
 		std::vector<ModInstrument *> m_oldInstruments;
 		std::vector<MidiTrack *> m_tracks;
-		SNDMIXPLUGIN m_oldPlugins[MAX_MIXPLUGINS];
+		std::vector<SNDMIXPLUGIN> m_oldPlugins;
 		SNDMIXPLUGIN tempoTrackPlugin;
 		VSTPluginLib m_plugFactory;
 		CSoundFile &m_sndFile;
-		mpt::ofstream &m_file;
-		bool m_wasInstrumentMode;
+		std::ostream &m_file;
+		const GetLengthType m_songLength;
+		const bool m_wasInstrumentMode;
 
 	public:
-		Conversion(CSoundFile &sndFile, const InstrMap &instrMap, mpt::ofstream &file)
+		Conversion(CSoundFile &sndFile, const InstrMap &instrMap, std::ostream &file, bool overlappingInstruments, const GetLengthType &songLength)
 			: m_oldInstruments(sndFile.GetNumInstruments())
-			, m_plugFactory(nullptr, true, mpt::PathString(), mpt::PathString(), mpt::ustring())
+			, m_plugFactory(nullptr, true, {}, {}, {})
 			, m_sndFile(sndFile)
 			, m_file(file)
+			, m_songLength(songLength)
 			, m_wasInstrumentMode(sndFile.GetNumInstruments() > 0)
 		{
-			MemCopy(m_oldPlugins, m_sndFile.m_MixPlugins);
-			MemsetZero(m_sndFile.m_MixPlugins);
-			MemsetZero(tempoTrackPlugin);
+			m_oldPlugins.assign(std::begin(m_sndFile.m_MixPlugins), std::end(m_sndFile.m_MixPlugins));
+			std::fill(std::begin(m_sndFile.m_MixPlugins), std::end(m_sndFile.m_MixPlugins), SNDMIXPLUGIN());
 			for(INSTRUMENTINDEX i = 1; i <= m_sndFile.GetNumInstruments(); i++)
 			{
 				m_oldInstruments[i - 1] = m_sndFile.Instruments[i];
 			}
 			if(!m_wasInstrumentMode)
 			{
-				m_sndFile.m_nInstruments = m_sndFile.m_nSamples;
-				LimitMax(m_sndFile.m_nInstruments, INSTRUMENTINDEX(MAX_INSTRUMENTS - 1));
+				m_sndFile.m_nInstruments = std::min<INSTRUMENTINDEX>(m_sndFile.m_nSamples, MAX_INSTRUMENTS - 1u);
 			}
 
 			m_tracks.reserve(m_sndFile.GetNumInstruments() + 1);
-			MidiTrack &tempoTrack = *(new MidiTrack(m_plugFactory, m_sndFile, &tempoTrackPlugin, nullptr, m_sndFile.m_songName.c_str(), nullptr));
-			tempoTrack.WriteString(kText, m_sndFile.m_songMessage);
+			MidiTrack &tempoTrack = *(new MidiTrack(m_plugFactory, m_sndFile, m_songLength, tempoTrackPlugin, nullptr, mpt::ToUnicode(m_sndFile.GetCharsetInternal(), m_sndFile.m_songName), nullptr, overlappingInstruments));
+			tempoTrackPlugin.pMixPlugin = &tempoTrack;
+			tempoTrack.WriteString(kText, mpt::ToUnicode(m_sndFile.GetCharsetInternal(), m_sndFile.m_songMessage.GetString()));
 			tempoTrack.WriteString(kCopyright, m_sndFile.m_songArtist);
 			m_tracks.push_back(&tempoTrack);
 
@@ -384,16 +468,14 @@ namespace MidiExport
 			for(INSTRUMENTINDEX i = 1; i <= m_sndFile.GetNumInstruments(); i++)
 			{
 				m_sndFile.Instruments[i] = nullptr;
-				if(instrMap[i].nChannel == MidiNoChannel || !m_sndFile.GetpModDoc()->IsInstrumentUsed(i) || (m_wasInstrumentMode && m_oldInstruments[i - 1] == nullptr) || nextPlug >= MAX_MIXPLUGINS)
-				{
+				if(!m_sndFile.GetpModDoc()->IsInstrumentUsed(i) || (m_wasInstrumentMode && m_oldInstruments[i - 1] == nullptr) || nextPlug >= MAX_MIXPLUGINS)
 					continue;
-				}
 
 				// FIXME: Having > MAX_MIXPLUGINS used instruments won't work! So in MPTM, you can only use 250 out of 255 instruments...
 				SNDMIXPLUGIN &mixPlugin = m_sndFile.m_MixPlugins[nextPlug++];
 
 				ModInstrument *oldInstr = m_wasInstrumentMode ? m_oldInstruments[i - 1] : nullptr;
-				MidiTrack &midiInstr = *(new MidiTrack(m_plugFactory, m_sndFile, &mixPlugin, &tempoTrack, m_wasInstrumentMode ? oldInstr->name : m_sndFile.GetSampleName(i), oldInstr));
+				MidiTrack &midiInstr = *(new MidiTrack(m_plugFactory, m_sndFile, m_songLength, mixPlugin, &tempoTrack, m_wasInstrumentMode ? mpt::ToUnicode(m_sndFile.GetCharsetInternal(), oldInstr->name) : mpt::ToUnicode(m_sndFile.GetCharsetInternal(), m_sndFile.GetSampleName(i)), oldInstr, overlappingInstruments));
 				ModInstrument &instr = midiInstr;
 				mixPlugin.pMixPlugin = &midiInstr;
 				
@@ -407,20 +489,21 @@ namespace MidiExport
 					instr.midiPWD = 12;
 				}
 
-				instr.nMidiChannel = instrMap[i].nChannel;
-				if(instrMap[i].nChannel != MidiFirstChannel + 9)
+				instr.nMidiChannel = instrMap[i].channel;
+				if(instrMap[i].channel != MidiFirstChannel + 9)
 				{
 					// Melodic instrument
-					instr.nMidiProgram = instrMap[i].nProgram + 1;
+					instr.nMidiProgram = instrMap[i].program;
 				} else
 				{
 					// Drums
-					if(oldInstr != nullptr && oldInstr->nMidiChannel != MidiFirstChannel + 9) instr.nMidiProgram = 0;
-					if(instrMap[i].nProgram != 128)
+					if(oldInstr != nullptr && oldInstr->nMidiChannel != MidiFirstChannel + 9)
+						instr.nMidiProgram = 0;
+					if(instrMap[i].program > 0)
 					{
 						for(auto &key : instr.NoteMap)
 						{
-							key = instrMap[i].nProgram + NOTE_MIN;
+							key = instrMap[i].program + NOTE_MIN;
 						}
 					}
 				}
@@ -436,17 +519,21 @@ namespace MidiExport
 
 		void Finalise()
 		{
-			for(size_t i = 0; i < m_tracks.size(); i++)
+			for(auto track : m_tracks)
 			{
-				std::string data = m_tracks[i]->Finalise().str();
+				std::string data = track->Finalise().str();
 				if(!data.empty())
 				{
+					const uint32 len = mpt::saturate_cast<uint32>(data.size());
 					mpt::IO::WriteRaw(m_file, "MTrk", 4);
-					mpt::IO::WriteIntBE<uint32>(m_file, data.size());
-					mpt::IO::WriteRaw(m_file, data.data(), data.size());
+					mpt::IO::WriteIntBE<uint32>(m_file, len);
+					mpt::IO::WriteRaw(m_file, data.data(), len);
 				}
 			}
+		}
 
+		~Conversion()
+		{
 			for(INSTRUMENTINDEX i = 1; i <= m_sndFile.GetNumInstruments(); i++)
 			{
 				m_sndFile.Instruments[i] = m_wasInstrumentMode ? m_oldInstruments[i - 1] : nullptr;
@@ -457,29 +544,31 @@ namespace MidiExport
 				m_sndFile.m_nInstruments = 0;
 			}
 
-			for(PLUGINDEX i = 0; i < MAX_MIXPLUGINS; i++)
+			for(auto &plug : m_sndFile.m_MixPlugins)
 			{
-				m_sndFile.m_MixPlugins[i].Destroy();
+				plug.Destroy();
 			}
-			for(size_t i = 0; i < m_tracks.size(); i++)
+			for(auto &track : m_tracks)
 			{
-				delete m_tracks[i];
+				delete track;	// Resets m_MixPlugins[i].pMixPlugin, so do it before copying back the old structs
 			}
-			MemCopy(m_sndFile.m_MixPlugins, m_oldPlugins);
-			
+			std::move(m_oldPlugins.cbegin(), m_oldPlugins.cend(), std::begin(m_sndFile.m_MixPlugins));
+
 			// Be sure that instrument pointers to our faked instruments are gone.
+			const auto muteFlag = CSoundFile::GetChannelMuteFlag();
 			for(CHANNELINDEX i = 0; i < MAX_CHANNELS; i++)
 			{
-				m_sndFile.m_PlayState.Chn[i].Reset(ModChannel::resetTotal, m_sndFile, i);
+				m_sndFile.m_PlayState.Chn[i].Reset(ModChannel::resetTotal, m_sndFile, i, muteFlag);
 			}
 		}
 	};
 
 
-	class DummyAudioTarget : public IAudioReadTarget
+	class DummyAudioTarget : public IAudioTarget
 	{
 	public:
-		virtual void DataCallback(int *, std::size_t, std::size_t) { }
+		void Process(mpt::audio_span_interleaved<MixSampleInt>) override { }
+		void Process(mpt::audio_span_interleaved<MixSampleFloat>) override { }
 	};
 }
 
@@ -489,15 +578,18 @@ namespace MidiExport
 // CModToMidi dialog implementation
 //
 
+bool CModToMidi::s_overlappingInstruments = false;
+
 BEGIN_MESSAGE_MAP(CModToMidi, CDialog)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	UpdateDialog)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnChannelChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO3,	OnProgramChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CModToMidi::UpdateDialog)
+	ON_CBN_SELCHANGE(IDC_COMBO2,	&CModToMidi::OnChannelChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO3,	&CModToMidi::OnProgramChanged)
+	ON_COMMAND(IDC_CHECK1,			&CModToMidi::OnOverlapChanged)
 	ON_WM_VSCROLL()
 END_MESSAGE_MAP()
 
+
 void CModToMidi::DoDataExchange(CDataExchange *pDX)
-//-------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO1,	m_CbnInstrument);
@@ -509,27 +601,20 @@ void CModToMidi::DoDataExchange(CDataExchange *pDX)
 
 CModToMidi::CModToMidi(CSoundFile &sndFile, CWnd *pWndParent)
 	: CDialog(IDD_MOD2MIDI, pWndParent)
-	, m_instrMap((sndFile.GetNumInstruments() ? sndFile.GetNumInstruments() : sndFile.GetNumSamples()) + 1)
 	, m_sndFile(sndFile)
-//--------------------------------------------------------------------------------------------
+	, m_instrMap((sndFile.GetNumInstruments() ? sndFile.GetNumInstruments() : sndFile.GetNumSamples()) + 1)
 {
 	for (INSTRUMENTINDEX i = 1; i <= m_sndFile.GetNumInstruments(); i++)
 	{
 		ModInstrument *pIns = m_sndFile.Instruments[i];
 		if(pIns != nullptr)
 		{
-			m_instrMap[i].nChannel = pIns->nMidiChannel;
-			if(m_instrMap[i].nChannel == MidiFirstChannel + 9)
-			{
-				if ((pIns->nMidiProgram > 20) && (pIns->nMidiProgram < 120))
-					m_instrMap[i].nProgram = pIns->nMidiProgram;
-				else
-					m_instrMap[i].nProgram = (pIns->NoteMap[60] - NOTE_MIN) & 0x7F;
-			} else
+			m_instrMap[i].channel = pIns->nMidiChannel;
+			if(m_instrMap[i].channel != MidiFirstChannel + 9)
 			{
 				if(!pIns->HasValidMIDIChannel())
-					m_instrMap[i].nChannel = MidiMappedChannel;
-				m_instrMap[i].nProgram = (pIns->nMidiProgram > 0) ? ((pIns->nMidiProgram - 1) & 0x7F) : 0;
+					m_instrMap[i].channel = MidiMappedChannel;
+				m_instrMap[i].program = pIns->nMidiProgram;
 			}
 		}
 	}
@@ -537,21 +622,22 @@ CModToMidi::CModToMidi(CSoundFile &sndFile, CWnd *pWndParent)
 
 
 BOOL CModToMidi::OnInitDialog()
-//-----------------------------
 {
-	TCHAR s[256];
+	CString s;
 
 	CDialog::OnInitDialog();
+
 	// Fill instruments box
 	m_SpinInstrument.SetRange(-1, 1);
 	m_SpinInstrument.SetPos(0);
-	m_nCurrInstr = 1;
-	if (m_sndFile.GetNumInstruments())
+	m_currentInstr = 1;
+	m_CbnInstrument.SetRedraw(FALSE);
+	if(m_sndFile.GetNumInstruments())
 	{
 		for(INSTRUMENTINDEX nIns = 1; nIns <= m_sndFile.GetNumInstruments(); nIns++)
 		{
 			ModInstrument *pIns = m_sndFile.Instruments[nIns];
-			if ((pIns) && (m_sndFile.GetpModDoc()->IsInstrumentUsed(nIns, false)))
+			if(pIns && m_sndFile.GetpModDoc()->IsInstrumentUsed(nIns, false))
 			{
 				const CString name = m_sndFile.GetpModDoc()->GetPatternViewInstrumentName(nIns);
 				m_CbnInstrument.SetItemData(m_CbnInstrument.AddString(name), nIns);
@@ -561,129 +647,159 @@ BOOL CModToMidi::OnInitDialog()
 	{
 		for(SAMPLEINDEX nSmp = 1; nSmp <= m_sndFile.GetNumSamples(); nSmp++)
 		{
-			if (m_sndFile.GetSample(nSmp).pSample != nullptr && m_sndFile.GetpModDoc()->IsSampleUsed(nSmp, false))
+			if(m_sndFile.GetpModDoc()->IsSampleUsed(nSmp, false))
 			{
-				wsprintf(s, "%02d: %s", nSmp, m_sndFile.m_szNames[nSmp]);
+				s.Format(_T("%02d: "), nSmp);
+				s += mpt::ToCString(m_sndFile.GetCharsetInternal(), m_sndFile.m_szNames[nSmp]);
 				m_CbnInstrument.SetItemData(m_CbnInstrument.AddString(s), nSmp);
 			}
 		}
 	}
+	m_CbnInstrument.SetRedraw(TRUE);
+	m_CbnInstrument.SetCurSel(0);
+
 	// Fill channels box
+	m_CbnChannel.SetRedraw(FALSE);
 	m_CbnChannel.SetItemData(m_CbnChannel.AddString(_T("Don't Export")), MidiNoChannel);
 	m_CbnChannel.SetItemData(m_CbnChannel.AddString(_T("Melodic (any)")), MidiMappedChannel);
 	m_CbnChannel.SetItemData(m_CbnChannel.AddString(_T("Percussions")), MidiFirstChannel + 9);
-	for (UINT iCh=1; iCh<=16; iCh++) if (iCh != 10)
+	for(uint32 chn = 1; chn <= 16; chn++)
 	{
-		wsprintf(s, _T("Melodic %u"), iCh);
-		m_CbnChannel.SetItemData(m_CbnChannel.AddString(s), MidiFirstChannel - 1 + iCh);
+		if(chn == 10)
+			continue;
+		s.Format(_T("Melodic %u"), chn);
+		m_CbnChannel.SetItemData(m_CbnChannel.AddString(s), MidiFirstChannel - 1 + chn);
 	}
-	m_nCurrInstr = 1;
-	m_bPerc = TRUE;
+	m_CbnChannel.SetRedraw(TRUE);
 	m_CbnChannel.SetCurSel(1);
-	m_CbnInstrument.SetCurSel(0);
+
+	m_currentInstr = 1;
+	m_percussion = true;
 	FillProgramBox(false);
 	m_CbnProgram.SetCurSel(0);
 	UpdateDialog();
+	CheckDlgButton(IDC_CHECK1, s_overlappingInstruments ? BST_CHECKED : BST_UNCHECKED);
 	return TRUE;
 }
 
 
 void CModToMidi::FillProgramBox(bool percussion)
-//----------------------------------------------
 {
-	CHAR s[256];
-	
-	if (m_bPerc == percussion) return;
+	if(m_percussion == percussion)
+		return;
+	m_CbnProgram.SetRedraw(FALSE);
 	m_CbnProgram.ResetContent();
-	if (percussion)
+	if(percussion)
 	{
-		for (ModCommand::NOTE i = 0; i < 61; i++)
+		m_CbnProgram.SetItemData(m_CbnProgram.AddString(_T("Mapped")), 0);
+		for(ModCommand::NOTE i = 0; i < 61; i++)
 		{
 			ModCommand::NOTE note = i + 24;
-			sprintf(s, "%u (%s): %s", note, m_sndFile.GetNoteName(note + NOTE_MIN).c_str(), szMidiPercussionNames[i]);
+			auto s = MPT_CFORMAT("{} ({}): {}")(
+				note,
+				mpt::ToCString(m_sndFile.GetNoteName(note + NOTE_MIN)),
+				mpt::ToCString(mpt::Charset::ASCII, szMidiPercussionNames[i]));
 			m_CbnProgram.SetItemData(m_CbnProgram.AddString(s), note);
 		}
-		m_CbnProgram.SetItemData(m_CbnProgram.AddString(_T("Mapped")), 128);
 	} else
 	{
-		for (int i = 0; i < 128; i++)
+		m_CbnProgram.SetItemData(m_CbnProgram.AddString(_T("No Program Change")), 0);
+		for(int i = 1; i <= 128; i++)
 		{
-			sprintf(s, "%03d: %s", i + 1, szMidiProgramNames[i]);
+			auto s = MPT_CFORMAT("{}: {}")(
+				mpt::cfmt::dec0<3>(i),
+				mpt::ToCString(mpt::Charset::ASCII, szMidiProgramNames[i - 1]));
 			m_CbnProgram.SetItemData(m_CbnProgram.AddString(s), i);
 		}
 	}
-	m_bPerc = percussion;
+	m_CbnProgram.SetRedraw(TRUE);
+	m_CbnProgram.Invalidate(FALSE);
+	m_percussion = percussion;
 }
 
 
 void CModToMidi::UpdateDialog()
-//-----------------------------
 {
-	m_nCurrInstr = m_CbnInstrument.GetItemData(m_CbnInstrument.GetCurSel());
-	if ((m_nCurrInstr > 0) && (m_nCurrInstr < MAX_SAMPLES))
+	m_currentInstr = m_CbnInstrument.GetItemData(m_CbnInstrument.GetCurSel());
+	const bool validInstr = (m_currentInstr > 0 && m_currentInstr < m_instrMap.size());
+
+	m_CbnProgram.EnableWindow(validInstr && m_instrMap[m_currentInstr].channel != MidiNoChannel);
+
+	if(!validInstr)
+		return;
+
+	uint8 nMidiCh = m_instrMap[m_currentInstr].channel;
+	int sel;
+	switch(nMidiCh)
 	{
-		uint8 nMidiCh = m_instrMap[m_nCurrInstr].nChannel;
-		int sel;
-		switch(nMidiCh)
-		{
-		case MidiNoChannel:
-			sel = 0; break;
-		case MidiMappedChannel:
-			sel = 1; break;
-		case MidiFirstChannel + 9:
-			sel = 2; break;
-		default:
-			sel = nMidiCh - MidiFirstChannel + 2;
-			if(nMidiCh < MidiFirstChannel + 9) sel++;
-		}
-		if ((!m_bPerc) && (nMidiCh == MidiFirstChannel + 9))
-		{
-			FillProgramBox(true);
-		} else if ((m_bPerc) && (nMidiCh != MidiFirstChannel + 9))
-		{
-			FillProgramBox(false);
-		}
-		m_CbnChannel.SetCurSel(sel);
-		UINT nMidiProgram = m_instrMap[m_nCurrInstr].nProgram;
-		if (m_bPerc)
-		{
-			nMidiProgram -= 24;
-			if (nMidiProgram > 60) nMidiProgram = 24;
-		} else
-		{
-			if (nMidiProgram > 127) nMidiProgram = 0;
-		}
-		m_CbnProgram.SetCurSel(nMidiProgram);
+	case MidiNoChannel:
+		sel = 0;
+		break;
+	case MidiMappedChannel:
+		sel = 1;
+		break;
+	case MidiFirstChannel + 9:
+		sel = 2;
+		break;
+	default:
+		sel = nMidiCh - MidiFirstChannel + 2;
+		if(nMidiCh < MidiFirstChannel + 9)
+			sel++;
 	}
+	if(!m_percussion && (nMidiCh == MidiFirstChannel + 9))
+	{
+		FillProgramBox(true);
+	} else if(m_percussion && (nMidiCh != MidiFirstChannel + 9))
+	{
+		FillProgramBox(false);
+	}
+	m_CbnChannel.SetCurSel(sel);
+	UINT nMidiProgram = m_instrMap[m_currentInstr].program;
+	if(m_percussion)
+	{
+		if(nMidiProgram >= 24 && nMidiProgram <= 84)
+			nMidiProgram -= 23;
+		else
+			nMidiProgram = 0;
+	} else
+	{
+		if(nMidiProgram > 127)
+			nMidiProgram = 0;
+	}
+	m_CbnProgram.SetCurSel(nMidiProgram);
 }
 
 
 void CModToMidi::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//-------------------------------------------------------------------------
 {
 	CDialog::OnVScroll(nSBCode, nPos, pScrollBar);
-	short int pos = (short int)m_SpinInstrument.GetPos();
-	if (pos)
+	int pos = m_SpinInstrument.GetPos32();
+	if(pos)
 	{
 		m_SpinInstrument.SetPos(0);
-		int nmax = m_CbnInstrument.GetCount();
-		int nins = m_CbnInstrument.GetCurSel() + pos;
-		if (nins < 0) nins = nmax-1;
-		if (nins >= nmax) nins = 0;
-		m_CbnInstrument.SetCurSel(nins);
+		int numIns = m_CbnInstrument.GetCount();
+		int ins = m_CbnInstrument.GetCurSel() + pos;
+		if(ins < 0)
+			ins = numIns - 1;
+		if(ins >= numIns)
+			ins = 0;
+		m_CbnInstrument.SetCurSel(ins);
 		UpdateDialog();
 	}
 }
 
 
 void CModToMidi::OnChannelChanged()
-//---------------------------------
 {
-	uint8 nMidiCh = static_cast<uint8>(m_CbnChannel.GetItemData(m_CbnChannel.GetCurSel()));
-	if(m_nCurrInstr >= m_instrMap.size())
+	uint8 midiCh = static_cast<uint8>(m_CbnChannel.GetItemData(m_CbnChannel.GetCurSel()));
+	if(m_currentInstr >= m_instrMap.size())
 		return;
-	m_instrMap[m_nCurrInstr].nChannel = nMidiCh;
-	if((!m_bPerc && nMidiCh == MidiFirstChannel + 9) || (m_bPerc && nMidiCh != MidiFirstChannel + 9))
+	const auto oldCh = m_instrMap[m_currentInstr].channel;
+	m_instrMap[m_currentInstr].channel = midiCh;
+	if(midiCh == MidiNoChannel
+	   || oldCh == MidiNoChannel
+	   || (!m_percussion && midiCh == MidiFirstChannel + 9)
+	   || (m_percussion && midiCh != MidiFirstChannel + 9))
 	{
 		UpdateDialog();
 	}
@@ -691,35 +807,52 @@ void CModToMidi::OnChannelChanged()
 
 
 void CModToMidi::OnProgramChanged()
-//---------------------------------
 {
 	DWORD_PTR nProgram = m_CbnProgram.GetItemData(m_CbnProgram.GetCurSel());
-	if (nProgram == CB_ERR) return;
-	if ((m_nCurrInstr > 0) && (m_nCurrInstr < MAX_SAMPLES))
+	if (static_cast<LONG_PTR>(nProgram) == CB_ERR) return;
+	if ((m_currentInstr > 0) && (m_currentInstr < MAX_SAMPLES))
 	{
-		m_instrMap[m_nCurrInstr].nProgram = static_cast<uint8>(nProgram);
+		m_instrMap[m_currentInstr].program = static_cast<uint8>(nProgram);
 	}
 }
 
 
-void CDoMidiConvert::Run()
-//------------------------
+void CModToMidi::OnOverlapChanged()
 {
-	mpt::ofstream f(m_fileName, std::ios::binary | std::ios::trunc);
-	if(!f.good())
+	s_overlappingInstruments = IsDlgButtonChecked(IDC_CHECK1) != BST_UNCHECKED;
+}
+
+
+void CModToMidi::OnOK()
+{
+	for(size_t i = 1; i < m_instrMap.size(); i++)
 	{
-		Reporting::Error("Could not open file for writing. Is it open in another application?");
-		EndDialog(IDCANCEL);
-		return;
+		if(m_instrMap[i].channel != MidiNoChannel)
+		{
+			CDialog::OnOK();
+			return;
+		}
 	}
 
-	auto mainFrame = CMainFrame::GetMainFrame();
-	mainFrame->PauseMod(m_sndFile.GetpModDoc());
-	MidiExport::Conversion conv(m_sndFile, m_instrMap, f);
+	auto choice = Reporting::Confirm(_T("No instruments have been selected for export. Would you still like to export the file?"), true, true);
+	if(choice == cnfYes)
+		CDialog::OnOK();
+	else if(choice == cnfNo)
+		CDialog::OnCancel();
+}
 
-	double duration = m_sndFile.GetLength(eNoAdjust).front().duration;
-	uint64 totalSamples = Util::Round<uint64>(duration * m_sndFile.m_MixerSettings.gdwMixingFreq);
-	SetRange(0, Util::Round<uint32>(duration));
+
+void CDoMidiConvert::Run()
+{
+	CMainFrame::GetMainFrame()->PauseMod(m_sndFile.GetpModDoc());
+
+	const auto songLength = m_sndFile.GetLength(eNoAdjust).front();
+	const double duration = songLength.duration;
+	const uint64 totalSamples = mpt::saturate_round<uint64>(duration * m_sndFile.m_MixerSettings.gdwMixingFreq);
+	SetRange(0, totalSamples);
+
+	auto conv = std::make_unique<MidiExport::Conversion>(m_sndFile, m_instrMap, m_file, CModToMidi::s_overlappingInstruments, songLength);
+
 	auto startTime = timeGetTime(), prevTime = startTime;
 
 	m_sndFile.SetCurrentOrder(0);
@@ -729,17 +862,14 @@ void CDoMidiConvert::Run()
 	m_sndFile.SetRepeatCount(0);
 	m_sndFile.m_bIsRendering = true;
 
-	ITaskbarList3 *taskBarList = nullptr;
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_ALL, IID_ITaskbarList3, (void**)&taskBarList);
-	if(taskBarList != nullptr)
-	{
-		taskBarList->SetProgressState(mainFrame->m_hWnd, TBPF_NORMAL);
-	}
+	EnableTaskbarProgress();
 
 	MidiExport::DummyAudioTarget target;
 	UINT ok = IDOK;
+	const auto fmt = MPT_TFORMAT("Rendering file... ({}mn{}s, {}mn{}s remaining)");
 	while(m_sndFile.Read(MIXBUFFERSIZE, target) > 0)
 	{
+		m_sndFile.ResetMixStat();
 		auto currentTime = timeGetTime();
 		if(currentTime - prevTime >= 16)
 		{
@@ -751,10 +881,8 @@ void CDoMidiConvert::Run()
 			{
 				timeRemaining = static_cast<uint32>(((currentTime - startTime) * (totalSamples - curSamples) / curSamples) / 1000u);
 			}
-			TCHAR s[128];
-			_stprintf(s, _T("Rendering file... (%umn%02us, %umn%02us remaining)"), curTime / 60u, curTime % 60u, timeRemaining / 60u, timeRemaining % 60u);
-			SetText(s);
-			SetProgress(curTime);
+			SetText(fmt(curTime / 60u, mpt::tfmt::dec0<2>(curTime % 60u), timeRemaining / 60u, mpt::tfmt::dec0<2>(timeRemaining % 60u)).c_str());
+			SetProgress(curSamples);
 			ProcessMessages();
 
 			if(m_abort)
@@ -762,25 +890,13 @@ void CDoMidiConvert::Run()
 				ok = IDCANCEL;
 				break;
 			}
-
-			if(taskBarList != nullptr)
-			{
-				taskBarList->SetProgressValue(mainFrame->m_hWnd, curSamples, totalSamples);
-			}
 		}
 	}
 
-	conv.Finalise();
+	conv->Finalise();
 
 	m_sndFile.m_bIsRendering = false;
-	m_sndFile.m_PatternCuePoints.clear();
 	m_sndFile.SetRepeatCount(oldRepCount);
-
-	if(taskBarList)
-	{
-		taskBarList->SetProgressState(mainFrame->m_hWnd, TBPF_NOPROGRESS);
-		taskBarList->Release();
-	}
 
 	EndDialog(ok);
 }

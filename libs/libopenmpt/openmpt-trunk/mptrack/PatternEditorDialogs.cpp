@@ -10,61 +10,67 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
-#include "Mainfrm.h"
-#include "InputHandler.h"
-#include "Moddoc.h"
-#include "View_pat.h"
 #include "PatternEditorDialogs.h"
+#include "InputHandler.h"
+#include "Mainfrm.h"
+#include "Moddoc.h"
+#include "Mptrack.h"
+#include "Reporting.h"
 #include "TempoSwingDialog.h"
+#include "View_pat.h"
+#include "WindowMessages.h"
+#include "../common/mptStringBuffer.h"
 #include "../soundlib/mod_specifications.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 
+static constexpr EffectCommand ExtendedCommands[] = {CMD_OFFSET, CMD_PATTERNBREAK, CMD_POSITIONJUMP, CMD_TEMPO, CMD_FINETUNE, CMD_FINETUNE_SMOOTH};
+
 // For a given pattern cell, check if it contains a command supported by the X-Param mechanism.
 // If so, calculate the multipler for this cell and the value of all the other cells belonging to this param.
 void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CHANNELINDEX nChannel, const CSoundFile &sndFile, UINT &xparam, UINT &multiplier)
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	UINT xp = 0, mult = 1;
-	int nCmdRow = (int)nRow;
+	int cmdRow = static_cast<int>(nRow);
+	const auto &pattern = sndFile.Patterns[nPat];
 
 	if(command == CMD_XPARAM)
 	{
 		// current command is a parameter extension command
-		nCmdRow--;
+		cmdRow--;
 
 		// Try to find previous command parameter to be extended
-		while(nCmdRow >= 0)
+		while(cmdRow >= 0)
 		{
-			const ModCommand *m = sndFile.Patterns[nPat].GetpModCommand(nCmdRow, nChannel);
-			if(m->command == CMD_OFFSET || m->command == CMD_PATTERNBREAK || m->command == CMD_POSITIONJUMP || m->command == CMD_TEMPO)
+			const ModCommand &m = *pattern.GetpModCommand(cmdRow, nChannel);
+			if(mpt::contains(ExtendedCommands, m.command))
 				break;
-			if(m->command != CMD_XPARAM)
+			if(m.command != CMD_XPARAM)
 			{
-				nCmdRow = -1;
+				cmdRow = -1;
 				break;
 			}
-			nCmdRow--;
+			cmdRow--;
 		}
-	} else if(command != CMD_OFFSET && command != CMD_PATTERNBREAK && command != CMD_POSITIONJUMP && command != CMD_TEMPO)
+	} else if(!mpt::contains(ExtendedCommands, command))
 	{
 		// If current row do not own any satisfying command parameter to extend, set return state
-		nCmdRow = -1;
+		cmdRow = -1;
 	}
 
-	if(nCmdRow >= 0)
+	if(cmdRow >= 0)
 	{
 		// An 'extendable' command parameter has been found
-		const ModCommand *m = sndFile.Patterns[nPat].GetpModCommand(nCmdRow, nChannel);
+		const ModCommand &m = *pattern.GetpModCommand(cmdRow, nChannel);
 
 		// Find extension resolution (8 to 24 bits)
-		ROWINDEX n = 1;
-		while(n < 4 && nCmdRow + n < sndFile.Patterns[nPat].GetNumRows())
+		uint32 n = 1;
+		while(n < 4 && cmdRow + n < pattern.GetNumRows())
 		{
-			if(sndFile.Patterns[nPat].GetpModCommand(nCmdRow + n, nChannel)->command != CMD_XPARAM) break;
+			if(pattern.GetpModCommand(cmdRow + n, nChannel)->command != CMD_XPARAM)
+				break;
 			n++;
 		}
 
@@ -72,27 +78,40 @@ void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CH
 		if(n > 1)
 		{
 			// Limit offset command to 24 bits, other commands to 16 bits
-			n = m->command == CMD_OFFSET ? n : (n > 2 ? 2 : n);
+			n = m.command == CMD_OFFSET ? n : (n > 2 ? 2 : n);
 
 			// Compute extended value WITHOUT current row parameter value : this parameter
 			// is being currently edited (this is why this function is being called) so we
 			// only need to compute a multiplier so that we can add its contribution while
 			// its value is changed by user
-			for(UINT j = 0; j < n; j++)
+			for(uint32 j = 0; j < n; j++)
 			{
-				m = sndFile.Patterns[nPat].GetpModCommand(nCmdRow + j, nChannel);
+				const ModCommand &mx = *pattern.GetpModCommand(cmdRow + j, nChannel);
 
-				UINT k = 8 * (n - j - 1);
-				if(nCmdRow + j == nRow) 
+				uint32 k = 8 * (n - j - 1);
+				if(cmdRow + j == nRow)
 					mult = 1 << k;
 				else
-					xp += (m->param << k);
+					xp += (mx.param << k);
 			}
-		} else if(m->command == CMD_OFFSET)
+		} else if(m.command == CMD_OFFSET || m.command == CMD_FINETUNE || m.command == CMD_FINETUNE_SMOOTH)
 		{
-			// No parameter extension to perform (8 bits standard parameter),
-			// just care about offset command special case (16 bits, fake)
+			// Even when no parameter extension is found, extend the offset / finetune parameters to full resolution.
 			mult <<= 8;
+		}
+
+		const auto modDoc = sndFile.GetpModDoc();
+		if(m.command == CMD_OFFSET && m.volcmd == VOLCMD_OFFSET && modDoc != nullptr)
+		{
+			SAMPLEINDEX smp = modDoc->GetSampleIndex(m);
+			if(m.vol == 0 && smp != 0)
+			{
+				xp = Util::muldivr_unsigned(sndFile.GetSample(smp).nLength, pattern.GetpModCommand(nRow, nChannel)->param  * mult + xp, 256u << (8u * (std::max(uint32(2), n) - 1u)));
+				mult = 0;
+			} else if(m.vol > 0 && smp != 0)
+			{
+				xp += sndFile.GetSample(smp).cues[m.vol - 1];
+			}
 		}
 	}
 
@@ -106,58 +125,61 @@ void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CH
 // CPatternPropertiesDlg
 
 BEGIN_MESSAGE_MAP(CPatternPropertiesDlg, CDialog)
-	ON_COMMAND(IDC_BUTTON_HALF,		OnHalfRowNumber)
-	ON_COMMAND(IDC_BUTTON_DOUBLE,	OnDoubleRowNumber)
-	ON_COMMAND(IDC_CHECK1,			OnOverrideSignature)
-	ON_COMMAND(IDC_BUTTON1,			OnTempoSwing)
+	ON_COMMAND(IDC_BUTTON_HALF,		&CPatternPropertiesDlg::OnHalfRowNumber)
+	ON_COMMAND(IDC_BUTTON_DOUBLE,	&CPatternPropertiesDlg::OnDoubleRowNumber)
+	ON_COMMAND(IDC_CHECK1,			&CPatternPropertiesDlg::OnOverrideSignature)
+	ON_COMMAND(IDC_BUTTON1,			&CPatternPropertiesDlg::OnTempoSwing)
 END_MESSAGE_MAP()
 
 BOOL CPatternPropertiesDlg::OnInitDialog()
-//----------------------------------------
 {
 	CComboBox *combo;
 	CDialog::OnInitDialog();
 	combo = (CComboBox *)GetDlgItem(IDC_COMBO1);
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 
 	if(m_nPattern < sndFile.Patterns.Size() && combo)
 	{
-		TCHAR s[256];
+		CString s;
 		const CPattern &pattern = sndFile.Patterns[m_nPattern];
 		ROWINDEX nrows = pattern.GetNumRows();
 
-		const CModSpecifications& specs = sndFile.GetModSpecifications();
+		const CModSpecifications &specs = sndFile.GetModSpecifications();
 		combo->SetRedraw(FALSE);
-		for (UINT irow = specs.patternRowsMin; irow <= specs.patternRowsMax; irow++)
+		for(UINT irow = specs.patternRowsMin; irow <= specs.patternRowsMax; irow++)
 		{
-			_stprintf(s, _T("%d"), irow);
-			combo->AddString(s);
+			combo->AddString(mpt::cfmt::dec(irow));
 		}
 		combo->SetCurSel(nrows - specs.patternRowsMin);
 		combo->SetRedraw(TRUE);
-		_stprintf(s, _T("Pattern #%d: %d row%s (%dK)"),
+
+		CheckRadioButton(IDC_RADIO1, IDC_RADIO2, IDC_RADIO2);
+
+		s = MPT_CFORMAT("Pattern #{}: {} row{} ({}K)")(
 			m_nPattern,
 			pattern.GetNumRows(),
-			(pattern.GetNumRows() == 1) ? _T("") : _T("s"),
+			(pattern.GetNumRows() == 1) ? CString(_T("")) : CString(_T("s")),
 			static_cast<int>((pattern.GetNumRows() * sndFile.GetNumChannels() * sizeof(ModCommand)) / 1024));
 		SetDlgItemText(IDC_TEXT1, s);
 
 		// Window title
-		const CString patternName = pattern.GetName().c_str();
-		_stprintf(s, _T("Pattern Properties for Pattern #%d"), m_nPattern);
+		const CString patternName = mpt::ToCString(sndFile.GetCharsetInternal(), pattern.GetName());
+		s = MPT_CFORMAT("Pattern Properties for Pattern #{}")(m_nPattern);
 		if(!patternName.IsEmpty())
 		{
-			_tcscat(s, _T(" ("));
-			_tcscat(s, patternName);
-			_tcscat(s, _T(")"));
+			s += _T(" (");
+			s += patternName;
+			s += _T(")");
 		}
 		SetWindowText(s);
 
-		// pattern time signature
+		// Pattern time signature
 		const bool bOverride = pattern.GetOverrideSignature();
 		ROWINDEX nRPB = pattern.GetRowsPerBeat(), nRPM = pattern.GetRowsPerMeasure();
-		if(nRPB == 0 || !bOverride) nRPB = sndFile.m_nDefaultRowsPerBeat;
-		if(nRPM == 0 || !bOverride) nRPM = sndFile.m_nDefaultRowsPerMeasure;
+		if(nRPB == 0 || !bOverride)
+			nRPB = sndFile.m_nDefaultRowsPerBeat;
+		if(nRPM == 0 || !bOverride)
+			nRPM = sndFile.m_nDefaultRowsPerMeasure;
 
 		m_tempoSwing = pattern.HasTempoSwing() ? pattern.GetTempoSwing() : sndFile.m_tempoSwing;
 
@@ -172,9 +194,8 @@ BOOL CPatternPropertiesDlg::OnInitDialog()
 
 
 void CPatternPropertiesDlg::OnHalfRowNumber()
-//-------------------------------------------
 {
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 
 	UINT nRows = GetDlgItemInt(IDC_COMBO1, NULL, FALSE);
 	nRows /= 2;
@@ -185,9 +206,8 @@ void CPatternPropertiesDlg::OnHalfRowNumber()
 
 
 void CPatternPropertiesDlg::OnDoubleRowNumber()
-//---------------------------------------------
 {
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 
 	UINT nRows = GetDlgItemInt(IDC_COMBO1, NULL, FALSE);
 	nRows *= 2;
@@ -198,28 +218,26 @@ void CPatternPropertiesDlg::OnDoubleRowNumber()
 
 
 void CPatternPropertiesDlg::OnOverrideSignature()
-//-----------------------------------------------
 {
 	GetDlgItem(IDC_ROWSPERBEAT)->EnableWindow(IsDlgButtonChecked(IDC_CHECK1));
 	GetDlgItem(IDC_ROWSPERMEASURE)->EnableWindow(IsDlgButtonChecked(IDC_CHECK1));
-	GetDlgItem(IDC_BUTTON1)->EnableWindow(IsDlgButtonChecked(IDC_CHECK1) && modDoc.GetrSoundFile().m_nTempoMode == tempoModeModern);
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(IsDlgButtonChecked(IDC_CHECK1) && modDoc.GetSoundFile().m_nTempoMode == TempoMode::Modern);
 }
 
 
 void CPatternPropertiesDlg::OnTempoSwing()
-//----------------------------------------
 {
-	CPattern &pat = modDoc.GetrSoundFile().Patterns[m_nPattern];
+	CPattern &pat = modDoc.GetSoundFile().Patterns[m_nPattern];
 	const ROWINDEX oldRPB = pat.GetRowsPerBeat();
 	const ROWINDEX oldRPM = pat.GetRowsPerMeasure();
 
 	// Temporarily apply new tempo signature for preview
-	ROWINDEX newRPB = std::max(1u, GetDlgItemInt(IDC_ROWSPERBEAT));
-	ROWINDEX newRPM = std::max(newRPB, GetDlgItemInt(IDC_ROWSPERMEASURE));
+	const ROWINDEX newRPB = std::clamp(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERBEAT)), ROWINDEX(1), MAX_ROWS_PER_BEAT);
+	const ROWINDEX newRPM = std::clamp(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERMEASURE)), newRPB, MAX_ROWS_PER_BEAT);
 	pat.SetSignature(newRPB, newRPM);
 
 	m_tempoSwing.resize(newRPB, TempoSwing::Unity);
-	CTempoSwingDlg dlg(this, m_tempoSwing, modDoc.GetrSoundFile(), m_nPattern);
+	CTempoSwingDlg dlg(this, m_tempoSwing, modDoc.GetSoundFile(), m_nPattern);
 	if(dlg.DoModal() == IDOK)
 	{
 		m_tempoSwing = dlg.m_tempoSwing;
@@ -229,30 +247,33 @@ void CPatternPropertiesDlg::OnTempoSwing()
 
 
 void CPatternPropertiesDlg::OnOK()
-//--------------------------------
 {
-	CSoundFile &sndFile = modDoc.GetrSoundFile();
+	CSoundFile &sndFile = modDoc.GetSoundFile();
 	CPattern &pattern = sndFile.Patterns[m_nPattern];
 	// Update pattern signature if necessary
 	if(sndFile.GetModSpecifications().hasPatternSignatures)
 	{
-		if(IsDlgButtonChecked(IDC_CHECK1))	// Enable signature
+		if(IsDlgButtonChecked(IDC_CHECK1))
 		{
-			ROWINDEX nNewBeat = (ROWINDEX)GetDlgItemInt(IDC_ROWSPERBEAT, NULL, FALSE), nNewMeasure = (ROWINDEX)GetDlgItemInt(IDC_ROWSPERMEASURE, NULL, FALSE);
-			if(nNewBeat != pattern.GetRowsPerBeat() || nNewMeasure != pattern.GetRowsPerMeasure() || m_tempoSwing != pattern.GetTempoSwing())
+			// Enable signature
+			const ROWINDEX newRPB = std::min(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERBEAT, NULL, FALSE)), MAX_ROWS_PER_BEAT);
+			const ROWINDEX newRPM = std::min(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERMEASURE, NULL, FALSE)), MAX_ROWS_PER_BEAT);
+
+			if(newRPB != pattern.GetRowsPerBeat() || newRPM != pattern.GetRowsPerMeasure() || m_tempoSwing != pattern.GetTempoSwing())
 			{
-				if(!pattern.SetSignature(nNewBeat, nNewMeasure))
+				if(!pattern.SetSignature(newRPB, newRPM))
 				{
 					Reporting::Error("Invalid time signature!", "Pattern Properties");
 					GetDlgItem(IDC_ROWSPERBEAT)->SetFocus();
 					return;
 				}
-				m_tempoSwing.resize(nNewBeat, TempoSwing::Unity);
+				m_tempoSwing.resize(newRPB, TempoSwing::Unity);
 				pattern.SetTempoSwing(m_tempoSwing);
 				modDoc.SetModified();
 			}
-		} else	// Disable signature
+		} else
 		{
+			// Disable signature
 			if(pattern.GetOverrideSignature() || pattern.HasTempoSwing())
 			{
 				pattern.RemoveSignature();
@@ -261,18 +282,24 @@ void CPatternPropertiesDlg::OnOK()
 			}
 		}
 	}
-	
+
 
 	const ROWINDEX newSize = (ROWINDEX)GetDlgItemInt(IDC_COMBO1, NULL, FALSE);
 
 	// Check if any pattern data would be removed.
 	bool resize = (newSize != sndFile.Patterns[m_nPattern].GetNumRows());
-	for(ROWINDEX row = newSize; row < sndFile.Patterns[m_nPattern].GetNumRows(); row++)
+	bool resizeAtEnd = IsDlgButtonChecked(IDC_RADIO2) != BST_UNCHECKED;
+	if(newSize < sndFile.Patterns[m_nPattern].GetNumRows())
 	{
-		if(!sndFile.Patterns[m_nPattern].IsEmptyRow(row))
+		ROWINDEX firstRow = resizeAtEnd ? newSize : 0;
+		ROWINDEX lastRow = resizeAtEnd ? sndFile.Patterns[m_nPattern].GetNumRows() : sndFile.Patterns[m_nPattern].GetNumRows() - newSize;
+		for(ROWINDEX row = firstRow; row < lastRow; row++)
 		{
-			resize = (Reporting::Confirm("Data at the end of the pattern will be lost.\nDo you want to continue?", "Shrink Pattern") == cnfYes);
-			break;
+			if(!sndFile.Patterns[m_nPattern].IsEmptyRow(row))
+			{
+				resize = (Reporting::Confirm(MPT_AFORMAT("Data at the {} of the pattern will be lost.\nDo you want to continue?")(resizeAtEnd ? "end" : "start"), "Shrink Pattern") == cnfYes);
+				break;
+			}
 		}
 	}
 
@@ -280,7 +307,7 @@ void CPatternPropertiesDlg::OnOK()
 	{
 		modDoc.BeginWaitCursor();
 		modDoc.GetPatternUndo().PrepareUndo(m_nPattern, 0, 0, sndFile.Patterns[m_nPattern].GetNumChannels(), sndFile.Patterns[m_nPattern].GetNumRows(), "Resize");
-		if(sndFile.Patterns[m_nPattern].Resize(newSize))
+		if(sndFile.Patterns[m_nPattern].Resize(newSize, true, resizeAtEnd))
 		{
 			modDoc.SetModified();
 		}
@@ -297,17 +324,16 @@ BEGIN_MESSAGE_MAP(CEditCommand, CDialog)
 	ON_WM_ACTIVATE()
 	ON_WM_CLOSE()
 
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnNoteChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnNoteChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO3,	OnVolCmdChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO4,	OnCommandChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO5,	OnPlugParamChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CEditCommand::OnNoteChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2,	&CEditCommand::OnNoteChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO3,	&CEditCommand::OnVolCmdChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO4,	&CEditCommand::OnCommandChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO5,	&CEditCommand::OnPlugParamChanged)
 	ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
 void CEditCommand::DoDataExchange(CDataExchange* pDX)
-//---------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSplitKeyboadSettings)
@@ -322,19 +348,18 @@ void CEditCommand::DoDataExchange(CDataExchange* pDX)
 }
 
 
-CEditCommand::CEditCommand(CSoundFile &sndFile) : sndFile(sndFile), oldSpecs(nullptr), effectInfo(sndFile), m(nullptr), modified(false)
-//-------------------------------------------------------------------------------------------------------------------------------------
+CEditCommand::CEditCommand(CSoundFile &sndFile)
+    : sndFile(sndFile), effectInfo(sndFile)
 {
 	CDialog::Create(IDD_PATTERN_EDITCOMMAND);
 }
 
 
 BOOL CEditCommand::PreTranslateMessage(MSG *pMsg)
-//-----------------------------------------------
 {
-	if ((pMsg) && (pMsg->message == WM_KEYDOWN))
+	if((pMsg) && (pMsg->message == WM_KEYDOWN))
 	{
-		if ((pMsg->wParam == VK_ESCAPE) || (pMsg->wParam == VK_RETURN) || (pMsg->wParam == VK_APPS))
+		if((pMsg->wParam == VK_ESCAPE) || (pMsg->wParam == VK_RETURN) || (pMsg->wParam == VK_APPS))
 		{
 			OnClose();
 			return TRUE;
@@ -345,15 +370,14 @@ BOOL CEditCommand::PreTranslateMessage(MSG *pMsg)
 
 
 bool CEditCommand::ShowEditWindow(PATTERNINDEX pat, const PatternCursor &cursor, CWnd *parent)
-//--------------------------------------------------------------------------------------------
 {
-	editPos.pattern = pat;
-	const ROWINDEX row = editPos.row = cursor.GetRow();
-	const CHANNELINDEX chn = editPos.channel = cursor.GetChannel();
+	editPattern = pat;
+	const ROWINDEX row = editRow = cursor.GetRow();
+	const CHANNELINDEX chn = editChannel = cursor.GetChannel();
 
 	if(!sndFile.Patterns.IsValidPat(pat)
-		|| !sndFile.Patterns[pat].IsValidRow(row)
-		|| chn >= sndFile.GetNumChannels())
+	   || !sndFile.Patterns[pat].IsValidRow(row)
+	   || chn >= sndFile.GetNumChannels())
 	{
 		ShowWindow(SW_HIDE);
 		return false;
@@ -390,9 +414,7 @@ bool CEditCommand::ShowEditWindow(PATTERNINDEX pat, const PatternCursor &cursor,
 	}
 
 	// Update Window Title
-	TCHAR s[64];
-	_stprintf(s, _T("Note Properties - Row %d, Channel %d"), row, chn + 1);
-	SetWindowText(s);
+	SetWindowText(MPT_CFORMAT("Note Properties - Row {}, Channel {}")(row, chn + 1));
 
 	CRect rectParent, rectWnd;
 	parent->GetWindowRect(&rectParent);
@@ -407,7 +429,6 @@ bool CEditCommand::ShowEditWindow(PATTERNINDEX pat, const PatternCursor &cursor,
 
 
 void CEditCommand::InitNote()
-//---------------------------
 {
 	// Note
 	cbnNote.SetRedraw(FALSE);
@@ -457,15 +478,15 @@ void CEditCommand::InitNote()
 		const uint32 nmax = sndFile.GetNumInstruments() ? sndFile.GetNumInstruments() : sndFile.GetNumSamples();
 		for(uint32 i = 1; i <= nmax; i++)
 		{
-			std::string s = mpt::ToString(i) + ": ";
+			CString s = mpt::cfmt::val(i) + _T(": ");
 			// instrument / sample
 			if(sndFile.GetNumInstruments())
 			{
 				if(sndFile.Instruments[i])
-					s += sndFile.Instruments[i]->name;
+					s += mpt::ToCString(sndFile.GetCharsetInternal(), sndFile.Instruments[i]->name);
 			} else
-				s += sndFile.m_szNames[i];
-			cbnInstr.SetItemData(cbnInstr.AddString(s.c_str()), i);
+				s += mpt::ToCString(sndFile.GetCharsetInternal(), sndFile.m_szNames[i]);
+			cbnInstr.SetItemData(cbnInstr.AddString(s), i);
 		}
 	}
 	cbnInstr.SetCurSel(m->instr);
@@ -474,7 +495,6 @@ void CEditCommand::InitNote()
 
 
 void CEditCommand::InitVolume()
-//-----------------------------
 {
 	cbnVolCmd.SetRedraw(FALSE);
 	cbnVolCmd.ResetContent();
@@ -488,17 +508,18 @@ void CEditCommand::InitVolume()
 		cbnVolCmd.EnableWindow(TRUE);
 		sldVolParam.EnableWindow(TRUE);
 		uint32 count = effectInfo.GetNumVolCmds();
-		cbnVolCmd.SetItemData(cbnVolCmd.AddString(" None"), (DWORD_PTR)-1);
+		cbnVolCmd.SetItemData(cbnVolCmd.AddString(_T(" None")), (DWORD_PTR)-1);
 		cbnVolCmd.SetCurSel(0);
 		UINT fxndx = effectInfo.GetIndexFromVolCmd(m->volcmd);
 		for(uint32 i = 0; i < count; i++)
 		{
-			CHAR s[64];
-			if(effectInfo.GetVolCmdInfo(i, s))
+			CString s;
+			if(effectInfo.GetVolCmdInfo(i, &s))
 			{
 				int k = cbnVolCmd.AddString(s);
 				cbnVolCmd.SetItemData(k, i);
-				if(i == fxndx) cbnVolCmd.SetCurSel(k);
+				if(i == fxndx)
+					cbnVolCmd.SetCurSel(k);
 			}
 		}
 		UpdateVolCmdRange();
@@ -508,7 +529,6 @@ void CEditCommand::InitVolume()
 
 
 void CEditCommand::InitEffect()
-//-----------------------------
 {
 	if(m->IsPcNote())
 	{
@@ -518,23 +538,25 @@ void CEditCommand::InitEffect()
 	cbnCommand.ShowWindow(SW_SHOW);
 	xParam = 0;
 	xMultiplier = 1;
-	getXParam(m->command, editPos.pattern, editPos.row, editPos.channel, sndFile, xParam, xMultiplier);
+	getXParam(m->command, editPattern, editRow, editChannel, sndFile, xParam, xMultiplier);
 
 	cbnCommand.SetRedraw(FALSE);
 	cbnCommand.ResetContent();
 	uint32 numfx = effectInfo.GetNumEffects();
 	uint32 fxndx = effectInfo.GetIndexFromEffect(m->command, m->param);
-	cbnCommand.SetItemData(cbnCommand.AddString(" None"), (DWORD_PTR)-1);
-	if(m->command == CMD_NONE) cbnCommand.SetCurSel(0);
+	cbnCommand.SetItemData(cbnCommand.AddString(_T(" None")), (DWORD_PTR)-1);
+	if(m->command == CMD_NONE)
+		cbnCommand.SetCurSel(0);
 
-	CHAR s[128];
+	CString s;
 	for(uint32 i = 0; i < numfx; i++)
 	{
-		if(effectInfo.GetEffectInfo(i, s, true))
+		if(effectInfo.GetEffectInfo(i, &s, true))
 		{
 			int k = cbnCommand.AddString(s);
 			cbnCommand.SetItemData(k, i);
-			if (i == fxndx) cbnCommand.SetCurSel(k);
+			if(i == fxndx)
+				cbnCommand.SetCurSel(k);
 		}
 	}
 	UpdateEffectRange(false);
@@ -544,7 +566,6 @@ void CEditCommand::InitEffect()
 
 
 void CEditCommand::InitPlugParam()
-//--------------------------------
 {
 	if(!m->IsPcNote())
 	{
@@ -552,10 +573,10 @@ void CEditCommand::InitPlugParam()
 		return;
 	}
 	cbnPlugParam.ShowWindow(SW_SHOW);
-	
+
 	cbnPlugParam.SetRedraw(FALSE);
 	cbnPlugParam.ResetContent();
-	
+
 	if(m->instr > 0 && m->instr <= MAX_MIXPLUGINS)
 	{
 		AddPluginParameternamesToCombobox(cbnPlugParam, sndFile.m_MixPlugins[m->instr - 1]);
@@ -569,7 +590,6 @@ void CEditCommand::InitPlugParam()
 
 
 void CEditCommand::UpdateVolCmdRange()
-//------------------------------------
 {
 	ModCommand::VOL rangeMin = 0, rangeMax = 0;
 	LONG fxndx = effectInfo.GetIndexFromVolCmd(m->volcmd);
@@ -592,7 +612,6 @@ void CEditCommand::UpdateVolCmdRange()
 
 
 void CEditCommand::UpdateEffectRange(bool set)
-//--------------------------------------------
 {
 	DWORD pos;
 	bool enable = true;
@@ -610,7 +629,8 @@ void CEditCommand::UpdateEffectRange(bool set)
 		enable = ((fxndx >= 0) && (effectInfo.GetEffectInfo(fxndx, NULL, false, &rangeMin, &rangeMax)));
 
 		pos = effectInfo.MapValueToPos(fxndx, m->param);
-		if(pos > rangeMax) pos = rangeMin | (pos & 0x0F);
+		if(pos > rangeMax)
+			pos = rangeMin | (pos & 0x0F);
 		Limit(pos, rangeMin, rangeMax);
 
 		sldParam.SetRange(rangeMin, rangeMax);
@@ -633,17 +653,18 @@ void CEditCommand::UpdateEffectRange(bool set)
 
 
 void CEditCommand::OnNoteChanged()
-//--------------------------------
 {
 	const bool wasParamControl = m->IsPcNote();
 	ModCommand::NOTE newNote = m->note;
 	ModCommand::INSTR newInstr = m->instr;
 
 	int n = cbnNote.GetCurSel();
-	if(n >= 0) newNote = static_cast<ModCommand::NOTE>(cbnNote.GetItemData(n));
+	if(n >= 0)
+		newNote = static_cast<ModCommand::NOTE>(cbnNote.GetItemData(n));
 
 	n = cbnInstr.GetCurSel();
-	if(n >= 0) newInstr = static_cast<ModCommand::INSTR>(cbnInstr.GetItemData(n));
+	if(n >= 0)
+		newInstr = static_cast<ModCommand::INSTR>(cbnInstr.GetItemData(n));
 
 	if(m->note != newNote || m->instr != newInstr)
 	{
@@ -652,17 +673,17 @@ void CEditCommand::OnNoteChanged()
 		m->note = newNote;
 		m->instr = newInstr;
 
-		modDoc->UpdateAllViews(NULL, RowHint(editPos.row), NULL);
+		modDoc->UpdateAllViews(nullptr, RowHint(editRow), nullptr);
 
 		if(wasParamControl != m->IsPcNote())
 		{
 			InitAll();
 		} else if(!m->IsPcNote()
-			&& m->instr <= sndFile.GetNumInstruments()
-			&& newInstr <= sndFile.GetNumInstruments()
-			&& sndFile.Instruments[m->instr] != nullptr
-			&& sndFile.Instruments[newInstr] != nullptr
-			&& sndFile.Instruments[newInstr]->pTuning != sndFile.Instruments[m->instr]->pTuning)
+		          && m->instr <= sndFile.GetNumInstruments()
+		          && newInstr <= sndFile.GetNumInstruments()
+		          && sndFile.Instruments[m->instr] != nullptr
+		          && sndFile.Instruments[newInstr] != nullptr
+		          && sndFile.Instruments[newInstr]->pTuning != sndFile.Instruments[m->instr]->pTuning)
 		{
 			//Checking whether note names should be recreated.
 			InitNote();
@@ -676,7 +697,6 @@ void CEditCommand::OnNoteChanged()
 
 
 void CEditCommand::OnVolCmdChanged()
-//----------------------------------
 {
 	ModCommand::VOLCMD newVolCmd = m->volcmd;
 	ModCommand::VOL newVol = m->vol;
@@ -684,7 +704,7 @@ void CEditCommand::OnVolCmdChanged()
 	int n = cbnVolCmd.GetCurSel();
 	if(n >= 0)
 	{
-		newVolCmd = effectInfo.GetVolCmdFromIndex(cbnVolCmd.GetItemData(n));
+		newVolCmd = effectInfo.GetVolCmdFromIndex(static_cast<UINT>(cbnVolCmd.GetItemData(n)));
 	}
 
 	newVol = static_cast<ModCommand::VOL>(sldVolParam.GetPos());
@@ -697,7 +717,7 @@ void CEditCommand::OnVolCmdChanged()
 		m->volcmd = newVolCmd;
 		m->vol = newVol;
 
-		modDoc->UpdateAllViews(NULL, RowHint(editPos.row), NULL);
+		modDoc->UpdateAllViews(nullptr, RowHint(editRow), nullptr);
 
 		if(volCmdChanged)
 			UpdateVolCmdRange();
@@ -708,7 +728,6 @@ void CEditCommand::OnVolCmdChanged()
 
 
 void CEditCommand::OnCommandChanged()
-//-----------------------------------
 {
 	ModCommand::COMMAND newCommand = m->command;
 	ModCommand::PARAM newParam = m->param;
@@ -716,15 +735,8 @@ void CEditCommand::OnCommandChanged()
 	int n = cbnCommand.GetCurSel();
 	if(n >= 0)
 	{
-		int ndx = cbnCommand.GetItemData(n);
+		int ndx = static_cast<int>(cbnCommand.GetItemData(n));
 		newCommand = static_cast<ModCommand::COMMAND>((ndx >= 0) ? effectInfo.GetEffectFromIndex(ndx, newParam) : CMD_NONE);
-	}
-
-	if(newCommand == CMD_OFFSET || newCommand == CMD_PATTERNBREAK || newCommand == CMD_POSITIONJUMP || newCommand == CMD_TEMPO || newCommand == CMD_XPARAM)
-	{
-		xParam = 0;
-		xMultiplier = 1;
-		getXParam(newCommand, editPos.pattern, editPos.row, editPos.channel, sndFile, xParam, xMultiplier);
 	}
 
 	if(m->command != newCommand || m->param != newParam)
@@ -736,15 +748,22 @@ void CEditCommand::OnCommandChanged()
 		{
 			m->param = newParam;
 		}
+
+		xParam = 0;
+		xMultiplier = 1;
+		if(newCommand == CMD_XPARAM || mpt::contains(ExtendedCommands, newCommand))
+		{
+			getXParam(newCommand, editPattern, editRow, editChannel, sndFile, xParam, xMultiplier);
+		}
+
 		UpdateEffectRange(true);
 
-		sndFile.GetpModDoc()->UpdateAllViews(NULL, RowHint(editPos.row), NULL);
+		sndFile.GetpModDoc()->UpdateAllViews(nullptr, RowHint(editRow), nullptr);
 	}
 }
 
 
 void CEditCommand::OnPlugParamChanged()
-//-------------------------------------
 {
 	uint16 newPlugParam = m->GetValueVolCol();
 
@@ -758,33 +777,31 @@ void CEditCommand::OnPlugParamChanged()
 	{
 		PrepareUndo("Effect Entry");
 		m->SetValueVolCol(newPlugParam);
-		sndFile.GetpModDoc()->UpdateAllViews(NULL, RowHint(editPos.row), NULL);
+		sndFile.GetpModDoc()->UpdateAllViews(nullptr, RowHint(editRow), nullptr);
 	}
 }
 
 
 void CEditCommand::UpdateVolCmdValue()
-//------------------------------------
 {
-	CHAR s[64] = "";
+	CString s;
 	if(m->IsPcNote())
 	{
 		// plugin param control note
 		uint16 plugParam = static_cast<uint16>(sldVolParam.GetPos());
-		wsprintf(s, "Value: %u", plugParam);
+		s.Format(_T("Value: %u"), plugParam);
 	} else
 	{
 		// process as effect
-		effectInfo.GetVolCmdParamInfo(*m, s);
+		effectInfo.GetVolCmdParamInfo(*m, &s);
 	}
 	SetDlgItemText(IDC_TEXT2, s);
 }
 
 
 void CEditCommand::UpdateEffectValue(bool set)
-//--------------------------------------------
 {
-	TCHAR s[128] = _T("");
+	CString s;
 
 	uint16 newPlugParam = 0;
 	ModCommand::PARAM newParam = 0;
@@ -793,7 +810,7 @@ void CEditCommand::UpdateEffectValue(bool set)
 	{
 		// plugin param control note
 		newPlugParam = static_cast<uint16>(sldParam.GetPos());
-		wsprintf(s, _T("Value: %u"), newPlugParam);
+		s.Format(_T("Value: %u"), newPlugParam);
 	} else
 	{
 		// process as effect
@@ -801,7 +818,7 @@ void CEditCommand::UpdateEffectValue(bool set)
 		if(fxndx >= 0)
 		{
 			newParam = static_cast<ModCommand::PARAM>(effectInfo.MapPosToValue(fxndx, sldParam.GetPos()));
-			effectInfo.GetEffectNameEx(s, fxndx, newParam * xMultiplier + xParam, editPos.channel);
+			effectInfo.GetEffectNameEx(s, *m, newParam * xMultiplier + xParam, editChannel);
 		}
 	}
 	SetDlgItemText(IDC_TEXT1, s);
@@ -809,7 +826,7 @@ void CEditCommand::UpdateEffectValue(bool set)
 	if(set)
 	{
 		if((!m->IsPcNote() && m->param != newParam)
-			|| (m->IsPcNote() && m->GetValueVolCol() != newPlugParam))
+		   || (m->IsPcNote() && m->GetValueVolCol() != newPlugParam))
 		{
 			PrepareUndo("Effect Entry");
 			CModDoc *modDoc = sndFile.GetpModDoc();
@@ -821,20 +838,19 @@ void CEditCommand::UpdateEffectValue(bool set)
 				m->param = newParam;
 			}
 
-			modDoc->UpdateAllViews(NULL, RowHint(editPos.row), NULL);
+			modDoc->UpdateAllViews(nullptr, RowHint(editRow), nullptr);
 		}
 	}
 }
 
 
 void CEditCommand::PrepareUndo(const char *description)
-//-----------------------------------------------------
 {
 	CModDoc *modDoc = sndFile.GetpModDoc();
 	if(!modified)
 	{
 		// Let's create just one undo step.
-		modDoc->GetPatternUndo().PrepareUndo(editPos.pattern, editPos.channel, editPos.row, 1, 1, description);
+		modDoc->GetPatternUndo().PrepareUndo(editPattern, editChannel, editRow, 1, 1, description);
 		modified = true;
 	}
 	modDoc->SetModified();
@@ -842,7 +858,6 @@ void CEditCommand::PrepareUndo(const char *description)
 
 
 void CEditCommand::OnHScroll(UINT, UINT, CScrollBar *bar)
-//-------------------------------------------------------
 {
 	if(bar == static_cast<CWnd *>(&sldVolParam))
 	{
@@ -855,164 +870,234 @@ void CEditCommand::OnHScroll(UINT, UINT, CScrollBar *bar)
 
 
 void CEditCommand::OnActivate(UINT nState, CWnd *pWndOther, BOOL bMinimized)
-//--------------------------------------------------------------------------
 {
 	CDialog::OnActivate(nState, pWndOther, bMinimized);
-	if(nState == WA_INACTIVE) ShowWindow(SW_HIDE);
+	if(nState == WA_INACTIVE)
+		ShowWindow(SW_HIDE);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Chord Editor
 
-BEGIN_MESSAGE_MAP(CChordEditor, CDialog)
-	ON_MESSAGE(WM_MOD_KBDNOTIFY,	OnKeyboardNotify)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnChordChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnBaseNoteChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO3,	OnNote1Changed)
-	ON_CBN_SELCHANGE(IDC_COMBO4,	OnNote2Changed)
-	ON_CBN_SELCHANGE(IDC_COMBO5,	OnNote3Changed)
+BEGIN_MESSAGE_MAP(CChordEditor, ResizableDialog)
+	ON_MESSAGE(WM_MOD_KBDNOTIFY, &CChordEditor::OnKeyboardNotify)
+	ON_CBN_SELCHANGE(IDC_COMBO1, &CChordEditor::OnChordChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CChordEditor::OnBaseNoteChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO3, &CChordEditor::OnNote1Changed)
+	ON_CBN_SELCHANGE(IDC_COMBO4, &CChordEditor::OnNote2Changed)
+	ON_CBN_SELCHANGE(IDC_COMBO5, &CChordEditor::OnNote3Changed)
 END_MESSAGE_MAP()
 
 
-void CChordEditor::DoDataExchange(CDataExchange* pDX)
-//---------------------------------------------------
+void CChordEditor::DoDataExchange(CDataExchange *pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	ResizableDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CChordEditor)
-	DDX_Control(pDX, IDC_KEYBOARD1,		m_Keyboard);
-	DDX_Control(pDX, IDC_COMBO1,		m_CbnShortcut);
-	DDX_Control(pDX, IDC_COMBO2,		m_CbnBaseNote);
-	DDX_Control(pDX, IDC_COMBO3,		m_CbnNote1);
-	DDX_Control(pDX, IDC_COMBO4,		m_CbnNote2);
-	DDX_Control(pDX, IDC_COMBO5,		m_CbnNote3);
+	DDX_Control(pDX, IDC_KEYBOARD1, m_Keyboard);
+	DDX_Control(pDX, IDC_COMBO1,    m_CbnShortcut);
+	DDX_Control(pDX, IDC_COMBO2,    m_CbnBaseNote);
+	DDX_Control(pDX, IDC_COMBO3,    m_CbnNote[0]);
+	DDX_Control(pDX, IDC_COMBO4,    m_CbnNote[1]);
+	DDX_Control(pDX, IDC_COMBO5,    m_CbnNote[2]);
+	static_assert(mpt::array_size<decltype(m_CbnNote)>::size == 3);
 	//}}AFX_DATA_MAP
 }
 
 
-BOOL CChordEditor::OnInitDialog()
-//-------------------------------
+CChordEditor::CChordEditor(CWnd *parent)
+    : ResizableDialog(IDD_CHORDEDIT, parent)
 {
-	CMainFrame *pMainFrm;
-	CHAR s[128];
+	m_chords = TrackerSettings::GetChords();
+}
 
-	CDialog::OnInitDialog();
-	m_Keyboard.Init(m_hWnd, 2);
-	pMainFrm = CMainFrame::GetMainFrame();
-	if (!pMainFrm) return TRUE;
-	// Fills the shortcut key combo box
-	AppendNotesToControl(m_CbnShortcut, NOTE_MIN, NOTE_MIN + 3 * 12 - 1);
+BOOL CChordEditor::OnInitDialog()
+{
+	ResizableDialog::OnInitDialog();
+	m_Keyboard.Init(this, (CHORD_MAX - CHORD_MIN) / 12, true);
+
+	m_CbnShortcut.SetRedraw(FALSE);
+	m_CbnBaseNote.SetRedraw(FALSE);
+	for(auto &combo : m_CbnNote)
+		combo.SetRedraw(FALSE);
+
+	// Shortcut key combo box
+	AppendNotesToControl(m_CbnShortcut, NOTE_MIN, NOTE_MIN + static_cast<int>(kcVPEndChords) - static_cast<int>(kcVPStartChords));
 
 	m_CbnShortcut.SetCurSel(0);
 	// Base Note combo box
 	m_CbnBaseNote.SetItemData(m_CbnBaseNote.AddString(_T("Relative")), MPTChord::relativeMode);
 	AppendNotesToControl(m_CbnBaseNote, NOTE_MIN, NOTE_MIN + 3 * 12 - 1);
 
-	// Minor notes
-	for (int inotes=-1; inotes<24; inotes++)
+	// Chord Note combo boxes
+	CString s;
+	for(int note = CHORD_MIN - 1; note < CHORD_MAX; note++)
 	{
-		if (inotes < 0) strcpy(s, "--"); else
-			if (inotes < 12) wsprintf(s, "%s", CSoundFile::m_NoteNames[inotes % 12]);
-			else wsprintf(s, "%s (+%d)", CSoundFile::m_NoteNames[inotes % 12], inotes / 12);
-			m_CbnNote1.AddString(s);
-			m_CbnNote2.AddString(s);
-			m_CbnNote3.AddString(s);
+		int noteVal = note;
+		if(note == CHORD_MIN - 1)
+		{
+			s = _T("--");
+			noteVal = MPTChord::noNote;
+		} else
+		{
+			s = mpt::ToCString(CSoundFile::GetDefaultNoteName(mpt::wrapping_modulo(note, 12)));
+			const int octave = mpt::wrapping_divide(note, 12);
+			if(octave > 0)
+				s.AppendFormat(_T(" (+%d)"), octave);
+			else if(octave < 0)
+				s.AppendFormat(_T(" (%d)"), octave);
+		}
+		for(auto &combo : m_CbnNote)
+			combo.SetItemData(combo.AddString(s), noteVal);
 	}
+
+	m_CbnShortcut.SetRedraw(TRUE);
+	m_CbnBaseNote.SetRedraw(TRUE);
+	for(auto &combo : m_CbnNote)
+		combo.SetRedraw(TRUE);
+
 	// Update Dialog
 	OnChordChanged();
 	return TRUE;
 }
 
 
-MPTChord &CChordEditor::GetChord()
-//--------------------------------
+void CChordEditor::OnOK()
 {
-	MPTChords &chords = TrackerSettings::GetChords();
-	int chord = m_CbnShortcut.GetCurSel();
-	if(chord >= 0) chord = m_CbnShortcut.GetItemData(chord) - NOTE_MIN;
-	if(chord < 0 || chord >= CountOf(chords)) chord = 0;
-	return chords[chord];
+	TrackerSettings::GetChords() = m_chords;
+	ResizableDialog::OnOK();
 }
 
 
-LRESULT CChordEditor::OnKeyboardNotify(WPARAM wParam, LPARAM nKey)
-//----------------------------------------------------------------
+MPTChord &CChordEditor::GetChord()
 {
-	if (wParam != KBDNOTIFY_LBUTTONDOWN) return 0;
-	MPTChord &chord = GetChord();
-	UINT cnote = NOTE_NONE;
-	chord.notes[0] = NOTE_NONE;
-	chord.notes[1] = NOTE_NONE;
-	chord.notes[2] = NOTE_NONE;
-	for(UINT i = 0; i < 2 * 12; i++)
-	{
-		if(chord.key == MPTChord::relativeMode)
-		{
-			if(!i) continue;
-		} else
-		{
-			if(i == chord.key % 12u) continue;
-		}
+	int chord = m_CbnShortcut.GetCurSel();
+	if(chord >= 0)
+		chord = static_cast<int>(m_CbnShortcut.GetItemData(chord)) - NOTE_MIN;
+	if(chord < 0 || chord >= static_cast<int>(m_chords.size()))
+		chord = 0;
+	return m_chords[chord];
+}
 
-		UINT n = m_Keyboard.GetFlags(i);
-		if (i == (UINT)nKey) n = (n) ? 0 : 1;
-		if (n)
+
+LRESULT CChordEditor::OnKeyboardNotify(WPARAM cmd, LPARAM nKey)
+{
+	const bool outside = static_cast<int>(nKey) == -1;
+	if(cmd == KBDNOTIFY_LBUTTONUP && outside)
+	{
+		// Stopped dragging ouside of keyboard area
+		m_mouseDownKey = m_dragKey = MPTChord::noNote;
+		return 0;
+	} else if (cmd == KBDNOTIFY_MOUSEMOVE || outside)
+	{
+		return 0;
+	}
+
+	MPTChord &chord = GetChord();
+	const MPTChord::NoteType key = static_cast<MPTChord::NoteType>(nKey) + CHORD_MIN;
+	bool update = false;
+
+	if(cmd == KBDNOTIFY_LBUTTONDOWN && m_mouseDownKey == MPTChord::noNote)
+	{
+		// Initial mouse down
+		m_mouseDownKey = key;
+		m_dragKey = MPTChord::noNote;
+		return 0;
+	}
+	if(cmd == KBDNOTIFY_LBUTTONDOWN && m_dragKey == MPTChord::noNote && key != m_mouseDownKey)
+	{
+		// Start dragging
+		m_dragKey = m_mouseDownKey;
+	}
+
+	// Remove dragged note or toggle
+	bool noteIsSet = false;
+	for(auto &note : chord.notes)
+	{
+		if((m_dragKey != MPTChord::noNote && note == m_dragKey)
+		   || (m_dragKey == MPTChord::noNote && note == m_mouseDownKey))
 		{
-			if ((cnote < 3) || (i == (UINT)nKey))
+			note = MPTChord::noNote;
+			noteIsSet = update = true;
+			break;
+		}
+	}
+
+	// Move or toggle note
+	if(cmd != KBDNOTIFY_LBUTTONUP || m_dragKey != MPTChord::noNote || !noteIsSet)
+	{
+		for(auto &note : chord.notes)
+		{
+			if(note == MPTChord::noNote)
 			{
-				UINT k = (cnote < 3) ? cnote : 2;
-				chord.notes[k] = static_cast<BYTE>(i+1);
-				if (cnote < 3) cnote++;
+				note = key;
+				update = true;
+				break;
 			}
 		}
 	}
-	OnChordChanged();
+
+	if(cmd == KBDNOTIFY_LBUTTONUP)
+		m_mouseDownKey = m_dragKey = MPTChord::noNote;
+	else
+		m_dragKey = key;
+
+	if(update)
+	{
+		std::sort(chord.notes.begin(), chord.notes.end(), [](MPTChord::NoteType left, MPTChord::NoteType right)
+		{
+			return (left == MPTChord::noNote)  ? false : (left < right);
+		});
+		OnChordChanged();
+	}
 	return 0;
 }
 
 
 void CChordEditor::OnChordChanged()
-//---------------------------------
 {
-	MPTChord &chord = GetChord();
+	const MPTChord &chord = GetChord();
 	if(chord.key != MPTChord::relativeMode)
 		m_CbnBaseNote.SetCurSel(chord.key + 1);
 	else
 		m_CbnBaseNote.SetCurSel(0);
-	m_CbnNote1.SetCurSel(chord.notes[0]);
-	m_CbnNote2.SetCurSel(chord.notes[1]);
-	m_CbnNote3.SetCurSel(chord.notes[2]);
+	for(int i = 0; i < MPTChord::notesPerChord - 1; i++)
+	{
+		int note = chord.notes[i];
+		if(note == MPTChord::noNote)
+			note = 0;
+		else
+			note += 1 - CHORD_MIN;
+		m_CbnNote[i].SetCurSel(note);
+	}
 	UpdateKeyboard();
 }
 
 
 void CChordEditor::UpdateKeyboard()
-//---------------------------------
 {
 	MPTChord &chord = GetChord();
-	UINT note = chord.key % 12;
-	if(chord.key == MPTChord::relativeMode)
-	{
-		note = 0;
-	}
-	for(UINT i = 0; i < 2 * 12; i++)
+	const int baseNote = (chord.key == MPTChord::relativeMode) ? 0 : (chord.key % 12);
+	for(int i = CHORD_MIN; i < CHORD_MAX; i++)
 	{
 		uint8 b = CKeyboardControl::KEYFLAG_NORMAL;
-		if(i == note) b = CKeyboardControl::KEYFLAG_REDDOT;
-		else if(chord.notes[0] && i + 1 == chord.notes[0]) b = CKeyboardControl::KEYFLAG_REDDOT;
-		else if(chord.notes[1] && i + 1 == chord.notes[1]) b = CKeyboardControl::KEYFLAG_REDDOT;
-		else if(chord.notes[2] && i + 1 == chord.notes[2]) b = CKeyboardControl::KEYFLAG_REDDOT;
-		m_Keyboard.SetFlags(i, b);
+		for(const auto note : chord.notes)
+		{
+			if(i == note)
+				b |= CKeyboardControl::KEYFLAG_REDDOT;
+		}
+		if(i == baseNote)
+			b |= CKeyboardControl::KEYFLAG_BRIGHTDOT;
+		m_Keyboard.SetFlags(i - CHORD_MIN, b);
 	}
-	m_Keyboard.InvalidateRect(NULL, FALSE);
+	m_Keyboard.InvalidateRect(nullptr, FALSE);
 }
 
 
 void CChordEditor::OnBaseNoteChanged()
-//------------------------------------
 {
 	MPTChord &chord = GetChord();
-	int basenote = m_CbnBaseNote.GetItemData(m_CbnBaseNote.GetCurSel());
+	int basenote = static_cast<int>(m_CbnBaseNote.GetItemData(m_CbnBaseNote.GetCurSel()));
 	if(basenote != MPTChord::relativeMode)
 		basenote -= NOTE_MIN;
 	chord.key = (uint8)basenote;
@@ -1020,108 +1105,85 @@ void CChordEditor::OnBaseNoteChanged()
 }
 
 
-void CChordEditor::OnNote1Changed()
-//---------------------------------
+void CChordEditor::OnNoteChanged(int noteIndex)
 {
 	MPTChord &chord = GetChord();
-	int note = m_CbnNote1.GetCurSel();
-	if(note >= 0)
-	{
-		chord.notes[0] = (uint8)note;
-		UpdateKeyboard();
-	}
-}
-
-
-void CChordEditor::OnNote2Changed()
-//---------------------------------
-{
-	MPTChord &chord = GetChord();
-	int note = m_CbnNote2.GetCurSel();
-	if(note >= 0)
-	{
-		chord.notes[1] = (uint8)note;
-		UpdateKeyboard();
-	}
-}
-
-
-void CChordEditor::OnNote3Changed()
-//---------------------------------
-{
-	MPTChord &chord = GetChord();
-	int note = m_CbnNote3.GetCurSel();
-	if(note >= 0)
-	{
-		chord.notes[2] = (uint8)note;
-		UpdateKeyboard();
-	}
+	int note = m_CbnNote[noteIndex].GetCurSel();
+	if(note < 0)
+		return;
+	chord.notes[noteIndex] = static_cast<int8>(m_CbnNote[noteIndex].GetItemData(note));
+	UpdateKeyboard();
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Split Settings (pattern editor)
 
-BEGIN_MESSAGE_MAP(CSplitKeyboadSettings, CDialog)
-	ON_CBN_SELCHANGE(IDC_COMBO_OCTAVEMODIFIER,	OnOctaveModifierChanged)
+BEGIN_MESSAGE_MAP(CSplitKeyboardSettings, CDialog)
+	ON_CBN_SELCHANGE(IDC_COMBO_OCTAVEMODIFIER, &CSplitKeyboardSettings::OnOctaveModifierChanged)
 END_MESSAGE_MAP()
 
 
-void CSplitKeyboadSettings::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------------------
+void CSplitKeyboardSettings::DoDataExchange(CDataExchange *pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSplitKeyboadSettings)
-	DDX_Control(pDX, IDC_COMBO_SPLITINSTRUMENT,	m_CbnSplitInstrument);
-	DDX_Control(pDX, IDC_COMBO_SPLITNOTE,		m_CbnSplitNote);
-	DDX_Control(pDX, IDC_COMBO_OCTAVEMODIFIER,	m_CbnOctaveModifier);
-	DDX_Control(pDX, IDC_COMBO_SPLITVOLUME,		m_CbnSplitVolume);
+	DDX_Control(pDX, IDC_COMBO_SPLITINSTRUMENT, m_CbnSplitInstrument);
+	DDX_Control(pDX, IDC_COMBO_SPLITNOTE,       m_CbnSplitNote);
+	DDX_Control(pDX, IDC_COMBO_OCTAVEMODIFIER,  m_CbnOctaveModifier);
+	DDX_Control(pDX, IDC_COMBO_SPLITVOLUME,     m_CbnSplitVolume);
 	//}}AFX_DATA_MAP
 }
 
 
-BOOL CSplitKeyboadSettings::OnInitDialog()
-//----------------------------------------
+BOOL CSplitKeyboardSettings::OnInitDialog()
 {
-	if(sndFile.GetpModDoc() == nullptr) return FALSE;
+	if(sndFile.GetpModDoc() == nullptr)
+		return TRUE;
 
 	CDialog::OnInitDialog();
 
-	CHAR s[64];
+	CString s;
 
 	// Split Notes
 	AppendNotesToControl(m_CbnSplitNote, sndFile.GetModSpecifications().noteMin, sndFile.GetModSpecifications().noteMax);
 	m_CbnSplitNote.SetCurSel(m_Settings.splitNote - (sndFile.GetModSpecifications().noteMin - NOTE_MIN));
 
 	// Octave modifier
+	m_CbnOctaveModifier.SetRedraw(FALSE);
+	m_CbnSplitVolume.InitStorage(SplitKeyboardSettings::splitOctaveRange * 2 + 1, 9);
 	for(int i = -SplitKeyboardSettings::splitOctaveRange; i < SplitKeyboardSettings::splitOctaveRange + 1; i++)
 	{
-		wsprintf(s, i < 0 ? "Octave -%d" : i > 0 ? "Octave +%d" : "No Change", mpt::abs(i));
+		s.Format(i < 0 ? _T("Octave -%d") : i > 0 ? _T("Octave +%d") : _T("No Change"), std::abs(i));
 		int n = m_CbnOctaveModifier.AddString(s);
 		m_CbnOctaveModifier.SetItemData(n, i);
 	}
-
+	m_CbnOctaveModifier.SetRedraw(TRUE);
 	m_CbnOctaveModifier.SetCurSel(m_Settings.octaveModifier + SplitKeyboardSettings::splitOctaveRange);
 	CheckDlgButton(IDC_PATTERN_OCTAVELINK, (m_Settings.octaveLink && m_Settings.octaveModifier != 0) ? BST_CHECKED : BST_UNCHECKED);
 
 	// Volume
-	m_CbnSplitVolume.AddString("No Change");
+	m_CbnSplitVolume.SetRedraw(FALSE);
+	m_CbnSplitVolume.InitStorage(65, 4);
+	m_CbnSplitVolume.AddString(_T("No Change"));
 	m_CbnSplitVolume.SetItemData(0, 0);
-	for(int i = 1; i <= 64 ; i++)
+	for(int i = 1; i <= 64; i++)
 	{
-		wsprintf(s, "%d", i);
+		s.Format(_T("%d"), i);
 		int n = m_CbnSplitVolume.AddString(s);
 		m_CbnSplitVolume.SetItemData(n, i);
 	}
+	m_CbnSplitVolume.SetRedraw(TRUE);
 	m_CbnSplitVolume.SetCurSel(m_Settings.splitVolume);
 
 	// Instruments
-	m_CbnSplitInstrument.ResetContent();
-	m_CbnSplitInstrument.SetItemData(m_CbnSplitInstrument.AddString("No Change"), 0);
+	m_CbnSplitInstrument.SetRedraw(FALSE);
+	m_CbnSplitInstrument.InitStorage(1 + (sndFile.GetNumInstruments() ? sndFile.GetNumInstruments() : sndFile.GetNumSamples()), 16);
+	m_CbnSplitInstrument.SetItemData(m_CbnSplitInstrument.AddString(_T("No Change")), 0);
 
 	if(sndFile.GetNumInstruments())
 	{
-		for (INSTRUMENTINDEX nIns = 1; nIns <= sndFile.GetNumInstruments(); nIns++)
+		for(INSTRUMENTINDEX nIns = 1; nIns <= sndFile.GetNumInstruments(); nIns++)
 		{
 			if(sndFile.Instruments[nIns] == nullptr)
 				continue;
@@ -1134,42 +1196,41 @@ BOOL CSplitKeyboadSettings::OnInitDialog()
 	{
 		for(SAMPLEINDEX nSmp = 1; nSmp <= sndFile.GetNumSamples(); nSmp++)
 		{
-			if(sndFile.GetSample(nSmp).pSample)
+			if(sndFile.GetSample(nSmp).HasSampleData())
 			{
-				wsprintf(s, "%02d: %s", nSmp, sndFile.m_szNames[nSmp]);
+				s.Format(_T("%02d: "), nSmp);
+				s += mpt::ToCString(sndFile.GetCharsetInternal(), sndFile.m_szNames[nSmp]);
 				int n = m_CbnSplitInstrument.AddString(s);
 				m_CbnSplitInstrument.SetItemData(n, nSmp);
 			}
 		}
 	}
+	m_CbnSplitInstrument.SetRedraw(TRUE);
 	m_CbnSplitInstrument.SetCurSel(m_Settings.splitInstrument);
 
 	return TRUE;
 }
 
 
-void CSplitKeyboadSettings::OnOK()
-//--------------------------------
+void CSplitKeyboardSettings::OnOK()
 {
 	CDialog::OnOK();
 
 	m_Settings.splitNote = static_cast<ModCommand::NOTE>(m_CbnSplitNote.GetItemData(m_CbnSplitNote.GetCurSel()) - 1);
 	m_Settings.octaveModifier = m_CbnOctaveModifier.GetCurSel() - SplitKeyboardSettings::splitOctaveRange;
-	m_Settings.octaveLink = (IsDlgButtonChecked(IDC_PATTERN_OCTAVELINK) == TRUE);
+	m_Settings.octaveLink = (IsDlgButtonChecked(IDC_PATTERN_OCTAVELINK) != BST_UNCHECKED);
 	m_Settings.splitVolume = static_cast<ModCommand::VOL>(m_CbnSplitVolume.GetCurSel());
 	m_Settings.splitInstrument = static_cast<ModCommand::INSTR>(m_CbnSplitInstrument.GetItemData(m_CbnSplitInstrument.GetCurSel()));
 }
 
 
-void CSplitKeyboadSettings::OnCancel()
-//------------------------------------
+void CSplitKeyboardSettings::OnCancel()
 {
 	CDialog::OnCancel();
 }
 
 
-void CSplitKeyboadSettings::OnOctaveModifierChanged()
-//---------------------------------------------------
+void CSplitKeyboardSettings::OnOctaveModifierChanged()
 {
 	CheckDlgButton(IDC_PATTERN_OCTAVELINK, (m_CbnOctaveModifier.GetCurSel() != 9) ? BST_CHECKED : BST_UNCHECKED);
 }
@@ -1181,76 +1242,73 @@ void CSplitKeyboadSettings::OnOctaveModifierChanged()
 BEGIN_MESSAGE_MAP(QuickChannelProperties, CDialog)
 	ON_WM_HSCROLL()		// Sliders
 	ON_WM_ACTIVATE()	// Catch Window focus change
-	ON_EN_UPDATE(IDC_EDIT1,	OnVolChanged)
-	ON_EN_UPDATE(IDC_EDIT2,	OnPanChanged)
-	ON_EN_UPDATE(IDC_EDIT3,	OnNameChanged)
-	ON_COMMAND(IDC_CHECK1,	OnMuteChanged)
-	ON_COMMAND(IDC_CHECK2,	OnSurroundChanged)
-	ON_COMMAND(IDC_BUTTON1,	OnPrevChannel)
-	ON_COMMAND(IDC_BUTTON2,	OnNextChannel)
-	ON_MESSAGE(WM_MOD_KEYCOMMAND,	OnCustomKeyMsg)
+	ON_EN_UPDATE(IDC_EDIT1,	&QuickChannelProperties::OnVolChanged)
+	ON_EN_UPDATE(IDC_EDIT2,	&QuickChannelProperties::OnPanChanged)
+	ON_EN_UPDATE(IDC_EDIT3,	&QuickChannelProperties::OnNameChanged)
+	ON_COMMAND(IDC_CHECK1,	&QuickChannelProperties::OnMuteChanged)
+	ON_COMMAND(IDC_CHECK2,	&QuickChannelProperties::OnSurroundChanged)
+	ON_COMMAND(IDC_BUTTON1,	&QuickChannelProperties::OnPrevChannel)
+	ON_COMMAND(IDC_BUTTON2,	&QuickChannelProperties::OnNextChannel)
+	ON_COMMAND(IDC_BUTTON3,	&QuickChannelProperties::OnChangeColor)
+	ON_COMMAND(IDC_BUTTON4,	&QuickChannelProperties::OnChangeColor)
+	ON_COMMAND(IDC_BUTTON5, &QuickChannelProperties::OnPickPrevColor)
+	ON_COMMAND(IDC_BUTTON6, &QuickChannelProperties::OnPickNextColor)
+	ON_MESSAGE(WM_MOD_KEYCOMMAND,	&QuickChannelProperties::OnCustomKeyMsg)
+	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXT, 0, 0xFFFF, &QuickChannelProperties::OnToolTipText)
 END_MESSAGE_MAP()
 
 
-void QuickChannelProperties::DoDataExchange(CDataExchange* pDX)
-//-------------------------------------------------------------
+void QuickChannelProperties::DoDataExchange(CDataExchange *pDX)
 {
-	DDX_Control(pDX, IDC_SLIDER1,	volSlider);
-	DDX_Control(pDX, IDC_SLIDER2,	panSlider);
-	DDX_Control(pDX, IDC_SPIN1,		volSpin);
-	DDX_Control(pDX, IDC_SPIN2,		panSpin);
-	DDX_Control(pDX, IDC_EDIT3,		nameEdit);
-}
-
-
-QuickChannelProperties::QuickChannelProperties()
-	: visible(false)
-//----------------------------------------------
-{
+	DDX_Control(pDX, IDC_SLIDER1, m_volSlider);
+	DDX_Control(pDX, IDC_SLIDER2, m_panSlider);
+	DDX_Control(pDX, IDC_SPIN1,   m_volSpin);
+	DDX_Control(pDX, IDC_SPIN2,   m_panSpin);
+	DDX_Control(pDX, IDC_EDIT3,   m_nameEdit);
 }
 
 
 QuickChannelProperties::~QuickChannelProperties()
-//-----------------------------------------------
 {
 	DestroyWindow();
 }
 
 
 void QuickChannelProperties::OnActivate(UINT nState, CWnd *, BOOL)
-//----------------------------------------------------------------
 {
-	if(nState == WA_INACTIVE)
+	if(nState == WA_INACTIVE && !m_settingColor)
 	{
 		// Hide window when changing focus to another window.
-		visible = false;
+		m_visible = false;
 		ShowWindow(SW_HIDE);
 	}
 }
 
 
 // Show channel properties for a given channel at a given screen position.
-void QuickChannelProperties::Show(CModDoc *modDoc, CHANNELINDEX chn, PATTERNINDEX ptn, CPoint position)
-//-----------------------------------------------------------------------------------------------------
+void QuickChannelProperties::Show(CModDoc *modDoc, CHANNELINDEX chn, CPoint position)
 {
 	if(!m_hWnd)
 	{
 		Create(IDD_CHANNELSETTINGS, nullptr);
+		EnableToolTips();
+		m_colorBtn.SubclassDlgItem(IDC_BUTTON4, this);
+		m_colorBtnPrev.SubclassDlgItem(IDC_BUTTON5, this);
+		m_colorBtnNext.SubclassDlgItem(IDC_BUTTON6, this);
 
-		volSlider.SetRange(0, 64);
-		volSlider.SetTicFreq(8);
-		volSpin.SetRange(0, 64);
+		m_volSlider.SetRange(0, 64);
+		m_volSlider.SetTicFreq(8);
+		m_volSpin.SetRange(0, 64);
 
-		panSlider.SetRange(0, 64);
-		panSlider.SetTicFreq(8);
-		panSpin.SetRange(0, 256);
+		m_panSlider.SetRange(0, 64);
+		m_panSlider.SetTicFreq(8);
+		m_panSpin.SetRange(0, 256);
 
-		nameEdit.SetFocus();
+		m_nameEdit.SetFocus();
 	}
-	document = modDoc;
-	channel = chn;
-	pattern = ptn;
-	
+	m_document = modDoc;
+	m_channel = chn;
+
 	SetParent(nullptr);
 
 	// Center window around point where user clicked.
@@ -1258,76 +1316,85 @@ void QuickChannelProperties::Show(CModDoc *modDoc, CHANNELINDEX chn, PATTERNINDE
 	GetWindowRect(rect);
 	::GetWindowRect(::GetDesktopWindow(), &screenRect);
 	rect.MoveToXY(
-		Clamp(static_cast<int>(position.x) - rect.Width() / 2, 0, static_cast<int>(screenRect.right) - rect.Width()),
-		Clamp(static_cast<int>(position.y) - rect.Height() / 2, 0, static_cast<int>(screenRect.bottom) - rect.Height()));
+	    Clamp(static_cast<int>(position.x) - rect.Width() / 2, 0, static_cast<int>(screenRect.right) - rect.Width()),
+	    Clamp(static_cast<int>(position.y) - rect.Height() / 2, 0, static_cast<int>(screenRect.bottom) - rect.Height()));
 	MoveWindow(rect);
+
+	SetWindowText(MPT_TFORMAT("Settings for Channel {}")(chn + 1).c_str());
 
 	UpdateDisplay();
 
-	const BOOL enablePan = (document->GetModType() & (MOD_TYPE_XM | MOD_TYPE_MOD)) ? FALSE : TRUE;
-	const BOOL itOnly = (document->GetModType() & (MOD_TYPE_IT | MOD_TYPE_MPT)) ? TRUE : FALSE;
+	const BOOL enablePan = (m_document->GetModType() & (MOD_TYPE_XM | MOD_TYPE_MOD)) ? FALSE : TRUE;
+	const BOOL itOnly = (m_document->GetModType() & (MOD_TYPE_IT | MOD_TYPE_MPT)) ? TRUE : FALSE;
 
 	// Volume controls
-	volSlider.EnableWindow(itOnly);
-	volSpin.EnableWindow(itOnly);
+	m_volSlider.EnableWindow(itOnly);
+	m_volSpin.EnableWindow(itOnly);
 	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT1), itOnly);
 
 	// Pan controls
-	panSlider.EnableWindow(enablePan);
-	panSpin.EnableWindow(enablePan);
+	m_panSlider.EnableWindow(enablePan);
+	m_panSpin.EnableWindow(enablePan);
 	::EnableWindow(::GetDlgItem(m_hWnd, IDC_EDIT2), enablePan);
 	::EnableWindow(::GetDlgItem(m_hWnd, IDC_CHECK2), itOnly);
 
 	// Channel name
-	nameEdit.EnableWindow((document->GetModType() & (MOD_TYPE_IT | MOD_TYPE_MPT | MOD_TYPE_XM)) ? TRUE : FALSE);
+	m_nameEdit.EnableWindow((m_document->GetModType() & (MOD_TYPE_IT | MOD_TYPE_MPT | MOD_TYPE_XM)) ? TRUE : FALSE);
 
 	ShowWindow(SW_SHOW);
-	visible = true;
+	m_visible = true;
 }
 
 
 void QuickChannelProperties::UpdateDisplay()
-//------------------------------------------
 {
 	// Set up channel properties
-	visible = false;
-	const ModChannelSettings &settings = document->GetSoundFile()->ChnSettings[channel];
+	m_visible = false;
+	const ModChannelSettings &settings = m_document->GetSoundFile().ChnSettings[m_channel];
 	SetDlgItemInt(IDC_EDIT1, settings.nVolume, FALSE);
 	SetDlgItemInt(IDC_EDIT2, settings.nPan, FALSE);
-	volSlider.SetPos(settings.nVolume);
-	panSlider.SetPos(settings.nPan / 4u);
+	m_volSlider.SetPos(settings.nVolume);
+	m_panSlider.SetPos(settings.nPan / 4u);
 	CheckDlgButton(IDC_CHECK1, (settings.dwFlags[CHN_MUTE]) ? TRUE : FALSE);
 	CheckDlgButton(IDC_CHECK2, (settings.dwFlags[CHN_SURROUND]) ? TRUE : FALSE);
 
-	char description[16];
-	sprintf(description, "Channel %d:", channel + 1);
+	TCHAR description[16];
+	wsprintf(description, _T("Channel %d:"), m_channel + 1);
 	SetDlgItemText(IDC_STATIC_CHANNEL_NAME, description);
-	nameEdit.LimitText(MAX_CHANNELNAME - 1);
-	nameEdit.SetWindowText(settings.szName);
+	m_nameEdit.LimitText(MAX_CHANNELNAME - 1);
+	m_nameEdit.SetWindowText(mpt::ToCString(m_document->GetSoundFile().GetCharsetInternal(), settings.szName));
 
-	settingsChanged = false;
-	visible = true;
+	const bool isFirst = (m_channel <= 0), isLast = (m_channel >= m_document->GetNumChannels() - 1);
 
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_BUTTON1), channel > 0 ? TRUE : FALSE);
-	::EnableWindow(::GetDlgItem(m_hWnd, IDC_BUTTON2), channel < document->GetNumChannels() - 1 ? TRUE : FALSE);
+	m_colorBtn.SetColor(settings.color);
+	m_colorBtnPrev.EnableWindow(isFirst ? FALSE : TRUE);
+	if(!isFirst)
+		m_colorBtnPrev.SetColor(m_document->GetSoundFile().ChnSettings[m_channel - 1].color);
+	m_colorBtnNext.EnableWindow(isLast ? FALSE : TRUE);
+	if(!isLast)
+		m_colorBtnNext.SetColor(m_document->GetSoundFile().ChnSettings[m_channel + 1].color);
+
+	m_settingsChanged = false;
+	m_visible = true;
+
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_BUTTON1), isFirst ? FALSE : TRUE);
+	::EnableWindow(::GetDlgItem(m_hWnd, IDC_BUTTON2), isLast ? FALSE : TRUE);
 }
 
 void QuickChannelProperties::PrepareUndo()
-//----------------------------------------
 {
-	if(!settingsChanged)
+	if(!m_settingsChanged)
 	{
 		// Backup old channel settings through pattern undo.
-		settingsChanged = true;
-		document->GetPatternUndo().PrepareUndo(pattern, 0, 0, 1, 1, "Channel Settings", false, true);
+		m_settingsChanged = true;
+		m_document->GetPatternUndo().PrepareChannelUndo(m_channel, 1, "Channel Settings");
 	}
 }
 
 
 void QuickChannelProperties::OnVolChanged()
-//-----------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
@@ -1336,17 +1403,16 @@ void QuickChannelProperties::OnVolChanged()
 	if(volume >= 0 && volume <= 64)
 	{
 		PrepareUndo();
-		document->SetChannelGlobalVolume(channel, volume);
-		volSlider.SetPos(volume);
-		document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+		m_document->SetChannelGlobalVolume(m_channel, volume);
+		m_volSlider.SetPos(volume);
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 	}
 }
 
 
 void QuickChannelProperties::OnPanChanged()
-//-----------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
@@ -1355,9 +1421,9 @@ void QuickChannelProperties::OnPanChanged()
 	if(panning >= 0 && panning <= 256)
 	{
 		PrepareUndo();
-		document->SetChannelDefaultPan(channel, panning);
-		panSlider.SetPos(panning / 4u);
-		document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+		m_document->SetChannelDefaultPan(m_channel, panning);
+		m_panSlider.SetPos(panning / 4u);
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 		// Surround is forced off when changing pan, so uncheck the checkbox.
 		CheckDlgButton(IDC_CHECK2, BST_UNCHECKED);
 	}
@@ -1365,9 +1431,8 @@ void QuickChannelProperties::OnPanChanged()
 
 
 void QuickChannelProperties::OnHScroll(UINT, UINT, CScrollBar *bar)
-//-----------------------------------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
@@ -1375,22 +1440,22 @@ void QuickChannelProperties::OnHScroll(UINT, UINT, CScrollBar *bar)
 	bool update = false;
 
 	// Volume slider
-	if(bar == reinterpret_cast<CScrollBar *>(&volSlider))
+	if(bar == reinterpret_cast<CScrollBar *>(&m_volSlider))
 	{
-		uint16 pos = static_cast<uint16>(volSlider.GetPos());
+		uint16 pos = static_cast<uint16>(m_volSlider.GetPos());
 		PrepareUndo();
-		if(document->SetChannelGlobalVolume(channel, pos))
+		if(m_document->SetChannelGlobalVolume(m_channel, pos))
 		{
 			SetDlgItemInt(IDC_EDIT1, pos);
 			update = true;
 		}
 	}
 	// Pan slider
-	if(bar == reinterpret_cast<CScrollBar *>(&panSlider))
+	if(bar == reinterpret_cast<CScrollBar *>(&m_panSlider))
 	{
-		uint16 pos = static_cast<uint16>(panSlider.GetPos());
+		uint16 pos = static_cast<uint16>(m_panSlider.GetPos());
 		PrepareUndo();
-		if(document->SetChannelDefaultPan(channel, pos * 4u))
+		if(m_document->SetChannelDefaultPan(m_channel, pos * 4u))
 		{
 			SetDlgItemInt(IDC_EDIT2, pos * 4u);
 			CheckDlgButton(IDC_CHECK2, BST_UNCHECKED);
@@ -1400,85 +1465,124 @@ void QuickChannelProperties::OnHScroll(UINT, UINT, CScrollBar *bar)
 
 	if(update)
 	{
-		document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 	}
 }
 
 
 void QuickChannelProperties::OnMuteChanged()
-//------------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
 
-	document->MuteChannel(channel, IsDlgButtonChecked(IDC_CHECK1) != BST_UNCHECKED);
-	document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+	m_document->MuteChannel(m_channel, IsDlgButtonChecked(IDC_CHECK1) != BST_UNCHECKED);
+	m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 }
 
 
 void QuickChannelProperties::OnSurroundChanged()
-//----------------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
 
 	PrepareUndo();
-	document->SurroundChannel(channel, IsDlgButtonChecked(IDC_CHECK2) != BST_UNCHECKED);
-	document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+	m_document->SurroundChannel(m_channel, IsDlgButtonChecked(IDC_CHECK2) != BST_UNCHECKED);
+	m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 	UpdateDisplay();
 }
 
 
 void QuickChannelProperties::OnNameChanged()
-//------------------------------------------
 {
-	if(!visible)
+	if(!m_visible)
 	{
 		return;
 	}
-	
-	ModChannelSettings &settings = document->GetrSoundFile().ChnSettings[channel];
-	char newName[MAX_CHANNELNAME];
-	nameEdit.GetWindowText(newName, MAX_CHANNELNAME);
 
-	if(strcmp(newName, settings.szName))
+	ModChannelSettings &settings = m_document->GetSoundFile().ChnSettings[m_channel];
+	CString newNameTmp;
+	m_nameEdit.GetWindowText(newNameTmp);
+	std::string newName = mpt::ToCharset(m_document->GetSoundFile().GetCharsetInternal(), newNameTmp);
+
+	if(newName != settings.szName)
 	{
 		PrepareUndo();
-		strcpy(settings.szName, newName);
-		document->SetModified();
-		document->UpdateAllViews(nullptr, GeneralHint(channel).Channels());
+		settings.szName = newName;
+		m_document->SetModified();
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
+	}
+}
+
+
+void QuickChannelProperties::OnChangeColor()
+{
+	m_settingColor = true;
+	if(auto color = m_colorBtn.PickColor(m_document->GetSoundFile(), m_channel); color.has_value())
+	{
+		PrepareUndo();
+		m_document->GetSoundFile().ChnSettings[m_channel].color = *color;
+		if(m_document->SupportsChannelColors())
+			m_document->SetModified();
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
+	}
+	m_settingColor = false;
+}
+
+
+void QuickChannelProperties::OnPickPrevColor()
+{
+	if(m_channel > 0)
+		PickColorFromChannel(m_channel - 1);
+}
+
+
+void QuickChannelProperties::OnPickNextColor()
+{
+	if(m_channel < m_document->GetNumChannels() - 1)
+		PickColorFromChannel(m_channel + 1);
+}
+
+
+void QuickChannelProperties::PickColorFromChannel(CHANNELINDEX channel)
+{
+	auto &channels = m_document->GetSoundFile().ChnSettings;
+	if(channels[channel].color != channels[m_channel].color)
+	{
+		PrepareUndo();
+		channels[m_channel].color = channels[channel].color;
+		m_colorBtn.SetColor(channels[m_channel].color);
+		if(m_document->SupportsChannelColors())
+			m_document->SetModified();
+		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
 	}
 }
 
 
 void QuickChannelProperties::OnPrevChannel()
-//------------------------------------------
 {
-	if(channel > 0)
+	if(m_channel > 0)
 	{
-		channel--;
+		m_channel--;
 		UpdateDisplay();
 	}
 }
 
 
 void QuickChannelProperties::OnNextChannel()
-//------------------------------------------
 {
-	if(channel < document->GetNumChannels() - 1)
+	if(m_channel < m_document->GetNumChannels() - 1)
 	{
-		channel++;
+		m_channel++;
 		UpdateDisplay();
 	}
 }
 
 
 BOOL QuickChannelProperties::PreTranslateMessage(MSG *pMsg)
-//---------------------------------------------------------
 {
 	if(pMsg)
 	{
@@ -1486,20 +1590,12 @@ BOOL QuickChannelProperties::PreTranslateMessage(MSG *pMsg)
 		if((pMsg->message == WM_SYSKEYUP) || (pMsg->message == WM_KEYUP) ||
 			(pMsg->message == WM_SYSKEYDOWN) || (pMsg->message == WM_KEYDOWN))
 		{
-			CInputHandler* ih = CMainFrame::GetInputHandler();
-
-			//Translate message manually
-			UINT nChar = pMsg->wParam;
-			UINT nRepCnt = LOWORD(pMsg->lParam);
-			UINT nFlags = HIWORD(pMsg->lParam);
-			KeyEventType kT = ih->GetKeyEventType(nFlags);
-
-			if(ih->KeyEvent(kCtxChannelSettings, nChar, nRepCnt, nFlags, kT, this) != kcNull)
+			CInputHandler *ih = CMainFrame::GetInputHandler();
+			if(ih->KeyEvent(kCtxChannelSettings, ih->Translate(*pMsg), this) != kcNull)
 			{
-				return true;	// Mapped to a command, no need to pass message on.
+				return TRUE;  // Mapped to a command, no need to pass message on.
 			}
 		}
-
 	}
 
 	return CDialog::PreTranslateMessage(pMsg);
@@ -1507,11 +1603,7 @@ BOOL QuickChannelProperties::PreTranslateMessage(MSG *pMsg)
 
 
 LRESULT QuickChannelProperties::OnCustomKeyMsg(WPARAM wParam, LPARAM)
-//-------------------------------------------------------------------
 {
-	if (wParam == kcNull)
-		return 0;
-
 	switch(wParam)
 	{
 	case kcChnSettingsPrev:
@@ -1520,12 +1612,77 @@ LRESULT QuickChannelProperties::OnCustomKeyMsg(WPARAM wParam, LPARAM)
 	case kcChnSettingsNext:
 		OnNextChannel();
 		return wParam;
+	case kcChnColorFromPrev:
+		OnPickPrevColor();
+		return wParam;
+	case kcChnColorFromNext:
+		OnPickNextColor();
+		return wParam;
 	case kcChnSettingsClose:
 		OnActivate(WA_INACTIVE, nullptr, FALSE);
 		return wParam;
 	}
 
-	return 0;
+	return kcNull;
+}
+
+
+BOOL QuickChannelProperties::OnToolTipText(UINT, NMHDR *pNMHDR, LRESULT *pResult)
+{
+	auto pTTT = reinterpret_cast<TOOLTIPTEXT *>(pNMHDR);
+	UINT_PTR id = pNMHDR->idFrom;
+	if(pTTT->uFlags & TTF_IDISHWND)
+	{
+		// idFrom is actually the HWND of the tool
+		id = static_cast<UINT_PTR>(::GetDlgCtrlID(reinterpret_cast<HWND>(id)));
+	}
+
+	mpt::tstring text;
+	CommandID cmd = kcNull;
+	switch (id)
+	{
+	case IDC_EDIT1:
+	case IDC_SLIDER1:
+		text = CModDoc::LinearToDecibels(m_document->GetSoundFile().ChnSettings[m_channel].nVolume, 64.0);
+		break;
+	case IDC_EDIT2:
+	case IDC_SLIDER2:
+		text = CModDoc::PanningToString(m_document->GetSoundFile().ChnSettings[m_channel].nPan, 128);
+		break;
+	case IDC_BUTTON1:
+		text = _T("Previous Channel");
+		cmd = kcChnSettingsPrev;
+		break;
+	case IDC_BUTTON2:
+		text = _T("Next Channel");
+		cmd = kcChnSettingsNext;
+		break;
+	case IDC_BUTTON5:
+		text = _T("Take color from previous channel");
+		cmd = kcChnColorFromPrev;
+		break;
+	case IDC_BUTTON6:
+		text = _T("Take color from next channel");
+		cmd = kcChnColorFromNext;
+		break;
+	default:
+		return FALSE;
+	}
+	
+	if(cmd != kcNull)
+	{
+		auto keyText = CMainFrame::GetInputHandler()->m_activeCommandSet->GetKeyTextFromCommand(cmd, 0);
+		if(!keyText.IsEmpty())
+			text += MPT_TFORMAT(" ({})")(keyText);
+	}
+
+	mpt::String::WriteWinBuf(pTTT->szText) = text;
+	*pResult = 0;
+
+	// bring the tooltip window above other popup windows
+	::SetWindowPos(pNMHDR->hwndFrom, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_NOOWNERZORDER);
+
+	return TRUE;  // message was handled
 }
 
 

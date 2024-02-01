@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 
 #include <string>
 
@@ -17,9 +19,21 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-LPCCH LoadResource(LPCTSTR lpName, LPCTSTR lpType, LPCCH& pData, size_t& nSize, HGLOBAL& hglob);
+bool CreateShellFolderLink(const mpt::PathString &path, const mpt::PathString &target, const mpt::ustring &description = mpt::ustring());
 
-CString GetErrorMessage(DWORD nErrorCode);
+bool CreateShellFileLink(const mpt::PathString &path, const mpt::PathString &target, const mpt::ustring &description = mpt::ustring());
+
+
+/*
+ * Gets resource as raw byte data.
+ * [in] lpName and lpType: parameters passed to FindResource().
+ * Return: span representing the resource data, valid as long as hInstance is valid.
+ */
+mpt::const_byte_span GetResource(LPCTSTR lpName, LPCTSTR lpType);
+
+
+CString LoadResourceString(UINT nID);
+
 
 namespace Util
 {
@@ -51,6 +65,19 @@ namespace Util
 	MPT_FORCEINLINE int ScalePixelsInv(int pixels, HWND hwnd)
 	{
 		return MulDiv(pixels, 96, GetDPIx(hwnd));
+	}
+}
+
+
+namespace Util
+{
+	inline DWORD64 GetTickCount64()
+	{
+#if MPT_WINNT_AT_LEAST(MPT_WIN_VISTA)
+		return ::GetTickCount64();
+#else
+		return ::GetTickCount();
+#endif
 	}
 }
 

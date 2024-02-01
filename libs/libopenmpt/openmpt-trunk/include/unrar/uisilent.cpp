@@ -33,7 +33,14 @@ void uiMsgStore::Msg()
 }
 
 
-bool uiGetPassword(UIPASSWORD_TYPE Type,const wchar *FileName,SecPassword *Password)
+bool uiGetPassword(UIPASSWORD_TYPE Type,const wchar *FileName,
+                   SecPassword *Password,CheckPassword *CheckPwd)
+{
+  return false;
+}
+
+
+bool uiIsGlobalPasswordSet()
 {
   return false;
 }
@@ -61,3 +68,8 @@ const wchar *uiGetMonthName(int Month)
   return L"";
 }
 #endif
+
+
+void uiEolAfterMsg()
+{
+}

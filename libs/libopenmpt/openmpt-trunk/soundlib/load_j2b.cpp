@@ -6,14 +6,15 @@
  *          It seems like no other game used the AM(FF) format.
  *          RIFF AM is the newer version of the format, generally following the RIFF "standard" closely.
  * Authors: Johannes Schultz (OpenMPT port, reverse engineering + loader implementation of the instrument format)
- *          Chris Moeller (foo_dumb - this is almost a complete port of his code, thanks)
+ *          kode54 (foo_dumb - this is almost a complete port of his code, thanks)
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
 
 
 #include "stdafx.h"
 #include "Loaders.h"
-#include "ChunkReader.h"
+
+#include "mpt/io/base.hpp"
 
 #if defined(MPT_WITH_ZLIB)
 #include <zlib.h>
@@ -210,7 +211,7 @@ struct AMFFInstrumentHeader
 		static_assert(mpt::array_size<decltype(sampleMap)>::size <= mpt::array_size<decltype(mptIns.Keyboard)>::size);
 		for(size_t i = 0; i < std::size(sampleMap); i++)
 		{
-			mptIns.Keyboard[i] = sampleMap[i] + baseSample + 1;
+			mptIns.Keyboard[i] = static_cast<SAMPLEINDEX>(sampleMap[i] + baseSample + 1);
 		}
 
 		mptIns.nFadeOut = fadeout << 5;
@@ -392,7 +393,7 @@ struct AMInstrumentHeader
 		static_assert(mpt::array_size<decltype(sampleMap)>::size <= mpt::array_size<decltype(mptIns.Keyboard)>::size);
 		for(uint8 i = 0; i < std::size(sampleMap); i++)
 		{
-			mptIns.Keyboard[i] = sampleMap[i] + baseSample + 1;
+			mptIns.Keyboard[i] = static_cast<SAMPLEINDEX>(sampleMap[i] + baseSample + 1);
 		}
 
 		mptIns.nFadeOut = volEnv.fadeout << 5;
@@ -429,15 +430,15 @@ struct AMSampleHeader
 	void ConvertToMPT(AMInstrumentHeader &instrHeader, ModSample &mptSmp) const
 	{
 		mptSmp.Initialize();
-		mptSmp.nPan = std::min(pan.get(), uint16(32767)) * 256 / 32767;
-		mptSmp.nVolume = std::min(volume.get(), uint16(32767)) * 256 / 32767;
+		mptSmp.nPan = static_cast<uint16>(std::min(pan.get(), uint16(32767)) * 256 / 32767);
+		mptSmp.nVolume = static_cast<uint16>(std::min(volume.get(), uint16(32767)) * 256 / 32767);
 		mptSmp.nGlobalVol = 64;
 		mptSmp.nLength = length;
 		mptSmp.nLoopStart = loopStart;
 		mptSmp.nLoopEnd = loopEnd;
 		mptSmp.nC5Speed = sampleRate;
 
-		if(instrHeader.vibratoType < CountOf(j2bAutoVibratoTrans))
+		if(instrHeader.vibratoType < std::size(j2bAutoVibratoTrans))
 			mptSmp.nVibType = j2bAutoVibratoTrans[instrHeader.vibratoType];
 		mptSmp.nVibSweep = static_cast<uint8>(instrHeader.vibratoSweep);
 		mptSmp.nVibRate = static_cast<uint8>(instrHeader.vibratoRate / 16);
@@ -532,14 +533,14 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 				m.param = chunk.ReadUint8();
 				uint8 command = chunk.ReadUint8();
 
-				if(command < CountOf(amEffTrans))
+				if(command < std::size(amEffTrans))
 				{
 					// command translation
 					m.command = amEffTrans[command];
 				} else
 				{
 #ifdef J2B_LOG
-					MPT_LOG(LogDebug, "J2B", mpt::uformat(U_("J2B: Unknown command: 0x%1, param 0x%2"))(mpt::ufmt::HEX0<2>(command), mpt::ufmt::HEX0<2>(m.param)));
+					MPT_LOG_GLOBAL(LogDebug, "J2B", MPT_UFORMAT("J2B: Unknown command: 0x{}, param 0x{}")(mpt::ufmt::HEX0<2>(command), mpt::ufmt::HEX0<2>(m.param)));
 #endif
 					m.command = CMD_NONE;
 				}
@@ -567,11 +568,11 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 					if (m.param & 0xF0) m.param &= 0xF0;
 					break;
 				case CMD_PANNING8:
-					if(m.param <= 0x80) m.param = mpt::saturate_cast<uint8>(m.param * 2);
-					else if(m.param == 0xA4) {m.command = CMD_S3MCMDEX; m.param = 0x91;}
+					if(m.param <= 0x80) m.param = mpt::saturate_cast<ModCommand::PARAM>(m.param * 2);
+					else if(m.param == 0xA4) m.SetEffectCommand(CMD_S3MCMDEX, 0x91u);
 					break;
 				case CMD_PATTERNBREAK:
-					m.param = ((m.param >> 4) * 10) + (m.param & 0x0F);
+					m.param = static_cast<ModCommand::PARAM>(((m.param >> 4) * 10u) + (m.param & 0x0Fu));
 					break;
 				case CMD_MODCMDEX:
 					m.ExtendedMODtoS3MEffect();
@@ -591,6 +592,8 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 					}
 					m.param = (m.param & 0x0F) | 0xE0;
 					break;
+				default:
+					break;
 				}
 			}
 
@@ -609,7 +612,7 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 				m.vol = chunk.ReadUint8();
 				if(isAM)
 				{
-					m.vol = m.vol * 64 / 127;
+					m.vol = static_cast<ModCommand::VOL>(m.vol * 64u / 127u);
 				}
 			}
 		}
@@ -1037,8 +1040,8 @@ bool CSoundFile::ReadJ2B(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		Bytef buffer[mpt::IO::BUFFERSIZE_TINY];
 		uint32 readSize = std::min(static_cast<uint32>(sizeof(buffer)), remainRead);
-		file.ReadRaw(buffer, readSize);
-		crc = crc32(crc, buffer, readSize);
+		file.ReadRaw(mpt::span(buffer, readSize));
+		crc = static_cast<uint32>(crc32(crc, buffer, readSize));
 
 		strm.avail_in = readSize;
 		strm.next_in = buffer;

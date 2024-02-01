@@ -2,20 +2,15 @@
  project "UnRAR"
   uuid "95CC809B-03FC-4EDB-BB20-FD07A698C05F"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "unrar"
-  dofile "../../build/premake/premake-defaults-LIBorDLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "default"
   targetname "openmpt-unrar"
   includedirs { "../../include/unrar" }
-	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
 	filter {}
   defines {
    "NOMINMAX",
    "NOVOLUME",
+   "UNRAR",
    "RAR_NOCRYPT",
    "RARDLL",
    "SILENT",
@@ -111,6 +106,7 @@
    "../../include/unrar/raros.hpp",
    "../../include/unrar/rartypes.hpp",
    "../../include/unrar/rarvm.hpp",
+   "../../include/unrar/rawint.hpp",
    "../../include/unrar/rawread.hpp",
    "../../include/unrar/rdwrfn.hpp",
    "../../include/unrar/recvol.hpp",
@@ -118,7 +114,6 @@
    "../../include/unrar/rijndael.hpp",
    "../../include/unrar/rs.hpp",
    "../../include/unrar/rs16.hpp",
-   "../../include/unrar/savepos.hpp",
    "../../include/unrar/scantree.hpp",
    "../../include/unrar/secpassword.hpp",
    "../../include/unrar/sha1.hpp",
@@ -130,14 +125,53 @@
    "../../include/unrar/system.hpp",
    "../../include/unrar/threadpool.hpp",
    "../../include/unrar/timefn.hpp",
-   "../../include/unrar/ulinks.hpp",
    "../../include/unrar/ui.hpp",
    "../../include/unrar/unicode.hpp",
    "../../include/unrar/unpack.hpp",
    "../../include/unrar/version.hpp",
    "../../include/unrar/volume.hpp",
   }
-  filter {}
+	filter {}
+	filter { "action:vs*" }
+		buildoptions { "/wd4996" }
+	filter {}
+	filter { "action:vs*" }
+		buildoptions {
+			"/wd6031",
+			"/wd6262",
+			"/wd28159",
+		} -- analyze
+	filter {}
+		if _OPTIONS["clang"] then
+			buildoptions {
+				"-Wno-dangling-else",
+				"-Wno-logical-not-parentheses",
+				"-Wno-logical-op-parentheses",
+				"-Wno-missing-braces",
+				"-Wno-switch",
+				"-Wno-unused-but-set-variable",
+				"-Wno-unused-function",
+				"-Wno-unused-variable",
+			}
+		end
+	filter {}
   filter { "kind:SharedLib" }
-   files { "../../include/unrar/dll.def" }
+   files { "../../include/unrar/dll_nocrypt.def" }
   filter {}
+
+function mpt_use_unrar ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include",
+		}
+	filter {}
+	links {
+		"UnRAR",
+	}
+	filter {}
+end

@@ -21,6 +21,9 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
+#if !defined(MPT_WITH_ANCIENT)
+
+
 struct PPBITBUFFER
 {
 	uint32 bitcount = 0;
@@ -53,13 +56,13 @@ uint32 PPBITBUFFER::GetBits(uint32 n)
 }
 
 
-static bool PP20_DoUnpack(const uint8 *pSrc, uint32 srcLen, uint8 *pDst, uint32 dstLen)
+static bool PP20_DoUnpack(mpt::span<const uint8> src, uint8 *pDst, uint32 dstLen)
 {
-	const std::array<uint8, 4> modeTable{pSrc[0], pSrc[1], pSrc[2], pSrc[3]};
+	const std::array<uint8, 4> modeTable{src[0], src[1], src[2], src[3]};
 	PPBITBUFFER BitBuffer;
-	BitBuffer.pStart = pSrc;
-	BitBuffer.pSrc = pSrc + srcLen - 4;
-	BitBuffer.GetBits(pSrc[srcLen - 1]);
+	BitBuffer.pStart = src.data();
+	BitBuffer.pSrc = src.data() + src.size() - 4;
+	BitBuffer.GetBits(src.data()[src.size() - 1]);
 	uint32 bytesLeft = dstLen;
 	while(bytesLeft > 0)
 	{
@@ -178,28 +181,27 @@ bool UnpackPP20(std::vector<ContainerItem> &containerItems, FileReader &file, Co
 	containerItems.back().data_cache = std::make_unique<std::vector<char> >();
 	std::vector<char> & unpackedData = *(containerItems.back().data_cache);
 
-	FileReader::off_t length = file.GetLength();
-	if(!Util::TypeCanHoldValue<uint32>(length)) return false;
+	FileReader::pos_type length = file.GetLength();
+	if(!mpt::in_range<uint32>(length)) return false;
 	// Length word must be aligned
 	if((length % 2u) != 0)
 		return false;
 
 	file.Seek(length - 4);
-	uint32 dstLen = 0;
-	dstLen |= file.ReadUint8() << 16;
-	dstLen |= file.ReadUint8() << 8;
-	dstLen |= file.ReadUint8() << 0;
-	if(dstLen == 0) return false;
+	uint32 dstLen = file.ReadUint24BE();
+	if(dstLen == 0)
+		return false;
 	try
 	{
 		unpackedData.resize(dstLen);
-	} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+	} catch(mpt::out_of_memory e)
 	{
-		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		mpt::delete_out_of_memory(e);
 		return false;
 	}
 	file.Seek(4);
-	bool result = PP20_DoUnpack(file.GetRawData<uint8>(), static_cast<uint32>(length - 4), mpt::byte_cast<uint8 *>(unpackedData.data()), dstLen);
+	FileReader::PinnedView compressedData = file.GetPinnedView(mpt::saturate_cast<uint32>(length - 4));
+	bool result = PP20_DoUnpack(mpt::byte_cast<mpt::span<const uint8>>(compressedData.span()), mpt::byte_cast<uint8 *>(unpackedData.data()), dstLen);
 
 	if(result)
 	{
@@ -208,6 +210,9 @@ bool UnpackPP20(std::vector<ContainerItem> &containerItems, FileReader &file, Co
 
 	return result;
 }
+
+
+#endif // !MPT_WITH_ANCIENT
 
 
 OPENMPT_NAMESPACE_END

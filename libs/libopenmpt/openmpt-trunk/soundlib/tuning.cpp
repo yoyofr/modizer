@@ -11,7 +11,8 @@
 #include "stdafx.h"
 
 #include "tuning.h"
-#include "../common/mptIO.h"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
 #include "../common/serialization_utils.h"
 #include "../common/misc_util.h"
 #include <string>
@@ -23,6 +24,10 @@ OPENMPT_NAMESPACE_BEGIN
 
 namespace Tuning {
 
+static RATIOTYPE SanitizeGroupRatio(RATIOTYPE ratio)
+{
+	return std::clamp(std::abs(ratio), 1e-15f, 1e+07f);
+}
 
 namespace CTuningS11n
 {
@@ -64,15 +69,30 @@ static_assert(CTuning::s_RatioTableFineSizeMaxDefault < static_cast<USTEPINDEXTY
 
 
 CTuning::CTuning()
-	: m_TuningType(Type::GENERAL)
-	, m_FineStepCount(0)
 {
-	m_RatioTable.clear();
-	m_NoteMin = s_NoteMinDefault;
+#if MPT_GCC_AT_LEAST(12, 0, 0) && MPT_GCC_BEFORE(13, 1, 0)
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109455
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 	m_RatioTable.resize(s_RatioTableSizeDefault, 1);
-	m_GroupSize = 0;
-	m_GroupRatio = 0;
-	m_RatioTableFine.clear();
+#if MPT_GCC_AT_LEAST(12, 0, 0) && MPT_GCC_BEFORE(13, 1, 0)
+#pragma GCC diagnostic pop
+#endif
+}
+
+
+bool CTuning::operator==(const CTuning &other) const noexcept
+{
+	return m_TuningType == other.m_TuningType
+		&& m_NoteMin == other.m_NoteMin
+		&& m_GroupSize == other.m_GroupSize
+		&& m_GroupRatio == other.m_GroupRatio
+		&& m_FineStepCount == other.m_FineStepCount
+		&& m_RatioTable == other.m_RatioTable
+		&& m_RatioTableFine == other.m_RatioTableFine
+		&& m_TuningName == other.m_TuningName
+		&& m_NoteNameMap == other.m_NoteNameMap;
 }
 
 
@@ -256,7 +276,12 @@ RATIOTYPE CTuning::GetRatio(const NOTEINDEXTYPE note) const
 	{
 		return s_DefaultFallbackRatio;
 	}
-	return m_RatioTable[note - m_NoteMin];
+	const auto ratio = m_RatioTable[note - m_NoteMin];
+	if(ratio <= 1e-15f)
+	{
+		return s_DefaultFallbackRatio;
+	}
+	return ratio;
 }
 
 
@@ -294,7 +319,7 @@ RATIOTYPE CTuning::GetRatio(const NOTEINDEXTYPE baseNote, const STEPINDEXTYPE ba
 	} else
 	{
 		// Geometric finestepping
-		fineRatio = std::pow(GetRatio(note + 1) / GetRatio(note), static_cast<RATIOTYPE>(fineStep) / (fineStepCount + 1));
+		fineRatio = std::pow(GetRatio(note + 1) / GetRatio(note), static_cast<RATIOTYPE>(fineStep) / static_cast<RATIOTYPE>(fineStepCount + 1));
 	}
 	return m_RatioTable[note - m_NoteMin] * fineRatio;
 }
@@ -358,7 +383,7 @@ void CTuning::UpdateFineStepTable()
 		}
 		m_RatioTableFine.resize(m_FineStepCount);
 		const RATIOTYPE q = GetRatio(GetNoteRange().first + 1) / GetRatio(GetNoteRange().first);
-		const RATIOTYPE rFineStep = std::pow(q, static_cast<RATIOTYPE>(1)/(m_FineStepCount+1));
+		const RATIOTYPE rFineStep = std::pow(q, static_cast<RATIOTYPE>(1) / static_cast<RATIOTYPE>(m_FineStepCount + 1));
 		for(USTEPINDEXTYPE i = 1; i<=m_FineStepCount; i++)
 			m_RatioTableFine[i-1] = std::pow(rFineStep, static_cast<RATIOTYPE>(i));
 		return;
@@ -380,8 +405,8 @@ void CTuning::UpdateFineStepTable()
 			const NOTEINDEXTYPE startnote = GetRefNote(GetNoteRange().first);
 			for(UNOTEINDEXTYPE i = 0; i<p; i++)
 			{
-				const NOTEINDEXTYPE refnote = GetRefNote(startnote+i);
-				const RATIOTYPE rFineStep = std::pow(GetRatio(refnote+1) / GetRatio(refnote), static_cast<RATIOTYPE>(1)/(m_FineStepCount+1));
+				const NOTEINDEXTYPE refnote = GetRefNote(static_cast<NOTEINDEXTYPE>(startnote + i));
+				const RATIOTYPE rFineStep = std::pow(GetRatio(refnote+1) / GetRatio(refnote), static_cast<RATIOTYPE>(1) / static_cast<RATIOTYPE>(m_FineStepCount + 1));
 				for(UNOTEINDEXTYPE j = 1; j<=m_FineStepCount; j++)
 				{
 					m_RatioTableFine[m_FineStepCount * refnote + (j-1)] = std::pow(rFineStep, static_cast<RATIOTYPE>(j));
@@ -479,8 +504,19 @@ SerializationResult CTuning::InitDeserialize(std::istream &iStrm, mpt::Charset d
 	UNOTEINDEXTYPE ratiotableSize = 0;
 	ssb.ReadItem(ratiotableSize, "RTI4");
 
+	m_GroupRatio = SanitizeGroupRatio(m_GroupRatio);
+	if(!std::isfinite(m_GroupRatio))
+	{
+		return SerializationResult::Failure;
+	}
+	for(auto ratio : m_RatioTable)
+	{
+		if(!std::isfinite(ratio))
+			return SerializationResult::Failure;
+	}
+
 	// If reader status is ok and m_NoteMin is somewhat reasonable, process data.
-	if(!((ssb.GetStatus() & srlztn::SNT_FAILURE) == 0 && m_NoteMin >= -300 && m_NoteMin <= 300))
+	if(ssb.HasFailed() || (m_NoteMin < -300) || (m_NoteMin > 300))
 	{
 		return SerializationResult::Failure;
 	}
@@ -555,7 +591,7 @@ SerializationResult CTuning::InitDeserializeOLD(std::istream &inStrm, mpt::Chars
 	if(!inStrm.good())
 		return SerializationResult::Failure;
 
-	const std::streamoff startPos = inStrm.tellg();
+	const std::streamoff startPos = static_cast<std::streamoff>(inStrm.tellg());
 
 	//First checking is there expected begin sequence.
 	char begin[8];
@@ -564,7 +600,7 @@ SerializationResult CTuning::InitDeserializeOLD(std::istream &inStrm, mpt::Chars
 	if(std::memcmp(begin, "CTRTI_B.", 8))
 	{
 		//Returning stream position if beginmarker was not found.
-		inStrm.seekg(startPos);
+		inStrm.seekg(startPos, std::ios::beg);
 		return SerializationResult::Failure;
 	}
 
@@ -682,6 +718,11 @@ SerializationResult CTuning::InitDeserializeOLD(std::istream &inStrm, mpt::Chars
 			return SerializationResult::Failure;
 		}
 	}
+	for(auto ratio : m_RatioTable)
+	{
+		if(!std::isfinite(ratio))
+			return SerializationResult::Failure;
+	}
 
 	//Fineratios
 	if(version <= 2)
@@ -696,6 +737,11 @@ SerializationResult CTuning::InitDeserializeOLD(std::istream &inStrm, mpt::Chars
 		{
 			return SerializationResult::Failure;
 		}
+	}
+	for(auto ratio : m_RatioTableFine)
+	{
+		if(!std::isfinite(ratio))
+			return SerializationResult::Failure;
 	}
 	m_FineStepCount = mpt::saturate_cast<USTEPINDEXTYPE>(m_RatioTableFine.size());
 
@@ -720,16 +766,15 @@ SerializationResult CTuning::InitDeserializeOLD(std::istream &inStrm, mpt::Chars
 	//m_GroupRatio
 	IEEE754binary32LE groupratio = IEEE754binary32LE(0.0f);
 	mpt::IO::Read(inStrm, groupratio);
-	m_GroupRatio = groupratio;
-	if(m_GroupRatio < 0)
+	m_GroupRatio = SanitizeGroupRatio(groupratio);
+	if(!std::isfinite(m_GroupRatio))
 	{
 		return SerializationResult::Failure;
 	}
 
-	char end[8];
-	MemsetZero(end);
-	inStrm.read(reinterpret_cast<char*>(&end), sizeof(end));
-	if(std::memcmp(end, "CTRTI_E.", 8))
+	std::array<char, 8> end = {};
+	mpt::IO::Read(inStrm, end);
+	if(std::memcmp(end.data(), "CTRTI_E.", 8))
 	{
 		return SerializationResult::Failure;
 	}
@@ -790,7 +835,7 @@ Tuning::SerializationResult CTuning::Serialize(std::ostream& outStrm) const
 		ssb.WriteItem(m_TuningName, "0", WriteStr);
 	uint16 dummyEditMask = 0xffff;
 	ssb.WriteItem(dummyEditMask, "1");
-	ssb.WriteItem(static_cast<std::underlying_type<Type>::type>(m_TuningType), "2");
+	ssb.WriteItem(mpt::to_underlying(m_TuningType), "2");
 	if (m_NoteNameMap.size() > 0)
 		ssb.WriteItem(m_NoteNameMap, "3", WriteNoteMap);
 	if (GetFineStepCount() > 0)
@@ -817,7 +862,7 @@ Tuning::SerializationResult CTuning::Serialize(std::ostream& outStrm) const
 
 	ssb.FinishWrite();
 
-	return ((ssb.GetStatus() & srlztn::SNT_FAILURE) != 0) ? Tuning::SerializationResult::Failure : Tuning::SerializationResult::Success;
+	return ssb.HasFailed() ? Tuning::SerializationResult::Failure : Tuning::SerializationResult::Success;
 }
 
 
@@ -825,7 +870,7 @@ Tuning::SerializationResult CTuning::Serialize(std::ostream& outStrm) const
 
 bool CTuning::WriteSCL(std::ostream &f, const mpt::PathString &filename) const
 {
-	mpt::IO::WriteTextCRLF(f, mpt::format("! %1")(mpt::ToCharset(mpt::Charset::ISO8859_1, (filename.GetFileName() + filename.GetFileExt()).ToUnicode())));
+	mpt::IO::WriteTextCRLF(f, MPT_AFORMAT("! {}")(mpt::ToCharset(mpt::Charset::ISO8859_1, (filename.GetFilenameBase() + filename.GetFilenameExtension()).ToUnicode())));
 	mpt::IO::WriteTextCRLF(f, "!");
 	std::string name = mpt::ToCharset(mpt::Charset::ISO8859_1, GetName());
 	for(auto & c : name) { if(static_cast<uint8>(c) < 32) c = ' '; } // remove control characters
@@ -833,20 +878,20 @@ bool CTuning::WriteSCL(std::ostream &f, const mpt::PathString &filename) const
 	mpt::IO::WriteTextCRLF(f, name);
 	if(GetType() == Type::GEOMETRIC)
 	{
-		mpt::IO::WriteTextCRLF(f, mpt::format(" %1")(m_GroupSize));
+		mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {}")(m_GroupSize));
 		mpt::IO::WriteTextCRLF(f, "!");
 		for(NOTEINDEXTYPE n = 0; n < m_GroupSize; ++n)
 		{
 			double ratio = std::pow(static_cast<double>(m_GroupRatio), static_cast<double>(n + 1) / static_cast<double>(m_GroupSize));
 			double cents = std::log2(ratio) * 1200.0;
-			mpt::IO::WriteTextCRLF(f, mpt::format(" %1 ! %2")(
-				mpt::fmt::fix(cents),
+			mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {} ! {}")(
+				mpt::afmt::fix(cents),
 				mpt::ToCharset(mpt::Charset::ISO8859_1, GetNoteName((n + 1) % m_GroupSize, false))
 				));
 		}
 	} else if(GetType() == Type::GROUPGEOMETRIC)
 	{
-		mpt::IO::WriteTextCRLF(f, mpt::format(" %1")(m_GroupSize));
+		mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {}")(m_GroupSize));
 		mpt::IO::WriteTextCRLF(f, "!");
 		for(NOTEINDEXTYPE n = 0; n < m_GroupSize; ++n)
 		{
@@ -854,14 +899,14 @@ bool CTuning::WriteSCL(std::ostream &f, const mpt::PathString &filename) const
 			double baseratio = static_cast<double>(GetRatio(0));
 			double ratio = static_cast<double>(last ? m_GroupRatio : GetRatio(n + 1)) / baseratio;
 			double cents = std::log2(ratio) * 1200.0;
-			mpt::IO::WriteTextCRLF(f, mpt::format(" %1 ! %2")(
-				mpt::fmt::fix(cents),
+			mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {} ! {}")(
+				mpt::afmt::fix(cents),
 				mpt::ToCharset(mpt::Charset::ISO8859_1, GetNoteName((n + 1) % m_GroupSize, false))
 				));
 		}
 	} else if(GetType() == Type::GENERAL)
 	{
-		mpt::IO::WriteTextCRLF(f, mpt::format(" %1")(m_RatioTable.size() + 1));
+		mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {}")(m_RatioTable.size() + 1));
 		mpt::IO::WriteTextCRLF(f, "!");
 		double baseratio = 1.0;
 		for(NOTEINDEXTYPE n = 0; n < mpt::saturate_cast<NOTEINDEXTYPE>(m_RatioTable.size()); ++n)
@@ -872,13 +917,13 @@ bool CTuning::WriteSCL(std::ostream &f, const mpt::PathString &filename) const
 		{
 			double ratio = static_cast<double>(m_RatioTable[n]) / baseratio;
 			double cents = std::log2(ratio) * 1200.0;
-			mpt::IO::WriteTextCRLF(f, mpt::format(" %1 ! %2")(
-				mpt::fmt::fix(cents),
+			mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {} ! {}")(
+				mpt::afmt::fix(cents),
 				mpt::ToCharset(mpt::Charset::ISO8859_1, GetNoteName(n + m_NoteMin, false))
 				));
 		}
-		mpt::IO::WriteTextCRLF(f, mpt::format(" %1 ! %2")(
-			mpt::fmt::val(1),
+		mpt::IO::WriteTextCRLF(f, MPT_AFORMAT(" {} ! {}")(
+			mpt::afmt::val(1),
 			std::string()
 			));
 	} else

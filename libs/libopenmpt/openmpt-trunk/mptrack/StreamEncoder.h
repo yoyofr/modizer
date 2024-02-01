@@ -10,9 +10,10 @@
 
 #pragma once
 
-#include "Settings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
-#include "../soundbase/SampleFormat.h"
+#include "mpt/base/bit.hpp"
+#include "openmpt/soundbase/SampleFormat.hpp"
 #include "../soundlib/Tagging.h"
 
 #include <iosfwd>
@@ -23,33 +24,39 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-static const int opus_bitrates [] = {
+
+inline constexpr int opus_bitrates [] = {
 	8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 192, 224, 256, 320, 384, 448,      510
 };
-static const int vorbis_bitrates [] = {
+inline constexpr int vorbis_bitrates [] = {
 	           32,     48,     64, 80, 96, 112, 128,      160, 192, 224, 256, 320,           500
 };
-static const int layer3_bitrates [] = {
+inline constexpr int layer3_bitrates [] = {
 	8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 192, 224, 256, 320
 };
-static const int mpeg1layer3_bitrates [] = {
+inline constexpr int mpeg1layer3_bitrates [] = {
 	           32, 40, 48, 56, 64, 80, 96, 112, 128,      160, 192, 224, 256, 320
 };
-static const uint32 opus_samplerates [] = {
+inline constexpr uint32 opus_samplerates [] = {
 	48000,
 	24000,           16000,
 	12000,            8000
 };
-static const uint32 vorbis_samplerates [] = {
+inline constexpr uint32 opus_all_samplerates [] = {
+	48000,  44100,  32000,
+	24000,  22050,  16000,
+	12000,  11025,   8000
+};
+inline constexpr uint32 vorbis_samplerates [] = {
 	 48000,  44100,  32000,
 	 24000,  22050,  16000,
 	 12000,  11025,   8000
 };
-static const uint32 layer3_samplerates [] = {
+inline constexpr uint32 layer3_samplerates [] = {
 	 48000,  44100,  32000,
 	 24000,  22050,  16000
 };
-static const uint32 mpeg1layer3_samplerates [] = {
+inline constexpr uint32 mpeg1layer3_samplerates [] = {
 	 48000,  44100,  32000
 };
 
@@ -57,218 +64,259 @@ static const uint32 mpeg1layer3_samplerates [] = {
 namespace Encoder
 {
 
-	struct Format
-	{
-		uint32 Samplerate;
-		int Channels;
-		SampleFormat Sampleformat;
-
-		int Bitrate;
-		mpt::ustring Description;
-	};
-
 	enum Mode
 	{
-		ModeCBR        = 1<<0,
-		ModeABR        = 1<<1,
-		ModeVBR        = 1<<2,
-		ModeQuality    = 1<<3,
-		ModeEnumerated = 1<<4,
-		ModeInvalid    = 0
+		ModeCBR      = 1<<0,
+		ModeABR      = 1<<1,
+		ModeVBR      = 1<<2,
+		ModeQuality  = 1<<3,
+		ModeLossless = 1<<4,
+		ModeInvalid  = 0
 	};
 
-} // namespace Encoder
-
-template<> inline SettingValue ToSettingValue(const Encoder::Mode &val)
-{
-	switch(val)
+	struct Format
 	{
-		case Encoder::ModeCBR: return SettingValue(MPT_USTRING("CBR"), "Encoder::Mode"); break;
-		case Encoder::ModeABR: return SettingValue(MPT_USTRING("ABR"), "Encoder::Mode"); break;
-		case Encoder::ModeVBR: return SettingValue(MPT_USTRING("VBR"), "Encoder::Mode"); break;
-		case Encoder::ModeQuality: return SettingValue(MPT_USTRING("Quality"), "Encoder::Mode"); break;
-		case Encoder::ModeEnumerated: return SettingValue(MPT_USTRING("Enumerated"), "Encoder::Mode"); break;
-		default: return SettingValue(MPT_USTRING("Invalid"), "Encoder::Mode"); break;
-	}
-}
-template<> inline Encoder::Mode FromSettingValue(const SettingValue &val)
-{
-	ASSERT(val.GetTypeTag() == "Encoder::Mode");
-	if(val.as<mpt::ustring>() == MPT_USTRING("")) { return Encoder::ModeInvalid; }
-	else if(val.as<mpt::ustring>() == MPT_USTRING("CBR")) { return Encoder::ModeCBR; }
-	else if(val.as<mpt::ustring>() == MPT_USTRING("ABR")) { return Encoder::ModeABR; }
-	else if(val.as<mpt::ustring>() == MPT_USTRING("VBR")) { return Encoder::ModeVBR; }
-	else if(val.as<mpt::ustring>() == MPT_USTRING("Quality")) { return Encoder::ModeQuality; }
-	else if(val.as<mpt::ustring>() == MPT_USTRING("Enumerated")) { return Encoder::ModeEnumerated; }
-	else { return Encoder::ModeInvalid; }
-}
-
-namespace Encoder
-{
+		enum class Encoding
+		{
+			Float = 1,
+			Integer = 2,
+			Alaw = 3,
+			ulaw = 4,
+			Unsigned = 5,
+		};
+		Encoding encoding;
+		uint8 bits;
+		mpt::endian endian;
+		bool operator==(const Format &other) const
+		{
+			return encoding == other.encoding && bits == other.bits && endian == other.endian;
+		}	
+		bool operator!=(const Format& other) const
+		{
+			return encoding != other.encoding || bits != other.bits || endian != other.endian;
+		}
+		int32 AsInt() const
+		{
+			return (static_cast<int32>(endian == mpt::endian::little) << 16) | (static_cast<int32>(encoding) << 8) | static_cast<int32>(bits);
+		}
+		static Format FromInt(int32 val)
+		{
+			Encoder::Format f;
+			f.bits = val & 0xff;
+			f.encoding = static_cast<Encoder::Format::Encoding>((val >> 8) & 0xff);
+			f.endian = ((val >> 16) & 0xff) ? mpt::endian::little : mpt::endian::big;
+			return f;
+		}
+		SampleFormat GetSampleFormat() const
+		{
+			SampleFormat result = SampleFormat::Default;
+			switch(encoding)
+			{
+			case Encoding::Float:
+				switch(bits)
+				{
+				case 32:
+					result = SampleFormat::Float32;
+					break;
+				case 64:
+					result = SampleFormat::Float64;
+					break;
+				}
+				break;
+			case Encoding::Integer:
+				switch(bits)
+				{
+				case 8:
+					result = SampleFormat::Int8;
+					break;
+				case 16:
+					result = SampleFormat::Int16;
+					break;
+				case 24:
+					result = SampleFormat::Int24;
+					break;
+				case 32:
+					result = SampleFormat::Int32;
+					break;
+				}
+				break;
+			case Encoding::Alaw:
+				switch (bits)
+				{
+				case 16:
+					result = SampleFormat::Int16;
+					break;
+				}
+				break;
+			case Encoding::ulaw:
+				switch (bits)
+				{
+				case 16:
+					result = SampleFormat::Int16;
+					break;
+				}
+				break;
+			case Encoding::Unsigned:
+				switch (bits)
+				{
+				case 8:
+					result = SampleFormat::Unsigned8;
+					break;
+				}
+				break;
+			}
+			return result;
+		}
+	};
 
 	struct Traits
 	{
 		
 		mpt::PathString fileExtension;
-		mpt::ustring fileDescription;
 		mpt::ustring fileShortDescription;
 		mpt::ustring encoderSettingsName;
-		mpt::ustring encoderName;
-		mpt::ustring description;
 
-		bool canTags;
+		mpt::ustring fileDescription;
+
+		bool canTags = false;
 		std::vector<mpt::ustring> genres;
-		int modesWithFixedGenres;
+		int modesWithFixedGenres = 0;
 		
-		bool canCues;
+		bool canCues = false;
 
-		int maxChannels;
+		int maxChannels = 0;
 		std::vector<uint32> samplerates;
 		
-		int modes;
+		int modes = Encoder::ModeInvalid;
 		std::vector<int> bitrates;
-		std::vector<Encoder::Format> formats;
-		
-		uint32 defaultSamplerate;
-		uint16 defaultChannels;
+		std::vector<Format> formats;
 
-		Encoder::Mode defaultMode;
-		int defaultBitrate;
-		float defaultQuality;
-		int defaultFormat;
-		int defaultDitherType;
+		uint32 defaultSamplerate = 48000;
+		uint16 defaultChannels = 2;
 
-		Traits()
-			: canCues(false)
-			, canTags(false)
-			, modesWithFixedGenres(0)
-			, maxChannels(0)
-			, modes(Encoder::ModeInvalid)
-			, defaultSamplerate(44100)
-			, defaultChannels(2)
-			, defaultMode(Encoder::ModeInvalid)
-			, defaultBitrate(0)
-			, defaultQuality(0.0f)
-			, defaultFormat(0)
-			, defaultDitherType(1)
-		{
-			return;
-		}
+		Encoder::Mode defaultMode = Encoder::ModeInvalid;
+		int defaultBitrate = 0;
+		float defaultQuality = 0.0f;
+		Format defaultFormat = { Encoder::Format::Encoding::Float, 32, mpt::endian::little };
+		int defaultDitherType = 1;
+	};
 
+	struct StreamSettings
+	{
+		int32 FLACCompressionLevel = 5; // 8
+		uint32 AUPaddingAlignHint = 4096;
+		uint32 MP3ID3v2MinPadding = 1024;
+		uint32 MP3ID3v2PaddingAlignHint = 4096;
+		bool MP3ID3v2WriteReplayGainTXXX = true;
+		int32 MP3LameQuality = 3; // 0
+		bool MP3LameID3v2UseLame = false;
+		bool MP3LameCalculateReplayGain = true;
+		bool MP3LameCalculatePeakSample = true;
+		int32 OpusComplexity = -1; // 10
 	};
 
 	struct Settings
 	{
-		
-		Setting<bool> Cues;
-		Setting<bool> Tags;
 
-		Setting<uint32> Samplerate;
-		Setting<uint16> Channels;
+		bool Cues;
+		bool Tags;
 
-		Setting<Encoder::Mode> Mode;
-		Setting<int> Bitrate;
-		Setting<float> Quality;
-		Setting<int> Format;
-		Setting<int> Dither;
-		
-		Settings(SettingsContainer &conf, const mpt::ustring &encoderName, bool cues, bool tags, uint32 samplerate, uint16 channels, Encoder::Mode mode, int bitrate, float quality, int format, int dither)
-			: Cues(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Cues"), cues)
-			, Tags(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Tags"), tags)
-			, Samplerate(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Samplerate"), samplerate)
-			, Channels(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Channels"), channels)
-			, Mode(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Mode"), mode)
-			, Bitrate(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Bitrate"), bitrate)
-			, Quality(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Quality"), quality)
-			, Format(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Format"), format)
-			, Dither(conf, "Export", encoderName + MPT_USTRING("_") + MPT_USTRING("Dither"), dither)
-		{
-			return;
-		}
+		uint32 Samplerate;
+		uint16 Channels;
+
+		Encoder::Mode Mode;
+		int Bitrate;
+		float Quality;
+		Encoder::Format Format;
+		int Dither;
+
+		StreamSettings Details;
 
 	};
 
 } // namespace Encoder
 
 
-//==========================
-struct StreamEncoderSettings
-//==========================
-{
-	Setting<int32> FLACCompressionLevel;
-	Setting<uint32> MP3ID3v2MinPadding;
-	Setting<uint32> MP3ID3v2PaddingAlignHint;
-	Setting<bool> MP3ID3v2WriteReplayGainTXXX;
-	Setting<int32> MP3LameQuality;
-	Setting<bool> MP3LameID3v2UseLame;
-	Setting<bool> MP3LameCalculateReplayGain;
-	Setting<bool> MP3LameCalculatePeakSample;
-	Setting<bool> MP3ACMFast;
-	Setting<int32> OpusComplexity;
-	StreamEncoderSettings(SettingsContainer &conf, const mpt::ustring &section);
-	static StreamEncoderSettings &Instance();
-};
-
-
-//=======================
 class IAudioStreamEncoder
-//=======================
 {
 protected:
 	IAudioStreamEncoder() { }
 public:
-	virtual ~IAudioStreamEncoder() { }
+	virtual ~IAudioStreamEncoder() = default;
 public:
-	// Call the following functions exactly in this order.
-	virtual void SetFormat(const Encoder::Settings &settings) = 0;
-	virtual void WriteMetatags(const FileTags &tags) = 0; // optional
-	virtual void WriteInterleaved(size_t count, const float *interleaved) = 0;
-	virtual void WriteInterleavedConverted(size_t frameCount, const char *data) = 0;
+	virtual SampleFormat GetSampleFormat() const = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const double *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const float *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const int32 *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const int24 *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const int16 *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const int8 *interleaved) = 0;
+	virtual void WriteInterleaved(std::size_t frameCount, const uint8 *interleaved) = 0;
 	virtual void WriteCues(const std::vector<uint64> &cues) = 0; // optional
-	virtual void Finalize() = 0;
+	virtual void WriteFinalize() = 0;
 };
 
 
-//====================
+
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const double *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const float *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int32 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int24 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int16 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int8 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedLE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const uint8 *interleaved);
+
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const double *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const float *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int32 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int24 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int16 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const int8 *interleaved);
+std::pair<bool, std::size_t> WriteInterleavedBE(std::ostream &f, uint16 channels, Encoder::Format format, std::size_t frameCount, const uint8 *interleaved);
+
+
+
 class StreamWriterBase
-//====================
 	: public IAudioStreamEncoder
 {
 protected:	
 	std::ostream &f;
-	std::streampos fStart;
-	std::vector<char> buf;
+	mpt::IO::Offset fStart;
+	std::vector<std::byte> buf;
 public:
 	StreamWriterBase(std::ostream &stream);
 	virtual ~StreamWriterBase();
 public:
-	virtual void SetFormat(const Encoder::Settings &settings) = 0;
-	virtual void WriteMetatags(const FileTags &tags);
-	virtual void WriteInterleaved(size_t count, const float *interleaved) = 0;
-	virtual void WriteInterleavedConverted(size_t frameCount, const char *data);
-	virtual void WriteCues(const std::vector<uint64> &cues);
-	virtual void Finalize() = 0;
+	SampleFormat GetSampleFormat() const override;
+	void WriteInterleaved(std::size_t frameCount, const double *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const float *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const int32 *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const int24 *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const int16 *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const int8 *interleaved) override;
+	void WriteInterleaved(std::size_t frameCount, const uint8 *interleaved) override;
+	void WriteCues(const std::vector<uint64> &cues) override;
+	void WriteFinalize() override;
 protected:
 	void WriteBuffer();
 };
 
 
-//======================
 class EncoderFactoryBase
-//======================
 {
 private:
 	Encoder::Traits m_Traits;
 protected:
 	EncoderFactoryBase() { }
-	virtual ~EncoderFactoryBase() { }
+	virtual ~EncoderFactoryBase() = default;
 	void SetTraits(const Encoder::Traits &traits);
 public:
-	virtual IAudioStreamEncoder *ConstructStreamEncoder(std::ostream &file) const = 0;
+	virtual std::unique_ptr<IAudioStreamEncoder> ConstructStreamEncoder(std::ostream &file, const Encoder::Settings &settings, const FileTags &tags) const = 0;
 	const Encoder::Traits &GetTraits() const
 	{
 		return m_Traits;
 	}
+	virtual bool IsBitrateSupported(int samplerate, int channels, int bitrate) const;
 	virtual mpt::ustring DescribeQuality(float quality) const;
 	virtual mpt::ustring DescribeBitrateVBR(int bitrate) const;
 	virtual mpt::ustring DescribeBitrateABR(int bitrate) const;

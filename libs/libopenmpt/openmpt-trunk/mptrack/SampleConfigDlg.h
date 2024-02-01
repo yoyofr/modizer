@@ -10,24 +10,23 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
-//===============================================
 class COptionsSampleEditor : public CPropertyPage
-//===============================================
 {
 protected:
 	CComboBox m_cbnDefaultSampleFormat, m_cbnDefaultVolumeHandling;
 
 public:
-	COptionsSampleEditor() : CPropertyPage(IDD_OPTIONS_SAMPLEEDITOR) { }
+	COptionsSampleEditor();
 
 protected:
-
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnSetActive();
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnSetActive() override;
 
 	void RecalcUndoSize();
 

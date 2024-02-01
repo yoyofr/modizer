@@ -10,11 +10,13 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
-//==================================
+class CModDoc;
+
 class CModCleanupDlg: public CDialog
-//==================================
 {
 private:
 	enum CleanupOptions
@@ -76,15 +78,15 @@ private:
 	bool RemoveUnusedChannels();
 
 public:
-	CModCleanupDlg(CModDoc &modParent, CWnd *parent) : CDialog(IDD_CLEANUP_SONG, parent), modDoc(modParent) { }
+	CModCleanupDlg(CModDoc &modParent, CWnd *parent);
 
 protected:
 	//{{AFX_VIRTUAL(CModCleanupDlg)
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 	//}}AFX_VIRTUAL
 
-	BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
+	BOOL OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 
 	//{{AFX_MSG(CModCleanupDlg)
 	afx_msg void OnPresetCleanupSong();

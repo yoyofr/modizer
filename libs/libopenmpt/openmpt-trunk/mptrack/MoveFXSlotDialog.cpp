@@ -9,15 +9,16 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
 #include "MoveFXSlotDialog.h"
+#include "Mptrack.h"
+#include "Reporting.h"
+#include "resource.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 
 void CMoveFXSlotDialog::DoDataExchange(CDataExchange* pDX)
-//--------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO1, m_CbnEmptySlots);
@@ -25,9 +26,9 @@ void CMoveFXSlotDialog::DoDataExchange(CDataExchange* pDX)
 
 
 CMoveFXSlotDialog::CMoveFXSlotDialog(CWnd *pParent, PLUGINDEX currentSlot, const std::vector<PLUGINDEX> &emptySlots, PLUGINDEX defaultIndex, bool clone, bool hasChain) :
-	CDialog(CMoveFXSlotDialog::IDD, pParent),
-	m_nDefaultSlot(defaultIndex),
+	CDialog(IDD_MOVEFXSLOT, pParent),
 	m_EmptySlots(emptySlots),
+	m_nDefaultSlot(defaultIndex),
 	moveChain(hasChain)
 {
 	if(clone)
@@ -45,7 +46,6 @@ CMoveFXSlotDialog::CMoveFXSlotDialog(CWnd *pParent, PLUGINDEX currentSlot, const
 
 
 BOOL CMoveFXSlotDialog::OnInitDialog()
-//------------------------------------
 {
 	CDialog::OnInitDialog();
 	SetDlgItemText(IDC_STATIC1, m_csPrompt);
@@ -60,11 +60,11 @@ BOOL CMoveFXSlotDialog::OnInitDialog()
 	}
 
 	CString slotText;
-	int defaultSlot = 0;
+	std::size_t defaultSlot = 0;
 	bool foundDefault = false;
 	for(size_t nSlot = 0; nSlot < m_EmptySlots.size(); nSlot++)
 	{
-		slotText.Format("FX%d", m_EmptySlots[nSlot] + 1);
+		slotText.Format(_T("FX%d"), m_EmptySlots[nSlot] + 1);
 		m_CbnEmptySlots.SetItemData(m_CbnEmptySlots.AddString(slotText), nSlot);
 		if(m_EmptySlots[nSlot] >= m_nDefaultSlot && !foundDefault)
 		{
@@ -72,7 +72,7 @@ BOOL CMoveFXSlotDialog::OnInitDialog()
 			foundDefault = true;
 		}
 	}
-	m_CbnEmptySlots.SetCurSel(defaultSlot);
+	m_CbnEmptySlots.SetCurSel(static_cast<int>(defaultSlot));
 
 	GetDlgItem(IDC_CHECK1)->EnableWindow(moveChain ? TRUE : FALSE);
 	CheckDlgButton(IDC_CHECK1, moveChain ? BST_CHECKED : BST_UNCHECKED);
@@ -82,7 +82,6 @@ BOOL CMoveFXSlotDialog::OnInitDialog()
 
 
 void CMoveFXSlotDialog::OnOK()
-//----------------------------
 {
 	m_nToSlot = m_CbnEmptySlots.GetItemData(m_CbnEmptySlots.GetCurSel());
 	moveChain = IsDlgButtonChecked(IDC_CHECK1) != BST_UNCHECKED;

@@ -2,19 +2,13 @@
  project "lame"
   uuid "b545694a-ce2a-44f8-ba88-147c36369308"
   language "C"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "lame"
-  dofile "../../build/premake/premake-defaults-DLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "shared"
   targetname "openmpt-lame"
   includedirs { "../../include/lame/include" }
   includedirs { "../../include/lame/mpglib" }
   includedirs { "../../include/lame/libmp3lame" }
   includedirs { "../../build/premake/inc/lame" }
-	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
 	filter {}
   files {
    "../../include/lame/include/lame.def",
@@ -58,3 +52,37 @@
    "../../include/lame/libmp3lame/vector/xmm_quantize_sub.c",
   }
   defines { "HAVE_CONFIG_H", "HAVE_MPGLIB", "USE_LAYER_2" }
+  filter {}
+  filter { "action:vs*" }
+    buildoptions { "/wd4267", "/wd4334" }
+	filter {}
+	filter { "action:vs*" }
+		buildoptions { "/wd6031", "/wd6262" } -- analyze
+	filter {}
+		if _OPTIONS["clang"] then
+			buildoptions {
+				"-Wno-absolute-value",
+				"-Wno-tautological-pointer-compare",
+				"-Wno-unused-but-set-variable",
+				"-Wno-unused-const-variable",
+				"-Wno-unused-function",
+			}
+		end
+	filter {}
+
+function mpt_use_lame ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include/lame/include",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include/lame/include",
+		}
+	filter {}
+	links {
+		"lame",
+	}
+	filter {}
+end

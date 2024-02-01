@@ -11,6 +11,11 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+#include "Globals.h"
+#include "Moddoc.h"
+#include "../soundlib/Snd_defs.h"
+
 OPENMPT_NAMESPACE_BEGIN
 
 #define INSSTATUS_DRAGGING		0x01
@@ -30,41 +35,40 @@ enum DragPoints
 	ENV_DRAGNEXT			= (MAX_ENVPOINTS + 6),
 };
 
-//==========================================
 class CViewInstrument: public CModScrollView
-//==========================================
 {
 protected:
 	CImageList m_bmpEnvBar;
-	POINT m_ptMenu;
+	CPoint m_ptMenu;
 	CRect m_rcClient, m_rcOldClient;
 
 	CBitmap m_bmpGrid;
 	CBitmap m_bmpMemMain;
-	CBitmap *m_pbmpOldGrid;
-	CBitmap *oldBitmap;
+	HBITMAP m_pbmpOldGrid = nullptr;
+	HBITMAP oldBitmap = nullptr;
 
-	EnvelopeType m_nEnv;
-	UINT m_nDragItem, m_nBtnMouseOver;
-	DWORD m_dwStatus;
+	EnvelopeType m_nEnv = ENV_VOLUME;
+	uint32 m_nDragItem = 1, m_nBtnMouseOver = 0xFFFF;
+	DWORD m_dwStatus = 0;
 	DWORD m_NcButtonState[ENV_LEFTBAR_BUTTONS];
 
-	INSTRUMENTINDEX m_nInstrument;
+	INSTRUMENTINDEX m_nInstrument = 1;
 
 	CDC m_dcMemMain;
 	CDC m_dcGrid;
-	int m_GridScrollPos;
-	int m_GridSpeed;
+	int m_GridScrollPos = -1;
+	int m_GridSpeed = -1;
 
-	float m_fZoom;
-	int m_envPointSize;
+	float m_zoom = 4;
+	int m_envPointSize = 4;
 
-	bool m_bGrid : 1;
-	bool m_bGridForceRedraw : 1;
-	bool m_mouseMoveModified : 1;
+	bool m_bGrid = true;
+	bool m_bGridForceRedraw = false;
+	bool m_mouseMoveModified = false;
 
 	std::bitset<128> m_baPlayingNote;
-	uint32 m_dwNotifyPos[MAX_CHANNELS];
+	CModDoc::NoteToChannelMap m_noteChannel;	// Note -> Preview channel assignment
+	std::array<uint32, MAX_CHANNELS> m_dwNotifyPos;
 
 public:
 	CViewInstrument();
@@ -83,16 +87,16 @@ protected:
 	bool EnvGetCarry() const { return EnvGetFlag(ENV_CARRY); };
 
 	// Misc.
-	UINT EnvGetTick(int nPoint) const;
-	UINT EnvGetValue(int nPoint) const;
-	UINT EnvGetLastPoint() const;
-	UINT EnvGetNumPoints() const;
+	uint32 EnvGetTick(int nPoint) const;
+	uint32 EnvGetValue(int nPoint) const;
+	uint32 EnvGetLastPoint() const;
+	uint32 EnvGetNumPoints() const;
 
 	// Get loop points
-	UINT EnvGetLoopStart() const;
-	UINT EnvGetLoopEnd() const;
-	UINT EnvGetSustainStart() const;
-	UINT EnvGetSustainEnd() const;
+	uint32 EnvGetLoopStart() const;
+	uint32 EnvGetLoopEnd() const;
+	uint32 EnvGetSustainStart() const;
+	uint32 EnvGetSustainEnd() const;
 
 	// Get envelope status
 	bool EnvGetVolEnv() const;
@@ -111,7 +115,7 @@ protected:
 
 	// Misc.
 	bool EnvSetValue(int nPoint, int32 nTick = int32_min, int32 nValue = int32_min, bool moveTail = false);
-	bool CanMovePoint(UINT envPoint, int step);
+	bool CanMovePoint(uint32 envPoint, int step);
 
 	// Set loop points
 	bool EnvSetLoopStart(int nPoint);
@@ -122,10 +126,10 @@ protected:
 
 	// Set envelope status
 	bool EnvToggleEnv(EnvelopeType envelope, CSoundFile &sndFile, ModInstrument &ins, bool enable, EnvelopeNode::value_t defaultValue, EnvelopeFlags extraFlags = EnvelopeFlags(0));
-	bool EnvSetVolEnv(bool bEnable);
-	bool EnvSetPanEnv(bool bEnable);
-	bool EnvSetPitchEnv(bool bEnable);
-	bool EnvSetFilterEnv(bool bEnable);
+	bool EnvSetVolEnv(bool enable);
+	bool EnvSetPanEnv(bool enable);
+	bool EnvSetPitchEnv(bool enable);
+	bool EnvSetFilterEnv(bool enable);
 
 	// Keyboard envelope control
 	void EnvKbdSelectPoint(DragPoints point);
@@ -140,7 +144,7 @@ protected:
 	void EnvKbdSetSustainEnd();
 	void EnvKbdToggleReleaseNode();
 
-	bool IsDragItemEnvPoint() const { return !(m_nDragItem < 1 || m_nDragItem > EnvGetLastPoint() + 1); }
+	bool IsDragItemEnvPoint() const { return m_nDragItem >= 1 && m_nDragItem <= EnvGetNumPoints(); }
 
 	////////////////////////
 	// Misc stuff
@@ -149,8 +153,10 @@ protected:
 	BOOL SetCurrentInstrument(INSTRUMENTINDEX nIns, EnvelopeType m_nEnv = ENV_VOLUME);
 	ModInstrument *GetInstrumentPtr() const;
 	InstrumentEnvelope *GetEnvelopePtr() const;
-	UINT EnvInsertPoint(int nTick, int nValue);
-	bool EnvRemovePoint(UINT nPoint);
+	bool InsertAtPoint(CPoint pt);
+	uint32 EnvInsertPoint(int nTick, int nValue);
+	bool EnvRemovePoint(uint32 nPoint);
+	uint32 DragItemToEnvPoint() const;
 	int TickToScreen(int nTick) const;
 	int PointToScreen(int nPoint) const;
 	int ScreenToTick(int x) const;
@@ -160,25 +166,30 @@ protected:
 	void InvalidateEnvelope() { InvalidateRect(NULL, FALSE); }
 	void DrawPositionMarks();
 	void DrawNcButton(CDC *pDC, UINT nBtn);
-	BOOL GetNcButtonRect(UINT nBtn, LPRECT lpRect);
+	bool GetNcButtonRect(UINT button, CRect &rect) const;
+	UINT GetNcButtonAtPoint(CPoint point, CRect *outRect = nullptr) const;
 	void UpdateNcButtonState();
 	void PlayNote(ModCommand::NOTE note);
-	void DrawGrid(CDC *memDC, UINT speed);
+	void DrawGrid(CDC *memDC, uint32 speed);
 	void UpdateIndicator();
 	void UpdateIndicator(int tick, int val);
+	CString EnvValueToString(int tick, int val) const;
 
-	void OnEnvZoomIn() { EnvSetZoom(m_fZoom + 1); };
-	void OnEnvZoomOut() { EnvSetZoom(m_fZoom - 1); };
+	void OnEnvZoomIn() { EnvSetZoom(m_zoom + 1); };
+	void OnEnvZoomOut() { EnvSetZoom(m_zoom - 1); };
 	void EnvSetZoom(float fNewZoom);
 
 public:
 	//{{AFX_VIRTUAL(CViewInstrument)
-	virtual void OnDraw(CDC *);
-	virtual void OnInitialUpdate();
-	virtual void UpdateView(UpdateHint hint, CObject *pObj = nullptr);
-	virtual LRESULT OnModViewMsg(WPARAM, LPARAM);
-	virtual BOOL OnDragonDrop(BOOL, const DRAGONDROP *);
-	virtual LRESULT OnPlayerNotify(Notification *);
+	void OnDraw(CDC *) override;
+	void OnInitialUpdate() override;
+	void UpdateView(UpdateHint hint, CObject *pObj = nullptr) override;
+	BOOL PreTranslateMessage(MSG *pMsg) override;
+	BOOL OnDragonDrop(BOOL, const DRAGONDROP *) override;
+	LRESULT OnModViewMsg(WPARAM, LPARAM) override;
+	LRESULT OnPlayerNotify(Notification *) override;
+	HRESULT get_accName(VARIANT varChild, BSTR *pszName) override;
+	INT_PTR OnToolHitTest(CPoint point, TOOLINFO *pTI) const override;
 	//}}AFX_VIRTUAL
 
 protected:
@@ -186,6 +197,7 @@ protected:
 	afx_msg BOOL OnEraseBkgnd(CDC *) { return TRUE; }
 	afx_msg void OnSetFocus(CWnd *pOldWnd);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	// cppcheck-suppress duplInheritedMember
 	afx_msg LRESULT OnDPIChanged(WPARAM = 0, LPARAM = 0);
 	afx_msg void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp);
 	afx_msg LRESULT OnNcHitTest(CPoint point);
@@ -195,14 +207,13 @@ protected:
 	afx_msg void OnMouseMove(UINT, CPoint);
 	afx_msg void OnLButtonDown(UINT, CPoint);
 	afx_msg void OnLButtonUp(UINT, CPoint);
+	afx_msg void OnLButtonDblClk(UINT /*nFlags*/, CPoint point) { InsertAtPoint(point); }
 	afx_msg void OnRButtonDown(UINT, CPoint);
 	afx_msg void OnMButtonDown(UINT, CPoint);
 	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
 	afx_msg void OnNcLButtonDown(UINT, CPoint);
 	afx_msg void OnNcLButtonUp(UINT, CPoint);
 	afx_msg void OnNcLButtonDblClk(UINT, CPoint);
-	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnEnvLoopChanged();
 	afx_msg void OnEnvSustainChanged();
 	afx_msg void OnEnvCarryChanged();
@@ -226,13 +237,13 @@ protected:
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg LRESULT OnCustomKeyMsg(WPARAM, LPARAM);
 	afx_msg LRESULT OnMidiMsg(WPARAM, LPARAM);
+	// cppcheck-suppress duplInheritedMember
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnXButtonUp(UINT nFlags, UINT nButton, CPoint point);
 	afx_msg void OnEditUndo();
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateUndo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateRedo(CCmdUI *pCmdUI);
-	virtual BOOL PreTranslateMessage(MSG *pMsg);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

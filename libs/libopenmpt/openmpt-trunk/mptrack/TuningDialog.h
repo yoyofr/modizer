@@ -1,5 +1,5 @@
 /*
- * tuningDialog.h
+ * TuningDialog.h
  * --------------
  * Purpose: Alternative sample tuning configuration dialog.
  * Notes  : (currently none)
@@ -10,20 +10,27 @@
 
 #pragma once
 
-#include "tuningratiomapwnd.h"
+#include "openmpt/all/BuildSettings.hpp"
+
+#include "tuningRatioMapWnd.h"
 #include "tuningcollection.h"
 #include <vector>
 #include <string>
-#include "afxcmn.h"
-#include "afxwin.h"
 #include "resource.h"
+#include "CDecimalSupport.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-//==========================
+
+// Tunings exist even outside of CSoundFile objects. We thus cannot use the
+// GetCharsetInternal() encoding consistently. For now, just always treat
+// tuning strings as Charset::Locale. As of OpenMPT 1.27, this distinction does
+// not yet matter, because GetCharsetInteral() is always mpt::Charset::Locale if
+// MODPLUG_TRACKER anyway.
+extern const mpt::Charset TuningCharsetFallback;
+
 template<class T1, class T2>
 class CBijectiveMap
-//==========================
 {
 public:
 	CBijectiveMap(const T1& a, const T2& b)
@@ -103,18 +110,15 @@ private:
 
 class CTuningDialog;
 
-//======================================
 class CTuningTreeCtrl : public CTreeCtrl
-//======================================
 {
 private:
-	CTuningDialog& m_rParentDialog;
-	bool m_Dragging;
+	CTuningDialog &m_rParentDialog;
+	bool m_Dragging = false;
 
 public:
 	CTuningTreeCtrl(CTuningDialog* parent)
 		: m_rParentDialog(*parent)
-		, m_Dragging(false)
 	{}
 	//Note: Parent address may be given in its initializer list.
 
@@ -126,26 +130,22 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-//===================
 class CTuningTreeItem
-//===================
 {
 private:
-	CTuning* m_pTuning;
-	CTuningCollection* m_pTuningCollection;
+	CTuning *m_pTuning = nullptr;
+	CTuningCollection *m_pTuningCollection = nullptr;
 
 public:
-	CTuningTreeItem() : m_pTuning(NULL),
-						m_pTuningCollection(NULL)
-	{}
+	CTuningTreeItem() = default;
 
 	CTuningTreeItem(CTuning* pT) :
 					m_pTuning(pT),
-					m_pTuningCollection(NULL)
+					m_pTuningCollection(nullptr)
 	{}
 
 	CTuningTreeItem(CTuningCollection* pTC) :
-					m_pTuning(NULL),
+					m_pTuning(nullptr),
 					m_pTuningCollection(pTC)
 	{}
 
@@ -158,30 +158,28 @@ public:
 			return false;
 	}
 
-	void Reset() {m_pTuning = NULL; m_pTuningCollection = NULL;}
+	void Reset() {m_pTuning = nullptr; m_pTuningCollection = nullptr;}
 
 
 	void Set(CTuning* pT)
 	{
 		m_pTuning = pT;
-		m_pTuningCollection = NULL;
+		m_pTuningCollection = nullptr;
 	}
 
 	void Set(CTuningCollection* pTC)
 	{
-		m_pTuning = NULL;
+		m_pTuning = nullptr;
 		m_pTuningCollection = pTC;
 	}
 
-	operator void*()
+	operator bool () const
 	{
-		//Mimicing pointer behavior: if(CTuningTreeItemInstance) equals
-		//if(CTuningTreeItemInstance.m_pTuning != NULL ||
-		//	 CTuningTreeItemInstance.m_pTuningCollection != NULL)
-		if(m_pTuning)
-			return m_pTuning;
-		else
-			return m_pTuningCollection;
+		return m_pTuning || m_pTuningCollection;
+	}
+	bool operator ! () const
+	{
+		return !operator bool();
 	}
 
 	CTuningCollection* GetTC() {return m_pTuningCollection;}
@@ -191,12 +189,8 @@ public:
 
 // CTuningDialog dialog
 
-//==================================
 class CTuningDialog : public CDialog
-//==================================
 {
-	DECLARE_DYNAMIC(CTuningDialog)
-
 	friend class CTuningTreeCtrl;
 
 	enum EnSclImport
@@ -213,16 +207,15 @@ class CTuningDialog : public CDialog
 	};
 
 public:
-	typedef std::vector<CTuningCollection*> TUNINGVECTOR;
+	using TUNINGVECTOR = std::vector<CTuningCollection*>;
 
 public:
-	CTuningDialog(CWnd* pParent = NULL, const TUNINGVECTOR& = TUNINGVECTOR(), CTuning* pTun = NULL);   // standard constructor
-	virtual ~CTuningDialog();
+	CTuningDialog(CWnd* pParent, INSTRUMENTINDEX inst, CSoundFile &csf);
+	~CTuningDialog() override;
 
-	BOOL OnInitDialog();
+	BOOL OnInitDialog() override;
 
-	void AddTuningCollection(CTuningCollection* pTC) {if(pTC) m_TuningCollections.push_back(pTC);}
-	void UpdateRatioMapEdits(const CTuning::NOTEINDEXTYPE&);
+	void UpdateRatioMapEdits(const Tuning::NOTEINDEXTYPE&);
 
 	bool GetModifiedStatus(const CTuningCollection* const pTc) const;
 
@@ -230,12 +223,12 @@ public:
 	enum { IDD = IDD_TUNING };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
 
 private:
-	CTuning::TUNINGTYPE GetTuningTypeFromStr(const std::string& str) const;
 
-	void UpdateTuningDescription();
+	bool CanEdit(CTuningCollection * pTC) const;
+	bool CanEdit(CTuning * pT, CTuningCollection * pTC) const;
 
 	void UpdateView(const int UpdateMask = 0);
 	void UpdateTuningType();
@@ -262,47 +255,47 @@ private:
 	bool IsDeletable(const CTuningCollection* const pTC) const;
 
 	// Scl-file import.
-	EnSclImport ImportScl(const mpt::PathString &filename, const mpt::ustring &name);
-	EnSclImport ImportScl(std::istream& iStrm, const mpt::ustring &name);
+	EnSclImport ImportScl(const mpt::PathString &filename, const mpt::ustring &name, std::unique_ptr<CTuning> & result);
+	EnSclImport ImportScl(std::istream& iStrm, const mpt::ustring &name, std::unique_ptr<CTuning> & result);
 
 
 private:
+
+	CSoundFile & m_sndFile;
+
 	CTuningRatioMapWnd m_RatioMapWnd;
 	TUNINGVECTOR m_TuningCollections;
 	std::vector<CTuningCollection*> m_DeletableTuningCollections;
 
-	CTuning* m_pActiveTuning;
-	CTuningCollection* m_pActiveTuningCollection;
+	std::map<const CTuningCollection*, CString> m_TuningCollectionsNames;
+	std::map<const CTuningCollection*, mpt::PathString> m_TuningCollectionsFilenames;
 
-	CTuningCollection m_TempTunings;
+	CTuning *m_pActiveTuning = nullptr;
+	CTuningCollection *m_pActiveTuningCollection = nullptr;
 
 	CComboBox m_CombobTuningType;
 
 	//Tuning Edits-->
 	CEdit m_EditSteps;
-	CEdit m_EditRatioPeriod;
-	CEdit m_EditRatio;
+	CNumberEdit m_EditRatioPeriod;
+	CNumberEdit m_EditRatio;
 	CEdit m_EditNotename;
 	CEdit m_EditMiscActions;
 	CEdit m_EditFineTuneSteps;
 	CEdit m_EditName;
 	//<--Tuning Edits
 
-	//-->Tuning collection edits
-	CEdit m_EditTuningCollectionName;
-	CEdit m_EditTuningCollectionPath;
-	//<--Tuningcollection edits
-
 	CButton m_ButtonSet;
+	CButton m_ButtonNew;
 	CButton m_ButtonExport;
 	CButton m_ButtonImport;
-	CButton m_ButtonReadOnly;
+	CButton m_ButtonRemove;
 
 	CTuningTreeCtrl m_TreeCtrlTuning;
 
 private:
-	typedef CTuningTreeItem TUNINGTREEITEM;
-	typedef CBijectiveMap<HTREEITEM, TUNINGTREEITEM> TREETUNING_MAP;
+	using TUNINGTREEITEM = CTuningTreeItem;
+	using TREETUNING_MAP = CBijectiveMap<HTREEITEM, TUNINGTREEITEM>;
 	TREETUNING_MAP m_TreeItemTuningItemMap;
 
 	TUNINGTREEITEM m_DragItem;
@@ -312,7 +305,7 @@ private:
 	//m_CommandItemDest is used when the command really need only
 	//one argument.
 
-	typedef std::map<const CTuningCollection* const, bool> MODIFIED_MAP;
+	using MODIFIED_MAP = std::map<const CTuningCollection* const, bool>;
 	MODIFIED_MAP m_ModifiedTCs;
 	//If tuning collection seems to have been modified, its address
 	//is added to this map.
@@ -324,14 +317,14 @@ private:
 	};
 
 	static CString GetSclImportFailureMsg(EnSclImport);
-	static const size_t s_nSclImportMaxNoteCount = 64;
+	static constexpr size_t s_nSclImportMaxNoteCount = 256;
 
 	//To indicate whether to apply changes made to
 	//those edit boxes(they are modified by certain activities
 	//in case which the modifications should not be applied to
 	//tuning data.
-	bool m_NoteEditApply;
-	bool m_RatioEditApply;
+	bool m_NoteEditApply = true;
+	bool m_RatioEditApply = true;
 
 	enum
 	{
@@ -342,42 +335,43 @@ private:
 	static const TUNINGTREEITEM s_notFoundItemTuning;
 	static const HTREEITEM s_notFoundItemTree;
 
-	bool AddTuning(CTuningCollection*, CTuning* pT = NULL);
+	bool AddTuning(CTuningCollection*, CTuning* pT);
+	bool AddTuning(CTuningCollection*, Tuning::Type type);
 
 	//Flag to prevent multiple exit error-messages.
-	bool m_DoErrorExit;
+	bool m_DoErrorExit = false;
 
 	void DoErrorExit();
 
-	virtual void OnOK();
+	void OnOK() override;
 
 //Treectrl context menu functions.
 public:
 	afx_msg void OnRemoveTuning();
-	afx_msg void OnAddTuning();
-	afx_msg void OnMoveTuning();
+	afx_msg void OnAddTuningGeneral();
+	afx_msg void OnAddTuningGroupGeometric();
+	afx_msg void OnAddTuningGeometric();
 	afx_msg void OnCopyTuning();
 	afx_msg void OnRemoveTuningCollection();
 
 //Event-functions
 public:
-	afx_msg void OnCbnSelchangeComboTtype();
 	afx_msg void OnEnChangeEditSteps();
 	afx_msg void OnEnChangeEditRatioperiod();
 	afx_msg void OnEnChangeEditNotename();
 	afx_msg void OnBnClickedButtonSetvalues();
 	afx_msg void OnEnChangeEditRatiovalue();
+	afx_msg void OnBnClickedButtonNew();
 	afx_msg void OnBnClickedButtonExport();
 	afx_msg void OnBnClickedButtonImport();
+	afx_msg void OnBnClickedButtonRemove();
 	afx_msg void OnEnChangeEditFinetunesteps();
 	afx_msg void OnEnKillfocusEditFinetunesteps();
-	afx_msg void OnBnClickedCheckReadonly();
 	afx_msg void OnEnKillfocusEditName();
 	afx_msg void OnEnKillfocusEditSteps();
 	afx_msg void OnEnKillfocusEditRatioperiod();
 	afx_msg void OnEnKillfocusEditRatiovalue();
 	afx_msg void OnEnKillfocusEditNotename();
-	afx_msg void OnBnClickedButtonTuningcollectionSave();
 
 	//Treeview events
 	afx_msg void OnTvnSelchangedTreeTuning(NMHDR *pNMHDR, LRESULT *pResult);

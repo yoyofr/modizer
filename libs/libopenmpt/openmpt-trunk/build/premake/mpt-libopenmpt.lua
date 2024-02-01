@@ -2,60 +2,67 @@
  project "libopenmpt"
   uuid "9C5101EF-3E20-4558-809B-277FDD50E878"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname )
   vpaths { ["*"] = "../../" }
-  mpt_projectname = "libopenmpt"
-  dofile "../../build/premake/premake-defaults-LIBorDLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  local extincludedirs = {
-   "../../include",
-   "../../include/ogg/include",
-   "../../include/vorbis/include",
-   "../../include/zlib",
-  }
-  filter { "action:vs*" }
-    includedirs ( extincludedirs )
-  filter { "not action:vs*" }
-    sysincludedirs ( extincludedirs )
-  filter {}
+  mpt_kind "default"
+	
+	mpt_use_mpg123()
+	mpt_use_ogg()
+	mpt_use_vorbis()
+	mpt_use_zlib()
+	
+	defines {
+		"MPT_WITH_MPG123",
+		"MPT_WITH_OGG",
+		"MPT_WITH_VORBIS",
+		"MPT_WITH_VORBISFILE",
+		"MPT_WITH_ZLIB",
+	}
+	
   includedirs {
    "../..",
+   "../../src",
    "../../common",
-   "../../soundlib",
    "$(IntDir)/svn_version",
-   "../../build/svn_version",
   }
   files {
+   "../../src/mpt/**.cpp",
+   "../../src/mpt/**.hpp",
+   "../../src/openmpt/**.cpp",
+   "../../src/openmpt/**.hpp",
    "../../common/*.cpp",
    "../../common/*.h",
-   "../../soundbase/*.cpp",
-   "../../soundbase/*.h",
    "../../soundlib/*.cpp",
    "../../soundlib/*.h",
    "../../soundlib/plugins/*.cpp",
    "../../soundlib/plugins/*.h",
    "../../soundlib/plugins/dmo/*.cpp",
    "../../soundlib/plugins/dmo/*.h",
-   "../../libopenmpt/libopenmpt.h",
-   "../../libopenmpt/libopenmpt.hpp",
-   "../../libopenmpt/libopenmpt_config.h",
-   "../../libopenmpt/libopenmpt_ext.hpp",
-   "../../libopenmpt/libopenmpt_impl.hpp",
-   "../../libopenmpt/libopenmpt_internal.h",
-   "../../libopenmpt/libopenmpt_stream_callbacks_buffer.h",
-   "../../libopenmpt/libopenmpt_stream_callbacks_fd.h",
-   "../../libopenmpt/libopenmpt_stream_callbacks_file.h",
-   "../../libopenmpt/libopenmpt_version.h",
-   "../../libopenmpt/libopenmpt_c.cpp",
-   "../../libopenmpt/libopenmpt_cxx.cpp",
-   "../../libopenmpt/libopenmpt_ext.cpp",
-   "../../libopenmpt/libopenmpt_impl.cpp",
+   "../../sounddsp/*.cpp",
+   "../../sounddsp/*.h",
+   "../../libopenmpt/*.cpp",
+   "../../libopenmpt/*.hpp",
+   "../../libopenmpt/*.h",
   }
-
+	excludes {
+		"../../src/mpt/crypto/**.cpp",
+		"../../src/mpt/crypto/**.hpp",
+		"../../src/mpt/fs/**.cpp",
+		"../../src/mpt/fs/**.hpp",
+		"../../src/mpt/json/**.cpp",
+		"../../src/mpt/json/**.hpp",
+		"../../src/mpt/library/**.cpp",
+		"../../src/mpt/library/**.hpp",
+		"../../src/mpt/test/**.cpp",
+		"../../src/mpt/test/**.hpp",
+		"../../src/mpt/uuid_namespace/**.cpp",
+		"../../src/mpt/uuid_namespace/**.hpp",
+		"../../src/openmpt/sounddevice/**.cpp",
+		"../../src/openmpt/sounddevice/**.hpp",
+	}
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resdefines {
-			"MPT_BUILD_VER_FILENAME=\"" .. mpt_projectname .. ".dll\"",
-			"MPT_BUILD_VER_FILEDESC=\"" .. mpt_projectname .. "\"",
+			"MPT_BUILD_VER_FILENAME=\"" .. "libopenmpt" .. ".dll\"",
+			"MPT_BUILD_VER_FILEDESC=\"" .. "libopenmpt" .. "\"",
 		}
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resincludedirs {
@@ -72,24 +79,35 @@
 		resdefines { "MPT_BUILD_VER_EXE" }
 	filter {}
 
-  characterset "Unicode"
-  flags { "ExtraWarnings" }
+	if _OPTIONS["charset"] ~= "Unicode" then
+		defines { "MPT_CHECK_WINDOWS_IGNORE_WARNING_NO_UNICODE" }
+	end
+
+  warnings "Extra"
   defines { "LIBOPENMPT_BUILD" }
   filter { "kind:SharedLib" }
    defines { "LIBOPENMPT_BUILD_DLL" }
   filter { "kind:SharedLib" }
-   links { "delayimp" }
-   linkoptions {
-    "/DELAYLOAD:mf.dll",
-    "/DELAYLOAD:mfplat.dll",
-    "/DELAYLOAD:mfreadwrite.dll",
---   "/DELAYLOAD:mfuuid.dll", -- static library
-    "/DELAYLOAD:propsys.dll",
-   }
   filter {}
-  links {
-   "vorbis",
-   "ogg",
-   "zlib",
-  }
   prebuildcommands { "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)" }
+
+function mpt_use_libopenmpt ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../..",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../..",
+		}
+	filter {}
+	filter { "configurations:*Shared" }
+		defines { "LIBOPENMPT_USE_DLL" }
+	filter { "not configurations:*Shared" }
+	filter {}
+	links {
+		"libopenmpt",
+	}
+	filter {}
+end

@@ -10,73 +10,88 @@
 
 #include "stdafx.h"
 #include "FolderScanner.h"
+#include <tchar.h>
 
 OPENMPT_NAMESPACE_BEGIN
 
-FolderScanner::FolderScanner(const mpt::PathString &path, bool findInSubDirs) : paths(1, path), findInSubDirs(findInSubDirs), hFind(INVALID_HANDLE_VALUE)
-//-------------------------------------------------------------------------------------------------------------------------------------------------------
+FolderScanner::FolderScanner(const mpt::PathString &path, FlagSet<ScanType> type, mpt::PathString filter)
+	: m_paths(1, path)
+	, m_filter(std::move(filter))
+	, m_hFind(INVALID_HANDLE_VALUE)
+	, m_type(type)
 {
-	MemsetZero(wfd);
+	MemsetZero(m_wfd);
 }
 
 
 FolderScanner::~FolderScanner()
-//-----------------------------
 {
-	FindClose(hFind);
+	FindClose(m_hFind);
 }
 
-
-// Return one file at a time in parameter file. Returns true if a file was found (file parameter is valid), false if no more files can be found.
-bool FolderScanner::NextFile(mpt::PathString &file)
-//-------------------------------------------------
+#if MPT_COMPILER_MSVC
+// silence static analyzer false positive for FindFirstFile
+#pragma warning(push)
+#pragma warning(disable:6387) // 'HANDLE' could be '0'
+#endif // MPT_COMPILER_MSVC
+bool FolderScanner::Next(mpt::PathString &file)
 {
-	bool foundFile = false;
+	bool found = false;
 	do
 	{
-		if(hFind == INVALID_HANDLE_VALUE)
+		if(m_hFind == INVALID_HANDLE_VALUE)
 		{
-			if(paths.empty())
+			if(m_paths.empty())
 			{
 				return false;
 			}
 
-			currentPath = paths.back();
-			paths.pop_back();
-			currentPath.EnsureTrailingSlash();
-			hFind = FindFirstFileW((currentPath + MPT_PATHSTRING("*.*")).AsNative().c_str(), &wfd);
+			m_currentPath = m_paths.back();
+			m_paths.pop_back();
+			m_currentPath = m_currentPath.WithTrailingSlash();
+			m_hFind = FindFirstFile((m_currentPath + m_filter).AsNative().c_str(), &m_wfd);
 		}
 
 		BOOL nextFile = FALSE;
-		if(hFind != INVALID_HANDLE_VALUE)
+		if(m_hFind != INVALID_HANDLE_VALUE)
 		{
 			do
 			{
-				file = currentPath + mpt::PathString::FromNative(wfd.cFileName);
-				if(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				file = m_currentPath + mpt::PathString::FromNative(m_wfd.cFileName);
+				if(m_wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if(findInSubDirs && wcscmp(wfd.cFileName, L"..") && wcscmp(wfd.cFileName, L"."))
+					if(_tcscmp(m_wfd.cFileName, _T("..")) && _tcscmp(m_wfd.cFileName, _T(".")))
 					{
-						// Add sub directory
-						paths.push_back(file);
+						if(m_type[kFindInSubDirectories])
+						{
+							// Add sub directory
+							m_paths.push_back(file);
+						}
+						if(m_type[kOnlyDirectories])
+						{
+							found = true;
+						}
 					}
-				} else
+				} else if(m_type[kOnlyFiles])
 				{
-					foundFile = true;
+					found = true;
 				}
-			} while((nextFile = FindNextFileW(hFind, &wfd)) != FALSE && !foundFile);
+			} while((nextFile = FindNextFile(m_hFind, &m_wfd)) != FALSE && !found);
 		}
 		if(nextFile == FALSE)
 		{
 			// Done with this directory, advance to next
-			if(hFind != INVALID_HANDLE_VALUE)
+			if(m_hFind != INVALID_HANDLE_VALUE)
 			{
-				FindClose(hFind);
+				FindClose(m_hFind);
 			}
-			hFind = INVALID_HANDLE_VALUE;
+			m_hFind = INVALID_HANDLE_VALUE;
 		}
-	} while(!foundFile);
+	} while(!found);
 	return true;
 }
+#if MPT_COMPILER_MSVC
+#pragma warning(pop)
+#endif // MPT_COMPILER_MSVC
 
 OPENMPT_NAMESPACE_END

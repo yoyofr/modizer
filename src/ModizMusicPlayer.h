@@ -19,7 +19,42 @@
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt.h"
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_ext.h"
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_stream_callbacks_file.h"
-#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
+
+struct _ModPlugNote {
+    unsigned char Note;
+    unsigned char Instrument;
+    unsigned char VolumeEffect;
+    unsigned char Effect;
+    unsigned char Volume;
+    unsigned char Parameter;
+};
+typedef struct _ModPlugNote ModPlugNote;
+typedef struct _ModPlug_Settings
+{
+    int mFlags;  /* One or more of the MODPLUG_ENABLE_* flags above, bitwise-OR'ed */
+    
+    /* Note that ModPlug always decodes sound at 44100kHz, 32 bit, stereo and then
+     * down-mixes to the settings you choose. */
+    int mChannels;       /* Number of channels - 1 for mono or 2 for stereo */
+    int mBits;           /* Bits per sample - 8, 16, or 32 */
+    int mFrequency;      /* Sampling rate - 11025, 22050, or 44100 */
+    int mResamplingMode; /* One of MODPLUG_RESAMPLE_*, above */
+
+    int mStereoSeparation; /* Stereo separation, 1 - 256 */
+    int mMaxMixChannels; /* Maximum number of mixing channels (polyphony), 32 - 256 */
+    
+    int mReverbDepth;    /* Reverb level 0(quiet)-100(loud)      */
+    int mReverbDelay;    /* Reverb delay in ms, usually 40-200ms */
+    int mBassAmount;     /* XBass level 0(quiet)-100(loud)       */
+    int mBassRange;      /* XBass cutoff in Hz 10-100            */
+    int mSurroundDepth;  /* Surround level 0(quiet)-100(heavy)   */
+    int mSurroundDelay;  /* Surround delay in ms, usually 5-40ms */
+    int mLoopCount;      /* Number of times to loop.  Zero prevents looping.
+                            -1 loops forever. */
+} ModPlug_Settings;
+
+
+//#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 //MODPLUG
 //#import "modplug.h"
 

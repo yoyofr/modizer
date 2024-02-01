@@ -4,7 +4,7 @@
  * Purpose: IMF (Imago Orpheus) module loader
  * Notes  : Reverb and Chorus are not supported.
  * Authors: Storlek (Original author - http://schismtracker.org/ - code ported with permission)
- *			Johannes Schultz (OpenMPT Port, tweaks)
+ *          Johannes Schultz (OpenMPT Port, tweaks)
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
 
@@ -16,11 +16,11 @@ OPENMPT_NAMESPACE_BEGIN
 
 struct IMFChannel
 {
-	char  name[12];	// Channel name (ASCIIZ-String, max 11 chars)
-	uint8 chorus;	// Default chorus
-	uint8 reverb;	// Default reverb
-	uint8 panning;	// Pan positions 00-FF
-	uint8 status;	// Channel status: 0 = enabled, 1 = mute, 2 = disabled (ignore effects!)
+	char  name[12];  // Channel name (ASCIIZ-String, max 11 chars)
+	uint8 chorus;    // Default chorus
+	uint8 reverb;    // Default reverb
+	uint8 panning;   // Pan positions 00-FF
+	uint8 status;    // Channel status: 0 = enabled, 1 = mute, 2 = disabled (ignore effects!)
 };
 
 MPT_BINARY_STRUCT(IMFChannel, 16)
@@ -32,19 +32,19 @@ struct IMFFileHeader
 		linearSlides = 0x01,
 	};
 
-	char     title[32];			// Songname (ASCIIZ-String, max. 31 chars)
-	uint16le ordNum;			// Number of orders saved
-	uint16le patNum;			// Number of patterns saved
-	uint16le insNum;			// Number of instruments saved
-	uint16le flags;				// See SongFlags
+	char     title[32];  // Songname (ASCIIZ-String, max. 31 chars)
+	uint16le ordNum;     // Number of orders saved
+	uint16le patNum;     // Number of patterns saved
+	uint16le insNum;     // Number of instruments saved
+	uint16le flags;      // See SongFlags
 	uint8le  unused1[8];
-	uint8le  tempo;				// Default tempo (Axx, 1...255)
-	uint8le  bpm;				// Default beats per minute (BPM) (Txx, 32...255)
-	uint8le  master;			// Default master volume (Vxx, 0...64)
-	uint8le  amp;				// Amplification factor (mixing volume, 4...127)
+	uint8le  tempo;   // Default tempo (Axx, 1...255)
+	uint8le  bpm;     // Default beats per minute (BPM) (Txx, 32...255)
+	uint8le  master;  // Default master volume (Vxx, 0...64)
+	uint8le  amp;     // Amplification factor (mixing volume, 4...127)
 	uint8le  unused2[8];
-	char     im10[4];			// 'IM10'
-	IMFChannel channels[32];	// Channel settings
+	char     im10[4];         // 'IM10'
+	IMFChannel channels[32];  // Channel settings
 };
 
 MPT_BINARY_STRUCT(IMFFileHeader, 576)
@@ -53,16 +53,16 @@ struct IMFEnvelope
 {
 	enum EnvFlags
 	{
-		envEnabled	= 0x01,
-		envSustain	= 0x02,
-		envLoop		= 0x04,
+		envEnabled = 0x01,
+		envSustain = 0x02,
+		envLoop    = 0x04,
 	};
 
-	uint8 points;		// Number of envelope points
-	uint8 sustain;		// Envelope sustain point
-	uint8 loopStart;	// Envelope loop start point
-	uint8 loopEnd;		// Envelope loop end point
-	uint8 flags;		// See EnvFlags
+	uint8 points;     // Number of envelope points
+	uint8 sustain;    // Envelope sustain point
+	uint8 loopStart;  // Envelope loop start point
+	uint8 loopEnd;    // Envelope loop end point
+	uint8 flags;      // See EnvFlags
 	uint8 unused[3];
 };
 
@@ -80,23 +80,24 @@ struct IMFInstrument
 {
 	enum EnvTypes
 	{
-		volEnv = 0,
-		panEnv = 1,
+		volEnv    = 0,
+		panEnv    = 1,
 		filterEnv = 2,
 	};
 
-	char        name[32];	// Inst. name (ASCIIZ-String, max. 31 chars)
-	uint8le     map[120];	// Multisample settings
+	char        name[32];  // Inst. name (ASCIIZ-String, max. 31 chars)
+	uint8le     map[120];  // Multisample settings
 	uint8le     unused[8];
 	IMFEnvNode  nodes[3][16];
 	IMFEnvelope env[3];
-	uint16le    fadeout;	// Fadeout rate (0...0FFFH)
-	uint16le    smpNum;		// Number of samples in instrument
-	char        ii10[4];	// 'II10'
+	uint16le    fadeout;  // Fadeout rate (0...0FFFH)
+	uint16le    smpNum;   // Number of samples in instrument
+	char        ii10[4];  // 'II10' (not verified by Orpheus)
 
 	void ConvertEnvelope(InstrumentEnvelope &mptEnv, EnvTypes e) const
 	{
-		const int shift = (e == volEnv) ? 0 : 2;
+		const uint8 shift = (e == volEnv) ? 0 : 2;
+		const uint8 mirror = (e == filterEnv) ? 0xFF : 0x00;
 
 		mptEnv.dwFlags.set(ENV_ENABLED, (env[e].flags & 1) != 0);
 		mptEnv.dwFlags.set(ENV_SUSTAIN, (env[e].flags & 2) != 0);
@@ -112,8 +113,10 @@ struct IMFInstrument
 		{
 			mptEnv[n].tick = minTick = std::max(minTick, nodes[e][n].tick.get());
 			minTick++;
-			mptEnv[n].value = static_cast<uint8>(std::min(nodes[e][n].value >> shift, ENVELOPE_MAX));
+			uint8 value = static_cast<uint8>(nodes[e][n].value ^ mirror) >> shift;
+			mptEnv[n].value = std::min(value, uint8(ENVELOPE_MAX));
 		}
+		mptEnv.Convert(MOD_TYPE_XM, MOD_TYPE_IT);
 	}
 
 	// Convert an IMFInstrument to OpenMPT's internal instrument representation.
@@ -130,6 +133,7 @@ struct IMFInstrument
 		}
 
 		mptIns.nFadeOut = fadeout;
+		mptIns.midiPWD = 1;  // For CMD_FINETUNE
 
 		ConvertEnvelope(mptIns.VolEnv, volEnv);
 		ConvertEnvelope(mptIns.PanEnv, panEnv);
@@ -155,20 +159,20 @@ struct IMFSample
 		smpPanning		= 0x08,
 	};
 
-	char     filename[13];	// Sample filename (12345678.ABC) */
+	char     filename[13];  // Sample filename (12345678.ABC) */
 	uint8le  unused1[3];
-	uint32le length;		// Length (in bytes)
-	uint32le loopStart;		// Loop start (in bytes)
-	uint32le loopEnd;		// Loop end (in bytes)
-	uint32le c5Speed;		// Samplerate
-	uint8le  volume;		// Default volume (0...64)
-	uint8le  panning;		// Default pan (0...255)
+	uint32le length;        // Length (in bytes)
+	uint32le loopStart;     // Loop start (in bytes)
+	uint32le loopEnd;       // Loop end (in bytes)
+	uint32le c5Speed;       // Samplerate
+	uint8le  volume;        // Default volume (0...64)
+	uint8le  panning;       // Default pan (0...255)
 	uint8le  unused2[14];
-	uint8le  flags;			// Sample flags
+	uint8le  flags;  // Sample flags
 	uint8le  unused3[5];
-	uint16le ems;			// Reserved for internal usage
-	uint32le dram;			// Reserved for internal usage
-	char     is10[4];		// 'IS10'
+	uint16le ems;      // Reserved for internal usage
+	uint32le dram;     // Reserved for internal usage
+	char     is10[4];  // 'IS10' or 'IW10' (not verified by Orpheus)
 
 	// Convert an IMFSample to OpenMPT's internal sample representation.
 	void ConvertToMPT(ModSample &mptSmp) const
@@ -204,93 +208,95 @@ MPT_BINARY_STRUCT(IMFSample, 64)
 static constexpr EffectCommand imfEffects[] =
 {
 	CMD_NONE,
-	CMD_SPEED,			// 0x01 1xx Set Tempo
-	CMD_TEMPO,			// 0x02 2xx Set BPM
-	CMD_TONEPORTAMENTO, // 0x03 3xx Tone Portamento
-	CMD_TONEPORTAVOL,	// 0x04 4xy Tone Portamento + Volume Slide
-	CMD_VIBRATO,		// 0x05 5xy Vibrato
-	CMD_VIBRATOVOL,		// 0x06 6xy Vibrato + Volume Slide
-	CMD_FINEVIBRATO,	// 0x07 7xy Fine Vibrato
-	CMD_TREMOLO,		// 0x08 8xy Tremolo
-	CMD_ARPEGGIO,		// 0x09 9xy Arpeggio
-	CMD_PANNING8,		// 0x0A Axx Set Pan Position
-	CMD_PANNINGSLIDE,	// 0x0B Bxy Pan Slide
-	CMD_VOLUME,			// 0x0C Cxx Set Volume
-	CMD_VOLUMESLIDE,	// 0x0D Dxy Volume Slide
-	CMD_VOLUMESLIDE,	// 0x0E Exy Fine Volume Slide
-	CMD_S3MCMDEX,		// 0x0F Fxx Set Finetune
-	CMD_NOTESLIDEUP,	// 0x10 Gxy Note Slide Up
-	CMD_NOTESLIDEDOWN,	// 0x11 Hxy Note Slide Down
-	CMD_PORTAMENTOUP,	// 0x12 Ixx Slide Up
-	CMD_PORTAMENTODOWN,	// 0x13 Jxx Slide Down
-	CMD_PORTAMENTOUP,	// 0x14 Kxx Fine Slide Up
-	CMD_PORTAMENTODOWN,	// 0x15 Lxx Fine Slide Down
-	CMD_MIDI,			// 0x16 Mxx Set Filter Cutoff - XXX
-	CMD_NONE,			// 0x17 Nxy Filter Slide + Resonance - XXX
-	CMD_OFFSET,			// 0x18 Oxx Set Sample Offset
-	CMD_NONE,			// 0x19 Pxx Set Fine Sample Offset - XXX
-	CMD_KEYOFF,			// 0x1A Qxx Key Off
-	CMD_RETRIG,			// 0x1B Rxy Retrig
-	CMD_TREMOR,			// 0x1C Sxy Tremor
-	CMD_POSITIONJUMP,	// 0x1D Txx Position Jump
-	CMD_PATTERNBREAK,	// 0x1E Uxx Pattern Break
-	CMD_GLOBALVOLUME,	// 0x1F Vxx Set Mastervolume
-	CMD_GLOBALVOLSLIDE,	// 0x20 Wxy Mastervolume Slide
-	CMD_S3MCMDEX,		// 0x21 Xxx Extended Effect
-							// X1x Set Filter
-							// X3x Glissando
-							// X5x Vibrato Waveform
-							// X8x Tremolo Waveform
-							// XAx Pattern Loop
-							// XBx Pattern Delay
-							// XCx Note Cut
-							// XDx Note Delay
-							// XEx Ignore Envelope
-							// XFx Invert Loop
-	CMD_NONE,			// 0x22 Yxx Chorus - XXX
-	CMD_NONE,			// 0x23 Zxx Reverb - XXX
+	CMD_SPEED,           // 0x01 1xx Set Tempo
+	CMD_TEMPO,           // 0x02 2xx Set BPM
+	CMD_TONEPORTAMENTO,  // 0x03 3xx Tone Portamento
+	CMD_TONEPORTAVOL,    // 0x04 4xy Tone Portamento + Volume Slide
+	CMD_VIBRATO,         // 0x05 5xy Vibrato
+	CMD_VIBRATOVOL,      // 0x06 6xy Vibrato + Volume Slide
+	CMD_FINEVIBRATO,     // 0x07 7xy Fine Vibrato
+	CMD_TREMOLO,         // 0x08 8xy Tremolo
+	CMD_ARPEGGIO,        // 0x09 9xy Arpeggio
+	CMD_PANNING8,        // 0x0A Axx Set Pan Position
+	CMD_PANNINGSLIDE,    // 0x0B Bxy Pan Slide
+	CMD_VOLUME,          // 0x0C Cxx Set Volume
+	CMD_VOLUMESLIDE,     // 0x0D Dxy Volume Slide
+	CMD_VOLUMESLIDE,     // 0x0E Exy Fine Volume Slide
+	CMD_FINETUNE,        // 0x0F Fxx Set Finetune
+	CMD_NOTESLIDEUP,     // 0x10 Gxy Note Slide Up
+	CMD_NOTESLIDEDOWN,   // 0x11 Hxy Note Slide Down
+	CMD_PORTAMENTOUP,    // 0x12 Ixx Slide Up
+	CMD_PORTAMENTODOWN,  // 0x13 Jxx Slide Down
+	CMD_PORTAMENTOUP,    // 0x14 Kxx Fine Slide Up
+	CMD_PORTAMENTODOWN,  // 0x15 Lxx Fine Slide Down
+	CMD_MIDI,            // 0x16 Mxx Set Filter Cutoff
+	CMD_MIDI,            // 0x17 Nxy Filter Slide + Resonance
+	CMD_OFFSET,          // 0x18 Oxx Set Sample Offset
+	CMD_NONE,            // 0x19 Pxx Set Fine Sample Offset - XXX
+	CMD_KEYOFF,          // 0x1A Qxx Key Off
+	CMD_RETRIG,          // 0x1B Rxy Retrig
+	CMD_TREMOR,          // 0x1C Sxy Tremor
+	CMD_POSITIONJUMP,    // 0x1D Txx Position Jump
+	CMD_PATTERNBREAK,    // 0x1E Uxx Pattern Break
+	CMD_GLOBALVOLUME,    // 0x1F Vxx Set Mastervolume
+	CMD_GLOBALVOLSLIDE,  // 0x20 Wxy Mastervolume Slide
+	CMD_S3MCMDEX,        // 0x21 Xxx Extended Effect
+	                     //      X1x Set Filter
+	                     //      X3x Glissando
+	                     //      X5x Vibrato Waveform
+	                     //      X8x Tremolo Waveform
+	                     //      XAx Pattern Loop
+	                     //      XBx Pattern Delay
+	                     //      XCx Note Cut
+	                     //      XDx Note Delay
+	                     //      XEx Ignore Envelope
+	                     //      XFx Invert Loop
+	CMD_NONE,            // 0x22 Yxx Chorus - XXX
+	CMD_NONE,            // 0x23 Zxx Reverb - XXX
 };
 
-static void ImportIMFEffect(ModCommand &m)
+static std::pair<EffectCommand, uint8> TranslateIMFEffect(uint8 command, uint8 param)
 {
 	uint8 n;
 	// fix some of them
-	switch (m.command)
+	switch(command)
 	{
 	case 0xE: // fine volslide
 		// hackaround to get almost-right behavior for fine slides (i think!)
-		if(m.param == 0)
+		if(param == 0)
 			/* nothing */;
-		else if(m.param == 0xF0)
-			m.param = 0xEF;
-		else if(m.param == 0x0F)
-			m.param = 0xFE;
-		else if(m.param & 0xF0)
-			m.param |= 0x0F;
+		else if(param == 0xF0)
+			param = 0xEF;
+		else if(param == 0x0F)
+			param = 0xFE;
+		else if(param & 0xF0)
+			param |= 0x0F;
 		else
-			m.param |= 0xF0;
+			param |= 0xF0;
 		break;
 	case 0xF: // set finetune
-		// we don't implement this, but let's at least import the value
-		m.param = 0x20 | std::min(static_cast<uint8>(m.param >> 4), uint8(0x0F));
+		param ^= 0x80;
 		break;
 	case 0x14: // fine slide up
 	case 0x15: // fine slide down
 		// this is about as close as we can do...
-		if(m.param >> 4)
-			m.param = 0xF0 | std::min(static_cast<uint8>(m.param >> 4), uint8(0x0F));
+		if(param >> 4)
+			param = 0xF0 | (param >> 4);
 		else
-			m.param |= 0xE0;
+			param |= 0xE0;
 		break;
 	case 0x16: // cutoff
-		m.param = (0xFF - m.param) / 2u;
+		param = static_cast<uint8>((0xFF - param) / 2u);
+		break;
+	case 0x17: // cutoff slide + resonance (TODO: cutoff slide is currently not handled)
+		param = 0x80 | (param & 0x0F);
 		break;
 	case 0x1F: // set global volume
-		m.param = mpt::saturate_cast<uint8>(m.param * 2);
+		param = mpt::saturate_cast<uint8>(param * 2);
 		break;
 	case 0x21:
 		n = 0;
-		switch (m.param >> 4)
+		switch(param >> 4)
 		{
 		case 0:
 			/* undefined, but since S0x does nothing in IT anyway, we won't care.
@@ -300,7 +306,7 @@ static void ImportIMFEffect(ModCommand &m)
 		default: // undefined
 		case 0x1: // set filter
 		case 0xF: // invert loop
-			m.command = CMD_NONE;
+			command = 0;
 			break;
 		case 0x3: // glissando
 			n = 0x20;
@@ -320,41 +326,46 @@ static void ImportIMFEffect(ModCommand &m)
 		case 0xC: // note cut
 		case 0xD: // note delay
 			// Apparently, Imago Orpheus doesn't cut samples on tick 0.
-			if(!m.param)
-				m.command = CMD_NONE;
+			if(!param)
+				command = 0;
 			break;
 		case 0xE: // ignore envelope
-			/* predicament: we can only disable one envelope at a time.
-			volume is probably most noticeable, so let's go with that.
-			(... actually, orpheus doesn't even seem to implement this at all) */
-			m.param = 0x77;
+			switch(param & 0x0F)
+			{
+			// All envelopes
+			// Predicament: we can only disable one envelope at a time. Volume is probably most noticeable, so let's go with that.
+			case 0: param = 0x77; break;
+			// Volume
+			case 1: param = 0x77; break;
+			// Panning
+			case 2: param = 0x79; break;
+			// Filter
+			case 3: param = 0x7B; break;
+			}
 			break;
 		case 0x18: // sample offset
 			// O00 doesn't pick up the previous value
-			if(!m.param)
-				m.command = CMD_NONE;
+			if(!param)
+				command = 0;
 			break;
 		}
 		if(n)
-			m.param = n | (m.param & 0x0F);
+			param = n | (param & 0x0F);
 		break;
 	}
-	m.command = (m.command < CountOf(imfEffects)) ? imfEffects[m.command] : CMD_NONE;
-	if(m.command == CMD_VOLUME && m.volcmd == VOLCMD_NONE)
-	{
-		m.volcmd = VOLCMD_VOLUME;
-		m.vol = m.param;
-		m.command = CMD_NONE;
-		m.param = 0;
-	}
+	return {(command < std::size(imfEffects)) ? imfEffects[command] : CMD_NONE, param};
 }
 
 
 static bool ValidateHeader(const IMFFileHeader &fileHeader)
 {
 	if(std::memcmp(fileHeader.im10, "IM10", 4)
-		|| fileHeader.ordNum > 256
-		|| fileHeader.insNum >= MAX_INSTRUMENTS)
+	   || fileHeader.ordNum > 256
+	   || fileHeader.insNum >= MAX_INSTRUMENTS
+	   || fileHeader.bpm < 32
+	   || fileHeader.master > 64
+	   || fileHeader.amp < 4
+	   || fileHeader.amp > 127)
 	{
 		return false;
 	}
@@ -417,7 +428,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		return false;
 	}
-	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	if(!file.CanRead(mpt::saturate_cast<FileReader::pos_type>(GetHeaderMinimumAdditionalSize(fileHeader))))
 	{
 		return false;
 	}
@@ -432,7 +443,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 	for(uint8 chn = 0; chn < 32; chn++)
 	{
 		ChnSettings[chn].Reset();
-		ChnSettings[chn].nPan = fileHeader.channels[chn].panning * 256 / 255;
+		ChnSettings[chn].nPan = static_cast<uint16>(fileHeader.channels[chn].panning * 256 / 255);
 
 		ChnSettings[chn].szName = mpt::String::ReadBuf(mpt::String::nullTerminated, fileHeader.channels[chn].name);
 
@@ -480,8 +491,8 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 	m_SongFlags.set(SONG_LINEARSLIDES, fileHeader.flags & IMFFileHeader::linearSlides);
 	m_nDefaultSpeed = fileHeader.tempo;
 	m_nDefaultTempo.Set(fileHeader.bpm);
-	m_nDefaultGlobalVolume = Clamp<uint8, uint8>(fileHeader.master, 0, 64) * 4;
-	m_nSamplePreAmp = Clamp<uint8, uint8>(fileHeader.amp, 4, 127);
+	m_nDefaultGlobalVolume = fileHeader.master * 4u;
+	m_nSamplePreAmp = fileHeader.amp;
 
 	m_nInstruments = fileHeader.insNum;
 	m_nSamples = 0; // Will be incremented later
@@ -532,7 +543,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 					m.note = NOTE_NONE;
 				} else
 				{
-					m.note = (m.note >> 4) * 12 + (m.note & 0x0F) + 12 + 1;
+					m.note = static_cast<ModCommand::NOTE>((m.note >> 4) * 12 + (m.note & 0x0F) + 12 + 1);
 					if(!m.IsNoteOrEmpty())
 					{
 						m.note = NOTE_NONE;
@@ -543,48 +554,19 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				// Read both effects and figure out what to do with them
 				const auto [e1c, e1d, e2c, e2d] = patternChunk.ReadArray<uint8, 4>();  // Command 1, Data 1, Command 2, Data 2
-
-				if(e1c == 0x0C)
-				{
-					m.vol = std::min(e1d, uint8(0x40));
-					m.volcmd = VOLCMD_VOLUME;
-					m.command = e2c;
-					m.param = e2d;
-				} else if(e2c == 0x0C)
-				{
-					m.vol = std::min(e2d, uint8(0x40));
-					m.volcmd = VOLCMD_VOLUME;
-					m.command = e1c;
-					m.param = e1d;
-				} else if(e1c == 0x0A)
-				{
-					m.vol = e1d * 64 / 255;
-					m.volcmd = VOLCMD_PANNING;
-					m.command = e2c;
-					m.param = e2d;
-				} else if(e2c == 0x0A)
-				{
-					m.vol = e2d * 64 / 255;
-					m.volcmd = VOLCMD_PANNING;
-					m.command = e1c;
-					m.param = e1d;
-				} else
-				{
-					/* check if one of the effects is a 'global' effect
-					-- if so, put it in some unused channel instead.
-					otherwise pick the most important effect. */
-					m.command = e2c;
-					m.param = e2d;
-				}
+				const auto [command1, param1] = TranslateIMFEffect(e1c, e1d);
+				const auto [command2, param2] = TranslateIMFEffect(e2c, e2d);
+				m.FillInTwoCommands(command1, param1, command2, param2);
 			} else if(mask & 0xC0)
 			{
-				// There's one effect, just stick it in the effect column
-				const auto [command, param] = patternChunk.ReadArray<uint8, 2>();
-				m.command = command;
-				m.param = param;
+				// There's one effect, just stick it in the effect column (unless it's a volume command)
+				const auto [e1c, e1d] = patternChunk.ReadArray<uint8, 2>();  // Command 1, Data 1, Command 2, Data 2
+				const auto [command, param] = TranslateIMFEffect(e1c, e1d);
+				if(command == CMD_VOLUME)
+					m.SetVolumeCommand(VOLCMD_VOLUME, param);
+				else
+					m.SetEffectCommand(command, param);
 			}
-			if(m.command)
-				ImportIMFEffect(m);
 			if(ignoreChannels[channel] && m.IsGlobalCommand())
 				m.command = CMD_NONE;
 		}
@@ -614,8 +596,9 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			file.ReadStruct(sampleHeader);
 
 			const SAMPLEINDEX smpID = firstSample + smp;
-			if(memcmp(sampleHeader.is10, "IS10", 4) || smpID >= MAX_SAMPLES)
+			if(smpID >= MAX_SAMPLES)
 			{
+				file.Skip(sampleHeader.length);
 				continue;
 			}
 

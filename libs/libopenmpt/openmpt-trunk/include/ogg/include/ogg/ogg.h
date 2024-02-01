@@ -11,7 +11,6 @@
  ********************************************************************
 
  function: toplevel libogg include
- last mod: $Id: ogg.h 18044 2011-08-01 17:55:20Z gmaxwell $
 
  ********************************************************************/
 #ifndef _OGG_H
@@ -22,7 +21,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include "ogg/os_types.h"
+#include <ogg/os_types.h>
 
 typedef struct {
   void *iov_base;

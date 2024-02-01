@@ -2,71 +2,121 @@
  project "PluginBridge"
   uuid "1A147336-891E-49AC-9EAD-A750599A224C"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname )
-  vpaths { ["*"] = "../../pluginBridge/" }
-  mpt_projectname = "PluginBridge"
-  dofile "../../build/premake/premake-defaults-EXEGUI.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  local extincludedirs = {
-   "../include/vstsdk2.4",
-  }
-	filter { "action:vs*" }
-		includedirs ( extincludedirs )
-	filter { "not action:vs*" }
-		sysincludedirs ( extincludedirs )
-	filter {}
+  vpaths { ["*"] = "../../" }
+  mpt_kind "GUI"
   includedirs {
+   "../../src",
    "../../common",
    "$(IntDir)/svn_version",
-   "../../build/svn_version",
   }
   files {
+   "../../src/mpt/**.cpp",
+   "../../src/mpt/**.hpp",
+   "../../src/openmpt/**.cpp",
+   "../../src/openmpt/**.hpp",
    "../../pluginBridge/AEffectWrapper.h",
    "../../pluginBridge/Bridge.cpp",
    "../../pluginBridge/Bridge.h",
    "../../pluginBridge/BridgeCommon.h",
    "../../pluginBridge/BridgeOpCodes.h",
+   "../../misc/WriteMemoryDump.h",
+   "../../common/versionNumber.h",
   }
+	excludes {
+		"../../src/openmpt/soundbase/**.cpp",
+		"../../src/openmpt/soundbase/**.hpp",
+		"../../src/openmpt/sounddevice/**.cpp",
+		"../../src/openmpt/sounddevice/**.hpp",
+	}
   files {
    "../../pluginBridge/PluginBridge.rc",
   }
-  files {
-   "../../pluginBridge/PluginBridge.manifest",
-  }
+	files {
+		"../../pluginBridge/PluginBridge.manifest",
+	}
   defines { "MODPLUG_TRACKER" }
-  largeaddressaware ( true )
-  characterset "Unicode"
-  flags { "WinMain", "ExtraWarnings" }
+  dpiawareness "None"
+	characterset "Unicode"
+	if _OPTIONS["charset"] ~= "Unicode" then
+		defines { "MPT_CHECK_WINDOWS_IGNORE_WARNING_NO_UNICODE" }
+	end
+  warnings "Extra"
   prebuildcommands { "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)" }
   filter { "architecture:x86" }
-   targetsuffix "32"
+   targetsuffix "-x86"
   filter { "architecture:x86_64" }
-   targetsuffix "64"
-  filter {}
+   targetsuffix "-amd64"
+  filter { "architecture:ARM" }
+   targetsuffix "-arm"
+  filter { "architecture:ARM64" }
+   targetsuffix "-arm64"
 
-	if _OPTIONS["xp"] then
-		filter { "architecture:x86" }
-			postbuildcommands {
-				"if not exist \"$(TargetDir)\\..\\x86-64-winxp64\" mkdir \"$(TargetDir)\\..\\x86-64-winxp64\"",
-				"copy /y \"$(TargetDir)\\$(TargetFileName)\" \"$(TargetDir)\\..\\x86-64-winxp64\\$(TargetFileName)\"",
-			}
-		filter { "architecture:x86_64" }
-			postbuildcommands {
-				"if not exist \"$(TargetDir)\\..\\x86-32-winxp\" mkdir \"$(TargetDir)\\..\\x86-32-winxp\"",
-				"copy /y \"$(TargetDir)\\$(TargetFileName)\" \"$(TargetDir)\\..\\x86-32-winxp\\$(TargetFileName)\"",
-			}
-	else
-		filter { "architecture:x86" }
-			postbuildcommands {
-				"if not exist \"$(TargetDir)\\..\\x86-64-win7\" mkdir \"$(TargetDir)\\..\\x86-64-win7\"",
-				"copy /y \"$(TargetDir)\\$(TargetFileName)\" \"$(TargetDir)\\..\\x86-64-win7\\$(TargetFileName)\"",
-			}
-		filter { "architecture:x86_64" }
-			postbuildcommands {
-				"if not exist \"$(TargetDir)\\..\\x86-32-win7\" mkdir \"$(TargetDir)\\..\\x86-32-win7\"",
-				"copy /y \"$(TargetDir)\\$(TargetFileName)\" \"$(TargetDir)\\..\\x86-32-win7\\$(TargetFileName)\"",
-			}
-	end
-
+ project "PluginBridgeLegacy"
+  uuid "BDEC2D44-C957-4940-A32B-02824AF6E21D"
+  language "C++"
+  vpaths { ["*"] = "../../" }
+  mpt_kind "GUI"
+  includedirs {
+   "../../src",
+   "../../common",
+   "$(IntDir)/svn_version",
+  }
+  files {
+   "../../src/mpt/**.cpp",
+   "../../src/mpt/**.hpp",
+   "../../src/openmpt/**.cpp",
+   "../../src/openmpt/**.hpp",
+   "../../pluginBridge/AEffectWrapper.h",
+   "../../pluginBridge/Bridge.cpp",
+   "../../pluginBridge/Bridge.h",
+   "../../pluginBridge/BridgeCommon.h",
+   "../../pluginBridge/BridgeOpCodes.h",
+   "../../misc/WriteMemoryDump.h",
+   "../../common/versionNumber.h",
+  }
+	excludes {
+		"../../src/openmpt/soundbase/**.cpp",
+		"../../src/openmpt/soundbase/**.hpp",
+		"../../src/openmpt/sounddevice/**.cpp",
+		"../../src/openmpt/sounddevice/**.hpp",
+	}
+  files {
+   "../../pluginBridge/PluginBridge.rc",
+  }
+	files {
+		"../../pluginBridge/PluginBridge.manifest",
+	}
+  defines { "MODPLUG_TRACKER" }
+  dpiawareness "None"
+  largeaddressaware ( false )
 	filter {}
-
+	filter { "action:vs*", "architecture:x86" }
+		dataexecutionprevention "Off"
+	filter { "action:vs*", "architecture:x86_64" }
+		dataexecutionprevention "Off"
+	filter { "action:vs*", "architecture:ARM" }
+		-- dataexecutionprevention "Off" -- not supported by windows loader on arm64
+	filter { "action:vs*", "architecture:ARM64" }
+		-- dataexecutionprevention "Off" -- not supported by windows loader on arm64
+	filter {}
+	characterset "Unicode"
+	if _OPTIONS["charset"] ~= "Unicode" then
+		defines { "MPT_CHECK_WINDOWS_IGNORE_WARNING_NO_UNICODE" }
+	end
+  warnings "Extra"
+  prebuildcommands { "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)" }
+  filter { "architecture:x86" }
+   targetsuffix "-x86"
+  filter { "architecture:x86_64" }
+   targetsuffix "-amd64"
+  filter { "architecture:ARM" }
+   targetsuffix "-arm"
+  filter { "architecture:ARM64" }
+   targetsuffix "-arm64"
+  filter {}
+	filter {}
+	filter { "action:vs*", "architecture:x86_64" }
+		linkoptions { "/HIGHENTROPYVA:NO" }
+	filter { "action:vs*", "architecture:ARM64" }
+		linkoptions { "/HIGHENTROPYVA:NO" }
+	filter {}

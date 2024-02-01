@@ -9,28 +9,35 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
+#ifdef MPT_WITH_UNRAR
+
+#include "mpt/io_file_adapter/fileadapter.hpp"
+#include "../common/FileReader.h"
+
+#endif // MPT_WITH_UNRAR
+
 #include "archive.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 #ifdef MPT_WITH_UNRAR
 
-//===============
 class CRarArchive
-//===============
 	: public ArchiveBase
 {
 
 protected:
 
-	std::unique_ptr<OnDiskFileWrapper> diskFile;
-	bool captureCurrentFile;
+	std::unique_ptr<mpt::IO::FileAdapter<FileCursor>> diskFile;
+	bool captureCurrentFile = false;
 
 public:
 	CRarArchive(FileReader &file);
-	virtual ~CRarArchive();
+	~CRarArchive() override;
 	
-	virtual bool ExtractFile(std::size_t index);
+	bool ExtractFile(std::size_t index) override;
 
 public:
 

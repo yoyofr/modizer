@@ -1,11 +1,16 @@
 @echo off
 
-echo WARNING: This script will unconditionally remove all files from the destination directories.
-echo This script requires Windows 7 or later (because of PowerShell).
-echo This script requires 7-zip in "C:\Program Files\7-Zip\" (the default path for a native install).
-echo When running from a Subversion working copy, this script requires at least Subversion 1.7 (because it removes subdirectories which should not contain .svn metadata).
+if not "x%1" == "xauto" (
+	echo "WARNING: This script will unconditionally remove all files from the destination directories."
+	pause
+)
 
-pause
+if "x%2" == "xnodownload" (
+ set MPT_DOWNLOAD=no
+)
+if not "x%2" == "xnodownload" (
+ set MPT_DOWNLOAD=yes
+)
 
 set MY_DIR=%CD%
 set BATCH_DIR=%~dp0
@@ -13,73 +18,86 @@ cd %BATCH_DIR% || goto error
 cd .. || goto error
 goto main
 
-:download_and_unpack
- set MPT_GET_DESTDIR="%~1"
- set MPT_GET_URL="%~2"
- set MPT_GET_FILE="%~3"
- set MPT_GET_SUBDIR="%~4"
- set MPT_GET_UNPACK_INTERMEDIATE="%~5"
- if not exist "build\externals\%~3" (
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('%MPT_GET_URL%', 'build/externals/%~3')" || exit /B 1
-  cd build\externals || exit /B 1
-  if not "%~5" == "-" (
-   "C:\Program Files\7-Zip\7z.exe" x -y "%~3" || exit /B 1
-  )
-  cd ..\.. || exit /B 1
- )
- cd include || exit /B 1
- if exist %MPT_GET_DESTDIR% rmdir /S /Q %MPT_GET_DESTDIR%
- if "%~4" == "." (
-  mkdir %MPT_GET_DESTDIR%
-  cd %MPT_GET_DESTDIR% || exit /B 1
-  if "%~5" == "-" (
-   "C:\Program Files\7-Zip\7z.exe" x -y "..\..\build\externals\%~3" || exit /B 1
-  )
-  if not "%~5" == "-" (
-   "C:\Program Files\7-Zip\7z.exe" x -y "..\..\build\externals\%~5" || exit /B 1
-  )
-  cd .. || exit /B 1
- )
- if not "%~4" == "." (
-  if "%~5" == "-" (
-   "C:\Program Files\7-Zip\7z.exe" x -y "..\build\externals\%~3" || exit /B 1
-  )
-  if not "%~5" == "-" (
-   "C:\Program Files\7-Zip\7z.exe" x -y "..\build\externals\%~5" || exit /B 1
-  )
-  choice /C y /N /T 2 /D y
-  if not "%~4" == "%~1" (
-   move /Y "%~4" %MPT_GET_DESTDIR% || exit /B 1
-  )
- )
- cd .. || exit /B 1
+:killdir
+ set MPT_KILLDIR_DIR="%~1"
+ if exist %MPT_KILLDIR_DIR% rmdir /S /Q %MPT_KILLDIR_DIR%
 exit /B 0
 goto error
 
 :main
 if not exist "build\externals" mkdir "build\externals"
+if not exist "build\tools"     mkdir "build\tools"
 
-call :download_and_unpack "winamp"    "http://download.nullsoft.com/winamp/plugin-dev/WA5.55_SDK.exe"             "WA5.55_SDK.exe"                    "."             "-" || goto error
-call :download_and_unpack "xmplay"    "http://us.un4seen.com/files/xmp-sdk.zip"                                   "xmp-sdk.zip"                       "."             "-" || goto error
-call :download_and_unpack "ASIOSDK2"  "https://www.steinberg.net/sdk_downloads/asiosdk2.3.zip"                    "asiosdk2.3.zip"                    "ASIOSDK2.3"    "-" || goto error
-call :download_and_unpack "vstsdk2.4" "https://www.steinberg.net/sdk_downloads/vstsdk365_12_11_2015_build_67.zip" "vstsdk365_12_11_2015_build_67.zip" "VST3 SDK"      "-" || goto error
-call :download_and_unpack "lame"      "https://sourceforge.net/projects/lame/files/lame/3.99/lame-3.99.5.tar.gz"  "lame-3.99.5.tar.gz"                "lame-3.99.5"   "lame-3.99.5.tar" || goto error
-call :download_and_unpack "mpg123"    "http://www.mpg123.de/download/mpg123-1.23.8.tar.bz2"                       "mpg123-1.23.8.tar.bz2"             "mpg123-1.23.8" "mpg123-1.23.8.tar" || goto error
-rem call :download_and_unpack "minimp3"   "http://keyj.emphy.de/files/projects/minimp3.tar.gz"                         "minimp3.tar.gz"                     "minimp3"    "minimp3.tar" || goto error
 
-rem workaround https://sourceforge.net/p/mpg123/bugs/243/
-cd include\mpg123 || goto error
-rem PowerShell 3 on Windows 7 requires https://www.microsoft.com/en-us/download/details.aspx?id=34595
-powershell -Version 3 -Command "(Get-Content src\compat\compat.h -Raw).replace(\"typedef long ssize_t\", \"typedef ptrdiff_t ssize_t\") | Set-Content src\compat\compat.h -Force" || goto error
-cd ..\.. || goto error
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://www.7-zip.org/a/7za920.zip"                                                              "build\externals\7za920.zip"                   84e830c91a0e8ae499cc4814080da6569d8a6acbddc585c8b62abc86c809793aeb669b0a741063a379fd281ade85f120bc27efeb67d63bf961be893eec8bc3b3  384846 || goto error
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://www.7-zip.org/a/7z2201-extra.7z"                                                         "build\externals\7z2201-extra.7z"              845b3fd5dda4187e47fa0650a5d8465484e6c407a2a1745bb12bc50aa266cc4b573393184642c1875388c262f16039c1b93f102908799147dbfc824a52d8d89d 1018450 || goto error
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://www.7-zip.org/a/7z2201-x64.exe"                                                              "build\externals\7z2201-x64.exe"                   965d43f06d104bf6707513c459f18aaf8b049f4a043643d720b184ed9f1bb6c929309c51c3991d5aaff7b9d87031a7248ee3274896521abe955d0e49f901ac94 1575742 || goto error
+
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://web.archive.org/web/20131217072017if_/http://download.nullsoft.com/winamp/plugin-dev/WA5.55_SDK.exe" "build\externals\WA5.55_SDK.exe"               394375db8a16bf155b5de9376f6290488ab339e503dbdfdc4e2f5bede967799e625c559cca363bc988324f1a8e86e5fd28a9f697422abd7bb3dcde4a766607b5  336166 || goto error
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://www.un4seen.com/files/xmp-sdk.zip"                                                       "build\externals\xmp-sdk.zip"                  62c442d656d4bb380360368a0f5f01da11b4ed54333d7f54f875a9a5ec390b08921e00bd08e62cd7a0a5fe642e3377023f20a950cc2a42898ff4cda9ab88fc91  322744 || goto error
+
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://web.archive.org/web/20200918004813if_/http://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe" "build\externals\htmlhelp.exe"                 d91371244ea98c691b4674ee266c4a2496a296800c176adae069d21f5c52c0763b21cc7859cfffa865b89e50171a2c99a6d14620c32f7d72c0ef04045348f856 3509072 || goto error
+
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://www.python.org/ftp/python/3.12.1/python-3.12.1-embed-amd64.zip"                          "build\externals\python-3.12.1-embed-amd64.zip" b46aa3b188dbe8c3f8b14f3f5ca8722b2ed4c37046f743fa3dc9bab8e2eee55c70c1184a5e3f8e22ea71c60aa8d414668facf3565cc24c896de991b7d3f9930d 11061655 || goto error
+
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://netcologne.dl.sourceforge.net/project/innounp/innounp/innounp%%%%200.50/innounp050.rar"  "build\externals\innounp050.rar"               dbbc809308267a866db9d6b751fdeda6d179e1a65d8ddb14bb51984431ae91493f9a76105e1789b245732043a2c696c869ed10964b48cf59f81e55bd52f85330  141621 || goto error
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe"                                            "build\externals\innosetup-6.2.2.exe"  496375b1ce9c0d2f8eb3930ebd8366f5c4c938bc1eda47aed415e3f02bd8651a84a770a15f2825bf3c8ed9dbefa355b9eb805dd76bc782f6d8c8096d80443099 4722512 || goto error
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://files.jrsoftware.org/is/5/isetup-5.5.8-unicode.exe" "build\externals\isetup-5.5.8-unicode.exe"  da7e27d85caec85b4194c7b1412c5a64c0ae12f22d903b94f2f4ee9ea0cb99c91b2d1dbb49262eefae8129e6b91f5c46f26f353011076e77e75f9c955fc5e1cb 2342456 || goto error
+
+
+call build\scriptlib\download.cmd %MPT_DOWNLOAD% x%1 "https://download.openmpt.org/resources/modules/example_songs_ompt_1_30.7z"                       "build\externals\example_songs_ompt_1_30.7z"  bfecf7f97fd71bd52bcfb38307ccb98c751e6a0fa0c1f31208b22b9392f03ea3da8f9271327df2de4fc2e463e0c13c6a24107fbe18caf8f446b7e7cf93073fa5 4881392 || goto error
+
+
+call :killdir "build\tools\7zipold" || goto error
+call :killdir "build\tools\7zipa" || goto error
+call :killdir "build\tools\7zip" || goto error
+rem Get old 7zip distributed as zip and unpack with built-in zip depacker
+rem Get current 7zip commandline version which can unpack 7zip and the 7zip installer but not other archive formats
+rem Get 7zip installer and unpack it with current commandline 7zip
+rem This is a mess for automatic. Oh well.
+cscript build\scriptlib\unpack-zip.vbs "build\externals\7za920.zip" "build\tools\7zipold" || goto error
+build\tools\7zipold\7za.exe x -y -obuild\tools\7zipa "build\externals\7z2201-extra.7z" || goto error
+build\tools\7zipa\7za.exe x -y -obuild\tools\7zip "build\externals\7z2201-x64.exe" || goto error
+
+call build\scriptlib\unpack.cmd "build\tools\htmlhelp" "build\externals\htmlhelp.exe" "." || goto error
+
+call build\scriptlib\unpack.cmd "include\winamp"   "build\externals\WA5.55_SDK.exe" "."          || goto error
+call build\scriptlib\unpack.cmd "include\xmplay"   "build\externals\xmp-sdk.zip"    "."          || goto error
+
+call build\scriptlib\unpack.cmd "build\tools\python3" "build\externals\python-3.12.1-embed-amd64.zip" "." || goto error
+
+call :killdir "build\tools\innounp"   || goto error
+call :killdir "build\tools\innosetup" || goto error
+call :killdir "build\tools\innosetup5" || goto error
+call build\scriptlib\unpack.cmd "build\tools\innounp" "build\externals\innounp050.rar" "." || goto error
+build\tools\innounp\innounp.exe -x -dbuild\tools\innosetup "build\externals\innosetup-6.2.2.exe" || goto error
+build\tools\innounp\innounp.exe -x -dbuild\tools\innosetup5 "build\externals\isetup-5.5.8-unicode.exe" || goto error
+
+call build\scriptlib\unpack.cmd "packageTemplate\ExampleSongs" "build\externals\example_songs_ompt_1_30.7z" "." || goto error
+
 
 goto ok
 
 :ok
 echo "All OK."
+if "x%1" == "xauto" (
+	exit 0
+)
 goto end
 :error
 echo "Error!"
+if "x%1" == "xauto" (
+	exit 1
+)
 goto end
 :end
 cd %MY_DIR%

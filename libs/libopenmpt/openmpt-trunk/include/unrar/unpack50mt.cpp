@@ -133,11 +133,13 @@ void Unpack::Unpack5MT(bool Solid)
         if (!CurData->HeaderRead)
         {
           CurData->HeaderRead=true;
-          if (!ReadBlockHeader(CurData->Inp,CurData->BlockHeader))
+          if (!ReadBlockHeader(CurData->Inp,CurData->BlockHeader) ||
+              !CurData->BlockHeader.TablePresent && !TablesRead5)
           {
             Done=true;
             break;
           }
+          TablesRead5=true;
         }
 
         // To prevent too high memory use we switch to single threaded mode
@@ -163,7 +165,7 @@ void Unpack::Unpack5MT(bool Solid)
         if (DataLeft<TooSmallToProcess)
           break;
       }
-      
+
 //#undef USE_THREADS
       UnpackThreadDataList UTDArray[MaxPoolThreads];
       uint UTDArrayPos=0;
@@ -178,7 +180,7 @@ void Unpack::Unpack5MT(bool Solid)
         UnpackThreadDataList *UTD=UTDArray+UTDArrayPos++;
         UTD->D=UnpThreadData+CurBlock;
         UTD->BlockCount=Min(MaxBlockPerThread,BlockNumberMT-CurBlock);
-      
+
 #ifdef USE_THREADS
         if (BlockNumber==1)
           UnpackDecode(*UTD->D);
@@ -198,7 +200,7 @@ void Unpack::Unpack5MT(bool Solid)
 #endif
 
       bool IncompleteThread=false;
-      
+
       for (uint Block=0;Block<BlockNumber;Block++)
       {
         UnpackThreadData *CurData=UnpThreadData+Block;
@@ -249,7 +251,7 @@ void Unpack::Unpack5MT(bool Solid)
             break;
           }
       }
-      
+
       if (IncompleteThread || Done)
         break; // Current buffer is done, read more data or quit.
       else
@@ -301,7 +303,7 @@ void Unpack::UnpackDecode(UnpackThreadData &D)
     D.DamagedData=true;
     return;
   }
-  
+
   D.DecodedSize=0;
   int BlockBorder=D.BlockHeader.BlockStart+D.BlockHeader.BlockSize-1;
 
@@ -343,7 +345,7 @@ void Unpack::UnpackDecode(UnpackThreadData &D)
       if (D.DecodedSize>1)
       {
         UnpackDecodedItem *PrevItem=CurItem-1;
-        if (PrevItem->Type==UNPDT_LITERAL && PrevItem->Length<3)
+        if (PrevItem->Type==UNPDT_LITERAL && PrevItem->Length<ASIZE(PrevItem->Literal)-1)
         {
           PrevItem->Length++;
           PrevItem->Literal[PrevItem->Length]=(byte)MainSlot;
@@ -386,7 +388,7 @@ void Unpack::UnpackDecode(UnpackThreadData &D)
         }
         else
         {
-          Distance+=D.Inp.getbits32()>>(32-DBits);
+          Distance+=D.Inp.getbits()>>(16-DBits);
           D.Inp.addbits(DBits);
         }
       }
@@ -411,7 +413,7 @@ void Unpack::UnpackDecode(UnpackThreadData &D)
     {
       UnpackFilter Filter;
       ReadFilter(D.Inp,Filter);
-      
+
       CurItem->Type=UNPDT_FILTER;
       CurItem->Length=Filter.Type;
       CurItem->Distance=Filter.BlockStart;
@@ -449,7 +451,7 @@ bool Unpack::ProcessDecoded(UnpackThreadData &D)
   while (Item<Border)
   {
     UnpPtr&=MaxWinMask;
-    if (((WriteBorder-UnpPtr) & MaxWinMask)<MAX_LZ_MATCH+3 && WriteBorder!=UnpPtr)
+    if (((WriteBorder-UnpPtr) & MaxWinMask)<=MAX_INC_LZ_MATCH && WriteBorder!=UnpPtr)
     {
       UnpWriteBuf();
       if (WrittenFileSize>DestUnpSize)
@@ -458,11 +460,11 @@ bool Unpack::ProcessDecoded(UnpackThreadData &D)
 
     if (Item->Type==UNPDT_LITERAL)
     {
-#if defined(LITTLE_ENDIAN) && defined(PRESENT_INT32) && defined(ALLOW_MISALIGNED)
-      if (Item->Length==3 && UnpPtr<MaxWinSize-4)
+#if defined(LITTLE_ENDIAN) && defined(ALLOW_MISALIGNED)
+      if (Item->Length==7 && UnpPtr<MaxWinSize-8)
       {
-        *(uint32 *)(Window+UnpPtr)=*(uint32 *)Item->Literal;
-        UnpPtr+=4;
+        *(uint64 *)(Window+UnpPtr)=*(uint64 *)(Item->Literal);
+         UnpPtr+=8;
       }
       else
 #endif
@@ -496,7 +498,7 @@ bool Unpack::ProcessDecoded(UnpackThreadData &D)
             if (Item->Type==UNPDT_FILTER)
             {
               UnpackFilter Filter;
-              
+
               Filter.Type=(byte)Item->Length;
               Filter.BlockStart=Item->Distance;
 
@@ -532,7 +534,7 @@ bool Unpack::UnpackLargeBlock(UnpackThreadData &D)
     D.DamagedData=true;
     return false;
   }
-  
+
   int BlockBorder=D.BlockHeader.BlockStart+D.BlockHeader.BlockSize-1;
 
   // Reserve enough space even for filter entry.
@@ -557,7 +559,7 @@ bool Unpack::UnpackLargeBlock(UnpackThreadData &D)
         break;
       }
     }
-    if (((WriteBorder-UnpPtr) & MaxWinMask)<MAX_LZ_MATCH+3 && WriteBorder!=UnpPtr)
+    if (((WriteBorder-UnpPtr) & MaxWinMask)<=MAX_INC_LZ_MATCH && WriteBorder!=UnpPtr)
     {
       UnpWriteBuf();
       if (WrittenFileSize>DestUnpSize)

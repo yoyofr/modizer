@@ -31,7 +31,7 @@ protected:
 		kCompNumParameters
 	};
 
-	float m_param[kCompNumParameters];
+	std::array<float, kCompNumParameters> m_param;
 
 	// Calculated parameters and coefficients
 	float m_gain;
@@ -47,10 +47,9 @@ protected:
 	float m_peak;
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
-	Compressor(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
+	Compressor(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
-	void Release() override { delete this; }
 	int32 GetUID() const override { return 0xEF011F79; }
 	int32 GetVersion() const override { return 0; }
 	void Idle() override { }

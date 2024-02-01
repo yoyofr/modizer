@@ -2,16 +2,10 @@
  project "zlib"
   uuid "1654FB18-FDE6-406F-9D84-BA12BFBD67B2"
   language "C"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "zlib"
-  dofile "../../build/premake/premake-defaults-LIBorDLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "default"
   targetname "openmpt-zlib"
   includedirs { "../../include/zlib" }
-	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
 	filter {}
   files {
    "../../include/zlib/adler32.c",
@@ -48,3 +42,39 @@
   filter { "kind:SharedLib" }
    defines { "ZLIB_DLL" }
   filter {}
+  filter { "action:vs*" }
+    buildoptions { "/wd4267" }
+  filter {}
+  filter { "action:vs*" }
+    buildoptions { "/wd6297", "/wd6385" } -- /analyze
+	filter {}
+		if _OPTIONS["clang"] then
+			buildoptions {
+				"-Wno-deprecated-non-prototype",
+				"-Wno-tautological-pointer-compare",
+				"-Wno-unused-but-set-variable",
+				"-Wno-unused-const-variable",
+			}
+		end
+	filter {}
+
+function mpt_use_zlib ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include/zlib",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include/zlib",
+		}
+	filter {}
+	filter { "configurations:*Shared" }
+		defines { "ZLIB_DLL" }
+	filter { "not configurations:*Shared" }
+	filter {}
+	links {
+		"zlib",
+	}
+	filter {}
+end

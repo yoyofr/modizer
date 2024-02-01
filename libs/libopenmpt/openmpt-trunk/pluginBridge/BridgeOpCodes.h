@@ -10,12 +10,13 @@
 
 #pragma once
 
-#define VST_FORCE_DEPRECATED 0
-#include "../include/vstsdk2.4/pluginterfaces/vst2.x/aeffectx.h"
+#include "openmpt/all/BuildSettings.hpp"
+
+#include "../mptrack/plugins/VstDefinitions.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-enum VendorSpecificOpCodes
+enum VendorSpecificOpCodes : int32
 {
 	// Explicitely tell the plugin bridge to update the AEffect struct cache
 	kUpdateEffectStruct = 0,
@@ -30,9 +31,13 @@ enum VendorSpecificOpCodes
 	kCacheProgramNames,
 	// Cache parameter information - ptr points to 2x int32 containing the start and end parameter index - caches info in range [start, end[
 	kCacheParameterInfo,
+	// Cache parameter values
+	kBeginGetProgram,
+	// Stop using parameter value cache
+	kEndGetProgram,
 
 	// Constant for identifying our vendor-specific opcodes
-	kVendorOpenMPT = CCONST('O', 'M', 'P', 'T'),
+	kVendorOpenMPT = Vst::FourCC("OMPT"),
 
 	// Maximum length of cached program names
 	kCachedProgramNameLength = 256,

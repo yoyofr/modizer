@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
 // struct Notification requires working copy constructor / copy assignment, keep in mind when extending
@@ -29,26 +31,30 @@ struct Notification
 		Default		= GlobalVU,
 	};
 
-	typedef uint16 Item;
+	using Item = uint16;
 
-	static const SmpLength PosInvalid = SmpLength(-1);	// pos[i] is not valid (if it contains sample or envelope position)
-	static const uint32 ClipVU = 0x80000000;			// Master VU clip indicator bit (sound output has previously clipped)
+	static constexpr SmpLength PosInvalid = SmpLength(-1);	// pos[i] is not valid (if it contains sample or envelope position)
+	static constexpr uint32 ClipVU = 0x80000000;			// Master VU clip indicator bit (sound output has previously clipped)
 
 	int64 timestampSamples;
 	FlagSet<Notification::Type> type;
-	Item item;						// Sample or instrument number, depending on type
-	ROWINDEX row;					// Always valid
-	uint32 tick, ticksOnRow;		// ditto
-	ORDERINDEX order;				// ditto
-	PATTERNINDEX pattern;			// ditto
-	uint32 mixedChannels;			// ditto
-	uint32 masterVU[4];				// ditto
-	uint8 masterVUchannels;			// ditto
-	SmpLength pos[MAX_CHANNELS];	// Sample / envelope pos for each channel if != PosInvalid, or pattern channel VUs
+	Item item;                               // Sample or instrument number, depending on type
+	ROWINDEX row;                            // Always valid
+	uint32 tick, ticksOnRow;                 // ditto
+	ORDERINDEX order;                        // ditto
+	PATTERNINDEX pattern;                    // ditto
+	uint32 mixedChannels;                    // ditto
+	std::array<uint32, 4> masterVUin;        // ditto
+	std::array<uint32, 4> masterVUout;       // ditto
+	uint8 masterVUinChannels;                // ditto
+	uint8 masterVUoutChannels;               // ditto
+	std::array<SmpLength, MAX_CHANNELS> pos; // Sample / envelope pos for each channel if != PosInvalid, or pattern channel VUs
 
-	Notification(FlagSet<Notification::Type> t = Default, Item i = 0, int64 s = 0, ROWINDEX r = 0, uint32 ti = 0, uint32 tir = 0, ORDERINDEX o = 0, PATTERNINDEX p = 0, uint32 x = 0, uint8 outChannels = 0) : timestampSamples(s), type(t), item(i), row(r), tick(ti), ticksOnRow(tir), order(o), pattern(p), mixedChannels(x), masterVUchannels(outChannels)
+	Notification(FlagSet<Notification::Type> t = Default, Item i = 0, int64 s = 0, ROWINDEX r = 0, uint32 ti = 0, uint32 tir = 0, ORDERINDEX o = 0, PATTERNINDEX p = 0, uint32 x = 0, uint8 outChannels = 0, uint8 inChannels = 0) : timestampSamples(s), type(t), item(i), row(r), tick(ti), ticksOnRow(tir), order(o), pattern(p), mixedChannels(x), masterVUinChannels(inChannels), masterVUoutChannels(outChannels)
 	{
-		MemsetZero(masterVU);
+		masterVUin.fill(0);
+		masterVUout.fill(0);
+		pos.fill(0);
 	}
 };
 

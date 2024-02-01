@@ -9,12 +9,14 @@
 
 
 #include "stdafx.h"
+#include "Autotune.h"
 #include <math.h>
 #include "../common/misc_util.h"
-#include "../common/mptThread.h"
 #include "../soundlib/Sndfile.h"
-#include "Autotune.h"
-#ifdef ENABLE_SSE2
+#include <algorithm>
+#include <execution>
+#include <numeric>
+#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE2)
 #include <emmintrin.h>
 #endif
 
@@ -31,39 +33,42 @@ OPENMPT_NAMESPACE_BEGIN
 #define HISTORY_BINS	(12 * BINS_PER_NOTE)	// One octave
 
 
-double Autotune::FrequencyToNote(double freq, double pitchReference)
-//------------------------------------------------------------------
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif // MPT_COMPILER_CLANG
+static inline double FrequencyToNote(double freq, double pitchReference)
 {
 	return ((12.0 * (log(freq / (pitchReference / 2.0)) / log(2.0))) + 57.0);
 }
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
 
 
-double Autotune::NoteToFrequency(double note, double pitchReference)
-//------------------------------------------------------------------
+static inline double NoteToFrequency(double note, double pitchReference)
 {
 	return pitchReference * pow(2.0, (note - 69.0) / 12.0);
 }
 
 
 // Calculate the amount of samples for autocorrelation shifting for a given note
-SmpLength Autotune::NoteToShift(uint32 sampleFreq, int note, double pitchReference)
-//---------------------------------------------------------------------------------
+static inline SmpLength NoteToShift(uint32 sampleFreq, int note, double pitchReference)
 {
 	const double fundamentalFrequency = NoteToFrequency((double)note / BINS_PER_NOTE, pitchReference);
-	return std::max(Util::Round<SmpLength>((double)sampleFreq / fundamentalFrequency), SmpLength(1));
+	return std::max(mpt::saturate_round<SmpLength>((double)sampleFreq / fundamentalFrequency), SmpLength(1));
 }
 
 
 // Create an 8-Bit sample buffer with loop unrolling and mono conversion for autocorrelation.
 template <class T>
 void Autotune::CopySamples(const T* origSample, SmpLength sampleLoopStart, SmpLength sampleLoopEnd)
-//-------------------------------------------------------------------------------------------------
 {
-	const uint8 channels = sample.GetNumChannels();
+	const uint8 channels = m_sample.GetNumChannels();
 	sampleLoopStart *= channels;
 	sampleLoopEnd *= channels;
 
-	for(SmpLength i = 0, pos = 0; i < sampleLength; i++, pos += channels)
+	for(SmpLength i = 0, pos = 0; i < m_sampleLength; i++, pos += channels)
 	{
 		if(pos >= sampleLoopEnd)
 		{
@@ -81,61 +86,60 @@ void Autotune::CopySamples(const T* origSample, SmpLength sampleLoopStart, SmpLe
 
 		data /= channels;
 
-		sampleData[i] = static_cast<int16>(data);
+		m_sampleData[i] = static_cast<int16>(data);
 	}
 }
 
-	
+
 // Prepare a sample buffer for autocorrelation
 bool Autotune::PrepareSample(SmpLength maxShift)
-//----------------------------------------------
 {
 
 	// Determine which parts of the sample should be examined.
-	SmpLength sampleOffset = 0, sampleLoopStart = 0, sampleLoopEnd = sample.nLength;
-	if(selectionEnd >= sampleLoopStart + MIN_SAMPLE_LENGTH)
+	SmpLength sampleOffset = 0, sampleLoopStart = 0, sampleLoopEnd = m_sample.nLength;
+	if(m_selectionEnd >= sampleLoopStart + MIN_SAMPLE_LENGTH)
 	{
 		// A selection has been specified: Examine selection
-		sampleOffset = selectionStart;
+		sampleOffset = m_selectionStart;
 		sampleLoopStart = 0;
-		sampleLoopEnd = selectionEnd - selectionStart;
-	} else if(sample.uFlags[CHN_SUSTAINLOOP] && sample.nSustainEnd >= sample.nSustainStart + MIN_SAMPLE_LENGTH)
+		sampleLoopEnd = m_selectionEnd - m_selectionStart;
+	} else if(m_sample.uFlags[CHN_SUSTAINLOOP] && m_sample.nSustainEnd >= m_sample.nSustainStart + MIN_SAMPLE_LENGTH)
 	{
 		// A sustain loop is set: Examine sample up to sustain loop and, if necessary, execute the loop several times
 		sampleOffset = 0;
-		sampleLoopStart = sample.nSustainStart;
-		sampleLoopEnd = sample.nSustainEnd;
-	} else if(sample.uFlags[CHN_LOOP] && sample.nLoopEnd >= sample.nLoopStart + MIN_SAMPLE_LENGTH)
+		sampleLoopStart = m_sample.nSustainStart;
+		sampleLoopEnd = m_sample.nSustainEnd;
+	} else if(m_sample.uFlags[CHN_LOOP] && m_sample.nLoopEnd >= m_sample.nLoopStart + MIN_SAMPLE_LENGTH)
 	{
 		// A normal loop is set: Examine sample up to loop and, if necessary, execute the loop several times
 		sampleOffset = 0;
-		sampleLoopStart = sample.nLoopStart;
-		sampleLoopEnd = sample.nLoopEnd;
+		sampleLoopStart = m_sample.nLoopStart;
+		sampleLoopEnd = m_sample.nLoopEnd;
 	}
 
 	// We should analyse at least a one second (= GetSampleRate() samples) long sample.
-	sampleLength = std::max<SmpLength>(sampleLoopEnd, sample.GetSampleRate(modType)) + maxShift;
-	sampleLength = (sampleLength + 7) & ~7;
+	m_sampleLength = std::max(sampleLoopEnd, static_cast<SmpLength>(m_sample.GetSampleRate(m_modType))) + maxShift;
+	m_sampleLength = (m_sampleLength + 7) & ~7;
 
-	if(sampleData != nullptr)
+	if(m_sampleData != nullptr)
 	{
-		delete[] sampleData;
+		delete[] m_sampleData;
 	}
-	sampleData = new int16[sampleLength];
-	if(sampleData == nullptr)
+	m_sampleData = new int16[m_sampleLength];
+	if(m_sampleData == nullptr)
 	{
 		return false;
 	}
 
 	// Copy sample over.
-	switch(sample.GetElementarySampleSize())
+	switch(m_sample.GetElementarySampleSize())
 	{
 	case 1:
-		CopySamples(sample.pSample8 + sampleOffset * sample.GetNumChannels(), sampleLoopStart, sampleLoopEnd);
+		CopySamples(m_sample.sample8() + sampleOffset * m_sample.GetNumChannels(), sampleLoopStart, sampleLoopEnd);
 		return true;
 
 	case 2:
-		CopySamples(sample.pSample16 + sampleOffset * sample.GetNumChannels(), sampleLoopStart, sampleLoopEnd);
+		CopySamples(m_sample.sample16() + sampleOffset * m_sample.GetNumChannels(), sampleLoopStart, sampleLoopEnd);
 		return true;
 	}
 
@@ -145,90 +149,152 @@ bool Autotune::PrepareSample(SmpLength maxShift)
 
 
 bool Autotune::CanApply() const
-//-----------------------------
 {
-	return (sample.pSample != nullptr && sample.nLength >= MIN_SAMPLE_LENGTH);
+	return (m_sample.HasSampleData() && m_sample.nLength >= MIN_SAMPLE_LENGTH) || m_sample.uFlags[CHN_ADLIB];
 }
 
 
-struct AutotuneThreadData
+namespace
 {
-	std::vector<uint64> histogram;
+
+
+struct AutotuneHistogramEntry
+{
+	int index;
+	uint64 sum;
+};
+
+struct AutotuneHistogram
+{
+	std::array<uint64, HISTORY_BINS> histogram{};
+};
+
+struct AutotuneContext
+{
+	const int16 *m_sampleData;
 	double pitchReference;
-	int16 *sampleData;
 	SmpLength processLength;
 	uint32 sampleFreq;
-	int startNote, endNote;
+};
+
+#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE2)
+
+static inline AutotuneHistogramEntry CalculateNoteHistogramSSE2(int note, AutotuneContext ctx)
+{
+	const SmpLength autocorrShift = NoteToShift(ctx.sampleFreq, note, ctx.pitchReference);
+	uint64 autocorrSum = 0;
+	{
+		const __m128i *normalData = reinterpret_cast<const __m128i *>(ctx.m_sampleData);
+		const __m128i *shiftedData = reinterpret_cast<const __m128i *>(ctx.m_sampleData + autocorrShift);
+		for(SmpLength i = ctx.processLength / 8; i != 0; i--)
+		{
+			__m128i normal = _mm_loadu_si128(normalData++);
+			__m128i shifted = _mm_loadu_si128(shiftedData++);
+			__m128i diff = _mm_sub_epi16(normal, shifted);		// 8 16-bit differences
+			__m128i squares = _mm_madd_epi16(diff, diff);		// Multiply and add: 4 32-bit squares
+
+			__m128i sum1 = _mm_shuffle_epi32(squares, _MM_SHUFFLE(0, 1, 2, 3));	// Move upper two integers to lower
+			__m128i sum2  = _mm_add_epi32(squares, sum1);						// Now we can add the (originally) upper two and lower two integers
+			__m128i sum3 = _mm_shuffle_epi32(sum2, _MM_SHUFFLE(1, 1, 1, 1));	// Move the second-lowest integer to lowest position
+			__m128i sum4  = _mm_add_epi32(sum2, sum3);							// Add the two lowest positions
+			autocorrSum += _mm_cvtsi128_si32(sum4);
+		}
+	}
+	return {note % HISTORY_BINS, autocorrSum};
+}
+
+#endif
+
+static inline AutotuneHistogramEntry CalculateNoteHistogram(int note, AutotuneContext ctx)
+{
+	const SmpLength autocorrShift = NoteToShift(ctx.sampleFreq, note, ctx.pitchReference);
+	uint64 autocorrSum = 0;
+	{
+		const int16 *normalData = ctx.m_sampleData;
+		const int16 *shiftedData = ctx.m_sampleData + autocorrShift;
+		// Add up squared differences of all values
+		for(SmpLength i = ctx.processLength; i != 0; i--, normalData++, shiftedData++)
+		{
+			autocorrSum += (*normalData - *shiftedData) * (*normalData - *shiftedData);
+		}
+	}
+	return {note % HISTORY_BINS, autocorrSum};
+}
+
+
+static inline AutotuneHistogram operator+(AutotuneHistogram a, AutotuneHistogram b) noexcept
+{
+	AutotuneHistogram result;
+	for(std::size_t i = 0; i < HISTORY_BINS; ++i)
+	{
+		result.histogram[i] = a.histogram[i] + b.histogram[i];
+	}
+	return result;
+}
+
+
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif // MPT_COMPILER_CLANG
+static inline AutotuneHistogram & operator+=(AutotuneHistogram &a, AutotuneHistogram b) noexcept
+{
+	for(std::size_t i = 0; i < HISTORY_BINS; ++i)
+	{
+		a.histogram[i] += b.histogram[i];
+	}
+	return a;
+}
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
+
+
+static inline AutotuneHistogram &operator+=(AutotuneHistogram &a, AutotuneHistogramEntry b) noexcept
+{
+	a.histogram[b.index] += b.sum;
+	return a;
+}
+
+
+struct AutotuneHistogramReduce
+{
+	inline AutotuneHistogram operator()(AutotuneHistogram a, AutotuneHistogram b) noexcept
+	{
+		return a + b;
+	}
+	inline AutotuneHistogram operator()(AutotuneHistogramEntry a, AutotuneHistogramEntry b) noexcept
+	{
+		AutotuneHistogram result;
+		result += a;
+		result += b;
+		return result;
+	}
+	inline AutotuneHistogram operator()(AutotuneHistogramEntry a, AutotuneHistogram b) noexcept
+	{
+		b += a;
+		return b;
+	}
+	inline AutotuneHistogram operator()(AutotuneHistogram a, AutotuneHistogramEntry b) noexcept
+	{
+		a += b;
+		return a;
+	}
 };
 
 
-DWORD WINAPI Autotune::AutotuneThread(void *info_)
-//------------------------------------------------
-{
-	AutotuneThreadData &info = *static_cast<AutotuneThreadData *>(info_);
-	info.histogram.resize(HISTORY_BINS, 0);
-#ifdef ENABLE_SSE2
-	const bool useSSE = (GetProcSupport() & PROCSUPPORT_SSE2) != 0;
-#endif
+} // local
 
-	// Do autocorrelation and save results in a note histogram (restriced to one octave).
-	for(int note = info.startNote, noteBin = note; note < info.endNote; note++, noteBin++)
-	{
-
-		if(noteBin >= HISTORY_BINS)
-		{
-			noteBin %= HISTORY_BINS;
-		}
-
-		const SmpLength autocorrShift = NoteToShift(info.sampleFreq, note, info.pitchReference);
-
-		uint64 autocorrSum = 0;
-
-#ifdef ENABLE_SSE2
-		if(useSSE)
-		{
-			const __m128i *normalData = reinterpret_cast<const __m128i *>(info.sampleData);
-			const __m128i *shiftedData = reinterpret_cast<const __m128i *>(info.sampleData + autocorrShift);
-			for(SmpLength i = info.processLength / 8; i != 0; i--)
-			{
-				__m128i normal = _mm_loadu_si128(normalData++);
-				__m128i shifted = _mm_loadu_si128(shiftedData++);
-				__m128i diff = _mm_sub_epi16(normal, shifted);		// 8 16-bit differences
-				__m128i squares = _mm_madd_epi16(diff, diff);		// Multiply and add: 4 32-bit squares
-
-				__m128i sum1 = _mm_shuffle_epi32(squares, _MM_SHUFFLE(0, 1, 2, 3));	// Move upper two integers to lower
-				__m128i sum2  = _mm_add_epi32(squares, sum1);						// Now we can add the (originally) upper two and lower two integers
-				__m128i sum3 = _mm_shuffle_epi32(sum2, _MM_SHUFFLE(1, 1, 1, 1));	// Move the second-lowest integer to lowest position
-				__m128i sum4  = _mm_add_epi32(sum2, sum3);							// Add the two lowest positions
-				autocorrSum += _mm_cvtsi128_si32(sum4);
-			}
-		} else
-#endif
-		{
-			const int16 *normalData = info.sampleData;
-			const int16 *shiftedData = info.sampleData + autocorrShift;
-			// Add up squared differences of all values
-			for(SmpLength i = info.processLength; i != 0; i--, normalData++, shiftedData++)
-			{
-				autocorrSum += (*normalData - *shiftedData) * (*normalData - *shiftedData);
-			}
-		}
-
-		info.histogram[noteBin] += autocorrSum;
-	}
-	return 0;
-}
 
 
 bool Autotune::Apply(double pitchReference, int targetNote)
-//---------------------------------------------------------
 {
 	if(!CanApply())
 	{
 		return false;
 	}
 
-	const uint32 sampleFreq = sample.GetSampleRate(modType);
+	const uint32 sampleFreq = m_sample.GetSampleRate(m_modType);
 	// At the lowest frequency, we get the highest autocorrelation shift amount.
 	const SmpLength maxShift = NoteToShift(sampleFreq, START_NOTE, pitchReference);
 	if(!PrepareSample(maxShift))
@@ -236,48 +302,29 @@ bool Autotune::Apply(double pitchReference, int targetNote)
 		return false;
 	}
 	// We don't process the autocorrelation overhead.
-	const SmpLength processLength = sampleLength - maxShift;
+	const SmpLength processLength = m_sampleLength - maxShift;
 
-	// Set up the autocorrelation threads
-	const uint32 numProcs = std::max<uint32>(mpt::thread::hardware_concurrency(), 1);
-	const uint32 notesPerThread = (END_NOTE - START_NOTE + 1) / numProcs;
-	std::vector<AutotuneThreadData> threadInfo(numProcs);
-	std::vector<HANDLE> threadHandles(numProcs);
+	AutotuneContext ctx;
+	ctx.m_sampleData = m_sampleData;
+	ctx.pitchReference = pitchReference;
+	ctx.processLength = processLength;
+	ctx.sampleFreq = sampleFreq;
+	
+	// Note that we cannot use a fake integer iterator here because of the requirement on ForwardIterator to return a reference to the elements.
+	std::array<int, END_NOTE - START_NOTE> notes;
+	std::iota(notes.begin(), notes.end(), START_NOTE);
 
-	for(uint32 p = 0; p < numProcs; p++)
-	{
-		threadInfo[p].pitchReference = pitchReference;
-		threadInfo[p].sampleData = sampleData;
-		threadInfo[p].processLength = processLength;
-		threadInfo[p].sampleFreq = sampleFreq;
-		threadInfo[p].startNote = START_NOTE + p * notesPerThread;
-		threadInfo[p].endNote = START_NOTE + (p + 1) * notesPerThread;
-		if(p == numProcs - 1)
-			threadInfo[p].endNote = END_NOTE;
-
-		threadHandles[p] = mpt::UnmanagedThread(AutotuneThread, &threadInfo[p]);
-		ASSERT(threadHandles[p] != INVALID_HANDLE_VALUE);
-	}
-
-	WaitForMultipleObjects(numProcs, threadHandles.data(), TRUE, INFINITE);
-
-	// Histogram for all notes.
-	std::vector<uint64> autocorrHistogram(HISTORY_BINS, 0);
-
-	for(uint32 p = 0; p < numProcs; p++)
-	{
-		for(int i = 0; i < HISTORY_BINS; i++)
-		{
-			autocorrHistogram[i] += threadInfo[p].histogram[i];
-		}
-		CloseHandle(threadHandles[p]);
-	}
-
+	AutotuneHistogram autocorr =
+#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE2)
+		(CPU::HasFeatureSet(CPU::feature::sse2) && CPU::HasModesEnabled(CPU::mode::xmm128sse)) ? std::transform_reduce(std::execution::par_unseq, std::begin(notes), std::end(notes), AutotuneHistogram{}, AutotuneHistogramReduce{}, [ctx](int note) { return CalculateNoteHistogramSSE2(note, ctx); } ) :
+#endif
+		std::transform_reduce(std::execution::par_unseq, std::begin(notes), std::end(notes), AutotuneHistogram{}, AutotuneHistogramReduce{}, [ctx](int note) { return CalculateNoteHistogram(note, ctx); } );
+	
 	// Interpolate the histogram...
-	std::vector<uint64> interpolatedHistogram(HISTORY_BINS, 0);
+	AutotuneHistogram interpolated;
 	for(int i = 0; i < HISTORY_BINS; i++)
 	{
-		interpolatedHistogram[i] = autocorrHistogram[i];
+		interpolated.histogram[i] = autocorr.histogram[i];
 		const int kernelWidth = 4;
 		for(int ki = kernelWidth; ki >= 0; ki--)
 		{
@@ -287,21 +334,12 @@ bool Autotune::Apply(double pitchReference, int targetNote)
 			int right = i + ki;
 			if(right >= HISTORY_BINS) right -= HISTORY_BINS;
 
-			interpolatedHistogram[i] = interpolatedHistogram[i] / 2 + (autocorrHistogram[left] + autocorrHistogram[right]) / 2;
+			interpolated.histogram[i] = interpolated.histogram[i] / 2 + (autocorr.histogram[left] + autocorr.histogram[right]) / 2;
 		}
 	}
 
 	// ...and find global minimum
-	int minimumBin = 0;
-	for(int i = 0; i < HISTORY_BINS; i++)
-	{
-		const int prev = (i > 0) ? (i - 1) : (HISTORY_BINS - 1);
-		// Are we at the global minimum?
-		if(interpolatedHistogram[prev] < interpolatedHistogram[minimumBin])
-		{
-			minimumBin = prev;
-		}
-	}
+	int minimumBin = static_cast<int>(std::min_element(std::begin(interpolated.histogram), std::end(interpolated.histogram)) - std::begin(interpolated.histogram));
 
 	// Center target notes around C
 	if(targetNote >= 6)
@@ -319,14 +357,17 @@ bool Autotune::Apply(double pitchReference, int targetNote)
 
 	const double newFundamentalFreq = NoteToFrequency(static_cast<double>(69 - targetNote) + static_cast<double>(minimumBin) / BINS_PER_NOTE, pitchReference);
 
-	sample.nC5Speed = Util::Round<uint32>(sampleFreq * pitchReference / newFundamentalFreq);
+	if(const auto newFreq = mpt::saturate_round<uint32>(sampleFreq * pitchReference / newFundamentalFreq); newFreq != sampleFreq)
+		m_sample.nC5Speed = newFreq;
+	else
+		return false;
 
-	if((modType & (MOD_TYPE_XM | MOD_TYPE_MOD)))
+	if((m_modType & (MOD_TYPE_XM | MOD_TYPE_MOD)))
 	{
-		sample.FrequencyToTranspose();
-		if((modType & MOD_TYPE_MOD))
+		m_sample.FrequencyToTranspose();
+		if((m_modType & MOD_TYPE_MOD))
 		{
-			sample.RelativeTone = 0;
+			m_sample.RelativeTone = 0;
 		}
 	}
 
@@ -337,11 +378,10 @@ bool Autotune::Apply(double pitchReference, int targetNote)
 /////////////////////////////////////////////////////////////
 // CAutotuneDlg
 
-int CAutotuneDlg::pitchReference = 440;	// Pitch reference in Hz
-int CAutotuneDlg::targetNote = 0;		// Target note (C- = 0, C# = 1, etc...)
+int CAutotuneDlg::m_pitchReference = 440; // Pitch reference in Hz
+int CAutotuneDlg::m_targetNote = 0;       // Target note (C- = 0, C# = 1, etc...)
 
 void CAutotuneDlg::DoDataExchange(CDataExchange* pDX)
-//---------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAutotuneDlg)
@@ -351,42 +391,38 @@ void CAutotuneDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CAutotuneDlg::OnInitDialog()
-//-------------------------------
 {
 	CDialog::OnInitDialog();
 
 	m_CbnNoteBox.ResetContent();
 	for(int note = 0; note < 12; note++)
 	{
-		const int item = m_CbnNoteBox.AddString(mpt::ToCString(mpt::CharsetASCII, CSoundFile::m_NoteNames[note]));
+		const int item = m_CbnNoteBox.AddString(mpt::ToCString(CSoundFile::GetDefaultNoteName(note)));
 		m_CbnNoteBox.SetItemData(item, note);
-		if(note == targetNote)
+		if(note == m_targetNote)
 		{
 			m_CbnNoteBox.SetCurSel(item);
 		}
 	}
 
-	SetDlgItemInt(IDC_EDIT1, pitchReference, FALSE);
+	SetDlgItemInt(IDC_EDIT1, m_pitchReference, FALSE);
 
 	return TRUE;
 }
 
 
 void CAutotuneDlg::OnOK()
-//-----------------------
 {
+	int pitch = GetDlgItemInt(IDC_EDIT1);
+	if(pitch <= 0)
+	{
+		MessageBeep(MB_ICONWARNING);
+		return;
+	}
+
 	CDialog::OnOK();
-
-	targetNote = (int)m_CbnNoteBox.GetItemData(m_CbnNoteBox.GetCurSel());
-	pitchReference = GetDlgItemInt(IDC_EDIT1);
+	m_targetNote = (int)m_CbnNoteBox.GetItemData(m_CbnNoteBox.GetCurSel());
+	m_pitchReference = pitch;
 }
-
-
-void CAutotuneDlg::OnCancel()
-//---------------------------
-{
-	CDialog::OnCancel();
-}
-
 
 OPENMPT_NAMESPACE_END

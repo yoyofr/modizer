@@ -9,10 +9,6 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SoundTouchDLL.h 198 2014-04-06 18:06:50Z oparviai $
-//
-////////////////////////////////////////////////////////////////////////////////
-//
 // License :
 //
 //  SoundTouch audio processing library
@@ -37,23 +33,36 @@
 #ifndef _SoundTouchDLL_h_
 #define _SoundTouchDLL_h_
 
-#ifdef __cplusplus
+#if defined(_WIN32) || defined(WIN32)
+    // Windows
+    #ifndef __cplusplus
+        #error "Expected g++"
+    #endif
 
-#ifdef DLL_EXPORTS
-    #define SOUNDTOUCHDLL_API extern "C" __declspec(dllexport)
+    #ifdef DLL_EXPORTS
+        #define SOUNDTOUCHDLL_API extern "C" __declspec(dllexport)
+    #else
+        #define SOUNDTOUCHDLL_API extern "C" __declspec(dllimport)
+    #endif
+
 #else
-    #define SOUNDTOUCHDLL_API extern "C" __declspec(dllimport)
+    // GNU version
+
+    #if defined(DLL_EXPORTS) || defined(SoundTouchDLL_EXPORTS)
+        // GCC declaration for exporting functions
+        #define SOUNDTOUCHDLL_API extern "C" __attribute__((__visibility__("default")))
+    #else
+        // GCC doesn't require DLL imports
+        #define SOUNDTOUCHDLL_API
+    #endif
+
+    // Linux-replacements for Windows declarations:
+    #define __cdecl
+    typedef unsigned int DWORD;
+    #define FALSE    0
+    #define TRUE    1
+
 #endif
-
-#else
-
-#ifdef DLL_EXPORTS
-    #define SOUNDTOUCHDLL_API __declspec(dllexport)
-#else
-    #define SOUNDTOUCHDLL_API __declspec(dllimport)
-#endif
-
-#endif // __cplusplus
 
 typedef void * HANDLE;
 
@@ -102,7 +111,7 @@ SOUNDTOUCHDLL_API void __cdecl soundtouch_setPitchOctaves(HANDLE h, float newPit
 SOUNDTOUCHDLL_API void __cdecl soundtouch_setPitchSemiTones(HANDLE h, float newPitch);
 
 
-/// Sets the number of channels, 1 = mono, 2 = stereo
+/// Sets the number of channels, 1 = mono, 2 = stereo, n = multichannel
 SOUNDTOUCHDLL_API void __cdecl soundtouch_setChannels(HANDLE h, unsigned int numChannels);
 
 /// Sets sample rate.
@@ -122,10 +131,20 @@ SOUNDTOUCHDLL_API void __cdecl soundtouch_flush(HANDLE h);
 /// calling this function, otherwise throws a runtime_error exception.
 SOUNDTOUCHDLL_API void __cdecl soundtouch_putSamples(HANDLE h, 
         const float *samples,       ///< Pointer to sample buffer.
-        unsigned int numSamples     ///< Number of samples in buffer. Notice
-                                    ///< that in case of stereo-sound a single sample
-                                    ///< contains data for both channels.
-        );
+        unsigned int numSamples     ///< Number of sample frames in buffer. Notice
+                                    ///< that in case of multi-channel sound a single 
+                                    ///< sample frame contains data for all channels.
+);
+
+/// int16 version of soundtouch_putSamples(): This accept int16 (short) sample data
+/// and internally converts it to float format before processing
+SOUNDTOUCHDLL_API void __cdecl soundtouch_putSamples_i16(HANDLE h,
+        const short *samples,       ///< Pointer to sample buffer.
+        unsigned int numSamples     ///< Number of sample frames in buffer. Notice
+                                    ///< that in case of multi-channel sound a single 
+                                    ///< sample frame contains data for all channels.
+);
+
 
 /// Clears all the samples in the object's output and internal processing
 /// buffers.
@@ -134,19 +153,19 @@ SOUNDTOUCHDLL_API void __cdecl soundtouch_clear(HANDLE h);
 /// Changes a setting controlling the processing system behaviour. See the
 /// 'SETTING_...' defines for available setting ID's.
 /// 
-/// \return 'TRUE' if the setting was succesfully changed
-SOUNDTOUCHDLL_API BOOL __cdecl soundtouch_setSetting(HANDLE h, 
-                int settingId,   ///< Setting ID number. see SETTING_... defines.
-                int value        ///< New setting value.
-                );
+/// \return 'nonzero' if the setting was successfully changed, otherwise zero
+SOUNDTOUCHDLL_API int __cdecl soundtouch_setSetting(HANDLE h, 
+        int settingId,   ///< Setting ID number. see SETTING_... defines.
+        int value        ///< New setting value.
+);
 
 /// Reads a setting controlling the processing system behaviour. See the
 /// 'SETTING_...' defines for available setting ID's.
 ///
 /// \return the setting value.
 SOUNDTOUCHDLL_API int __cdecl soundtouch_getSetting(HANDLE h, 
-                          int settingId    ///< Setting ID number, see SETTING_... defines.
-                );
+        int settingId    ///< Setting ID number, see SETTING_... defines.
+);
 
 
 /// Returns number of samples currently unprocessed.
@@ -158,15 +177,53 @@ SOUNDTOUCHDLL_API unsigned int __cdecl soundtouch_numUnprocessedSamples(HANDLE h
 /// Used to reduce the number of samples in the buffer when accessing the sample buffer directly
 /// with 'ptrBegin' function.
 SOUNDTOUCHDLL_API unsigned int __cdecl soundtouch_receiveSamples(HANDLE h, 
-            float *outBuffer,           ///< Buffer where to copy output samples.
-            unsigned int maxSamples     ///< How many samples to receive at max.
-            );
+        float *outBuffer,           ///< Buffer where to copy output samples.
+        unsigned int maxSamples     ///< How many samples to receive at max.
+);
+
+
+/// int16 version of soundtouch_receiveSamples(): This converts internal float samples
+/// into int16 (short) return data type
+SOUNDTOUCHDLL_API unsigned int __cdecl soundtouch_receiveSamples_i16(HANDLE h,
+        short *outBuffer,           ///< Buffer where to copy output samples.
+        unsigned int maxSamples     ///< How many samples to receive at max.
+);
 
 /// Returns number of samples currently available.
 SOUNDTOUCHDLL_API unsigned int __cdecl soundtouch_numSamples(HANDLE h);
 
 /// Returns nonzero if there aren't any samples available for outputting.
 SOUNDTOUCHDLL_API int __cdecl soundtouch_isEmpty(HANDLE h);
+
+/// Create a new instance of BPM detector
+SOUNDTOUCHDLL_API HANDLE __cdecl bpm_createInstance(int numChannels, int sampleRate);
+
+/// Destroys a BPM detector instance.
+SOUNDTOUCHDLL_API void __cdecl bpm_destroyInstance(HANDLE h);
+
+/// Feed 'numSamples' sample frames from 'samples' into the BPM detector.
+SOUNDTOUCHDLL_API void __cdecl bpm_putSamples(HANDLE h, 
+        const float *samples,           ///< Pointer to sample buffer.
+        unsigned int numSamples         ///< Number of samples in buffer. Notice
+                                        ///< that in case of stereo-sound a single sample
+                                        ///< contains data for both channels.
+        );
+
+/// Feed 'numSamples' sample frames from 'samples' into the BPM detector.
+/// 16bit int sample format version.
+SOUNDTOUCHDLL_API void __cdecl bpm_putSamples_i16(HANDLE h, 
+        const short *samples,           ///< Pointer to sample buffer.
+        unsigned int numSamples         ///< Number of samples in buffer. Notice
+                                        ///< that in case of stereo-sound a single sample
+                                        ///< contains data for both channels.
+        );
+
+/// Analyzes the results and returns the BPM rate. Use this function to read result
+/// after whole song data has been input to the class by consecutive calls of
+/// 'inputSamples' function.
+///
+/// \return Beats-per-minute rate, or zero if detection failed.
+SOUNDTOUCHDLL_API float __cdecl bpm_getBpm(HANDLE h);
 
 #endif  // _SoundTouchDLL_h_
 

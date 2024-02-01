@@ -12,21 +12,21 @@
 
 #pragma once
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
 #include "../common/FileReader.h"
 #include <stdexcept>
+#include "mpt/io/base.hpp"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-//==================================
 class BitReader : private FileReader
-//==================================
 {
 protected:
-	off_t m_bufPos = 0, m_bufSize = 0;
+	pos_type m_bufPos = 0;
+	pos_type m_bufSize = 0;
 	uint32 bitBuf = 0; // Current bit buffer
 	int m_bitNum = 0;  // Currently available number of bits
 	std::byte buffer[mpt::IO::BUFFERSIZE_TINY]{};
@@ -39,15 +39,17 @@ public:
 		eof() : std::range_error("Truncated bit buffer") { }
 	};
 
+	BitReader() : FileReader() { }
 	BitReader(mpt::span<const std::byte> bytedata) : FileReader(bytedata) { }
-	BitReader(const FileReader &other = FileReader()) : FileReader(other) { }
+	BitReader(const FileCursor &other) : FileReader(other) { }
+	BitReader(FileCursor &&other) : FileReader(std::move(other)) { }
 
-	off_t GetLength() const
+	pos_type GetLength() const
 	{
 		return FileReader::GetLength();
 	}
 
-	off_t GetPosition() const
+	pos_type GetPosition() const
 	{
 		return FileReader::GetPosition() - m_bufSize + m_bufPos;
 	}
@@ -59,7 +61,7 @@ public:
 			// Fetch more bits
 			if(m_bufPos >= m_bufSize)
 			{
-				m_bufSize = ReadRaw(buffer, sizeof(buffer));
+				m_bufSize = ReadRaw(mpt::as_span(buffer)).size();
 				m_bufPos = 0;
 				if(!m_bufSize)
 				{

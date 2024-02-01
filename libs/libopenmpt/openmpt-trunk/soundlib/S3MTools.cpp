@@ -9,15 +9,15 @@
 
 
 #include "stdafx.h"
-#include "Loaders.h"
 #include "S3MTools.h"
+#include "Loaders.h"
 #include "../common/mptStringBuffer.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 // Convert an S3M sample header to OpenMPT's internal sample header.
-void S3MSampleHeader::ConvertToMPT(ModSample &mptSmp) const
+void S3MSampleHeader::ConvertToMPT(ModSample &mptSmp, bool isST3) const
 {
 	mptSmp.Initialize(MOD_TYPE_S3M);
 	mptSmp.filename = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, filename);
@@ -48,17 +48,23 @@ void S3MSampleHeader::ConvertToMPT(ModSample &mptSmp) const
 	}
 
 	// Volume / Panning
-	mptSmp.nVolume = std::min(static_cast<uint8>(defaultVolume), uint8(64)) * 4;
+	mptSmp.nVolume = std::min(defaultVolume.get(), uint8(64)) * 4;
 
 	// C-5 frequency
 	mptSmp.nC5Speed = c5speed;
-	if(mptSmp.nC5Speed == 0)
+	if(isST3)
 	{
-		mptSmp.nC5Speed = 8363;
-	} else if(mptSmp.nC5Speed < 1024)
-	{
-		mptSmp.nC5Speed = 1024;
+		// ST3 ignores or clamps the high 16 bits depending on the instrument type
+		if(sampleType == typeAdMel)
+			mptSmp.nC5Speed &= 0xFFFF;
+		else
+			LimitMax(mptSmp.nC5Speed, uint16_max);
 	}
+
+	if(mptSmp.nC5Speed == 0)
+		mptSmp.nC5Speed = 8363;
+	else if(mptSmp.nC5Speed < 1024)
+		mptSmp.nC5Speed = 1024;
 
 }
 
@@ -128,6 +134,13 @@ SampleIO S3MSampleHeader::GetSampleFormat(bool signedSamples) const
 			SampleIO::littleEndian,
 			signedSamples ? SampleIO::signedPCM : SampleIO::unsignedPCM);
 	}
+}
+
+
+// Calculate the sample position in file
+uint32 S3MSampleHeader::GetSampleOffset() const
+{
+	return (dataPointer[1] << 4) | (dataPointer[2] << 12) | (dataPointer[0] << 20);
 }
 
 

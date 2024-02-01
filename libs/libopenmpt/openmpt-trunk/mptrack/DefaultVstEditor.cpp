@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include "DefaultVstEditor.h"
+#include "resource.h"
 #include "../soundlib/Sndfile.h"
 #include "../soundlib/plugins/PlugInterface.h"
 
@@ -53,7 +54,6 @@ struct Measurements
 
 // Create a set of parameter controls
 ParamControlSet::ParamControlSet(CWnd *parent, const CRect &rect, int setID, const Measurements &m)
-//-------------------------------------------------------------------------------------------------
 {
 	// Offset of components on the right side
 	const int horizSplit = rect.left + rect.Width() - m.rightWidth;
@@ -77,13 +77,12 @@ ParamControlSet::ParamControlSet(CWnd *parent, const CRect &rect, int setID, con
 	valueEdit.SetFont(parent->GetFont());
 
 	// "Per mil" label
-	perMilLabel.Create("‰", WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, CRect(horizSplit + m.editWidth + m.spacing, rect.bottom - m.lineHeight, rect.right, rect.bottom), parent);
+	perMilLabel.Create(mpt::ToCString(mpt::Charset::UTF8, "\xE2\x80\xB0"), WS_CHILD | WS_VISIBLE | SS_CENTERIMAGE, CRect(horizSplit + m.editWidth + m.spacing, rect.bottom - m.lineHeight, rect.right, rect.bottom), parent);
 	perMilLabel.SetFont(parent->GetFont());
 }
 
 
 ParamControlSet::~ParamControlSet()
-//---------------------------------
 {
 	nameLabel.DestroyWindow();
 	valueLabel.DestroyWindow();
@@ -95,7 +94,6 @@ ParamControlSet::~ParamControlSet()
 
 // Enable a set of parameter controls
 void ParamControlSet::EnableControls(bool enable)
-//-----------------------------------------------
 {
 	const BOOL b = enable ? TRUE : FALSE;
 	nameLabel.EnableWindow(b);
@@ -108,31 +106,28 @@ void ParamControlSet::EnableControls(bool enable)
 
 // Reset the content of a set of parameter controls
 void ParamControlSet::ResetContent()
-//----------------------------------
 {
-	nameLabel.SetWindowText("");
-	valueLabel.SetWindowText("");
+	nameLabel.SetWindowText(_T(""));
+	valueLabel.SetWindowText(_T(""));
 	valueSlider.SetPos(0);
-	valueEdit.SetWindowText("");
+	valueEdit.SetWindowText(_T(""));
 }
 
 
 void ParamControlSet::SetParamName(const CString &name)
-//-----------------------------------------------------
 {
 	nameLabel.SetWindowText(name);
 }
 
 
 void ParamControlSet::SetParamValue(int value, const CString &text)
-//-----------------------------------------------------------------
 {
 	valueSlider.SetPos(value);
 	if (&valueEdit != valueEdit.GetFocus())
 	{
 		// Don't update textbox when it has focus, else this will prevent user from changing the content.
 		CString paramValue;
-		paramValue.Format("%0000d", value);
+		paramValue.Format(_T("%0000d"), value);
 		valueEdit.SetWindowText(paramValue);
 	}
 	valueLabel.SetWindowText(text);
@@ -140,18 +135,16 @@ void ParamControlSet::SetParamValue(int value, const CString &text)
 
 
 int ParamControlSet::GetParamValueFromSlider() const
-//--------------------------------------------------
 {
 	return valueSlider.GetPos();
 }
 
 
 int ParamControlSet::GetParamValueFromEdit() const
-//------------------------------------------------
 {
-	char s[16];
+	TCHAR s[16];
 	valueEdit.GetWindowText(s, 16);
-	int val = atoi(s);
+	int val = _tstoi(s);
 	Limit(val, int(0), int(PARAM_RESOLUTION));
 	return val;
 }
@@ -159,7 +152,7 @@ int ParamControlSet::GetParamValueFromEdit() const
 
 BEGIN_MESSAGE_MAP(CDefaultVstEditor, CAbstractVstEditor)
 	//{{AFX_MSG_MAP(CDefaultVstEditor)
-	ON_CONTROL_RANGE(EN_CHANGE, ID_PLUGINEDITOR_EDIT_BASE, ID_PLUGINEDITOR_EDIT_BASE + NUM_PLUGINEDITOR_PARAMETERS - 1, OnParamTextboxChanged)
+	ON_CONTROL_RANGE(EN_CHANGE, ID_PLUGINEDITOR_EDIT_BASE, ID_PLUGINEDITOR_EDIT_BASE + NUM_PLUGINEDITOR_PARAMETERS - 1, &CDefaultVstEditor::OnParamTextboxChanged)
 	//}}AFX_MSG_MAP
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -168,7 +161,6 @@ END_MESSAGE_MAP()
 
 
 void CDefaultVstEditor::DoDataExchange(CDataExchange* pDX)
-//--------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDefaultVstEditor)
@@ -178,7 +170,6 @@ void CDefaultVstEditor::DoDataExchange(CDataExchange* pDX)
 
 
 CDefaultVstEditor::CDefaultVstEditor(IMixPlugin &plugin) : CAbstractVstEditor(plugin)
-//-----------------------------------------------------------------------------------
 {
 	m_nControlLock = 0;
 	paramOffset = 0;
@@ -187,7 +178,6 @@ CDefaultVstEditor::CDefaultVstEditor(IMixPlugin &plugin) : CAbstractVstEditor(pl
 }
 
 CDefaultVstEditor::~CDefaultVstEditor()
-//-------------------------------------
 {
 	for(size_t i = 0; i < controls.size(); i++)
 	{
@@ -197,7 +187,6 @@ CDefaultVstEditor::~CDefaultVstEditor()
 
 
 void CDefaultVstEditor::CreateControls()
-//--------------------------------------
 {
 	// Already initialized.
 	if(!controls.empty())
@@ -234,9 +223,9 @@ void CDefaultVstEditor::CreateControls()
 		{
 			controls.push_back(new ParamControlSet(this, rect, i, m));
 			rect.OffsetRect(0, m.totalHeight + m.spacing);
-		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+		} catch(mpt::out_of_memory e)
 		{
-			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+			mpt::delete_out_of_memory(e);
 		}
 	}
 
@@ -262,15 +251,14 @@ void CDefaultVstEditor::CreateControls()
 
 
 void CDefaultVstEditor::UpdateControls(bool updateParamNames)
-//-----------------------------------------------------------
 {
 	const PlugParamIndex numParams = m_VstPlugin.GetNumParameters();
-	const PlugParamIndex scrollMax = numParams - MIN(numParams, NUM_PLUGINEDITOR_PARAMETERS);
+	const PlugParamIndex scrollMax = numParams - std::min(numParams, static_cast<PlugParamIndex>(NUM_PLUGINEDITOR_PARAMETERS));
 	LimitMax(paramOffset, scrollMax);
 
 	int curScrollMin, curScrollMax;
 	paramScroller.GetScrollRange(&curScrollMin, &curScrollMax);
-	if(curScrollMax != scrollMax)
+	if(static_cast<PlugParamIndex>(curScrollMax) != scrollMax)
 	{
 		// Number of parameters changed - update scrollbar limits
 		paramScroller.SetScrollRange(0, scrollMax);
@@ -306,13 +294,11 @@ void CDefaultVstEditor::UpdateControls(bool updateParamNames)
 
 
 void CDefaultVstEditor::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//--------------------------------------------------------------------------------
 {
-	CSliderCtrl* pScrolledSlider = reinterpret_cast<CSliderCtrl*>(pScrollBar);
 	// Check if any of the value sliders were affected.
 	for(size_t i = 0; i < controls.size(); i++)
 	{
-		if ((pScrolledSlider->GetDlgCtrlID() == controls[i]->GetSliderID()) && (nSBCode != SB_ENDSCROLL))
+		if((pScrollBar->GetDlgCtrlID() == controls[i]->GetSliderID()) && (nSBCode != SB_ENDSCROLL))
 		{
 			OnParamSliderChanged(controls[i]->GetSliderID());
 			break;
@@ -324,7 +310,6 @@ void CDefaultVstEditor::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBa
 
 
 void CDefaultVstEditor::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//--------------------------------------------------------------------------------
 {
 	if (pScrollBar == &paramScroller)
 	{
@@ -367,14 +352,14 @@ void CDefaultVstEditor::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBa
 		case SB_PAGELEFT:		// Scroll one page left.
 			if(curpos > minpos)
 			{
-				curpos = MAX(minpos, curpos - (int)sbInfo.nPage);
+				curpos = std::max(minpos, curpos - static_cast<int>(sbInfo.nPage));
 			}
 			break;
 
 		case SB_PAGERIGHT:		// Scroll one page right.
 			if(curpos < maxpos)
 			{
-				curpos = MIN(maxpos, curpos + (int)sbInfo.nPage);
+				curpos = std::min(maxpos, curpos + static_cast<int>(sbInfo.nPage));
 			}
 			break;
 
@@ -399,7 +384,6 @@ void CDefaultVstEditor::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBa
 
 
 BOOL CDefaultVstEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-//------------------------------------------------------------------------
 {
 	MPT_UNREFERENCED_PARAMETER(nFlags);
 	MPT_UNREFERENCED_PARAMETER(pt);
@@ -409,7 +393,7 @@ BOOL CDefaultVstEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	paramScroller.GetScrollRange(&minpos, &maxpos);
 	if(minpos != maxpos)
 	{
-		paramOffset -= sgn(zDelta);
+		paramOffset -= mpt::signum(zDelta);
 		Limit(paramOffset, PlugParamIndex(minpos), PlugParamIndex(maxpos));
 		paramScroller.SetScrollPos(paramOffset);
 
@@ -421,7 +405,6 @@ BOOL CDefaultVstEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 
 bool CDefaultVstEditor::OpenEditor(CWnd *parent)
-//----------------------------------------------
 {
 	Create(IDD_DEFAULTPLUGINEDITOR, parent);
 	CreateControls();
@@ -433,7 +416,6 @@ bool CDefaultVstEditor::OpenEditor(CWnd *parent)
 // If the change is triggered by the user, we'll need to notify the plugin and update 
 // the other GUI controls 
 void CDefaultVstEditor::OnParamTextboxChanged(UINT id)
-//----------------------------------------------------
 {
 	if (m_nControlLock)
 	{
@@ -453,7 +435,6 @@ void CDefaultVstEditor::OnParamTextboxChanged(UINT id)
 // If the change is triggered by the user, we'll need to notify the plugin and update 
 // the other GUI controls 
 void CDefaultVstEditor::OnParamSliderChanged(UINT id)
-//---------------------------------------------------
 {
 	if (m_nControlLock)
 	{
@@ -472,14 +453,13 @@ void CDefaultVstEditor::OnParamSliderChanged(UINT id)
 
 // Update a given parameter to a given value and notify plugin
 void CDefaultVstEditor::SetParam(PlugParamIndex param, int value)
-//---------------------------------------------------------------
 {
 	if(param >= m_VstPlugin.GetNumParameters())
 	{
 		return;
 	}
 
-	m_VstPlugin.SetParameter(param, static_cast<PlugParamValue>(value) / static_cast<PlugParamValue>(PARAM_RESOLUTION));
+	m_VstPlugin.SetScaledUIParam(param, static_cast<PlugParamValue>(value) / static_cast<PlugParamValue>(PARAM_RESOLUTION));
 
 	// Update other GUI controls
 	UpdateParamDisplay(param);
@@ -492,7 +472,6 @@ void CDefaultVstEditor::SetParam(PlugParamIndex param, int value)
 
 //Update all GUI controls with the new param value
 void CDefaultVstEditor::UpdateParamDisplay(PlugParamIndex param)
-//--------------------------------------------------------------
 {
 	if(m_nControlLock || param < paramOffset || param >= paramOffset + NUM_PLUGINEDITOR_PARAMETERS)
 	{
@@ -501,7 +480,7 @@ void CDefaultVstEditor::UpdateParamDisplay(PlugParamIndex param)
 	}
 
 	// Get the actual parameter value from the plugin
-	const int val = static_cast<int>(m_VstPlugin.GetParameter(param) * static_cast<float>(PARAM_RESOLUTION) + 0.5f);
+	const int val = static_cast<int>(m_VstPlugin.GetScaledUIParam(param) * static_cast<float>(PARAM_RESOLUTION) + 0.5f);
 
 	// Update the GUI controls
 

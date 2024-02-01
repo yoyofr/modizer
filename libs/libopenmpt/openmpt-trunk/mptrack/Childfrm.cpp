@@ -9,32 +9,27 @@
 
 
 #include "stdafx.h"
-#include <afxpriv.h>
-#include "Mptrack.h"
-#include "Mainfrm.h"
-#include "ChildFrm.h"
-#include "Moddoc.h"
-#include "Globals.h"
-#include "View_gen.h"
-#include "Ctrl_pat.h"
-#include "View_pat.h"
-#include "Ctrl_smp.h"
-#include "View_smp.h"
-#include "Ctrl_ins.h"
-#include "View_ins.h"
-#include "View_com.h"
 #include "Childfrm.h"
 #include "ChannelManagerDlg.h"
-
+#include "Childfrm.h"
+#include "Ctrl_ins.h"
+#include "Ctrl_pat.h"
+#include "Ctrl_smp.h"
+#include "Globals.h"
+#include "Mainfrm.h"
+#include "Moddoc.h"
+#include "Mptrack.h"
+#include "view_com.h"
+#include "View_gen.h"
+#include "View_ins.h"
+#include "View_pat.h"
+#include "View_smp.h"
 #include "../common/FileReader.h"
-#include "../common/mptIO.h"
-#include "../common/mptBufferIO.h"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+#include <sstream>
+#include <afxpriv.h>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -50,39 +45,30 @@ BEGIN_MESSAGE_MAP(CChildFrame, CMDIChildWnd)
 	ON_WM_DESTROY()
 	ON_WM_NCACTIVATE()
 	ON_WM_MDIACTIVATE()
-	ON_MESSAGE(WM_MOD_CHANGEVIEWCLASS,	OnChangeViewClass)
-	ON_MESSAGE(WM_MOD_INSTRSELECTED,	OnInstrumentSelected)
+	ON_MESSAGE(WM_MOD_CHANGEVIEWCLASS,	&CChildFrame::OnChangeViewClass)
+	ON_MESSAGE(WM_MOD_INSTRSELECTED,	&CChildFrame::OnInstrumentSelected)
 	// toolbar "tooltip" notification
-	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipText)
-	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipText)
+	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXT, 0, 0xFFFF, &CChildFrame::OnToolTipText)
 	//}}AFX_MSG_MAP
-	ON_WM_SETFOCUS() //rewbs.customKeysAutoEffects
 END_MESSAGE_MAP()
 
+CChildFrame *CChildFrame::m_lastActiveFrame = nullptr;
 int CChildFrame::glMdiOpenCount = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 // CChildFrame construction/destruction
 
 CChildFrame::CChildFrame()
-//------------------------
 {
 	m_bInitialActivation=true; //rewbs.fix3185
 	m_szCurrentViewClassName[0] = 0;
 	m_hWndCtrl = m_hWndView = NULL;
 	m_bMaxWhenClosed = false;
 	glMdiOpenCount++;
-	RtlZeroMemory(&m_ViewGeneral, sizeof(m_ViewGeneral));
-	RtlZeroMemory(&m_ViewPatterns, sizeof(m_ViewPatterns));
-	RtlZeroMemory(&m_ViewSamples, sizeof(m_ViewSamples));
-	RtlZeroMemory(&m_ViewInstruments, sizeof(m_ViewInstruments));
-	RtlZeroMemory(&m_ViewComments, sizeof(m_ViewComments));
-	m_ViewPatterns.initialOrder = ORDERINDEX_INVALID;
 }
 
 
 CChildFrame::~CChildFrame()
-//-------------------------
 {
 	if ((--glMdiOpenCount) == 0)
 	{
@@ -92,19 +78,18 @@ CChildFrame::~CChildFrame()
 
 
 BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
-//-----------------------------------------------------------------------------
 {
 	// create a splitter with 2 rows, 1 column
 	if (!m_wndSplitter.CreateStatic(this, 2, 1)) return FALSE;
 
 	// add the first splitter pane - the default view in row 0
-	int cy = TrackerSettings::Instance().glGeneralWindowHeight;	//rewbs.varWindowSize - default to general tab.
+	int cy = Util::ScalePixels(TrackerSettings::Instance().glGeneralWindowHeight, m_hWnd);	//rewbs.varWindowSize - default to general tab.
 	if (cy <= 1) cy = (lpcs->cy*2) / 3;
 	if (!m_wndSplitter.CreateView(0, 0, pContext->m_pNewViewClass, CSize(0, cy), pContext)) return FALSE;
 
 	// Get 2nd window handle
 	CModControlView *pModView;
-	if ((pModView = GetModControlView()) != NULL)
+	if ((pModView = GetModControlView()) != nullptr)
 	{
 		m_hWndCtrl = pModView->m_hWnd;
 		pModView->SetMDIParentFrame(m_hWnd);
@@ -118,7 +103,6 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
 
 void CChildFrame::SetSplitterHeight(int cy)
-//------------------------------------------
 {
 	if (cy <= 1) cy = 188;	//default to 188? why not..
 	m_wndSplitter.SetRowInfo(0, Util::ScalePixels(cy, m_hWnd), 15);
@@ -126,32 +110,56 @@ void CChildFrame::SetSplitterHeight(int cy)
 
 
 BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
-//-------------------------------------------------
 {
 	return CMDIChildWnd::PreCreateWindow(cs);
 }
 
 
+BOOL CChildFrame::OnNcActivate(BOOL bActivate)
+{
+	if(bActivate && m_hWndView)
+	{
+		// Need this in addition to OnMDIActivate when switching from a non-MDI window such as a plugin editor
+		CMainFrame::GetMainFrame()->SetMidiRecordWnd(m_hWndView);
+	}
+	if(m_hWndCtrl)
+		::SendMessage(m_hWndCtrl, bActivate ? WM_MOD_MDIACTIVATE : WM_MOD_MDIDEACTIVATE, 0, 0);
+	if(m_hWndView)
+		::SendMessage(m_hWndView, bActivate ? WM_MOD_MDIACTIVATE : WM_MOD_MDIDEACTIVATE, 0, 0);
+
+	return CMDIChildWnd::OnNcActivate(bActivate);
+}
+
+
 void CChildFrame::OnMDIActivate(BOOL bActivate, CWnd *pActivateWnd, CWnd *pDeactivateWnd)
-//---------------------------------------------------------------------------------------
 {
 	CMDIChildWnd::OnMDIActivate(bActivate, pActivateWnd, pDeactivateWnd);
+
+	if(bActivate)
+	{
+		MPT_ASSERT(pActivateWnd == this);
+		CMainFrame::GetMainFrame()->UpdateEffectKeys(static_cast<CModDoc *>(GetActiveDocument()));
+		CMainFrame::GetMainFrame()->SetMidiRecordWnd(m_hWndView);
+		m_lastActiveFrame = this;
+	}
+	if(m_hWndCtrl)
+		::SendMessage(m_hWndCtrl, bActivate ? WM_MOD_MDIACTIVATE : WM_MOD_MDIDEACTIVATE, 0, 0);
+	if(m_hWndView)
+		::SendMessage(m_hWndView, bActivate ? WM_MOD_MDIACTIVATE : WM_MOD_MDIDEACTIVATE, 0, 0);
 
 	// Update channel manager according to active document
 	auto instance = CChannelManagerDlg::sharedInstance();
 	if(instance != nullptr)
 	{
-		auto view = GetActiveView();
 		if(!bActivate && pActivateWnd == nullptr)
 			instance->SetDocument(nullptr);
-		else if(bActivate && view != nullptr)
-			instance->SetDocument(dynamic_cast<CModDoc *>(view->GetDocument()));
+		else if(bActivate)
+			instance->SetDocument(static_cast<CModDoc *>(GetActiveDocument()));
 	}
 }
 
 
 void CChildFrame::ActivateFrame(int nCmdShow)
-//-------------------------------------------
 {
 	if ((glMdiOpenCount == 1) && (TrackerSettings::Instance().gbMdiMaximize) && (nCmdShow == -1))
 	{
@@ -159,29 +167,23 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	}
 	CMDIChildWnd::ActivateFrame(nCmdShow);
 
-
 	// When song first loads, initialise patternViewState to point to start of song.
 	CView *pView = GetActiveView();
 	CModDoc *pModDoc = nullptr;
 	if (pView) pModDoc = (CModDoc *)pView->GetDocument();
 	if ((m_hWndCtrl) && (pModDoc))
 	{
-		if (m_bInitialActivation && m_ViewPatterns.nPattern==0)
+		if (m_bInitialActivation && m_ViewPatterns.nPattern == 0)
 		{
-			if(pModDoc->GetSoundFile()->Order.GetLength() > 0)
-				m_ViewPatterns.nPattern = pModDoc->GetSoundFile()->Order[0];
-			else
-				m_ViewPatterns.nPattern = 0;
-			m_ViewPatterns.nOrder = 0; //just in case (should already be 0)
-			m_ViewPatterns.cursor.SetRow(0);   //just in case
-			m_bInitialActivation=false;
+			if(!pModDoc->GetSoundFile().Order().empty())
+				m_ViewPatterns.nPattern = pModDoc->GetSoundFile().Order()[0];
+			m_bInitialActivation = false;
 		}
 	}
 }
 
 
 void CChildFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
-//----------------------------------------------------
 {
 	// update our parent window first
 	GetMDIFrame()->OnUpdateFrameTitle(bAddToTitle);
@@ -191,17 +193,19 @@ void CChildFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
 	CDocument* pDocument = GetActiveDocument();
 	if (bAddToTitle)
 	{
-		TCHAR szText[256+_MAX_PATH];
+		CString szText;
 		if (pDocument == nullptr)
 		{
-			lstrcpy(szText, m_strTitle);
+			szText.Preallocate(m_strTitle.GetLength() + 10);
+			szText = m_strTitle;
 		} else
 		{
-			lstrcpy(szText, pDocument->GetTitle());
-			if (pDocument->IsModified()) lstrcat(szText, "*");
+			szText.Preallocate(pDocument->GetTitle().GetLength() + 10);
+			szText = pDocument->GetTitle();
+			if (pDocument->IsModified()) szText += _T("*");
 		}
 		if (m_nWindow > 0)
-			wsprintf(szText + lstrlen(szText), _T(":%d"), m_nWindow);
+			szText.AppendFormat(_T(":%d"), m_nWindow);
 
 		// set title if changed, but don't remove completely
 		AfxSetWindowText(m_hWnd, szText);
@@ -210,7 +214,6 @@ void CChildFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
 
 
 BOOL CChildFrame::ChangeViewClass(CRuntimeClass* pViewClass, CCreateContext* pContext)
-//------------------------------------------------------------------------------------
 {
 	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
 	CWnd *pWnd;
@@ -243,7 +246,6 @@ BOOL CChildFrame::ChangeViewClass(CRuntimeClass* pViewClass, CCreateContext* pCo
 }
 
 void CChildFrame::ForceRefresh()
-//------------------------------
 {
 	CModControlView *pModView;
 	if ((pModView = GetModControlView()) != nullptr)
@@ -255,7 +257,6 @@ void CChildFrame::ForceRefresh()
 }
 
 void CChildFrame::SavePosition(BOOL bForce)
-//-----------------------------------------
 {
 	if (m_hWnd)
 	{
@@ -289,7 +290,6 @@ void CChildFrame::SavePosition(BOOL bForce)
 
 
 int CChildFrame::GetSplitterHeight()
-//----------------------------------
 {
 	if (m_hWnd)
 	{
@@ -306,26 +306,32 @@ int CChildFrame::GetSplitterHeight()
 };
 
 
-LRESULT CChildFrame::SendViewMessage(UINT uMsg, LPARAM lParam) const
-//------------------------------------------------------------------
+LRESULT CChildFrame::SendCtrlMessage(UINT uMsg, LPARAM lParam) const
 {
-	if (m_hWndView)	return ::SendMessage(m_hWndView, WM_MOD_VIEWMSG, uMsg, lParam);
+	if(m_hWndCtrl)
+		return ::SendMessage(m_hWndCtrl, WM_MOD_CTRLMSG, uMsg, lParam);
+	return 0;
+}
+
+
+LRESULT CChildFrame::SendViewMessage(UINT uMsg, LPARAM lParam) const
+{
+	if(m_hWndView)
+		return ::SendMessage(m_hWndView, WM_MOD_VIEWMSG, uMsg, lParam);
 	return 0;
 }
 
 
 LRESULT CChildFrame::OnInstrumentSelected(WPARAM wParam, LPARAM lParam)
-//---------------------------------------------------------------------
 {
 	CView *pView = GetActiveView();
 	CModDoc *pModDoc = NULL;
 	if (pView) pModDoc = (CModDoc *)pView->GetDocument();
 	if ((m_hWndCtrl) && (pModDoc))
 	{
-		CSoundFile *pSndFile = pModDoc->GetSoundFile();
-		UINT nIns = lParam;
+		auto nIns = lParam;
 
-		if ((!wParam) && (pSndFile->m_nInstruments > 0))
+		if ((!wParam) && (pModDoc->GetNumInstruments() > 0))
 		{
 			nIns = pModDoc->FindSampleParent(static_cast<SAMPLEINDEX>(nIns));
 			if(nIns == INSTRUMENTINDEX_INVALID)
@@ -340,52 +346,31 @@ LRESULT CChildFrame::OnInstrumentSelected(WPARAM wParam, LPARAM lParam)
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CChildFrame diagnostics
-
-#ifdef _DEBUG
-void CChildFrame::AssertValid() const
-{
-	CMDIChildWnd::AssertValid();
-}
-
-void CChildFrame::Dump(CDumpContext& dc) const
-{
-	CMDIChildWnd::Dump(dc);
-}
-
-#endif //_DEBUG
-
-/////////////////////////////////////////////////////////////////////////////
 // CChildFrame message handlers
 
 void CChildFrame::OnDestroy()
-//---------------------------
 {
 	SavePosition();
+	if(m_lastActiveFrame == this)
+		m_lastActiveFrame = nullptr;
 	CMDIChildWnd::OnDestroy();
 }
 
 
 BOOL CChildFrame::OnToolTipText(UINT, NMHDR* pNMHDR, LRESULT* pResult)
-//--------------------------------------------------------------------
 {
-	// need to handle both ANSI and UNICODE versions of the message
-	TOOLTIPTEXTA* pTTTA = (TOOLTIPTEXTA*)pNMHDR;
-	TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
-	TCHAR szFullText[256];
+	auto pTTT = reinterpret_cast<TOOLTIPTEXT *>(pNMHDR);
+	TCHAR szFullText[256] = _T("");
 	CString strTipText;
 
-	ASSERT(pNMHDR->code == TTN_NEEDTEXTA || pNMHDR->code == TTN_NEEDTEXTW);
-	szFullText[0] = 0;
 	UINT_PTR nID = pNMHDR->idFrom;
-	if (pNMHDR->code == TTN_NEEDTEXTA && (pTTTA->uFlags & TTF_IDISHWND) ||
-		pNMHDR->code == TTN_NEEDTEXTW && (pTTTW->uFlags & TTF_IDISHWND))
+	if (pTTT->uFlags & TTF_IDISHWND)
 	{
 		// idFrom is actually the HWND of the tool
-		nID = (UINT_PTR)::GetDlgCtrlID((HWND)nID);
+		nID = static_cast<UINT_PTR>(::GetDlgCtrlID(reinterpret_cast<HWND>(nID)));
 	}
 
-	if ((nID >= 1000) && (nID < 10000) && (m_hWndCtrl) && (::SendMessage(m_hWndCtrl, WM_MOD_GETTOOLTIPTEXT, nID, (LPARAM)szFullText)))
+	if ((nID >= 1000) && (nID < 65536) && (m_hWndCtrl) && (::SendMessage(m_hWndCtrl, WM_MOD_GETTOOLTIPTEXT, nID, (LPARAM)szFullText)))
 	{
 		strTipText = szFullText;
 	} else
@@ -394,15 +379,12 @@ BOOL CChildFrame::OnToolTipText(UINT, NMHDR* pNMHDR, LRESULT* pResult)
 		if (GetRoutingFrame() != NULL) return FALSE;
 		if (nID != 0) // will be zero on a separator
 		{
-			AfxLoadString(nID, szFullText);
+			AfxLoadString((UINT)nID, szFullText);
 			// this is the command id, not the button index
-			AfxExtractSubString(strTipText, szFullText, 1, '\n');
+			AfxExtractSubString(strTipText, szFullText, 1, _T('\n'));
 		}
 	}
-	if (pNMHDR->code == TTN_NEEDTEXTA)
-		lstrcpyn(pTTTA->szText, strTipText, sizeof(pTTTA->szText));
-	else
-		_mbstowcsz(pTTTW->szText, strTipText, sizeof(pTTTW->szText));
+	mpt::String::WriteCStringBuf(pTTT->szText) = strTipText;
 	*pResult = 0;
 
 	// bring the tooltip window above other popup windows
@@ -414,7 +396,6 @@ BOOL CChildFrame::OnToolTipText(UINT, NMHDR* pNMHDR, LRESULT* pResult)
 
 
 LRESULT CChildFrame::OnChangeViewClass(WPARAM wParam, LPARAM lParam)
-//------------------------------------------------------------------
 {
 	CModControlDlg *pDlg = (CModControlDlg *)lParam;
 	if (pDlg)
@@ -427,98 +408,78 @@ LRESULT CChildFrame::OnChangeViewClass(WPARAM wParam, LPARAM lParam)
 }
 
 
-BOOL CChildFrame::OnNcActivate(BOOL bActivate)
-//--------------------------------------------
-{
-	if (m_hWndView)
-	{
-		CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
-		if (pMainFrm)
-		{
-			if (bActivate) pMainFrm->SetMidiRecordWnd(m_hWndView);
-		}
-	}
-	return CMDIChildWnd::OnNcActivate(bActivate);
-}
-
-//rewbs.varWindowSize
-CHAR* CChildFrame::GetCurrentViewClassName()
+const char *CChildFrame::GetCurrentViewClassName() const
 {
 	return m_szCurrentViewClassName;
 }
-//end rewbs.varWindowSize
-
-//rewbs.customKeysAutoEffects
-//We use this to update effect keys when user changes document, if necessary.
-void CChildFrame::OnSetFocus(CWnd* pOldWnd)
-{
-	CMDIChildWnd::OnSetFocus(pOldWnd);
-
-	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
-	if (pMainFrm)
-	{
-		pMainFrm->UpdateEffectKeys();
-	}
-}
-//end rewbs.customKeysAutoEffects
 
 
 std::string CChildFrame::SerializeView() const
-//--------------------------------------------
 {
-	mpt::ostringstream f(std::ios::out | std::ios::binary);
+	std::ostringstream f(std::ios::out | std::ios::binary);
 	// Version
 	mpt::IO::WriteVarInt(f, 0u);
 	// Current page
-	mpt::IO::WriteVarInt(f, static_cast<uint8_t>(GetModControlView()->GetActivePage()));
+	mpt::IO::WriteVarInt(f, static_cast<uint8>(GetModControlView()->GetActivePage()));
 
 	CModControlView *view = GetModControlView();
 	if (strcmp(CViewPattern::classCViewPattern.m_lpszClassName, m_szCurrentViewClassName) == 0)
 	{
-		mpt::IO::WriteVarInt(f, (uint32_t)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTORDER));	// Order number
+		mpt::IO::WriteVarInt(f, (uint32)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTORDER));	// Order number
 	} else if (strcmp(CViewSample::classCViewSample.m_lpszClassName, m_szCurrentViewClassName) == 0)
 	{
-		mpt::IO::WriteVarInt(f, (uint32_t)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTINSTRUMENT));	// Sample number
+		mpt::IO::WriteVarInt(f, (uint32)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTINSTRUMENT));	// Sample number
 	} else if (strcmp(CViewInstrument::classCViewInstrument.m_lpszClassName, m_szCurrentViewClassName) == 0)
 	{
-		mpt::IO::WriteVarInt(f, (uint32_t)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTINSTRUMENT));	// Instrument number
+		mpt::IO::WriteVarInt(f, (uint32)view->SendMessage(WM_MOD_CTRLMSG, CTRLMSG_GETCURRENTINSTRUMENT));	// Instrument number
 	}
 	return f.str();
 }
 
 
 void CChildFrame::DeserializeView(FileReader &file)
-//-------------------------------------------------
 {
-	uint32_t version, page;
+	uint32 version, page;
 	if(file.ReadVarInt(version) && version == 0 &&
-		file.ReadVarInt(page) && page >= 0 && page < CModControlView::MAX_PAGES)
+		file.ReadVarInt(page) && page >= 0 && static_cast<CModControlView::Page>(page) < CModControlView::Page::MaxPages)
 	{
 		UINT pageDlg = 0;
-		switch(page)
+		switch(static_cast<CModControlView::Page>(page))
 		{
-		case CModControlView::VIEW_GLOBALS:
+		case CModControlView::Page::Globals:
 			pageDlg = IDD_CONTROL_GLOBALS;
 			break;
-		case CModControlView::VIEW_PATTERNS:
+		case CModControlView::Page::Patterns:
 			pageDlg = IDD_CONTROL_PATTERNS;
 			file.ReadVarInt(m_ViewPatterns.initialOrder);
 			break;
-		case CModControlView::VIEW_SAMPLES:
+		case CModControlView::Page::Samples:
 			pageDlg = IDD_CONTROL_SAMPLES;
 			file.ReadVarInt(m_ViewSamples.initialSample);
 			break;
-		case CModControlView::VIEW_INSTRUMENTS:
+		case CModControlView::Page::Instruments:
 			pageDlg = IDD_CONTROL_INSTRUMENTS;
 			file.ReadVarInt(m_ViewInstruments.initialInstrument);
 			break;
-		case CModControlView::VIEW_COMMENTS:
+		case CModControlView::Page::Comments:
 			pageDlg = IDD_CONTROL_COMMENTS;
+			break;
+		case CModControlView::Page::Unknown:
+		case CModControlView::Page::MaxPages:
 			break;
 		}
 		GetModControlView()->PostMessage(WM_MOD_ACTIVATEVIEW, pageDlg, (LPARAM)-1);
 	}
+}
 
+
+void CChildFrame::ToggleViews()
+{
+	auto focus = ::GetFocus();
+	if(focus == GetHwndView() || ::IsChild(GetHwndView(), focus))
+		SendCtrlMessage(CTRLMSG_SETFOCUS);
+	else if(focus == GetHwndCtrl() || ::IsChild(GetHwndCtrl(), focus))
+		SendViewMessage(VIEWMSG_SETFOCUS);
 }
 
 OPENMPT_NAMESPACE_END

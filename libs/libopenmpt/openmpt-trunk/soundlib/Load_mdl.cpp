@@ -10,7 +10,6 @@
 
 #include "stdafx.h"
 #include "Loaders.h"
-#include "ChunkReader.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -156,7 +155,7 @@ enum
 
 static constexpr VibratoType MDLVibratoType[] = { VIB_SINE, VIB_RAMP_DOWN, VIB_SQUARE, VIB_SINE };
 
-static constexpr ModCommand::COMMAND MDLEffTrans[] =
+static constexpr EffectCommand MDLEffTrans[] =
 {
 	/* 0 */ CMD_NONE,
 	/* 1st column only */
@@ -187,15 +186,13 @@ static constexpr ModCommand::COMMAND MDLEffTrans[] =
 
 
 // receive an MDL effect, give back a 'normal' one.
-static void ConvertMDLCommand(uint8 &cmd, uint8 &param)
+static std::pair<EffectCommand, uint8> ConvertMDLCommand(const uint8 command, uint8 param)
 {
-	if(cmd >= CountOf(MDLEffTrans))
-		return;
+	if(command >= std::size(MDLEffTrans))
+		return {CMD_NONE, uint8(0)};
 
-	uint8 origCmd = cmd;
-	cmd = MDLEffTrans[cmd];
-
-	switch(origCmd)
+	EffectCommand cmd = MDLEffTrans[command];
+	switch(command)
 	{
 #ifdef MODPLUG_TRACKER
 	case 0x07: // Tempo
@@ -207,18 +204,17 @@ static void ConvertMDLCommand(uint8 &cmd, uint8 &param)
 		param = (param & 0x7F) * 2u;
 		break;
 	case 0x0C:	// Global volume
-		param = (param + 1) / 2u;
+		param = static_cast<uint8>((param + 1) / 2u);
 		break;
 	case 0x0D: // Pattern Break
 		// Convert from BCD
-		param = 10 * (param >> 4) + (param & 0x0F);
+		param = static_cast<uint8>(10 * (param >> 4) + (param & 0x0F));
 		break;
 	case 0x0E: // Special
 		switch(param >> 4)
 		{
 		case 0x0: // unused
 		case 0x3: // unused
-		case 0x5: // Set Finetune
 		case 0x8: // Set Samplestatus (loop type)
 			cmd = CMD_NONE;
 			break;
@@ -233,6 +229,10 @@ static void ConvertMDLCommand(uint8 &cmd, uint8 &param)
 		case 0x4: // Vibrato Waveform
 			param = 0x30 | (param & 0x0F);
 			break;
+		case 0x5:  // Set Finetune
+			cmd = CMD_FINETUNE;
+			param = (param << 4) ^ 0x80;
+			break;
 		case 0x6: // Pattern Loop
 			param = 0xB0 | (param & 0x0F);
 			break;
@@ -245,11 +245,11 @@ static void ConvertMDLCommand(uint8 &cmd, uint8 &param)
 			break;
 		case 0xA: // Global vol slide up
 			cmd = CMD_GLOBALVOLSLIDE;
-			param = 0xF0 & (((param & 0x0F) + 1) << 3);
+			param = static_cast<uint8>(0xF0 & (((param & 0x0F) + 1) << 3));
 			break;
 		case 0xB: // Global vol slide down
 			cmd = CMD_GLOBALVOLSLIDE;
-			param = ((param & 0x0F) + 1) >> 1;
+			param = static_cast<uint8>(((param & 0x0F) + 1) >> 1);
 			break;
 		case 0xC: // Note cut
 		case 0xD: // Note delay
@@ -296,18 +296,19 @@ static void ConvertMDLCommand(uint8 &cmd, uint8 &param)
 		}
 		break;
 	}
+	return {cmd, param};
 }
 
 
 // Returns true if command was lost
-static bool ImportMDLCommands(ModCommand &m, uint8 vol, uint8 e1, uint8 e2, uint8 p1, uint8 p2)
+static bool ImportMDLCommands(ModCommand &m, uint8 vol, uint8 cmd1, uint8 cmd2, uint8 param1, uint8 param2)
 {
 	// Map second effect values 1-6 to effects G-L
-	if(e2 >= 1 && e2 <= 6)
-		e2 += 15;
+	if(cmd2 >= 1 && cmd2 <= 6)
+		cmd2 += 15;
 
-	ConvertMDLCommand(e1, p1);
-	ConvertMDLCommand(e2, p2);
+	auto [e1, p1] = ConvertMDLCommand(cmd1, param1);
+	auto [e2, p2] = ConvertMDLCommand(cmd2, param2);
 	/* From the Digitrakker documentation:
 		* EFx -xx - Set Sample Offset
 		This  is a  double-command.  It starts the
@@ -322,60 +323,62 @@ static bool ImportMDLCommands(ModCommand &m, uint8 vol, uint8 e1, uint8 e2, uint
 
 	What's more is, if there's another effect in the second column, it's ALSO processed in addition to the
 	offset, and the second data byte is shared between the two effects. */
+	uint32 offset = uint32_max;
+	EffectCommand otherCmd = CMD_NONE;
 	if(e1 == CMD_OFFSET)
 	{
 		// EFy -xx => offset yxx00
+		offset = ((p1 & 0x0F) << 8) | p2;
 		p1 = (p1 & 0x0F) ? 0xFF : p2;
 		if(e2 == CMD_OFFSET)
 			e2 = CMD_NONE;
+		else
+			otherCmd = e2;
 	} else if (e2 == CMD_OFFSET)
 	{
-		// --- EFy => offset y0000 (best we can do without doing a ton of extra work is 0xff00)
+		// --- EFy => offset y0000
+		offset = (p2 & 0x0F) << 8;
 		p2 = (p2 & 0x0F) ? 0xFF : 0;
+		otherCmd = e1;
+	}
+
+	if(offset != uint32_max && offset > 0xFF && ModCommand::GetEffectWeight(otherCmd) < ModCommand::GetEffectWeight(CMD_OFFSET))
+	{
+		m.SetEffectCommand(CMD_OFFSET, static_cast<ModCommand::PARAM>(offset & 0xFF));
+		m.SetVolumeCommand(VOLCMD_OFFSET, static_cast<ModCommand::VOL>(offset >> 8));
+		return otherCmd != CMD_NONE || vol != 0;
 	}
 
 	if(vol)
 	{
-		m.volcmd = VOLCMD_VOLUME;
-		m.vol = (vol + 2) / 4u;
+		m.SetVolumeCommand(VOLCMD_VOLUME, static_cast<ModCommand::VOL>((vol + 2) / 4u));
 	}
 
 	// If we have Dxx + G00, or Dxx + H00, combine them into Lxx/Kxx.
 	ModCommand::CombineEffects(e1, p1, e2, p2);
 
-	bool lostCommand = false;
-	// Try to fit the "best" effect into e2.
-	if(e1 == CMD_NONE)
-	{
-		// Easy
-	} else if(e2 == CMD_NONE)
-	{
-		// Almost as easy
-		e2 = e1;
-		p2 = p1;
-		e1 = CMD_NONE;
-	} else if(e1 == e2 && e1 != CMD_S3MCMDEX)
+	// Try to preserve the "best" effect.
+	if(e1 == CMD_NONE || (e1 == e2 && e1 != CMD_S3MCMDEX))
 	{
 		// Digitrakker processes the effects left-to-right, so if both effects are the same, the
 		// second essentially overrides the first.
-		e1 = CMD_NONE;
+		m.SetEffectCommand(e2, p2);
+		return false;
+	} else if(e2 == CMD_NONE)
+	{
+		m.SetEffectCommand(e1, p1);
+		return false;
 	} else if(!vol)
 	{
-		lostCommand |= (ModCommand::TwoRegularCommandsToMPT(e1, p1, e2, p2).first != CMD_NONE);
-		m.volcmd = e1;
-		m.vol = p1;
+		return m.FillInTwoCommands(e1, p1, e2, p2).first != CMD_NONE;
 	} else
 	{
-		if(ModCommand::GetEffectWeight((ModCommand::COMMAND)e1) > ModCommand::GetEffectWeight((ModCommand::COMMAND)e2))
-		{
-			std::swap(e1, e2);
-			std::swap(p1, p2);
-		}
+		if(ModCommand::GetEffectWeight(e1) > ModCommand::GetEffectWeight(e2))
+			m.SetEffectCommand(e1, p1);
+		else
+			m.SetEffectCommand(e2, p2);
+		return true;
 	}
-
-	m.command = e2;
-	m.param = p2;
-	return lostCommand;
 }
 
 
@@ -463,6 +466,7 @@ bool CSoundFile::ReadMDL(FileReader &file, ModLoadingFlags loadFlags)
 	InitializeGlobals(MOD_TYPE_MDL);
 	m_SongFlags = SONG_ITCOMPATGXX;
 	m_playBehaviour.set(kPerChannelGlobalVolSlide);
+	m_playBehaviour.set(kApplyOffsetWithoutNote);
 	m_playBehaviour.reset(kITVibratoTremoloPanbrello);
 	m_playBehaviour.reset(kITSCxStopsSample);	// Gate effect in underbeat.mdl
 
@@ -521,6 +525,7 @@ bool CSoundFile::ReadMDL(FileReader &file, ModLoadingFlags loadFlags)
 
 			ModSample &sample = Samples[sampleIndex];
 			sample.Initialize();
+			sample.Set16BitCuePoints();
 
 			chunk.ReadString<mpt::String::spacePadded>(m_szNames[sampleIndex], 32);
 			chunk.ReadString<mpt::String::spacePadded>(sample.filename, 8);
@@ -635,8 +640,13 @@ bool CSoundFile::ReadMDL(FileReader &file, ModLoadingFlags loadFlags)
 				mptSmp.nPan = std::min(static_cast<uint16>(sampleHeader.panning * 2), uint16(254));
 				mptSmp.nVibType = MDLVibratoType[sampleHeader.vibType & 3];
 				mptSmp.nVibSweep = sampleHeader.vibSweep;
-				mptSmp.nVibDepth = sampleHeader.vibDepth;
+				mptSmp.nVibDepth = static_cast<uint8>((sampleHeader.vibDepth + 3u) / 4u);
 				mptSmp.nVibRate = sampleHeader.vibSpeed;
+				// Convert to IT-like vibrato sweep
+				if(mptSmp.nVibSweep != 0)
+					mptSmp.nVibSweep = mpt::saturate_cast<decltype(mptSmp.nVibSweep)>(Util::muldivr_unsigned(mptSmp.nVibDepth, 256, mptSmp.nVibSweep));
+				else
+					mptSmp.nVibSweep = 255;
 				if(sampleHeader.panEnvFlags & 0x40)
 					mptSmp.uFlags.set(CHN_PANNING);
 			}
@@ -674,7 +684,7 @@ bool CSoundFile::ReadMDL(FileReader &file, ModLoadingFlags loadFlags)
 			}
 			for(CHANNELINDEX chn = 0; chn < numChans; chn++)
 			{
-				if(chunk.ReadUint16LE() > 0 && chn >= m_nChannels)
+				if(chunk.ReadUint16LE() > 0 && chn >= m_nChannels && chn < 32)
 					m_nChannels = chn + 1;
 			}
 		}

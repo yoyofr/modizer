@@ -10,12 +10,20 @@
 #include "stdafx.h"
 #include "version.h"
 
+#include "mpt/format/join.hpp"
+#include "mpt/parse/parse.hpp"
+#include "mpt/string/utility.hpp"
+
 #include "mptString.h"
 #include "mptStringFormat.h"
-#include "mptStringParse.h" 
 
 #include "versionNumber.h"
+
+#if __has_include("svn_version.h")
 #include "svn_version.h"
+#else
+#include "../build/svn_version/svn_version.h"
+#endif
 
 
 
@@ -47,10 +55,10 @@ mpt::ustring Version::GetOpenMPTVersionString() const
 Version Version::Parse(const mpt::ustring &s)
 {
 	uint32 result = 0;
-	std::vector<mpt::ustring> numbers = mpt::String::Split<mpt::ustring>(s, U_("."));
+	std::vector<mpt::ustring> numbers = mpt::split(s, U_("."));
 	for (std::size_t i = 0; i < numbers.size() && i < 4; ++i)
 	{
-		result |= (mpt::String::Parse::Hex<unsigned int>(numbers[i]) & 0xff) << ((3 - i) * 8);
+		result |= (mpt::parse_hex<unsigned int>(numbers[i]) & 0xff) << ((3 - i) * 8);
 	}
 	return Version(result);
 }
@@ -65,11 +73,11 @@ mpt::ustring Version::ToUString() const
 	} else if((v & 0xFFFF) == 0)
 	{
 		// Only parts of the version number are known (e.g. when reading the version from the IT or S3M file header)
-		return mpt::format(U_("%1.%2"))(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF));
+		return MPT_UFORMAT("{}.{}")(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF));
 	} else
 	{
 		// Full version info available
-		return mpt::format(U_("%1.%2.%3.%4"))(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF), mpt::ufmt::HEX0<2>((v >> 8) & 0xFF), mpt::ufmt::HEX0<2>((v) & 0xFF));
+		return MPT_UFORMAT("{}.{}.{}.{}")(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF), mpt::ufmt::HEX0<2>((v >> 8) & 0xFF), mpt::ufmt::HEX0<2>((v) & 0xFF));
 	}
 }
 
@@ -137,7 +145,7 @@ static int GetRevision()
 		{
 			svnversion = svnversion.substr(0, svnversion.find("P"));
 		}
-		return ConvertStrTo<int>(svnversion);
+		return mpt::parse<int>(svnversion);
 	#else
 		MPT_WARNING_STATEMENT("SVN revision unknown. Please check your build system.");
 		return 0;
@@ -264,6 +272,43 @@ SourceInfo SourceInfo::Current()
 
 
 
+VersionWithRevision VersionWithRevision::Current()
+{
+	return {Version::Current(), static_cast<uint64>(SourceInfo::Current().Revision())};
+}
+
+VersionWithRevision VersionWithRevision::Parse(const mpt::ustring &s)
+{
+	Version version = Version::Parse(mpt::ustring());
+	uint64 revision = 0;
+	const auto tokens = mpt::split(s, U_("-"));
+	if(tokens.size() >= 1)
+	{
+		version = Version::Parse(tokens[0]);
+	}
+	if(tokens.size() >= 2)
+	{
+		revision = mpt::parse<uint64>(tokens[1].substr(1));
+	}
+	return {version, revision};
+}
+
+mpt::ustring VersionWithRevision::ToUString() const
+{
+	if(!HasRevision())
+	{
+		return mpt::ufmt::val(version);
+	}
+	if(!version.IsTestVersion())
+	{
+		return mpt::ufmt::val(version);
+	}
+	return MPT_UFORMAT("{}-r{}")(version, revision);
+}
+
+
+
+
 namespace Build {
 
 bool IsReleasedBuild()
@@ -299,6 +344,9 @@ static mpt::ustring GetBuildFlagsString()
 {
 	mpt::ustring retval;
 	#ifdef MODPLUG_TRACKER
+		#if defined(MPT_BUILD_RETRO)
+			retval += UL_(" RETRO");
+		#endif // MPT_BUILD_RETRO
 		if(Version::Current().IsTestVersion())
 		{
 			retval += UL_(" TEST");
@@ -357,30 +405,13 @@ mpt::ustring GetBuildFeaturesString()
 		;
 	#endif
 	#ifdef MODPLUG_TRACKER
-		if constexpr(mpt::arch_bits == 64)
-		{
-			if (true
-				&& (mpt::Windows::Version::GetMinimumKernelLevel() <= mpt::Windows::Version::WinXP64)
-				&& (mpt::Windows::Version::GetMinimumAPILevel() <= mpt::Windows::Version::WinXP64)
-			) {
-				retval += UL_(" WIN64OLD");
-			}
-		} else if constexpr(mpt::arch_bits == 32)
-		{
-			if (true
-				&& (mpt::Windows::Version::GetMinimumKernelLevel() <= mpt::Windows::Version::WinXP)
-				&& (mpt::Windows::Version::GetMinimumAPILevel() <= mpt::Windows::Version::WinXP)
-			) {
-				retval += UL_(" WIN32OLD");
-			}
-		}
 		retval += UL_("")
 		#if defined(UNICODE)
 			UL_(" UNICODE")
 		#else
 			UL_(" ANSI")
 		#endif
-		#ifdef NO_VST
+		#ifndef MPT_WITH_VST
 			UL_(" NO_VST")
 		#endif
 		#ifndef MPT_WITH_DMO
@@ -388,9 +419,6 @@ mpt::ustring GetBuildFeaturesString()
 		#endif
 		#ifdef NO_PLUGINS
 			UL_(" NO_PLUGINS")
-		#endif
-		#ifndef MPT_WITH_ASIO
-			UL_(" NO_ASIO")
 		#endif
 			;
 	#endif
@@ -404,25 +432,25 @@ mpt::ustring GetBuildCompilerString()
 		retval += U_("Generic C++11 Compiler");
 	#elif MPT_COMPILER_MSVC
 		#if defined(_MSC_FULL_VER) && defined(_MSC_BUILD) && (_MSC_BUILD > 0)
-			retval += mpt::format(U_("Microsoft Compiler %1.%2.%3.%4"))
+			retval += MPT_UFORMAT("Microsoft Compiler {}.{}.{}.{}")
 				( _MSC_FULL_VER / 10000000
 				, mpt::ufmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
 				, mpt::ufmt::dec0<5>(_MSC_FULL_VER % 100000)
 				, mpt::ufmt::dec0<2>(_MSC_BUILD)
 				);
 		#elif defined(_MSC_FULL_VER)
-			retval += mpt::format(U_("Microsoft Compiler %1.%2.%3"))
+			retval += MPT_UFORMAT("Microsoft Compiler {}.{}.{}")
 				( _MSC_FULL_VER / 10000000
 				, mpt::ufmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
 				, mpt::ufmt::dec0<5>(_MSC_FULL_VER % 100000)
 				);
 		#else
-			retval += mpt::format(U_("Microsoft Compiler %1.%2"))(MPT_COMPILER_MSVC_VERSION / 100, MPT_COMPILER_MSVC_VERSION % 100);
+			retval += MPT_UFORMAT("Microsoft Compiler {}.{}")(MPT_COMPILER_MSVC_VERSION / 100, MPT_COMPILER_MSVC_VERSION % 100);
 		#endif
 	#elif MPT_COMPILER_GCC
-		retval += mpt::format(U_("GNU Compiler Collection %1.%2.%3"))(MPT_COMPILER_GCC_VERSION / 10000, (MPT_COMPILER_GCC_VERSION / 100) % 100, MPT_COMPILER_GCC_VERSION % 100);
+		retval += MPT_UFORMAT("GNU Compiler Collection {}.{}.{}")(MPT_COMPILER_GCC_VERSION / 10000, (MPT_COMPILER_GCC_VERSION / 100) % 100, MPT_COMPILER_GCC_VERSION % 100);
 	#elif MPT_COMPILER_CLANG
-		retval += mpt::format(U_("Clang %1.%2.%3"))(MPT_COMPILER_CLANG_VERSION / 10000, (MPT_COMPILER_CLANG_VERSION / 100) % 100, MPT_COMPILER_CLANG_VERSION % 100);
+		retval += MPT_UFORMAT("Clang {}.{}.{}")(MPT_COMPILER_CLANG_VERSION / 10000, (MPT_COMPILER_CLANG_VERSION / 100) % 100, MPT_COMPILER_CLANG_VERSION % 100);
 	#else
 		retval += U_("unknown");
 	#endif
@@ -466,24 +494,20 @@ mpt::ustring GetVersionString(FlagSet<Build::Strings> strings)
 			result.push_back(GetRevisionString());
 		}
 	}
-	if(strings[StringBitness])
-	{
-		result.push_back(mpt::format(U_(" %1 bit"))(mpt::arch_bits));
-	}
 	if(strings[StringSourceInfo])
 	{
 		const SourceInfo sourceInfo = SourceInfo::Current();
 		if(!sourceInfo.GetUrlWithRevision().empty())
 		{
-			result.push_back(mpt::format(U_(" %1"))(sourceInfo.GetUrlWithRevision()));
+			result.push_back(MPT_UFORMAT(" {}")(sourceInfo.GetUrlWithRevision()));
 		}
 		if(!sourceInfo.Date().empty())
 		{
-			result.push_back(mpt::format(U_(" (%1)"))(sourceInfo.Date()));
+			result.push_back(MPT_UFORMAT(" ({})")(sourceInfo.Date()));
 		}
 		if(!sourceInfo.GetStateString().empty())
 		{
-			result.push_back(mpt::format(U_(" %1"))(sourceInfo.GetStateString()));
+			result.push_back(MPT_UFORMAT(" {}")(sourceInfo.GetStateString()));
 		}
 	}
 	if(strings[StringBuildFlags])
@@ -497,7 +521,7 @@ mpt::ustring GetVersionString(FlagSet<Build::Strings> strings)
 	{
 		result.push_back(GetBuildFeaturesString());
 	}
-	return mpt::String::Trim(mpt::String::Combine<mpt::ustring>(result, U_("")));
+	return mpt::trim(mpt::join_format<mpt::ustring>(result, U_("")));
 }
 
 mpt::ustring GetVersionStringPure()
@@ -505,9 +529,6 @@ mpt::ustring GetVersionStringPure()
 	FlagSet<Build::Strings> strings;
 	strings |= Build::StringVersion;
 	strings |= Build::StringRevision;
-	#ifdef MODPLUG_TRACKER
-		strings |= Build::StringBitness;
-	#endif
 	return GetVersionString(strings);
 }
 
@@ -525,9 +546,6 @@ mpt::ustring GetVersionStringExtended()
 	FlagSet<Build::Strings> strings;
 	strings |= Build::StringVersion;
 	strings |= Build::StringRevision;
-	#ifdef MODPLUG_TRACKER
-		strings |= Build::StringBitness;
-	#endif
 	#ifndef MODPLUG_TRACKER
 		strings |= Build::StringSourceInfo;
 	#endif
@@ -577,17 +595,17 @@ mpt::ustring GetFullCreditsString()
 {
 	return mpt::ToUnicode(mpt::Charset::UTF8,
 #ifdef MODPLUG_TRACKER
-		"OpenMPT / ModPlug Tracker\n"
+		"OpenMPT / Open ModPlug Tracker\n"
 #else
-		"libopenmpt (based on OpenMPT / ModPlug Tracker)\n"
+		"libopenmpt (based on OpenMPT / Open ModPlug Tracker)\n"
 #endif
 		"\n"
-		"Copyright \xC2\xA9 2004-2021 Contributors\n"
+		"Copyright \xC2\xA9 2004-2024 OpenMPT Project Developers and Contributors\n"
 		"Copyright \xC2\xA9 1997-2003 Olivier Lapicque\n"
 		"\n"
-		"Contributors:\n"
-		"Johannes Schultz (2008-2021)\n"
-		"J\xC3\xB6rn Heusipp (2012-2021)\n"
+		"Developers:\n"
+		"Johannes Schultz (2008-2024)\n"
+		"J\xC3\xB6rn Heusipp (2012-2024)\n"
 		"Ahti Lepp\xC3\xA4nen (2005-2011)\n"
 		"Robin Fernandes (2004-2007)\n"
 		"Sergiy Pylypenko (2007)\n"
@@ -595,7 +613,7 @@ mpt::ustring GetFullCreditsString()
 		"Trevor Nunes (2004)\n"
 		"Olivier Lapicque (1997-2003)\n"
 		"\n"
-		"Additional patch submitters:\n"
+		"Additional contributors:\n"
 		"coda (https://coda.s3m.us/)\n"
 		"Jo\xC3\xA3o Baptista de Paula e Silva (https://joaobapt.com/)\n"
 		"kode54 (https://kode54.net/)\n"
@@ -618,7 +636,7 @@ mpt::ustring GetFullCreditsString()
 		"https://www.surina.net/soundtouch/\n"
 		"\n"
 #endif
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 		"Hermann Seib for his example VST Host implementation\n"
 		"http://www.hermannseib.com/english/vsthost.htm\n"
 		"\n"
@@ -668,13 +686,18 @@ mpt::ustring GetFullCreditsString()
 		"https://rarlab.com/\n"
 		"\n"
 #endif
+#ifdef MPT_WITH_ANCIENT
+		"Teemu Suutari for ancient\n"
+		"https://github.com/temisu/ancient\n"
+		"\n"
+#endif
 #ifdef MPT_WITH_PORTAUDIO
 		"PortAudio contributors\n"
 		"http://www.portaudio.com/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_RTAUDIO
-		"Gary P. Scavone, McGill University\n"
+		"Gary P. Scavone, McGill University for RtAudio\n"
 		"https://www.music.mcgill.ca/~gary/rtaudio/\n"
 		"\n"
 #endif
@@ -753,17 +776,17 @@ mpt::ustring GetFullCreditsString()
 		"\n"
 #endif
 		"Daniel Collin (emoon/TBL) for providing test infrastructure\n"
-		"https://twitter.com/daniel_collin\n"
+		"https://mastodon.gamedev.place/@daniel_collin\n"
 		"\n"
-		"The people at ModPlug forums for crucial contribution\n"
+		"The people in the ModPlug community for crucial contribution\n"
 		"in the form of ideas, testing and support;\n"
 		"thanks particularly to:\n"
-		"33, 8bitbubsy, Anboi, BooT-SectoR-ViruZ, Bvanoudtshoorn\n"
+		"33, 8bitbubsy, AliceLR, Anboi, BooT-SectoR-ViruZ, Bvanoudtshoorn\n"
 		"christofori, cubaxd, Diamond, Ganja, Georg, Goor00,\n"
 		"Harbinger, jmkz, KrazyKatz, LPChip, Nofold, Rakib, Sam Zen\n"
 		"Skaven, Skilletaudio, Snu, Squirrel Havoc, Teimoso, Waxhead\n"
 		"\n"
-#ifndef NO_VST
+#ifdef MPT_WITH_VST
 		"VST PlugIn Technology by Steinberg Media Technologies GmbH\n"
 		"\n"
 #endif
@@ -777,7 +800,7 @@ mpt::ustring GetFullCreditsString()
 mpt::ustring GetLicenseString()
 {
 	return MPT_UTF8(
-		"Copyright (c) 2004-2021, OpenMPT contributors" "\n"
+		"Copyright (c) 2004-2024, OpenMPT Project Developers and Contributors" "\n"
 		"Copyright (c) 1997-2003, Olivier Lapicque" "\n"
 		"All rights reserved." "\n"
 		"" "\n"
@@ -792,16 +815,16 @@ mpt::ustring GetLicenseString()
 		"      names of its contributors may be used to endorse or promote products" "\n"
 		"      derived from this software without specific prior written permission." "\n"
 		"" "\n"
-		"THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND ANY" "\n"
-		"EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED" "\n"
-		"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE" "\n"
-		"DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY" "\n"
-		"DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES" "\n"
-		"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;" "\n"
-		"LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND" "\n"
-		"ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT" "\n"
-		"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS" "\n"
-		"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE." "\n"
+		"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"" "\n"
+		"AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE" "\n"
+		"IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE" "\n"
+		"DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE" "\n"
+		"FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL" "\n"
+		"DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR" "\n"
+		"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER" "\n"
+		"CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY," "\n"
+		"OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE" "\n"
+		"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE." "\n"
 		);
 }
 

@@ -10,6 +10,12 @@
 
 #pragma once
 
+#include "resource.h"
+#include "TrackerSettings.h"
+#include "../sounddsp/EQ.h"
+#include "openmpt/all/BuildSettings.hpp"
+#include "openmpt/sounddevice/SoundDevice.hpp"
+
 OPENMPT_NAMESPACE_BEGIN
 
 class CSoundFile;
@@ -17,19 +23,16 @@ class CMainFrame;
 
 #define NUM_CHANNELCOMBOBOXES	4
 
-//===========================================
 class COptionsSoundcard: public CPropertyPage
-//===========================================
 {
 protected:
 	CComboBoxEx m_CbnDevice;
-	CComboBox m_CbnLatencyMS, m_CbnUpdateIntervalMS, m_CbnMixingFreq, m_CbnChannels, m_CbnSampleFormat, m_CbnDither;
+	CComboBox m_CbnLatencyMS, m_CbnUpdateIntervalMS, m_CbnMixingFreq, m_CbnChannels, m_CbnSampleFormat, m_CbnDither, m_CbnRecordingChannels, m_CbnRecordingSource;
 	CEdit m_EditStatistics;
 	CButton m_BtnDriverPanel;
 
 	CComboBox m_CbnStoppedMode;
 
-	CStatic m_StaticChannelMapping[NUM_CHANNELCOMBOBOXES];
 	CComboBox m_CbnChannelMapping[NUM_CHANNELCOMBOBOXES];
 
 	SoundDevice::Identifier m_InitialDeviceIdentifier;
@@ -58,13 +61,14 @@ private:
 	void UpdateSampleFormat();
 	void UpdateDither();
 	void UpdateChannelMapping();
+	void UpdateRecording();
 	void UpdateControls();
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
 	void UpdateStereoSep();
 
 	afx_msg void OnDeviceChanged();
@@ -72,6 +76,8 @@ protected:
 	afx_msg void OnExclusiveModeChanged();
 	afx_msg void OnChannelsChanged();
 	afx_msg void OnSampleFormatChanged();
+	afx_msg void OnRecordingChanged();
+	afx_msg void OnSoundCardShowAll();
 	afx_msg void OnSoundCardRescan();
 	afx_msg void OnSoundCardDriverPanel();
 
@@ -85,22 +91,16 @@ protected:
 };
 
 
-//=======================================
 class COptionsMixer: public CPropertyPage
-//=======================================
 {
 protected:
 
-	CComboBox m_CbnResampling;
-	CEdit m_CEditWFIRCutoff;
-	CComboBox m_CbnWFIRType;
+	CComboBox m_CbnResampling, m_CbnAmigaType;
 
 	CEdit m_CEditRampUp;
 	CEdit m_CEditRampDown;
 	CEdit m_CInfoRampUp;
 	CEdit m_CInfoRampDown;
-
-	CComboBox m_CbnPolyphony;
 
 	CSliderCtrl m_SliderStereoSep;
 
@@ -120,18 +120,17 @@ protected:
 	void UpdateRamping();
 	void UpdateStereoSep();
 
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
 
 	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
-	afx_msg void OnResamplerChanged();
+	afx_msg void OnAmigaChanged();
 	afx_msg void OnRampingChanged();
+	afx_msg void OnDefaultRampSettings();
 
-	afx_msg void OnHScroll(UINT n, UINT pos, CScrollBar *p) { CPropertyPage::OnHScroll(n, pos, p); OnScroll(n, pos, p); }
-	afx_msg void OnVScroll(UINT n, UINT pos, CScrollBar *p) { CPropertyPage::OnVScroll(n, pos, p); OnScroll(n, pos, p); }
-	void OnScroll(UINT n, UINT pos, CScrollBar *p);
+	afx_msg void OnHScroll(UINT n, UINT pos, CScrollBar *p);
 
 	DECLARE_MESSAGE_MAP()
 
@@ -140,9 +139,7 @@ protected:
 
 #ifndef NO_EQ
 
-//=================================
 class CEQSlider: public CSliderCtrl
-//=================================
 {
 public:
 	CWnd *m_pParent;
@@ -157,15 +154,14 @@ public:
 #endif // !NO_EQ
 
 
-//========================================
 class COptionsPlayer: public CPropertyPage
-//========================================
 {
 protected:
 	CComboBox m_CbnReverbPreset;
 	CSliderCtrl m_SbXBassDepth, m_SbXBassRange;
 	CSliderCtrl m_SbSurroundDepth, m_SbSurroundDelay;
 	CSliderCtrl m_SbReverbDepth;
+	CSliderCtrl m_SbBitCrushBits;
 
 #ifndef NO_EQ
 	CEQSlider m_Sliders[MAX_EQ_BANDS];
@@ -181,10 +177,10 @@ public:
 	{ }
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
 	afx_msg void OnHScroll(UINT, UINT, CScrollBar *);
 	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
 
@@ -207,9 +203,7 @@ protected:
 };
 
 
-//=======================================
 class CMidiSetupDlg: public CPropertyPage
-//=======================================
 {
 public:
 	DWORD m_dwMidiSetup;
@@ -217,7 +211,7 @@ public:
 
 protected:
 	CSpinButtonCtrl m_SpinSpd, m_SpinPat, m_SpinAmp;
-	CComboBox m_ATBehaviour, m_Quantize;
+	CComboBox m_InputDevice, m_ATBehaviour, m_Quantize;
 
 public:
 	CMidiSetupDlg(DWORD d, UINT n)
@@ -227,12 +221,40 @@ public:
 		{ }
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	virtual void DoDataExchange(CDataExchange* pDX);
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
+	void RefreshDeviceList(UINT currentDevice);
+	afx_msg void OnRenameDevice();
 	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
 	DECLARE_MESSAGE_MAP()
 };
+
+
+
+class COptionsWine: public CPropertyPage
+{
+
+protected:
+	CComboBox m_CbnPulseAudio;
+	CComboBox m_CbnPortAudio;
+	CComboBox m_CbnRtAudio;
+
+public:
+	COptionsWine();
+
+protected:
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+	void DoDataExchange(CDataExchange* pDX) override;
+
+	afx_msg void OnSettingsChanged();
+	
+	DECLARE_MESSAGE_MAP()
+};
+
+
 
 OPENMPT_NAMESPACE_END

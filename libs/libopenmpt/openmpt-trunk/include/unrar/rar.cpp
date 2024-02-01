@@ -1,6 +1,6 @@
 #include "rar.hpp"
 
-#if !defined(GUI) && !defined(RARDLL)
+#if !defined(RARDLL)
 int main(int argc, char *argv[])
 {
 
@@ -26,10 +26,10 @@ int main(int argc, char *argv[])
 
 #endif
 
-#if defined(_WIN_ALL) && !defined(SFX_MODULE) && !defined(SHELL_EXT)
+#if defined(_WIN_ALL) && !defined(SFX_MODULE)
   // Must be initialized, normal initialization can be skipped in case of
   // exception.
-  bool ShutdownOnClose=false;
+  POWER_MODE ShutdownOnClose=POWERMODE_KEEP;
 #endif
 
   try 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   
     CommandData *Cmd=new CommandData;
 #ifdef SFX_MODULE
-    wcscpy(Cmd->Command,L"X");
+    wcsncpyz(Cmd->Command,L"X",ASIZE(Cmd->Command));
     char *Switch=argc>1 ? argv[1]:NULL;
     if (Switch!=NULL && Cmd->IsSwitch(Switch[0]))
     {
@@ -66,12 +66,13 @@ int main(int argc, char *argv[])
     Cmd->ParseCommandLine(false,argc,argv);
 #endif
 
-#if defined(_WIN_ALL) && !defined(SFX_MODULE) && !defined(SHELL_EXT)
+#if defined(_WIN_ALL) && !defined(SFX_MODULE)
     ShutdownOnClose=Cmd->Shutdown;
+    if (ShutdownOnClose)
+      ShutdownCheckAnother(true);
 #endif
 
     uiInit(Cmd->Sound);
-    InitConsoleOptions(Cmd->MsgStream,Cmd->RedirectCharset);
     InitLogOptions(Cmd->LogName,Cmd->ErrlogCharset);
     ErrHandler.SetSilent(Cmd->AllYes || Cmd->MsgStream==MSG_NULL);
 
@@ -93,9 +94,10 @@ int main(int argc, char *argv[])
     ErrHandler.SetErrorCode(RARX_FATAL);
   }
 
-#if defined(_WIN_ALL) && !defined(SFX_MODULE) && !defined(SHELL_EXT)
-  if (ShutdownOnClose && ErrHandler.IsShutdownEnabled())
-    Shutdown();
+#if defined(_WIN_ALL) && !defined(SFX_MODULE)
+  if (ShutdownOnClose!=POWERMODE_KEEP && ErrHandler.IsShutdownEnabled() &&
+      !ShutdownCheckAnother(false))
+    Shutdown(ShutdownOnClose);
 #endif
   ErrHandler.MainExit=true;
   return ErrHandler.GetErrorCode();

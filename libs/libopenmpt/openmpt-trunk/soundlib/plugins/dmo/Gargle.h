@@ -24,18 +24,17 @@ protected:
 	{
 		kGargleRate = 0,
 		kGargleWaveShape,
-		kEqNumParameters
+		kGargleNumParameters
 	};
 
-	float m_param[kEqNumParameters];
+	std::array<float, kGargleNumParameters> m_param;
 
 	uint32 m_period, m_periodHalf, m_counter;	// In frames
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
-	Gargle(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
+	Gargle(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
-	void Release() override { delete this; }
 	int32 GetUID() const override { return 0xDAFD8210; }
 	int32 GetVersion() const override { return 0; }
 	void Idle() override { }
@@ -49,7 +48,7 @@ public:
 	int32 GetCurrentProgram() override { return 0; }
 	void SetCurrentProgram(int32) override { }
 
-	PlugParamIndex GetNumParameters() const override { return kEqNumParameters; }
+	PlugParamIndex GetNumParameters() const override { return kGargleNumParameters; }
 	PlugParamValue GetParameter(PlugParamIndex index) override;
 	void SetParameter(PlugParamIndex index, PlugParamValue value) override;
 

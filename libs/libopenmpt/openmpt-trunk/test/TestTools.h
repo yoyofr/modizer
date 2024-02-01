@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "TestToolsTracker.h"
 #include "TestToolsLib.h"
 

@@ -10,9 +10,11 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #ifdef MPT_DISABLED_CODE
 
-#include "mptrack.h"
+#include "Mptrack.h"
 #include "Mainfrm.h"
 #include "Sndfile.h"
 #include "../muParser/include/muParser.h"
@@ -33,9 +35,7 @@ enum smpgen_clip_methods
 	smpgen_normalize,
 };
 
-//====================
 class CSampleGenerator
-//====================
 {
 protected:
 	
@@ -50,7 +50,7 @@ protected:
 	static size_t samples_written;
 
 	typedef int16 sampling_type; // has to match SMPGEN_MIXBYTES!
-	static const sampling_type sample_maxvalue = (1 << ((SMPGEN_MIXBYTES << 3) - 1)) - 1;
+	static constexpr sampling_type sample_maxvalue = (1 << ((SMPGEN_MIXBYTES << 3) - 1)) - 1;
 
 	// muParser object for parsing the expression
 	mu::Parser muParser;
@@ -61,7 +61,7 @@ protected:
 	static mu::value_type PWMCallback(mu::value_type pos, mu::value_type duty, mu::value_type width) { if(width == 0) return 0; else return (fmod(pos, width) < ((duty / 100) * width)) ? 1 : -1; };
 	static mu::value_type RndCallback(mu::value_type v) { return v * std::rand() / (mu::value_type)(RAND_MAX + 1.0); };
 	static mu::value_type SampleDataCallback(mu::value_type v);
-	static mu::value_type TriangleCallback(mu::value_type pos, mu::value_type width) { if((int)width == 0) return 0; else return mpt::abs(((int)pos % (int)(width)) - width / 2) / (width / 4) - 1; };
+	static mu::value_type TriangleCallback(mu::value_type pos, mu::value_type width) { if((int)width == 0) return 0; else return std::abs(((int)pos % (int)(width)) - width / 2) / (width / 4) - 1; };
 
 	// binary operators
 	static mu::value_type ModuloCallback(mu::value_type x, mu::value_type y) { if(y == 0) return 0; else return fmod(x , y); };
@@ -92,9 +92,7 @@ struct samplegen_expression
 #define MAX_SAMPLEGEN_PRESETS 100
 
 
-//==================
 class CSmpGenPresets
-//==================
 {
 protected:
 	vector<samplegen_expression> presets;
@@ -115,9 +113,7 @@ public:
 // Sample Generator Dialog implementation
 
 
-//=================================
 class CSmpGenDialog: public CDialog
-//=================================
 {
 protected:
 
@@ -179,9 +175,7 @@ protected:
 // Sample Generator Preset Dialog implementation
 
 
-//====================================
 class CSmpGenPresetDlg: public CDialog
-//====================================
 {
 protected:
 	CSmpGenPresets *presets;

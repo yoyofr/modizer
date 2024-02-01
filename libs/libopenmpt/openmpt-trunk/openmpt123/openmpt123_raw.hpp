@@ -16,24 +16,24 @@
 #include <fstream>
 
 namespace openmpt123 {
-	
+
 class raw_stream_raii : public file_audio_stream_base {
 private:
 	commandlineflags flags;
-	std::ofstream file;
+	mpt::IO::ofstream file;
 	std::vector<float> interleaved_float_buffer;
 	std::vector<std::int16_t> interleaved_int_buffer;
 public:
-	raw_stream_raii( const std::string & filename, const commandlineflags & flags_, std::ostream & /*log*/ ) : flags(flags_), file(filename.c_str(), std::ios::binary) {
+	raw_stream_raii( const mpt::native_path & filename, const commandlineflags & flags_, concat_stream<mpt::ustring> & /*log*/ ) : flags(flags_), file(filename, std::ios::binary) {
 		return;
 	}
 	~raw_stream_raii() {
 		return;
 	}
-	void write_metadata( std::map<std::string,std::string> /* metadata */ ) {
+	void write_metadata( std::map<mpt::ustring, mpt::ustring> /* metadata */ ) override {
 		return;
 	}
-	void write( const std::vector<float*> buffers, std::size_t frames ) {
+	void write( const std::vector<float*> buffers, std::size_t frames ) override {
 		interleaved_float_buffer.clear();
 		for ( std::size_t frame = 0; frame < frames; frame++ ) {
 			for ( std::size_t channel = 0; channel < buffers.size(); channel++ ) {
@@ -42,7 +42,7 @@ public:
 		}
 		file.write( reinterpret_cast<const char *>( interleaved_float_buffer.data() ), frames * buffers.size() * sizeof( float ) );
 	}
-	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) {
+	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) override {
 		interleaved_int_buffer.clear();
 		for ( std::size_t frame = 0; frame < frames; frame++ ) {
 			for ( std::size_t channel = 0; channel < buffers.size(); channel++ ) {

@@ -10,28 +10,53 @@
 
 
 #include "stdafx.h"
-#include "moddoc.h"
-#include "MainFrm.h"
-#include "modsmp_ctrl.h"
 #include "Undo.h"
-#include "../common/StringFixer.h"
-
-#define new DEBUG_NEW
+#include "Moddoc.h"
+#include "TrackerSettings.h"
+#include "UpdateHints.h"
+#include "../common/mptStringBuffer.h"
+#include "../tracklib/SampleEdit.h"
+#include "../soundlib/modsmp_ctrl.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
+
+static constexpr size_t MAX_UNDO_LEVEL = 100000;  // 100,000 undo steps for each undo type!
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Pattern Undo Functions
 
 
+struct CPatternUndo::UndoInfo
+{
+	std::vector<ModChannelSettings> channelInfo;  // Optional old channel information (pan / volume / etc.)
+	std::vector<ModCommand> content;              // Rescued pattern content
+	const char *description;                      // Name of this undo action
+	ROWINDEX numPatternRows;                      // Original number of pattern rows (in case of resize, DELETE_PATTERN in case of deletion)
+	ROWINDEX firstRow, numRows;
+	PATTERNINDEX pattern;
+	CHANNELINDEX firstChannel, numChannels;
+	bool linkToPrevious;  // This undo information is linked with the previous undo information
+
+	bool OnlyChannelSettings() const noexcept
+	{
+		return !channelInfo.empty() && numRows < 1 && !linkToPrevious;
+	}
+};
+
+
+CPatternUndo::CPatternUndo(CModDoc &parent) : modDoc{parent} {}
+
+
+CPatternUndo::~CPatternUndo() {}
+
+
 // Remove all undo steps.
 void CPatternUndo::ClearUndo()
-//----------------------------
 {
-	ClearBuffer(UndoBuffer);
-	ClearBuffer(RedoBuffer);
+	UndoBuffer.clear();
+	RedoBuffer.clear();
 }
 
 
@@ -46,74 +71,100 @@ void CPatternUndo::ClearUndo()
 //   - linkToPrevious: Don't create a separate undo step, but link this to the previous undo event. Use this for commands that modify several patterns at once.
 //   - storeChannelInfo: Also store current channel header information (pan / volume / etc. settings) and number of channels in this undo point.
 bool CPatternUndo::PrepareUndo(PATTERNINDEX pattern, CHANNELINDEX firstChn, ROWINDEX firstRow, CHANNELINDEX numChns, ROWINDEX numRows, const char *description, bool linkToPrevious, bool storeChannelInfo)
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	if(PrepareBuffer(UndoBuffer, pattern, firstChn, firstRow, numChns, numRows, description, linkToPrevious, storeChannelInfo))
 	{
-		ClearBuffer(RedoBuffer);
+		RedoBuffer.clear();
 		return true;
 	}
 	return false;
 }
 
 
-bool CPatternUndo::PrepareBuffer(undobuf_t &buffer, PATTERNINDEX pattern, CHANNELINDEX firstChn, ROWINDEX firstRow, CHANNELINDEX numChns, ROWINDEX numRows, const char *description, bool linkToPrevious, bool storeChannelInfo)
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+bool CPatternUndo::PrepareChannelUndo(CHANNELINDEX firstChn, CHANNELINDEX numChns, const char *description)
 {
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	return PrepareUndo(PATTERNINDEX_INVALID, firstChn, 0, numChns, 0, description, false, true);
+}
 
-	if (!sndFile.Patterns.IsValidPat(pattern)) return false;
-	ROWINDEX nRows = sndFile.Patterns[pattern].GetNumRows();
-	if ((firstRow >= nRows) || (numChns < 1) || (numRows < 1) || (firstChn >= sndFile.GetNumChannels())) return false;
-	if (firstRow + numRows >= nRows) numRows = nRows - firstRow;
-	if (firstChn + numChns >= sndFile.GetNumChannels()) numChns = sndFile.GetNumChannels() - firstChn;
 
-	ModCommand *pUndoData = CPattern::AllocatePattern(numRows, numChns);
-	if (!pUndoData) return false;
+bool CPatternUndo::PrepareBuffer(undobuf_t &buffer, PATTERNINDEX pattern, CHANNELINDEX firstChn, ROWINDEX firstRow, CHANNELINDEX numChns, ROWINDEX numRows, const char *description, bool linkToPrevious, bool storeChannelInfo) const
+{
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
+	const bool onlyChannelInfo = storeChannelInfo && numRows < 1;
+
+	if(storeChannelInfo && pattern != PATTERNINDEX_INVALID && firstChn == 0 && numChns != sndFile.GetNumChannels())
+	{
+		numChns = sndFile.GetNumChannels();
+	}
+
+	ROWINDEX patRows = 0;
+	if(sndFile.Patterns.IsValidPat(pattern))
+	{
+		patRows = sndFile.Patterns[pattern].GetNumRows();
+		if((firstRow >= patRows) || (firstChn >= sndFile.GetNumChannels()))
+			return false;
+		if(numChns < 1 || numRows < 1)
+			return false;
+		if(firstRow + numRows >= patRows)
+			numRows = patRows - firstRow;
+		if(firstChn + numChns >= sndFile.GetNumChannels())
+			numChns = sndFile.GetNumChannels() - firstChn;
+	} else if(!onlyChannelInfo)
+	{
+		return false;
+	}
 
 	// Remove an undo step if there are too many.
-	while(buffer.size() >= MAX_UNDO_LEVEL)
+	if(buffer.size() >= MAX_UNDO_LEVEL)
 	{
-		DeleteStep(buffer, 0);
+		buffer.erase(buffer.begin(), buffer.begin() + (buffer.size() - MAX_UNDO_LEVEL + 1));
 	}
 
 	UndoInfo undo;
 	undo.pattern = pattern;
-	undo.numPatternRows = sndFile.Patterns[pattern].GetNumRows();
+	undo.numPatternRows = patRows;
 	undo.firstChannel = firstChn;
 	undo.firstRow = firstRow;
 	undo.numChannels = numChns;
 	undo.numRows = numRows;
-	undo.pbuffer = pUndoData;
 	undo.linkToPrevious = linkToPrevious;
 	undo.description = description;
-	const ModCommand *pPattern = sndFile.Patterns[pattern].GetpModCommand(firstRow, firstChn);
-	for(ROWINDEX iy = 0; iy < numRows; iy++)
+
+	if(!onlyChannelInfo)
 	{
-		memcpy(pUndoData, pPattern, numChns * sizeof(ModCommand));
-		pUndoData += numChns;
-		pPattern += sndFile.GetNumChannels();
+		try
+		{
+			undo.content.resize(numRows * numChns);
+		} catch(mpt::out_of_memory e)
+		{
+			mpt::delete_out_of_memory(e);
+			return false;
+		}
+		const ModCommand *pPattern = sndFile.Patterns[pattern].GetpModCommand(firstRow, firstChn);
+		auto pUndoData = undo.content.begin();
+		for(ROWINDEX iy = 0; iy < numRows; iy++)
+		{
+			std::copy(pPattern, pPattern + numChns, pUndoData);
+			pUndoData += numChns;
+			pPattern += sndFile.GetNumChannels();
+		}
 	}
 
 	if(storeChannelInfo)
 	{
-		undo.channelInfo = new UndoInfo::ChannelInfo(sndFile.GetNumChannels());
-		memcpy(undo.channelInfo->settings, sndFile.ChnSettings, sizeof(ModChannelSettings) * sndFile.GetNumChannels());
-	} else
-	{
-		undo.channelInfo = nullptr;
+		undo.channelInfo.assign(std::begin(sndFile.ChnSettings) + firstChn, std::begin(sndFile.ChnSettings) + firstChn + numChns);
 	}
 
-	buffer.push_back(undo);
+	buffer.push_back(std::move(undo));
 
-	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
+	if(!linkToPrevious)
+		modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
 	return true;
 }
 
 
 // Restore an undo point. Returns which pattern has been modified.
 PATTERNINDEX CPatternUndo::Undo()
-//-------------------------------
 {
 	return Undo(UndoBuffer, RedoBuffer, false);
 }
@@ -121,7 +172,6 @@ PATTERNINDEX CPatternUndo::Undo()
 
 // Restore an undo point. Returns which pattern has been modified.
 PATTERNINDEX CPatternUndo::Redo()
-//-------------------------------
 {
 	return Undo(RedoBuffer, UndoBuffer, false);
 }
@@ -130,133 +180,171 @@ PATTERNINDEX CPatternUndo::Redo()
 // Restore an undo point. Returns which pattern has been modified.
 // linkedFromPrevious is true if a connected undo event is going to be deleted (can only be called internally).
 PATTERNINDEX CPatternUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, bool linkedFromPrevious)
-//--------------------------------------------------------------------------------------------
 {
-	CSoundFile &sndFile = modDoc.GetrSoundFile();
+	CSoundFile &sndFile = modDoc.GetSoundFile();
 
 	bool linkToPrevious = false;
 
-	if(fromBuf.empty()) return PATTERNINDEX_INVALID;
+	if(fromBuf.empty())
+		return PATTERNINDEX_INVALID;
 
 	// Select most recent undo slot
 	const UndoInfo &undo = fromBuf.back();
+	const bool onlyChannelSettings = undo.OnlyChannelSettings();
+	const bool deletePattern = (undo.numPatternRows == DELETE_PATTERN) && !onlyChannelSettings;
 
-	PrepareBuffer(toBuf, undo.pattern, undo.firstChannel, undo.firstRow, undo.numChannels, undo.numRows, undo.description, linkedFromPrevious, undo.channelInfo != nullptr);
+	// Add this action to redo buffer if the pattern exists; otherwise add a special deletion redo step later
+	const bool patternExists = sndFile.Patterns.IsValidPat(undo.pattern);
+	if(patternExists || onlyChannelSettings)
+		PrepareBuffer(toBuf, undo.pattern, undo.firstChannel, undo.firstRow, undo.numChannels, undo.numRows, undo.description, linkedFromPrevious, !undo.channelInfo.empty());
 
-	if(undo.channelInfo != nullptr)
+	const bool modifyChannels = !undo.channelInfo.empty();
+	const CHANNELINDEX updateChannel = (undo.numChannels == 1) ? undo.firstChannel : CHANNELINDEX_INVALID;
+	if(modifyChannels)
 	{
-		if(undo.channelInfo->oldNumChannels != sndFile.GetNumChannels())
+		const bool modifyChannelCount =
+		    (undo.pattern != PATTERNINDEX_INVALID && undo.channelInfo.size() != sndFile.GetNumChannels())
+		    || (undo.pattern == PATTERNINDEX_INVALID && (undo.firstChannel + undo.channelInfo.size()) > sndFile.GetNumChannels());
+		if(modifyChannelCount)
 		{
 			// Add or remove channels
-			std::vector<CHANNELINDEX> channels(undo.channelInfo->oldNumChannels, CHANNELINDEX_INVALID);
-			const CHANNELINDEX copyCount = std::min(sndFile.GetNumChannels(), undo.channelInfo->oldNumChannels);
-			for(CHANNELINDEX i = 0; i < copyCount; i++)
-			{
-				channels[i] = i;
-			}
+			std::vector<CHANNELINDEX> channels(undo.channelInfo.size(), CHANNELINDEX_INVALID);
+			const CHANNELINDEX copyCount = std::min(sndFile.GetNumChannels(), static_cast<CHANNELINDEX>(undo.channelInfo.size()));
+			std::iota(channels.begin(), channels.begin() + copyCount, CHANNELINDEX(0));
 			modDoc.ReArrangeChannels(channels, false);
 		}
-		memcpy(sndFile.ChnSettings, undo.channelInfo->settings, sizeof(ModChannelSettings) * undo.channelInfo->oldNumChannels);
+		if(undo.firstChannel + undo.channelInfo.size() <= sndFile.GetNumChannels())
+		{
+			std::move(undo.channelInfo.cbegin(), undo.channelInfo.cend(), std::begin(sndFile.ChnSettings) + undo.firstChannel);
+		}
 
 		// Channel mute status might have changed...
-		for(CHANNELINDEX i = 0; i < sndFile.GetNumChannels(); i++)
+		for(CHANNELINDEX i = undo.firstChannel; i < sndFile.GetNumChannels(); i++)
 		{
 			modDoc.UpdateChannelMuteStatus(i);
 		}
-
 	}
 
-	PATTERNINDEX nPattern = undo.pattern;
-	if(undo.firstChannel + undo.numChannels <= sndFile.GetNumChannels())
+	PATTERNINDEX pat = undo.pattern;
+	if(deletePattern)
 	{
-		if(!sndFile.Patterns.IsValidPat(nPattern))
+		sndFile.Patterns.Remove(pat);
+	} else if(undo.firstChannel + undo.numChannels <= sndFile.GetNumChannels() && !onlyChannelSettings)
+	{
+		if(!patternExists)
 		{
-			if(!sndFile.Patterns.Insert(nPattern, undo.numPatternRows))
+			if(!sndFile.Patterns.Insert(pat, undo.numPatternRows))
 			{
-				DeleteStep(fromBuf, fromBuf.size() - 1);
+				fromBuf.pop_back();
 				return PATTERNINDEX_INVALID;
 			}
-		} else if(sndFile.Patterns[nPattern].GetNumRows() != undo.numPatternRows)
+		} else if(sndFile.Patterns[pat].GetNumRows() != undo.numPatternRows)
 		{
-			sndFile.Patterns[nPattern].Resize(undo.numPatternRows);
+			sndFile.Patterns[pat].Resize(undo.numPatternRows);
 		}
 
 		linkToPrevious = undo.linkToPrevious;
-		const ModCommand *pUndoData = undo.pbuffer;
-		CPattern &pattern = sndFile.Patterns[nPattern];
+		auto pUndoData = undo.content.cbegin();
+		CPattern &pattern = sndFile.Patterns[pat];
 		ModCommand *m = pattern.GetpModCommand(undo.firstRow, undo.firstChannel);
 		const ROWINDEX numRows = std::min(undo.numRows, pattern.GetNumRows());
 		for(ROWINDEX iy = 0; iy < numRows; iy++)
 		{
-			memcpy(m, pUndoData, undo.numChannels * sizeof(ModCommand));
+			std::move(pUndoData, pUndoData + undo.numChannels, m);
 			m += sndFile.GetNumChannels();
 			pUndoData += undo.numChannels;
 		}
 	}
 
-	DeleteStep(fromBuf, fromBuf.size() - 1);
+	if(!patternExists && !onlyChannelSettings)
+	{
+		// Redo a deletion
+		auto &redo = fromBuf.back();
+		redo.content.clear();
+		redo.numPatternRows = DELETE_PATTERN;
+		toBuf.push_back(std::move(redo));
+	}
+	fromBuf.pop_back();
 
-	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
+	if(patternExists != sndFile.Patterns.IsValidPat(pat))
+	{
+		modDoc.UpdateAllViews(nullptr, PatternHint(pat).Names().Undo());
+		modDoc.UpdateAllViews(nullptr, SequenceHint().Data());  // Pattern color will change in sequence
+	} else
+	{
+		modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
+	}
+	if(modifyChannels)
+		modDoc.UpdateAllViews(nullptr, GeneralHint(updateChannel).Channels());
+	modDoc.SetModified();
 
 	if(linkToPrevious)
 	{
-		nPattern = Undo(fromBuf, toBuf, true);
+		pat = Undo(fromBuf, toBuf, true);
 	}
 
-	return nPattern;
+	return pat;
 }
 
 
-// Remove all undo or redo steps
-void CPatternUndo::ClearBuffer(undobuf_t &buffer)
-//-----------------------------------------------
+// Returns true if a channel-specific action (no pattern data) can currently be undone.
+bool CPatternUndo::CanUndoChannelSettings() const
 {
-	while(!buffer.empty())
-	{
-		DeleteStep(buffer, buffer.size() - 1);
-	}
+	return !UndoBuffer.empty() && UndoBuffer.back().OnlyChannelSettings();
 }
 
 
-// Delete a given undo / redo step.
-void CPatternUndo::DeleteStep(undobuf_t &buffer, size_t step)
-//-----------------------------------------------------------
+// Returns true if a channel-specific action (no pattern data) actions can currently be redone.
+bool CPatternUndo::CanRedoChannelSettings() const
 {
-	if(step >= buffer.size()) return;
-	delete[] buffer[step].pbuffer;
-	delete buffer[step].channelInfo;
-	buffer.erase(buffer.begin() + step);
+	return !RedoBuffer.empty() && RedoBuffer.back().OnlyChannelSettings();
 }
 
 
 // Public helper function to remove the most recent undo point.
 void CPatternUndo::RemoveLastUndoStep()
-//-------------------------------------
 {
-	if(!CanUndo()) return;
-	DeleteStep(UndoBuffer, UndoBuffer.size() - 1);
+	if(UndoBuffer.empty())
+		return;
+
+	UndoBuffer.pop_back();
+	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
 }
 
 
-const char *CPatternUndo::GetUndoName() const
-//-------------------------------------------
+CString CPatternUndo::GetName(const undobuf_t &buffer)
 {
-	if(!CanUndo())
-	{
-		return "";
-	}
-	return UndoBuffer.back().description;
+	if(buffer.empty())
+		return CString();
+	
+	const UndoInfo &info = buffer.back();
+	CString desc = mpt::ToCString(mpt::Charset::Locale, info.description);
+	if(info.linkToPrevious)
+		desc += _T(" (Multiple Patterns)");
+	else if(info.OnlyChannelSettings() && info.numChannels > 1)
+		desc += _T(" (Multiple Channels)");
+	else if(info.OnlyChannelSettings())
+		desc += MPT_CFORMAT(" (Channel {})")(info.firstChannel + 1);
+	else
+		desc += MPT_CFORMAT(" (Pat {} Row {} Chn {})")(info.pattern, info.firstRow, info.firstChannel + 1);
+	return desc;
 }
 
 
-const char *CPatternUndo::GetRedoName() const
-//-------------------------------------------
+void CPatternUndo::RearrangePatterns(undobuf_t &buffer, const std::vector<PATTERNINDEX> &newIndex)
 {
-	if(!CanRedo())
+	for(auto &step : buffer)
 	{
-		return "";
+		if(step.pattern < newIndex.size())
+			step.pattern = newIndex[step.pattern];
 	}
-	return RedoBuffer.back().description;
+}
+
+
+void CPatternUndo::RearrangePatterns(const std::vector<PATTERNINDEX> &newIndex)
+{
+	RearrangePatterns(UndoBuffer, newIndex);
+	RearrangePatterns(RedoBuffer, newIndex);
 }
 
 
@@ -264,9 +352,31 @@ const char *CPatternUndo::GetRedoName() const
 // Sample Undo Functions
 
 
+struct CSampleUndo::UndoInfo
+{
+	ModSample OldSample;
+	mpt::charbuf<MAX_SAMPLENAME> oldName;
+	void *samplePtr = nullptr;
+	const char *description = nullptr;
+	SmpLength changeStart = 0, changeEnd = 0;
+	sampleUndoTypes changeType = sundo_none;
+};
+
+
+CSampleUndo::CSampleUndo(CModDoc &parent)
+	: modDoc{parent}
+{
+}
+
+
+CSampleUndo::~CSampleUndo()
+{
+	ClearUndo();
+}
+
+
 // Remove all undo steps for all samples.
 void CSampleUndo::ClearUndo()
-//---------------------------
 {
 	for(SAMPLEINDEX smp = 1; smp <= MAX_SAMPLES; smp++)
 	{
@@ -280,7 +390,6 @@ void CSampleUndo::ClearUndo()
 
 // Remove all undo steps of a given sample.
 void CSampleUndo::ClearUndo(undobuf_t &buffer, const SAMPLEINDEX smp)
-//-------------------------------------------------------------------
 {
 	if(!SampleBufferExists(buffer, smp)) return;
 
@@ -295,7 +404,6 @@ void CSampleUndo::ClearUndo(undobuf_t &buffer, const SAMPLEINDEX smp)
 // The main program has to tell what kind of changes are going to be made to the sample.
 // That way, a lot of RAM can be saved, because some actions don't even require an undo sample buffer.
 bool CSampleUndo::PrepareUndo(const SAMPLEINDEX smp, sampleUndoTypes changeType, const char *description, SmpLength changeStart, SmpLength changeEnd)
-//---------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	if(PrepareBuffer(UndoBuffer, smp, changeType, description, changeStart, changeEnd))
 	{
@@ -307,7 +415,6 @@ bool CSampleUndo::PrepareUndo(const SAMPLEINDEX smp, sampleUndoTypes changeType,
 
 
 bool CSampleUndo::PrepareBuffer(undobuf_t &buffer, const SAMPLEINDEX smp, sampleUndoTypes changeType, const char *description, SmpLength changeStart, SmpLength changeEnd)
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	if(smp == 0 || smp >= MAX_SAMPLES) return false;
 	if(!TrackerSettings::Instance().m_SampleUndoBufferSize.Get().GetSizeInBytes())
@@ -329,12 +436,12 @@ bool CSampleUndo::PrepareBuffer(undobuf_t &buffer, const SAMPLEINDEX smp, sample
 	// Create new undo slot
 	UndoInfo undo;
 
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 	const ModSample &oldSample = sndFile.GetSample(smp);
 
 	// Save old sample header
 	undo.OldSample = oldSample;
-	mpt::String::Copy(undo.oldName, sndFile.m_szNames[smp]);
+	undo.oldName = sndFile.m_szNames[smp];
 	undo.changeType = changeType;
 	undo.description = description;
 
@@ -375,20 +482,18 @@ bool CSampleUndo::PrepareBuffer(undobuf_t &buffer, const SAMPLEINDEX smp, sample
 	case sundo_update:
 	case sundo_delete:
 	case sundo_replace:
-		if(oldSample.pSample != nullptr)
+		if(oldSample.HasSampleData())
 		{
-			const size_t bytesPerSample = oldSample.GetBytesPerSample();
-			const size_t changeLen = changeEnd - changeStart;
+			const uint8 bytesPerSample = oldSample.GetBytesPerSample();
+			const SmpLength changeLen = changeEnd - changeStart;
 
 			undo.samplePtr = ModSample::AllocateSample(changeLen, bytesPerSample);
 			if(undo.samplePtr == nullptr) return false;
-			memcpy(undo.samplePtr, oldSample.pSample8 + changeStart * bytesPerSample, changeLen * bytesPerSample);
+			memcpy(undo.samplePtr, oldSample.sampleb() + changeStart * bytesPerSample, changeLen * bytesPerSample);
 
-#ifdef _DEBUG
-			char s[64];
+#ifdef MPT_ALL_LOGGING
 			const size_t nSize = (GetBufferCapacity(UndoBuffer) + GetBufferCapacity(RedoBuffer) + changeLen * bytesPerSample) >> 10;
-			wsprintf(s, "Sample undo/redo buffer size is now %u.%u MB\n", nSize >> 10, (nSize & 1023) * 100 / 1024);
-			Log(s);
+			MPT_LOG_GLOBAL(LogDebug, "Undo", MPT_UFORMAT("Sample undo/redo buffer size is now {}.{} MB")(nSize >> 10, (nSize & 1023) * 100 / 1024));
 #endif
 
 		}
@@ -399,7 +504,7 @@ bool CSampleUndo::PrepareBuffer(undobuf_t &buffer, const SAMPLEINDEX smp, sample
 		return false;
 	}
 
-	buffer[smp - 1].push_back(undo);
+	buffer[smp - 1].push_back(std::move(undo));
 
 	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
 
@@ -409,7 +514,6 @@ bool CSampleUndo::PrepareBuffer(undobuf_t &buffer, const SAMPLEINDEX smp, sample
 
 // Restore undo point for given sample
 bool CSampleUndo::Undo(const SAMPLEINDEX smp)
-//-------------------------------------------
 {
 	return Undo(UndoBuffer, RedoBuffer, smp);
 }
@@ -417,7 +521,6 @@ bool CSampleUndo::Undo(const SAMPLEINDEX smp)
 
 // Restore redo point for given sample
 bool CSampleUndo::Redo(const SAMPLEINDEX smp)
-//-------------------------------------------
 {
 	return Undo(RedoBuffer, UndoBuffer, smp);
 }
@@ -425,11 +528,10 @@ bool CSampleUndo::Redo(const SAMPLEINDEX smp)
 
 // Restore undo/redo point for given sample
 bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX smp)
-//---------------------------------------------------------------------------------
 {
 	if(!SampleBufferExists(fromBuf, smp) || fromBuf[smp - 1].empty()) return false;
 
-	CSoundFile &sndFile = modDoc.GetrSoundFile();
+	CSoundFile &sndFile = modDoc.GetSoundFile();
 
 	// Select most recent undo slot and temporarily remove it from the buffer so that it won't get deleted by possible buffer size restrictions in PrepareBuffer()
 	UndoInfo undo = fromBuf[smp - 1].back();
@@ -444,7 +546,7 @@ bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX s
 	PrepareBuffer(toBuf, smp, redoType, undo.description, undo.changeStart, undo.changeEnd);
 
 	ModSample &sample = sndFile.GetSample(smp);
-	int8 *pCurrentSample = sample.pSample8;
+	std::byte *pCurrentSample = mpt::void_cast<std::byte*>(sample.samplev());
 	int8 *pNewSample = nullptr;	// a new sample is possibly going to be allocated, depending on what's going to be undone.
 	bool keepOnDisk = sample.uFlags[SMP_KEEPONDISK];
 	bool replace = false;
@@ -459,25 +561,31 @@ bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX s
 
 	case sundo_invert:
 		// invert again
-		ctrlSmp::InvertSample(sample, undo.changeStart, undo.changeEnd, sndFile);
+		SampleEdit::InvertSample(sample, undo.changeStart, undo.changeEnd, sndFile);
 		break;
 
 	case sundo_reverse:
 		// reverse again
-		ctrlSmp::ReverseSample(sample, undo.changeStart, undo.changeEnd, sndFile);
+		SampleEdit::ReverseSample(sample, undo.changeStart, undo.changeEnd, sndFile);
 		break;
 
 	case sundo_unsign:
 		// unsign again
-		ctrlSmp::UnsignSample(sample, undo.changeStart, undo.changeEnd, sndFile);
+		SampleEdit::UnsignSample(sample, undo.changeStart, undo.changeEnd, sndFile);
 		break;
 
 	case sundo_insert:
 		// delete inserted data
 		MPT_ASSERT(changeLen == sample.nLength - undo.OldSample.nLength);
-		memcpy(pCurrentSample + undo.changeStart * bytesPerSample, pCurrentSample + undo.changeEnd * bytesPerSample, (sample.nLength - undo.changeEnd) * bytesPerSample);
-		// also clean the sample end
-		memset(pCurrentSample + undo.OldSample.nLength * bytesPerSample, 0, (sample.nLength - undo.OldSample.nLength) * bytesPerSample);
+		if(undo.OldSample.nLength > 0)
+		{
+			memcpy(pCurrentSample + undo.changeStart * bytesPerSample, pCurrentSample + undo.changeEnd * bytesPerSample, (sample.nLength - undo.changeEnd) * bytesPerSample);
+			// also clean the sample end
+			memset(pCurrentSample + undo.OldSample.nLength * bytesPerSample, 0, (sample.nLength - undo.OldSample.nLength) * bytesPerSample);
+		} else
+		{
+			replace = true;
+		}
 		break;
 
 	case sundo_update:
@@ -510,12 +618,12 @@ bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX s
 
 	// Restore old sample header
 	sample = undo.OldSample;
-	sample.pSample = pCurrentSample; // select the "correct" old sample
-	MemCopy(sndFile.m_szNames[smp], undo.oldName);
+	sample.pData.pSample = mpt::void_cast<void*>(pCurrentSample); // select the "correct" old sample
+	sndFile.m_szNames[smp] = undo.oldName;
 
 	if(replace)
 	{
-		ctrlSmp::ReplaceSample(sample, pNewSample, undo.OldSample.nLength, sndFile);
+		sample.ReplaceWaveform(pNewSample, undo.OldSample.nLength, sndFile);
 	}
 	sample.PrecomputeLoops(sndFile, true);
 
@@ -530,7 +638,7 @@ bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX s
 		sample.uFlags.reset(SMP_KEEPONDISK);
 	}
 
-	fromBuf[smp - 1].push_back(undo);
+	fromBuf[smp - 1].push_back(std::move(undo));
 	DeleteStep(fromBuf, smp, fromBuf[smp - 1].size() - 1);
 
 	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
@@ -542,7 +650,6 @@ bool CSampleUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const SAMPLEINDEX s
 
 // Delete a given undo / redo step of a sample.
 void CSampleUndo::DeleteStep(undobuf_t &buffer, const SAMPLEINDEX smp, const size_t step)
-//---------------------------------------------------------------------------------------
 {
 	if(!SampleBufferExists(buffer, smp) || step >= buffer[smp - 1].size()) return;
 	ModSample::FreeSample(buffer[smp - 1][step].samplePtr);
@@ -552,17 +659,18 @@ void CSampleUndo::DeleteStep(undobuf_t &buffer, const SAMPLEINDEX smp, const siz
 
 // Public helper function to remove the most recent undo point.
 void CSampleUndo::RemoveLastUndoStep(const SAMPLEINDEX smp)
-//---------------------------------------------------------
 {
-	if(!CanUndo(smp)) return;
+	if(!CanUndo(smp))
+		return;
+
 	DeleteStep(UndoBuffer, smp, UndoBuffer[smp - 1].size() - 1);
+	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
 }
 
 
 // Restrict undo buffer size so it won't grow too large.
 // This is done in FIFO style, equally distributed over all sample slots (very simple).
 void CSampleUndo::RestrictBufferSize()
-//------------------------------------
 {
 	size_t capacity = GetBufferCapacity(UndoBuffer) + GetBufferCapacity(RedoBuffer);
 	while(capacity > TrackerSettings::Instance().m_SampleUndoBufferSize.Get().GetSizeInBytes())
@@ -574,7 +682,6 @@ void CSampleUndo::RestrictBufferSize()
 
 
 void CSampleUndo::RestrictBufferSize(undobuf_t &buffer, size_t &capacity)
-//-----------------------------------------------------------------------
 {
 	for(SAMPLEINDEX smp = 1; smp <= buffer.size(); smp++)
 	{
@@ -599,7 +706,6 @@ void CSampleUndo::RestrictBufferSize(undobuf_t &buffer, size_t &capacity)
 // Update undo buffer when using rearrange sample functionality.
 // newIndex contains one new index for each old index. newIndex[1] represents the first sample.
 void CSampleUndo::RearrangeSamples(undobuf_t &buffer, const std::vector<SAMPLEINDEX> &newIndex)
-//---------------------------------------------------------------------------------------------
 {
 	undobuf_t newBuf(modDoc.GetNumSamples());
 
@@ -631,14 +737,12 @@ void CSampleUndo::RearrangeSamples(undobuf_t &buffer, const std::vector<SAMPLEIN
 
 // Return total amount of bytes used by the sample undo buffer.
 size_t CSampleUndo::GetBufferCapacity(const undobuf_t &buffer) const
-//------------------------------------------------------------------
 {
 	size_t sum = 0;
-	for(auto smp = buffer.begin(); smp != buffer.end(); smp++)
+	for(auto &smp : buffer)
 	{
-		for(size_t nStep = 0; nStep < smp->size(); nStep++)
+		for(auto &step : smp)
 		{
-			auto &step = smp->at(nStep);
 			if(step.samplePtr != nullptr)
 			{
 				sum += (step.changeEnd - step.changeStart) * step.OldSample.GetBytesPerSample();
@@ -651,7 +755,6 @@ size_t CSampleUndo::GetBufferCapacity(const undobuf_t &buffer) const
 
 // Ensure that the undo buffer is big enough for a given sample number
 bool CSampleUndo::SampleBufferExists(const undobuf_t &buffer, const SAMPLEINDEX smp) const
-//----------------------------------------------------------------------------------------
 {
 	if(smp == 0 || smp >= MAX_SAMPLES) return false;
 	if(smp <= buffer.size()) return true;
@@ -660,7 +763,6 @@ bool CSampleUndo::SampleBufferExists(const undobuf_t &buffer, const SAMPLEINDEX 
 
 // Get name of next undo item
 const char *CSampleUndo::GetUndoName(const SAMPLEINDEX smp) const
-//---------------------------------------------------------------
 {
 	if(!CanUndo(smp))
 	{
@@ -672,7 +774,6 @@ const char *CSampleUndo::GetUndoName(const SAMPLEINDEX smp) const
 
 // Get name of next redo item
 const char *CSampleUndo::GetRedoName(const SAMPLEINDEX smp) const
-//---------------------------------------------------------------
 {
 	if(!CanRedo(smp))
 	{
@@ -686,9 +787,25 @@ const char *CSampleUndo::GetRedoName(const SAMPLEINDEX smp) const
 // Instrument Undo Functions
 
 
+struct CInstrumentUndo::UndoInfo
+{
+	ModInstrument instr;
+	const char *description = nullptr;
+	EnvelopeType editedEnvelope = ENV_MAXTYPES;
+};
+
+
+CInstrumentUndo::CInstrumentUndo(CModDoc &parent) : modDoc{parent} {}
+
+
+CInstrumentUndo::~CInstrumentUndo()
+{
+	ClearUndo();
+}
+
+
 // Remove all undo steps for all instruments.
 void CInstrumentUndo::ClearUndo()
-//-------------------------------
 {
 	UndoBuffer.clear();
 	RedoBuffer.clear();
@@ -697,7 +814,6 @@ void CInstrumentUndo::ClearUndo()
 
 // Remove all undo steps of a given instrument.
 void CInstrumentUndo::ClearUndo(undobuf_t &buffer, const INSTRUMENTINDEX ins)
-//---------------------------------------------------------------------------
 {
 	if(!InstrumentBufferExists(buffer, ins)) return;
 	buffer[ins - 1].clear();
@@ -708,7 +824,6 @@ void CInstrumentUndo::ClearUndo(undobuf_t &buffer, const INSTRUMENTINDEX ins)
 // The main program has to tell what kind of changes are going to be made to the Instrument.
 // That way, a lot of RAM can be saved, because some actions don't even require an undo Instrument buffer.
 bool CInstrumentUndo::PrepareUndo(const INSTRUMENTINDEX ins, const char *description, EnvelopeType envType)
-//---------------------------------------------------------------------------------------------------------
 {
 	if(PrepareBuffer(UndoBuffer, ins, description, envType))
 	{
@@ -720,24 +835,24 @@ bool CInstrumentUndo::PrepareUndo(const INSTRUMENTINDEX ins, const char *descrip
 
 
 bool CInstrumentUndo::PrepareBuffer(undobuf_t &buffer, const INSTRUMENTINDEX ins, const char *description, EnvelopeType envType)
-//------------------------------------------------------------------------------------------------------------------------------
 {
-	if(ins == 0 || ins >= MAX_INSTRUMENTS || modDoc.GetrSoundFile().Instruments[ins] == nullptr) return false;
+	if(ins == 0 || ins >= MAX_INSTRUMENTS || modDoc.GetSoundFile().Instruments[ins] == nullptr) return false;
 	if(ins > buffer.size())
 	{
 		buffer.resize(ins);
 	}
+	auto &insBuffer = buffer[ins - 1];
 
 	// Remove undo steps if there are too many.
-	if(buffer[ins - 1].size() >= MAX_UNDO_LEVEL)
+	if(insBuffer.size() >= MAX_UNDO_LEVEL)
 	{
-		buffer.erase(buffer.begin(), buffer.begin() + (buffer[ins - 1].size() - MAX_UNDO_LEVEL + 1));
+		insBuffer.erase(insBuffer.begin(), insBuffer.begin() + (insBuffer.size() - MAX_UNDO_LEVEL + 1));
 	}
 	
 	// Create new undo slot
 	UndoInfo undo;
 
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 	undo.description = description;
 	undo.editedEnvelope = envType;
 	if(envType < ENV_MAXTYPES)
@@ -747,7 +862,9 @@ bool CInstrumentUndo::PrepareBuffer(undobuf_t &buffer, const INSTRUMENTINDEX ins
 	{
 		undo.instr = *sndFile.Instruments[ins];
 	}
-	buffer[ins - 1].push_back(undo);
+	// cppcheck false-positive
+	// cppcheck-suppress uninitStructMember
+	insBuffer.push_back(std::move(undo));
 
 	modDoc.UpdateAllViews(nullptr, UpdateHint().Undo());
 
@@ -757,7 +874,6 @@ bool CInstrumentUndo::PrepareBuffer(undobuf_t &buffer, const INSTRUMENTINDEX ins
 
 // Restore undo point for given Instrument
 bool CInstrumentUndo::Undo(const INSTRUMENTINDEX ins)
-//---------------------------------------------------
 {
 	return Undo(UndoBuffer, RedoBuffer, ins);
 }
@@ -765,7 +881,6 @@ bool CInstrumentUndo::Undo(const INSTRUMENTINDEX ins)
 
 // Restore redo point for given Instrument
 bool CInstrumentUndo::Redo(const INSTRUMENTINDEX ins)
-//---------------------------------------------------
 {
 	return Undo(RedoBuffer, UndoBuffer, ins);
 }
@@ -773,9 +888,8 @@ bool CInstrumentUndo::Redo(const INSTRUMENTINDEX ins)
 
 // Restore undo/redo point for given Instrument
 bool CInstrumentUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const INSTRUMENTINDEX ins)
-//-----------------------------------------------------------------------------------------
 {
-	CSoundFile &sndFile = modDoc.GetrSoundFile();
+	CSoundFile &sndFile = modDoc.GetSoundFile();
 	if(sndFile.Instruments[ins] == nullptr || !InstrumentBufferExists(fromBuf, ins) || fromBuf[ins - 1].empty()) return false;
 
 	// Select most recent undo slot
@@ -804,7 +918,6 @@ bool CInstrumentUndo::Undo(undobuf_t &fromBuf, undobuf_t &toBuf, const INSTRUMEN
 
 // Delete a given undo / redo step of a Instrument.
 void CInstrumentUndo::DeleteStep(undobuf_t &buffer, const INSTRUMENTINDEX ins, const size_t step)
-//---------------------------------------------------------------------------------------
 {
 	if(!InstrumentBufferExists(buffer, ins) || step >= buffer[ins - 1].size()) return;
 	buffer[ins - 1].erase(buffer[ins - 1].begin() + step);
@@ -813,7 +926,6 @@ void CInstrumentUndo::DeleteStep(undobuf_t &buffer, const INSTRUMENTINDEX ins, c
 
 // Public helper function to remove the most recent undo point.
 void CInstrumentUndo::RemoveLastUndoStep(const INSTRUMENTINDEX ins)
-//---------------------------------------------------------
 {
 	if(!CanUndo(ins)) return;
 	DeleteStep(UndoBuffer, ins, UndoBuffer[ins - 1].size() - 1);
@@ -823,7 +935,6 @@ void CInstrumentUndo::RemoveLastUndoStep(const INSTRUMENTINDEX ins)
 // Update undo buffer when using rearrange instruments functionality.
 // newIndex contains one new index for each old index. newIndex[1] represents the first instrument.
 void CInstrumentUndo::RearrangeInstruments(undobuf_t &buffer, const std::vector<INSTRUMENTINDEX> &newIndex)
-//---------------------------------------------------------------------------------------------------------
 {
 	undobuf_t newBuf(modDoc.GetNumInstruments());
 
@@ -856,9 +967,8 @@ void CInstrumentUndo::RearrangeInstruments(undobuf_t &buffer, const std::vector<
 // Update undo buffer when using rearrange samples functionality.
 // newIndex contains one new index for each old index. newIndex[1] represents the first sample.
 void CInstrumentUndo::RearrangeSamples(undobuf_t &buffer, const INSTRUMENTINDEX ins, std::vector<SAMPLEINDEX> &newIndex)
-//----------------------------------------------------------------------------------------------------------------------
 {
-	const CSoundFile &sndFile = modDoc.GetrSoundFile();
+	const CSoundFile &sndFile = modDoc.GetSoundFile();
 	if(sndFile.Instruments[ins] == nullptr || !InstrumentBufferExists(buffer, ins) || buffer[ins - 1].empty()) return;
 
 	for(auto &i : buffer[ins - 1]) if(i.editedEnvelope >= ENV_MAXTYPES)
@@ -876,7 +986,6 @@ void CInstrumentUndo::RearrangeSamples(undobuf_t &buffer, const INSTRUMENTINDEX 
 
 // Ensure that the undo buffer is big enough for a given Instrument number
 bool CInstrumentUndo::InstrumentBufferExists(const undobuf_t &buffer, const INSTRUMENTINDEX ins) const
-//----------------------------------------------------------------------------------------------------
 {
 	if(ins == 0 || ins >= MAX_INSTRUMENTS) return false;
 	if(ins <= buffer.size()) return true;
@@ -886,7 +995,6 @@ bool CInstrumentUndo::InstrumentBufferExists(const undobuf_t &buffer, const INST
 
 // Get name of next undo item
 const char *CInstrumentUndo::GetUndoName(const INSTRUMENTINDEX ins) const
-//-----------------------------------------------------------------------
 {
 	if(!CanUndo(ins))
 	{
@@ -898,7 +1006,6 @@ const char *CInstrumentUndo::GetUndoName(const INSTRUMENTINDEX ins) const
 
 // Get name of next redo item
 const char *CInstrumentUndo::GetRedoName(const INSTRUMENTINDEX ins) const
-//-----------------------------------------------------------------------
 {
 	if(!CanRedo(ins))
 	{

@@ -11,43 +11,51 @@
 
 #pragma once
 
-#include "BuildSettings.h"
-
-OPENMPT_NAMESPACE_BEGIN
-class CSoundFile;
-OPENMPT_NAMESPACE_END
+#include "openmpt/all/BuildSettings.hpp"
 #include "Snd_defs.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 #ifdef MODPLUG_TRACKER
 
-
-#define DLSMAXREGIONS		128
+class CSoundFile;
+struct InstrumentEnvelope;
 
 struct DLSREGION
 {
-	uint32 ulLoopStart;
-	uint32 ulLoopEnd;
-	uint16 nWaveLink;
-	uint16 uPercEnv;
-	uint16 usVolume;	// 0..256
-	uint16 fuOptions;	// flags + key group
-	int16  sFineTune;	// +128 = +1 semitone
-	uint8  uKeyMin;
-	uint8  uKeyMax;
-	uint8  uUnityNote;
+	uint32 ulLoopStart = 0;
+	uint32 ulLoopEnd = 0;
+	uint32 uPercEnv = 0;
+	uint16 nWaveLink = 0;
+	uint16 usVolume = 256;  // 0..256
+	uint16 fuOptions = 0;   // flags + key group
+	int16 sFineTune = 0;    // +128 = +1 semitone
+	int16 panning = -1;     // -1= unset (DLS), otherwise 0...256
+	uint8  uKeyMin = 0;
+	uint8  uKeyMax = 0;
+	uint8  uUnityNote = 0xFF;
 	uint8  tuning = 100;
+
+	constexpr bool IsDummy() const noexcept { return uKeyMin == 0xFF || nWaveLink == Util::MaxValueOfType(nWaveLink); }
 };
 
 struct DLSENVELOPE
 {
-	// Volume Envelope
-	uint16 wVolAttack;		// Attack Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
-	uint16 wVolDecay;		// Decay Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
-	uint16 wVolRelease;		// Release Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
-	uint8 nVolSustainLevel;	// Sustain Level: 0-128, 128=100%	
-	uint8 nDefPan;			// Default Pan
+	struct Envelope
+	{
+		uint16 delay = 0;          // Delay Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
+		uint16 attack = 0;         // Attack Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
+		uint16 hold = 0;           // Hold Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
+		uint16 decay = 0;          // Decay Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
+		uint16 release = 0;        // Release Time: 0-1000, 1 = 20ms (1/50s) -> [0-20s]
+		uint8 sustainLevel = 128;  // Sustain Level: 0-128, 128=100%
+
+		uint32 ConvertToMPT(InstrumentEnvelope &mptEnv, const EnvelopeType envType, const float tempoScale, const int16 valueScale) const;
+	};
+	
+	Envelope volumeEnv, pitchEnv;
+	int16 pitchEnvDepth = 0;  // Cents
+	uint8 defaultPan = 128;
 };
 
 // Special Bank bits
@@ -55,12 +63,17 @@ struct DLSENVELOPE
 
 struct DLSINSTRUMENT
 {
-	uint32 ulBank, ulInstrument;
-	uint32 nRegions, nMelodicEnv;
-	DLSREGION Regions[DLSMAXREGIONS];
+	uint32 ulBank = 0, ulInstrument = 0;
+	uint32 nMelodicEnv = 0;
+	std::vector<DLSREGION> Regions;
 	char szName[32];
 	// SF2 stuff (DO NOT USE! -> used internally by the SF2 loader)
-	uint16 wPresetBagNdx, wPresetBagNum;
+	uint16 wPresetBagNdx = 0, wPresetBagNum = 0;
+
+	constexpr bool operator<(const DLSINSTRUMENT &other) const
+	{
+		return std::tie(ulBank, ulInstrument) < std::tie(other.ulBank, other.ulInstrument);
+	}
 };
 
 struct DLSSAMPLEEX
@@ -72,6 +85,7 @@ struct DLSSAMPLEEX
 	uint32 dwSampleRate;
 	uint8  byOriginalPitch;
 	int8   chPitchCorrection;
+	bool   compressed = false;
 };
 
 
@@ -101,6 +115,7 @@ protected:
 	uint32 m_nType;
 	// DLS Information
 	uint32 m_nMaxWaveLink;
+	uint32 m_sf2version = 0;
 	std::vector<size_t> m_WaveForms;
 	std::vector<DLSINSTRUMENT> m_Instruments;
 	std::vector<DLSSAMPLEEX> m_SamplesEx;
@@ -108,6 +123,9 @@ protected:
 
 public:
 	CDLSBank();
+
+	bool operator==(const CDLSBank &other) const noexcept { return !mpt::PathCompareNoCase(m_szFileName, other.m_szFileName); }
+
 	static bool IsDLSBank(const mpt::PathString &filename);
 	static uint32 MakeMelodicCode(uint32 bank, uint32 instr) { return ((bank << 16) | (instr));}
 	static uint32 MakeDrumCode(uint32 rgn, uint32 instr) { return (0x80000000 | (rgn << 16) | (instr));}
@@ -123,14 +141,14 @@ public:
 	uint32 GetNumInstruments() const { return static_cast<uint32>(m_Instruments.size()); }
 	uint32 GetNumSamples() const { return static_cast<uint32>(m_WaveForms.size()); }
 	const DLSINSTRUMENT *GetInstrument(uint32 iIns) const { return iIns < m_Instruments.size() ? &m_Instruments[iIns] : nullptr; }
-	const DLSINSTRUMENT *FindInstrument(bool isDrum, uint32 bank = 0xFF, uint32 program = 0xFF, uint32 key = 0xFF, uint32 *pInsNo = nullptr) const;
+	[[nodiscard]] const DLSINSTRUMENT *FindInstrument(bool isDrum, uint32 bank = 0xFF, uint32 program = 0xFF, uint32 key = 0xFF, uint32 *pInsNo = nullptr) const;
 	bool FindAndExtract(CSoundFile &sndFile, const INSTRUMENTINDEX ins, const bool isDrum) const;
 	uint32 GetRegionFromKey(uint32 nIns, uint32 nKey) const;
 	bool ExtractWaveForm(uint32 nIns, uint32 nRgn, std::vector<uint8> &waveData, uint32 &length) const;
 	bool ExtractSample(CSoundFile &sndFile, SAMPLEINDEX nSample, uint32 nIns, uint32 nRgn, int transpose = 0) const;
 	bool ExtractInstrument(CSoundFile &sndFile, INSTRUMENTINDEX nInstr, uint32 nIns, uint32 nDrumRgn) const;
 	const char *GetRegionName(uint32 nIns, uint32 nRgn) const;
-	uint8 GetPanning(uint32 ins, uint32 region) const;
+	uint16 GetPanning(uint32 ins, uint32 region) const;
 
 // Internal Loader Functions
 protected:
@@ -141,6 +159,7 @@ protected:
 public:
 	// DLS Unit conversion
 	static int32 DLS32BitTimeCentsToMilliseconds(int32 lTimeCents);
+	static uint16 DLSEnvelopeTimeCentsToMilliseconds(int32 lTimeCents);
 	static int32 DLS32BitRelativeGainToLinear(int32 lCentibels);	// 0dB = 0x10000
 	static int32 DLS32BitRelativeLinearToGain(int32 lGain);		// 0dB = 0x10000
 	static int32 DLSMidiVolumeToLinear(uint32 nMidiVolume);		// [0-127] -> [0-0x10000]

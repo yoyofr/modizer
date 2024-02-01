@@ -16,12 +16,11 @@
 #include "../common/misc_util.h"
 #include "Tagging.h"
 #include "Loaders.h"
-#include "ChunkReader.h"
+#include "../common/FileReader.h"
 #include "modsmp_ctrl.h"
-#include "../soundbase/SampleFormatConverters.h"
-#include "../soundbase/SampleFormatCopy.h"
+#include "openmpt/soundbase/Copy.hpp"
 #include "../soundlib/ModSampleCopy.h"
-//#include "../common/mptCRC.h"
+//#include "mpt/crc/crc.hpp"
 #include "OggStream.h"
 #ifdef MPT_WITH_OGG
 #if MPT_COMPILER_CLANG
@@ -45,6 +44,77 @@ OPENMPT_NAMESPACE_BEGIN
 // Opus
 
 #if defined(MPT_WITH_OPUSFILE)
+
+static int OpusfileFilereaderRead(void *stream, unsigned char *ptr, int nbytes)
+{
+	FileReader &file = *mpt::void_ptr<FileReader>(stream);
+	return mpt::saturate_cast<int>(file.ReadRaw(mpt::span(mpt::byte_cast<std::byte*>(ptr), nbytes)).size());
+}
+
+static int OpusfileFilereaderSeek(void *stream, opus_int64 offset, int whence)
+{
+	FileReader &file = *mpt::void_ptr<FileReader>(stream);
+	switch(whence)
+	{
+	case SEEK_SET:
+		{
+			if(!mpt::in_range<FileReader::pos_type>(offset))
+			{
+				return -1;
+			}
+			return file.Seek(mpt::saturate_cast<FileReader::pos_type>(offset)) ? 0 : -1;
+		}
+		break;
+	case SEEK_CUR:
+		{
+			if(offset < 0)
+			{
+				if(offset == std::numeric_limits<ogg_int64_t>::min())
+				{
+					return -1;
+				}
+				if(!mpt::in_range<FileReader::pos_type>(0-offset))
+				{
+					return -1;
+				}
+				return file.SkipBack(mpt::saturate_cast<FileReader::pos_type>(0 - offset)) ? 0 : -1;
+			} else
+			{
+				if(!mpt::in_range<FileReader::pos_type>(offset))
+				{
+					return -1;
+				}
+				return file.Skip(mpt::saturate_cast<FileReader::pos_type>(offset)) ? 0 : -1;
+			}
+		}
+		break;
+	case SEEK_END:
+		{
+			if(!mpt::in_range<FileReader::pos_type>(offset))
+			{
+				return -1;
+			}
+			if(!mpt::in_range<FileReader::pos_type>(file.GetLength() + offset))
+			{
+				return -1;
+			}
+			return file.Seek(mpt::saturate_cast<FileReader::pos_type>(file.GetLength() + offset)) ? 0 : -1;
+		}
+		break;
+	default:
+		return -1;
+	}
+}
+
+static opus_int64 OpusfileFilereaderTell(void *stream)
+{
+	FileReader &file = *mpt::void_ptr<FileReader>(stream);
+	MPT_MAYBE_CONSTANT_IF(!mpt::in_range<opus_int64>(file.GetPosition()))
+	{
+		return -1;
+	}
+	return static_cast<opus_int64>(file.GetPosition());
+}
 
 static mpt::ustring UStringFromOpus(const char *str)
 {
@@ -84,15 +154,20 @@ bool CSoundFile::ReadOpusSample(SAMPLEINDEX sample, FileReader &file)
 	int channels = 0;
 	std::vector<int16> raw_sample_data;
 
-	std::string sampleName;
-
-	FileReader initial = file.GetChunk(65536); // 512 is recommended by libopusfile
-	if(op_test(NULL, initial.GetRawData<unsigned char>(), initial.GetLength()) != 0)
 	{
-		return false;
+		FileReader::PinnedView initial = file.GetPinnedView(65536); // 512 is recommended by libopusfile
+		if(op_test(NULL, mpt::byte_cast<const unsigned char*>(initial.data()), initial.size()) != 0)
+		{
+			return false;
+		}
 	}
 
-	OggOpusFile *of = op_open_memory(file.GetRawData<unsigned char>(), file.GetLength(), NULL);
+	OpusFileCallbacks callbacks = {};
+	callbacks.read = &OpusfileFilereaderRead;
+	callbacks.seek = &OpusfileFilereaderSeek;
+	callbacks.tell = &OpusfileFilereaderTell;
+	callbacks.close = NULL;
+	OggOpusFile *of = op_open_callbacks(mpt::void_ptr<FileReader>(&file), &callbacks, NULL, 0, NULL);
 	if(!of)
 	{
 		return false;
@@ -115,7 +190,10 @@ bool CSoundFile::ReadOpusSample(SAMPLEINDEX sample, FileReader &file)
 		channels = 2;
 	}
 
-	sampleName = mpt::ToCharset(GetCharsetInternal(), GetSampleNameFromTags(GetOpusFileTags(of)));
+	std::string sampleName = mpt::ToCharset(GetCharsetInternal(), GetSampleNameFromTags(GetOpusFileTags(of)));
+
+	if(auto length = op_pcm_total(of, 0); length != OP_EINVAL)
+		raw_sample_data.reserve(std::min(MAX_SAMPLE_LENGTH, mpt::saturate_cast<SmpLength>(length)) * channels);
 
 	std::vector<int16> decodeBuf(120 * 48000 / 1000); // 120ms (max Opus packet), 48kHz
 	bool eof = false;
@@ -131,7 +209,7 @@ bool CSoundFile::ReadOpusSample(SAMPLEINDEX sample, FileReader &file)
 		}
 		if(framesRead > 0)
 		{
-			raw_sample_data.insert(raw_sample_data.end(), decodeBuf.begin(), decodeBuf.begin() + (framesRead * channels));
+			mpt::append(raw_sample_data, decodeBuf.begin(), decodeBuf.begin() + (framesRead * channels));
 		} else if(framesRead == 0)
 		{
 			eof = true;
@@ -157,29 +235,30 @@ bool CSoundFile::ReadOpusSample(SAMPLEINDEX sample, FileReader &file)
 		return false;
 	}
 
-	if((raw_sample_data.size() / channels) > MAX_SAMPLE_LENGTH)
-	{
-		return false;
-	}
-
 	DestroySampleThreadsafe(sample);
-	m_szNames[sample] = sampleName;
-	Samples[sample].Initialize();
-	Samples[sample].nC5Speed = rate;
-	Samples[sample].nLength = mpt::saturate_cast<SmpLength>(raw_sample_data.size() / channels);
+	ModSample &mptSample = Samples[sample];
+	mptSample.Initialize();
+	mptSample.nC5Speed = rate;
+	mptSample.nLength = std::min(MAX_SAMPLE_LENGTH, mpt::saturate_cast<SmpLength>(raw_sample_data.size() / channels));
 
-	Samples[sample].uFlags.set(CHN_16BIT);
-	Samples[sample].uFlags.set(CHN_STEREO, channels == 2);
+	mptSample.uFlags.set(CHN_16BIT);
+	mptSample.uFlags.set(CHN_STEREO, channels == 2);
 
-	if(!Samples[sample].AllocateSample())
+	if(!mptSample.AllocateSample())
 	{
 		return false;
 	}
 
-	std::copy(raw_sample_data.begin(), raw_sample_data.end(), Samples[sample].sample16());
+	if(raw_sample_data.size() / channels > MAX_SAMPLE_LENGTH)
+	{
+		AddToLog(LogWarning, U_("Sample has been truncated!"));
+	}
 
-	Samples[sample].Convert(MOD_TYPE_IT, GetType());
-	Samples[sample].PrecomputeLoops(*this, false);
+	std::copy(raw_sample_data.begin(), raw_sample_data.begin() + mptSample.nLength * channels, mptSample.sample16());
+
+	mptSample.Convert(MOD_TYPE_IT, GetType());
+	mptSample.PrecomputeLoops(*this, false);
+	m_szNames[sample] = sampleName;
 
 	return true;
 

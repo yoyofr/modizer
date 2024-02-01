@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "StreamEncoder.h"
+#include "openmpt/all/BuildSettings.hpp"
 
-#include "../common/ComponentManager.h"
+#include "StreamEncoder.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -23,13 +23,12 @@ class OggOpusEncoder : public EncoderFactoryBase
 
 public:
 
-	IAudioStreamEncoder *ConstructStreamEncoder(std::ostream &file) const;
-	bool IsAvailable() const;
+	std::unique_ptr<IAudioStreamEncoder> ConstructStreamEncoder(std::ostream &file, const Encoder::Settings &settings, const FileTags &tags) const override;
+	bool IsAvailable() const override;
 
 public:
 
 	OggOpusEncoder();
-	virtual ~OggOpusEncoder();
 
 };
 

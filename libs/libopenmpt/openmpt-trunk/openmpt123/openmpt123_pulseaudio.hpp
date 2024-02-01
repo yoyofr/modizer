@@ -20,29 +20,31 @@
 
 namespace openmpt123 {
 
+inline constexpr auto pulseaudio_encoding = mpt::common_encoding::utf8;
+
 struct pulseaudio_exception : public exception {
-	static std::string error_to_string( int error ) {
+	static mpt::ustring error_to_string( int error ) {
 		try {
 			if ( error == 0 ) {
-				return std::string();
+				return mpt::ustring();
 			}
-			std::ostringstream e;
+			string_concat_stream<mpt::ustring> e;
 			const char * str = pa_strerror( error );
 			if ( !str ) {
-				e << "error=" << error;
+				e << MPT_USTRING("error=)") << error;
 				return e.str();
 			}
 			if ( std::strlen(str) == 0 ) {
-				e << "error=" << error;
+				e << MPT_USTRING("error=") << error;
 				return e.str();
 			}
-			e << str << " (error=" << error << ")";
+			e << mpt::transcode<mpt::ustring>( pulseaudio_encoding, str ) << MPT_USTRING(" (error=") << error << MPT_USTRING(")");
 			return e.str();
 		} catch ( const std::bad_alloc & ) {
-			return std::string();
+			return mpt::ustring();
 		}
 	}
-	pulseaudio_exception( int error ) throw() : exception( error_to_string( error ) ) { }
+	pulseaudio_exception( int error ) : exception( error_to_string( error ) ) { }
 };
 
 class pulseaudio_stream_raii : public write_buffers_interface {
@@ -53,7 +55,7 @@ private:
 	std::vector<float> sampleBufFloat;
 	std::vector<std::int16_t> sampleBufInt;
 public:
-	pulseaudio_stream_raii( commandlineflags & flags, std::ostream & /* log */ )
+	pulseaudio_stream_raii( commandlineflags & flags, concat_stream<mpt::ustring> & /* log */ )
 		: stream(NULL)
 		, channels(flags.channels)
 		, sampleSize(flags.use_float ? sizeof( float ) : sizeof( std::int16_t ))
@@ -63,19 +65,19 @@ public:
 		std::memset( &ss, 0, sizeof( pa_sample_spec ) );
 		ss.format = ( flags.use_float ? PA_SAMPLE_FLOAT32 : PA_SAMPLE_S16NE );
 		ss.rate = flags.samplerate;
-		ss.channels = flags.channels;
+		ss.channels = static_cast<std::uint8_t>( flags.channels );
 		pa_buffer_attr ba;
 		std::memset( &ba, 0, sizeof( pa_buffer_attr ) );
 		bool use_ba = false;
 		if ( flags.buffer != default_high && flags.buffer != default_low ) {
 			use_ba = true;
-			ba.maxlength = channels * sampleSize * ( flags.buffer * flags.samplerate / 1000 );
+			ba.maxlength = static_cast<std::uint32_t>( channels * sampleSize * ( flags.buffer * flags.samplerate / 1000 ) );
 		} else {
 			ba.maxlength = static_cast<std::uint32_t>(-1);
 		}
 		if ( flags.period != default_high && flags.period != default_low ) {
 			use_ba = true;
-			ba.minreq = channels * sampleSize * ( flags.period * flags.samplerate / 1000 );
+			ba.minreq = static_cast<std::uint32_t>( channels * sampleSize * ( flags.period * flags.samplerate / 1000 ) );
 			if ( ba.maxlength != static_cast<std::uint32_t>(-1) ) {
 				ba.tlength = ba.maxlength - ba.minreq;
 				ba.prebuf = ba.tlength;
@@ -117,7 +119,7 @@ private:
 		}
 	}
 public:
-	void write( const std::vector<float*> buffers, std::size_t frames ) {
+	void write( const std::vector<float*> buffers, std::size_t frames ) override {
 		sampleBufFloat.clear();
 		for ( std::size_t frame = 0; frame < frames; ++frame ) {
 			for ( std::size_t channel = 0; channel < channels; ++channel ) {
@@ -126,7 +128,7 @@ public:
 		}
 		write_frames( sampleBufFloat.data(), frames );
 	}
-	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) {
+	void write( const std::vector<std::int16_t*> buffers, std::size_t frames ) override {
 		sampleBufInt.clear();
 		for ( std::size_t frame = 0; frame < frames; ++frame ) {
 			for ( std::size_t channel = 0; channel < channels; ++channel ) {
@@ -135,10 +137,10 @@ public:
 		}
 		write_frames( sampleBufInt.data(), frames );
 	}
-	bool unpause() {
+	bool unpause() override {
 		return true;
 	}
-	bool pause() {
+	bool pause() override {
 		int error = 0;
 		error = 0;
 		if ( pa_simple_drain( stream, &error ) < 0 ) {
@@ -146,16 +148,16 @@ public:
 		}
 		return true;
 	}
-	bool sleep( int ms ) {
+	bool sleep( int ms ) override {
 		pa_msleep( ms );
 		return true;
 	}
 };
 
-static std::string show_pulseaudio_devices( std::ostream & /* log */ ) {
-	std::ostringstream devices;
-	devices << " pulseaudio:" << std::endl;
-	devices << "    " << "0" << ": Default Device" << std::endl;
+static mpt::ustring show_pulseaudio_devices( concat_stream<mpt::ustring> & /* log */ ) {
+	string_concat_stream<mpt::ustring> devices;
+	devices << MPT_USTRING(" pulseaudio:") << lf;
+	devices << MPT_USTRING("    ") << MPT_USTRING("0") << MPT_USTRING(": Default Device") << lf;
 	return devices.str();
 }
 

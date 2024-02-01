@@ -30,7 +30,7 @@ protected:
 		kDistNumParameters
 	};
 
-	float m_param[kDistNumParameters];
+	std::array<float, kDistNumParameters> m_param;
 
 	// Pre-EQ coefficients
 	float m_preEQz1[2], m_preEQb1, m_preEQa0;
@@ -39,10 +39,9 @@ protected:
 	uint8 m_edge, m_shift;
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
-	Distortion(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
+	Distortion(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
-	void Release() override { delete this; }
 	int32 GetUID() const override { return 0xEF114C90; }
 	int32 GetVersion() const override { return 0; }
 	void Idle() override { }

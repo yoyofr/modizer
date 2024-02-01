@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "StreamEncoder.h"
 
 
@@ -21,13 +23,12 @@ class FLACEncoder : public EncoderFactoryBase
 
 public:
 
-	IAudioStreamEncoder *ConstructStreamEncoder(std::ostream &file) const;
-	bool IsAvailable() const;
+	std::unique_ptr<IAudioStreamEncoder> ConstructStreamEncoder(std::ostream &file, const Encoder::Settings &settings, const FileTags &tags) const override;
+	bool IsAvailable() const override;
 
 public:
 
 	FLACEncoder();
-	virtual ~FLACEncoder();
 
 };
 

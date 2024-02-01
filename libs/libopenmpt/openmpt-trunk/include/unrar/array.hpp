@@ -23,12 +23,15 @@ template <class T> class Array
     void Alloc(size_t Items);
     void Reset();
     void SoftReset();
-    void operator = (Array<T> &Src);
+    Array<T>& operator = (const Array<T> &Src);
     void Push(T Item);
     void Append(T *Item,size_t Count);
     T* Addr(size_t Item) {return Buffer+Item;}
     void SetMaxSize(size_t Size) {MaxSize=Size;}
+    T* Begin() {return Buffer;}
+    T* End() {return Buffer==NULL ? NULL:Buffer+BufSize;}
 };
+
 
 template <class T> void Array<T>::CleanData()
 {
@@ -139,12 +142,13 @@ template <class T> void Array<T>::SoftReset()
 }
 
 
-template <class T> void Array<T>::operator =(Array<T> &Src)
+template <class T> Array<T>& Array<T>::operator =(const Array<T> &Src)
 {
   Reset();
   Alloc(Src.BufSize);
   if (Src.BufSize!=0)
     memcpy((void *)Buffer,(void *)Src.Buffer,Src.BufSize*sizeof(T));
+  return *this;
 }
 
 

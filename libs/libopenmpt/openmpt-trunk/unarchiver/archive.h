@@ -9,49 +9,40 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "../common/FileReader.h"
 #include <string>
 #include <vector>
 
 OPENMPT_NAMESPACE_BEGIN
 
-enum ArchiveFileType
+enum class ArchiveFileType
 {
-	ArchiveFileInvalid,
-	ArchiveFileNormal,
-	ArchiveFileSpecial,
+	Invalid,
+	Normal,
+	Special,
 };
 
 struct ArchiveFileInfo
 {
 	mpt::PathString name;
-	ArchiveFileType type;
-	uint64 size;
+	ArchiveFileType type = ArchiveFileType::Invalid;
+	uint64 size = 0;
 	mpt::ustring comment;
-	uint64 cookie1;
-	uint64 cookie2;
-	ArchiveFileInfo()
-		: name(mpt::PathString())
-		, type(ArchiveFileInvalid)
-		, size(0)
-		, comment(mpt::ustring())
-		, cookie1(0)
-		, cookie2(0)
-	{
-		return;
-	}
+	uint64 cookie1 = 0;
+	uint64 cookie2 = 0;
 };
 
-//============
 class IArchive
-//============
 {
 public:
-	typedef std::vector<ArchiveFileInfo>::const_iterator const_iterator;
+	using const_iterator = std::vector<ArchiveFileInfo>::const_iterator;
 protected:
 	IArchive() {}
 public:
-	virtual ~IArchive() {};
+	virtual ~IArchive() {}
+
 public:
 	virtual bool IsArchive() const = 0;
 	virtual mpt::ustring GetComment() const = 0;
@@ -60,13 +51,10 @@ public:
 	virtual std::size_t size() const = 0;
 	virtual IArchive::const_iterator begin() const = 0;
 	virtual IArchive::const_iterator end() const = 0;
-	virtual const ArchiveFileInfo & at(std::size_t index) const = 0;
 	virtual const ArchiveFileInfo & operator [] (std::size_t index) const = 0;
 };
 
-//===============
 class ArchiveBase
-//===============
  : public IArchive
 {
 protected:
@@ -80,29 +68,28 @@ public:
 	{
 		return;
 	}
-	virtual ~ArchiveBase()
+	~ArchiveBase() override
 	{
 		return;
 	}
-	virtual bool ExtractFile(std::size_t index) { MPT_UNREFERENCED_PARAMETER(index); return false; } // overwrite this
+	bool ExtractFile(std::size_t index) override { MPT_UNREFERENCED_PARAMETER(index); return false; } // overwrite this
 public:
-	virtual bool IsArchive() const
+	bool IsArchive() const override
 	{
 		return !contents.empty();
 	}
-	virtual mpt::ustring GetComment() const
+	mpt::ustring GetComment() const override
 	{
 		return comment;
 	}
-	virtual FileReader GetOutputFile() const
+	FileReader GetOutputFile() const override
 	{
 		return FileReader(mpt::byte_cast<mpt::const_byte_span>(mpt::as_span(data)));
 	}
-	virtual std::size_t size() const { return contents.size(); }
-	virtual IArchive::const_iterator begin() const { return contents.begin(); }
-	virtual IArchive::const_iterator end() const { return contents.end(); }
-	virtual const ArchiveFileInfo & at(std::size_t index) const { return contents.at(index); }
-	virtual const ArchiveFileInfo & operator [] (std::size_t index) const { return contents[index]; }
+	std::size_t size() const override { return contents.size(); }
+	IArchive::const_iterator begin() const override { return contents.begin(); }
+	IArchive::const_iterator end() const override { return contents.end(); }
+	const ArchiveFileInfo & operator [] (std::size_t index) const override { return contents[index]; }
 };
 
 

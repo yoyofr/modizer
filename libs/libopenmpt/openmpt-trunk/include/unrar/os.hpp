@@ -13,6 +13,8 @@
 #endif
 
 #include <new>
+#include <string>
+#include <vector>
 
 
 #if defined(_WIN_ALL) || defined(_EMX)
@@ -22,32 +24,47 @@
 
 #ifdef _WIN_ALL
 
-#define STRICT
-#ifndef UNICODE // OPENMPT ADDITION
-#define UNICODE
-#endif // OPENMPT ADDITION
-#undef WINVER
-#undef _WIN32_WINNT
-#define WINVER 0x0501
-#define _WIN32_WINNT 0x0501
-// OpenMPT wants to support pre-WinXP systems, thus set WINVER to Win2000 // OPENMPT ADDITION
-#undef WINVER // OPENMPT ADDITION
-#undef _WIN32_WINNT // OPENMPT ADDITION
-#define WINVER 0x0500 // OPENMPT ADDITION
-#define _WIN32_WINNT 0x0500 // OPENMPT ADDITION
 
-#if !defined(ZIPSFX) && !defined(SHELL_EXT) && !defined(SETUP)
+// We got a report that just "#define STRICT" is incompatible with
+// "#define STRICT 1" in Windows 10 SDK minwindef.h and depending on the order
+// in which these statements are reached this may cause a compiler warning
+// and build break for other projects incorporating this source.
+// So we changed it to "#define STRICT 1".
+#ifndef STRICT
+#define STRICT 1
+#endif
+
+// 'ifndef' check here is needed for unrar.dll header to avoid macro
+// re-definition warnings in third party projects.
+#ifndef UNICODE
+#define UNICODE
+#define _UNICODE // Set _T() macro to convert from narrow to wide strings.
+#endif
+
+#if 0 // OPENMPT ADDITION
+#if 0
+// 2021.09.05: Allow newer Vista+ APIs like IFileOpenDialog for WinRAR,
+// but still keep SFX modules XP compatible.
+#define WINVER _WIN32_WINNT_VISTA
+#define _WIN32_WINNT _WIN32_WINNT_VISTA
+#else
+#define WINVER _WIN32_WINNT_WINXP
+#define _WIN32_WINNT _WIN32_WINNT_WINXP
+#endif
+#endif // OPENMPT ADDITION
+
+#if !defined(ZIPSFX)
 #define RAR_SMP
 #endif
 
 #define WIN32_LEAN_AND_MEAN
 
-#if defined(_MSC_VER) && defined(__clang__) && defined(__c2__) // OPENMPT ADDITION
-struct IUnknown; // OPENMPT ADDITION
-#endif // OPENMPT ADDITION
 #include <windows.h>
 #include <prsht.h>
 #include <shlwapi.h>
+#pragma comment(lib, "Shlwapi.lib")
+#include <PowrProf.h>
+#pragma comment(lib, "PowrProf.lib")
 #include <shellapi.h>
 #include <shlobj.h>
 #include <winioctl.h>
@@ -66,14 +83,16 @@ struct IUnknown; // OPENMPT ADDITION
   #include <dir.h>
 #endif
 #ifdef _MSC_VER
-  #if _MSC_VER<1500
-    #define for if (0) ; else for
-  #endif
   #include <direct.h>
   #include <intrin.h>
 
-  #define USE_SSE
-  #define SSE_ALIGNMENT 16
+  #if !defined(__clang__) // OPENMPT ADDITION
+  // Use SSE only for x86/x64, not ARM Windows.
+  #if defined(_M_IX86) || defined(_M_X64)
+    #define USE_SSE
+    #define SSE_ALIGNMENT 16
+  #endif
+  #endif // OPENMPT ADDITION
 #else
   #include <dirent.h>
 #endif // _MSC_VER
@@ -88,7 +107,6 @@ struct IUnknown; // OPENMPT ADDITION
 #include <io.h>
 #include <time.h>
 #include <signal.h>
-
 
 #define SAVE_LINKS
 
@@ -122,11 +140,11 @@ struct IUnknown; // OPENMPT ADDITION
   #define _forceinline inline
 #endif
 
-#endif
+#endif // defined(_WIN_ALL) || defined(_EMX)
 
 #ifdef _UNIX
 
-#define  NM  2048
+#define NM  2048
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -139,14 +157,7 @@ struct IUnknown; // OPENMPT ADDITION
   #include <sys/sysctl.h>
 #endif
 #ifndef SFX_MODULE
-  #ifdef _ANDROID
-    #include <sys/vfs.h>
-    #define statvfs statfs
-  #else
     #include <sys/statvfs.h>
-  #endif
-#endif
-#if defined(__FreeBSD__) || defined (__NetBSD__) || defined (__OpenBSD__) || defined(__APPLE__)
 #endif
 #include <pwd.h>
 #include <grp.h>
@@ -170,7 +181,7 @@ struct IUnknown; // OPENMPT ADDITION
 #define SAVE_LINKS
 #endif
 
-#if defined(__linux) && !defined (_ANDROID) || defined(__FreeBSD__)
+#if defined(__linux) || defined(__FreeBSD__)
 #include <sys/time.h>
 #define USE_LUTIMES
 #endif
@@ -212,9 +223,19 @@ struct IUnknown; // OPENMPT ADDITION
   #endif
 #endif
 
+// Unlike Apple x64, utimensat shall be available in all Apple M1 systems.
+#if _POSIX_C_SOURCE >= 200809L || defined(__APPLE__) && defined(__arm64__)
+  #define UNIX_TIME_NS // Nanosecond time precision in Unix.
 #endif
 
+#endif // _UNIX
+
+#if 0
+  #define MSGID_INT
+  typedef int MSGID;
+#else
   typedef const wchar* MSGID;
+#endif
 
 #ifndef SSE_ALIGNMENT // No SSE use and no special data alignment is required.
   #define SSE_ALIGNMENT 1
@@ -233,9 +254,9 @@ struct IUnknown; // OPENMPT ADDITION
 #if !defined(LITTLE_ENDIAN) && !defined(BIG_ENDIAN)
   #if defined(__i386) || defined(i386) || defined(__i386__) || defined(__x86_64)
     #define LITTLE_ENDIAN
-  #elif defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN
+  #elif defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN || defined(__LITTLE_ENDIAN__)
     #define LITTLE_ENDIAN
-  #elif defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
+  #elif defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN || defined(__BIG_ENDIAN__)
     #define BIG_ENDIAN
   #else
     #error "Neither LITTLE_ENDIAN nor BIG_ENDIAN are defined. Define one of them."

@@ -10,7 +10,9 @@
 
 #pragma once
 
-#include "../common/FlagSet.h"
+#include "openmpt/all/BuildSettings.hpp"
+
+#include "openmpt/base/FlagSet.hpp"
 #include "../soundlib/Snd_defs.h"
 
 OPENMPT_NAMESPACE_BEGIN
@@ -45,6 +47,7 @@ enum HintType
 	// General module setting hints (GeneralHint)
 	HINT_MODGENERAL		= 0x10,	// General global module settings have changed
 	HINT_MODCHANNELS	= 0x20,	// Module channel settings have changed (e.g. channel volume). Parameter: Channel ID
+	HINT_TUNINGS		= 0x40,	// Tuning collection was updated
 	// Pattern-specific hints (PatternHint)
 	HINT_PATTERNDATA	= 0x10,	// Pattern data has changed. Parameter: Pattern ID (0 = all patterns)
 	HINT_PATTERNROW		= 0x20,	// A row of the currently edited pattern has changed. Parameter: Row number
@@ -73,7 +76,7 @@ DECLARE_FLAGSET(HintType)
 struct UpdateHint
 {
 protected:
-	typedef uint32_t store_t;
+	using store_t = uint32;
 	union
 	{
 		struct
@@ -85,11 +88,11 @@ protected:
 		store_t rawData;
 	};
 	
-	UpdateHint(HintCategory category, store_t item = 0) : category(category), type(HINT_NONE), item(item)
+	UpdateHint(HintCategory category_, store_t item_ = 0) : type(HINT_NONE), category(category_), item(item_)
 	{
 		static_assert(sizeof(UpdateHint) == sizeof(store_t), "Internal UpdateHint size inconsistency");
 		static_assert(sizeof(UpdateHint) <= sizeof(LPARAM), "Update hints are currently tunnelled through LPARAMs in MFC");
-		MPT_ASSERT(static_cast<HintCategory>(UpdateHint::category) == category);
+		MPT_ASSERT(static_cast<HintCategory>(category) == category_);
 		MPT_ASSERT(UpdateHint::item == item);
 	}
 
@@ -97,7 +100,7 @@ protected:
 	MPT_FORCEINLINE T GetData() const { return static_cast<T>(item); }
 
 public:
-	UpdateHint() : category(HINTCAT_GLOBAL), type(HINT_NONE), item(0) { }
+	UpdateHint() : type(HINT_NONE), category(HINTCAT_GLOBAL), item(0) { }
 
 	template<typename T>
 	MPT_FORCEINLINE UpdateHint &SetData(T i) { item = i; MPT_ASSERT(item == i); return *this; }
@@ -130,17 +133,19 @@ public:
 
 struct GeneralHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_GENERAL;
-	GeneralHint(int channelTab = 0) : UpdateHint(classCategory, channelTab) { }
+	static constexpr HintCategory classCategory = HINTCAT_GENERAL;
+	GeneralHint() : UpdateHint(classCategory, 0) { }
+	GeneralHint(CHANNELINDEX channel) : UpdateHint(classCategory, 1 + channel) { }
 	MPT_FORCEINLINE GeneralHint &General() { type |= HINT_MODGENERAL; return *this; }
 	MPT_FORCEINLINE GeneralHint &Channels() { type |= HINT_MODCHANNELS; return *this; }
+	MPT_FORCEINLINE GeneralHint &Tunings() { type |= HINT_TUNINGS; return *this; }
 
-	MPT_FORCEINLINE int GetChannel() const { return GetData<int>(); }
+	MPT_FORCEINLINE CHANNELINDEX GetChannel() const { return item ? static_cast<CHANNELINDEX>(item - 1) : CHANNELINDEX_INVALID; }
 };
 
 struct PatternHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_PATTERNS;
+	static constexpr HintCategory classCategory = HINTCAT_PATTERNS;
 	PatternHint(PATTERNINDEX item = 0) : UpdateHint(classCategory, item) { }
 	MPT_FORCEINLINE PatternHint &Data() { type |= HINT_PATTERNDATA; return *this; }
 	MPT_FORCEINLINE PatternHint &Names() { type |= HINT_PATNAMES; return *this; }
@@ -150,7 +155,7 @@ struct PatternHint : public UpdateHint
 
 struct RowHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_PATTERNS;
+	static constexpr HintCategory classCategory = HINTCAT_PATTERNS;
 	RowHint(ROWINDEX item = 0) : UpdateHint(classCategory, item) { type = HINT_PATTERNROW; }
 
 	MPT_FORCEINLINE ROWINDEX GetRow() const { return GetData<ROWINDEX>(); }
@@ -158,7 +163,7 @@ struct RowHint : public UpdateHint
 
 struct SampleHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_SAMPLES;
+	static constexpr HintCategory classCategory = HINTCAT_SAMPLES;
 	SampleHint(SAMPLEINDEX item = 0) : UpdateHint(classCategory, item) { }
 	MPT_FORCEINLINE SampleHint &Info() { type |= HINT_SAMPLEINFO; return *this; }
 	MPT_FORCEINLINE SampleHint &Data() { type |= HINT_SAMPLEDATA; return *this; }
@@ -169,7 +174,7 @@ struct SampleHint : public UpdateHint
 
 struct InstrumentHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_INSTRUMENTS;
+	static constexpr HintCategory classCategory = HINTCAT_INSTRUMENTS;
 	InstrumentHint(INSTRUMENTINDEX item = 0) : UpdateHint(classCategory, item) { }
 	MPT_FORCEINLINE InstrumentHint &Info() { type |= HINT_INSTRUMENT; return *this; }
 	MPT_FORCEINLINE InstrumentHint &Envelope() { type |= HINT_ENVELOPE; return *this; }
@@ -180,7 +185,7 @@ struct InstrumentHint : public UpdateHint
 
 struct SequenceHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_SEQUENCE;
+	static constexpr HintCategory classCategory = HINTCAT_SEQUENCE;
 	SequenceHint(SEQUENCEINDEX item = 0) : UpdateHint(classCategory, item) { }
 	MPT_FORCEINLINE SequenceHint &Data() { type |= HINT_MODSEQUENCE; return *this; }
 	MPT_FORCEINLINE SequenceHint &Names() { type |= HINT_SEQNAMES; return *this; }
@@ -191,7 +196,7 @@ struct SequenceHint : public UpdateHint
 
 struct PluginHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_PLUGINS;
+	static constexpr HintCategory classCategory = HINTCAT_PLUGINS;
 	PluginHint(PLUGINDEX item = 0) : UpdateHint(classCategory, item) { }
 	MPT_FORCEINLINE PluginHint &Info() { type |= HINT_MIXPLUGINS; return *this; }
 	MPT_FORCEINLINE PluginHint &Names() { type |= HINT_PLUGINNAMES; return *this; }
@@ -202,7 +207,7 @@ struct PluginHint : public UpdateHint
 
 struct CommentHint : public UpdateHint
 {
-	static const HintCategory classCategory = HINTCAT_COMMENTS;
+	static constexpr HintCategory classCategory = HINTCAT_COMMENTS;
 	CommentHint() : UpdateHint(classCategory) { type = HINT_MODCOMMENTS; }
 };
 

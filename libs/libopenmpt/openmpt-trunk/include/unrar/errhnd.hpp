@@ -15,8 +15,10 @@ enum RAR_EXIT // RAR exit code.
   RARX_CREATE    =   9,
   RARX_NOFILES   =  10,
   RARX_BADPWD    =  11,
+  RARX_READ      =  12,
   RARX_USERBREAK = 255
 };
+
 
 class ErrorHandler
 {
@@ -26,6 +28,7 @@ class ErrorHandler
     bool EnableBreak;
     bool Silent;
     bool DisableShutdown; // Shutdown is not suitable after last error.
+    bool ReadErrIgnoreAll;
   public:
     ErrorHandler();
     void Clean();
@@ -33,7 +36,7 @@ class ErrorHandler
     void OpenError(const wchar *FileName);
     void CloseError(const wchar *FileName);
     void ReadError(const wchar *FileName);
-    bool AskRepeatRead(const wchar *FileName);
+    void AskRepeatRead(const wchar *FileName,bool &Ignore,bool &Retry,bool &Quit);
     void WriteError(const wchar *ArcName,const wchar *FileName);
     void WriteErrorFAT(const wchar *FileName);
     bool AskRepeatWrite(const wchar *FileName,bool DiskFull);
@@ -56,10 +59,12 @@ class ErrorHandler
     uint GetErrorCount() {return ErrCount;}
     void SetSignalHandlers(bool Enable);
     void Throw(RAR_EXIT Code);
-    void SetSilent(bool Mode) {Silent=Mode;};
+    void SetSilent(bool Mode) {Silent=Mode;}
+    bool GetSysErrMsg(wchar *Msg,size_t Size);
     void SysErrMsg();
     int GetSystemErrorCode();
     void SetSystemErrorCode(int Code);
+    void SetDisableShutdown() {DisableShutdown=true;}
     bool IsShutdownEnabled() {return !DisableShutdown;}
 
     bool UserBreak; // Ctrl+Break is pressed.

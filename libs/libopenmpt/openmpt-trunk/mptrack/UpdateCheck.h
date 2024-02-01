@@ -10,79 +10,127 @@
 
 #pragma once
 
-#include <WinInet.h>
-#include <time.h>
+#include "openmpt/all/BuildSettings.hpp"
 
-#include "../common/mptAtomic.h"
+#include "mpt/uuid/uuid.hpp"
+
+#include "../common/mptTime.h"
+
+#include <atomic>
+
 #include "resource.h"
 #include "Settings.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-#define DOWNLOAD_BUFFER_SIZE 4096
 
-//================
+#if defined(MPT_ENABLE_UPDATE)
+
+
+namespace HTTP {
+class InternetSession;
+}
+
+enum UpdateChannel : uint32
+{
+	UpdateChannelRelease = 1,
+	UpdateChannelNext = 2,
+	UpdateChannelDevelopment = 3,
+};
+
+struct UpdateCheckResult
+{
+	mpt::Date::Unix CheckTime = mpt::Date::Unix{};
+	std::vector<std::byte> json;
+	bool IsFromCache() const noexcept
+	{
+		return CheckTime == mpt::Date::Unix{};
+	}
+};
+
 class CUpdateCheck
-//================
 {
 
 private:
 
-	static mpt::atomic_int32_t s_InstanceCount;
+	static std::atomic<int32> s_InstanceCount;
 
 public:
 
-	static const TCHAR *const defaultUpdateURL;
+	static mpt::ustring GetStatisticsUserInformation(bool shortText);
 
+	static std::vector<mpt::ustring> GetDefaultUpdateSigningKeysRootAnchors();
+	static mpt::ustring GetDefaultAPIURL();
+	
 	int32 GetNumCurrentRunningInstances();
+
+	static bool IsSuitableUpdateMoment();
 
 	static void DoAutoUpdateCheck() { StartUpdateCheckAsync(true); }
 	static void DoManualUpdateCheck() { StartUpdateCheckAsync(false); }
 
 public:
 
-	struct Settings
+	struct Context
 	{
 		CWnd *window;
+		UINT msgStart;
 		UINT msgProgress;
 		UINT msgSuccess;
 		UINT msgFailure;
+		UINT msgCanceled;
 		bool autoUpdate;
-		CString updateBaseURL;  // URL where the version check should be made.
-		CString guidString;     // Send GUID to collect basic stats or "anonymous"
-		bool suggestDifferentBuilds;
+		bool loadPersisted;
+		std::string statistics;
+	};
+
+	struct Settings
+	{
+		int32 periodDays;
+		UpdateChannel channel;
+		mpt::PathString persistencePath;
+		mpt::ustring apiURL;
+		bool sendStatistics;
+		mpt::UUID statisticsUUID;
+		Settings();
 	};
 
 	class Error
 		: public std::runtime_error
 	{
+	private:
+		CString m_Message;
 	public:
 		Error(CString errorMessage);
 		Error(CString errorMessage, DWORD errorCode);
+		CString GetMessage() const;
 	protected:
 		static CString FormatErrorCode(CString errorMessage, DWORD errorCode);
 	};
 
-	struct Result
+	class Cancel
+		: public std::exception
 	{
-		time_t CheckTime;
-		bool UpdateAvailable;
-		CString Version;
-		CString Date;
-		CString URL;
-		Result()
-			: CheckTime(time_t())
-			, UpdateAvailable(false)
-		{
-			return;
-		}
+	public:
+		Cancel();
 	};
 
-	static CUpdateCheck::Result ResultFromMessage(WPARAM wparam, LPARAM lparam);
-	static CUpdateCheck::Error ErrorFromMessage(WPARAM wparam, LPARAM lparam);
+	static bool IsAutoUpdateFromMessage(WPARAM wparam, LPARAM lparam);
 
-	static void ShowSuccessGUI(WPARAM wparam, LPARAM lparam);
-	static void ShowFailureGUI(WPARAM wparam, LPARAM lparam);
+	static const UpdateCheckResult &MessageAsResult(WPARAM wparam, LPARAM lparam);
+	static const CUpdateCheck::Error &MessageAsError(WPARAM wparam, LPARAM lparam);
+
+	static void AcknowledgeSuccess(const UpdateCheckResult &result);
+
+	static void ShowSuccessGUI(const bool autoUpdate, const UpdateCheckResult &result);
+	static void ShowFailureGUI(const bool autoUpdate, const CUpdateCheck::Error &error);
+
+public:
+
+	// v3
+	static std::string GetStatisticsDataV3(const Settings &settings);  // UTF8
+
+	static mpt::PathString GetUpdateTempDirectory(bool portable);
 
 protected:
 
@@ -91,45 +139,54 @@ protected:
 	struct ThreadFunc
 	{
 		CUpdateCheck::Settings settings;
-		ThreadFunc(const CUpdateCheck::Settings &settings);
+		CUpdateCheck::Context context;
+		ThreadFunc(const CUpdateCheck::Settings &settings, const CUpdateCheck::Context &context);
 		void operator () ();
 	};
 
-	// Runtime resource handles
-	HINTERNET internetHandle, connectionHandle, requestHandle;
+	static void CheckForUpdate(const CUpdateCheck::Settings &settings, const CUpdateCheck::Context &context);
 
-	CUpdateCheck();
-	
-	void CheckForUpdate(const CUpdateCheck::Settings &settings);
+	static UpdateCheckResult SearchUpdate(const CUpdateCheck::Context &context, const CUpdateCheck::Settings &settings, const std::string &statistics); // may throw
 
-	CUpdateCheck::Result SearchUpdate(const CUpdateCheck::Settings &settings); // may throw
-	
-	~CUpdateCheck();
+	static void CleanOldUpdates(mpt::PathString dirTemp);
+
+	static void CleanOldUpdates(const CUpdateCheck::Settings &settings, const CUpdateCheck::Context &context);
+
+	static void SendStatistics(HTTP::InternetSession &internet, const CUpdateCheck::Settings &settings, const std::string &statistics); // may throw
+
+	static UpdateCheckResult SearchUpdateModern(HTTP::InternetSession &internet, const CUpdateCheck::Settings &settings); // may throw
 
 };
 
 
-//=========================================
 class CUpdateSetupDlg: public CPropertyPage
-//=========================================
 	, public ISettingChanged
 {
 public:
 	CUpdateSetupDlg();
 
+public:
+	void SettingChanged(const SettingPath &changedPath) override;
+
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL OnSetActive();
-	afx_msg void OnSettingsChanged() { SetModified(TRUE); }
+	void DoDataExchange(CDataExchange *pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	BOOL OnSetActive() override;
+
+	afx_msg void OnSettingsChanged();
 	afx_msg void OnCheckNow();
-	afx_msg void OnResetURL();
-	virtual void SettingChanged(const SettingPath &changedPath);
+	afx_msg void OnShowStatisticsData(NMHDR * /*pNMHDR*/, LRESULT * /*pResult*/);
+	void EnableDisableDialog();
 	DECLARE_MESSAGE_MAP()
 
 private:
 	SettingChangedNotifyGuard m_SettingChangedNotifyGuard;
+	CComboBox m_CbnUpdateFrequency;
 };
+
+
+#endif // MPT_ENABLE_UPDATE
 
 
 OPENMPT_NAMESPACE_END

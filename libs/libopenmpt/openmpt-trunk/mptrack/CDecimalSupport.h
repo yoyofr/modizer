@@ -2,7 +2,7 @@
  * CDecimalSupport.h
  * -----------------
  * Purpose: Edit field which allows negative and fractional values to be entered
- * Notes  : Alexander Uckun's original code has beem modified a bit to suit our purposes.
+ * Notes  : Alexander Uckun's original code has been modified a bit to suit our purposes.
  * Authors: OpenMPT Devs
  *          Alexander Uckun
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
@@ -10,6 +10,9 @@
 
 
 #pragma once
+
+#include "openmpt/all/BuildSettings.hpp"
+#include "Snd_defs.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -43,7 +46,7 @@ OPENMPT_NAMESPACE_BEGIN
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-template <class T, size_t limit = _CVTBUFSIZE>
+template <class T, int limit = _CVTBUFSIZE>
 class CDecimalSupport
 {
 protected:
@@ -52,7 +55,7 @@ protected:
 	/// the locale dependant negative sign
 	TCHAR m_NegativeSign[6];
 
-	bool m_allowNegative, m_allowFractions;
+	bool m_allowNegative = true, m_allowFractions = true;
 
 public:
 
@@ -68,8 +71,6 @@ public:
 	/// \brief Initialize m_DecimalSeparator and m_NegativeSign
 	/// \remarks calls InitDecimalSeparator and InitNegativeSign
 	CDecimalSupport()
-		: m_allowNegative(true)
-		, m_allowFractions(true)
 	{
 		InitDecimalSeparator();
 		InitNegativeSign();
@@ -81,7 +82,7 @@ public:
 	/// \return the number of TCHARs written to the destination buffer
 	int InitDecimalSeparator(LCID Locale = LOCALE_USER_DEFAULT)
 	{
-		return ::GetLocaleInfo( Locale, LOCALE_SDECIMAL, m_DecimalSeparator , sizeof(m_DecimalSeparator) / sizeof(TCHAR));
+		return ::GetLocaleInfo(Locale, LOCALE_SDECIMAL, m_DecimalSeparator, sizeof(m_DecimalSeparator) / sizeof(TCHAR));
 	}
 
 	/// \brief sets m_NegativeSign
@@ -90,7 +91,7 @@ public:
 	/// \return the number of TCHARs written to the destination buffer
 	int InitNegativeSign(LCID Locale = LOCALE_USER_DEFAULT)
 	{
-		return ::GetLocaleInfo( Locale, LOCALE_SNEGATIVESIGN, m_NegativeSign , sizeof(m_NegativeSign) / sizeof(TCHAR));
+		return ::GetLocaleInfo(Locale, LOCALE_SNEGATIVESIGN, m_NegativeSign, sizeof(m_NegativeSign) / sizeof(TCHAR));
 	}
 
 	/// callback for the WM_PASTE message
@@ -117,8 +118,8 @@ public:
 		for (TCHAR* x = buffer; *x; ++x)
 		{
 			if (x - buffer == nStartChar) x += nEndChar - nStartChar;
-			if (*x == m_DecimalSeparator[0] ||*x == _T('.')) ++dec_point;
-			if (*x == m_NegativeSign[0]) ++neg_sign;
+			if (*x == m_DecimalSeparator[0] || *x == _T('.')) ++dec_point;
+			if (*x == m_NegativeSign[0] || *x == _T('-')) ++neg_sign;
 		}
 
 #ifdef _UNICODE
@@ -136,13 +137,13 @@ public:
 #endif
 		if (hglb != NULL)
 		{
-			LPTSTR lptstr = reinterpret_cast<TCHAR*>(GlobalLock(hglb));
-			if (lptstr != NULL)
+			TCHAR *lptstr = static_cast<TCHAR *>(GlobalLock(hglb));
+			if (lptstr != nullptr)
 			{
 				bHandled = true;
 				for (TCHAR* s = lptstr; *s; ++s)
 				{
-					if (*s == m_NegativeSign[0] && m_allowNegative)
+					if ((*s == m_NegativeSign[0] ||*s == _T('-')) && m_allowNegative)
 					{
 
 						for (TCHAR* t = m_NegativeSign + 1; *t; ++t, ++s)
@@ -175,6 +176,12 @@ public:
 						continue;
 					}
 
+					if (*s == _T('\r'))
+					{
+						// Stop at new line
+						*s = 0;
+						break;
+					}
 					if (*s < _T('0') || *s > _T('9'))
 					{
 						bHandled = false;
@@ -208,7 +215,7 @@ public:
 			T* pT = static_cast<T*>(this);
 			int nStartChar;
 			int nEndChar;
-			pT->GetSel(nStartChar , nEndChar);
+			pT->GetSel(nStartChar, nEndChar);
 			TCHAR buffer[limit];
 			pT->GetWindowText(buffer, limit);
 			//Verify that the control doesn't already contain a decimal point
@@ -222,12 +229,12 @@ public:
 			bHandled = true;
 		}
 
-		if (static_cast<TCHAR>(wParam) == m_NegativeSign[0] && m_allowNegative)
+		if ((static_cast<TCHAR>(wParam) == m_NegativeSign[0] || wParam == _T('-')) && m_allowNegative)
 		{
 			T* pT = static_cast<T*>(this);
 			int nStartChar;
 			int nEndChar;
-			pT->GetSel(nStartChar , nEndChar);
+			pT->GetSel(nStartChar, nEndChar);
 			if (nStartChar) return 0;
 
 			TCHAR buffer[limit];
@@ -285,12 +292,8 @@ public:
 	{
 		int decimal_pos;
 		int sign;
-#if _MSC_VER >= 1400
 		char digits[limit];
-		_fcvt_s(digits,d,count,&decimal_pos,&sign);
-#else
-		char* digits = _fcvt(d,count,&decimal_pos,&sign);
-#endif
+		_fcvt_s(digits, d, count, &decimal_pos, &sign);
 		return DisplayDecimalValue(digits, decimal_pos, sign);
 	}
 
@@ -302,12 +305,8 @@ public:
 	{
 		int decimal_pos;
 		int sign;
-#if _MSC_VER >= 1400
 		char digits[limit];
-		_ecvt_s(digits,d,count,&decimal_pos,&sign);
-#else
-		char* digits = _ecvt(d,count,&decimal_pos,&sign);
-#endif
+		_ecvt_s(digits, d, count, &decimal_pos, &sign);
 		DisplayDecimalValue(digits, decimal_pos, sign);
 	}
 	/// sets a number as the controls text
@@ -316,7 +315,7 @@ public:
 
 	void SetDecimalValue(double d)
 	{
-		SetDecimalValue(d , std::min(limit , static_cast<size_t>(static_cast<const T*>(this)->GetLimitText())) - 2);
+		SetDecimalValue(d, std::min(limit, static_cast<int>(static_cast<const T*>(this)->GetLimitText())) - 2);
 	}
 
 	/// sets the controls text
@@ -327,7 +326,7 @@ public:
 	void DisplayDecimalValue(const char* digits, int decimal_pos, int sign)
 	{
 		TCHAR szBuff[limit];
-		DecimalToText(szBuff, limit , digits, decimal_pos, sign);
+		DecimalToText(szBuff, limit, digits, decimal_pos, sign);
 		static_cast<T*>(this)->SetWindowText(szBuff);
 	}
 
@@ -338,24 +337,24 @@ public:
 	/// \param[in] decimal_pos the position of the decimal point
 	/// \param[in] sign 1 if negative
 
-	void DecimalToText(TCHAR* szBuff, size_t buflen , const char* digits, int decimal_pos, int sign) const
+	void DecimalToText(TCHAR* szBuff, size_t buflen, const char* digits, int decimal_pos, int sign) const
 	{
 		int i = 0;
 		size_t pos = 0;
 		if (sign)
 		{
-			for (const TCHAR *x = m_NegativeSign; *x ; ++x , ++pos) szBuff[pos] = *x;
+			for (const TCHAR *x = m_NegativeSign; *x ; ++x, ++pos) szBuff[pos] = *x;
 		}
 
-		for (; pos < buflen && digits[i] && i < decimal_pos ; ++i , ++pos) szBuff[pos] = digits[i];
+		for (; pos < buflen && digits[i] && i < decimal_pos ; ++i, ++pos) szBuff[pos] = digits[i];
 
 		if (decimal_pos < 1) szBuff[pos++] = _T('0');
 		size_t last_nonzero = pos;
 
-		for (const TCHAR *x = m_DecimalSeparator; *x ; ++x , ++pos) szBuff[pos] = *x;
-		for (; pos < buflen && decimal_pos < 0; ++decimal_pos , ++pos) szBuff[pos] = _T('0');
+		for (const TCHAR *x = m_DecimalSeparator; *x ; ++x, ++pos) szBuff[pos] = *x;
+		for (; pos < buflen && decimal_pos < 0; ++decimal_pos, ++pos) szBuff[pos] = _T('0');
 
-		for (; pos < buflen && digits[i]; ++i , ++pos)
+		for (; pos < buflen && digits[i]; ++i, ++pos)
 		{
 			szBuff[pos] = digits[i];
 			if (digits[i] != '0') last_nonzero = pos+1;

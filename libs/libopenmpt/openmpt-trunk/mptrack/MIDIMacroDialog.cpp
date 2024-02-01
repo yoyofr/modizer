@@ -9,13 +9,13 @@
 
 
 #include "stdafx.h"
-#include "../mptrack/Reporting.h"
-#include "../common/StringFixer.h"
-#include "Mainfrm.h"
-#include "mptrack.h"
-#include "resource.h"
 #include "MIDIMacroDialog.h"
+#include "Mptrack.h"
+#include "Reporting.h"
+#include "resource.h"
+#include "../common/mptStringBuffer.h"
 #include "../soundlib/MIDIEvents.h"
+#include "../soundlib/Sndfile.h"
 #include "../soundlib/plugins/PlugInterface.h"
 
 
@@ -23,26 +23,24 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 BEGIN_MESSAGE_MAP(CMidiMacroSetup, CDialog)
-	ON_COMMAND(IDC_CHECK1,			OnEmbedMidiCfg)
-	ON_COMMAND(IDC_BUTTON1,			OnSetAsDefault)
-	ON_COMMAND(IDC_BUTTON2,			OnResetCfg)
-	ON_COMMAND(IDC_BUTTON3,			OnMacroHelp)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnSFxChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnSFxPresetChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO3,	OnZxxPresetChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO4,	UpdateDialog)
-	ON_CBN_SELCHANGE(IDC_MACROPLUG, OnPlugChanged)
-	ON_CBN_SELCHANGE(IDC_MACROPARAM,OnPlugParamChanged)
-	ON_CBN_SELCHANGE(IDC_MACROCC,	OnCCChanged)
-	ON_EN_CHANGE(IDC_EDIT1,			OnSFxEditChanged)
-	ON_EN_CHANGE(IDC_EDIT2,			OnZxxEditChanged)
-	ON_COMMAND_RANGE(ID_PLUGSELECT, ID_PLUGSELECT + NUM_MACROS - 1, OnViewAllParams)
-	ON_COMMAND_RANGE(ID_PLUGSELECT + NUM_MACROS, ID_PLUGSELECT + NUM_MACROS + NUM_MACROS - 1, OnSetSFx)
+	ON_COMMAND(IDC_BUTTON1,			&CMidiMacroSetup::OnSetAsDefault)
+	ON_COMMAND(IDC_BUTTON2,			&CMidiMacroSetup::OnResetCfg)
+	ON_COMMAND(IDC_BUTTON3,			&CMidiMacroSetup::OnMacroHelp)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CMidiMacroSetup::OnSFxChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2,	&CMidiMacroSetup::OnSFxPresetChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO3,	&CMidiMacroSetup::OnZxxPresetChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO4,	&CMidiMacroSetup::UpdateZxxSelection)
+	ON_CBN_SELCHANGE(IDC_MACROPLUG, &CMidiMacroSetup::OnPlugChanged)
+	ON_CBN_SELCHANGE(IDC_MACROPARAM,&CMidiMacroSetup::OnPlugParamChanged)
+	ON_CBN_SELCHANGE(IDC_MACROCC,	&CMidiMacroSetup::OnCCChanged)
+	ON_EN_CHANGE(IDC_EDIT1,			&CMidiMacroSetup::OnSFxEditChanged)
+	ON_EN_CHANGE(IDC_EDIT2,			&CMidiMacroSetup::OnZxxEditChanged)
+	ON_COMMAND_RANGE(ID_PLUGSELECT, ID_PLUGSELECT + kSFxMacros - 1, &CMidiMacroSetup::OnViewAllParams)
+	ON_COMMAND_RANGE(ID_PLUGSELECT + kSFxMacros, ID_PLUGSELECT + kSFxMacros + kSFxMacros - 1, &CMidiMacroSetup::OnSetSFx)
 END_MESSAGE_MAP()
 
 
 void CMidiMacroSetup::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO1,	m_CbnSFx);
@@ -57,76 +55,83 @@ void CMidiMacroSetup::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BOOL CMidiMacroSetup::OnInitDialog()
-//----------------------------------
+CMidiMacroSetup::CMidiMacroSetup(CSoundFile &sndFile, CWnd *parent)
+	: CDialog{IDD_MIDIMACRO, parent}
+	, m_SndFile{sndFile}
+	, m_vMidiCfg{sndFile.m_MidiCfg}
+	, m_MidiCfg{*m_vMidiCfg}
 {
-	char s[128];
+
+}
+
+BOOL CMidiMacroSetup::OnInitDialog()
+{
+	CString s;
 	CDialog::OnInitDialog();
-	CheckDlgButton(IDC_CHECK1, m_bEmbed ? BST_CHECKED : BST_UNCHECKED);
-	m_EditSFx.SetLimitText(MACRO_LENGTH - 1);
-	m_EditZxx.SetLimitText(MACRO_LENGTH - 1);
+	m_EditSFx.SetLimitText(kMacroLength - 1);
+	m_EditZxx.SetLimitText(kMacroLength - 1);
 
 	// Parametered macro selection
-	for(int isfx = 0; isfx < 16; isfx++)
+	for(int i = 0; i < 16; i++)
 	{
-		wsprintf(s, "%d (SF%X)", isfx, isfx);
+		s.Format(_T("%d (SF%X)"), i, i);
 		m_CbnSFx.AddString(s);
 	}
 
 	// Parametered macro presets
 	m_CbnSFx.SetCurSel(0);
-	for(int i = 0; i < sfx_max; i++)
+	for(int i = 0; i < kSFxMax; i++)
 	{
-		m_CbnSFxPreset.SetItemData(m_CbnSFxPreset.AddString(m_MidiCfg.GetParameteredMacroName(static_cast<parameteredMacroType>(i))), i);
+		m_CbnSFxPreset.SetItemData(m_CbnSFxPreset.AddString(m_MidiCfg.GetParameteredMacroName(static_cast<ParameteredMacro>(i))), i);
 	}
 	OnSFxChanged();
 
 	// MIDI CC selection box
 	for (int cc = MIDIEvents::MIDICC_start; cc <= MIDIEvents::MIDICC_end; cc++)
 	{
-		wsprintf(s, "CC %02d %s", cc, MIDIEvents::MidiCCNames[cc]);
-		m_CbnMacroCC.SetItemData(m_CbnMacroCC.AddString(s), cc);	
+		s.Format(_T("CC %02d "), cc);
+		s += mpt::ToCString(mpt::Charset::UTF8, MIDIEvents::MidiCCNames[cc]);
+		m_CbnMacroCC.SetItemData(m_CbnMacroCC.AddString(s), cc);
 	}
 
 	// Z80...ZFF box
-	for(int zxx = 0; zxx < 128; zxx++)
+	for(int zxx = 0x80; zxx <= 0xFF; zxx++)
 	{
-		wsprintf(s, "Z%02X", zxx | 0x80);
+		s.Format(_T("Z%02X"), zxx);
 		m_CbnZxx.AddString(s);
 	}
 
 	// Fixed macro presets
 	m_CbnZxx.SetCurSel(0);
-	for(int i = 0; i < zxx_max; i++)
+	for(int i = 0; i < kZxxMax; i++)
 	{
-		m_CbnZxxPreset.SetItemData(m_CbnZxxPreset.AddString(m_MidiCfg.GetFixedMacroName(static_cast<fixedMacroType>(i))), i);
+		m_CbnZxxPreset.SetItemData(m_CbnZxxPreset.AddString(m_MidiCfg.GetFixedMacroName(static_cast<FixedMacro>(i))), i);
 	}
 	m_CbnZxxPreset.SetCurSel(m_MidiCfg.GetFixedMacroType());
 
 	UpdateDialog();
 
-#define ScalePixels(x) Util::ScalePixels(x, m_hWnd)
-	int offsetx = ScalePixels(108), offsety = ScalePixels(30), separatorx = ScalePixels(4), separatory = ScalePixels(2);
-	int height = ScalePixels(18), widthMacro = ScalePixels(30), widthVal = ScalePixels(90), widthType = ScalePixels(135), widthBtn = ScalePixels(70);
-#undef ScalePixels
+	auto ScalePixels = [&](auto x) { return Util::ScalePixels(x, m_hWnd); };
+	int offsetx = ScalePixels(19), offsety = ScalePixels(30), separatorx = ScalePixels(4), separatory = ScalePixels(2);
+	int height = ScalePixels(18), widthMacro = ScalePixels(30), widthVal = ScalePixels(179), widthType = ScalePixels(135), widthBtn = ScalePixels(70);
 
-	for(UINT m = 0; m < NUM_MACROS; m++)
+	for(UINT m = 0; m < kSFxMacros; m++)
 	{
-		m_EditMacro[m].Create("", /*BS_FLAT |*/ WS_CHILD | WS_VISIBLE | WS_TABSTOP /*| WS_BORDER*/,
-			CRect(offsetx, offsety + m * (separatory + height), offsetx + widthMacro, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + NUM_MACROS + m);
-		m_EditMacro[m].SetFont(GetFont());
+		m_EditMacro[m].Button.Create(_T(""), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+			CRect(offsetx, offsety + m * (separatory + height), offsetx + widthMacro, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + kSFxMacros + m);
+		m_EditMacro[m].Button.SetFont(GetFont());
 
-		m_EditMacroType[m].Create(ES_READONLY | WS_CHILD| WS_VISIBLE | WS_TABSTOP | WS_BORDER, 
-			CRect(offsetx + separatorx + widthMacro, offsety + m * (separatory + height), offsetx + widthMacro + widthType, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + NUM_MACROS + m);
-		m_EditMacroType[m].SetFont(GetFont());
+		m_EditMacro[m].Type.Create(ES_READONLY | WS_CHILD| WS_VISIBLE | WS_TABSTOP | WS_BORDER, 
+			CRect(offsetx + separatorx + widthMacro, offsety + m * (separatory + height), offsetx + widthMacro + widthType, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + kSFxMacros + m);
+		m_EditMacro[m].Type.SetFont(GetFont());
 
-		m_EditMacroValue[m].Create(ES_CENTER | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, 
-			CRect(offsetx + separatorx + widthType + widthMacro, offsety + m * (separatory + height), offsetx + widthMacro + widthType + widthVal, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + NUM_MACROS + m);
-		m_EditMacroValue[m].SetFont(GetFont());
+		m_EditMacro[m].Value.Create(ES_CENTER | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, 
+			CRect(offsetx + separatorx + widthType + widthMacro, offsety + m * (separatory + height), offsetx + widthMacro + widthType + widthVal, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + kSFxMacros + m);
+		m_EditMacro[m].Value.SetFont(GetFont());
 
-		m_BtnMacroShowAll[m].Create("Show All...", WS_CHILD | WS_TABSTOP | WS_VISIBLE,
+		m_EditMacro[m].ShowAll.Create(_T("Show All..."), WS_CHILD | WS_TABSTOP | WS_VISIBLE,
 			CRect(offsetx + separatorx + widthType + widthMacro + widthVal, offsety + m * (separatory + height), offsetx + widthMacro + widthType + widthVal + widthBtn, offsety + m * (separatory + height) + height), this, ID_PLUGSELECT + m);
-		m_BtnMacroShowAll[m].SetFont(GetFont());
+		m_EditMacro[m].ShowAll.SetFont(GetFont());
 	}
 	UpdateMacroList();
 
@@ -137,22 +142,22 @@ BOOL CMidiMacroSetup::OnInitDialog()
 
 		if(plugin.IsValidPlugin())
 		{
-			wsprintf(s, "FX%d: %s", i + 1, plugin.GetName());
+			s.Format(_T("FX%d: "), i + 1);
+			s += mpt::ToCString(plugin.GetName());
 			m_CbnMacroPlug.SetItemData(m_CbnMacroPlug.AddString(s), i);
 		}
 	}
-#endif // NO_PLUGINS
 	m_CbnMacroPlug.SetCurSel(0);
 	OnPlugChanged();
+#endif  // NO_PLUGINS
 	return FALSE;
 }
 
 
 // macro == -1 for updating all macros at once
 void CMidiMacroSetup::UpdateMacroList(int macro)
-//----------------------------------------------
 {
-	if (!m_EditMacro[0])
+	if(!m_EditMacro[0].Button)
 	{
 		// GUI not yet initialized
 		return;
@@ -160,85 +165,71 @@ void CMidiMacroSetup::UpdateMacroList(int macro)
 
 	int start, end;
 
-	if (macro >= 0 && macro < 16)
+	if(macro >= 0 && macro < kSFxMacros)
 	{
 		start = end = macro;
 	} else
 	{
 		start = 0;
-		end = NUM_MACROS - 1;
+		end = kSFxMacros - 1;
 	}
 
 	CString s;
 	const int selectedMacro = m_CbnSFx.GetCurSel();
 
-	for (int m = start; m <= end; m++)
+	for(int m = start; m <= end; m++)
 	{
 		// SFx
-		s.Format(_T("SF%X"), m);
-		m_EditMacro[m].SetWindowText(s);
+		s.Format(_T("SF%X"), static_cast<unsigned int>(m));
+		m_EditMacro[m].Button.SetWindowText(s);
 
 		// Macro value:
-		m_EditMacroValue[m].SetWindowText(m_MidiCfg.szMidiSFXExt[m]);
-		m_EditMacroValue[m].SetBackColor(m == selectedMacro ? RGB(200, 200, 225) : RGB(245, 245, 245));
+		m_EditMacro[m].Value.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, static_cast<std::string>(m_MidiCfg.SFx[m])));
+		m_EditMacro[m].Value.SetBackColor(m == selectedMacro ? RGB(200, 200, 225) : RGB(245, 245, 245));
 
 		// Macro Type:
-		const parameteredMacroType macroType = m_MidiCfg.GetParameteredMacroType(m);
-		switch (macroType)
+		const ParameteredMacro macroType = m_MidiCfg.GetParameteredMacroType(m);
+		switch(macroType)
 		{
-		case sfx_plug: 
-			s.Format(_T("Control Plugin Param %u"), m_MidiCfg.MacroToPlugParam(m));
+		case kSFxPlugParam:
+			s.Format(_T("Control Plugin Param %u"), static_cast<unsigned int>(m_MidiCfg.MacroToPlugParam(m)));
 			break;
 
 		default:
 			s = m_MidiCfg.GetParameteredMacroName(m);
 			break;
 		}
-		m_EditMacroType[m].SetWindowText(s);
-		m_EditMacroType[m].SetBackColor(m == selectedMacro ? RGB(200,200,225) : RGB(245,245,245));
+		m_EditMacro[m].Type.SetWindowText(s);
+		m_EditMacro[m].Type.SetBackColor(m == selectedMacro ? RGB(200,200,225) : RGB(245,245,245));
 
 		// Param details button:
-		m_BtnMacroShowAll[m].ShowWindow((macroType == sfx_plug) ? SW_SHOW : SW_HIDE);
+		m_EditMacro[m].ShowAll.ShowWindow((macroType == kSFxPlugParam) ? SW_SHOW : SW_HIDE);
 	}
 }
 
 
 void CMidiMacroSetup::UpdateDialog()
-//----------------------------------
 {
-	char s[MACRO_LENGTH];
-	UINT sfx, sfx_preset, zxx;
-
-	sfx = m_CbnSFx.GetCurSel();
-	sfx_preset = m_CbnSFxPreset.GetItemData(m_CbnSFxPreset.GetCurSel());
-	if(sfx < 16)
+	UINT sfx = m_CbnSFx.GetCurSel();
+	UINT sfx_preset = static_cast<UINT>(m_CbnSFxPreset.GetItemData(m_CbnSFxPreset.GetCurSel()));
+	if(sfx < m_MidiCfg.SFx.size())
 	{
 		ToggleBoxes(sfx_preset, sfx);
-		memcpy(s, m_MidiCfg.szMidiSFXExt[sfx], MACRO_LENGTH);
-		mpt::String::SetNullTerminator(s);
-		m_EditSFx.SetWindowText(s);
+		m_EditSFx.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, static_cast<std::string>(m_MidiCfg.SFx[sfx])));
 	}
 
-	zxx = m_CbnZxx.GetCurSel();
-	if(zxx < 0x80)
-	{
-		memcpy(s, m_MidiCfg.szMidiZXXExt[zxx], MACRO_LENGTH);
-		mpt::String::SetNullTerminator(s);
-		m_EditZxx.SetWindowText(s);
-	}
+	UpdateZxxSelection();
 	UpdateMacroList();
 }
 
 
 void CMidiMacroSetup::OnSetAsDefault()
-//------------------------------------
 {
 	theApp.SetDefaultMidiMacro(m_MidiCfg);
 }
 
 
 void CMidiMacroSetup::OnResetCfg()
-//--------------------------------
 {
 	theApp.GetDefaultMidiMacro(m_MidiCfg);
 	m_CbnZxxPreset.SetCurSel(0);
@@ -247,7 +238,6 @@ void CMidiMacroSetup::OnResetCfg()
 
 
 void CMidiMacroSetup::OnMacroHelp()
-//---------------------------------
 {
 	Reporting::Information(_T("Valid characters in macros:\n\n"
 		"0-9, A-F - Raw hex data (4-Bit value)\n"
@@ -260,21 +250,17 @@ void CMidiMacroSetup::OnMacroHelp()
 		"a - High byte of bank select\n"
 		"b - Low byte of bank select\n"
 		"p - Program select\n\n"
+		"h - Pattern channel\n"
+		"m - Sample loop direction\n"
+		"o - Last sample offset (Oxx / 9xx)\n"
+		"s - SysEx checksum (Roland)\n\n"
 		"z - Zxx parameter (00-7F)\n\n"
 		"Macros can be up to 31 characters long and contain multiple MIDI messages. SysEx messages are automatically terminated if not specified by the user."),
 		_T("OpenMPT MIDI Macro quick reference"));
 }
 
 
-void CMidiMacroSetup::OnEmbedMidiCfg()
-//------------------------------------
-{
-	m_bEmbed = IsDlgButtonChecked(IDC_CHECK1) != BST_UNCHECKED;
-}
-
-
 void CMidiMacroSetup::OnSFxChanged()
-//----------------------------------
 {
 	UINT sfx = m_CbnSFx.GetCurSel();
 	if (sfx < 16)
@@ -287,14 +273,13 @@ void CMidiMacroSetup::OnSFxChanged()
 
 
 void CMidiMacroSetup::OnSFxPresetChanged()
-//----------------------------------------
 {
 	UINT sfx = m_CbnSFx.GetCurSel();
-	parameteredMacroType sfx_preset = static_cast<parameteredMacroType>(m_CbnSFxPreset.GetItemData(m_CbnSFxPreset.GetCurSel()));
+	ParameteredMacro sfx_preset = static_cast<ParameteredMacro>(m_CbnSFxPreset.GetItemData(m_CbnSFxPreset.GetCurSel()));
 
-	if (sfx < 16)
+	if (sfx < kSFxMacros)
 	{
-		if(sfx_preset != sfx_custom)
+		if(sfx_preset != kSFxCustom)
 		{
 			m_MidiCfg.CreateParameteredMacro(sfx, sfx_preset);
 		}
@@ -304,31 +289,37 @@ void CMidiMacroSetup::OnSFxPresetChanged()
 
 
 void CMidiMacroSetup::OnZxxPresetChanged()
-//----------------------------------------
 {
-	fixedMacroType zxx_preset = static_cast<fixedMacroType>(m_CbnZxxPreset.GetItemData(m_CbnZxxPreset.GetCurSel()));
+	FixedMacro zxxPreset = static_cast<FixedMacro>(m_CbnZxxPreset.GetItemData(m_CbnZxxPreset.GetCurSel()));
 
-	if (zxx_preset != zxx_custom)
+	if (zxxPreset != kZxxCustom)
 	{
-		m_MidiCfg.CreateFixedMacro(zxx_preset);
+		m_MidiCfg.CreateFixedMacro(zxxPreset);
 		UpdateDialog();
 	}
 }
 
 
+void CMidiMacroSetup::UpdateZxxSelection()
+{
+	UINT zxx = m_CbnZxx.GetCurSel();
+	if(zxx < m_MidiCfg.Zxx.size())
+	{
+		m_EditZxx.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, static_cast<std::string>(m_MidiCfg.Zxx[zxx])));
+	}
+}
+
+
 void CMidiMacroSetup::OnSFxEditChanged()
-//--------------------------------------
 {
 	UINT sfx = m_CbnSFx.GetCurSel();
-	if (sfx < 16)
+	if(sfx < m_MidiCfg.SFx.size())
 	{
-		if(ValidateMacroString(m_EditSFx, m_MidiCfg.szMidiSFXExt[sfx], true))
+		if(ValidateMacroString(m_EditSFx, m_MidiCfg.SFx[sfx], true))
 		{
-			char s[MACRO_LENGTH];
-			MemsetZero(s);
-			m_EditSFx.GetWindowText(s, MACRO_LENGTH);
-			mpt::String::SetNullTerminator(s);
-			memcpy(m_MidiCfg.szMidiSFXExt[sfx], s, MACRO_LENGTH);
+			CString s;
+			m_EditSFx.GetWindowText(s);
+			m_MidiCfg.SFx[sfx] = mpt::ToCharset(mpt::Charset::ASCII, s);
 
 			int sfx_preset = m_MidiCfg.GetParameteredMacroType(sfx);
 			m_CbnSFxPreset.SetCurSel(sfx_preset);
@@ -340,64 +331,55 @@ void CMidiMacroSetup::OnSFxEditChanged()
 
 
 void CMidiMacroSetup::OnZxxEditChanged()
-//--------------------------------------
 {
 	UINT zxx = m_CbnZxx.GetCurSel();
-	if (zxx < 128)
+	if(zxx < m_MidiCfg.Zxx.size())
 	{
-		if(ValidateMacroString(m_EditZxx, m_MidiCfg.szMidiZXXExt[zxx], false))
+		if(ValidateMacroString(m_EditZxx, m_MidiCfg.Zxx[zxx], false))
 		{
-			char s[MACRO_LENGTH];
-			MemsetZero(s);
-			m_EditZxx.GetWindowText(s, MACRO_LENGTH);
-			mpt::String::SetNullTerminator(s);
-			memcpy(m_MidiCfg.szMidiZXXExt[zxx], s, MACRO_LENGTH);
+			CString s;
+			m_EditZxx.GetWindowText(s);
+			m_MidiCfg.Zxx[zxx] = mpt::ToCharset(mpt::Charset::ASCII, s);
 			m_CbnZxxPreset.SetCurSel(m_MidiCfg.GetFixedMacroType());
 		}
 	}
 }
 
 void CMidiMacroSetup::OnSetSFx(UINT id)
-//-------------------------------------
 {
-	m_CbnSFx.SetCurSel(id - (ID_PLUGSELECT + NUM_MACROS));
+	m_CbnSFx.SetCurSel(id - (ID_PLUGSELECT + kSFxMacros));
 	OnSFxChanged();
 }
 
 void CMidiMacroSetup::OnViewAllParams(UINT id)
-//--------------------------------------------
 {
 #ifndef NO_PLUGINS
-	CString message, plugName, line;
+	CString message, plugName;
 	int sfx = id - ID_PLUGSELECT;
-	int param = m_MidiCfg.MacroToPlugParam(sfx);
-	message.Format("These are the parameters that can be controlled by macro SF%X:\n\n", sfx);
+	PlugParamIndex param = m_MidiCfg.MacroToPlugParam(sfx);
+	message.Format(_T("These are the parameters that can be controlled by macro SF%X:\n\n"), sfx);
 
 	for(PLUGINDEX plug = 0; plug < MAX_MIXPLUGINS; plug++)
 	{
-		plugName = m_SndFile.m_MixPlugins[plug].GetName();
-		if(m_SndFile.m_MixPlugins[plug].Info.dwPluginId1 != 0)
+		IMixPlugin *pVstPlugin = m_SndFile.m_MixPlugins[plug].pMixPlugin;
+		if(pVstPlugin && param < pVstPlugin->GetNumParameters())
 		{
-			IMixPlugin *pVstPlugin = m_SndFile.m_MixPlugins[plug].pMixPlugin;
-			if(pVstPlugin && param <= pVstPlugin->GetNumParameters())
-			{
-				line.Format("FX%d: %s\t %s\n", plug + 1, plugName, pVstPlugin->GetFormattedParamName(param));
-				message += line;
-			}
+			plugName = mpt::ToCString(m_SndFile.m_MixPlugins[plug].GetName());
+			message.AppendFormat(_T("FX%d: "), plug + 1);
+			message += plugName + _T("\t") + pVstPlugin->GetFormattedParamName(param) + _T("\n");
 		}
 	}
 
-	Reporting::Notification(message, "Macro -> Params");
+	Reporting::Notification(message, _T("Macro -> Parameters"));
 #endif // NO_PLUGINS
 }
 
 void CMidiMacroSetup::OnPlugChanged()
-//-----------------------------------
 {
 #ifndef NO_PLUGINS
-	int plug = m_CbnMacroPlug.GetItemData(m_CbnMacroPlug.GetCurSel());
+	DWORD_PTR plug = m_CbnMacroPlug.GetItemData(m_CbnMacroPlug.GetCurSel());
 
-	if (plug < 0 || plug > MAX_MIXPLUGINS)
+	if(plug >= MAX_MIXPLUGINS)
 		return;
 
 	IMixPlugin *pVstPlugin = m_SndFile.m_MixPlugins[plug].pMixPlugin;
@@ -416,33 +398,30 @@ void CMidiMacroSetup::OnPlugChanged()
 }
 
 void CMidiMacroSetup::OnPlugParamChanged()
-//----------------------------------------
 {
-	UINT param = m_CbnMacroParam.GetItemData(m_CbnMacroParam.GetCurSel());
+	int param = static_cast<int>(m_CbnMacroParam.GetItemData(m_CbnMacroParam.GetCurSel()));
 
 	if(param < 384)
 	{
-		const std::string macroText = m_MidiCfg.CreateParameteredMacro(sfx_plug, param);
-		m_EditSFx.SetWindowText(macroText.c_str());
+		const std::string macroText = m_MidiCfg.CreateParameteredMacro(kSFxPlugParam, param);
+		m_EditSFx.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, macroText));
 	} else
 	{
 		Reporting::Notification("Only parameters 0 to 383 can be controlled using MIDI Macros. Use Parameter Control Events to automate higher parameters.");
-	}	
+	}
 }
 
 void CMidiMacroSetup::OnCCChanged()
-//---------------------------------
 {
-	UINT cc = m_CbnMacroCC.GetItemData(m_CbnMacroCC.GetCurSel());
-	const std::string macroText = m_MidiCfg.CreateParameteredMacro(sfx_cc, cc);
-	m_EditSFx.SetWindowText(macroText.c_str());
+	int cc = static_cast<int>(m_CbnMacroCC.GetItemData(m_CbnMacroCC.GetCurSel()));
+	const std::string macroText = m_MidiCfg.CreateParameteredMacro(kSFxCC, cc);
+	m_EditSFx.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, macroText));
 }
 
-void CMidiMacroSetup::ToggleBoxes(UINT sfx_preset, UINT sfx)
-//----------------------------------------------------------
+void CMidiMacroSetup::ToggleBoxes(UINT sfxPreset, UINT sfx)
 {
 
-	if (sfx_preset == sfx_plug)
+	if (sfxPreset == kSFxPlugParam)
 	{
 		m_CbnMacroCC.ShowWindow(FALSE);
 		m_CbnMacroPlug.ShowWindow(TRUE);
@@ -457,7 +436,7 @@ void CMidiMacroSetup::ToggleBoxes(UINT sfx_preset, UINT sfx)
 		m_CbnMacroParam.EnableWindow(FALSE);
 	}
 
-	if (sfx_preset == sfx_cc)
+	if (sfxPreset == kSFxCC)
 	{
 		m_CbnMacroCC.EnableWindow(TRUE);
 		m_CbnMacroCC.ShowWindow(TRUE);
@@ -472,31 +451,30 @@ void CMidiMacroSetup::ToggleBoxes(UINT sfx_preset, UINT sfx)
 }
 
 
-bool CMidiMacroSetup::ValidateMacroString(CEdit &wnd, char *lastMacro, bool isParametric)
-//---------------------------------------------------------------------------------------
+bool CMidiMacroSetup::ValidateMacroString(CEdit &wnd, const MIDIMacroConfig::Macro &prevMacro, bool isParametric)
 {
-	CString macroStr;
-	wnd.GetWindowText(macroStr);
+	CString macroStrT;
+	wnd.GetWindowText(macroStrT);
+	std::string macroStr = mpt::ToCharset(mpt::Charset::ASCII, macroStrT);
 
 	bool allowed = true, caseChange = false;
-	for(int i = 0; i < macroStr.GetLength(); i++)
+	for(char &c : macroStr)
 	{
-		char c = macroStr.GetAt(i);
-		if(c == 'k' || c == 'K')			// Previously, 'K' was used for MIDI channel
+		if(c == 'k' || c == 'K')  // Previously, 'K' was used for MIDI channel
 		{
 			caseChange = true;
-			macroStr.SetAt(i, 'c');
-		} else if(c >= 'd' && c <= 'f')	// abc have special meanings, but def can be fixed
+			c = 'c';
+		} else if(c >= 'd' && c <= 'f')  // abc have special meanings, but def can be fixed
 		{
 			caseChange = true;
-			macroStr.SetAt(i, c - 'a' + 'A');
-		} else if(c == 'N' || c == 'V' || c == 'U' || c == 'X' || c == 'Y' || c == 'Z' || c == 'P')
+			c = c - 'a' + 'A';
+		} else if(c == 'M' || c == 'N' || c == 'O' || c == 'P' || c == 'S' || c == 'U' || c == 'V' || c == 'X' || c == 'Y' || c == 'Z')
 		{
 			caseChange = true;
-			macroStr.SetAt(i, c - 'A' + 'a');
+			c = c - 'A' + 'a';
 		} else if(!(
 			(c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'c') ||
-			(c == 'v' || c == 'u' || c == 'x' || c == 'y' || c == 'p' || c == 'n' || c == ' ') ||
+			(c == 'h' || c == 'm' || c == 'n' || c == 'o' || c == 'p' || c == 's' ||c == 'u' || c == 'v' || c == 'x' || c == 'y' || c == ' ') ||
 			(c == 'z' && isParametric)))
 		{
 			allowed = false;
@@ -507,11 +485,14 @@ bool CMidiMacroSetup::ValidateMacroString(CEdit &wnd, char *lastMacro, bool isPa
 	if(!allowed)
 	{
 		// Replace text and keep cursor position if we just typed in an invalid character
-		int start, end;
-		wnd.GetSel(start, end);
-		wnd.SetWindowText(lastMacro);
-		wnd.SetSel(start - 1, end - 1, true);
-		MessageBeep(MB_OK);
+		if(prevMacro != std::string_view{macroStr})
+		{
+			int start, end;
+			wnd.GetSel(start, end);
+			wnd.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, static_cast<std::string>(prevMacro)));
+			wnd.SetSel(start - 1, end - 1, true);
+			MessageBeep(MB_OK);
+		}
 		return false;
 	} else
 	{
@@ -520,7 +501,7 @@ bool CMidiMacroSetup::ValidateMacroString(CEdit &wnd, char *lastMacro, bool isPa
 			// Replace text and keep cursor position if there was a case conversion
 			int start, end;
 			wnd.GetSel(start, end);
-			wnd.SetWindowText(macroStr);
+			wnd.SetWindowText(mpt::ToCString(mpt::Charset::ASCII, static_cast<std::string>(macroStr)));
 			wnd.SetSel(start, end, true);
 		}
 		return true;

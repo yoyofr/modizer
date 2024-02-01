@@ -25,7 +25,7 @@ static int LHAreadFileReader(void *handle, void *buf, size_t buf_len)
 {
 	FileReader *f = reinterpret_cast<FileReader*>(handle);
 	int read_len = mpt::saturate_cast<int>(buf_len);
-	int result = mpt::saturate_cast<int>(f->ReadRaw(mpt::void_cast<mpt::byte*>(buf), read_len));
+	int result = mpt::saturate_cast<int>(f->ReadRaw(mpt::span(mpt::void_cast<std::byte*>(buf), read_len)).size());
 	if(result == 0)
 	{
 		return -1;
@@ -58,15 +58,14 @@ static LHAInputStreamType vtable =
 
 
 CLhaArchive::CLhaArchive(FileReader &file) : ArchiveBase(file), inputstream(nullptr), reader(nullptr), firstfile(nullptr)
-//-----------------------------------------------------------------------------------------------------------------------
 {
 	OpenArchive();
 	for(LHAFileHeader *fileheader = firstfile; fileheader; fileheader = lha_reader_next_file(reader))
 	{
 		ArchiveFileInfo info;
-		info.name = mpt::PathString::FromUnicode(mpt::ToUnicode(mpt::CharsetISO8859_1, fileheader->filename));
+		info.name = mpt::PathString::FromUnicode(mpt::ToUnicode(mpt::Charset::Amiga_no_C1, fileheader->filename));
 		info.size = fileheader->length;
-		info.type = ArchiveFileNormal;
+		info.type = ArchiveFileType::Normal;
 		contents.push_back(info);
 	}
 	CloseArchive();
@@ -74,14 +73,12 @@ CLhaArchive::CLhaArchive(FileReader &file) : ArchiveBase(file), inputstream(null
 
 
 CLhaArchive::~CLhaArchive()
-//-------------------------
 {
 	return;
 }
 
 
 void CLhaArchive::OpenArchive()
-//-----------------------------
 {
 	inFile.Rewind();
 	inputstream = lha_input_stream_new(&vtable, &inFile);
@@ -98,7 +95,6 @@ void CLhaArchive::OpenArchive()
 
 
 void CLhaArchive::CloseArchive()
-//------------------------------
 {
 	if(reader)
 	{
@@ -114,7 +110,6 @@ void CLhaArchive::CloseArchive()
 
 
 bool CLhaArchive::ExtractFile(std::size_t index)
-//----------------------------------------------
 {
 	if(index >= contents.size())
 	{

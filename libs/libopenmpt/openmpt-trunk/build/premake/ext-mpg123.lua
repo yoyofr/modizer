@@ -2,30 +2,20 @@
  project "mpg123"
   uuid "7adfafb9-0a83-4d35-9891-fb24fdf30b53"
   language "C"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "mpg123"
-  dofile "../../build/premake/premake-defaults-DLL.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "shared"
   targetname "openmpt-mpg123"
   includedirs {
    "../../include/mpg123/ports/MSVC++",
-   "../../include/mpg123/src/libmpg123",
-   "../../include/mpg123/src/compat",
-   "../../include/mpg123/src",
+   "../../include/mpg123/src/include",
   }
 	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
-	filter {}
-  files {
-   "../../include/mpg123/ports/MSVC++/msvc.c",
-  }
   files {
    "../../include/mpg123/src/compat/compat.c",
    "../../include/mpg123/src/compat/compat_str.c",
   }
   files {
+   --"../../include/mpg123/src/libmpg123/calctables.c",
    "../../include/mpg123/src/libmpg123/dct64.c",
    --"../../include/mpg123/src/libmpg123/dither.c",
    "../../include/mpg123/src/libmpg123/equalizer.c",
@@ -39,8 +29,7 @@
    "../../include/mpg123/src/libmpg123/layer1.c",
    "../../include/mpg123/src/libmpg123/layer2.c",
    "../../include/mpg123/src/libmpg123/layer3.c",
-   --"../../include/mpg123/src/libmpg123/lfs_alias.c",
-   --"../../include/mpg123/src/libmpg123/lfs_wrap.c",
+   "../../include/mpg123/src/libmpg123/lfs_wrap.c",
    "../../include/mpg123/src/libmpg123/libmpg123.c",
    "../../include/mpg123/src/libmpg123/ntom.c",
    "../../include/mpg123/src/libmpg123/optimize.c",
@@ -54,3 +43,37 @@
    "../../include/mpg123/src/libmpg123/tabinit.c",
   }
   defines { "DYNAMIC_BUILD", "OPT_GENERIC" }
+  links {
+   "shlwapi",
+  }
+  filter {}
+  filter { "action:vs*" }
+    buildoptions { "/wd4018", "/wd4244", "/wd4267", "/wd4305", "/wd4334" }
+  filter {}
+  filter { "action:vs*" }
+    buildoptions { "/wd6011", "/wd6285", "/wd6297", "/wd6305", "/wd6385", "/wd6386" } -- /analyze
+	filter {}
+		if _OPTIONS["clang"] then
+			buildoptions {
+				"-Wno-unused-function",
+			}
+		end
+	filter {}
+
+function mpt_use_mpg123 ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include/mpg123/src/include",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include/mpg123/src/include",
+		}
+	filter {}
+		defines { "MPG123_NO_LARGENAME" }
+		links {
+			"mpg123",
+		}
+	filter {}
+end

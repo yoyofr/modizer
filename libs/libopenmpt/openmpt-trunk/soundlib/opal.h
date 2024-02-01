@@ -25,6 +25,8 @@
 
 
 
+OPENMPT_NAMESPACE_BEGIN
+
 //==================================================================================================
 // Opal class.
 //==================================================================================================
@@ -406,7 +408,11 @@ void Opal::Port(uint16_t reg_num, uint8_t val) {
 
                 // The 4-op channels are 0, 1, 2, 9, 10, 11
                 uint16_t chan = static_cast<uint16_t>(i < 3 ? i : i + 6);
+                // cppcheck false-positive
+                // cppcheck-suppress arrayIndexOutOfBounds
                 Channel *primary = &Chan[chan];
+                // cppcheck false-positive
+                // cppcheck-suppress arrayIndexOutOfBounds
                 Channel *secondary = &Chan[chan + 3];
 
                 if (val & mask) {
@@ -645,6 +651,8 @@ Opal::Channel::Channel() {
     ModulationType = 0;
     ChannelPair = 0;
     Enable = true;
+    LeftEnable = true;
+    RightEnable = true;
 }
 
 
@@ -672,11 +680,12 @@ void Opal::Channel::Output(int16_t &left, int16_t &right) {
     else {
         if (clk & 1)
             vibrato >>= 1;          // Odd positions are half the magnitude
+
+        vibrato <<= Octave;
+
         if (clk & 4)
             vibrato = -vibrato;     // The second half positions are negative
     }
-
-    vibrato <<= Octave;
 
     // Combine individual operator outputs
     int16_t out, acc;
@@ -1340,3 +1349,5 @@ void Opal::Operator::ComputeKeyScaleLevel() {
     uint16_t i = (Chan->GetOctave() << 4) | (Chan->GetFreq() >> 6);
     KeyScaleLevel = levtab[i] >> KeyScaleShift;
 }
+
+OPENMPT_NAMESPACE_END

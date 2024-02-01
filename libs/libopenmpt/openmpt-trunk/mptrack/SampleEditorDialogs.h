@@ -11,120 +11,148 @@
 
 #pragma once
 
-#include "../soundlib/SampleIO.h"
-#include "FadeLaws.h"
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "CDecimalSupport.h"
+#include "resource.h"
+#include "../common/FileReaderFwd.h"
+#include "../soundlib/SampleIO.h"
+#include "../tracklib/FadeLaws.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////
 // Sample amplification dialog
 
-//===========================
 class CAmpDlg: public CDialog
-//===========================
 {
 public:
-	Fade::Law m_fadeLaw;
-	int16 m_nFactor, m_nFactorMin, m_nFactorMax;
-	bool m_bFadeIn, m_bFadeOut;
+	struct AmpSettings
+	{
+		Fade::Law fadeLaw;
+		int fadeInStart, fadeOutEnd;
+		int16 factor;
+		bool fadeIn, fadeOut;
+	};
+
+	AmpSettings &m_settings;
+	int16 m_nFactorMin, m_nFactorMax;
 
 protected:
 	CComboBoxEx m_fadeBox;
 	CImageList m_list;
-	CNumberEdit m_edit;
+	CNumberEdit m_edit, m_editFadeIn, m_editFadeOut;
+	bool m_locked = true;
 
 public:
-	CAmpDlg(CWnd *parent, int16 factor, Fade::Law fadeLaw, int16 factorMin = int16_min, int16 factorMax = int16_max);
+	CAmpDlg(CWnd *parent, AmpSettings &settings, int16 factorMin = int16_min, int16 factorMax = int16_max);
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnDestroy();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	void OnDestroy();
+
+	afx_msg void EnableFadeIn() { if(!m_locked) CheckDlgButton(IDC_CHECK1, BST_CHECKED); }
+	afx_msg void EnableFadeOut() { if(!m_locked) CheckDlgButton(IDC_CHECK2, BST_CHECKED); }
+
+	DECLARE_MESSAGE_MAP()
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 // Sample import dialog
 
-//=================================
 class CRawSampleDlg: public CDialog
-//=================================
 {
-protected:
-	static SampleIO m_nFormat;
-	bool m_bRememberFormat;
-
-public:
-	static const SampleIO GetSampleFormat() { return m_nFormat; }
-	static void SetSampleFormat(SampleIO nFormat) { m_nFormat = nFormat; }
-	const bool GetRemeberFormat() { return m_bRememberFormat; };
-	void SetRememberFormat(bool bRemember) { m_bRememberFormat = bRemember; };
-
-public:
-	CRawSampleDlg(CWnd *parent = NULL):CDialog(IDD_LOADRAWSAMPLE, parent)
-	{ 
-		m_bRememberFormat = false;
-	}
+	friend class AutodetectFormatDlg;
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	static SampleIO m_format;
+	static SmpLength m_offset;
+
+	CSpinButtonCtrl m_SpinOffset;
+	FileReader &m_file;
+	bool m_rememberFormat = false;
+
+public:
+	SampleIO GetSampleFormat() const { return m_format; }
+	void SetSampleFormat(SampleIO nFormat) { m_format = nFormat; }
+
+	bool GetRemeberFormat() const { return m_rememberFormat; };
+	void SetRememberFormat(bool remember) { m_rememberFormat = remember; };
+
+	SmpLength GetOffset() const { return m_offset; }
+	void SetOffset(SmpLength offset) { m_offset = offset; }
+
+public:
+	CRawSampleDlg(FileReader &file, CWnd *parent = nullptr)
+		: CDialog(IDD_LOADRAWSAMPLE, parent)
+		, m_file(file) {}
+
+protected:
+	void DoDataExchange(CDataExchange *pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 	void UpdateDialog();
+
+	void OnBitDepthChanged(UINT id);
+	void OnEncodingChanged(UINT id);
+	void OnAutodetectFormat();
+
+	DECLARE_MESSAGE_MAP()
 };
 
 
 /////////////////////////////////////////////////////////////////////////
 // Add silence dialog - add silence to a sample
 
-enum enmAddSilenceOptions
+class AddSilenceDlg: public CDialog
 {
-	addsilence_at_beginning,	// Add at beginning of sample
-	addsilence_at_end,			// Add at end of sample
-	addsilence_resize,			// Resize sample
-};
-
-//==================================
-class CAddSilenceDlg: public CDialog
-//==================================
-{
-protected:
-	enmAddSilenceOptions GetEditMode();
-	afx_msg void OnEditModeChanged();
-	DECLARE_MESSAGE_MAP()
-
 public:
-	UINT m_nSamples;	// Add x samples (also containes the return value in all cases)
-	UINT m_nLength;		// Set size to x samples (init value: current sample size)
-	enmAddSilenceOptions m_nEditOption;	// See above
-
-public:
-	CAddSilenceDlg(CWnd *parent, UINT nSamples = 32, UINT nOrigLength = 64) : CDialog(IDD_ADDSILENCE, parent)
+	enum AddSilenceOptions
 	{
-		m_nSamples = nSamples;
-		if(nOrigLength > 0)
-		{
-			m_nLength = nOrigLength;
-			m_nEditOption = addsilence_at_end;
-		} else
-		{
-			m_nLength = 64;
-			m_nEditOption = addsilence_resize;
-		}
-	}
+		kSilenceAtBeginning, // Add at beginning of sample
+		kSilenceAtEnd,       // Add at end of sample
+		kResize,             // Resize sample
+		kOPLInstrument,      // Initialize as OPL instrument
+	};
 
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	enum Unit
+	{
+		kSamples = 0,
+		kMilliseconds,
+	};
+
+	SmpLength m_numSamples; // Add x samples (also containes the return value in all cases)
+	SmpLength m_length;  // Set size to x samples (init value: current sample size)
+	AddSilenceOptions m_editOption; // See above
+
+protected:
+	static SmpLength m_addSamples;
+	static SmpLength m_createSamples;
+	uint32 m_sampleRate;
+	Unit m_unit = kSamples;
+	bool m_allowOPL;
+
+public:
+	AddSilenceDlg(CWnd *parent, SmpLength origLength, uint32 sampleRate, bool allowOPL);
+
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+	
+protected:
+	AddSilenceOptions GetEditMode() const;
+	afx_msg void OnEditModeChanged();
+	afx_msg void OnUnitChanged();
+	DECLARE_MESSAGE_MAP()
 };
 
 
 /////////////////////////////////////////////////////////////////////////
 // Sample grid dialog
 
-//==================================
 class CSampleGridDlg: public CDialog
-//==================================
 {
 public:
 	SmpLength m_nSegments, m_nMaxSegments;
@@ -137,25 +165,23 @@ public:
 	CSampleGridDlg(CWnd *parent, SmpLength nSegments, SmpLength nMaxSegments) : CDialog(IDD_SAMPLE_GRID_SIZE, parent) { m_nSegments = nSegments; m_nMaxSegments = nMaxSegments; };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 };
 
 
 /////////////////////////////////////////////////////////////////////////
 // Sample cross-fade dialog
 
-//===================================
 class CSampleXFadeDlg: public CDialog
-//===================================
 {
 public:
 	static uint32 m_fadeLength;
 	static uint32 m_fadeLaw;
 	static bool m_afterloopFade;
 	static bool m_useSustainLoop;
-	SmpLength m_loopLength, m_maxLength;
+	SmpLength m_loopLength = 0, m_maxLength = 0;
 
 protected:
 	CSliderCtrl m_SliderLength, m_SliderFadeLaw;
@@ -163,23 +189,21 @@ protected:
 	CSpinButtonCtrl m_SpinSamples;
 	CButton m_RadioNormalLoop, m_RadioSustainLoop;
 	ModSample &m_sample;
-	bool m_editLocked : 1;
+	bool m_editLocked = true;
 
 public:
 	CSampleXFadeDlg(CWnd *parent, ModSample &sample)
-		: CDialog(IDD_SAMPLE_XFADE, parent)
-		, m_loopLength(0)
-		, m_maxLength(0)
-		, m_sample(sample)
-		, m_editLocked(true) { };
+	    : CDialog(IDD_SAMPLE_XFADE, parent)
+	    , m_sample(sample) {}
 
 	SmpLength PercentToSamples(uint32 percent) const { return Util::muldivr_unsigned(percent, m_loopLength, 100000); }
 	uint32 SamplesToPercent(SmpLength samples) const { return Util::muldivr_unsigned(samples, 100000, m_loopLength); }
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
+
 	afx_msg void OnLoopTypeChanged();
 	afx_msg void OnFadeLengthChanged();
 	afx_msg void OnHScroll(UINT, UINT, CScrollBar *);
@@ -191,11 +215,9 @@ protected:
 /////////////////////////////////////////////////////////////////////////
 // Resampling dialog
 
-//==================================
 class CResamplingDlg: public CDialog
-//==================================
 {
-protected:
+public:
 	enum ResamplingOption
 	{
 		Upsample,
@@ -203,19 +225,24 @@ protected:
 		Custom
 	};
 
-	ResamplingMode srcMode;
-	uint32 frequency;
-	static uint32 lastFrequency;
-	static ResamplingOption lastChoice;
+protected:
+	ResamplingMode m_srcMode;
+	uint32 m_frequency;
+	bool m_resampleAll;
+	static uint32 m_lastFrequency;
+	static ResamplingOption m_lastChoice;
+	static bool m_updatePatterns;
 
 public:
-	CResamplingDlg(CWnd *parent, uint32 frequency, ResamplingMode srcMode) : CDialog(IDD_RESAMPLE, parent), frequency(frequency), srcMode(srcMode) { };
-	uint32 GetFrequency() const { return frequency; }
-	ResamplingMode GetFilter() const { return srcMode; }
+	CResamplingDlg(CWnd *parent, uint32 frequency, ResamplingMode srcMode, bool resampleAll) : CDialog(IDD_RESAMPLE, parent), m_srcMode(srcMode), m_frequency(frequency), m_resampleAll(resampleAll) { };
+	uint32 GetFrequency() const { return m_frequency; }
+	ResamplingMode GetFilter() const { return m_srcMode; }
+	static ResamplingOption GetResamplingOption() { return m_lastChoice; }
+	static bool UpdatePatternCommands() { return m_updatePatterns; }
 
 protected:
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 
 	afx_msg void OnFocusEdit() { CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO3); }
 
@@ -226,9 +253,7 @@ protected:
 /////////////////////////////////////////////////////////////////////////
 // Sample mix dialog
 
-//=================================
 class CMixSampleDlg: public CDialog
-//=================================
 {
 protected:
 	// Dialog controls
@@ -242,13 +267,12 @@ public:
 	static int amplifyMix;
 
 public:
-
 	CMixSampleDlg(CWnd *parent);
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnInitDialog() override;
+	void OnOK() override;
 };
 
 

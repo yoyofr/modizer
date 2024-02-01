@@ -16,15 +16,18 @@
 #include "../common/misc_util.h"
 #include "Tagging.h"
 #include "Loaders.h"
-#include "ChunkReader.h"
+#include "../common/FileReader.h"
 #include "modsmp_ctrl.h"
-#include "../soundbase/SampleFormatConverters.h"
-#include "../soundbase/SampleFormatCopy.h"
+#include "openmpt/soundbase/Copy.hpp"
 #include "../soundlib/ModSampleCopy.h"
 #include "../common/ComponentManager.h"
 #ifdef MPT_ENABLE_MP3_SAMPLES
 #include "MPEGFrame.h"
 #endif // MPT_ENABLE_MP3_SAMPLES
+#if defined(MPT_WITH_MINIMP3)
+#include "mpt/base/alloc.hpp"
+#endif // MPT_WITH_MINIMP3
+
 #if defined(MPT_WITH_MINIMP3)
 #include <minimp3/minimp3.h>
 #endif // MPT_WITH_MINIMP3
@@ -36,7 +39,22 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "mpg123.h"
+#if MPT_OS_OPENBSD
+// This is kind-of a hack.
+// See <https://sourceforge.net/p/mpg123/bugs/330/>.
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
+#ifdef _FILE_OFFSET_BITS
+#undef _FILE_OFFSET_BITS
+#endif
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif
+#endif
+#include <mpg123.h>
+#define MPT_USE_MPG123_PORTABLE_API 1
 
 #endif
 
@@ -49,40 +67,93 @@ OPENMPT_NAMESPACE_BEGIN
 
 #if defined(MPT_WITH_MPG123)
 
-typedef off_t mpg123_off_t;
+#if (MPG123_API_VERSION < 48) || !MPT_USE_MPG123_PORTABLE_API
 
-typedef size_t mpg123_size_t;
+using mpg123_off_t = off_t;
 
-typedef ssize_t mpg123_ssize_t;
+using mpg123_size_t = size_t;
+
+#endif
+
+// Check for exactly _MSC_VER as libmpg123 does, in order to also catch clang-cl.
+#ifdef _MSC_VER
+// ssize_t definition in libmpg123.h.in should never have existed at all.
+// It got removed from libmpg23.h.in after 1.28.0 and before 1.28.1.
+using mpg123_ssize_t = ptrdiff_t;
+#else
+using mpg123_ssize_t = ssize_t;
+#endif
 
 class ComponentMPG123
 	: public ComponentBuiltin
 {
-	MPT_DECLARE_COMPONENT_MEMBERS
+	MPT_DECLARE_COMPONENT_MEMBERS(ComponentMPG123, "")
 
 public:
 
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+	static int FileReaderRead(void *fp, void *buf, size_t count, size_t *returned)
+	{
+		FileReader &file = *static_cast<FileReader *>(fp);
+		std::size_t readBytes = std::min(count, static_cast<size_t>(file.BytesLeft()));
+		file.ReadRaw(mpt::span(mpt::void_cast<std::byte*>(buf), readBytes));
+		if(!returned)
+		{
+			return -1;
+		}
+		*returned = readBytes;
+		return 0;
+	}
+	static int64_t FileReaderSeek(void *fp, int64_t offset, int whence)
+	{
+		FileReader &file = *static_cast<FileReader *>(fp);
+		if(whence == SEEK_CUR)
+		{
+			if(!mpt::in_range<FileReader::pos_type>(file.GetPosition() + offset))
+			{
+				return -1;
+			}
+			file.Seek(static_cast<FileReader::pos_type>(file.GetPosition() + offset));
+		} else if(whence == SEEK_END)
+		{
+			if(!mpt::in_range<FileReader::pos_type>(file.GetLength() + offset))
+			{
+				return -1;
+			}
+			file.Seek(static_cast<FileReader::pos_type>(file.GetLength() + offset));
+		} else
+		{
+			if(!mpt::in_range<FileReader::pos_type>(offset))
+			{
+				return -1;
+			}
+			file.Seek(static_cast<FileReader::pos_type>(offset));
+		}
+		return static_cast<int64_t>(file.GetPosition());
+	}
+#else
 	static mpg123_ssize_t FileReaderRead(void *fp, void *buf, mpg123_size_t count)
 	{
 		FileReader &file = *static_cast<FileReader *>(fp);
-		size_t readBytes = std::min(count, static_cast<size_t>(file.BytesLeft()));
-		file.ReadRaw(static_cast<char *>(buf), readBytes);
+		std::size_t readBytes = std::min(count, static_cast<size_t>(file.BytesLeft()));
+		file.ReadRaw(mpt::span(mpt::void_cast<std::byte*>(buf), readBytes));
 		return readBytes;
 	}
 	static mpg123_off_t FileReaderLSeek(void *fp, mpg123_off_t offset, int whence)
 	{
 		FileReader &file = *static_cast<FileReader *>(fp);
-		FileReader::off_t oldpos = file.GetPosition();
+		FileReader::pos_type oldpos = file.GetPosition();
 		if(whence == SEEK_CUR) file.Seek(file.GetPosition() + offset);
 		else if(whence == SEEK_END) file.Seek(file.GetLength() + offset);
 		else file.Seek(offset);
-		MPT_MAYBE_CONSTANT_IF(!Util::TypeCanHoldValue<mpg123_off_t>(file.GetPosition()))
+		MPT_MAYBE_CONSTANT_IF(!mpt::in_range<mpg123_off_t>(file.GetPosition()))
 		{
 			file.Seek(oldpos);
 			return static_cast<mpg123_off_t>(-1);
 		}
 		return static_cast<mpg123_off_t>(file.GetPosition());
 	}
+#endif
 
 public:
 	ComponentMPG123()
@@ -106,7 +177,7 @@ public:
 		}
 	}
 };
-MPT_REGISTERED_COMPONENT(ComponentMPG123, "")
+
 
 static mpt::ustring ReadMPG123String(const mpg123_string &str)
 {
@@ -141,6 +212,28 @@ static mpt::ustring ReadMPG123String(const char (&str)[N])
 }
 
 #endif // MPT_WITH_MPG123
+
+
+#if defined(MPT_WITH_MINIMP3)
+#if MPT_COMPILER_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than=16000"
+#endif // MPT_COMPILER_GCC
+#if MPT_CLANG_AT_LEAST(13,0,0)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wframe-larger-than"
+#endif // MPT_COMPILER_CLANG
+static MPT_NOINLINE int mp3dec_decode_frame_no_inline(mp3dec_t *dec, const uint8_t *mp3, int mp3_bytes, mp3d_sample_t *pcm, mp3dec_frame_info_t *info)
+{
+	return mp3dec_decode_frame(dec, mp3, mp3_bytes, pcm, info);
+}
+#if MPT_CLANG_AT_LEAST(13,0,0)
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
+#if MPT_COMPILER_GCC
+#pragma GCC diagnostic pop
+#endif // MPT_COMPILER_GCC
+#endif // MPT_WITH_MINIMP3
 
 
 bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, bool mo3Decode)
@@ -214,8 +307,13 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 	if(!raw)
 	{
 
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+		int64_t length_raw = 0;
+		int64_t length_hdr = 0;
+#else
 		mpg123_off_t length_raw = 0;
 		mpg123_off_t length_hdr = 0;
+#endif
 
 		// libmpg123 provides no way to determine whether it parsed ID3V2 or VBR tags.
 		// Thus, we use a pre-scan with those disabled and compare the resulting length.
@@ -257,10 +355,17 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 			{
 				return false;
 			}
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+			if(mpg123_reader64(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderSeek, 0))
+			{
+				return false;
+			}
+#else
 			if(mpg123_replace_reader_handle(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderLSeek, 0))
 			{
 				return false;
 			}
+#endif
 			if(mpg123_open_handle(mh, &file))
 			{
 				return false;
@@ -298,7 +403,11 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 			{
 				return false;
 			}
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+			length_raw = mpg123_length64(mh);
+#else
 			length_raw = mpg123_length(mh);
+#endif
 		}
 
 		{
@@ -336,10 +445,17 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 			{
 				return false;
 			}
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+			if(mpg123_reader64(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderSeek, 0))
+			{
+				return false;
+			}
+#else
 			if(mpg123_replace_reader_handle(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderLSeek, 0))
 			{
 				return false;
 			}
+#endif
 			if(mpg123_open_handle(mh, &file))
 			{
 				return false;
@@ -377,7 +493,11 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 			{
 				return false;
 			}
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+			length_hdr = mpg123_length64(mh);
+#else
 			length_hdr = mpg123_length(mh);
+#endif
 		}
 
 		hasLameXingVbriHeader = (length_raw != length_hdr);
@@ -419,10 +539,17 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 	{
 		return false;
 	}
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+	if(mpg123_reader64(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderSeek, 0))
+	{
+		return false;
+	}
+#else
 	if(mpg123_replace_reader_handle(mh, ComponentMPG123::FileReaderRead, ComponentMPG123::FileReaderLSeek, 0))
 	{
 		return false;
 	}
+#endif
 	if(mpg123_open_handle(mh, &file))
 	{
 		return false;
@@ -494,10 +621,14 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 	{
 		buf_bytes.resize(mpg123_outblock(mh));
 		buf_samples.resize(buf_bytes.size() / sizeof(int16));
+#if (MPG123_API_VERSION >= 48) && MPT_USE_MPG123_PORTABLE_API
+		size_t buf_bytes_decoded = 0;
+#else
 		mpg123_size_t buf_bytes_decoded = 0;
+#endif
 		int mpg123_read_result = mpg123_read(mh, mpt::byte_cast<unsigned char*>(buf_bytes.data()), buf_bytes.size(), &buf_bytes_decoded);
 		std::memcpy(buf_samples.data(), buf_bytes.data(), buf_bytes_decoded);
-		data.insert(data.end(), buf_samples.data(), buf_samples.data() + buf_bytes_decoded / sizeof(int16));
+		mpt::append(data, buf_samples.data(), buf_samples.data() + buf_bytes_decoded / sizeof(int16));
 		if((data.size() / channels) > MAX_SAMPLE_LENGTH)
 		{
 			break;
@@ -552,7 +683,7 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 	{
 		m_szNames[sample] = mpt::ToCharset(GetCharsetInternal(), sampleName);
 		Samples[sample].Initialize();
-		Samples[sample].nC5Speed = rate;
+		Samples[sample].nC5Speed = static_cast<uint32>(rate);
 	}
 	Samples[sample].nLength = mpt::saturate_cast<SmpLength>((data.size() / channels) - data_skip_frames);
 
@@ -577,30 +708,30 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 	MPT_UNREFERENCED_PARAMETER(raw);
 
 	file.Rewind();
-	FileReader::PinnedRawDataView rawDataView = file.GetPinnedRawDataView();
+	FileReader::PinnedView rawDataView = file.GetPinnedView();
 	int64 bytes_left = rawDataView.size();
 	const uint8 *stream_pos = mpt::byte_cast<const uint8 *>(rawDataView.data());
 
 	std::vector<int16> raw_sample_data;
 
-	mp3dec_t mp3;
-	std::memset(&mp3, 0, sizeof(mp3dec_t));
-	mp3dec_init(&mp3);
+	mpt::heap_value<mp3dec_t> mp3;
+	std::memset(&*mp3, 0, sizeof(mp3dec_t));
+	mp3dec_init(&*mp3);
 	
 	int rate = 0;
 	int channels = 0;
 
 	mp3dec_frame_info_t info;
 	std::memset(&info, 0, sizeof(mp3dec_frame_info_t));
+	std::vector<int16> sample_buf(MINIMP3_MAX_SAMPLES_PER_FRAME);
 	do
 	{
-		int16 sample_buf[MINIMP3_MAX_SAMPLES_PER_FRAME];
-		int frame_samples = mp3dec_decode_frame(&mp3, stream_pos, mpt::saturate_cast<int>(bytes_left), sample_buf, &info);
+		int frame_samples = mp3dec_decode_frame_no_inline(&*mp3, stream_pos, mpt::saturate_cast<int>(bytes_left), sample_buf.data(), &info);
 		if(frame_samples < 0 || info.frame_bytes < 0) break; // internal error in minimp3
 		if(frame_samples > 0 && info.frame_bytes == 0) break; // internal error in minimp3
 		if(frame_samples == 0 && info.frame_bytes == 0) break; // end of stream, no progress
-		if(frame_samples == 0 && info.frame_bytes > 0) MPT_DO { } MPT_WHILE_0; // decoder skipped non-mp3 data
-		if(frame_samples > 0 && info.frame_bytes > 0) MPT_DO { } MPT_WHILE_0; // normal
+		if(frame_samples == 0 && info.frame_bytes > 0) do { } while(0); // decoder skipped non-mp3 data
+		if(frame_samples > 0 && info.frame_bytes > 0) do { } while(0); // normal
 		if(info.frame_bytes > 0)
 		{
 			if(rate != 0 && rate != info.hz) break; // inconsistent stream
@@ -615,10 +746,10 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 			{
 				try
 				{
-					raw_sample_data.insert(raw_sample_data.end(), sample_buf, sample_buf + frame_samples * channels);
-				} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+					mpt::append(raw_sample_data, sample_buf.data(), sample_buf.data() + frame_samples * channels);
+				} catch(mpt::out_of_memory e)
 				{
-					MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+					mpt::delete_out_of_memory(e);
 					break;
 				}
 			}
@@ -674,38 +805,6 @@ bool CSoundFile::ReadMP3Sample(SAMPLEINDEX sample, FileReader &file, bool raw, b
 #endif // MPT_WITH_MPG123 || MPT_WITH_MINIMP3
 
 	return false;
-}
-
-
-bool CSoundFile::CanReadMP3()
-{
-	bool result = false;
-	#if defined(MPT_WITH_MPG123)
-		if(!result)
-		{
-			ComponentHandle<ComponentMPG123> mpg123;
-			if(IsComponentAvailable(mpg123))
-			{
-				result = true;
-			}
-		}
-	#endif
-	#if defined(MPT_WITH_MINIMP3)
-		if(!result)
-		{
-			result = true;
-		}
-	#endif
-	#if defined(MPT_WITH_MEDIAFOUNDATION)
-		if(!result)
-		{
-			if(CanReadMediaFoundation())
-			{
-				result = true;
-			}
-		}
-	#endif
-	return result;
 }
 
 

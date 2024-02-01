@@ -17,13 +17,15 @@
 #include "../common/misc_util.h"
 #include "Tagging.h"
 #include "Loaders.h"
-#include "ChunkReader.h"
+#include "../common/FileReader.h"
 #include "modsmp_ctrl.h"
-#include "../soundbase/SampleFormatConverters.h"
-#include "../soundbase/SampleFormatCopy.h"
+#include "openmpt/soundbase/Copy.hpp"
 #include "../soundlib/ModSampleCopy.h"
 #include "../common/ComponentManager.h"
 #if defined(MPT_WITH_MEDIAFOUNDATION)
+#include "mpt/io_file_adapter/fileadapter.hpp"
+#include "../common/FileReader.h"
+#include "../common/mptFileTemporary.h"
 #include <windows.h>
 #include <atlbase.h>
 #include <mfapi.h>
@@ -32,6 +34,7 @@
 #include <mferror.h>
 #include <Propvarutil.h>
 #endif // MPT_WITH_MEDIAFOUNDATION
+#include "mpt/string/utility.hpp"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -113,7 +116,7 @@ static FileTags ReadMFMetadata(IMFMediaSource *mediaSource)
 				break;
 			} else if(hrToString == ERROR_INSUFFICIENT_BUFFER)
 			{
-				wcharVal.resize(Util::ExponentialGrow(wcharVal.size()));
+				wcharVal.resize(mpt::exponential_grow(wcharVal.size()));
 			} else
 			{
 				break;
@@ -138,7 +141,7 @@ static FileTags ReadMFMetadata(IMFMediaSource *mediaSource)
 
 class ComponentMediaFoundation : public ComponentLibrary
 {
-	MPT_DECLARE_COMPONENT_MEMBERS
+	MPT_DECLARE_COMPONENT_MEMBERS(ComponentMediaFoundation, "MediaFoundation")
 public:
 	ComponentMediaFoundation()
 		: ComponentLibrary(ComponentTypeSystem)
@@ -147,10 +150,6 @@ public:
 	}
 	bool DoInitialize() override
 	{
-		if(!mpt::Windows::Version::Current().IsAtLeast(mpt::Windows::Version::Win7))
-		{
-			return false;
-		}
 #if !MPT_OS_WINDOWS_WINRT
 		if(!(true
 			&& AddLibrary("mf", mpt::LibraryPath::System(P_("mf")))
@@ -176,7 +175,6 @@ public:
 		}
 	}
 };
-MPT_REGISTERED_COMPONENT(ComponentMediaFoundation, "MediaFoundation")
 
 #endif // MPT_WITH_MEDIAFOUNDATION
 
@@ -228,16 +226,16 @@ std::vector<FileType> CSoundFile::GetMediaFoundationFileTypes()
 			continue;
 		}
 
+		std::vector<WCHAR> valueNameBuf(16384);
+		std::vector<BYTE> valueData(16384);
 		for(DWORD valueIndex = 0; ; ++valueIndex)
 		{
-			WCHAR valueNameBuf[16384];
-			MemsetZero(valueNameBuf);
+			std::fill(valueNameBuf.begin(), valueNameBuf.end(), WCHAR{0});
 			DWORD valueNameBufLen = 16384;
 			DWORD valueType = 0;
-			BYTE valueData[16384];
-			MemsetZero(valueData);
+			std::fill(valueData.begin(), valueData.end(), BYTE{0});
 			DWORD valueDataLen = 16384;
-			regResult = RegEnumValueW(hkHandler, valueIndex, valueNameBuf, &valueNameBufLen, NULL, &valueType, valueData, &valueDataLen);
+			regResult = RegEnumValueW(hkHandler, valueIndex, valueNameBuf.data(), &valueNameBufLen, NULL, &valueType, valueData.data(), &valueDataLen);
 			if(regResult != ERROR_SUCCESS)
 			{
 				break;
@@ -247,11 +245,11 @@ std::vector<FileType> CSoundFile::GetMediaFoundationFileTypes()
 				continue;
 			}
 
-			std::wstring guid = std::wstring(valueNameBuf);
+			std::wstring guid = std::wstring(valueNameBuf.data());
 
-			mpt::ustring description = mpt::ToUnicode(std::wstring(reinterpret_cast<WCHAR*>(valueData)));
-			description = mpt::String::Replace(description, U_("Byte Stream Handler"), U_("Files"));
-			description = mpt::String::Replace(description, U_("ByteStreamHandler"), U_("Files"));
+			mpt::ustring description = mpt::ToUnicode(ParseMaybeNullTerminatedStringFromBufferWithSizeInBytes<std::wstring>(valueData.data(), valueDataLen));
+			description = mpt::replace(description, U_("Byte Stream Handler"), U_("Files"));
+			description = mpt::replace(description, U_("ByteStreamHandler"), U_("Files"));
 
 			guidMap[guid]
 				.ShortName(U_("mf"))
@@ -310,25 +308,25 @@ bool CSoundFile::ReadMediaFoundationSample(SAMPLEINDEX sample, FileReader &file,
 	// When using MF to decode MP3 samples in MO3 files, we need the mp3 file extension
 	// for some of them or otherwise MF refuses to recognize them.
 	mpt::PathString tmpfileExtension = (mo3Decode ? P_("mp3") : P_("tmp"));
-	OnDiskFileWrapper diskfile(file, tmpfileExtension);
+	mpt::IO::FileAdapter<FileCursor> diskfile(file, mpt::TemporaryPathname{tmpfileExtension}.GetPathname());
 	if(!diskfile.IsValid())
 	{
 		return false;
 	}
 
-	#define MPT_MF_CHECKED(x) MPT_DO { \
+	#define MPT_MF_CHECKED(x) do { \
 		HRESULT hr = (x); \
 		if(!SUCCEEDED(hr)) \
 		{ \
 			return false; \
 		} \
-	} MPT_WHILE_0
+	} while(0)
 
 	CComPtr<IMFSourceResolver> sourceResolver;
 	MPT_MF_CHECKED(MFCreateSourceResolver(&sourceResolver));
 	MF_OBJECT_TYPE objectType = MF_OBJECT_INVALID;
 	CComPtr<IUnknown> unknownMediaSource;
-	MPT_MF_CHECKED(sourceResolver->CreateObjectFromURL(diskfile.GetFilename().ToWide().c_str(), MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE | MF_RESOLUTION_READ, NULL, &objectType, &unknownMediaSource));
+	MPT_MF_CHECKED(sourceResolver->CreateObjectFromURL(mpt::ToWide(diskfile.GetFilename()).c_str(), MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE | MF_RESOLUTION_READ, NULL, &objectType, &unknownMediaSource));
 	if(objectType != MF_OBJECT_MEDIASOURCE)
 	{
 		return false;
@@ -387,7 +385,7 @@ bool CSoundFile::ReadMediaFoundationSample(SAMPLEINDEX sample, FileReader &file,
 			BYTE *data = NULL;
 			DWORD dataSize = 0;
 			MPT_MF_CHECKED(buffer->Lock(&data, NULL, &dataSize));
-			rawData.insert(rawData.end(), mpt::byte_cast<char*>(data), mpt::byte_cast<char*>(data + dataSize));
+			mpt::append(rawData, mpt::byte_cast<char*>(data), mpt::byte_cast<char*>(data + dataSize));
 			MPT_MF_CHECKED(buffer->Unlock());
 			if(rawData.size() / numChannels / (bitsPerSample / 8) > MAX_SAMPLE_LENGTH)
 			{
@@ -398,21 +396,20 @@ bool CSoundFile::ReadMediaFoundationSample(SAMPLEINDEX sample, FileReader &file,
 
 	std::string sampleName = mpt::ToCharset(GetCharsetInternal(), GetSampleNameFromTags(tags));
 
-	if(rawData.size() / numChannels / (bitsPerSample / 8) > MAX_SAMPLE_LENGTH)
+	const size_t length = rawData.size() / numChannels / (bitsPerSample / 8);
+	if(length < 1 || length > MAX_SAMPLE_LENGTH)
 	{
 		return false;
 	}
 
-	SmpLength length = mpt::saturate_cast<SmpLength>(rawData.size() / numChannels / (bitsPerSample/8));
-
 	DestroySampleThreadsafe(sample);
 	if(!mo3Decode)
 	{
-		m_szNames[sample] = sampleName;
 		Samples[sample].Initialize();
 		Samples[sample].nC5Speed = samplesPerSecond;
+		m_szNames[sample] = sampleName;
 	}
-	Samples[sample].nLength = length;
+	Samples[sample].nLength = static_cast<SmpLength>(length);
 	Samples[sample].uFlags.set(CHN_16BIT, bitsPerSample >= 16);
 	Samples[sample].uFlags.set(CHN_STEREO, numChannels == 2);
 	Samples[sample].AllocateSample();
@@ -425,24 +422,24 @@ bool CSoundFile::ReadMediaFoundationSample(SAMPLEINDEX sample, FileReader &file,
 	{
 		if(numChannels == 2)
 		{
-			CopyStereoInterleavedSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24> > >(Samples[sample], rawData.data(), rawData.size());
+			CopyStereoInterleavedSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24>>>(Samples[sample], rawData.data(), rawData.size());
 		} else
 		{
-			CopyMonoSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24> > >(Samples[sample], rawData.data(), rawData.size());
+			CopyMonoSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24>>>(Samples[sample], rawData.data(), rawData.size());
 		}
 	} else if(bitsPerSample == 32)
 	{
 		if(numChannels == 2)
 		{
-			CopyStereoInterleavedSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32> > >(Samples[sample], rawData.data(), rawData.size());
+			CopyStereoInterleavedSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32>>>(Samples[sample], rawData.data(), rawData.size());
 		} else
 		{
-			CopyMonoSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32> > >(Samples[sample], rawData.data(), rawData.size());
+			CopyMonoSample<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32>>>(Samples[sample], rawData.data(), rawData.size());
 		}
 	} else
 	{
 		// just copy
-		std::copy(rawData.data(), rawData.data() + rawData.size(), mpt::byte_cast<char*>(Samples[sample].sampleb()));
+		std::copy(rawData.begin(), rawData.end(), mpt::byte_cast<char *>(Samples[sample].sampleb()));
 	}
 
 	#undef MPT_MF_CHECKED
@@ -457,23 +454,6 @@ bool CSoundFile::ReadMediaFoundationSample(SAMPLEINDEX sample, FileReader &file,
 
 #endif
 
-}
-
-
-bool CSoundFile::CanReadMediaFoundation()
-{
-	bool result = false;
-	#if defined(MPT_WITH_MEDIAFOUNDATION)
-		if(!result)
-		{
-			ComponentHandle<ComponentMediaFoundation> mf;
-			if(IsComponentAvailable(mf))
-			{
-				result = true;
-			}
-		}
-	#endif
-	return result;
 }
 
 

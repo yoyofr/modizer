@@ -20,6 +20,8 @@ class module_ext_impl
 	: public module_impl
 	, public ext::pattern_vis
 	, public ext::interactive
+	, public ext::interactive2
+	, public ext::interactive3
 
 
 
@@ -99,10 +101,21 @@ public:
 
 	void stop_note( std::int32_t channel ) override;
 
+	void note_off( std::int32_t channel ) override;
+
+	void note_fade( std::int32_t channel ) override;
+
+	void set_channel_panning( std::int32_t channel, double panning ) override;
+
+	double get_channel_panning( std::int32_t channel ) override;
+
+	void set_note_finetune( std::int32_t channel, double finetune ) override;
+
+	double get_note_finetune( std::int32_t channel ) override;
+
+	void set_current_tempo2(double tempo) override;
 
 	/* add stuff here */
-
-
 
 }; // class module_ext_impl
 

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
 #include "../common/FileReaderFwd.h"
 
@@ -24,7 +24,7 @@ public:
 	bool isValid;		// Is a valid frame at all
 	bool isLAME;		// Has Xing/LAME header
 
-	MPEGFrame(FileReader &file);
+	MPEGFrame(FileCursor &file);
 	static bool IsMPEGHeader(const uint8 (&header)[3]);
 };
 

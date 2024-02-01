@@ -9,25 +9,31 @@
 
 
 #include "stdafx.h"
-#include <mmsystem.h>
-#include "Mainfrm.h"
-#include "InputHandler.h"
 #include "Dlsbank.h"
+#include "InputHandler.h"
+#include "Mainfrm.h"
+#include "resource.h"
+#include "TrackerSettings.h"
+#include "WindowMessages.h"
 #include "../soundlib/MIDIEvents.h"
+
+#include <mmsystem.h>
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-//#define MPTMIDI_RECORDLOG
+#ifdef MPT_ALL_LOGGING
+#define MPTMIDI_RECORDLOG
+#endif
+
 
 // Midi Input globals
-HMIDIIN CMainFrame::shMidiIn = NULL;
+HMIDIIN CMainFrame::shMidiIn = nullptr;
 
 //Get Midi message(dwParam1), apply MIDI settings having effect on volume, and return
 //the volume value [0, 256]. In addition value -1 is used as 'use default value'-indicator.
 int CMainFrame::ApplyVolumeRelatedSettings(const DWORD &dwParam1, const BYTE midivolume)
-//--------------------------------------------------------------------------------------
 {
 	int nVol = MIDIEvents::GetDataByte2FromEvent(dwParam1);
 	if(TrackerSettings::Instance().m_dwMidiSetup & MIDISETUP_RECORDVELOCITY)
@@ -51,7 +57,6 @@ int CMainFrame::ApplyVolumeRelatedSettings(const DWORD &dwParam1, const BYTE mid
 
 
 void ApplyTransposeKeyboardSetting(CMainFrame &rMainFrm, uint32 &dwParam1)
-//------------------------------------------------------------------------
 {
 	if ( (TrackerSettings::Instance().m_dwMidiSetup & MIDISETUP_TRANSPOSEKEYBOARD)
 		&& (MIDIEvents::GetChannelFromEvent(dwParam1) != 9) )
@@ -78,7 +83,6 @@ void ApplyTransposeKeyboardSetting(CMainFrame &rMainFrm, uint32 &dwParam1)
 // MMSYSTEM Midi Record
 
 void CALLBACK MidiInCallBack(HMIDIIN, UINT wMsg, DWORD_PTR, DWORD_PTR dwParam1, DWORD_PTR dwParam2)
-//-------------------------------------------------------------------------------------------------
 {
 	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
 	HWND hWndMidi;
@@ -88,8 +92,8 @@ void CALLBACK MidiInCallBack(HMIDIIN, UINT wMsg, DWORD_PTR, DWORD_PTR dwParam1, 
 	DWORD dwMidiStatus = dwParam1 & 0xFF;
 	DWORD dwMidiByte1 = (dwParam1 >> 8) & 0xFF;
 	DWORD dwMidiByte2 = (dwParam1 >> 16) & 0xFF;
-	DWORD dwTimeStamp = dwParam2;
-	Log("time=%8dms status=%02X data=%02X.%02X\n", dwTimeStamp, dwMidiStatus, dwMidiByte1, dwMidiByte2);
+	DWORD dwTimeStamp = (DWORD)dwParam2;
+	MPT_LOG_GLOBAL(LogDebug, "MIDI", MPT_UFORMAT("time={}ms status={} data={}.{}")(mpt::ufmt::dec(dwTimeStamp), mpt::ufmt::HEX0<2>(dwMidiStatus), mpt::ufmt::HEX0<2>(dwMidiByte1), mpt::ufmt::HEX0<2>(dwMidiByte2)));
 #endif
 
 	hWndMidi = pMainFrm->GetMidiRecordWnd();
@@ -103,7 +107,7 @@ void CALLBACK MidiInCallBack(HMIDIIN, UINT wMsg, DWORD_PTR, DWORD_PTR dwParam1, 
 			case MIDIEvents::evNoteOff:	// Note Off
 			case MIDIEvents::evNoteOn:	// Note On
 				ApplyTransposeKeyboardSetting(*pMainFrm, data);
-				MPT_FALLTHROUGH;
+				[[fallthrough]];
 			default:
 				if(::PostMessage(hWndMidi, WM_MOD_MIDIMSG, data, dwParam2))
 					return;	// Message has been handled
@@ -114,19 +118,26 @@ void CALLBACK MidiInCallBack(HMIDIIN, UINT wMsg, DWORD_PTR, DWORD_PTR dwParam1, 
 		CMainFrame::GetInputHandler()->HandleMIDIMessage(kCtxAllContexts, data);
 	} else if(wMsg == MIM_LONGDATA)
 	{
-		// Sysex...
+		// SysEx...
+	} else if (wMsg == MIM_CLOSE)
+	{
+		// midiInClose will trigger this, but also disconnecting a USB MIDI device (although delayed, seems to be coupled to calling something like midiInGetNumDevs).
+		// In the latter case, we need to inform the UI.
+		if(CMainFrame::shMidiIn != nullptr)
+		{
+			pMainFrm->SendMessage(WM_COMMAND, ID_MIDI_RECORD);
+		}
 	}
 }
 
 
 bool CMainFrame::midiOpenDevice(bool showSettings)
-//------------------------------------------------
 {
 	if (shMidiIn) return true;
 	
 	if (midiInOpen(&shMidiIn, TrackerSettings::Instance().GetCurrentMIDIDevice(), (DWORD_PTR)MidiInCallBack, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR)
 	{
-		shMidiIn = NULL;
+		shMidiIn = nullptr;
 
 		// Show MIDI configuration on fail.
 		if(showSettings)
@@ -138,7 +149,7 @@ bool CMainFrame::midiOpenDevice(bool showSettings)
 		// Let's see if the user updated the settings.
 		if(midiInOpen(&shMidiIn, TrackerSettings::Instance().GetCurrentMIDIDevice(), (DWORD_PTR)MidiInCallBack, 0, CALLBACK_FUNCTION) != MMSYSERR_NOERROR)
 		{
-			shMidiIn = NULL;
+			shMidiIn = nullptr;
 			return false;
 		}
 	}
@@ -148,18 +159,18 @@ bool CMainFrame::midiOpenDevice(bool showSettings)
 
 
 void CMainFrame::midiCloseDevice()
-//--------------------------------
 {
 	if (shMidiIn)
 	{
-		midiInClose(shMidiIn);
-		shMidiIn = NULL;
+		// Prevent infinite loop in MIM_CLOSE
+		auto handle = shMidiIn;
+		shMidiIn = nullptr;
+		midiInClose(handle);
 	}
 }
 
 
 void CMainFrame::OnMidiRecord()
-//-----------------------------
 {
 	if (shMidiIn)
 	{
@@ -172,7 +183,6 @@ void CMainFrame::OnMidiRecord()
 
 
 void CMainFrame::OnUpdateMidiRecord(CCmdUI *pCmdUI)
-//-------------------------------------------------
 {
 	if (pCmdUI) pCmdUI->SetCheck((shMidiIn) ? TRUE : FALSE);
 }

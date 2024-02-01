@@ -28,7 +28,7 @@ protected:
 		kEqNumParameters
 	};
 
-	float m_param[kEqNumParameters];
+	std::array<float, kEqNumParameters> m_param;
 
 	// Equalizer coefficients
 	float b0DIVa0, b1DIVa0, b2DIVa0, a1DIVa0, a2DIVa0;
@@ -38,10 +38,9 @@ protected:
 	float m_maxFreqParam;
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
-	ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
+	ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
-	void Release() override { delete this; }
 	int32 GetUID() const override { return 0x120CED89; }
 	int32 GetVersion() const override { return 0; }
 	void Idle() override { }

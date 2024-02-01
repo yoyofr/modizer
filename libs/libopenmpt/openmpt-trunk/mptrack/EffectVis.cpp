@@ -9,42 +9,22 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
+#include "EffectVis.h"
 #include "Mainfrm.h"
 #include "Childfrm.h"
-#include "Moddoc.h"
 #include "Globals.h"
+#include "InputHandler.h"
+#include "Mptrack.h"
+#include "Moddoc.h"
 #include "View_pat.h"
-#include "EffectVis.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
-
-// EffectVis dialog
+CEffectVis::Action CEffectVis::m_nAction = CEffectVis::Action::OverwriteFX;
 
 IMPLEMENT_DYNAMIC(CEffectVis, CDialog)
-CEffectVis::CEffectVis(CViewPattern *pViewPattern, ROWINDEX startRow, ROWINDEX endRow, CHANNELINDEX nchn, CModDoc *pModDoc, PATTERNINDEX pat)
-	: effectInfo(pModDoc->GetrSoundFile())
-	, m_pViewPattern(pViewPattern)
-	, m_dwStatus(0)
-	, m_nDragItem(-1)
-	, m_forceRedraw(true)
-	, m_pModDoc(pModDoc)
-	, m_nRowToErase(-1)
-	, m_nParamToErase(-1)
-	, m_nLastDrawnRow(ROWINDEX_INVALID)
-	, m_nLastDrawnY(-1)
-	, m_nOldPlayPos(ROWINDEX_INVALID)
-	, m_nAction(kAction_OverwriteFX)
-	, m_pixelsPerRow(1)
-	, m_pixelsPerFXParam(1)
-	, m_pixelsPerPCParam(1)
-{
-	m_nFillEffect = effectInfo.GetIndexFromEffect(CMD_SMOOTHMIDI, 0);
-	m_templatePCNote.Set(NOTE_PCS, 1, 0, 0);
-	UpdateSelection(startRow, endRow, nchn, pModDoc, pat);
-}
+
 
 BEGIN_MESSAGE_MAP(CEffectVis, CDialog)
 	ON_WM_ERASEBKGND()
@@ -55,53 +35,68 @@ BEGIN_MESSAGE_MAP(CEffectVis, CDialog)
 	ON_WM_MOUSEMOVE()
 	ON_WM_RBUTTONDOWN()
 	ON_WM_RBUTTONUP()
-	ON_CBN_SELCHANGE(IDC_VISACTION,		OnActionChanged)
-	ON_CBN_SELCHANGE(IDC_VISEFFECTLIST,	OnEffectChanged)
+	ON_CBN_SELCHANGE(IDC_VISACTION,     &CEffectVis::OnActionChanged)
+	ON_CBN_SELCHANGE(IDC_VISEFFECTLIST, &CEffectVis::OnEffectChanged)
 END_MESSAGE_MAP()
+
+
+CEffectVis::CEffectVis(CViewPattern *pViewPattern, ROWINDEX startRow, ROWINDEX endRow, CHANNELINDEX nchn, CModDoc &modDoc, PATTERNINDEX pat)
+	: m_ModDoc(modDoc)
+	, m_SndFile(modDoc.GetSoundFile())
+	, m_pViewPattern(pViewPattern)
+	, m_effectInfo(modDoc.GetSoundFile())
+{
+	m_nFillEffect = m_effectInfo.GetIndexFromEffect(CMD_SMOOTHMIDI, 0);
+	m_templatePCNote.Set(NOTE_PCS, 1, 0, 0);
+	UpdateSelection(startRow, endRow, nchn, pat);
+}
+
 
 void CEffectVis::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_VISSTATUS, m_edVisStatus);
-	DDX_Control(pDX, IDC_VISEFFECTLIST, m_cmbEffectList);
 	DDX_Control(pDX, IDC_VISACTION, m_cmbActionList);
 }
 
+
 void CEffectVis::OnActionChanged()
 {
-	m_nAction = m_cmbActionList.GetItemData(m_cmbActionList.GetCurSel());
-	if (m_nAction == kAction_FillPC
-		|| m_nAction == kAction_OverwritePC
-		|| m_nAction == kAction_Preserve)
-		m_cmbEffectList.EnableWindow(FALSE);
-	else
-		m_cmbEffectList.EnableWindow(TRUE);
+	const auto oldActionWasPC = m_nAction == Action::FillPC || m_nAction == Action::OverwritePC;
+	m_nAction = static_cast<Action>(m_cmbActionList.GetItemData(m_cmbActionList.GetCurSel()));
+	const auto newActionIsPC = m_nAction == Action::FillPC || m_nAction == Action::OverwritePC;
 
+	m_cmbEffectList.EnableWindow((m_nAction == Action::Preserve) ? FALSE : TRUE);
+
+	if(oldActionWasPC != newActionIsPC)
+		UpdateEffectList();
 }
+
 
 void CEffectVis::OnEffectChanged()
 {
-	m_nFillEffect = m_cmbEffectList.GetItemData(m_cmbEffectList.GetCurSel());
+	if(m_nAction == Action::FillPC || m_nAction == Action::OverwritePC)
+		m_templatePCNote.SetValueVolCol(static_cast<uint16>(m_cmbEffectList.GetCurSel()));
+	else
+		m_nFillEffect = static_cast<UINT>(m_cmbEffectList.GetItemData(m_cmbEffectList.GetCurSel()));
 }
+
 
 void CEffectVis::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-	m_pModDoc = m_pViewPattern->GetDocument();
-
-	if ((!m_pModDoc) || !(&dc)) return;
-
-	ShowVis(&dc, m_rcDraw);
+	ShowVis(&dc);
 
 }
+
 
 uint16 CEffectVis::GetParam(ROWINDEX row) const
 {
 	uint16 paramValue = 0;
 
-	if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	if(m_SndFile.Patterns.IsValidPat(m_nPattern))
 	{
-		const ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+		const ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
 		if (m.IsPcNote())
 		{
 			paramValue = m.GetValueEffectCol();
@@ -114,16 +109,17 @@ uint16 CEffectVis::GetParam(ROWINDEX row) const
 	return paramValue;
 }
 
+
 // Sets a row's param value based on the vertical cursor position.
 // Sets either plain pattern effect parameter or PC note parameter
 // as appropriate, depending on contents of row.
 void CEffectVis::SetParamFromY(ROWINDEX row, int y)
 {
-	if(!m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	if(!m_SndFile.Patterns.IsValidPat(m_nPattern))
 		return;
 
-	ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
-	if (IsPcNote(row))
+	ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+	if(IsPcNote(row))
 	{
 		uint16 param = ScreenYToPCParam(y);
 		m.SetValueEffectCol(param);
@@ -131,56 +127,68 @@ void CEffectVis::SetParamFromY(ROWINDEX row, int y)
 	{
 		ModCommand::PARAM param = ScreenYToFXParam(y);
 		// Cap the parameter value as appropriate, based on effect type (e.g. Zxx gets capped to [0x00,0x7F])
-		effectInfo.GetEffectFromIndex(effectInfo.GetIndexFromEffect(m.command, param), param);
+		m_effectInfo.GetEffectFromIndex(m_effectInfo.GetIndexFromEffect(m.command, param), param);
 		m.param = param;
 	}
 }
 
 
-ModCommand::COMMAND CEffectVis::GetCommand(ROWINDEX row) const
-//------------------------------------------------------------
+
+EffectCommand CEffectVis::GetCommand(ROWINDEX row) const
 {
-	if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
-		return m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan)->command;
+	if(m_SndFile.Patterns.IsValidPat(m_nPattern))
+		return static_cast<EffectCommand>(m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan)->command);
 	else
 		return CMD_NONE;
 }
 
-void CEffectVis::SetCommand(ROWINDEX row, BYTE command)
+
+void CEffectVis::SetCommand(ROWINDEX row, EffectCommand command)
 {
-	if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	if(m_SndFile.Patterns.IsValidPat(m_nPattern))
 	{
-		ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+		ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
 		if(m.IsPcNote())
 		{
 			// Clear PC note
 			m.note = 0;
 			m.instr = 0;
-			m.volcmd = 0;
+			m.volcmd = VOLCMD_NONE;
 			m.vol = 0;
 		}
 		m.command = command;
 	}
 }
 
+
+std::pair<ROWINDEX, ROWINDEX> CEffectVis::GetTimeSignature() const
+{
+	ROWINDEX beat = m_SndFile.m_nDefaultRowsPerBeat, measure = m_SndFile.m_nDefaultRowsPerMeasure;
+	if(m_SndFile.Patterns.IsValidIndex(m_nPattern) && m_SndFile.Patterns[m_nPattern].GetOverrideSignature())
+	{
+		beat = m_SndFile.Patterns[m_nPattern].GetRowsPerBeat();
+		measure = m_SndFile.Patterns[m_nPattern].GetRowsPerMeasure();
+	}
+	return std::make_pair(beat, measure);
+}
+
+
 int CEffectVis::RowToScreenX(ROWINDEX row) const
-//----------------------------------------------
 {
 	if ((row >= m_startRow) || (row <= m_endRow))
-		return Util::Round<int>(m_rcDraw.left + m_innerBorder + (row - m_startRow) * m_pixelsPerRow);
+		return mpt::saturate_round<int>(m_rcDraw.left + m_innerBorder + (row - m_startRow) * m_pixelsPerRow);
 	return -1;
 }
 
 
 int CEffectVis::RowToScreenY(ROWINDEX row) const
-//----------------------------------------------
 {
 	int screenY = -1;
 
-	if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	if(m_SndFile.Patterns.IsValidPat(m_nPattern))
 	{
-		const ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
-		if (m.IsPcNote())
+		const ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+		if(m.IsPcNote())
 		{
 			uint16 paramValue = m.GetValueEffectCol();
 			screenY = PCParamToScreenY(paramValue);
@@ -194,138 +202,121 @@ int CEffectVis::RowToScreenY(ROWINDEX row) const
 	return screenY;
 }
 
+
 int CEffectVis::FXParamToScreenY(uint16 param) const
-//--------------------------------------------------
 {
-	if ((param >= 0x00) || (param <= 0xFF))
-		return Util::Round<int>(m_rcDraw.bottom - param * m_pixelsPerFXParam);
+	if(param >= 0x00 && param <= 0xFF)
+		return mpt::saturate_round<int>(m_rcDraw.bottom - param * m_pixelsPerFXParam);
 	return -1;
 }
+
 
 int CEffectVis::PCParamToScreenY(uint16 param) const
-//--------------------------------------------------
 {
-	if ((param >= 0x00) || (param <= ModCommand::maxColumnValue))
-		return Util::Round<int>(m_rcDraw.bottom - param*m_pixelsPerPCParam);
+	if(param >= 0x00 && param <= ModCommand::maxColumnValue)
+		return mpt::saturate_round<int>(m_rcDraw.bottom - param*m_pixelsPerPCParam);
 	return -1;
 }
 
+
 ModCommand::PARAM CEffectVis::ScreenYToFXParam(int y) const
-//---------------------------------------------------------
 {
-	if (y<=FXParamToScreenY(0xFF))
+	if(y <= FXParamToScreenY(0xFF))
 		return 0xFF;
 
-	if (y>=FXParamToScreenY(0x00))
+	if(y >= FXParamToScreenY(0x00))
 		return 0x00;
 
-	return Util::Round<ModCommand::PARAM>((m_rcDraw.bottom - y) / m_pixelsPerFXParam);
+	return mpt::saturate_round<ModCommand::PARAM>((m_rcDraw.bottom - y) / m_pixelsPerFXParam);
 }
+
 
 uint16 CEffectVis::ScreenYToPCParam(int y) const
-//----------------------------------------------
 {
-	if (y<=PCParamToScreenY(ModCommand::maxColumnValue))
+	if(y <= PCParamToScreenY(ModCommand::maxColumnValue))
 		return ModCommand::maxColumnValue;
 
-	if (y>=PCParamToScreenY(0x00))
+	if(y >= PCParamToScreenY(0x00))
 		return 0x00;
 
-	return Util::Round<uint16>((m_rcDraw.bottom - y) / m_pixelsPerPCParam);
+	return mpt::saturate_round<uint16>((m_rcDraw.bottom - y) / m_pixelsPerPCParam);
 }
+
 
 ROWINDEX CEffectVis::ScreenXToRow(int x) const
-//--------------------------------------------
 {
-	if (x <= RowToScreenX(m_startRow))
+	if(x <= RowToScreenX(m_startRow))
 		return m_startRow;
 
-	if (x >= RowToScreenX(m_endRow))
+	if(x >= RowToScreenX(m_endRow))
 		return m_endRow;
 
-	return Util::Round<ROWINDEX>(m_startRow + (x - m_innerBorder) / m_pixelsPerRow);
+	return mpt::saturate_round<ROWINDEX>(m_startRow + (x - m_innerBorder) / m_pixelsPerRow);
 }
 
-CEffectVis::~CEffectVis()
-//-----------------------
-{
-	if (m_pViewPattern)
-	{
-		m_pViewPattern->m_pEffectVis = NULL;
-	}
-
-}
 
 void CEffectVis::DrawGrid()
-//-------------------------
 {
 	// Lots of room for optimisation here.
 	// Draw vertical grid lines
-	ROWINDEX nBeat = m_pSndFile->m_nDefaultRowsPerBeat, nMeasure = m_pSndFile->m_nDefaultRowsPerMeasure;
-	if(m_pSndFile->Patterns[m_nPattern].GetOverrideSignature())
-	{
-		nBeat = m_pSndFile->Patterns[m_nPattern].GetRowsPerBeat();
-		nMeasure = m_pSndFile->Patterns[m_nPattern].GetRowsPerMeasure();
-	}
+	const auto [beat, measure] = GetTimeSignature();
 
 	m_dcGrid.FillSolidRect(&m_rcDraw, 0);
-	for (ROWINDEX row = m_startRow; row <= m_endRow; row++)
+	auto oldPen = m_dcGrid.SelectStockObject(DC_PEN);
+	for(ROWINDEX row = m_startRow; row <= m_endRow; row++)
 	{
-		if (row % nMeasure == 0)
-			CMainFrame::penScratch = CMainFrame::penGrayff;
-		else if (row % nBeat == 0)
-			CMainFrame::penScratch = CMainFrame::penGray99;
+		if(row % measure == 0)
+			m_dcGrid.SetDCPenColor(RGB(0xFF, 0xFF, 0xFF));
+		else if(row % beat == 0)
+			m_dcGrid.SetDCPenColor(RGB(0x99, 0x99, 0x99));
 		else
-			CMainFrame::penScratch = CMainFrame::penGray55;
-		m_dcGrid.SelectObject(CMainFrame::penScratch);
+			m_dcGrid.SetDCPenColor(RGB(0x55, 0x55, 0x55));
 		int x1 = RowToScreenX(row);
 		m_dcGrid.MoveTo(x1, m_rcDraw.top);
 		m_dcGrid.LineTo(x1, m_rcDraw.bottom);
 	}
 
 	// Draw horizontal grid lines
-	const UINT numHorizontalLines = 4;
-	for (UINT i=0; i<numHorizontalLines; i++)
+	constexpr UINT numHorizontalLines = 4;
+	for(UINT i = 0; i < numHorizontalLines; i++)
 	{
-		switch (i%4)
+		COLORREF c = 0;
+		switch(i % 4)
 		{
-			case 0: CMainFrame::penScratch = CMainFrame::penGray00; break;
-			case 1: CMainFrame::penScratch = CMainFrame::penGray40; break;
-			case 2: CMainFrame::penScratch = CMainFrame::penGray80; break;
-			case 3: CMainFrame::penScratch = CMainFrame::penGraycc; break;
+		case 0: c = RGB(0x00, 0x00, 0x00); break;
+		case 1: c = RGB(0x40, 0x40, 0x40); break;
+		case 2: c = RGB(0x80, 0x80, 0x80); break;
+		case 3: c = RGB(0xCC, 0xCC, 0xCC); break;
 		}
-
-		m_dcGrid.SelectObject(CMainFrame::penScratch);
-
-		int y1 = m_rcDraw.bottom/numHorizontalLines * i;
+		m_dcGrid.SetDCPenColor(c);
+		int y1 = m_rcDraw.bottom / numHorizontalLines * i;
 		m_dcGrid.MoveTo(m_rcDraw.left + m_innerBorder, y1);
 		m_dcGrid.LineTo(m_rcDraw.right - m_innerBorder, y1);
 	}
-
+	m_dcGrid.SelectObject(oldPen);
 }
 
 
 void CEffectVis::SetPlayCursor(PATTERNINDEX nPat, ROWINDEX nRow)
-//--------------------------------------------------------------
 {
 	if(nPat == m_nPattern && nRow == m_nOldPlayPos)
 		return;
 
-	int x1;
-	//erase current playpos:
-	if (m_nOldPlayPos>=m_startRow &&  m_nOldPlayPos<=m_endRow)
+	if(m_nOldPlayPos >= m_startRow && m_nOldPlayPos <= m_endRow)
 	{
-		x1=RowToScreenX(m_nOldPlayPos);
-		m_dcPlayPos.SelectObject(CMainFrame::penBlack);
+		// erase current playpos
+		int x1 = RowToScreenX(m_nOldPlayPos);
+		m_dcPlayPos.SelectStockObject(BLACK_PEN);
 		m_dcPlayPos.MoveTo(x1,m_rcDraw.top);
 		m_dcPlayPos.LineTo(x1,m_rcDraw.bottom);
 	}
 
-	if ((nRow<m_startRow) || (nRow>m_endRow) || (nPat != m_nPattern))
+	if((nRow < m_startRow) || (nRow > m_endRow) || (nPat != m_nPattern))
 		return;
 
-	x1=RowToScreenX(nRow);
-	m_dcPlayPos.SelectObject(CMainFrame::penSample);
+	int x1 = RowToScreenX(nRow);
+	m_dcPlayPos.SelectStockObject(DC_PEN);
+	m_dcPlayPos.SetDCPenColor(TrackerSettings::Instance().rgbCustomColors[MODCOLOR_SAMPLE]);
 	m_dcPlayPos.MoveTo(x1,m_rcDraw.top);
 	m_dcPlayPos.LineTo(x1,m_rcDraw.bottom);
 
@@ -334,45 +325,43 @@ void CEffectVis::SetPlayCursor(PATTERNINDEX nPat, ROWINDEX nRow)
 }
 
 
-void CEffectVis::ShowVis(CDC * pDC, CRect rectBorder)
-//---------------------------------------------------
+void CEffectVis::ShowVis(CDC *pDC)
 {
-	MPT_UNREFERENCED_PARAMETER(rectBorder);
 	if (m_forceRedraw)
 	{
 		m_forceRedraw = false;
 
 		// if we already have a memory dc, destroy it (this occurs for a re-size)
-		if (m_dcGrid.GetSafeHdc())
+		if (m_dcGrid.m_hDC)
 		{
-			m_dcGrid.SelectObject(m_pbOldGrid) ;
-			m_dcGrid.DeleteDC() ;
+			m_dcGrid.SelectObject(m_pbOldGrid);
+			m_dcGrid.DeleteDC();
 
-			m_dcNodes.SelectObject(m_pbOldNodes) ;
-			m_dcNodes.DeleteDC() ;
+			m_dcNodes.SelectObject(m_pbOldNodes);
+			m_dcNodes.DeleteDC();
 
-			m_dcPlayPos.SelectObject(m_pbOldPlayPos) ;
-			m_dcPlayPos.DeleteDC() ;
+			m_dcPlayPos.SelectObject(m_pbOldPlayPos);
+			m_dcPlayPos.DeleteDC();
 
-			m_bPlayPos.DeleteObject() ;
-			m_bGrid.DeleteObject() ;
-			m_bNodes.DeleteObject() ;
+			m_bPlayPos.DeleteObject();
+			m_bGrid.DeleteObject();
+			m_bNodes.DeleteObject();
 		}
 
 		// create a memory based dc for drawing the grid
 		m_dcGrid.CreateCompatibleDC(pDC);
 		m_bGrid.CreateCompatibleBitmap(pDC, m_rcDraw.Width(), m_rcDraw.Height());
-		m_pbOldGrid = m_dcGrid.SelectObject(&m_bGrid);
+		m_pbOldGrid = *m_dcGrid.SelectObject(&m_bGrid);
 
 		// create a memory based dc for drawing the nodes
 		m_dcNodes.CreateCompatibleDC(pDC);
 		m_bNodes.CreateCompatibleBitmap(pDC, m_rcDraw.Width(), m_rcDraw.Height());
-		m_pbOldNodes = m_dcNodes.SelectObject(&m_bNodes);
+		m_pbOldNodes = *m_dcNodes.SelectObject(&m_bNodes);
 
 		// create a memory based dc for drawing the nodes
 		m_dcPlayPos.CreateCompatibleDC(pDC);
 		m_bPlayPos.CreateCompatibleBitmap(pDC, m_rcDraw.Width(), m_rcDraw.Height());
-		m_pbOldPlayPos = m_dcPlayPos.SelectObject(&m_bPlayPos);
+		m_pbOldPlayPos = *m_dcPlayPos.SelectObject(&m_bPlayPos);
 
 		SetPlayCursor(m_nPattern, m_nOldPlayPos);
 		DrawGrid();
@@ -386,40 +375,38 @@ void CEffectVis::ShowVis(CDC * pDC, CRect rectBorder)
 
 
 void CEffectVis::ShowVisImage(CDC *pDC)
-//-------------------------------------
 {
-	CDC memDC;
-	CBitmap memBitmap;
-	CBitmap* oldBitmap; // bitmap originally found in CMemDC
-
 	// to avoid flicker, establish a memory dc, draw to it
 	// and then BitBlt it to the destination "pDC"
+	CDC memDC;
 	memDC.CreateCompatibleDC(pDC);
 	if (!memDC)
 		return;
-	memBitmap.CreateCompatibleBitmap(pDC, m_rcDraw.Width(), m_rcDraw.Height()) ;
-	oldBitmap = (CBitmap *)memDC.SelectObject(&memBitmap) ;
+
+	CBitmap memBitmap;
+	memBitmap.CreateCompatibleBitmap(pDC, m_rcDraw.Width(), m_rcDraw.Height());
+	CBitmap *oldBitmap = memDC.SelectObject(&memBitmap);
 
 	// make sure we have the bitmaps
-	if (!m_dcGrid.GetSafeHdc())
-		return ;
-	if (!m_dcNodes.GetSafeHdc())
-		return ;
-	if (!m_dcPlayPos.GetSafeHdc())
-		return ;
+	if (!m_dcGrid.m_hDC)
+		return;
+	if (!m_dcNodes.m_hDC)
+		return;
+	if (!m_dcPlayPos.m_hDC)
+		return;
 
-	if (memDC.GetSafeHdc() != NULL)
+	if (memDC.m_hDC != nullptr)
 	{
 		// draw the grid
-		memDC.BitBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcGrid, 0, 0, SRCCOPY) ;
+		memDC.BitBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcGrid, 0, 0, SRCCOPY);
 
 		// merge the nodes image with the grid
-		memDC.TransparentBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcNodes, 0, 0, m_rcDraw.Width(), m_rcDraw.Height(), 0x00000000) ;
+		memDC.TransparentBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcNodes, 0, 0, m_rcDraw.Width(), m_rcDraw.Height(), 0x00000000);
 		// further merge the playpos
-		memDC.TransparentBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcPlayPos, 0, 0, m_rcDraw.Width(), m_rcDraw.Height(), 0x00000000) ;
+		memDC.TransparentBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &m_dcPlayPos, 0, 0, m_rcDraw.Width(), m_rcDraw.Height(), 0x00000000);
 
 		// copy the resulting bitmap to the destination
-		pDC->BitBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &memDC, 0, 0, SRCCOPY) ;
+		pDC->BitBlt(0, 0, m_rcDraw.Width(), m_rcDraw.Height(), &memDC, 0, 0, SRCCOPY);
 	}
 
 	memDC.SelectObject(oldBitmap);
@@ -428,10 +415,12 @@ void CEffectVis::ShowVisImage(CDC *pDC)
 
 
 void CEffectVis::DrawNodes()
-//--------------------------
 {
 	if(m_rcDraw.IsRectEmpty())
 		return;
+
+	if(m_nDragItem < m_startRow || m_nDragItem > m_endRow)
+		m_nDragItem = m_startRow;
 
 	//Draw
 	const int lineWidth = Util::ScalePixels(1, m_hWnd);
@@ -455,10 +444,10 @@ void CEffectVis::DrawNodes()
 		COLORREF col = IsPcNote(row) ? RGB(0xFF, 0xFF, 0x00) : RGB(0xD0, 0xFF, 0xFF);
 		int x = RowToScreenX(row);
 		int y = RowToScreenY(row);
-		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y - nodeSizeHalf, nodeSize, lineWidth, col);	// Top
-		m_dcNodes.FillSolidRect(x + nodeSizeHalf2, y - nodeSizeHalf, lineWidth, nodeSize, col);	// Right
-		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y + nodeSizeHalf2, nodeSize, lineWidth, col);	// Bottom
-		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y - nodeSizeHalf, lineWidth, nodeSize, col);	// Left
+		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y - nodeSizeHalf, nodeSize, lineWidth, col);  // Top
+		m_dcNodes.FillSolidRect(x + nodeSizeHalf2, y - nodeSizeHalf, lineWidth, nodeSize, col); // Right
+		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y + nodeSizeHalf2, nodeSize, lineWidth, col); // Bottom
+		m_dcNodes.FillSolidRect(x - nodeSizeHalf, y - nodeSizeHalf, lineWidth, nodeSize, col);  // Left
 	}
 
 }
@@ -470,6 +459,7 @@ void CEffectVis::InvalidateRow(int row)
 //It seems this optimisation doesn't work properly yet.	Disable in Update()
 
 	int x = RowToScreenX(row);
+	RECT invalidated;
 	invalidated.bottom = m_rcDraw.bottom;
 	invalidated.top = m_rcDraw.top;
 	invalidated.left = x - m_nodeSizeHalf;
@@ -478,53 +468,67 @@ void CEffectVis::InvalidateRow(int row)
 }
 
 
-BOOL CEffectVis::OpenEditor(CWnd *parent)
-//---------------------------------------
+void CEffectVis::OpenEditor(CWnd *parent)
 {
 	Create(IDD_EFFECTVISUALIZER, parent);
 	m_forceRedraw = true;
 
 	if(TrackerSettings::Instance().effectVisWidth > 0 && TrackerSettings::Instance().effectVisHeight > 0)
 	{
-		SetWindowPos(nullptr,
-			0, 0,
-			MulDiv(TrackerSettings::Instance().effectVisWidth, Util::GetDPIx(m_hWnd), 96), MulDiv(TrackerSettings::Instance().effectVisHeight, Util::GetDPIy(m_hWnd), 96),
-			SWP_NOZORDER | SWP_NOMOVE);
+		WINDOWPLACEMENT wnd;
+		wnd.length = sizeof(wnd);
+		GetWindowPlacement(&wnd);
+		wnd.showCmd = SW_SHOWNOACTIVATE;
+		CRect rect = wnd.rcNormalPosition;
+		if(TrackerSettings::Instance().effectVisX > int32_min && TrackerSettings::Instance().effectVisY > int32_min)
+		{
+			CRect mainRect;
+			CMainFrame::GetMainFrame()->GetWindowRect(mainRect);
+			rect.left = mainRect.left + MulDiv(TrackerSettings::Instance().effectVisX, Util::GetDPIx(m_hWnd), 96);
+			rect.top = mainRect.top + MulDiv(TrackerSettings::Instance().effectVisY, Util::GetDPIx(m_hWnd), 96);
+		}
+		rect.right = rect.left + MulDiv(TrackerSettings::Instance().effectVisWidth, Util::GetDPIx(m_hWnd), 96);
+		rect.bottom = rect.top + MulDiv(TrackerSettings::Instance().effectVisHeight, Util::GetDPIx(m_hWnd), 96);
+		wnd.rcNormalPosition = rect;
+		SetWindowPlacement(&wnd);
 	}
 
 	ShowWindow(SW_SHOW);
-	return TRUE;
 }
 
 
 void CEffectVis::OnClose()
-//------------------------
 {
 	DoClose();
 }
 
 
 void CEffectVis::OnOK()
-//---------------------
 {
 	OnClose();
 }
 
 
 void CEffectVis::OnCancel()
-//-------------------------
 {
 	OnClose();
 }
 
 
 void CEffectVis::DoClose()
-//------------------------
 {
-	CRect rect;
-	GetWindowRect(rect);
+	WINDOWPLACEMENT wnd;
+	wnd.length = sizeof(wnd);
+	GetWindowPlacement(&wnd);
+	CRect mainRect;
+	CMainFrame::GetMainFrame()->GetWindowRect(mainRect);
+
+	CRect rect = wnd.rcNormalPosition;
+	rect.MoveToXY(rect.left - mainRect.left, rect.top - mainRect.top);
 	TrackerSettings::Instance().effectVisWidth = MulDiv(rect.Width(), 96, Util::GetDPIx(m_hWnd));
 	TrackerSettings::Instance().effectVisHeight = MulDiv(rect.Height(), 96, Util::GetDPIy(m_hWnd));
+	TrackerSettings::Instance().effectVisX = MulDiv(rect.left, 96, Util::GetDPIx(m_hWnd));
+	TrackerSettings::Instance().effectVisY = MulDiv(rect.top, 96, Util::GetDPIy(m_hWnd));
 
 	m_dcGrid.SelectObject(m_pbOldGrid);
 	m_dcGrid.DeleteDC();
@@ -537,13 +541,13 @@ void CEffectVis::DoClose()
 	m_bNodes.DeleteObject();
 	m_bPlayPos.DeleteObject();
 
-	if (m_hWnd)
-	{
-		DestroyWindow();
-		m_pViewPattern->m_pEffectVis = NULL;
-	}
-	m_hWnd = NULL;
-	delete this;
+	DestroyWindow();
+}
+
+
+void CEffectVis::PostNcDestroy()
+{
+	m_pViewPattern->m_pEffectVis = nullptr;
 }
 
 
@@ -553,20 +557,17 @@ void CEffectVis::OnSize(UINT nType, int cx, int cy)
 	MPT_UNREFERENCED_PARAMETER(cx);
 	MPT_UNREFERENCED_PARAMETER(cy);
 	GetClientRect(&m_rcFullWin);
-	m_rcDraw.SetRect( m_rcFullWin.left,  m_rcFullWin.top,
-				      m_rcFullWin.right, m_rcFullWin.bottom - m_marginBottom);
+	m_rcDraw.SetRect(m_rcFullWin.left, m_rcFullWin.top, m_rcFullWin.right, m_rcFullWin.bottom - m_marginBottom);
 
-#define INFOWIDTH 200
-#define ACTIONLISTWIDTH 150
-#define COMMANDLISTWIDTH 150
+	const int actionListWidth = Util::ScalePixels(170, m_hWnd);
+	const int commandListWidth = Util::ScalePixels(160, m_hWnd);
 
 	if (IsWindow(m_edVisStatus.m_hWnd))
-		m_edVisStatus.SetWindowPos(this, m_rcFullWin.left, m_rcDraw.bottom, m_rcFullWin.right-COMMANDLISTWIDTH-ACTIONLISTWIDTH, m_rcFullWin.bottom-m_rcDraw.bottom, SWP_NOACTIVATE|SWP_NOCOPYBITS|SWP_SHOWWINDOW|SWP_NOZORDER);
+		m_edVisStatus.SetWindowPos(this, m_rcFullWin.left, m_rcDraw.bottom, m_rcFullWin.right - commandListWidth - actionListWidth, m_rcFullWin.bottom - m_rcDraw.bottom, SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOZORDER);
 	if (IsWindow(m_cmbActionList))
-		m_cmbActionList.SetWindowPos(this,  m_rcFullWin.right-COMMANDLISTWIDTH-ACTIONLISTWIDTH, m_rcDraw.bottom, ACTIONLISTWIDTH, m_rcFullWin.bottom-m_rcDraw.bottom, SWP_NOACTIVATE|SWP_NOCOPYBITS|SWP_SHOWWINDOW|SWP_NOZORDER);
+		m_cmbActionList.SetWindowPos(this,  m_rcFullWin.right - commandListWidth - actionListWidth, m_rcDraw.bottom, actionListWidth, m_rcFullWin.bottom - m_rcDraw.bottom, SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOZORDER);
 	if (IsWindow(m_cmbEffectList))
-		m_cmbEffectList.SetWindowPos(this,  m_rcFullWin.right-COMMANDLISTWIDTH, m_rcDraw.bottom, COMMANDLISTWIDTH, m_rcFullWin.bottom-m_rcDraw.bottom, SWP_NOACTIVATE|SWP_NOCOPYBITS|SWP_SHOWWINDOW|SWP_NOZORDER);
-
+		m_cmbEffectList.SetWindowPos(this,  m_rcFullWin.right - commandListWidth, m_rcDraw.bottom, commandListWidth, m_rcFullWin.bottom - m_rcDraw.bottom, SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	if(m_nRows)
 		m_pixelsPerRow = (float)(m_rcDraw.Width() - m_innerBorder * 2) / (float)m_nRows;
@@ -575,7 +576,7 @@ void CEffectVis::OnSize(UINT nType, int cx, int cy)
 	m_pixelsPerFXParam = (float)(m_rcDraw.Height())/(float)0xFF;
 	m_pixelsPerPCParam = (float)(m_rcDraw.Height())/(float)ModCommand::maxColumnValue;
 	m_forceRedraw = true;
-	InvalidateRect(NULL, FALSE);	 //redraw everything
+	InvalidateRect(NULL, FALSE);	//redraw everything
 }
 
 void CEffectVis::Update()
@@ -596,34 +597,30 @@ void CEffectVis::Update()
 	}
 }
 
-void CEffectVis::UpdateSelection(ROWINDEX startRow, ROWINDEX endRow, CHANNELINDEX nchn, CModDoc *pModDoc, PATTERNINDEX pat)
+void CEffectVis::UpdateSelection(ROWINDEX startRow, ROWINDEX endRow, CHANNELINDEX nchn, PATTERNINDEX pat)
 {
-	m_pModDoc = pModDoc;
 	m_startRow = startRow;
 	m_endRow = endRow;
 	m_nRows = endRow - startRow;
 	m_nChan = nchn;
 	m_nPattern = pat;
 
-	//Check document exists
-	if (!m_pModDoc || (m_pSndFile = m_pModDoc->GetSoundFile()) == nullptr)
-	{
-		DoClose();
-		return;
-	}
-
 	//Check pattern, start row and channel exist
-	if(!m_pSndFile->Patterns.IsValidPat(m_nPattern) || !m_pSndFile->Patterns[m_nPattern].IsValidRow(m_startRow) || m_nChan >= m_pSndFile->GetNumChannels())
+	if(!m_SndFile.Patterns.IsValidPat(m_nPattern) || !m_SndFile.Patterns[m_nPattern].IsValidRow(m_startRow) || m_nChan >= m_SndFile.GetNumChannels())
 	{
 		DoClose();
 		return;
 	}
 
 	//Check end exists
-	if (!m_pSndFile->Patterns[m_nPattern].IsValidRow(m_endRow))
+	if(!m_SndFile.Patterns[m_nPattern].IsValidRow(m_endRow))
 	{
-		m_endRow = m_pSndFile->Patterns[m_nPattern].GetNumRows() - 1;
+		m_endRow = m_SndFile.Patterns[m_nPattern].GetNumRows() - 1;
+		m_nRows = m_endRow - startRow;
 	}
+
+	if(m_nDragItem < m_startRow || m_nDragItem > m_endRow)
+		m_nDragItem = m_startRow;
 
 	if(m_nRows)
 		m_pixelsPerRow = (float)(m_rcDraw.Width() - m_innerBorder * 2) / (float)m_nRows;
@@ -646,7 +643,7 @@ void CEffectVis::OnRButtonDown(UINT nFlags, CPoint point)
 
 		m_nDragItem = ScreenXToRow(point.x);
 		m_dwStatus |= FXVSTATUS_RDRAGGING;
-		m_pModDoc->GetPatternUndo().PrepareUndo(static_cast<PATTERNINDEX>(m_nPattern), m_nChan, m_nDragItem, 1, 1, "Parameter Editor entry");
+		m_ModDoc.GetPatternUndo().PrepareUndo(static_cast<PATTERNINDEX>(m_nPattern), m_nChan, m_nDragItem, 1, 1, "Parameter Editor entry");
 		OnMouseMove(nFlags, point);
 	}
 
@@ -657,7 +654,6 @@ void CEffectVis::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	ReleaseCapture();
 	m_dwStatus = 0x00;
-	m_nDragItem = -1;
 	CDialog::OnRButtonUp(nFlags, point);
 }
 
@@ -665,15 +661,11 @@ void CEffectVis::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CDialog::OnMouseMove(nFlags, point);
 
-	m_pModDoc = m_pViewPattern->GetDocument();
-	if (!m_pModDoc)
-		return;
-
 	ROWINDEX row = ScreenXToRow(point.x);
 
-	if ((m_dwStatus & FXVSTATUS_RDRAGGING) && (m_nDragItem>=0) )
+	if(m_dwStatus & FXVSTATUS_RDRAGGING)
 	{
-		m_nRowToErase = m_nDragItem;
+		m_nRowToErase = static_cast<int>(m_nDragItem);
 		m_nParamToErase = GetParam(m_nDragItem);
 
 		MakeChange(m_nDragItem, point.y);
@@ -681,7 +673,7 @@ void CEffectVis::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		// Interpolate if we detect that rows have been skipped but the left mouse button was not released.
 		// This ensures we produce a smooth curve even when we are not notified of mouse movements at a high frequency (e.g. if CPU usage is high)
-		const int steps = mpt::abs((int)row - (int)m_nLastDrawnRow);
+		const int steps = std::abs((int)row - (int)m_nLastDrawnRow);
 		if (m_nLastDrawnRow != ROWINDEX_INVALID && m_nLastDrawnRow > m_startRow && steps > 1)
 		{
 			int direction = ((int)(row - m_nLastDrawnRow) > 0) ? 1 : -1;
@@ -691,7 +683,7 @@ void CEffectVis::OnMouseMove(UINT nFlags, CPoint point)
 			for (int i=1; i<=steps; i++)
 			{
 				currentRow = m_nLastDrawnRow+(direction*i);
-				int interpolatedY = Util::Round<int>(m_nLastDrawnY + ((float)i * factor));
+				int interpolatedY = mpt::saturate_round<int>(m_nLastDrawnY + ((float)i * factor));
 				MakeChange(currentRow, interpolatedY);
 			}
 
@@ -710,24 +702,23 @@ void CEffectVis::OnMouseMove(UINT nFlags, CPoint point)
 		m_nLastDrawnY = point.y;
 	}
 	//update status bar
-	CHAR status[256];
-	CHAR effectName[128];
+	CString status;
+	CString effectName;
 	uint16 paramValue;
 
 
 	if (IsPcNote(row))
 	{
 		paramValue = ScreenYToPCParam(point.y);
-		wsprintf(effectName, "%s", "Param Control"); // TODO - show smooth & plug+param
-	}
-	else
+		effectName.Format(_T("%s"), _T("Param Control")); // TODO - show smooth & plug+param
+	} else
 	{
 		paramValue = ScreenYToFXParam(point.y);
-		effectInfo.GetEffectInfo(effectInfo.GetIndexFromEffect(GetCommand(row), ModCommand::PARAM(GetParam(row))), effectName, true);
+		m_effectInfo.GetEffectInfo(m_effectInfo.GetIndexFromEffect(GetCommand(row), ModCommand::PARAM(GetParam(row))), &effectName, true);
 	}
 
-	wsprintf(status, "Pat: %d\tChn: %d\tRow: %d\tVal: %02X (%03d) [%s]",
-				m_nPattern, m_nChan+1, row, paramValue, paramValue, effectName);
+	status.Format(_T("Pat: %d\tChn: %d\tRow: %d\tVal: %02X (%03d) [%s]"),
+				m_nPattern, m_nChan+1, static_cast<signed int>(row), paramValue, paramValue, effectName.GetString());
 	m_edVisStatus.SetWindowText(status);
 }
 
@@ -740,7 +731,7 @@ void CEffectVis::OnLButtonDown(UINT nFlags, CPoint point)
 
 		m_nDragItem = ScreenXToRow(point.x);
 		m_dwStatus |= FXVSTATUS_LDRAGGING;
-		m_pModDoc->GetPatternUndo().PrepareUndo(static_cast<PATTERNINDEX>(m_nPattern), m_nChan, m_startRow, 1, m_endRow - m_startRow + 1, "Parameter Editor entry");
+		m_ModDoc.GetPatternUndo().PrepareUndo(static_cast<PATTERNINDEX>(m_nPattern), m_nChan, m_startRow, 1, m_endRow - m_startRow + 1, "Parameter Editor entry");
 		OnMouseMove(nFlags, point);
 	}
 
@@ -757,7 +748,6 @@ void CEffectVis::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 BOOL CEffectVis::OnInitDialog()
-//-----------------------------
 {
 	CDialog::OnInitDialog();
 
@@ -766,85 +756,145 @@ BOOL CEffectVis::OnInitDialog()
 	m_marginBottom = MulDiv(20, dpi, 96);
 	m_innerBorder = MulDiv(4, dpi, 96);
 
-
-	if (m_pModDoc->GetModType() == MOD_TYPE_MPT && IsPcNote(m_startRow))
+	// If first selected row is a PC event (or some other row but there aren't any other effects), default to PC note overwrite mode
+	// and use it as a template for new PC notes that will be created via the visualiser.
+	bool isPCevent = IsPcNote(m_startRow);
+	ROWINDEX templatePCRow = m_startRow;
+	if(!isPCevent)
 	{
-		// If first selected row is a PC Note, default to PC note overwrite mode
-		// and use it as a template for new PC notes that will be created via the visualiser.
-		m_nAction = kAction_OverwritePC;
-		if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
+		for(ROWINDEX row = m_startRow; row <= m_endRow; row++)
 		{
-			ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(m_startRow, m_nChan);
+			if(IsPcNote(row))
+			{
+				isPCevent = true;
+				templatePCRow = row;
+			} else if(GetCommand(row) != CMD_NONE)
+			{
+				isPCevent = false;
+				break;
+			}
+		}
+	}
+
+	if(isPCevent)
+	{
+		m_nAction = Action::OverwritePC;
+		if(m_SndFile.Patterns.IsValidPat(m_nPattern))
+		{
+			ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(templatePCRow, m_nChan);
 			m_templatePCNote.Set(m.note, m.instr, m.GetValueVolCol(), 0);
 		}
-		m_cmbEffectList.EnableWindow(FALSE);
 	} else
 	{
 		// Otherwise, default to FX overwrite and
 		// use effect of first selected row as default effect type
-		m_nAction = kAction_OverwriteFX;
-		m_nFillEffect = effectInfo.GetIndexFromEffect(GetCommand(m_startRow), ModCommand::PARAM(GetParam(m_startRow)));
-		if (m_nFillEffect < 0 || m_nFillEffect >= MAX_EFFECTS)
-			m_nFillEffect = effectInfo.GetIndexFromEffect(CMD_SMOOTHMIDI, 0);
+		m_nAction = Action::OverwriteFX;
+		m_nFillEffect = m_effectInfo.GetIndexFromEffect(GetCommand(m_startRow), ModCommand::PARAM(GetParam(m_startRow)));
+		if(m_nFillEffect < 0 || m_nFillEffect >= MAX_EFFECTS)
+			m_nFillEffect = m_effectInfo.GetIndexFromEffect(CMD_SMOOTHMIDI, 0);
 	}
 
 
-	CHAR s[128];
-	UINT numfx = effectInfo.GetNumEffects();
-	m_cmbEffectList.ResetContent();
-	int k;
-	for (UINT i=0; i<numfx; i++)
-	{
-		if (effectInfo.GetEffectInfo(i, s, true))
-		{
-			k =m_cmbEffectList.AddString(s);
-			m_cmbEffectList.SetItemData(k, i);
-			if ((int)i == m_nFillEffect)
-				m_cmbEffectList.SetCurSel(k);
-		}
-	}
+	UpdateEffectList();
 
 	m_cmbActionList.ResetContent();
-	m_cmbActionList.SetItemData(m_cmbActionList.AddString("Overwrite with effect:"), kAction_OverwriteFX);
-	m_cmbActionList.SetItemData(m_cmbActionList.AddString("Fill blanks with effect:"), kAction_FillFX);
-	if (m_pModDoc->GetModType() == MOD_TYPE_MPT)
+	m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Overwrite with effect:")), static_cast<DWORD_PTR>(Action::OverwriteFX));
+	m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Overwrite effect next to note:")), static_cast<DWORD_PTR>(Action::OverwriteFXWithNote));
+	m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Fill blanks with effect:")), static_cast<DWORD_PTR>(Action::FillFX));
+	if(m_ModDoc.GetModType() == MOD_TYPE_MPT || isPCevent)
 	{
-		m_cmbActionList.SetItemData(m_cmbActionList.AddString("Overwrite with PC note"), kAction_OverwritePC);
-		m_cmbActionList.SetItemData(m_cmbActionList.AddString("Fill blanks with PC note"), kAction_FillPC);
+		m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Overwrite with PC note")), static_cast<DWORD_PTR>(Action::OverwritePC));
+		m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Fill blanks with PC note")), static_cast<DWORD_PTR>(Action::FillPC));
 	}
-	m_cmbActionList.SetItemData(m_cmbActionList.AddString("Never change effect type"), kAction_Preserve);
+	m_cmbActionList.SetItemData(m_cmbActionList.AddString(_T("Never change effect type")), static_cast<DWORD_PTR>(Action::Preserve));
 
-	m_cmbActionList.SetCurSel(m_nAction);
+	m_cmbActionList.SetCurSel(static_cast<int>(m_nAction));
 	return true;
 }
 
-void CEffectVis::MakeChange(ROWINDEX row, int y)
-//-----------------------------------------------
+void CEffectVis::UpdateEffectList()
 {
-	if(!m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	const bool fillPlugParams = m_nAction == Action::FillPC || m_nAction == Action::OverwritePC;
+	CRect rect{0, 0, 16, 16};
+	if(m_cmbEffectList)
+	{
+		m_cmbEffectList.GetWindowRect(rect);
+		ScreenToClient(rect);
+		m_cmbEffectList.DestroyWindow();
+	}
+	// Can't change CBS_SORT style after creation...
+	m_cmbEffectList.Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE | (fillPlugParams ? 0 : CBS_SORT), rect, this, IDC_VISEFFECTLIST);
+	m_cmbEffectList.SetRedraw(FALSE);
+	m_cmbEffectList.SetFont(GetFont(), FALSE);
+	CString s;
+	if(fillPlugParams)
+	{
+		IMixPlugin *plugin = nullptr;
+		if(m_templatePCNote.instr > 0 && m_templatePCNote.instr <= MAX_MIXPLUGINS)
+			plugin = m_SndFile.m_MixPlugins[m_templatePCNote.instr - 1].pMixPlugin;
+
+		if(plugin)
+		{
+			AddPluginParameternamesToCombobox(m_cmbEffectList, *plugin);
+		} else
+		{
+			for(PlugParamIndex i = 0; i < ModCommand::maxColumnValue; i++)
+			{
+				s.Format(_T("Parameter %u"), i);
+				m_cmbEffectList.SetItemData(m_cmbEffectList.AddString(s), i);
+			}
+		}
+		m_cmbEffectList.SetCurSel(m_templatePCNote.GetValueVolCol());
+	} else
+	{
+		const UINT numfx = m_effectInfo.GetNumEffects();
+		for(UINT i = 0; i < numfx; i++)
+		{
+			if(m_effectInfo.GetEffectInfo(i, &s, true))
+			{
+				int k = m_cmbEffectList.AddString(s);
+				m_cmbEffectList.SetItemData(k, i);
+				if(static_cast<int>(i) == m_nFillEffect)
+					m_cmbEffectList.SetCurSel(k);
+			}
+		}
+	}
+	m_cmbEffectList.SetRedraw(TRUE);
+	m_cmbEffectList.Invalidate(FALSE);
+}
+
+void CEffectVis::MakeChange(ROWINDEX row, int y)
+{
+	if(!m_SndFile.Patterns.IsValidPat(m_nPattern))
 		return;
 
-	ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+	ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
 
-	switch (m_nAction)
+	switch(m_nAction)
 	{
-		case kAction_FillFX:
+		case Action::FillFX:
 			// Only set command if there isn't a command already at this row and it's not a PC note
-			if (!GetCommand(row) && !IsPcNote(row))
+			if (GetCommand(row) == CMD_NONE && !IsPcNote(row))
 			{
-				SetCommand(row, effectInfo.GetEffectFromIndex(m_nFillEffect));
+				SetCommand(row, m_effectInfo.GetEffectFromIndex(m_nFillEffect));
 			}
 			// Always set param
 			SetParamFromY(row, y);
 			break;
 
-		case kAction_OverwriteFX:
+		case Action::OverwriteFXWithNote:
+			if(!m_SndFile.Patterns.IsValidPat(m_nPattern))
+				break;
+			if(!m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan)->IsNote())
+				break;
+			[[fallthrough]];
+		case Action::OverwriteFX:
 			// Always set command and param. Blows away any PC notes.
-			SetCommand(row, effectInfo.GetEffectFromIndex(m_nFillEffect));
+			SetCommand(row, m_effectInfo.GetEffectFromIndex(m_nFillEffect));
 			SetParamFromY(row, y);
 			break;
 
-		case kAction_FillPC:
+		case Action::FillPC:
 			// Fill only empty slots with PC notes - leave other slots alone.
 			if (m.IsEmpty())
 			{
@@ -854,14 +904,14 @@ void CEffectVis::MakeChange(ROWINDEX row, int y)
 			SetParamFromY(row, y);
 			break;
 
-		case kAction_OverwritePC:
+		case Action::OverwritePC:
 			// Always convert to PC Note and set param value
 			SetPcNote(row);
 			SetParamFromY(row, y);
 			break;
 
-		case kAction_Preserve:
-			if (GetCommand(row) || IsPcNote(row))
+		case Action::Preserve:
+			if (GetCommand(row) != CMD_NONE || IsPcNote(row))
 			{
 				// Only set param if we have an effect type or if this is a PC note.
 				// Never change the effect type.
@@ -871,25 +921,23 @@ void CEffectVis::MakeChange(ROWINDEX row, int y)
 
 	}
 
-	m_pModDoc->SetModified();
-	m_pModDoc->UpdateAllViews(nullptr, PatternHint(m_nPattern).Data());
+	m_ModDoc.SetModified();
+	m_ModDoc.UpdateAllViews(nullptr, RowHint(row), this);
 }
 
 void CEffectVis::SetPcNote(ROWINDEX row)
-//--------------------------------------
 {
-	if(!m_pSndFile->Patterns.IsValidPat(m_nPattern))
+	if(!m_SndFile.Patterns.IsValidPat(m_nPattern))
 		return;
 
-	ModCommand &m = *m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan);
+	ModCommand &m = *m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan);
 	m.Set(m_templatePCNote.note, m_templatePCNote.instr, m_templatePCNote.GetValueVolCol(), 0);
 }
 
 bool CEffectVis::IsPcNote(ROWINDEX row) const
-//-------------------------------------------
 {
-	if(m_pSndFile->Patterns.IsValidPat(m_nPattern))
-		return m_pSndFile->Patterns[m_nPattern].GetpModCommand(row, m_nChan)->IsPcNote();
+	if(m_SndFile.Patterns.IsValidPat(m_nPattern))
+		return m_SndFile.Patterns[m_nPattern].GetpModCommand(row, m_nChan)->IsPcNote();
 	else
 		return false;
 }

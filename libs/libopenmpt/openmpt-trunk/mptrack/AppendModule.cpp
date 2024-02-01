@@ -15,10 +15,8 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-
 // Add samples, instruments, plugins and patterns from another module to the current module
 void CModDoc::AppendModule(const CSoundFile &source)
-//--------------------------------------------------
 {
 	const CModSpecifications &specs = m_SndFile.GetModSpecifications();
 	// Mappings between old and new indices
@@ -73,14 +71,11 @@ void CModDoc::AppendModule(const CSoundFile &source)
 	}
 
 	// Check which samples / instruments are actually referenced.
-	for(PATTERNINDEX i = 0; i < source.Patterns.Size(); i++) if(source.Patterns.IsValidPat(i))
+	source.Patterns.ForEachModCommand([&instrMapping] (const ModCommand &m)
 	{
-		const ModCommand *m = source.Patterns[i];
-		for(size_t j = source.GetNumChannels() * source.Patterns[i].GetNumRows(); j; m++, j--)
-		{
-			if(!m->IsPcNote() && m->instr < instrMapping.size()) instrMapping[m->instr] = 0;
-		}
-	}
+		if(!m.IsPcNote() && m.instr < instrMapping.size())
+			instrMapping[m.instr] = 0;
+	});
 
 	if(m_SndFile.GetNumInstruments())
 	{
@@ -163,23 +158,20 @@ void CModDoc::AppendModule(const CSoundFile &source)
 	///////////////////////////////////////////////////////////////////////////
 	// Copy order lists
 	const bool useOrderMapping = source.Order.GetNumSequences() == 1;
-	for(SEQUENCEINDEX seq = 0; seq < source.Order.GetNumSequences(); seq++)
+	for(auto &srcOrder : source.Order)
 	{
-		ORDERINDEX insertPos = m_SndFile.Order.GetLengthTailTrimmed();
-		if(specs.sequencesMax > m_SndFile.Order.GetNumSequences())
+		ORDERINDEX insertPos = 0;
+		if(m_SndFile.Order.GetNumSequences() < specs.sequencesMax)
 		{
-			SEQUENCEINDEX newSeq = m_SndFile.Order.AddSequence(false);
-			m_SndFile.Order.SetSequence(newSeq);
-			m_SndFile.Order.GetSequence(newSeq).SetName(source.Order.GetSequence(seq).GetName());
-			insertPos = 0;
+			m_SndFile.Order.AddSequence();
+			m_SndFile.Order().SetName(srcOrder.GetName());
 		} else
 		{
+			insertPos = m_SndFile.Order().GetLengthTailTrimmed();
 			if(specs.hasStopIndex)
-			{
 				insertPos++;
-			}
 		}
-		const ORDERINDEX ordLen = source.Order.GetSequence(seq).GetLengthTailTrimmed();
+		const ORDERINDEX ordLen = srcOrder.GetLengthTailTrimmed();
 		if(useOrderMapping) orderMapping.resize(ordLen, ORDERINDEX_INVALID);
 		for(ORDERINDEX ord = 0; ord < ordLen; ord++)
 		{
@@ -190,13 +182,12 @@ void CModDoc::AppendModule(const CSoundFile &source)
 			}
 
 			PATTERNINDEX insertPat = PATTERNINDEX_INVALID;
-
-			PATTERNINDEX srcPat = source.Order.GetSequence(seq)[ord];
+			PATTERNINDEX srcPat = srcOrder[ord];
 			if(source.Patterns.IsValidPat(srcPat) && srcPat < patternMapping.size())
 			{
 				if(patternMapping[srcPat] == PATTERNINDEX_INVALID && source.Patterns.IsValidPat(srcPat))
 				{
-					patternMapping[srcPat] = m_SndFile.Patterns.InsertAny(Clamp(source.Patterns[srcPat].GetNumRows(), specs.patternRowsMin, specs.patternRowsMax), true);
+					patternMapping[srcPat] = InsertPattern(Clamp(source.Patterns[srcPat].GetNumRows(), specs.patternRowsMin, specs.patternRowsMax));
 					if(patternMapping[srcPat] == PATTERNINDEX_INVALID)
 					{
 						AddToLog("Too many patterns!");
@@ -208,17 +199,17 @@ void CModDoc::AppendModule(const CSoundFile &source)
 					continue;
 				}
 				insertPat = patternMapping[srcPat];
-			} else if(srcPat == source.Order.GetIgnoreIndex() && specs.hasIgnoreIndex)
+			} else if(srcPat == srcOrder.GetIgnoreIndex() && specs.hasIgnoreIndex)
 			{
 				insertPat = m_SndFile.Order.GetIgnoreIndex();
-			} else if(srcPat == source.Order.GetInvalidPatIndex() && specs.hasStopIndex)
+			} else if(srcPat == srcOrder.GetInvalidPatIndex() && specs.hasStopIndex)
 			{
 				insertPat = m_SndFile.Order.GetInvalidPatIndex();
 			} else
 			{
 				continue;
 			}
-			m_SndFile.Order.Insert(insertPos, 1, insertPat);
+			m_SndFile.Order().insert(insertPos, 1, insertPat);
 			if(useOrderMapping) orderMapping[ord] = insertPos++;
 		}
 	}
@@ -241,6 +232,8 @@ void CModDoc::AppendModule(const CSoundFile &source)
 
 	///////////////////////////////////////////////////////////////////////////
 	// Copy patterns
+	const bool tempoSwingDiffers = source.m_tempoSwing != m_SndFile.m_tempoSwing;
+	const bool timeSigDiffers = source.m_nDefaultRowsPerBeat != m_SndFile.m_nDefaultRowsPerBeat || source.m_nDefaultRowsPerMeasure != m_SndFile.m_nDefaultRowsPerMeasure;
 	const CHANNELINDEX copyChannels = std::min(m_SndFile.GetNumChannels(), source.GetNumChannels());
 	for(PATTERNINDEX pat = 0; pat < patternMapping.size(); pat++)
 	{
@@ -261,21 +254,22 @@ void CModDoc::AppendModule(const CSoundFile &source)
 			if(sourcePat.GetOverrideSignature())
 			{
 				targetPat.SetSignature(sourcePat.GetRowsPerBeat(), sourcePat.GetRowsPerMeasure());
-			} else if(source.m_nDefaultRowsPerBeat != m_SndFile.m_nDefaultRowsPerBeat || source.m_nDefaultRowsPerMeasure != m_SndFile.m_nDefaultRowsPerMeasure)
+			} else if(timeSigDiffers)
 			{
 				// Try fixing differing signature settings by copying them to the newly created patterns
 				targetPat.SetSignature(source.m_nDefaultRowsPerBeat, source.m_nDefaultRowsPerMeasure);
 			}
 		}
-		if(m_SndFile.m_nTempoMode == tempoModeModern)
+		if(m_SndFile.m_nTempoMode == TempoMode::Modern)
 		{
 			// Swing only works in modern tempo mode
 			if(sourcePat.HasTempoSwing())
 			{
 				targetPat.SetTempoSwing(sourcePat.GetTempoSwing());
-			} else if(source.m_tempoSwing != m_SndFile.m_tempoSwing)
+			} else if(tempoSwingDiffers)
 			{
 				// Try fixing differing swing settings by copying them to the newly created patterns
+				targetPat.SetSignature(source.m_nDefaultRowsPerBeat, source.m_nDefaultRowsPerMeasure);
 				targetPat.SetTempoSwing(source.m_tempoSwing);
 			}
 		}
@@ -283,8 +277,8 @@ void CModDoc::AppendModule(const CSoundFile &source)
 		const ROWINDEX copyRows = std::min(sourcePat.GetNumRows(), targetPat.GetNumRows());
 		for(ROWINDEX row = 0; row < copyRows; row++)
 		{
-			const ModCommand *src = sourcePat.GetRow(row);
-			ModCommand *m = targetPat.GetRow(row);
+			const ModCommand *src = sourcePat.GetpModCommand(row, 0);
+			ModCommand *m = targetPat.GetpModCommand(row, 0);
 			for(CHANNELINDEX chn = 0; chn < copyChannels; chn++, src++, m++)
 			{
 				*m = *src;
@@ -312,10 +306,17 @@ void CModDoc::AppendModule(const CSoundFile &source)
 		if(copyRows < targetPat.GetNumRows())
 		{
 			// If source pattern was smaller, write pattern break effect.
-			targetPat.WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(copyRows - 1).Retry(EffectWriter::rmTryNextRow));
+			targetPat.WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(copyRows - 1).RetryNextRow());
 		}
 	}
-}
 
+	///////////////////////////////////////////////////////////////////////////
+	// Copy edit history
+	auto &history = m_SndFile.GetFileHistory();
+	const auto &sourceHistory = source.GetFileHistory();
+	history.insert(history.end(), sourceHistory.begin(), sourceHistory.end());
+	std::sort(history.begin(), history.end());
+	history.erase(std::unique(history.begin(), history.end()), history.end());
+}
 
 OPENMPT_NAMESPACE_END

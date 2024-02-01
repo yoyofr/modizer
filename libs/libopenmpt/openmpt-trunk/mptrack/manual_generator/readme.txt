@@ -1,5 +1,6 @@
 Prerequisites:
-- HTML Help Workshop must be placed in the sub directory "htmlhelp"
+- HTML Help Workshop must be placed in the directory "include\htmlhelp"
+  (build\download_externals.cmd will take care of that)
 - Python 3
 
 Once these prerequisites are fulfilled, simply run wiki.py.

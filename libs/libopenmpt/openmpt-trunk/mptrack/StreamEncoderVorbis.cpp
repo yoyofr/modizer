@@ -13,8 +13,6 @@
 #include "StreamEncoder.h"
 #include "StreamEncoderVorbis.h"
 
-#include "../common/ComponentManager.h"
-
 #include "Mptrack.h"
 
 #ifdef MPT_WITH_OGG
@@ -34,30 +32,26 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 static Encoder::Traits VorbisBuildTraits()
-	{
-		Encoder::Traits traits;
+{
+	Encoder::Traits traits;
 #if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISENC)
-		traits.fileExtension = MPT_PATHSTRING("ogg");
-		traits.fileShortDescription = MPT_USTRING("Vorbis");
-		traits.fileDescription = MPT_USTRING("Ogg Vorbis");
-		traits.encoderSettingsName = MPT_USTRING("Vorbis");
-		traits.encoderName = MPT_USTRING("libVorbis");
-		traits.description += MPT_USTRING("Version: ");
-		traits.description += mpt::ToUnicode(mpt::CharsetASCII, vorbis_version_string()?vorbis_version_string():"unknown");
-		traits.description += MPT_USTRING("\n");
-		traits.canTags = true;
-		traits.maxChannels = 4;
-		traits.samplerates = std::vector<uint32>(vorbis_samplerates, vorbis_samplerates + CountOf(vorbis_samplerates));
-		traits.modes = Encoder::ModeABR | Encoder::ModeQuality;
-		traits.bitrates = std::vector<int>(vorbis_bitrates, vorbis_bitrates + CountOf(vorbis_bitrates));
-		traits.defaultSamplerate = 48000;
-		traits.defaultChannels = 2;
-		traits.defaultMode = Encoder::ModeQuality;
-		traits.defaultBitrate = 160;
-		traits.defaultQuality = 0.5;
+	traits.fileExtension = P_("ogg");
+	traits.fileShortDescription = U_("Vorbis");
+	traits.fileDescription = U_("Ogg Vorbis");
+	traits.encoderSettingsName = U_("Vorbis");
+	traits.canTags = true;
+	traits.maxChannels = 4;
+	traits.samplerates = mpt::make_vector(vorbis_samplerates);
+	traits.modes = Encoder::ModeABR | Encoder::ModeQuality;
+	traits.bitrates = mpt::make_vector(vorbis_bitrates);
+	traits.defaultSamplerate = 48000;
+	traits.defaultChannels = 2;
+	traits.defaultMode = Encoder::ModeQuality;
+	traits.defaultBitrate = 160;
+	traits.defaultQuality = 0.5;
 #endif
-		return traits;
-	}
+	return traits;
+}
 
 #if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISENC)
 
@@ -71,15 +65,62 @@ private:
   vorbis_comment   vc;
   vorbis_dsp_state vd;
   vorbis_block     vb;
-	bool inited;
-	bool started;
-	bool vorbis_cbr;
 	int vorbis_channels;
-	bool vorbis_tags;
 private:
-	void StartStream()
+	void WritePage()
 	{
-		ASSERT(inited && !started);
+		buf.resize(og.header_len);
+		std::memcpy(buf.data(), og.header, og.header_len);
+		WriteBuffer();
+		buf.resize(og.body_len);
+		std::memcpy(buf.data(), og.body, og.body_len);
+		WriteBuffer();
+	}
+	void AddCommentField(const std::string &field, const mpt::ustring &data)
+	{
+		if(!field.empty() && !data.empty())
+		{
+			vorbis_comment_add_tag(&vc, field.c_str(), mpt::ToCharset(mpt::Charset::UTF8, data).c_str());
+		}
+	}
+public:
+	VorbisStreamWriter(std::ostream &stream, const Encoder::Settings &settings, const FileTags &tags)
+		: StreamWriterBase(stream)
+	{
+		vorbis_channels = 0;
+
+		vorbis_channels = settings.Channels;
+
+		vorbis_info_init(&vi);
+		vorbis_comment_init(&vc);
+
+		if(settings.Mode == Encoder::ModeQuality)
+		{
+			vorbis_encode_init_vbr(&vi, vorbis_channels, settings.Samplerate, settings.Quality);
+		} else
+		{
+			vorbis_encode_init(&vi, vorbis_channels, settings.Samplerate, -1, settings.Bitrate * 1000, -1);
+		}
+
+		vorbis_analysis_init(&vd, &vi);
+		vorbis_block_init(&vd, &vb);
+		ogg_stream_init(&os, mpt::random<uint32>(theApp.PRNG()));
+
+		if(settings.Tags)
+		{
+			AddCommentField("ENCODER",     tags.encoder);
+			AddCommentField("SOURCEMEDIA", U_("tracked music file"));
+			AddCommentField("TITLE",       tags.title          );
+			AddCommentField("ARTIST",      tags.artist         );
+			AddCommentField("ALBUM",       tags.album          );
+			AddCommentField("DATE",        tags.year           );
+			AddCommentField("COMMENT",     tags.comments       );
+			AddCommentField("GENRE",       tags.genre          );
+			AddCommentField("CONTACT",     tags.url            );
+			AddCommentField("BPM",         tags.bpm            ); // non-standard
+			AddCommentField("TRACKNUMBER", tags.trackno        );
+		}
+
 		ogg_packet header;
 		ogg_packet header_comm;
 		ogg_packet header_code;
@@ -95,135 +136,10 @@ private:
 		{
 			WritePage();
 		}
-		started = true;
-		ASSERT(inited && started);
+
 	}
-	void FinishStream()
+	void WriteInterleaved(size_t count, const float *interleaved) override
 	{
-		if(inited)
-		{
-			if(!started)
-			{
-				StartStream();
-			}
-			ASSERT(inited && started);
-			vorbis_analysis_wrote(&vd, 0);
-			while(vorbis_analysis_blockout(&vd, &vb) == 1)
-			{
-				vorbis_analysis(&vb, NULL);
-				vorbis_bitrate_addblock(&vb);
-				while(vorbis_bitrate_flushpacket(&vd, &op))
-				{
-					ogg_stream_packetin(&os, &op);
-					while(ogg_stream_flush(&os, &og))
-					{
-						WritePage();
-						if(ogg_page_eos(&og))
-						{
-							break;
-						}
-					}
-				}
-			}
-			ogg_stream_clear(&os);
-			vorbis_block_clear(&vb);
-			vorbis_dsp_clear(&vd);
-			vorbis_comment_clear(&vc);
-			vorbis_info_clear(&vi);
-			started = false;
-			inited = false;
-		}
-		ASSERT(!inited && !started);
-	}
-	void WritePage()
-	{
-		ASSERT(inited);
-		buf.resize(og.header_len);
-		std::memcpy(buf.data(), og.header, og.header_len);
-		WriteBuffer();
-		buf.resize(og.body_len);
-		std::memcpy(buf.data(), og.body, og.body_len);
-		WriteBuffer();
-	}
-	void AddCommentField(const std::string &field, const mpt::ustring &data)
-	{
-		if(!field.empty() && !data.empty())
-		{
-			vorbis_comment_add_tag(&vc, field.c_str(), mpt::ToCharset(mpt::CharsetUTF8, data).c_str());
-		}
-	}
-public:
-	VorbisStreamWriter(std::ostream &stream)
-		: StreamWriterBase(stream)
-	{
-		inited = false;
-		started = false;
-		vorbis_channels = 0;
-		vorbis_tags = true;
-	}
-	virtual ~VorbisStreamWriter()
-	{
-		FinishStream();
-		ASSERT(!inited && !started);
-	}
-	virtual void SetFormat(const Encoder::Settings &settings)
-	{
-
-		FinishStream();
-
-		ASSERT(!inited && !started);
-
-		uint32 samplerate = settings.Samplerate;
-		uint16 channels = settings.Channels;
-
-		vorbis_channels = channels;
-		vorbis_tags = settings.Tags;
-
-		vorbis_info_init(&vi);
-		vorbis_comment_init(&vc);
-
-		if(settings.Mode == Encoder::ModeQuality)
-		{
-			vorbis_encode_init_vbr(&vi, vorbis_channels, samplerate, settings.Quality);
-		} else
-		{
-			vorbis_encode_init(&vi, vorbis_channels, samplerate, -1, settings.Bitrate * 1000, -1);
-		}
-
-		vorbis_analysis_init(&vd, &vi);
-		vorbis_block_init(&vd, &vb);
-		ogg_stream_init(&os, mpt::random<uint32>(theApp.PRNG()));
-
-		inited = true;
-
-		ASSERT(inited && !started);
-	}
-	virtual void WriteMetatags(const FileTags &tags)
-	{
-		ASSERT(inited && !started);
-		AddCommentField("ENCODER", tags.encoder);
-		if(vorbis_tags)
-		{
-			AddCommentField("SOURCEMEDIA", MPT_USTRING("tracked music file"));
-			AddCommentField("TITLE",       tags.title          );
-			AddCommentField("ARTIST",      tags.artist         );
-			AddCommentField("ALBUM",       tags.album          );
-			AddCommentField("DATE",        tags.year           );
-			AddCommentField("COMMENT",     tags.comments       );
-			AddCommentField("GENRE",       tags.genre          );
-			AddCommentField("CONTACT",     tags.url            );
-			AddCommentField("BPM",         tags.bpm            ); // non-standard
-			AddCommentField("TRACKNUMBER", tags.trackno        );
-		}
-	}
-	virtual void WriteInterleaved(size_t count, const float *interleaved)
-	{
-		ASSERT(inited);
-		if(!started)
-		{
-			StartStream();
-		}
-		ASSERT(inited && started);
 		size_t countTotal = count;
 		while(countTotal > 0)
 		{
@@ -253,11 +169,34 @@ public:
 			}
     }
 	}
-	virtual void Finalize()
+	void WriteFinalize() override
 	{
-		ASSERT(inited);
-		FinishStream();
-		ASSERT(!inited && !started);
+		vorbis_analysis_wrote(&vd, 0);
+		while(vorbis_analysis_blockout(&vd, &vb) == 1)
+		{
+			vorbis_analysis(&vb, NULL);
+			vorbis_bitrate_addblock(&vb);
+			while(vorbis_bitrate_flushpacket(&vd, &op))
+			{
+				ogg_stream_packetin(&os, &op);
+				while(ogg_stream_flush(&os, &og))
+				{
+					WritePage();
+					if(ogg_page_eos(&og))
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+	virtual ~VorbisStreamWriter()
+	{
+		ogg_stream_clear(&os);
+		vorbis_block_clear(&vb);
+		vorbis_dsp_clear(&vd);
+		vorbis_comment_clear(&vc);
+		vorbis_info_clear(&vi);
 	}
 };
 
@@ -266,14 +205,12 @@ public:
 
 
 VorbisEncoder::VorbisEncoder()
-//----------------------------
 {
 	SetTraits(VorbisBuildTraits());
 }
 
 
 bool VorbisEncoder::IsAvailable() const
-//-------------------------------------
 {
 #if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISENC)
 	return true;
@@ -283,30 +220,41 @@ bool VorbisEncoder::IsAvailable() const
 }
 
 
-VorbisEncoder::~VorbisEncoder()
-//-----------------------------
-{
-	return;
-}
-
-
-IAudioStreamEncoder *VorbisEncoder::ConstructStreamEncoder(std::ostream &file) const
-//----------------------------------------------------------------------------------
+std::unique_ptr<IAudioStreamEncoder> VorbisEncoder::ConstructStreamEncoder(std::ostream &file, const Encoder::Settings &settings, const FileTags &tags) const
 {
 #if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISENC)
-	return new VorbisStreamWriter(file);
+	return std::make_unique<VorbisStreamWriter>(file, settings, tags);
 #else
+	MPT_UNREFERENCED_PARAMETER(file);
+	MPT_UNREFERENCED_PARAMETER(settings);
+	MPT_UNREFERENCED_PARAMETER(tags);
 	return nullptr;
 #endif
 }
 
 
-mpt::ustring VorbisEncoder::DescribeQuality(float quality) const
-//--------------------------------------------------------------
+bool VorbisEncoder::IsBitrateSupported(int samplerate, int channels, int bitrate) const
 {
-	static const int q_table[11] = { 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 500 }; // http://wiki.hydrogenaud.io/index.php?title=Recommended_Ogg_Vorbis
-	int q = Clamp(Util::Round<int>(quality * 10.0f), 0, 10);
-	return mpt::String::Print(MPT_USTRING("Q%1 (~%2 kbit)"), mpt::ufmt::f("%3.1f", quality * 10.0f), q_table[q]);
+#if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISENC)
+	vorbis_info vi;
+	vorbis_info_init(&vi);
+	bool result = (0 == vorbis_encode_init(&vi, channels, samplerate, -1, bitrate * 1000, -1));
+	vorbis_info_clear(&vi);
+	return result;
+#else
+	MPT_UNREFERENCED_PARAMETER(samplerate);
+	MPT_UNREFERENCED_PARAMETER(channels);
+	MPT_UNREFERENCED_PARAMETER(bitrate);
+	return false;
+#endif
+}
+
+
+mpt::ustring VorbisEncoder::DescribeQuality(float quality) const
+{
+	static constexpr int q_table[11] = { 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 500 }; // http://wiki.hydrogenaud.io/index.php?title=Recommended_Ogg_Vorbis
+	int q = Clamp(mpt::saturate_round<int>(quality * 10.0f), 0, 10);
+	return MPT_UFORMAT("Q{} (~{} kbit)")(mpt::ufmt::fix(quality * 10.0f, 1), q_table[q]);
 }
 
 

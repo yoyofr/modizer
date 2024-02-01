@@ -12,8 +12,9 @@
 #include "stdafx.h"
 #include "Loaders.h"
 #include "WAVTools.h"
-#include "../soundbase/SampleFormatConverters.h"
-#include "../soundbase/SampleFormatCopy.h"
+#include "openmpt/soundbase/SampleConvert.hpp"
+#include "openmpt/soundbase/SampleDecode.hpp"
+#include "SampleCopy.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -36,8 +37,8 @@ static bool CopyWavChannel(ModSample &sample, const FileReader &file, size_t cha
 		return false;
 	}
 
-	const std::byte *inBuf = file.GetRawData<std::byte>();
-	CopySample<SampleConversion>(reinterpret_cast<typename SampleConversion::output_t*>(sample.samplev()), sample.nLength, 1, inBuf + offset, file.BytesLeft() - offset, numChannels, conv);
+	FileReader::PinnedView inData = file.GetPinnedView(file.BytesLeft());
+	CopySample<SampleConversion>(sample.template sample<typename SampleConversion::output_t>(), sample.nLength, 1, inData.data() + offset, inData.size() - offset, numChannels, conv);
 	return true;
 }
 
@@ -64,11 +65,13 @@ bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 	WAVReader wavFile(file);
 
 	if(!wavFile.IsValid()
-		|| wavFile.GetNumChannels() == 0
-		|| wavFile.GetNumChannels() > MAX_BASECHANNELS
-		|| wavFile.GetBitsPerSample() == 0
-		|| wavFile.GetBitsPerSample() > 32
-		|| (wavFile.GetSampleFormat() != WAVFormatChunk::fmtPCM && wavFile.GetSampleFormat() != WAVFormatChunk::fmtFloat))
+	   || wavFile.GetNumChannels() == 0
+	   || wavFile.GetNumChannels() > MAX_BASECHANNELS
+	   || wavFile.GetNumChannels() >= MAX_SAMPLES
+	   || wavFile.GetBitsPerSample() == 0
+	   || wavFile.GetBitsPerSample() > 64
+	   || (wavFile.GetBitsPerSample() < 32 && wavFile.GetSampleFormat() == WAVFormatChunk::fmtFloat)
+	   || (wavFile.GetSampleFormat() != WAVFormatChunk::fmtPCM && wavFile.GetSampleFormat() != WAVFormatChunk::fmtFloat))
 	{
 		return false;
 	} else if(loadFlags == onlyVerifyHeader)
@@ -77,7 +80,7 @@ bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	InitializeGlobals(MOD_TYPE_MPT);
-	m_ContainerType = MOD_CONTAINERTYPE_WAV;
+	m_ContainerType = ModContainerType::WAV;
 	m_nChannels = std::max(wavFile.GetNumChannels(), uint16(2));
 	Patterns.ResizeArray(2);
 	if(!Patterns.Insert(0, 64) || !Patterns.Insert(1, 64))
@@ -119,17 +122,17 @@ bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	// Setting up pattern
-	PatternRow pattern = Patterns[0].GetRow(0);
-	pattern[0].note = pattern[1].note = NOTE_MIDDLEC;
-	pattern[0].instr = pattern[1].instr = 1;
+	auto row = Patterns[0].GetRow(0);
+	row[0].note = row[1].note = NOTE_MIDDLEC;
+	row[0].instr = row[1].instr = 1;
 
 	const FileReader sampleChunk = wavFile.GetSampleData();
 
 	// Read every channel into its own sample lot.
 	for(SAMPLEINDEX channel = 0; channel < GetNumSamples(); channel++)
 	{
-		pattern[channel].note = pattern[0].note;
-		pattern[channel].instr = static_cast<ModCommand::INSTR>(channel + 1);
+		row[channel].note = row[0].note;
+		row[channel].instr = static_cast<ModCommand::INSTR>(channel + 1);
 
 		ModSample &sample = Samples[channel + 1];
 		sample.Initialize();
@@ -152,13 +155,13 @@ bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 				break;
 			case 2:
 				sample.nPan = (wavFile.GetNumChannels() == 3 ? 128u : 64u);
-				pattern[channel].command = CMD_S3MCMDEX;
-				pattern[channel].param = 0x91;
+				row[channel].command = CMD_S3MCMDEX;
+				row[channel].param = 0x91;
 				break;
 			case 3:
 				sample.nPan = 192;
-				pattern[channel].command = CMD_S3MCMDEX;
-				pattern[channel].param = 0x91;
+				row[channel].command = CMD_S3MCMDEX;
+				row[channel].param = 0x91;
 				break;
 			default:
 				sample.nPan = 128;
@@ -173,22 +176,22 @@ bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 
 		if(wavFile.GetSampleFormat() == WAVFormatChunk::fmtFloat)
 		{
-			CopyWavChannel<SC::ConversionChain<SC::Convert<int16, float32>, SC::DecodeFloat32<littleEndian32> > >(sample, sampleChunk, channel, wavFile.GetNumChannels());
+			if(wavFile.GetBitsPerSample() <= 32)
+				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, float32>, SC::DecodeFloat32<littleEndian32>>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
+			else
+				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, float64>, SC::DecodeFloat64<littleEndian64>>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
 		} else
 		{
 			if(wavFile.GetBitsPerSample() <= 8)
-			{
 				CopyWavChannel<SC::DecodeUint8>(sample, sampleChunk, channel, wavFile.GetNumChannels());
-			} else if(wavFile.GetBitsPerSample() <= 16)
-			{
-				CopyWavChannel<SC::DecodeInt16<0, littleEndian16> >(sample, sampleChunk, channel, wavFile.GetNumChannels());
-			} else if(wavFile.GetBitsPerSample() <= 24)
-			{
-				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24> > >(sample, sampleChunk, channel, wavFile.GetNumChannels());
-			} else if(wavFile.GetBitsPerSample() <= 32)
-			{
-				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32> > >(sample, sampleChunk, channel, wavFile.GetNumChannels());
-			}
+			else if(wavFile.GetBitsPerSample() <= 16)
+				CopyWavChannel<SC::DecodeInt16<0, littleEndian16>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
+			else if(wavFile.GetBitsPerSample() <= 24)
+				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt24<0, littleEndian24>>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
+			else if(wavFile.GetBitsPerSample() <= 32)
+				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, int32>, SC::DecodeInt32<0, littleEndian32>>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
+			else if(wavFile.GetBitsPerSample() <= 64)
+				CopyWavChannel<SC::ConversionChain<SC::Convert<int16, int64>, SC::DecodeInt64<0, littleEndian64>>>(sample, sampleChunk, channel, wavFile.GetNumChannels());
 		}
 		sample.PrecomputeLoops(*this, false);
 

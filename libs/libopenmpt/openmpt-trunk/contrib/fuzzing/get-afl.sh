@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 cd "${0%/*}"
-rm afl-latest.tgz
-wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz || exit
-tar -xzvf afl-latest.tgz
-rm afl-latest.tgz
-cd afl-*
-make || exit
-cd llvm_mode
-# may need to prepend LLVM_CONFIG=/usr/bin/llvm-config-3.8 or similar, depending on the system
-make || exit
-cd ../libdislocator
-make || exit
-cd ../..
+
+if [ -z "${GET_AFL_VERSION}" ]; then
+	GET_AFL_VERSION="$(wget --quiet -O - "https://api.github.com/repos/AFLplusplus/AFLplusplus/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')"
+fi
+AFL_FILENAME="$GET_AFL_VERSION.tar.gz"
+AFL_URL="https://github.com/AFLplusplus/AFLplusplus/archive/$AFL_FILENAME"
+
+rm $AFL_FILENAME
+wget $AFL_URL || exit
+tar -xzvf $AFL_FILENAME
+rm $AFL_FILENAME
+cd AFLplusplus-*
+make source-only || exit
+cd ..
 rm -rf afl
-mv afl-* afl
+mv AFLplusplus-* afl

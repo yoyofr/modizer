@@ -11,26 +11,23 @@
 #include "stdafx.h"
 
 #ifndef NO_PLUGINS
-#include "../Sndfile.h"
 #include "DigiBoosterEcho.h"
+#include "../Sndfile.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
-IMixPlugin* DigiBoosterEcho::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
+IMixPlugin* DigiBoosterEcho::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct)
 {
 	return new (std::nothrow) DigiBoosterEcho(factory, sndFile, mixStruct);
 }
 
 
-DigiBoosterEcho::DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
+DigiBoosterEcho::DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-	, m_bufferSize(0)
-	, m_writePos(0)
 	, m_sampleRate(sndFile.GetSampleRate())
 	, m_chunk(PluginChunk::Default())
 {
 	m_mixBuffer.Initialize(2, 2);
-	InsertIntoFactoryList();
 }
 
 
@@ -89,9 +86,9 @@ void DigiBoosterEcho::SaveAllParameters()
 	{
 		m_pMixStruct->pluginData.resize(sizeof(m_chunk));
 		memcpy(m_pMixStruct->pluginData.data(), &m_chunk, sizeof(m_chunk));
-	} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+	} catch(mpt::out_of_memory e)
 	{
-		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		mpt::delete_out_of_memory(e);
 		m_pMixStruct->pluginData.clear();
 	}
 }
@@ -124,7 +121,7 @@ void DigiBoosterEcho::SetParameter(PlugParamIndex index, PlugParamValue value)
 {
 	if(index < kEchoNumParameters)
 	{
-		m_chunk.param[index] = mpt::saturate_round<uint8>(value * 255.0f);
+		m_chunk.param[index] = mpt::saturate_round<uint8>(mpt::safe_clamp(value, 0.0f, 1.0f) * 255.0f);
 		RecalculateEchoParams();
 	}
 }
@@ -145,9 +142,9 @@ void DigiBoosterEcho::PositionChanged()
 	try
 	{
 		m_delayLine.assign(m_bufferSize * 2, 0);
-	} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+	} catch(mpt::out_of_memory e)
 	{
-		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		mpt::delete_out_of_memory(e);
 		m_bufferSize = 0;
 	}
 	m_writePos = 0;
@@ -188,7 +185,11 @@ CString DigiBoosterEcho::GetParamDisplay(PlugParamIndex param)
 	{
 		int val = m_chunk.param[param];
 		if(param == kEchoDelay)
+		{
+			if(val == 0)
+				val = 167;
 			val *= 2;
+		}	
 		s.Format(_T("%d"), val);
 	}
 	return s;
@@ -217,13 +218,15 @@ void DigiBoosterEcho::SetChunk(const ChunkData &chunk, bool)
 
 void DigiBoosterEcho::RecalculateEchoParams()
 {
-	m_delayTime = (m_chunk.param[kEchoDelay] * m_sampleRate + 250) / 500;
-	m_PMix = (m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
-	m_NMix = (256 - m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
-	m_PCrossPBack = (m_chunk.param[kEchoCross] * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
-	m_PCrossNBack = (m_chunk.param[kEchoCross] * (256 - m_chunk.param[kEchoFeedback])) * (1.0f / 65536.0f);
-	m_NCrossPBack = ((m_chunk.param[kEchoCross] - 256) * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
-	m_NCrossNBack = ((m_chunk.param[kEchoCross] - 256) * (m_chunk.param[kEchoFeedback] - 256)) * (1.0f / 65536.0f);
+	// The fallback value when the delay is 0 was determined experimentally from DBPro 2.21 output.
+	// The C implementation of libdigibooster3 has no specific handling of this value and thus produces a delay with maximum length.
+	m_delayTime = ((m_chunk.param[kEchoDelay] ? m_chunk.param[kEchoDelay] : 167u) * m_sampleRate + 250u) / 500u;
+	m_PMix = static_cast<float>(m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
+	m_NMix = static_cast<float>(256 - m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
+	m_PCrossPBack = static_cast<float>(m_chunk.param[kEchoCross] * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
+	m_PCrossNBack = static_cast<float>(m_chunk.param[kEchoCross] * (256 - m_chunk.param[kEchoFeedback])) * (1.0f / 65536.0f);
+	m_NCrossPBack = static_cast<float>((m_chunk.param[kEchoCross] - 256) * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
+	m_NCrossNBack = static_cast<float>((m_chunk.param[kEchoCross] - 256) * (m_chunk.param[kEchoFeedback] - 256)) * (1.0f / 65536.0f);
 }
 
 OPENMPT_NAMESPACE_END

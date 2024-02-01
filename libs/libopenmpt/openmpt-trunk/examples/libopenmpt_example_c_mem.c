@@ -11,6 +11,10 @@
  * Usage: libopenmpt_example_c_mem SOMEMODULE
  */
 
+#if defined( __MINGW32__ ) && !defined( __MINGW64__ )
+#include <sys/types.h>
+#endif
+
 #include <memory.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -19,7 +23,23 @@
 
 #include <libopenmpt/libopenmpt.h>
 
+#if defined( __clang__ )
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+#elif defined( __GNUC__ ) && !defined( __clang__ ) && !defined( _MSC_VER )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-prototypes"
+#endif
 #include <portaudio.h>
+#if defined( __clang__ )
+#pragma clang diagnostic pop
+#elif defined( __GNUC__ ) && !defined( __clang__ ) && !defined( _MSC_VER )
+#pragma GCC diagnostic pop
+#endif
+
+#if defined( __DJGPP__ )
+#include <crt0.h>
+#endif /* __DJGPP__ */
 
 #define BUFFERSIZE 480
 #define SAMPLERATE 48000
@@ -27,12 +47,47 @@
 static int16_t left[BUFFERSIZE];
 static int16_t right[BUFFERSIZE];
 static int16_t * const buffers[2] = { left, right };
+static int16_t interleaved_buffer[BUFFERSIZE * 2];
+static int is_interleaved = 0;
 
 static void libopenmpt_example_logfunc( const char * message, void * userdata ) {
 	(void)userdata;
-
 	if ( message ) {
-		fprintf( stderr, "%s\n", message );
+		fprintf( stderr, "openmpt: %s\n", message );
+	}
+}
+
+static int libopenmpt_example_errfunc( int error, void * userdata ) {
+	(void)userdata;
+	(void)error;
+	return OPENMPT_ERROR_FUNC_RESULT_DEFAULT & ~OPENMPT_ERROR_FUNC_RESULT_LOG;
+}
+
+static void libopenmpt_example_print_error( const char * func_name, int mod_err, const char * mod_err_str ) {
+	if ( !func_name ) {
+		func_name = "unknown function";
+	}
+	if ( mod_err == OPENMPT_ERROR_OUT_OF_MEMORY ) {
+		mod_err_str = openmpt_error_string( mod_err );
+		if ( !mod_err_str ) {
+			fprintf( stderr, "Error: %s\n", "OPENMPT_ERROR_OUT_OF_MEMORY" );
+		} else {
+			fprintf( stderr, "Error: %s\n", mod_err_str );
+			openmpt_free_string( mod_err_str );
+			mod_err_str = NULL;
+		}
+	} else {
+		if ( !mod_err_str ) {
+			mod_err_str = openmpt_error_string( mod_err );
+			if ( !mod_err_str ) {
+				fprintf( stderr, "Error: %s failed.\n", func_name );
+			} else {
+				fprintf( stderr, "Error: %s failed: %s\n", func_name, mod_err_str );
+			}
+			openmpt_free_string( mod_err_str );
+			mod_err_str = NULL;
+		}
+		fprintf( stderr, "Error: %s failed: %s\n", func_name, mod_err_str );
 	}
 }
 
@@ -86,7 +141,7 @@ static blob_t * load_file( const char * filename ) {
 	if ( tell_result < 0 ) {
 		goto fail;
 	}
-	if ( (unsigned long)tell_result > SIZE_MAX ) {
+	if ( (unsigned long)(size_t)(unsigned long)tell_result != (unsigned long)tell_result ) {
 		goto fail;
 	}
 	blob->size = (size_t)tell_result;
@@ -128,15 +183,34 @@ cleanup:
 	return result;
 }
 
+#if defined( __DJGPP__ )
+/* clang-format off */
+int _crt0_startup_flags = 0
+	| _CRT0_FLAG_NONMOVE_SBRK          /* force interrupt compatible allocation */
+	| _CRT0_DISABLE_SBRK_ADDRESS_WRAP  /* force NT compatible allocation */
+	| _CRT0_FLAG_LOCK_MEMORY           /* lock all code and data at program startup */
+	| 0;
+/* clang-format on */
+#endif /* __DJGPP__ */
 #if ( defined( _WIN32 ) || defined( WIN32 ) ) && ( defined( _UNICODE ) || defined( UNICODE ) )
+#if defined( __clang__ ) && !defined( _MSC_VER )
+int wmain( int argc, wchar_t * argv[] );
+#endif
 int wmain( int argc, wchar_t * argv[] ) {
 #else
 int main( int argc, char * argv[] ) {
 #endif
+#if defined( __DJGPP__ )
+	/* clang-format off */
+	_crt0_startup_flags &= ~_CRT0_FLAG_LOCK_MEMORY;  /* disable automatic locking for all further memory allocations */
+	/* clang-format on */
+#endif /* __DJGPP__ */
 
 	int result = 0;
 	blob_t * blob = 0;
 	openmpt_module * mod = 0;
+	int mod_err = OPENMPT_ERROR_OK;
+	const char * mod_err_str = NULL;
 	size_t count = 0;
 	PaError pa_error = paNoError;
 	int pa_initialized = 0;
@@ -164,9 +238,11 @@ int main( int argc, char * argv[] ) {
 		goto fail;
 	}
 
-	mod = openmpt_module_create_from_memory( blob->data, blob->size, &libopenmpt_example_logfunc, NULL, NULL );
+	mod = openmpt_module_create_from_memory2( blob->data, blob->size, &libopenmpt_example_logfunc, NULL, &libopenmpt_example_errfunc, NULL, &mod_err, &mod_err_str, NULL );
 	if ( !mod ) {
-		fprintf( stderr, "Error: %s\n", "openmpt_module_from_memory() failed." );
+		libopenmpt_example_print_error( "openmpt_module_create_from_memory2()", mod_err, mod_err_str );
+		openmpt_free_string( mod_err_str );
+		mod_err_str = NULL;
 		goto fail;
 	}
 
@@ -177,7 +253,12 @@ int main( int argc, char * argv[] ) {
 	}
 	pa_initialized = 1;
 
+	is_interleaved = 0;
 	pa_error = Pa_OpenDefaultStream( &stream, 0, 2, paInt16 | paNonInterleaved, SAMPLERATE, paFramesPerBufferUnspecified, NULL, NULL );
+	if ( pa_error == paSampleFormatNotSupported ) {
+		is_interleaved = 1;
+		pa_error = Pa_OpenDefaultStream( &stream, 0, 2, paInt16, SAMPLERATE, paFramesPerBufferUnspecified, NULL, NULL );
+	}
 	if ( pa_error != paNoError ) {
 		fprintf( stderr, "Error: %s\n", "Pa_OpenStream() failed." );
 		goto fail;
@@ -195,12 +276,20 @@ int main( int argc, char * argv[] ) {
 
 	while ( 1 ) {
 
-		count = openmpt_module_read_stereo( mod, SAMPLERATE, BUFFERSIZE, left, right );
+		openmpt_module_error_clear( mod );
+		count = is_interleaved ? openmpt_module_read_interleaved_stereo( mod, SAMPLERATE, BUFFERSIZE, interleaved_buffer ) : openmpt_module_read_stereo( mod, SAMPLERATE, BUFFERSIZE, left, right );
+		mod_err = openmpt_module_error_get_last( mod );
+		mod_err_str = openmpt_module_error_get_last_message( mod );
+		if ( mod_err != OPENMPT_ERROR_OK ) {
+			libopenmpt_example_print_error( "openmpt_module_read_stereo()", mod_err, mod_err_str );
+			openmpt_free_string( mod_err_str );
+			mod_err_str = NULL;
+		}
 		if ( count == 0 ) {
 			break;
 		}
 
-		pa_error = Pa_WriteStream( stream, buffers, (unsigned long)count );
+		pa_error = is_interleaved ? Pa_WriteStream( stream, interleaved_buffer, (unsigned long)count ) : Pa_WriteStream( stream, buffers, (unsigned long)count );
 		if ( pa_error == paOutputUnderflowed ) {
 			pa_error = paNoError;
 		}
@@ -231,6 +320,7 @@ cleanup:
 	if ( pa_initialized ) {
 		Pa_Terminate();
 		pa_initialized = 0;
+		(void)pa_initialized;
 	}
 
 	if ( mod ) {

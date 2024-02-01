@@ -9,18 +9,19 @@
 
 
 #include "stdafx.h"
-#include "Mptrack.h"
-#include "Moddoc.h"
-#include "Mainfrm.h"
 #include "dlg_misc.h"
-#include "Dlsbank.h"
-#include "ChildFrm.h"
-#include "../soundlib/plugins/PlugInterface.h"
 #include "ChannelManagerDlg.h"
+#include "Childfrm.h"
+#include "Dlsbank.h"
+#include "Moddoc.h"
+#include "Mptrack.h"
+#include "Reporting.h"
 #include "TempoSwingDialog.h"
-#include "../soundlib/mod_specifications.h"
+#include "WindowMessages.h"
+#include "../common/mptStringBuffer.h"
 #include "../common/version.h"
-#include "../common/StringFixer.h"
+#include "../soundlib/mod_specifications.h"
+#include "../soundlib/plugins/PlugInterface.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -32,14 +33,14 @@ OPENMPT_NAMESPACE_BEGIN
 
 BEGIN_MESSAGE_MAP(CModTypeDlg, CDialog)
 	//{{AFX_MSG_MAP(CModTypeDlg)
-	ON_CBN_SELCHANGE(IDC_COMBO1,			UpdateDialog)
-	ON_CBN_SELCHANGE(IDC_COMBO_TEMPOMODE,	OnTempoModeChanged)
-	ON_COMMAND(IDC_CHECK_PT1X,				OnPTModeChanged)
-	ON_COMMAND(IDC_BUTTON1,					OnTempoSwing)
-	ON_COMMAND(IDC_BUTTON2,					OnLegacyPlaybackSettings)
-	ON_COMMAND(IDC_BUTTON3,					OnDefaultBehaviour)
+	ON_CBN_SELCHANGE(IDC_COMBO1,			&CModTypeDlg::UpdateDialog)
+	ON_CBN_SELCHANGE(IDC_COMBO_TEMPOMODE,	&CModTypeDlg::OnTempoModeChanged)
+	ON_COMMAND(IDC_CHECK_PT1X,				&CModTypeDlg::OnPTModeChanged)
+	ON_COMMAND(IDC_BUTTON1,					&CModTypeDlg::OnTempoSwing)
+	ON_COMMAND(IDC_BUTTON2,					&CModTypeDlg::OnLegacyPlaybackSettings)
+	ON_COMMAND(IDC_BUTTON3,					&CModTypeDlg::OnDefaultBehaviour)
 
-	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, OnToolTipNotify)
+	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, &CModTypeDlg::OnToolTipNotify)
 
 	//}}AFX_MSG_MAP
 
@@ -47,7 +48,6 @@ END_MESSAGE_MAP()
 
 
 void CModTypeDlg::DoDataExchange(CDataExchange* pDX)
-//--------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CModTypeDlg)
@@ -69,7 +69,6 @@ void CModTypeDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CModTypeDlg::OnInitDialog()
-//------------------------------
 {
 	CDialog::OnInitDialog();
 	m_nType = sndFile.GetType();
@@ -81,7 +80,7 @@ BOOL CModTypeDlg::OnInitDialog()
 	// Mod types
 
 	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("ProTracker MOD")), MOD_TYPE_MOD);
-	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("ScreamTracker S3M")), MOD_TYPE_S3M);
+	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("Scream Tracker S3M")), MOD_TYPE_S3M);
 	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("FastTracker XM")), MOD_TYPE_XM);
 	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("Impulse Tracker IT")), MOD_TYPE_IT);
 	m_TypeBox.SetItemData(m_TypeBox.AddString(_T("OpenMPT MPTM")), MOD_TYPE_MPT);
@@ -102,7 +101,7 @@ BOOL CModTypeDlg::OnInitDialog()
 	// Version information
 
 	if(sndFile.m_dwCreatedWithVersion) SetDlgItemText(IDC_EDIT_CREATEDWITH, _T("OpenMPT ") + FormatVersionNumber(sndFile.m_dwCreatedWithVersion));
-	SetDlgItemText(IDC_EDIT_SAVEDWITH, sndFile.m_madeWithTracker.c_str());
+	SetDlgItemText(IDC_EDIT_SAVEDWITH, mpt::ToCString(sndFile.m_modFormat.madeWithTracker.empty() ? sndFile.m_modFormat.formatName : sndFile.m_modFormat.madeWithTracker));
 
 	const int iconSize = Util::ScalePixels(32, m_hWnd);
 	m_warnIcon = (HICON)::LoadImage(NULL, IDI_EXCLAMATION, IMAGE_ICON, iconSize, iconSize, LR_SHARED);
@@ -115,15 +114,13 @@ BOOL CModTypeDlg::OnInitDialog()
 }
 
 
-CString CModTypeDlg::FormatVersionNumber(DWORD version)
-//-----------------------------------------------------
+CString CModTypeDlg::FormatVersionNumber(Version version)
 {
-	return std::string(MptVersion::ToStr(version) + (MptVersion::IsTestBuild(version) ? " (test build)" : "")).c_str();
+	return mpt::ToCString(version.ToUString() + (version.IsTestVersion() ? U_(" (test build)") : U_("")));
 }
 
 
 void CModTypeDlg::UpdateChannelCBox()
-//-----------------------------------
 {
 	const MODTYPE type = static_cast<MODTYPE>(m_TypeBox.GetItemData(m_TypeBox.GetCurSel()));
 	CHANNELINDEX currChanSel = static_cast<CHANNELINDEX>(m_ChannelsBox.GetItemData(m_ChannelsBox.GetCurSel()));
@@ -152,7 +149,6 @@ void CModTypeDlg::UpdateChannelCBox()
 
 
 void CModTypeDlg::UpdateDialog()
-//------------------------------
 {
 	m_nType = static_cast<MODTYPE>(m_TypeBox.GetItemData(m_TypeBox.GetCurSel()));
 
@@ -184,11 +180,11 @@ void CModTypeDlg::UpdateDialog()
 	const TempoMode oldTempoMode = initialized ? static_cast<TempoMode>(m_TempoModeBox.GetItemData(m_TempoModeBox.GetCurSel())) : sndFile.m_nTempoMode;
 	m_TempoModeBox.ResetContent();
 
-	m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Classic")), tempoModeClassic);
-	if(m_nType == MOD_TYPE_MPT || (sndFile.GetType() != MOD_TYPE_MPT && sndFile.m_nTempoMode == tempoModeAlternative))
-		m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Alternative")), tempoModeAlternative);
-	if(m_nType == MOD_TYPE_MPT || (sndFile.GetType() != MOD_TYPE_MPT && sndFile.m_nTempoMode == tempoModeModern))
-		m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Modern (accurate)")), tempoModeModern);
+	m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Classic")), static_cast<DWORD_PTR>(TempoMode::Classic));
+	if(m_nType == MOD_TYPE_MPT || (sndFile.GetType() != MOD_TYPE_MPT && sndFile.m_nTempoMode == TempoMode::Alternative))
+		m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Alternative")), static_cast<DWORD_PTR>(TempoMode::Alternative));
+	if(m_nType == MOD_TYPE_MPT || (sndFile.GetType() != MOD_TYPE_MPT && sndFile.m_nTempoMode == TempoMode::Modern))
+		m_TempoModeBox.SetItemData(m_TempoModeBox.AddString(_T("Modern (accurate)")), static_cast<DWORD_PTR>(TempoMode::Modern));
 	m_TempoModeBox.SetCurSel(0);
 	for(int i = m_TempoModeBox.GetCount(); i > 0; i--)
 	{
@@ -203,18 +199,18 @@ void CModTypeDlg::UpdateDialog()
 	// Mix levels
 	const MixLevels oldMixLevels = initialized ? static_cast<MixLevels>(m_PlugMixBox.GetItemData(m_PlugMixBox.GetCurSel())) : sndFile.GetMixLevels();
 	m_PlugMixBox.ResetContent();
-	if(m_nType == MOD_TYPE_MPT || (sndFile.GetType() != MOD_TYPE_MPT && sndFile.GetMixLevels() == mixLevels1_17RC3))	// In XM/IT, this is only shown for backwards compatibility with existing tunes
-		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC3")),	mixLevels1_17RC3);
-	if(sndFile.GetMixLevels() == mixLevels1_17RC2)	// Only shown for backwards compatibility with existing tunes
-		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC2")),	mixLevels1_17RC2);
-	if(sndFile.GetMixLevels() == mixLevels1_17RC1)	// Ditto
-		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC1")),	mixLevels1_17RC1);
-	if(sndFile.GetMixLevels() == mixLevelsOriginal)	// Ditto
-		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("Original (MPT 1.16)")),	mixLevelsOriginal);
+	if(m_nType == MOD_TYPE_MPT || sndFile.GetMixLevels() == MixLevels::v1_17RC3) // In XM/IT, this is only shown for backwards compatibility with existing tunes
+		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC3")), static_cast<DWORD_PTR>(MixLevels::v1_17RC3));
+	if(sndFile.GetMixLevels() == MixLevels::v1_17RC2) // Only shown for backwards compatibility with existing tunes
+		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC2")), static_cast<DWORD_PTR>(MixLevels::v1_17RC2));
+	if(sndFile.GetMixLevels() == MixLevels::v1_17RC1) // Ditto
+		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("OpenMPT 1.17RC1")), static_cast<DWORD_PTR>(MixLevels::v1_17RC1));
+	if(sndFile.GetMixLevels() == MixLevels::Original) // Ditto
+		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("Original (MPT 1.16)")), static_cast<DWORD_PTR>(MixLevels::Original));
 	int compatMixMode = m_PlugMixBox.AddString(_T("Compatible"));
-	m_PlugMixBox.SetItemData(compatMixMode,										mixLevelsCompatible);
+	m_PlugMixBox.SetItemData(compatMixMode, static_cast<DWORD_PTR>(MixLevels::Compatible));
 	if(m_nType == MOD_TYPE_XM)
-		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("Compatible (FT2 Pan Law)")), mixLevelsCompatibleFT2);
+		m_PlugMixBox.SetItemData(m_PlugMixBox.AddString(_T("Compatible (FT2 Pan Law)")), static_cast<DWORD_PTR>(MixLevels::CompatibleFT2));
 
 	// Default to compatible mix mode
 	m_PlugMixBox.SetCurSel(compatMixMode);
@@ -229,6 +225,7 @@ void CModTypeDlg::UpdateDialog()
 	}
 
 	const bool XMorITorMPT = (m_nType & (MOD_TYPE_XM | MOD_TYPE_IT | MOD_TYPE_MPT));
+	const bool isMPTM = (m_nType == MOD_TYPE_MPT);
 
 	// Mixmode Box
 	GetDlgItem(IDC_TEXT_MIXMODE)->EnableWindow(XMorITorMPT);
@@ -244,9 +241,9 @@ void CModTypeDlg::UpdateDialog()
 	GetDlgItem(IDC_FRAME_TEMPOMODE)->EnableWindow(XMorITorMPT);
 
 	// Compatibility settings
-	PlayBehaviourSet defaultBehaviour = CSoundFile::GetDefaultPlaybackBehaviour(m_nType);
-	bool usesDefaultBehaviour = true;
-	const bool isMPTM = (m_nType == MOD_TYPE_MPT);
+	const PlayBehaviourSet defaultBehaviour = CSoundFile::GetDefaultPlaybackBehaviour(m_nType);
+	const PlayBehaviourSet supportedBehaviour = CSoundFile::GetSupportedPlaybackBehaviour(m_nType);
+	bool enableSetDefaults = false, showWarning = false;
 	if(m_nType & (MOD_TYPE_MPT | MOD_TYPE_IT | MOD_TYPE_XM))
 	{
 		for(size_t i = 0; i < m_playBehaviour.size(); i++)
@@ -256,21 +253,31 @@ void CModTypeDlg::UpdateDialog()
 				&& i != MSF_COMPATIBLE_PLAY
 				&& i != kFT2VolumeRamping)
 			{
-				usesDefaultBehaviour = false;
+				enableSetDefaults = true;
+				if(!isMPTM)
+				{
+					showWarning = true;
+					break;
+				}
+			}
+			if(isMPTM && m_playBehaviour[i] && !supportedBehaviour[i])
+			{
+
+				enableSetDefaults = true;
+				showWarning = true;
 				break;
 			}
 		}
 	}
-	static_cast<CStatic *>(GetDlgItem(IDC_STATIC1))->SetIcon((usesDefaultBehaviour || isMPTM) ? NULL : m_warnIcon);
-	GetDlgItem(IDC_STATIC2)->SetWindowText((usesDefaultBehaviour || isMPTM)
-		? _T("Compatibility settings are currently optimal. It is advised to not edit them.")
-		: _T("Playback settings have been set to compatibility mode. Click \"Set Defaults\" to use the recommended settings instead."));
-	GetDlgItem(IDC_BUTTON3)->EnableWindow(usesDefaultBehaviour ? FALSE : TRUE);
+	static_cast<CStatic *>(GetDlgItem(IDC_STATIC1))->SetIcon(showWarning ? m_warnIcon : nullptr);
+	GetDlgItem(IDC_STATIC2)->SetWindowText(showWarning
+		? _T("Playback settings have been set to legacy compatibility mode. Click \"Set Defaults\" to use the recommended settings instead.")
+		: _T("Compatibility settings are currently optimal. It is advised to not edit them."));
+	GetDlgItem(IDC_BUTTON3)->EnableWindow(enableSetDefaults ? TRUE : FALSE);
 }
 
 
 void CModTypeDlg::OnPTModeChanged()
-//---------------------------------
 {
 	// PT1/2 mode enforces Amiga limits
 	const bool ptMode = IsDlgButtonChecked(IDC_CHECK_PT1X) != BST_UNCHECKED;
@@ -280,27 +287,25 @@ void CModTypeDlg::OnPTModeChanged()
 
 
 void CModTypeDlg::OnTempoModeChanged()
-//------------------------------------
 {
-	GetDlgItem(IDC_BUTTON1)->EnableWindow(m_TempoModeBox.GetItemData(m_TempoModeBox.GetCurSel()) == tempoModeModern);
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(static_cast<TempoMode>(m_TempoModeBox.GetItemData(m_TempoModeBox.GetCurSel())) == TempoMode::Modern);
 }
 
 
 void CModTypeDlg::OnTempoSwing()
-//------------------------------
 {
 	const ROWINDEX oldRPB = sndFile.m_nDefaultRowsPerBeat;
 	const ROWINDEX oldRPM = sndFile.m_nDefaultRowsPerMeasure;
 	const TempoMode oldMode = sndFile.m_nTempoMode;
 
 	// Temporarily apply new tempo signature for preview
-	ROWINDEX newRPB = std::max(1u, GetDlgItemInt(IDC_ROWSPERBEAT));
-	ROWINDEX newRPM = std::max(newRPB, GetDlgItemInt(IDC_ROWSPERMEASURE));
+	const ROWINDEX newRPB = std::clamp(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERBEAT)), ROWINDEX(1), MAX_ROWS_PER_BEAT);
+	const ROWINDEX newRPM = std::clamp(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERMEASURE)), newRPB, MAX_ROWS_PER_BEAT);
 	sndFile.m_nDefaultRowsPerBeat = newRPB;
 	sndFile.m_nDefaultRowsPerMeasure = newRPM;
-	sndFile.m_nTempoMode = tempoModeModern;
+	sndFile.m_nTempoMode = TempoMode::Modern;
 
-	m_tempoSwing.resize(GetDlgItemInt(IDC_ROWSPERBEAT), TempoSwing::Unity);
+	m_tempoSwing.resize(newRPB, TempoSwing::Unity);
 	CTempoSwingDlg dlg(this, m_tempoSwing, sndFile);
 	if(dlg.DoModal() == IDOK)
 	{
@@ -313,16 +318,17 @@ void CModTypeDlg::OnTempoSwing()
 
 
 void CModTypeDlg::OnLegacyPlaybackSettings()
-//------------------------------------------
 {
 	CLegacyPlaybackSettingsDlg dlg(this, m_playBehaviour, m_nType);
-	dlg.DoModal();
+	if(dlg.DoModal() == IDOK)
+	{
+		m_playBehaviour = dlg.GetPlayBehaviour();
+	}
 	UpdateDialog();
 }
 
 
 void CModTypeDlg::OnDefaultBehaviour()
-//------------------------------------
 {
 	m_playBehaviour = CSoundFile::GetDefaultPlaybackBehaviour(m_nType);
 	UpdateDialog();
@@ -330,19 +336,23 @@ void CModTypeDlg::OnDefaultBehaviour()
 
 
 bool CModTypeDlg::VerifyData()
-//----------------------------
 {
-
-	int temp_nRPB = GetDlgItemInt(IDC_ROWSPERBEAT);
-	int temp_nRPM = GetDlgItemInt(IDC_ROWSPERMEASURE);
-	if(temp_nRPB > temp_nRPM)
+	const int newRPB = GetDlgItemInt(IDC_ROWSPERBEAT);
+	const int newRPM = GetDlgItemInt(IDC_ROWSPERMEASURE);
+	if(newRPB > newRPM)
 	{
 		Reporting::Warning("Error: Rows per measure must be greater than or equal to rows per beat.");
 		GetDlgItem(IDC_ROWSPERMEASURE)->SetFocus();
 		return false;
 	}
+	if(newRPB == 0 && static_cast<TempoMode>(m_TempoModeBox.GetItemData(m_TempoModeBox.GetCurSel())) == TempoMode::Modern)
+	{
+		Reporting::Warning("Error: Rows per beat must be greater than 0 in modern tempo mode.");
+		GetDlgItem(IDC_ROWSPERBEAT)->SetFocus();
+		return false;
+	}
 
-	int sel = m_ChannelsBox.GetItemData(m_ChannelsBox.GetCurSel());
+	int sel = static_cast<int>(m_ChannelsBox.GetItemData(m_ChannelsBox.GetCurSel()));
 	MODTYPE type = static_cast<MODTYPE>(m_TypeBox.GetItemData(m_TypeBox.GetCurSel()));
 
 	CHANNELINDEX maxChans = CSoundFile::GetModSpecifications(type).channelsMax;
@@ -366,7 +376,6 @@ bool CModTypeDlg::VerifyData()
 
 
 void CModTypeDlg::OnOK()
-//----------------------
 {
 	if (!VerifyData())
 		return;
@@ -376,6 +385,7 @@ void CModTypeDlg::OnOK()
 	{
 		m_nType = static_cast<MODTYPE>(m_TypeBox.GetItemData(sel));
 	}
+	const auto &newModSpecs = sndFile.GetModSpecifications(m_nType);
 
 	sndFile.m_SongFlags.set(SONG_LINEARSLIDES, m_CheckBox1.GetCheck() != BST_UNCHECKED);
 	sndFile.m_SongFlags.set(SONG_FASTVOLSLIDES, m_CheckBox2.GetCheck() != BST_UNCHECKED);
@@ -391,18 +401,27 @@ void CModTypeDlg::OnOK()
 		m_nChannels = static_cast<CHANNELINDEX>(m_ChannelsBox.GetItemData(sel));
 	}
 	
-	sndFile.m_nDefaultRowsPerBeat    = GetDlgItemInt(IDC_ROWSPERBEAT);
-	sndFile.m_nDefaultRowsPerMeasure = GetDlgItemInt(IDC_ROWSPERMEASURE);
+	sndFile.m_nDefaultRowsPerBeat    = std::min(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERBEAT)), MAX_ROWS_PER_BEAT);
+	sndFile.m_nDefaultRowsPerMeasure = std::min(static_cast<ROWINDEX>(GetDlgItemInt(IDC_ROWSPERMEASURE)), MAX_ROWS_PER_BEAT);
 
 	sel = m_TempoModeBox.GetCurSel();
-	if (sel >= 0)
+	if(sel >= 0)
 	{
+		const auto oldMode = sndFile.m_nTempoMode;
 		sndFile.m_nTempoMode = static_cast<TempoMode>(m_TempoModeBox.GetItemData(sel));
+		if(oldMode == TempoMode::Modern && sndFile.m_nTempoMode != TempoMode::Modern)
+		{
+			double newTempo = sndFile.m_nDefaultTempo.ToDouble() * (sndFile.m_nDefaultSpeed * sndFile.m_nDefaultRowsPerBeat) / ((sndFile.m_nTempoMode == TempoMode::Classic) ? 24 : 60);
+			if(!newModSpecs.hasFractionalTempo)
+				newTempo = std::round(newTempo);
+			sndFile.m_nDefaultTempo = Clamp(TEMPO(newTempo), newModSpecs.GetTempoMin(), newModSpecs.GetTempoMax());
+		}
 	}
-	if(sndFile.m_nTempoMode == tempoModeModern)
+	if(sndFile.m_nTempoMode == TempoMode::Modern)
 	{
 		sndFile.m_tempoSwing = m_tempoSwing;
-		sndFile.m_tempoSwing.resize(sndFile.m_nDefaultRowsPerBeat);
+		if(!sndFile.m_tempoSwing.empty())
+			sndFile.m_tempoSwing.resize(sndFile.m_nDefaultRowsPerBeat);
 	} else
 	{
 		sndFile.m_tempoSwing.clear();
@@ -427,10 +446,8 @@ void CModTypeDlg::OnOK()
 
 
 BOOL CModTypeDlg::OnToolTipNotify(UINT, NMHDR *pNMHDR, LRESULT *)
-//---------------------------------------------------------------
 {
-	TOOLTIPTEXT *pTTT = (TOOLTIPTEXTA*)pNMHDR;
-	const TCHAR *text = _T("");
+	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT*)pNMHDR;
 	UINT_PTR nID = pNMHDR->idFrom;
 	if(pTTT->uFlags & TTF_IDISHWND)
 	{
@@ -438,13 +455,14 @@ BOOL CModTypeDlg::OnToolTipNotify(UINT, NMHDR *pNMHDR, LRESULT *)
 		nID = ::GetDlgCtrlID((HWND)nID);
 	}
 
+	mpt::tstring text;
 	switch(nID)
 	{
 	case IDC_CHECK1:
 		text = _T("Note slides always slide the same amount, not depending on the sample frequency.");
 		break;
 	case IDC_CHECK2:
-		text = _T("Old ScreamTracker 3 volume slide behaviour (not recommended).");
+		text = _T("Old Scream Tracker 3 volume slide behaviour (not recommended).");
 		break;
 	case IDC_CHECK3:
 		text = _T("Play some effects like in early versions of Impulse Tracker (not recommended).");
@@ -467,50 +485,87 @@ BOOL CModTypeDlg::OnToolTipNotify(UINT, NMHDR *pNMHDR, LRESULT *)
 			text = _T("Tempo swing is only available in modern tempo mode.");
 		} else
 		{
-			CString s = _T("Swing setting: ");
+			text = _T("Swing setting: ");
 			if(m_tempoSwing.empty())
 			{
-				s += _T("Default");
+				text += _T("Default");
 			} else
 			{
 				for(size_t i = 0; i < m_tempoSwing.size(); i++)
 				{
-					if(i > 0) s += _T(" / ");
-					s.AppendFormat(_T("%u%%"), Util::muldivr(m_tempoSwing[i], 100, TempoSwing::Unity));
+					if(i > 0)
+						text += _T(" / ");
+					text += MPT_TFORMAT("{}%")(Util::muldivr(m_tempoSwing[i], 100, TempoSwing::Unity));
 				}
 			}
-			mpt::String::CopyN(pTTT->szText, s);
-			return TRUE;
 		}
 	}
 
-	mpt::String::CopyN(pTTT->szText, text);
+	mpt::String::WriteWinBuf(pTTT->szText) = text;
 	return TRUE;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
-// CLegacyPlaybackSettings
+// Legacy Playback Settings dialog
 
-BEGIN_MESSAGE_MAP(CLegacyPlaybackSettingsDlg, CDialog)
-	ON_COMMAND(IDC_BUTTON1,			OnSelectDefaults)
-	ON_CLBN_CHKCHANGE(IDC_LIST1,	UpdateSelectDefaults)
+BEGIN_MESSAGE_MAP(CLegacyPlaybackSettingsDlg, ResizableDialog)
+	ON_COMMAND(IDC_BUTTON1,      &CLegacyPlaybackSettingsDlg::OnSelectDefaults)
+	ON_EN_UPDATE(IDC_EDIT1,      &CLegacyPlaybackSettingsDlg::OnFilterStringChanged)
+	ON_CLBN_CHKCHANGE(IDC_LIST1, &CLegacyPlaybackSettingsDlg::UpdateSelectDefaults)
 END_MESSAGE_MAP()
 
+
 void CLegacyPlaybackSettingsDlg::DoDataExchange(CDataExchange* pDX)
-//-----------------------------------------------------------------
 {
-	CDialog::DoDataExchange(pDX);
+	ResizableDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1,	m_CheckList);
 }
 
 
 BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
-//---------------------------------------------
 {
-	CDialog::OnInitDialog();
+	ResizableDialog::OnInitDialog();
+	OnFilterStringChanged();
+	UpdateSelectDefaults();
+	return TRUE;
+}
 
-	PlayBehaviourSet allowedFlags = CSoundFile::GetSupportedPlaybackBehaviour(m_modType);
+
+void CLegacyPlaybackSettingsDlg::OnSelectDefaults()
+{
+	const int count = m_CheckList.GetCount();
+	m_playBehaviour = CSoundFile::GetDefaultPlaybackBehaviour(m_modType);
+	for(int i = 0; i < count; i++)
+	{
+		m_CheckList.SetCheck(i, m_playBehaviour[m_CheckList.GetItemData(i)] ? BST_CHECKED : BST_UNCHECKED);
+	}
+}
+
+
+void CLegacyPlaybackSettingsDlg::UpdateSelectDefaults()
+{
+	const int count = m_CheckList.GetCount();
+	for(int i = 0; i < count; i++)
+	{
+		m_playBehaviour.set(m_CheckList.GetItemData(i),  m_CheckList.GetCheck(i) != BST_UNCHECKED);
+	}
+	const auto defaults = CSoundFile::GetDefaultPlaybackBehaviour(m_modType);
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(m_playBehaviour != defaults ? TRUE : FALSE);
+}
+
+
+void CLegacyPlaybackSettingsDlg::OnFilterStringChanged()
+{
+	CString s;
+	GetDlgItemText(IDC_EDIT1, s);
+	const bool filterActive = !s.IsEmpty();
+	s.MakeLower();
+
+	m_CheckList.SetRedraw(FALSE);
+	m_CheckList.ResetContent();
+
+	const auto allowedFlags = CSoundFile::GetSupportedPlaybackBehaviour(m_modType);
 	for(size_t i = 0; i < kMaxPlayBehaviours; i++)
 	{
 		const TCHAR *desc = _T("");
@@ -522,10 +577,10 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kMIDICCBugEmulation: desc = _T("Plugin volume MIDI CC bug emulation"); break;
 		case kOldMIDIPitchBends: desc = _T("Old Pitch Wheel behaviour for instrument plugins"); break;
 		case kFT2VolumeRamping: desc = _T("Use smooth Fasttracker 2 volume ramping"); break;
-		case kMODVBlankTiming: desc = _T("VBlank timing: F21 and above sets speed instead of tempo"); break;
+		case kMODVBlankTiming: desc = _T("VBlank timing: F20 and above sets speed instead of tempo"); break;
 
 		case kSlidesAtSpeed1: desc = _T("Execute regular portamento slides at speed 1"); break;
-		case kHertzInLinearMode: desc = _T("Compute note frequency in Hertz rather than periods"); break;
+		case kPeriodsAreHertz: desc = _T("Compute note frequency in Hertz rather than periods"); break;
 		case kTempoClamp: desc = _T("Clamp tempo to 32-255 range"); break;
 		case kPerChannelGlobalVolSlide: desc = _T("Global volume slide memory is per-channel"); break;
 		case kPanOverride: desc = _T("Panning commands override surround and random pan variation"); break;
@@ -545,7 +600,7 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kITRetrigger: desc = _T("Qxx behaves like in IT"); break;
 		case kITMultiSampleBehaviour: desc = _T("Properly update C-5 frequency when changing note in multisampled instrument"); break;
 		case kITPortaTargetReached: desc = _T("Clear portamento target after it has been reached"); break;
-		case kITPatternLoopBreak: desc = _T("Do not reset loop count on pattern break."); break;
+		case kITPatternLoopBreak: desc = _T("Do not reset loop count on pattern break"); break;
 		case kITOffset: desc = _T("Offset after sample end is treated like in IT"); break;
 		case kITSwingBehaviour: desc = _T("Volume and panning random variation work more like in IT"); break;
 		case kITNNAReset: desc = _T("NNA is reset on every note change, not every instrument change"); break;
@@ -559,7 +614,12 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kITNoSurroundPan: desc = _T("Panning modulation is disabled on surround channels"); break;
 		case kITShortSampleRetrig: desc = _T("Do not retrigger already stopped channels"); break;
 		case kITPortaNoNote: desc = _T("Do not apply any portamento if no previous note is playing"); break;
-		case kITDontResetNoteOffOnPorta: desc = _T("Only reset note-off status on portamento in IT Compatible Gxx mode"); break;
+		case kITFT2DontResetNoteOffOnPorta:
+			if(m_modType == MOD_TYPE_XM)
+				desc = _T("Reset note-off on portamento if there is an instrument number");
+			else
+				desc = _T("Reset note-off on portamento if there is an instrument number in Compatible Gxx mode");
+			break;
 		case kITVolColMemory: desc = _T("Volume column effects share their memory with the effect column"); break;
 		case kITPortamentoSwapResetsPos: desc = _T("Portamento with sample swap plays the new sample from the beginning"); break;
 		case kITEmptyNoteMapSlot: desc = _T("Ignore instrument note map entries with no note completely"); break;
@@ -568,7 +628,7 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kITClearPortaTarget: desc = _T("New notes reset portamento target in IT"); break;
 		case kITPanbrelloHold: desc = _T("Do not reset panbrello effect until next note or panning effect"); break;
 		case kITPanningReset: desc = _T("Sample and instrument panning is only applied on note change, not instrument change"); break;
-		case kITPatternLoopWithJumps: desc = _T("Bxx on the same row as SBx terminates the loop in IT"); break;
+		case kITPatternLoopWithJumpsOld: desc = _T("Bxx on the same row as SBx terminates the loop in IT"); break;
 		case kITInstrWithNoteOff: desc = _T("Instrument number with note-off recalls default volume"); break;
 		case kFT2Arpeggio: desc = _T("FT2 arpeggio algorithm"); break;
 		case kFT2Retrigger: desc = _T("Rxx behaves like in FT2"); break;
@@ -576,7 +636,7 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kFT2PortaNoNote: desc = _T("Do not play portamento-ed note if no previous note is playing"); break;
 		case kFT2KeyOff: desc = _T("FT2-style Kxx handling"); break;
 		case kFT2PanSlide: desc = _T("Volume-column pan slides are finer"); break;
-		case kFT2OffsetOutOfRange: desc = _T("FT2-style 9xx edge case handling"); break;
+		case kFT2ST3OffsetOutOfRange: desc = _T("Offset past sample end stops the note"); break;
 		case kFT2RestrictXCommand: desc = _T("Do not allow ModPlug extensions to X command"); break;
 		case kFT2RetrigWithNoteDelay: desc = _T("Retrigger envelopes if there is a note delay with no note"); break;
 		case kFT2SetPanEnvPos: desc = _T("Lxx only sets the pan envelope position if the volume envelope's sustain flag is set"); break;
@@ -595,97 +655,75 @@ BOOL CLegacyPlaybackSettingsDlg::OnInitDialog()
 		case kFT2Periods: desc = _T("Use FT2's broken period handling"); break;
 		case kFT2PanWithDelayedNoteOff: desc = _T("Panning command with delayed note-off is ignored"); break;
 		case kFT2VolColDelay: desc = _T("FT2-style volume column handling if there is a note delay"); break;
-		case kFT2FinetunePrecision: desc = _T("Round sample finetune to multiples of 16"); break;
-		case kFT2NoteOffFlags: desc = _T("Fade instrument on note-off when there is no volume envelope; instrument numbers reset note-off status."); break;
-		case kITMultiSampleInstrumentNumber: desc = _T("Lone instrument number after portamento within multi-sampled instrument sets the target sample's settings."); break;
+		case kFT2FinetunePrecision: desc = _T("Round sample finetune to multiples of 8"); break;
+		case kFT2NoteOffFlags: desc = _T("Fade instrument on note-off when there is no volume envelope; instrument numbers reset note-off status"); break;
+		case kITMultiSampleInstrumentNumber: desc = _T("Lone instrument number after portamento within multi-sampled instrument sets the target sample's settings"); break;
+		case kRowDelayWithNoteDelay: desc = _T("Note delays next to a row delay are repeated on every row repetition"); break;
+		case kFT2MODTremoloRampWaveform: desc = _T("Emulate FT2/ProTracker tremolo ramp down / triangle waveform"); break;
+		case kFT2PortaUpDownMemory: desc = _T("Portamento Up and Down have separate effect memory"); break;
 		case kST3NoMutedChannels: desc = _T("Do not process any effects on muted S3M channels"); break;
 		case kST3EffectMemory: desc = _T("Most effects share the same memory"); break;
-		case kST3PortaSampleChange: desc = _T("Portamento with instrument number applies volume settings of new sample, but not the new sample itself."); break;
+		case kST3PortaSampleChange: desc = _T("Portamento with instrument number applies volume settings of new sample, but not the new sample itself (GUS)"); break;
 		case kST3VibratoMemory: desc = _T("Do not remember vibrato type in effect memory"); break;
 		case kST3LimitPeriod: desc = _T("ModPlug Tracker frequency limits"); break;
+		case KST3PortaAfterArpeggio: desc = _T("Portamento immediately following an arpeggio effect continues at the last arpeggiated note"); break;
 		case kMODOneShotLoops: desc = _T("ProTracker one-shot loops"); break;
-		case kMODIgnorePanning: desc = _T("Ignore panning commands."); break;
+		case kMODIgnorePanning: desc = _T("Ignore panning commands"); break;
 		case kMODSampleSwap: desc = _T("Enable on-the-fly sample swapping"); break;
+		case kMODOutOfRangeNoteDelay: desc = _T("Out-of-range note delay is played on next row"); break;
+		case kMODTempoOnSecondTick: desc = _T("Tempo changes are handled on second tick instead of first"); break;
+		case kFT2PanSustainRelease: desc = _T("If the sustain point of the panning envelope is reached before key-off, it is never released"); break;
+		case kLegacyReleaseNode: desc = _T("Old volume envelope release node scaling behaviour"); break;
+		case kOPLBeatingOscillators: desc = _T("Beating OPL oscillators"); break;
+		case kST3OffsetWithoutInstrument: desc = _T("Notes without instrument use the previous note's sample offset"); break;
+		case kReleaseNodePastSustainBug: desc = _T("Broken release node after sustain end behaviour"); break;
+		case kFT2NoteDelayWithoutInstr: desc = _T("Delayed instrument-less notes should not recall volume and panning"); break;
+		case kOPLFlexibleNoteOff: desc = _T("Full control over OPL notes after note-off"); break;
+		case kITInstrWithNoteOffOldEffects: desc = _T("Instrument number with note-off retriggers envelopes with Old Effects enabled"); break;
+		case kMIDIVolumeOnNoteOffBug: desc = _T("Reset VST volume on note-off"); break;
+		case kITDoNotOverrideChannelPan: desc = _T("Instruments / samples with forced panning do not override channel panning for following instruments / samples"); break;
+		case kITPatternLoopWithJumps: desc = _T("Bxx right of SBx terminates the loop in IT"); break;
+		case kITDCTBehaviour: desc = _T("Duplicate Sample Check requires same instrument, Duplicate Note Check uses pattern notes for comparison"); break;
+		case kOPLwithNNA: desc = _T("New Note Action / Duplicate Note Action set to Note Off and Note Fade affect OPL notes like samples"); break;
+		case kST3RetrigAfterNoteCut: desc = _T("Notes cannot be retriggered after they have been cut"); break;
+		case kST3SampleSwap: desc = _T("Enable on-the-fly sample swapping (SoundBlaster driver)"); break;
+		case kOPLRealRetrig: desc = _T("Retrigger (Qxy) affects OPL notes"); break;
+		case kOPLNoResetAtEnvelopeEnd: desc = _T("Do not reset OPL channel status at end of envelopes"); break;
+		case kOPLNoteStopWith0Hz: desc = _T("OPL key-off sets note frequency to 0 Hz"); break;
+		case kOPLNoteOffOnNoteChange: desc = _T("Send OPL key-off when triggering notes"); break;
+		case kFT2PortaResetDirection: desc = _T("Tone Portamento direction resets after reaching portamento target from below"); break;
+		case kApplyUpperPeriodLimit: desc = _T("Apply lower frequency limit"); break;
+		case kApplyOffsetWithoutNote: desc = _T("Offset commands work without a note next to them"); break;
+		case kITPitchPanSeparation: desc = _T("Pitch / Pan Separation can be overridden by panning commands"); break;
+		case kImprecisePingPongLoops: desc = _T("Use old imprecise ping-pong loop end calculation"); break;
+		case kPluginIgnoreTonePortamento:
+			if(m_modType == MOD_TYPE_XM)
+				desc = _T("Ignore tone portamento and fine pitch slides for instrument plugins");
+			else
+				desc = _T("Ignore tone portamento for instrument plugins");
+			break;
+		case kST3TonePortaWithAdlibNote: desc = _T("OPL notes with Tone Portamento are delayed until the next row"); break;
+		case kITResetFilterOnPortaSmpChange: desc = _T("Reset filter on portamento if new note plays a different sample"); break;
+		case kITInitialNoteMemory: desc = _T("Initial Last Note Memory of each channel is C-0 instead of No Note"); break;
+		case kPluginDefaultProgramAndBank1: desc = _T("Assume initial plugin MIDI program and bank number is 1"); break;
 
-		default: MPT_ASSERT(0);
+		default: MPT_ASSERT_NOTREACHED();
 		}
+
+		if(filterActive && CString{desc}.MakeLower().Find(s) < 0)
+			continue;
 
 		if(m_playBehaviour[i] || allowedFlags[i])
 		{
 			int item = m_CheckList.AddString(desc);
 			m_CheckList.SetItemData(item, i);
 			int check = m_playBehaviour[i] ? BST_CHECKED : BST_UNCHECKED;
-			if(!allowedFlags[i]) check = BST_INDETERMINATE;	// Is checked but not supported by format -> grey out
+			if(!allowedFlags[i])
+				check = BST_INDETERMINATE;  // Is checked but not supported by format -> grey out
 			m_CheckList.SetCheck(item, check);
 		}
 	}
-	UpdateSelectDefaults();
-	return TRUE;
-}
-
-
-void CLegacyPlaybackSettingsDlg::OnOK()
-//-------------------------------------
-{
-	CDialog::OnOK();
-
-	const int count = m_CheckList.GetCount();
-	for(int i = 0; i < count; i++)
-	{
-		m_playBehaviour.set(m_CheckList.GetItemData(i), m_CheckList.GetCheck(i) != BST_UNCHECKED);
-	}
-}
-
-
-void CLegacyPlaybackSettingsDlg::OnSelectDefaults()
-//-------------------------------------------------
-{
-	const int count = m_CheckList.GetCount();
-	PlayBehaviourSet defaults = CSoundFile::GetDefaultPlaybackBehaviour(m_modType);
-	for(int i = 0; i < count; i++)
-	{
-		m_CheckList.SetCheck(i, defaults[m_CheckList.GetItemData(i)] ? BST_CHECKED : BST_UNCHECKED);
-	}
-}
-
-
-void CLegacyPlaybackSettingsDlg::UpdateSelectDefaults()
-//-----------------------------------------------------
-{
-	bool usesDefaults = false;
-	const int count = m_CheckList.GetCount();
-	PlayBehaviourSet defaults = CSoundFile::GetDefaultPlaybackBehaviour(m_modType);
-	for(int i = 0; i < count; i++)
-	{
-		if((m_CheckList.GetCheck(i) != BST_UNCHECKED) != defaults[m_CheckList.GetItemData(i)])
-		{
-			usesDefaults = true;
-			break;
-		}
-	}
-	GetDlgItem(IDC_BUTTON1)->EnableWindow(usesDefaults ? TRUE : FALSE);
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// CShowLogDlg
-
-BOOL CShowLogDlg::OnInitDialog()
-//------------------------------
-{
-	CDialog::OnInitDialog();
-	if (m_lpszTitle) SetWindowText(m_lpszTitle);
-	return FALSE;
-}
-
-
-UINT CShowLogDlg::ShowLog(LPCSTR pszLog, LPCSTR lpszTitle)
-//--------------------------------------------------------
-{
-	m_lpszLog = pszLog;
-	m_lpszTitle = lpszTitle;
-	return DoModal();
+	m_CheckList.SetRedraw(TRUE);
 }
 
 
@@ -693,7 +731,6 @@ UINT CShowLogDlg::ShowLog(LPCSTR pszLog, LPCSTR lpszTitle)
 // CRemoveChannelsDlg
 
 void CRemoveChannelsDlg::DoDataExchange(CDataExchange* pDX)
-//--------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_REMCHANSLIST,		m_RemChansList);
@@ -701,36 +738,34 @@ void CRemoveChannelsDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CRemoveChannelsDlg, CDialog)
-	ON_LBN_SELCHANGE(IDC_REMCHANSLIST,		OnChannelChanged)
+	ON_LBN_SELCHANGE(IDC_REMCHANSLIST,		&CRemoveChannelsDlg::OnChannelChanged)
 END_MESSAGE_MAP()
 
 
 
 BOOL CRemoveChannelsDlg::OnInitDialog()
-//-------------------------------------
 {
-	CHAR label[MAX(100, 20 + MAX_CHANNELNAME)];
+	CString s;
 	CDialog::OnInitDialog();
-	for (UINT n = 0; n < m_nChannels; n++)
+	const CHANNELINDEX numChannels = sndFile.GetNumChannels();
+	for(CHANNELINDEX n = 0; n < numChannels; n++)
 	{
+		s = MPT_CFORMAT("Channel {}")(n + 1);
 		if(sndFile.ChnSettings[n].szName[0] >= 0x20)
-			wsprintf(label, "Channel %d: %s", (n + 1), sndFile.ChnSettings[n].szName);
-		else
-			wsprintf(label, "Channel %d", n + 1);
-
-		m_RemChansList.SetItemData(m_RemChansList.AddString(label), n);
+		{
+			s += _T(": ");
+			s += mpt::ToCString(sndFile.GetCharsetInternal(), sndFile.ChnSettings[n].szName);
+		}
+		m_RemChansList.SetItemData(m_RemChansList.AddString(s), n);
 		if (!m_bKeepMask[n]) m_RemChansList.SetSel(n);
 	}
 
 	if (m_nRemove > 0)
-	{
-		wsprintf(label, "Select %u channel%s to remove:", m_nRemove, (m_nRemove != 1) ? "s" : "");
-	} else
-	{
-		wsprintf(label, "Select channels to remove (the minimum number of remaining channels is %u)", sndFile.GetModSpecifications().channelsMin);
-	}
+		s = MPT_CFORMAT("Select {} channel{} to remove:")(m_nRemove, (m_nRemove != 1) ? CString(_T("s")) : CString(_T("")));
+	else
+		s = MPT_CFORMAT("Select channels to remove (the minimum number of remaining channels is {})")(sndFile.GetModSpecifications().channelsMin);
 	
-	SetDlgItemText(IDC_QUESTION1, label);
+	SetDlgItemText(IDC_QUESTION1, s);
 	if(GetDlgItem(IDCANCEL)) GetDlgItem(IDCANCEL)->ShowWindow(m_ShowCancel);
 
 	OnChannelChanged();
@@ -739,19 +774,18 @@ BOOL CRemoveChannelsDlg::OnInitDialog()
 
 
 void CRemoveChannelsDlg::OnOK()
-//-----------------------------
 {
-	int nCount = m_RemChansList.GetSelCount();
-	CArray<int,int> aryListBoxSel;
-	aryListBoxSel.SetSize(nCount);
-	m_RemChansList.GetSelItems(nCount, aryListBoxSel.GetData()); 
+	int selCount = m_RemChansList.GetSelCount();
+	std::vector<int> selected(selCount);
+	m_RemChansList.GetSelItems(selCount, selected.data());
 
-	m_bKeepMask.assign(m_nChannels, true);
-	for (int n = 0; n < nCount; n++)
+	m_bKeepMask.assign(sndFile.GetNumChannels(), true);
+	for (const auto sel : selected)
 	{
-		m_bKeepMask[aryListBoxSel[n]] = false;
+		m_bKeepMask[sel] = false;
 	}
-	if ((static_cast<CHANNELINDEX>(nCount) == m_nRemove && nCount > 0)  || (m_nRemove == 0 && (sndFile.GetNumChannels() >= nCount + sndFile.GetModSpecifications().channelsMin)))
+	if ((static_cast<CHANNELINDEX>(selCount) == m_nRemove && selCount > 0)
+		|| (m_nRemove == 0 && (sndFile.GetNumChannels() >= selCount + sndFile.GetModSpecifications().channelsMin)))
 		CDialog::OnOK();
 	else
 		CDialog::OnCancel();
@@ -759,58 +793,66 @@ void CRemoveChannelsDlg::OnOK()
 
 
 void CRemoveChannelsDlg::OnChannelChanged()
-//-----------------------------------------
 {
-	UINT nr = 0;
-	nr = m_RemChansList.GetSelCount();
-	GetDlgItem(IDOK)->EnableWindow(((nr == m_nRemove && nr >0)  || (m_nRemove == 0 && (sndFile.GetNumChannels() >= nr + sndFile.GetModSpecifications().channelsMin) && nr > 0)) ? TRUE : FALSE);
+	const UINT selCount = m_RemChansList.GetSelCount();
+	GetDlgItem(IDOK)->EnableWindow(((selCount == m_nRemove && selCount > 0)  || (m_nRemove == 0 && (sndFile.GetNumChannels() >= selCount + sndFile.GetModSpecifications().channelsMin) && selCount > 0)) ? TRUE : FALSE);
 }
 
+
+InfoDialog::InfoDialog(CWnd *parent)
+	: ResizableDialog(IDD_INFO_BOX, parent)
+{ }
+
+BOOL InfoDialog::OnInitDialog()
+{
+	ResizableDialog::OnInitDialog();
+	SetWindowText(m_caption.c_str());
+	SetDlgItemText(IDC_EDIT1, m_content.c_str());
+	return TRUE;
+}
+
+void InfoDialog::SetContent(mpt::winstring content)
+{
+	m_content = std::move(content);
+}
+
+void InfoDialog::SetCaption(mpt::winstring caption)
+{
+	m_caption = std::move(caption);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Sound Bank Information
 
-CSoundBankProperties::CSoundBankProperties(const CDLSBank &bank, CWnd *parent) : CDialog(IDD_SOUNDBANK_INFO, parent)
-//------------------------------------------------------------------------------------------------------------------
+CSoundBankProperties::CSoundBankProperties(const CDLSBank &bank, CWnd *parent)
+	: InfoDialog(parent)
 {
-	
-	fileName = bank.GetFileName();
-
 	const SOUNDBANKINFO &bi = bank.GetBankInfo();
-	m_szInfo.reserve(128 + bi.szBankName.size() + bi.szDescription.size() + bi.szCopyRight.size() + bi.szEngineer.size() + bi.szSoftware.size() + bi.szComments.size());
-	m_szInfo = "Type:\t" + std::string((bank.GetBankType() & SOUNDBANK_TYPE_SF2) ? "Sound Font (SF2)" : "Downloadable Sound (DLS)");
+	std::string info;
+	info.reserve(128 + bi.szBankName.size() + bi.szDescription.size() + bi.szCopyRight.size() + bi.szEngineer.size() + bi.szSoftware.size() + bi.szComments.size());
+	info = "Type:\t" + std::string((bank.GetBankType() & SOUNDBANK_TYPE_SF2) ? "Sound Font (SF2)" : "Downloadable Sound (DLS)");
 	if (bi.szBankName.size())
-		m_szInfo += "\r\nName:\t" + bi.szBankName;
+		info += "\r\nName:\t" + bi.szBankName;
 	if (bi.szDescription.size())
-		m_szInfo += "\r\n\t" + bi.szDescription;
+		info += "\r\n\t" + bi.szDescription;
 	if (bi.szCopyRight.size())
-		m_szInfo += "\r\nCopyright:\t" + bi.szCopyRight;
+		info += "\r\nCopyright:\t" + bi.szCopyRight;
 	if (bi.szEngineer.size())
-		m_szInfo += "\r\nAuthor:\t" + bi.szEngineer;
+		info += "\r\nAuthor:\t" + bi.szEngineer;
 	if (bi.szSoftware.size())
-		m_szInfo += "\r\nSoftware:\t" + bi.szSoftware;
+		info += "\r\nSoftware:\t" + bi.szSoftware;
 	if (bi.szComments.size())
-	{
-		m_szInfo += "\r\n\r\nComments:\r\n" + bi.szComments;
-	}
-}
-
-
-BOOL CSoundBankProperties::OnInitDialog()
-//---------------------------------------
-{
-	CDialog::OnInitDialog();
-	SetDlgItemTextA(IDC_EDIT1, m_szInfo.c_str());
-	SetWindowTextW(m_hWnd, (fileName.AsNative() + L" - Sound Bank Information").c_str());
-	return TRUE;
+		info += "\r\n\r\nComments:\r\n" + bi.szComments;
+	SetCaption((bank.GetFileName().AsNative() + _T(" - Sound Bank Information")));
+	SetContent(mpt::ToWin(mpt::Charset::Locale, info));
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Control
 
-static const uint8 whitetab[7] = {0,2,4,5,7,9,11};
-static const uint8 blacktab[7] = {0xff,1,3,0xff,6,8,10};
+static constexpr uint8 whitetab[7] = {0,2,4,5,7,9,11};
+static constexpr uint8 blacktab[7] = {0xff,1,3,0xff,6,8,10};
 
 BEGIN_MESSAGE_MAP(CKeyboardControl, CWnd)
 	ON_WM_DESTROY()
@@ -821,139 +863,132 @@ BEGIN_MESSAGE_MAP(CKeyboardControl, CWnd)
 END_MESSAGE_MAP()
 
 
-void CKeyboardControl::Init(HWND parent, UINT nOctaves, bool cursNotify)
-//----------------------------------------------------------------------
+void CKeyboardControl::Init(CWnd *parent, int octaves, bool cursorNotify)
 {
-	m_hParent = parent;
-	m_nOctaves = nOctaves;
-	m_bCursorNotify = cursNotify;
+	m_parent = parent;
+	m_nOctaves = std::max(1, octaves);
+	m_cursorNotify = cursorNotify;
 	MemsetZero(KeyFlags);
 	MemsetZero(m_sampleNum);
 	
 	// Point size to pixels
 	int fontSize = -MulDiv(60, Util::GetDPIy(m_hWnd), 720);
-#if _WIN32_WINNT >= 0x0501
-	m_font.CreateFont(fontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_RASTER_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, FIXED_PITCH | FF_DONTCARE, "MS Shell Dlg");
-#else
-	m_font.CreateFont(fontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_RASTER_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_DONTCARE, "MS Shell Dlg");
-#endif
+	m_font.CreateFont(fontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_RASTER_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, FIXED_PITCH | FF_DONTCARE, _T("MS Shell Dlg"));
 }
 
 
 void CKeyboardControl::OnDestroy()
-//--------------------------------
 {
 	m_font.DeleteObject();
 }
 
 
-void CKeyboardControl::OnPaint()
-//------------------------------
+void CKeyboardControl::DrawKey(CPaintDC &dc, const CRect rect, int key, bool black) const
 {
-	HGDIOBJ oldpen, oldbrush;
+	const bool selected = (key == m_nSelection);
+	COLORREF color = black ? RGB(20, 20, 20) : RGB(255, 255, 255);
+	if(m_mouseDown && selected)
+		color = black ? RGB(104, 104, 104) : RGB(212, 212, 212);
+	else if(selected)
+		color = black ? RGB(130, 130, 130) : RGB(228, 228, 228);
+	dc.SetDCBrushColor(color);
+	dc.Rectangle(&rect);
+
+	if(static_cast<size_t>(key) < std::size(KeyFlags) && KeyFlags[key] != KEYFLAG_NORMAL)
+	{
+		const int margin = black ? 0 : 2;
+		CRect ellipseRect(rect.left + margin, rect.bottom - rect.Width() + margin, rect.right - margin, rect.bottom - margin);
+		dc.SetDCBrushColor((KeyFlags[key] & KEYFLAG_BRIGHTDOT) ? RGB(255, 192, 192) : RGB(255, 0, 0));
+		dc.Ellipse(ellipseRect);
+		if(m_sampleNum[key] != 0)
+		{
+			dc.SetTextColor((KeyFlags[key] & KEYFLAG_BRIGHTDOT) ? RGB(0, 0, 0) : RGB(255, 255, 255));
+			TCHAR s[16];
+			wsprintf(s, _T("%u"), m_sampleNum[key]);
+			dc.DrawText(s, -1, ellipseRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+		}
+
+		if(KeyFlags[key] == (KEYFLAG_REDDOT | KEYFLAG_BRIGHTDOT))
+		{
+			// Both flags set: Draw second dot
+			ellipseRect.MoveToY(ellipseRect.top - ellipseRect.Height() - 2);
+			dc.SetDCBrushColor(RGB(255, 0, 0));
+			dc.Ellipse(ellipseRect);
+		}
+	}
+}
+
+
+void CKeyboardControl::OnPaint()
+{
 	CRect rcClient, rect;
 	CPaintDC dc(this);
-	HDC hdc = dc.m_hDC;
-	HBRUSH brushDot[2];
 
-	if (!m_nOctaves) m_nOctaves = 1;
 	dc.SetBkMode(TRANSPARENT);
 	GetClientRect(&rcClient);
 	rect = rcClient;
-	oldpen = ::SelectObject(hdc, CMainFrame::penBlack);
-	oldbrush = ::SelectObject(hdc, CMainFrame::brushWhite);
-	brushDot[0] = ::CreateSolidBrush(RGB(0xFF, 0, 0));
-	brushDot[1] = ::CreateSolidBrush(RGB(0xFF, 0xC0, 0xC0));
-	CFont *oldFont = dc.SelectObject(&m_font);
+	auto oldBrush = dc.SelectObject(GetStockObject(DC_BRUSH));
+	auto oldPen = dc.SelectObject(GetStockObject(DC_PEN));
+	auto oldFont = dc.SelectObject(&m_font);
+
+	// Rectangle outline
+	dc.SetDCPenColor(RGB(50, 50, 50));
+
 	// White notes
-	for (UINT note=0; note<m_nOctaves*7; note++)
+	for(int note = 0; note < m_nOctaves * 7; note++)
 	{
 		rect.right = ((note + 1) * rcClient.Width()) / (m_nOctaves * 7);
-		int val = (note/7) * 12 + whitetab[note % 7];
-		if (val == m_nSelection) ::SelectObject(hdc, CMainFrame::brushGray);
-		dc.Rectangle(&rect);
-		if (val == m_nSelection) ::SelectObject(hdc, CMainFrame::brushWhite);
-		if (val < NOTE_MAX && KeyFlags[val] != KEYFLAG_NORMAL && KeyFlags[val] < KEYFLAG_MAX)
-		{
-			CRect ellipseRect(rect.left + 2, rect.bottom - (rect.right - rect.left) + 2, rect.right - 2, rect.bottom - 2);
-			::SelectObject(hdc, brushDot[KeyFlags[val] - 1]);
-			dc.Ellipse(ellipseRect);
-			::SelectObject(hdc, CMainFrame::brushWhite);
-			if(m_sampleNum[val] != 0)
-			{
-				dc.SetTextColor(KeyFlags[val] == KEYFLAG_REDDOT ? RGB(255, 255, 255) : RGB(0, 0, 0));
-				TCHAR s[16];
-				wsprintf(s, _T("%u"), m_sampleNum[val]);
-				dc.DrawText(s, -1, ellipseRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
-			}
-		}
+		int val = (note / 7) * 12 + whitetab[note % 7];
+
+		DrawKey(dc, rect, val, false);
+		
 		rect.left = rect.right - 1;
 	}
+
 	// Black notes
-	::SelectObject(hdc, CMainFrame::brushBlack);
 	rect = rcClient;
 	rect.bottom -= rcClient.Height() / 3;
-	for (UINT nblack=0; nblack<m_nOctaves*7; nblack++)
+	for(int note = 0; note < m_nOctaves * 7; note++)
 	{
-		switch(nblack % 7)
+		switch(note % 7)
 		{
 		case 1:
 		case 2:
 		case 4:
 		case 5:
 		case 6:
-			{
-				rect.left = (nblack * rcClient.Width()) / (m_nOctaves * 7);
-				rect.right = rect.left;
-				int delta = rcClient.Width() / (m_nOctaves * 7 * 3);
-				rect.left -= delta;
-				rect.right += delta;
-				int val = (nblack/7)*12 + blacktab[nblack%7];
-				if (val == m_nSelection) ::SelectObject(hdc, CMainFrame::brushGray);
-				dc.Rectangle(&rect);
-				if (val == m_nSelection) ::SelectObject(hdc, CMainFrame::brushBlack);
-				if (val < NOTE_MAX && KeyFlags[val] != KEYFLAG_NORMAL && KeyFlags[val] < KEYFLAG_MAX)
-				{
-					CRect ellipseRect(rect.left, rect.bottom - (rect.right - rect.left), rect.right, rect.bottom);
-					::SelectObject(hdc, brushDot[KeyFlags[val] - 1]);
-					dc.Ellipse(ellipseRect);
-					::SelectObject(hdc, CMainFrame::brushBlack);
-					if(m_sampleNum[val] != 0)
-					{
-						dc.SetTextColor(KeyFlags[val] == KEYFLAG_REDDOT ? RGB(255, 255, 255) : RGB(0, 0, 0));
-						TCHAR s[16];
-						wsprintf(s, _T("%u"), m_sampleNum[val]);
-						dc.DrawText(s, -1, ellipseRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
-					}
-				}
-			}
+		{
+			rect.left = (note * rcClient.Width()) / (m_nOctaves * 7);
+			rect.right = rect.left;
+			int delta = rcClient.Width() / (m_nOctaves * 7 * 3);
+			rect.left -= delta;
+			rect.right += delta;
+			int val = (note / 7) * 12 + blacktab[note % 7];
+
+			DrawKey(dc, rect, val, true);
 			break;
 		}
+		}
 	}
-	if (oldpen) ::SelectObject(hdc, oldpen);
-	if (oldbrush) ::SelectObject(hdc, oldbrush);
-	for(auto &brush : brushDot)
-	{
-		DeleteBrush(brush);
-	}
+
+	dc.SelectObject(oldBrush);
+	dc.SelectObject(oldPen);
 	dc.SelectObject(oldFont);
 }
 
 
 void CKeyboardControl::OnMouseMove(UINT flags, CPoint point)
-//----------------------------------------------------------
 {
-	int sel = -1, xmin, xmax;
 	CRect rcClient, rect;
-	if (!m_nOctaves) m_nOctaves = 1;
 	GetClientRect(&rcClient);
 	rect = rcClient;
-	xmin = rcClient.right;
-	xmax = rcClient.left;
+	int xmin = rcClient.right;
+	int xmax = rcClient.left;
+	int sel = -1;
 	// White notes
-	for (UINT note=0; note<m_nOctaves*7; note++)
+	for(int note = 0; note < m_nOctaves * 7; note++)
 	{
-		int val = (note/7)*12 + whitetab[note % 7];
+		int val = (note / 7) * 12 + whitetab[note % 7];
 		rect.right = ((note + 1) * rcClient.Width()) / (m_nOctaves * 7);
 		if (val == m_nSelection)
 		{
@@ -971,65 +1006,67 @@ void CKeyboardControl::OnMouseMove(UINT flags, CPoint point)
 	// Black notes
 	rect = rcClient;
 	rect.bottom -= rcClient.Height() / 3;
-	for (UINT nblack=0; nblack<m_nOctaves*7; nblack++)
+	for(int note = 0; note < m_nOctaves * 7; note++)
 	{
-		switch(nblack % 7)
+		switch(note % 7)
 		{
 		case 1:
 		case 2:
 		case 4:
 		case 5:
 		case 6:
+		{
+			int val = (note / 7) * 12 + blacktab[note % 7];
+			rect.left = (note * rcClient.Width()) / (m_nOctaves * 7);
+			rect.right = rect.left;
+			int delta = rcClient.Width() / (m_nOctaves * 7 * 3);
+			rect.left -= delta;
+			rect.right += delta;
+			if(val == m_nSelection)
 			{
-				int val = (nblack/7)*12 + blacktab[nblack % 7];
-				rect.left = (nblack * rcClient.Width()) / (m_nOctaves * 7);
-				rect.right = rect.left;
-				int delta = rcClient.Width() / (m_nOctaves * 7 * 3);
-				rect.left -= delta;
-				rect.right += delta;
-				if (val == m_nSelection)
-				{
-					if (rect.left < xmin) xmin = rect.left;
-					if (rect.right > xmax) xmax = rect.right;
-				}
-				if (rect.PtInRect(point))
-				{
-					sel = val;
-					if (rect.left < xmin) xmin = rect.left;
-					if (rect.right > xmax) xmax = rect.right;
-				}
+				if(rect.left < xmin)
+					xmin = rect.left;
+				if(rect.right > xmax)
+					xmax = rect.right;
+			}
+			if(rect.PtInRect(point))
+			{
+				sel = val;
+				if(rect.left < xmin)
+					xmin = rect.left;
+				if(rect.right > xmax)
+					xmax = rect.right;
 			}
 			break;
 		}
+		}
 	}
 	// Check for selection change
-	if (sel != m_nSelection)
+	if(sel != m_nSelection)
 	{
 		m_nSelection = sel;
 		rcClient.left = xmin;
 		rcClient.right = xmax;
 		InvalidateRect(&rcClient, FALSE);
-		if ((m_bCursorNotify) && (m_hParent))
+		if(m_cursorNotify && m_parent)
 		{
-			::PostMessage(m_hParent, WM_MOD_KBDNOTIFY, KBDNOTIFY_MOUSEMOVE, m_nSelection);
-			if((flags & MK_LBUTTON))
-			{
-				::SendMessage(m_hParent, WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONDOWN, m_nSelection);
-			}
+			m_parent->PostMessage(WM_MOD_KBDNOTIFY, KBDNOTIFY_MOUSEMOVE, m_nSelection);
+			if(flags & MK_LBUTTON)
+				m_parent->SendMessage(WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONDOWN, m_nSelection);
 		}
 	}
-	if (sel >= 0)
+	if(sel >= 0)
 	{
-		if (!m_bCapture)
+		if(!m_mouseCapture)
 		{
-			m_bCapture = TRUE;
+			m_mouseCapture = true;
 			SetCapture();
 		}
 	} else
 	{
-		if (m_bCapture)
+		if(m_mouseCapture)
 		{
-			m_bCapture = FALSE;
+			m_mouseCapture = false;
 			ReleaseCapture();
 		}
 	}
@@ -1037,22 +1074,20 @@ void CKeyboardControl::OnMouseMove(UINT flags, CPoint point)
 
 
 void CKeyboardControl::OnLButtonDown(UINT, CPoint)
-//------------------------------------------------
 {
-	if ((m_nSelection != -1) && (m_hParent))
-	{
-		::SendMessage(m_hParent, WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONDOWN, m_nSelection);
-	}
+	m_mouseDown = true;
+	InvalidateRect(nullptr, FALSE);
+	if(m_parent)
+		m_parent->SendMessage(WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONDOWN, m_nSelection);
 }
 
 
 void CKeyboardControl::OnLButtonUp(UINT, CPoint)
-//----------------------------------------------
 {
-	if ((m_nSelection != -1) && (m_hParent))
-	{
-		::SendMessage(m_hParent, WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONUP, m_nSelection);
-	}
+	m_mouseDown = false;
+	InvalidateRect(nullptr, FALSE);
+	if(m_parent)
+		m_parent->SendMessage(WM_MOD_KBDNOTIFY, KBDNOTIFY_LBUTTONUP, m_nSelection);
 }
 
 
@@ -1062,14 +1097,13 @@ void CKeyboardControl::OnLButtonUp(UINT, CPoint)
 //
 
 BEGIN_MESSAGE_MAP(CSampleMapDlg, CDialog)
-	ON_MESSAGE(WM_MOD_KBDNOTIFY,	OnKeyboardNotify)
+	ON_MESSAGE(WM_MOD_KBDNOTIFY,	&CSampleMapDlg::OnKeyboardNotify)
 	ON_WM_HSCROLL()
-	ON_COMMAND(IDC_CHECK1,			OnUpdateSamples)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnUpdateKeyboard)
+	ON_COMMAND(IDC_CHECK1,			&CSampleMapDlg::OnUpdateSamples)
+	ON_CBN_SELCHANGE(IDC_COMBO1,	&CSampleMapDlg::OnUpdateKeyboard)
 END_MESSAGE_MAP()
 
 void CSampleMapDlg::DoDataExchange(CDataExchange* pDX)
-//----------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSampleMapDlg)
@@ -1081,18 +1115,17 @@ void CSampleMapDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CSampleMapDlg::OnInitDialog()
-//--------------------------------
 {
 	CDialog::OnInitDialog();
 	ModInstrument *pIns = sndFile.Instruments[m_nInstrument];
-	if (pIns)
+	if(pIns)
 	{
-		for (UINT i=0; i<NOTE_MAX; i++)
+		for(UINT i = 0; i < NOTE_MAX; i++)
 		{
 			KeyboardMap[i] = pIns->Keyboard[i];
 		}
 	}
-	m_Keyboard.Init(m_hWnd, 3, TRUE);
+	m_Keyboard.Init(this, 3, TRUE);
 	m_SbOctave.SetRange(0, 7);
 	m_SbOctave.SetPos(4);
 	OnUpdateSamples();
@@ -1102,7 +1135,6 @@ BOOL CSampleMapDlg::OnInitDialog()
 
 
 void CSampleMapDlg::OnHScroll(UINT nCode, UINT nPos, CScrollBar *pBar)
-//--------------------------------------------------------------------
 {
 	CDialog::OnHScroll(nCode, nPos, pBar);
 	OnUpdateKeyboard();
@@ -1111,134 +1143,121 @@ void CSampleMapDlg::OnHScroll(UINT nCode, UINT nPos, CScrollBar *pBar)
 
 
 void CSampleMapDlg::OnUpdateSamples()
-//-----------------------------------
 {
-	UINT nOldPos = 0;
-	UINT nNewPos = 0;
-	bool showAll;
-	
-	if ((m_nInstrument >= MAX_INSTRUMENTS)) return;
-	if (m_CbnSample.GetCount() > 0)
-	{
-		nOldPos = m_CbnSample.GetItemData(m_CbnSample.GetCurSel());
-	}
+	UINT oldPos = 0;
+	UINT newPos = 0;
+
+	if(m_nInstrument >= MAX_INSTRUMENTS)
+		return;
+	if(m_CbnSample.GetCount() > 0)
+		oldPos = static_cast<UINT>(m_CbnSample.GetItemData(m_CbnSample.GetCurSel()));
+	m_CbnSample.SetRedraw(FALSE);
 	m_CbnSample.ResetContent();
-	showAll = (IsDlgButtonChecked(IDC_CHECK1) != FALSE);
-	
-	UINT nInsertPos;
-	nInsertPos = m_CbnSample.AddString("0: No sample");
-	m_CbnSample.SetItemData(nInsertPos, 0);
+	const bool showAll = (IsDlgButtonChecked(IDC_CHECK1) != FALSE) || (*std::max_element(std::begin(KeyboardMap), std::end(KeyboardMap)) == 0);
 
-	for (SAMPLEINDEX i = 1; i <= sndFile.GetNumSamples(); i++)
+	UINT insertPos = m_CbnSample.AddString(_T("0: No sample"));
+	m_CbnSample.SetItemData(insertPos, 0);
+
+	for(SAMPLEINDEX i = 1; i <= sndFile.GetNumSamples(); i++)
 	{
-		bool isUsed = showAll;
-
-		if (!isUsed)
-		{
-			for (auto smp : KeyboardMap)
-			{
-				if (smp == i)
-				{
-					isUsed = true;
-					break;
-				}
-			}
-		}
-		if (isUsed)
+		bool isUsed = showAll || mpt::contains(KeyboardMap, i);
+		if(isUsed)
 		{
 			CString sampleName;
-			sampleName.Format("%d: %s", i, sndFile.GetSampleName(i));
-			nInsertPos = m_CbnSample.AddString(sampleName);
-			
-			m_CbnSample.SetItemData(nInsertPos, i);
-			if (i == nOldPos) nNewPos = nInsertPos;
+			sampleName.Format(_T("%d: %s"), i, mpt::ToCString(sndFile.GetCharsetInternal(), sndFile.GetSampleName(i)).GetString());
+			insertPos = m_CbnSample.AddString(sampleName);
+
+			m_CbnSample.SetItemData(insertPos, i);
+			if(i == oldPos)
+				newPos = insertPos;
 		}
 	}
-	m_CbnSample.SetCurSel(nNewPos);
+	m_CbnSample.SetRedraw(TRUE);
+	m_CbnSample.SetCurSel(newPos);
 	OnUpdateKeyboard();
 }
 
 
 void CSampleMapDlg::OnUpdateOctave()
-//----------------------------------
 {
 	TCHAR s[64];
-
-	UINT nBaseOctave = m_SbOctave.GetPos() & 7;
-	wsprintf(s, _T("Octaves %u-%u"), nBaseOctave, nBaseOctave+2);
+	const UINT baseOctave = m_SbOctave.GetPos() & 7;
+	wsprintf(s, _T("Octaves %u-%u"), baseOctave, baseOctave + 2);
 	SetDlgItemText(IDC_TEXT1, s);
 }
 
 
 
 void CSampleMapDlg::OnUpdateKeyboard()
-//------------------------------------
 {
 	SAMPLEINDEX nSample = static_cast<SAMPLEINDEX>(m_CbnSample.GetItemData(m_CbnSample.GetCurSel()));
-	UINT nBaseOctave = m_SbOctave.GetPos() & 7;
-	BOOL bRedraw = FALSE;
-	for (UINT iNote=0; iNote<3*12; iNote++)
+	const UINT baseOctave = m_SbOctave.GetPos() & 7;
+	bool redraw = false;
+	for(UINT iNote = 0; iNote < 3 * 12; iNote++)
 	{
-		uint8 nOld = m_Keyboard.GetFlags(iNote);
+		uint8 oldFlags = m_Keyboard.GetFlags(iNote);
 		SAMPLEINDEX oldSmp = m_Keyboard.GetSample(iNote);
-		UINT ndx = nBaseOctave*12+iNote;
-		uint8 nNew = CKeyboardControl::KEYFLAG_NORMAL;
-		if(KeyboardMap[ndx] == nSample) nNew = CKeyboardControl::KEYFLAG_REDDOT;
-		else if(KeyboardMap[ndx] != 0) nNew = CKeyboardControl::KEYFLAG_BRIGHTDOT;
-		if (nNew != nOld || oldSmp != KeyboardMap[ndx])
+		UINT ndx = baseOctave * 12 + iNote;
+		uint8 newFlags = CKeyboardControl::KEYFLAG_NORMAL;
+		if(KeyboardMap[ndx] == nSample)
+			newFlags = CKeyboardControl::KEYFLAG_REDDOT;
+		else if(KeyboardMap[ndx] != 0)
+			newFlags = CKeyboardControl::KEYFLAG_BRIGHTDOT;
+		if(newFlags != oldFlags || oldSmp != KeyboardMap[ndx])
 		{
-			m_Keyboard.SetFlags(iNote, nNew);
+			m_Keyboard.SetFlags(iNote, newFlags);
 			m_Keyboard.SetSample(iNote, KeyboardMap[ndx]);
-			bRedraw = TRUE;
+			redraw = true;
 		}
 	}
-	if (bRedraw) m_Keyboard.InvalidateRect(NULL, FALSE);
+	if(redraw)
+		m_Keyboard.InvalidateRect(NULL, FALSE);
 }
 
 
 LRESULT CSampleMapDlg::OnKeyboardNotify(WPARAM wParam, LPARAM lParam)
-//-------------------------------------------------------------------
 {
-	CHAR s[32] = "--";
+	TCHAR s[32] = _T("--");
 
-	if ((lParam >= 0) && (lParam < 3*12))
+	if((lParam >= 0) && (lParam < 3 * 12))
 	{
-		SAMPLEINDEX nSample = static_cast<SAMPLEINDEX>(m_CbnSample.GetItemData(m_CbnSample.GetCurSel()));
-		uint32 nBaseOctave = m_SbOctave.GetPos() & 7;
-		
-		const std::string temp = sndFile.GetNoteName(static_cast<ModCommand::NOTE>(lParam + 1 + 12 * nBaseOctave), m_nInstrument).c_str();
-		if(temp.size() >= CountOf(s))
-			wsprintf(s, "%s", "...");
+		const SAMPLEINDEX sample = static_cast<SAMPLEINDEX>(m_CbnSample.GetItemData(m_CbnSample.GetCurSel()));
+		const uint32 baseOctave = m_SbOctave.GetPos() & 7;
+
+		const CString temp = mpt::ToCString(sndFile.GetNoteName(static_cast<ModCommand::NOTE>(lParam + 1 + 12 * baseOctave), m_nInstrument));
+		if(temp.GetLength() >= mpt::saturate_cast<int>(std::size(s)))
+			wsprintf(s, _T("%s"), _T("..."));
 		else
-			wsprintf(s, "%s", temp.c_str());
+			wsprintf(s, _T("%s"), temp.GetString());
 
 		ModInstrument *pIns = sndFile.Instruments[m_nInstrument];
-		if ((wParam == KBDNOTIFY_LBUTTONDOWN) && (nSample < MAX_SAMPLES) && (pIns))
+		if((wParam == KBDNOTIFY_LBUTTONDOWN) && (sample < MAX_SAMPLES) && (pIns))
 		{
-			uint32 iNote = static_cast<uint32>(nBaseOctave * 12 + lParam);
+			const uint32 note = static_cast<uint32>(baseOctave * 12 + lParam);
 
 			if(mouseAction == mouseUnknown)
 			{
 				// Mouse down -> decide if we are going to set or remove notes
 				mouseAction = mouseSet;
-				if(KeyboardMap[iNote] == nSample)
+				if(KeyboardMap[note] == sample)
 				{
-					 mouseAction = (KeyboardMap[iNote] == pIns->Keyboard[iNote]) ? mouseZero : mouseUnset;
+					mouseAction = (KeyboardMap[note] == pIns->Keyboard[note]) ? mouseZero : mouseUnset;
 				}
 			}
 
 			switch(mouseAction)
 			{
+			case mouseUnknown:
 			case mouseSet:
-				KeyboardMap[iNote] = nSample;
+				KeyboardMap[note] = sample;
 				break;
 			case mouseUnset:
-				KeyboardMap[iNote] = pIns->Keyboard[iNote];
+				KeyboardMap[note] = pIns->Keyboard[note];
 				break;
 			case mouseZero:
-				if(KeyboardMap[iNote] == nSample)
+				if(KeyboardMap[note] == sample)
 				{
-					KeyboardMap[iNote] = 0;
+					KeyboardMap[note] = 0;
 				}
 				break;
 			}
@@ -1255,21 +1274,20 @@ LRESULT CSampleMapDlg::OnKeyboardNotify(WPARAM wParam, LPARAM lParam)
 
 
 void CSampleMapDlg::OnOK()
-//------------------------
 {
 	ModInstrument *pIns = sndFile.Instruments[m_nInstrument];
-	if (pIns)
+	if(pIns)
 	{
-		BOOL bModified = FALSE;
-		for (UINT i=0; i<NOTE_MAX; i++)
+		bool modified = false;
+		for(UINT i = 0; i < NOTE_MAX; i++)
 		{
-			if (KeyboardMap[i] != pIns->Keyboard[i])
+			if(KeyboardMap[i] != pIns->Keyboard[i])
 			{
 				pIns->Keyboard[i] = KeyboardMap[i];
-				bModified = TRUE;
+				modified = true;
 			}
 		}
-		if (bModified)
+		if(modified)
 		{
 			CDialog::OnOK();
 			return;
@@ -1282,81 +1300,71 @@ void CSampleMapDlg::OnOK()
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Edit history dialog
 
-BEGIN_MESSAGE_MAP(CEditHistoryDlg, CDialog)
-	ON_COMMAND(IDC_BTN_CLEAR,	OnClearHistory)
+BEGIN_MESSAGE_MAP(CEditHistoryDlg, ResizableDialog)
+	ON_COMMAND(IDC_BTN_CLEAR,	&CEditHistoryDlg::OnClearHistory)
 END_MESSAGE_MAP()
 
 
 BOOL CEditHistoryDlg::OnInitDialog()
-//----------------------------------
 {
-	CDialog::OnInitDialog();
-
-	if(m_pModDoc == nullptr)
-		return TRUE;
+	ResizableDialog::OnInitDialog();
 
 	CString s;
 	uint64 totalTime = 0;
-	const size_t num = m_pModDoc->GetrSoundFile().GetFileHistory().size();
-	
-	for(size_t n = 0; n < num; n++)
-	{
-		const FileHistory *hist = &(m_pModDoc->GetrSoundFile().GetFileHistory().at(n));
-		totalTime += hist->openTime;
+	const auto &editHistory = m_modDoc.GetSoundFile().GetFileHistory();
+	const bool isEmpty = editHistory.empty();
 
+	for(const auto &entry : editHistory)
+	{
+		totalTime += entry.openTime;
 		// Date
-		TCHAR szDate[32];
-		if(hist->loadDate.tm_mday != 0)
-			_tcsftime(szDate, CountOf(szDate), _T("%d %b %Y, %H:%M:%S"), &hist->loadDate);
-		else
-			_tcscpy(szDate, _T("<unknown date>"));
+		CString sDate = CString(_T("<unknown date>"));
+		if(entry.HasValidDate())
+		{
+			const mpt::Date::Unix unixdate = ((m_modDoc.GetSoundFile().GetTimezoneInternal() == mpt::Date::LogicalTimezone::Local) || (m_modDoc.GetSoundFile().GetTimezoneInternal() == mpt::Date::LogicalTimezone::Unspecified))
+				? mpt::Date::UnixFromLocal(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::Local>(entry.loadDate))
+				: mpt::Date::UnixFromUTC(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(entry.loadDate));
+				;
+			sDate = CTime(mpt::Date::UnixAsSeconds(unixdate)).Format(_T("%d %b %Y, %H:%M:%S"));
+		}
 		// Time + stuff
-		uint32 duration = (uint32)((double)(hist->openTime) / HISTORY_TIMER_PRECISION);
-		s.AppendFormat(_T("Loaded %s, open for %luh %02lum %02lus\r\n"),
-			szDate, duration / 3600, (duration / 60) % 60, duration % 60);
+		uint32 duration = mpt::saturate_round<uint32>(entry.openTime / HISTORY_TIMER_PRECISION);
+		s += MPT_CFORMAT("Loaded {}, open for {}h {}m {}s\r\n")(
+			sDate, mpt::cfmt::dec(duration / 3600), mpt::cfmt::dec0<2>((duration / 60) % 60), mpt::cfmt::dec0<2>(duration % 60));
 	}
-	if(num == 0)
+	if(isEmpty)
 	{
 		s = _T("No information available about the previous edit history of this module.");
 	}
 	SetDlgItemText(IDC_EDIT_HISTORY, s);
 
 	// Total edit time
-	s = "";
+	s.Empty();
 	if(totalTime)
 	{
-		totalTime = (uint64)((double)(totalTime) / HISTORY_TIMER_PRECISION);
+		totalTime = mpt::saturate_round<uint64>(totalTime / HISTORY_TIMER_PRECISION);
 
-		s.Format(_T("Total edit time: %lluh %02llum %02llus (%u session%s)"), totalTime / 3600, (totalTime / 60) % 60, totalTime % 60, num, (num != 1) ? _T("s") : _T(""));
+		s.Format(_T("Total edit time: %lluh %02llum %02llus (%zu session%s)"), totalTime / 3600, (totalTime / 60) % 60, totalTime % 60, editHistory.size(), (editHistory.size() != 1) ? _T("s") : _T(""));
 		SetDlgItemText(IDC_TOTAL_EDIT_TIME, s);
 		// Window title
-		s.Format(_T("Edit history for %s"), m_pModDoc->GetTitle());
+		s.Format(_T("Edit History for %s"), m_modDoc.GetTitle().GetString());
 		SetWindowText(s);
 	}
 	// Enable or disable Clear button
-	GetDlgItem(IDC_BTN_CLEAR)->EnableWindow((m_pModDoc->GetrSoundFile().GetFileHistory().empty()) ? FALSE : TRUE);
+	GetDlgItem(IDC_BTN_CLEAR)->EnableWindow(isEmpty ? FALSE : TRUE);
 
 	return TRUE;
-
 }
 
 
 void CEditHistoryDlg::OnClearHistory()
-//------------------------------------
 {
-	if(m_pModDoc != nullptr && !m_pModDoc->GetrSoundFile().GetFileHistory().empty())
+	if(!m_modDoc.GetSoundFile().GetFileHistory().empty())
 	{
-		m_pModDoc->GetrSoundFile().GetFileHistory().clear();
-		m_pModDoc->SetModified();
+		m_modDoc.GetSoundFile().GetFileHistory().clear();
+		m_modDoc.SetModified();
 		OnInitDialog();
 	}
-}
-
-
-void CEditHistoryDlg::OnOK()
-//--------------------------
-{
-	CDialog::OnOK();
 }
 
 
@@ -1364,7 +1372,6 @@ void CEditHistoryDlg::OnOK()
 // Generic input dialog
 
 void CInputDlg::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	if(m_minValueInt == m_maxValueInt && m_minValueDbl == m_maxValueDbl)
@@ -1377,7 +1384,6 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL CInputDlg::OnInitDialog()
-//----------------------------
 {
 	CDialog::OnInitDialog();
 	SetDlgItemText(IDC_PROMPT, m_description);
@@ -1435,6 +1441,8 @@ BOOL CInputDlg::OnInitDialog()
 	{
 		// Text
 		m_spin.ShowWindow(SW_HIDE);
+		if(m_maxLength > 0)
+			Edit_LimitText(m_edit, m_maxLength);
 		SetDlgItemText(IDC_EDIT1, resultAsString);
 	}
 
@@ -1443,7 +1451,6 @@ BOOL CInputDlg::OnInitDialog()
 
 
 void CInputDlg::OnOK()
-//--------------------
 {
 	CDialog::OnOK();
 	GetDlgItemText(IDC_EDIT1, resultAsString);
@@ -1457,60 +1464,52 @@ void CInputDlg::OnOK()
 ///////////////////////////////////////////////////////////////////////////////////////
 // Messagebox with 'don't show again'-option.
 
-//===================================
 class CMsgBoxHidable : public CDialog
-//===================================
 {
 public:
-	CMsgBoxHidable(LPCTSTR strMsg, bool checkStatus = true, CWnd* pParent = NULL);
+	CMsgBoxHidable(const TCHAR *strMsg, bool checkStatus = true, CWnd* pParent = NULL);
 	enum { IDD = IDD_MSGBOX_HIDABLE };
 
+	const TCHAR *m_StrMsg;
 	int m_nCheckStatus;
-	LPCTSTR m_StrMsg;
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);   // DDX/DDV support
-	virtual BOOL OnInitDialog();
+	void DoDataExchange(CDataExchange* pDX) override;   // DDX/DDV support
+	BOOL OnInitDialog() override;
 };
 
 
 struct MsgBoxHidableMessage
-//=========================
 {
-	LPCTSTR strMsg;
-	uint32 nMask;
-	bool bDefaultDontShowAgainStatus; // true for don't show again, false for show again.
+	const TCHAR *message;
+	uint32 mask;
+	bool defaultDontShowAgainStatus; // true for don't show again, false for show again.
 };
 
-const MsgBoxHidableMessage HidableMessages[] =
+static constexpr MsgBoxHidableMessage HidableMessages[] =
 {
-	{_T("Note: First two bytes of oneshot samples are silenced for ProTracker compatibility."), 1, true},
-	{_T("Hint: To create IT-files without MPT-specific extensions included, try compatibility export from File-menu."), 1 << 1, true},
-	{_T("Press OK to apply signed/unsigned conversion\n (note: this often significantly increases volume level)"), 1 << 2, false},
-	{_T("Hint: To create XM-files without MPT-specific extensions included, try compatibility export from File-menu."), 1 << 3, true},
-	{_T("Warning: The exported file will not contain any of MPT's file format hacks."), 1 << 4, true},
+	{ _T("Note: First two bytes of oneshot samples are silenced for ProTracker compatibility."), 1, true },
+	{ _T("Hint: To create IT-files without MPT-specific extensions included, try compatibility export from File-menu."), 1 << 1, true },
+	{ _T("Hint: To create XM-files without MPT-specific extensions included, try compatibility export from File-menu."), 1 << 3, true },
+	{ _T("Warning: The exported file will not contain any of MPT's file format hacks."), 1 << 4, true },
 };
 
-STATIC_ASSERT(CountOf(HidableMessages) == enMsgBoxHidableMessage_count);
+static_assert(mpt::array_size<decltype(HidableMessages)>::size == enMsgBoxHidableMessage_count);
 
 // Messagebox with 'don't show this again'-checkbox. Uses parameter 'enMsg'
 // to get the needed information from message array, and updates the variable that
 // controls the show/don't show-flags.
 void MsgBoxHidable(enMsgBoxHidableMessage enMsg)
-//----------------------------------------------
 {
 	// Check whether the message should be shown.
-	if((TrackerSettings::Instance().gnMsgBoxVisiblityFlags & HidableMessages[enMsg].nMask) == 0)
+	if((TrackerSettings::Instance().gnMsgBoxVisiblityFlags & HidableMessages[enMsg].mask) == 0)
 		return;
 
-	const LPCTSTR strMsg = HidableMessages[enMsg].strMsg;
-	const uint32 mask = HidableMessages[enMsg].nMask;
-	const bool defaulCheckStatus = HidableMessages[enMsg].bDefaultDontShowAgainStatus;
-
 	// Show dialog.
-	CMsgBoxHidable dlg(strMsg, defaulCheckStatus);
+	CMsgBoxHidable dlg(HidableMessages[enMsg].message, HidableMessages[enMsg].defaultDontShowAgainStatus);
 	dlg.DoModal();
 
 	// Update visibility flags.
+	const uint32 mask = HidableMessages[enMsg].mask;
 	if(dlg.m_nCheckStatus == BST_CHECKED)
 		TrackerSettings::Instance().gnMsgBoxVisiblityFlags &= ~mask;
 	else
@@ -1518,15 +1517,13 @@ void MsgBoxHidable(enMsgBoxHidableMessage enMsg)
 }
 
 
-CMsgBoxHidable::CMsgBoxHidable(LPCTSTR strMsg, bool checkStatus, CWnd* pParent)
-	:	CDialog(CMsgBoxHidable::IDD, pParent),
-		m_StrMsg(strMsg),
-		m_nCheckStatus((checkStatus) ? BST_CHECKED : BST_UNCHECKED)
-//----------------------------------------------------------------------------
+CMsgBoxHidable::CMsgBoxHidable(const  TCHAR *strMsg, bool checkStatus, CWnd* pParent)
+	: CDialog(CMsgBoxHidable::IDD, pParent)
+	, m_StrMsg(strMsg)
+	, m_nCheckStatus((checkStatus) ? BST_CHECKED : BST_UNCHECKED)
 {}
 
 BOOL CMsgBoxHidable::OnInitDialog()
-//----------------------------------
 {
 	CDialog::OnInitDialog();
 	SetDlgItemText(IDC_MESSAGETEXT, m_StrMsg);
@@ -1535,7 +1532,6 @@ BOOL CMsgBoxHidable::OnInitDialog()
 }
 
 void CMsgBoxHidable::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Check(pDX, IDC_DONTSHOWAGAIN, m_nCheckStatus);
@@ -1547,16 +1543,14 @@ void CMsgBoxHidable::DoDataExchange(CDataExchange* pDX)
 
 
 void AppendNotesToControl(CComboBox& combobox, ModCommand::NOTE noteStart, ModCommand::NOTE noteEnd)
-//--------------------------------------------------------------------------------------------------
 {
 	const ModCommand::NOTE upperLimit = std::min(ModCommand::NOTE(NOTE_MAX), noteEnd);
 	for(ModCommand::NOTE note = noteStart; note <= upperLimit; note++)
-		combobox.SetItemData(combobox.AddString(CSoundFile::GetNoteName(note, CSoundFile::GetDefaultNoteNames()).c_str()), note);
+		combobox.SetItemData(combobox.AddString(mpt::ToCString(CSoundFile::GetNoteName(note, CSoundFile::GetDefaultNoteNames()))), note);
 }
 
 
 void AppendNotesToControlEx(CComboBox& combobox, const CSoundFile &sndFile, INSTRUMENTINDEX nInstr, ModCommand::NOTE noteStart, ModCommand::NOTE noteEnd)
-//-------------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	bool addSpecial = noteStart == noteEnd;
 	if(noteStart == noteEnd)
@@ -1566,7 +1560,7 @@ void AppendNotesToControlEx(CComboBox& combobox, const CSoundFile &sndFile, INST
 	}
 	for(ModCommand::NOTE note = noteStart; note <= noteEnd; note++)
 	{
-		combobox.SetItemData(combobox.AddString(sndFile.GetNoteName(note, nInstr).c_str()), note);
+		combobox.SetItemData(combobox.AddString(mpt::ToCString(sndFile.GetNoteName(note, nInstr))), note);
 	}
 	if(addSpecial)
 	{

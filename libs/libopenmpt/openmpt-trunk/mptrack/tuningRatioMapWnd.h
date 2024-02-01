@@ -10,43 +10,33 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "../soundlib/tuning.h"
+#include "../soundlib/modcommand.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 class CTuningDialog;
 
-typedef CTuning::NOTEINDEXTYPE NOTEINDEXTYPE;
+using NOTEINDEXTYPE = Tuning::NOTEINDEXTYPE;
 
 //Copied from CNoteMapWnd.
-//===============================
 class CTuningRatioMapWnd: public CStatic
-//===============================
 {
 	friend class CTuningDialog;
 protected:
-	const CTuning* m_pTuning;
+	const CTuning* m_pTuning = nullptr;
+	CTuningDialog* m_pParent = nullptr;
 
-	CTuningDialog* m_pParent;
+	int m_cxFont = 0, m_cyFont = 0;
+	NOTEINDEXTYPE m_nNote = NOTE_MIDDLEC;
 
-	HFONT m_hFont;
-	int m_cxFont, m_cyFont;
-	COLORREF colorText, colorTextSel;
-	NOTEINDEXTYPE m_nNote;
-
-	NOTEINDEXTYPE m_nNoteCentre;
+	NOTEINDEXTYPE m_nNoteCentre = NOTE_MIDDLEC;
 
 
 public:
-	CTuningRatioMapWnd() : m_cxFont(0),
-		m_cyFont(0),
-		m_hFont(NULL),
-		m_pTuning(NULL),
-		m_pParent(NULL),
-		m_nNoteCentre(61),
-		m_nNote(61) {}
-
-	VOID Init(CTuningDialog* const pParent, CTuning* const pTun) { m_pParent = pParent; m_pTuning = pTun;}
+	void Init(CTuningDialog* const pParent, CTuning* const tuning);
 
 	NOTEINDEXTYPE GetShownCentre() const;
 
@@ -54,7 +44,6 @@ protected:
 
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnLButtonDown(UINT, CPoint);
-	afx_msg void OnLButtonUp(UINT, CPoint);
 	afx_msg void OnSetFocus(CWnd *pOldWnd);
 	afx_msg void OnKillFocus(CWnd *pNewWnd);
 	afx_msg void OnPaint();

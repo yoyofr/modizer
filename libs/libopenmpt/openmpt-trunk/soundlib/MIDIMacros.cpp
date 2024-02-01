@@ -9,10 +9,8 @@
 
 
 #include "stdafx.h"
-#include "../soundlib/MIDIEvents.h"
 #include "MIDIMacros.h"
-#include "../common/mptStringBuffer.h"
-#include "../common/misc_util.h"
+#include "../soundlib/MIDIEvents.h"
 
 #ifdef MODPLUG_TRACKER
 #include "Sndfile.h"
@@ -23,24 +21,25 @@ OPENMPT_NAMESPACE_BEGIN
 
 ParameteredMacro MIDIMacroConfig::GetParameteredMacroType(uint32 macroIndex) const
 {
-	const std::string macro = GetSafeMacro(szMidiSFXExt[macroIndex]);
+	const std::string macro = SFx[macroIndex].NormalizedString();
 
 	for(uint32 i = 0; i < kSFxMax; i++)
 	{
 		ParameteredMacro sfx = static_cast<ParameteredMacro>(i);
 		if(sfx != kSFxCustom)
 		{
-			if(macro.compare(CreateParameteredMacro(sfx)) == 0) return sfx;
+			if(macro == CreateParameteredMacro(sfx))
+				return sfx;
 		}
 	}
 
 	// Special macros with additional "parameter":
-	if (macro.compare(CreateParameteredMacro(kSFxCC, MIDIEvents::MIDICC_start)) >= 0 && macro.compare(CreateParameteredMacro(kSFxCC, MIDIEvents::MIDICC_end)) <= 0 && macro.size() == 5)
+	if(macro.size() == 5 && macro.compare(CreateParameteredMacro(kSFxCC, MIDIEvents::MIDICC_start)) >= 0 && macro.compare(CreateParameteredMacro(kSFxCC, MIDIEvents::MIDICC_end)) <= 0)
 		return kSFxCC;
-	if (macro.compare(CreateParameteredMacro(kSFxPlugParam, 0)) >= 0 && macro.compare(CreateParameteredMacro(kSFxPlugParam, 0x17F)) <= 0 && macro.size() == 7)
+	if(macro.size() == 7 && macro.compare(CreateParameteredMacro(kSFxPlugParam, 0)) >= 0 && macro.compare(CreateParameteredMacro(kSFxPlugParam, 0x17F)) <= 0)
 		return kSFxPlugParam; 
 
-	return kSFxCustom;	// custom / unknown
+	return kSFxCustom;  // custom / unknown
 }
 
 
@@ -54,19 +53,10 @@ FixedMacro MIDIMacroConfig::GetFixedMacroType() const
 		if(zxx != kZxxCustom)
 		{
 			// Prepare macro pattern to compare
-			Macro macros[128];
-			CreateFixedMacro(macros, zxx);
-
-			bool found = true;
-			for(uint32 j = 0; j < 128; j++)
-			{
-				if(strncmp(macros[j], szMidiZXXExt[j], MACRO_LENGTH))
-				{
-					found = false;
-					break;
-				}
-			}
-			if(found) return zxx;
+			decltype(Zxx) fixedMacros{};
+			CreateFixedMacro(fixedMacros, zxx);
+			if(fixedMacros == Zxx)
+				return zxx;
 		}
 	}
 	return kZxxCustom; // Custom setup
@@ -77,17 +67,17 @@ void MIDIMacroConfig::CreateParameteredMacro(Macro &parameteredMacro, Parametere
 {
 	switch(macroType)
 	{
-	case kSFxUnused:     mpt::String::WriteAutoBuf(parameteredMacro) = ""; break;
-	case kSFxCutoff:     mpt::String::WriteAutoBuf(parameteredMacro) = "F0F000z"; break;
-	case kSFxReso:       mpt::String::WriteAutoBuf(parameteredMacro) = "F0F001z"; break;
-	case kSFxFltMode:    mpt::String::WriteAutoBuf(parameteredMacro) = "F0F002z"; break;
-	case kSFxDryWet:     mpt::String::WriteAutoBuf(parameteredMacro) = "F0F003z"; break;
-	case kSFxCC:         mpt::String::WriteAutoBuf(parameteredMacro) = mpt::format("Bc%1z")(mpt::fmt::HEX0<2>(subType & 0x7F)); break;
-	case kSFxPlugParam:  mpt::String::WriteAutoBuf(parameteredMacro) = mpt::format("F0F%1z")(mpt::fmt::HEX0<3>(std::min(subType, 0x17F) + 0x80)); break;
-	case kSFxChannelAT:  mpt::String::WriteAutoBuf(parameteredMacro) = "Dcz"; break;
-	case kSFxPolyAT:     mpt::String::WriteAutoBuf(parameteredMacro) = "Acnz"; break;
-	case kSFxPitch:      mpt::String::WriteAutoBuf(parameteredMacro) = "Ec00z"; break;
-	case kSFxProgChange: mpt::String::WriteAutoBuf(parameteredMacro) = "Ccz"; break;
+	case kSFxUnused:     parameteredMacro = ""; break;
+	case kSFxCutoff:     parameteredMacro = "F0F000z"; break;
+	case kSFxReso:       parameteredMacro = "F0F001z"; break;
+	case kSFxFltMode:    parameteredMacro = "F0F002z"; break;
+	case kSFxDryWet:     parameteredMacro = "F0F003z"; break;
+	case kSFxCC:         parameteredMacro = MPT_AFORMAT("Bc{}z")(mpt::afmt::HEX0<2>(subType & 0x7F)); break;
+	case kSFxPlugParam:  parameteredMacro = MPT_AFORMAT("F0F{}z")(mpt::afmt::HEX0<3>(std::min(subType, 0x17F) + 0x80)); break;
+	case kSFxChannelAT:  parameteredMacro = "Dcz"; break;
+	case kSFxPolyAT:     parameteredMacro = "Acnz"; break;
+	case kSFxPitch:      parameteredMacro = "Ec00z"; break;
+	case kSFxProgChange: parameteredMacro = "Ccz"; break;
 	case kSFxCustom:
 	default:
 		MPT_ASSERT_NOTREACHED();
@@ -98,69 +88,76 @@ void MIDIMacroConfig::CreateParameteredMacro(Macro &parameteredMacro, Parametere
 
 std::string MIDIMacroConfig::CreateParameteredMacro(ParameteredMacro macroType, int subType) const
 {
-	Macro parameteredMacro;
+	Macro parameteredMacro{};
 	CreateParameteredMacro(parameteredMacro, macroType, subType);
-	return mpt::String::ReadAutoBuf(parameteredMacro);
+	return parameteredMacro;
 }
 
 
 // Create Zxx (Z80 - ZFF) from preset
-void MIDIMacroConfig::CreateFixedMacro(Macro (&fixedMacros)[128], FixedMacro macroType) const
+void MIDIMacroConfig::CreateFixedMacro(std::array<Macro, kZxxMacros> &fixedMacros, FixedMacro macroType) const
 {
-	for(uint32 i = 0; i < 128; i++)
+	for(uint32 i = 0; i < kZxxMacros; i++)
 	{
-		const char *str = "";
 		uint32 param = i;
 		switch(macroType)
 		{
-		case kZxxUnused: str = ""; break;
+		case kZxxUnused:
+			fixedMacros[i] = "";
+			break;
 		case kZxxReso4Bit:
 			param = i * 8;
 			if(i < 16)
-				str = "F0F001%1";
+				fixedMacros[i] = MPT_AFORMAT("F0F001{}")(mpt::afmt::HEX0<2>(param));
 			else
-				str = "";
+				fixedMacros[i] = "";
 			break;
-		case kZxxReso7Bit: str = "F0F001%1"; break;
-		case kZxxCutoff:   str = "F0F000%1"; break;
-		case kZxxFltMode:  str = "F0F002%1"; break;
+		case kZxxReso7Bit:
+			fixedMacros[i] = MPT_AFORMAT("F0F001{}")(mpt::afmt::HEX0<2>(param));
+			break;
+		case kZxxCutoff:
+			fixedMacros[i] = MPT_AFORMAT("F0F000{}")(mpt::afmt::HEX0<2>(param));
+			break;
+		case kZxxFltMode:
+			fixedMacros[i] = MPT_AFORMAT("F0F002{}")(mpt::afmt::HEX0<2>(param));
+			break;
 		case kZxxResoFltMode:
 			param = (i & 0x0F) * 8;
 			if(i < 16)
-				str = "F0F001%1";
+				fixedMacros[i] = MPT_AFORMAT("F0F001{}")(mpt::afmt::HEX0<2>(param));
 			else if(i < 32)
-				str = "F0F002%1";
+				fixedMacros[i] = MPT_AFORMAT("F0F002{}")(mpt::afmt::HEX0<2>(param));
 			else
-				str = "";
+				fixedMacros[i] = "";
 			break;
-		case kZxxChannelAT:  str = "Dc%1"; break;
-		case kZxxPolyAT:     str = "Acn%1"; break;
-		case kZxxPitch:      str = "Ec00%1"; break;
-		case kZxxProgChange: str = "Cc%1"; break;
-
+		case kZxxChannelAT:
+			fixedMacros[i] = MPT_AFORMAT("Dc{}")(mpt::afmt::HEX0<2>(param));
+			break;
+		case kZxxPolyAT:
+			fixedMacros[i] = MPT_AFORMAT("Acn{}")(mpt::afmt::HEX0<2>(param));
+			break;
+		case kZxxPitch:
+			fixedMacros[i] = MPT_AFORMAT("Ec00{}")(mpt::afmt::HEX0<2>(param));
+			break;
+		case kZxxProgChange:
+			fixedMacros[i] = MPT_AFORMAT("Cc{}")(mpt::afmt::HEX0<2>(param));
+			break;
 		case kZxxCustom:
 		default:
 			MPT_ASSERT_NOTREACHED();
 			continue;
 		}
-
-		mpt::String::WriteAutoBuf(fixedMacros[i]) = mpt::format(str)(mpt::fmt::HEX0<2>(param));
 	}
+}
+
+
+bool MIDIMacroConfig::operator== (const MIDIMacroConfig &other) const
+{
+	return std::equal(begin(), end(), other.begin());
 }
 
 
 #ifdef MODPLUG_TRACKER
-
-bool MIDIMacroConfig::operator== (const MIDIMacroConfig &other) const
-{
-	for(auto left = begin(), right = other.begin(); left != end(); left++, right++)
-	{
-		if(strncmp(*left, *right, MACRO_LENGTH))
-			return false;
-	}
-	return true;
-}
-
 
 // Returns macro description including plugin parameter / MIDI CC information
 CString MIDIMacroConfig::GetParameteredMacroName(uint32 macroIndex, IMixPlugin *plugin) const
@@ -248,11 +245,11 @@ CString MIDIMacroConfig::GetFixedMacroName(FixedMacro macroType) const
 }
 
 
-int MIDIMacroConfig::MacroToPlugParam(uint32 macroIndex) const
+PlugParamIndex MIDIMacroConfig::MacroToPlugParam(uint32 macroIndex) const
 {
-	const std::string macro = GetSafeMacro(szMidiSFXExt[macroIndex]);
+	const std::string macro = SFx[macroIndex].NormalizedString();
 
-	int code = 0;
+	PlugParamIndex code = 0;
 	const char *param = macro.c_str();
 	param += 4;
 	if ((param[0] >= '0') && (param[0] <= '9')) code = (param[0] - '0') << 4; else
@@ -260,7 +257,7 @@ int MIDIMacroConfig::MacroToPlugParam(uint32 macroIndex) const
 	if ((param[1] >= '0') && (param[1] <= '9')) code += (param[1] - '0'); else
 		if ((param[1] >= 'A') && (param[1] <= 'F')) code += (param[1] - 'A' + 0x0A);
 
-	if (macro.size() >= 4 && macro.at(3) == '0')
+	if (macro.size() >= 4 && macro[3] == '0')
 		return (code - 128);
 	else
 		return (code + 128);
@@ -269,7 +266,7 @@ int MIDIMacroConfig::MacroToPlugParam(uint32 macroIndex) const
 
 int MIDIMacroConfig::MacroToMidiCC(uint32 macroIndex) const
 {
-	const std::string macro = GetSafeMacro(szMidiSFXExt[macroIndex]);
+	const std::string macro = SFx[macroIndex].NormalizedString();
 
 	int code = 0;
 	const char *param = macro.c_str();
@@ -285,7 +282,7 @@ int MIDIMacroConfig::MacroToMidiCC(uint32 macroIndex) const
 
 int MIDIMacroConfig::FindMacroForParam(PlugParamIndex param) const
 {
-	for(int macroIndex = 0; macroIndex < NUM_MACROS; macroIndex++)
+	for(int macroIndex = 0; macroIndex < kSFxMacros; macroIndex++)
 	{
 		if(GetParameteredMacroType(macroIndex) == kSFxPlugParam && MacroToPlugParam(macroIndex) == param)
 		{
@@ -302,41 +299,20 @@ int MIDIMacroConfig::FindMacroForParam(PlugParamIndex param) const
 // i.e. the configuration that is assumed when loading a file that has no macros embedded.
 bool MIDIMacroConfig::IsMacroDefaultSetupUsed() const
 {
-	const MIDIMacroConfig defaultConfig;
-
-	// TODO - Global macros (currently not checked because they are not editable)
-
-	// SF0: Z00-Z7F controls cutoff, all other parametered macros are unused
-	for(uint32 i = 0; i < NUM_MACROS; i++)
-	{
-		if(GetParameteredMacroType(i) != defaultConfig.GetParameteredMacroType(i))
-		{
-			return false;
-		}
-	}
-
-	// Z80-Z8F controls resonance
-	if(GetFixedMacroType() != defaultConfig.GetFixedMacroType())
-	{
-		return false;
-	}
-
-	return true;
+	return *this == MIDIMacroConfig{};
 }
 
 
 // Reset MIDI macro config to default values.
 void MIDIMacroConfig::Reset()
 {
-	MemsetZero(szMidiGlb);
-	MemsetZero(szMidiSFXExt);
-	MemsetZero(szMidiZXXExt);
+	std::fill(begin(), end(), Macro{});
 
-	strcpy(szMidiGlb[MIDIOUT_START], "FF");
-	strcpy(szMidiGlb[MIDIOUT_STOP], "FC");
-	strcpy(szMidiGlb[MIDIOUT_NOTEON], "9c n v");
-	strcpy(szMidiGlb[MIDIOUT_NOTEOFF], "9c n 0");
-	strcpy(szMidiGlb[MIDIOUT_PROGRAM], "Cc p");
+	Global[MIDIOUT_START] = "FF";
+	Global[MIDIOUT_STOP] = "FC";
+	Global[MIDIOUT_NOTEON] = "9c n v";
+	Global[MIDIOUT_NOTEOFF] = "9c n 0";
+	Global[MIDIOUT_PROGRAM] = "Cc p";
 	// SF0: Z00-Z7F controls cutoff
 	CreateParameteredMacro(0, kSFxCutoff);
 	// Z80-Z8F controls resonance
@@ -347,8 +323,8 @@ void MIDIMacroConfig::Reset()
 // Clear all Zxx macros so that they do nothing.
 void MIDIMacroConfig::ClearZxxMacros()
 {
-	MemsetZero(szMidiSFXExt);
-	MemsetZero(szMidiZXXExt);
+	std::fill(SFx.begin(), SFx.end(), Macro{});
+	std::fill(Zxx.begin(), Zxx.end(), Macro{});
 }
 
 
@@ -357,26 +333,7 @@ void MIDIMacroConfig::Sanitize()
 {
 	for(auto &macro : *this)
 	{
-		mpt::String::FixNullString(macro);
-	}
-}
-
-
-// Helper function for UpgradeMacros()
-void MIDIMacroConfig::UpgradeMacroString(Macro &macro) const
-{
-	for(auto &c : macro)
-	{
-		if(c >= 'a' && c <= 'f') // Both A-F and a-f were treated as hex constants
-		{
-			c = c - 'a' + 'A';
-		} else if(c == 'K' || c == 'k') // Channel was K or k
-		{
-			c = 'c';
-		} else if(c == 'X' || c == 'x' || c == 'Y' || c == 'y') // Those were pointless
-		{
-			c = 'z';
-		}
+		macro.Sanitize();
 	}
 }
 
@@ -384,17 +341,21 @@ void MIDIMacroConfig::UpgradeMacroString(Macro &macro) const
 // Fix old-format (not conforming to IT's MIDI macro definitions) MIDI config strings.
 void MIDIMacroConfig::UpgradeMacros()
 {
-	for(auto &macro : *this)
+	for(auto &macro : SFx)
 	{
-		UpgradeMacroString(macro);
+		macro.UpgradeLegacyMacro();
+	}
+	for(auto &macro : Zxx)
+	{
+		macro.UpgradeLegacyMacro();
 	}
 }
 
 
 // Normalize by removing blanks and other unwanted characters from macro strings for internal usage.
-std::string MIDIMacroConfig::GetSafeMacro(const Macro &macro) const
+std::string MIDIMacroConfig::Macro::NormalizedString() const
 {
-	std::string sanitizedMacro = macro;
+	std::string sanitizedMacro = *this;
 
 	std::string::size_type pos;
 	while((pos = sanitizedMacro.find_first_not_of("0123456789ABCDEFabchmnopsuvxyz")) != std::string::npos)
@@ -403,6 +364,37 @@ std::string MIDIMacroConfig::GetSafeMacro(const Macro &macro) const
 	}
 
 	return sanitizedMacro;
+}
+
+
+void MIDIMacroConfig::Macro::Sanitize() noexcept
+{
+	m_data.back() = '\0';
+	const auto length = Length();
+	std::fill(m_data.begin() + length, m_data.end(), '\0');
+	for(size_t i = 0; i < length; i++)
+	{
+		if(m_data[i] < 32 || m_data[i] >= 127)
+			m_data[i] = ' ';
+	}
+}
+
+
+void MIDIMacroConfig::Macro::UpgradeLegacyMacro() noexcept
+{
+	for(auto &c : m_data)
+	{
+		if(c >= 'a' && c <= 'f')  // Both A-F and a-f were treated as hex constants
+		{
+			c = c - 'a' + 'A';
+		} else if(c == 'K' || c == 'k')  // Channel was K or k
+		{
+			c = 'c';
+		} else if(c == 'X' || c == 'x' || c == 'Y' || c == 'y')  // Those were pointless
+		{
+			c = 'z';
+		}
+	}
 }
 
 

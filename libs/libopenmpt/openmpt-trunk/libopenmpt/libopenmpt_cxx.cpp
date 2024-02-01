@@ -7,7 +7,11 @@
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
+
+#if defined(__MINGW32__) && !defined(__MINGW64__)
+#include <sys/types.h>
+#endif
 
 #include "libopenmpt_internal.h"
 #include "libopenmpt.hpp"
@@ -114,8 +118,6 @@ std::string get( const std::string & key ) {
 } // namespace string
 
 } // namespace openmpt
-
-#ifndef NO_LIBOPENMPT_CXX
 
 namespace openmpt {
 
@@ -314,6 +316,9 @@ std::int32_t module::get_current_speed() const {
 std::int32_t module::get_current_tempo() const {
 	return impl->get_current_tempo();
 }
+double module::get_current_tempo2() const {
+	return impl->get_current_tempo2();
+}
 std::int32_t module::get_current_order() const {
 	return impl->get_current_order();
 }
@@ -500,5 +505,3 @@ void * module_ext::get_interface( const std::string & interface_id ) {
 }
 
 } // namespace openmpt
-
-#endif // NO_LIBOPENMPT_CXX

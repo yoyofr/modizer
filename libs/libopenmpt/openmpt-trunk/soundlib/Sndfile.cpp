@@ -10,30 +10,35 @@
 
 
 #include "stdafx.h"
-#ifdef MODPLUG_TRACKER
-#include "../mptrack/Mptrack.h"	// For CTrackApp::OpenURL
-#include "../mptrack/TrackerSettings.h"
-#include "../mptrack/Moddoc.h"
-#include "../mptrack/Reporting.h"
-#include "../mptrack/Mainfrm.h"
-#endif // MODPLUG_TRACKER
-#ifdef MPT_EXTERNAL_SAMPLES
-#include "../common/mptFileIO.h"
-#endif // MPT_EXTERNAL_SAMPLES
-#include "../common/version.h"
-#include "../soundlib/AudioCriticalSection.h"
-#include "../common/mptIO.h"
-#include "../common/serialization_utils.h"
 #include "Sndfile.h"
-#include "Tables.h"
+#include "Container.h"
 #include "mod_specifications.h"
+#include "OPL.h"
+#include "Tables.h"
 #include "tuningcollection.h"
 #include "plugins/PluginManager.h"
 #include "plugins/PlugInterface.h"
-#include "../common/mptStringBuffer.h"
 #include "../common/FileReader.h"
-#include "Container.h"
-#include "OPL.h"
+#include "../common/mptStringBuffer.h"
+#include "../common/serialization_utils.h"
+#include "../common/version.h"
+#include "../soundlib/AudioCriticalSection.h"
+#include "mpt/io/io.hpp"
+#include "mpt/io/io_stdstream.hpp"
+
+#ifdef MODPLUG_TRACKER
+#include "../mptrack/Mainfrm.h"
+#include "../mptrack/Moddoc.h"
+#include "../mptrack/Mptrack.h"	// For CTrackApp::OpenURL
+#include "../mptrack/Reporting.h"
+#include "../mptrack/TrackerSettings.h"
+#endif // MODPLUG_TRACKER
+
+#ifdef MPT_EXTERNAL_SAMPLES
+#include "../common/mptFileIO.h"
+#include "mpt/io_file/inputfile.hpp"
+#include "mpt/io_file_read/inputfile_filecursor.hpp"
+#endif // MPT_EXTERNAL_SAMPLES
 
 #ifndef NO_ARCHIVE_SUPPORT
 #include "../unarchiver/unarchiver.h"
@@ -53,19 +58,54 @@ bool SettingCacheCompleteFileBeforeLoading()
 }
 
 
-mpt::ustring FileHistory::AsISO8601() const
+mpt::ustring FileHistory::AsISO8601(mpt::Date::LogicalTimezone internalTimezone) const
 {
-	tm date = loadDate;
 	if(openTime > 0)
 	{
 		// Calculate the date when editing finished.
 		double openSeconds = static_cast<double>(openTime) / HISTORY_TIMER_PRECISION;
-		tm tmpLoadDate = loadDate;
-		int64 loadDateSinceEpoch = mpt::Date::Unix::FromUTC(tmpLoadDate);
-		int64 saveDateSinceEpoch = loadDateSinceEpoch + mpt::saturate_round<int64>(openSeconds);
-		date = mpt::Date::Unix(saveDateSinceEpoch).AsUTC();
+		mpt::Date::AnyGregorian tmpLoadDate = loadDate;
+		if (internalTimezone == mpt::Date::LogicalTimezone::UTC)
+		{
+			int64 loadDateSinceEpoch = mpt::Date::UnixAsSeconds(mpt::Date::UnixFromUTC(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(tmpLoadDate)));
+			int64 saveDateSinceEpoch = loadDateSinceEpoch + mpt::saturate_round<int64>(openSeconds);
+			return mpt::Date::ToShortenedISO8601(mpt::Date::UnixAsUTC(mpt::Date::UnixFromSeconds(saveDateSinceEpoch)));
+#ifdef MODPLUG_TRACKER
+		} else if(internalTimezone == mpt::Date::LogicalTimezone::Local)
+		{
+			int64 loadDateSinceEpoch = mpt::Date::UnixAsSeconds(mpt::Date::UnixFromLocal(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::Local>(tmpLoadDate)));
+			int64 saveDateSinceEpoch = loadDateSinceEpoch + mpt::saturate_round<int64>(openSeconds);
+			return mpt::Date::ToShortenedISO8601(mpt::Date::UnixAsLocal(mpt::Date::UnixFromSeconds(saveDateSinceEpoch)));
+#endif // MODPLUG_TRACKER
+		} else
+		{
+			// assume UTC for unspecified timezone when calculating
+			int64 loadDateSinceEpoch = mpt::Date::UnixAsSeconds(mpt::Date::UnixFromUTC(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(tmpLoadDate)));
+			int64 saveDateSinceEpoch = loadDateSinceEpoch + mpt::saturate_round<int64>(openSeconds);
+			return mpt::Date::ToShortenedISO8601(mpt::Date::forget_timezone(mpt::Date::UnixAsUTC(mpt::Date::UnixFromSeconds(saveDateSinceEpoch))));
+		}
+	} else
+	{
+		if(internalTimezone == mpt::Date::LogicalTimezone::UTC)
+		{
+			return mpt::Date::ToShortenedISO8601(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(loadDate));
+#ifdef MODPLUG_TRACKER
+		} else if(internalTimezone == mpt::Date::LogicalTimezone::Local)
+		{
+			return mpt::Date::ToShortenedISO8601(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::Local>(loadDate));
+#endif // MODPLUG_TRACKER
+		} else
+		{
+			return mpt::Date::ToShortenedISO8601(loadDate);
+		}
 	}
-	return mpt::Date::ToShortenedISO8601(date);
+}
+
+
+CSoundFile::PlayState::PlayState()
+{
+	std::fill(std::begin(Chn), std::end(Chn), ModChannel{});
+	m_midiMacroScratchSpace.reserve(kMacroLength);  // Note: If macros ever become variable-length, the scratch space needs to be at least one byte longer than the longest macro in the file for end-of-SysEx insertion to stay allocation-free in the mixer!
 }
 
 
@@ -83,12 +123,12 @@ CSoundFile::CSoundFile() :
 	m_pModSpecs(&ModSpecs::itEx),
 	m_nType(MOD_TYPE_NONE),
 	Patterns(*this),
-#ifdef MODPLUG_TRACKER
-	m_MIDIMapper(*this),
-#endif
 	Order(*this),
 	m_PRNG(mpt::make_prng<mpt::fast_prng>(mpt::global_prng())),
-	visitedSongRows(*this)
+	m_visitedRows(*this)
+#ifdef MODPLUG_TRACKER
+	, m_MIDIMapper(*this)
+#endif
 {
 	MemsetZero(MixSoundBuffer);
 	MemsetZero(MixRearBuffer);
@@ -129,7 +169,7 @@ void CSoundFile::AddToLog(LogLevel level, const mpt::ustring &text) const
 		#ifdef MODPLUG_TRACKER
 			if(GetpModDoc()) GetpModDoc()->AddToLog(level, text);
 		#else
-			MPT_LOG(level, "soundlib", text);
+			MPT_LOG_GLOBAL(level, "soundlib", text);
 		#endif
 	}
 }
@@ -143,6 +183,11 @@ void CSoundFile::InitializeGlobals(MODTYPE type)
 
 	MODTYPE bestType = GetBestSaveFormat();
 	m_playBehaviour = GetDefaultPlaybackBehaviour(bestType);
+	if(bestType == MOD_TYPE_IT && type != bestType)
+	{
+		// This is such an odd behaviour that it's unlikely that any of the other formats will need it by default. Re-enable as needed.
+		m_playBehaviour.reset(kITInitialNoteMemory);
+	}
 	SetModSpecsPointer(m_pModSpecs, bestType);
 
 	// Delete instruments in case some previously called loader already created them.
@@ -152,7 +197,7 @@ void CSoundFile::InitializeGlobals(MODTYPE type)
 		Instruments[i] = nullptr;
 	}
 
-	m_ContainerType = MOD_CONTAINERTYPE_NONE;
+	m_ContainerType = ModContainerType::None;
 	m_nChannels = 0;
 	m_nInstruments = 0;
 	m_nSamples = 0;
@@ -169,7 +214,7 @@ void CSoundFile::InitializeGlobals(MODTYPE type)
 	m_dwLastSavedWithVersion = Version(0);
 	m_dwCreatedWithVersion = Version(0);
 
-	SetMixLevels(mixLevelsCompatible);
+	SetMixLevels(MixLevels::Compatible);
 
 	Patterns.ClearPatterns();
 	Order.Initialize();
@@ -255,15 +300,25 @@ static constexpr FileFormatLoader ModuleFormatLoaders[] =
 	MPT_DECLARE_FORMAT(PLM),
 	MPT_DECLARE_FORMAT(AM),
 	MPT_DECLARE_FORMAT(J2B),
+	MPT_DECLARE_FORMAT(GT2),
+	MPT_DECLARE_FORMAT(GTK),
 	MPT_DECLARE_FORMAT(PT36),
+	MPT_DECLARE_FORMAT(SymMOD),
+	MPT_DECLARE_FORMAT(MUS_KM),
+	MPT_DECLARE_FORMAT(FMT),
 	MPT_DECLARE_FORMAT(SFX),
 	MPT_DECLARE_FORMAT(STP),
+	MPT_DECLARE_FORMAT(DSym),
+	MPT_DECLARE_FORMAT(STX),
 	MPT_DECLARE_FORMAT(MOD),
 	MPT_DECLARE_FORMAT(ICE),
 	MPT_DECLARE_FORMAT(669),
+	MPT_DECLARE_FORMAT(667),
 	MPT_DECLARE_FORMAT(C67),
 	MPT_DECLARE_FORMAT(MO3),
+	MPT_DECLARE_FORMAT(DSm),
 	MPT_DECLARE_FORMAT(M15),
+	MPT_DECLARE_FORMAT(XMF),
 };
 
 #undef MPT_DECLARE_FORMAT
@@ -298,14 +353,14 @@ CSoundFile::ProbeResult CSoundFile::ProbeAdditionalSize(MemoryFileReader &file, 
 
 
 #define MPT_DO_PROBE( storedResult , call ) \
-	MPT_DO { \
+	do { \
 		ProbeResult lastResult = call ; \
 		if(lastResult == ProbeSuccess) { \
 			return ProbeSuccess; \
 		} else if(lastResult == ProbeWantMoreData) { \
 			storedResult = ProbeWantMoreData; \
 		} \
-	} MPT_WHILE_0 \
+	} while(0) \
 /**/
 
 
@@ -323,10 +378,12 @@ CSoundFile::ProbeResult CSoundFile::Probe(ProbeFlags flags, mpt::span<const std:
 	MemoryFileReader file(data);
 	if(flags & ProbeContainers)
 	{
+#if !defined(MPT_WITH_ANCIENT)
 		MPT_DO_PROBE(result, ProbeFileHeaderMMCMP(file, pfilesize));
 		MPT_DO_PROBE(result, ProbeFileHeaderPP20(file, pfilesize));
-		MPT_DO_PROBE(result, ProbeFileHeaderUMX(file, pfilesize));
 		MPT_DO_PROBE(result, ProbeFileHeaderXPK(file, pfilesize));
+#endif // !MPT_WITH_ANCIENT
+		MPT_DO_PROBE(result, ProbeFileHeaderUMX(file, pfilesize));
 	}
 	if(flags & ProbeModules)
 	{
@@ -350,7 +407,7 @@ CSoundFile::ProbeResult CSoundFile::Probe(ProbeFlags flags, mpt::span<const std:
 	{
 		if((result == ProbeWantMoreData) && (data.size() >= ProbeRecommendedSize))
 		{
-			// If the prober wants more daat but we already provided the recommended required maximum,
+			// If the prober wants more data but we already provided the recommended required maximum,
 			// just return success as this is the best we can do for the suggestesd probing size.
 			result = ProbeSuccess;
 		}
@@ -359,125 +416,179 @@ CSoundFile::ProbeResult CSoundFile::Probe(ProbeFlags flags, mpt::span<const std:
 }
 
 
-#ifdef MODPLUG_TRACKER
 bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags, CModDoc *pModDoc)
 {
+	m_nMixChannels = 0;
+#ifdef MODPLUG_TRACKER
 	m_pModDoc = pModDoc;
 #else
-bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
-{
-#endif // MODPLUG_TRACKER
-
-	m_nMixChannels = 0;
-#ifndef MODPLUG_TRACKER
+	MPT_UNUSED(pModDoc);
 	m_nFreqFactor = m_nTempoFactor = 65536;
-#endif
+#endif  // MODPLUG_TRACKER
 
-	MemsetZero(Instruments);
 	Clear(m_szNames);
 #ifndef NO_PLUGINS
 	std::fill(std::begin(m_MixPlugins), std::end(m_MixPlugins), SNDMIXPLUGIN());
-#endif // NO_PLUGINS
+#endif  // NO_PLUGINS
 
+	if(CreateInternal(file, loadFlags))
+		return true;
+
+#ifndef NO_ARCHIVE_SUPPORT
+	if(!(loadFlags & skipContainer) && file.IsValid())
+	{
+		CUnarchiver unarchiver(file);
+		if(unarchiver.ExtractBestFile(GetSupportedExtensions(true)))
+		{
+			FileReader outputFile = unarchiver.GetOutputFile();
+#if defined(MPT_WITH_ANCIENT)
+			// Special case for MMCMP/PP20/XPK/etc. inside ZIP/RAR/LHA
+			std::unique_ptr<CAncientArchive> ancientArchive;
+			if(!unarchiver.IsKind<CAncientArchive>())
+			{
+				ancientArchive = std::make_unique<CAncientArchive>(outputFile);
+				if(ancientArchive->IsArchive() && ancientArchive->ExtractFile(0))
+					outputFile = ancientArchive->GetOutputFile();
+			}
+#endif
+			if(CreateInternal(outputFile, loadFlags))
+			{
+				// Read archive comment if there is no song comment
+				if(m_songMessage.empty())
+				{
+					m_songMessage.assign(mpt::ToCharset(mpt::Charset::Locale, unarchiver.GetComment()));
+				}
+				m_ContainerType = ModContainerType::Generic;
+				return true;
+			}
+		}
+	}
+#endif
+
+	return false;
+}
+
+
+bool CSoundFile::CreateInternal(FileReader file, ModLoadingFlags loadFlags)
+{
 	if(file.IsValid())
 	{
-		try
+		std::vector<ContainerItem> containerItems;
+		ModContainerType packedContainerType = ModContainerType::None;
+		if(!(loadFlags & skipContainer))
 		{
-
-#ifndef NO_ARCHIVE_SUPPORT
-			CUnarchiver unarchiver(file);
-			if(!(loadFlags & skipContainer))
+			ContainerLoadingFlags containerLoadFlags = (loadFlags == onlyVerifyHeader) ? ContainerOnlyVerifyHeader : ContainerUnwrapData;
+#if !defined(MPT_WITH_ANCIENT)
+			if(packedContainerType == ModContainerType::None && UnpackXPK(containerItems, file, containerLoadFlags)) packedContainerType = ModContainerType::XPK;
+			if(packedContainerType == ModContainerType::None && UnpackPP20(containerItems, file, containerLoadFlags)) packedContainerType = ModContainerType::PP20;
+			if(packedContainerType == ModContainerType::None && UnpackMMCMP(containerItems, file, containerLoadFlags)) packedContainerType = ModContainerType::MMCMP;
+#endif // !MPT_WITH_ANCIENT
+			if(packedContainerType == ModContainerType::None && UnpackUMX(containerItems, file, containerLoadFlags)) packedContainerType = ModContainerType::UMX;
+			if(packedContainerType != ModContainerType::None)
 			{
-				if (unarchiver.ExtractBestFile(GetSupportedExtensions(true)))
+				if(loadFlags == onlyVerifyHeader)
 				{
-					file = unarchiver.GetOutputFile();
+					return true;
+				}
+				if(!containerItems.empty())
+				{
+					// cppcheck false-positive
+					// cppcheck-suppress containerOutOfBounds
+					file = containerItems[0].file;
 				}
 			}
-#endif
-
-			std::vector<ContainerItem> containerItems;
-			MODCONTAINERTYPE packedContainerType = MOD_CONTAINERTYPE_NONE;
-			if(!(loadFlags & skipContainer))
-			{
-				ContainerLoadingFlags containerLoadFlags = (loadFlags == onlyVerifyHeader) ? ContainerOnlyVerifyHeader : ContainerUnwrapData;
-				if(packedContainerType == MOD_CONTAINERTYPE_NONE && UnpackXPK(containerItems, file, containerLoadFlags)) packedContainerType = MOD_CONTAINERTYPE_XPK;
-				if(packedContainerType == MOD_CONTAINERTYPE_NONE && UnpackPP20(containerItems, file, containerLoadFlags)) packedContainerType = MOD_CONTAINERTYPE_PP20;
-				if(packedContainerType == MOD_CONTAINERTYPE_NONE && UnpackMMCMP(containerItems, file, containerLoadFlags)) packedContainerType = MOD_CONTAINERTYPE_MMCMP;
-				if(packedContainerType == MOD_CONTAINERTYPE_NONE && UnpackUMX(containerItems, file, containerLoadFlags)) packedContainerType = MOD_CONTAINERTYPE_UMX;
-				if(packedContainerType != MOD_CONTAINERTYPE_NONE)
-				{
-					if(loadFlags == onlyVerifyHeader)
-					{
-						return true;
-					}
-					if(!containerItems.empty())
-					{
-						// cppcheck false-positive
-						// cppcheck-suppress containerOutOfBounds
-						file = containerItems[0].file;
-					}
-				}
-			}
-
-			if(loadFlags & skipModules)
-			{
-				return false;
-			}
-
-			// Try all module format loaders
-			bool loaderSuccess = false;
-			for(const auto &format : ModuleFormatLoaders)
-			{
-				loaderSuccess = (this->*(format.loader))(file, loadFlags);
-				if(loaderSuccess)
-					break;
-			}
-
-			if(!loaderSuccess)
-			{
-				m_nType = MOD_TYPE_NONE;
-				m_ContainerType = MOD_CONTAINERTYPE_NONE;
-			}
-			if(loadFlags == onlyVerifyHeader)
-			{
-				return loaderSuccess;
-			}
-
-			if(packedContainerType != MOD_CONTAINERTYPE_NONE && m_ContainerType == MOD_CONTAINERTYPE_NONE)
-			{
-				m_ContainerType = packedContainerType;
-			}
-
-#ifndef NO_ARCHIVE_SUPPORT
-			// Read archive comment if there is no song comment
-			if(m_songMessage.empty())
-			{
-				m_songMessage.assign(mpt::ToCharset(mpt::Charset::Locale, unarchiver.GetComment()));
-			}
-#endif
-		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
-		{
-			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
-#ifdef MODPLUG_TRACKER
-			return false;
-#else
-			// libopenmpt already handles this.
-			throw;
-#endif // MODPLUG_TRACKER
 		}
+
+		if(loadFlags & skipModules)
+		{
+			return false;
+		}
+
+		// Try all module format loaders
+		bool loaderSuccess = false;
+		for(const auto &format : ModuleFormatLoaders)
+		{
+			loaderSuccess = (this->*(format.loader))(file, loadFlags);
+			if(loaderSuccess)
+				break;
+		}
+
+		if(!loaderSuccess)
+		{
+			m_nType = MOD_TYPE_NONE;
+			m_ContainerType = ModContainerType::None;
+		}
+		if(loadFlags == onlyVerifyHeader)
+		{
+			return loaderSuccess;
+		}
+
+		if(packedContainerType != ModContainerType::None && m_ContainerType == ModContainerType::None)
+		{
+			m_ContainerType = packedContainerType;
+		}
+
+		m_visitedRows.Initialize(true);
 	} else
 	{
 		// New song
 		InitializeGlobals();
+		m_visitedRows.Initialize(true);
 		m_dwCreatedWithVersion = Version::Current();
+#if MPT_TIME_UTC_ON_DISK
+#ifdef MODPLUG_TRACKER
+		if(GetType() & MOD_TYPE_IT)
+		{
+			m_modFormat.timezone = mpt::Date::LogicalTimezone::UTC;
+		} else
+		{
+			m_modFormat.timezone = mpt::Date::LogicalTimezone::Local;
+		}
+#else // !MODPLUG_TRACKER
+		if (GetType() & MOD_TYPE_IT)
+		{
+			m_modFormat.timezone = mpt::Date::LogicalTimezone::UTC;
+		} else
+		{
+			m_modFormat.timezone = mpt::Date::LogicalTimezone::Unspecified;
+		}
+#endif // MODPLUG_TRACKER
+#else
+#ifdef MODPLUG_TRACKER
+		m_modFormat.timezone = mpt::Date::LogicalTimezone::Local;
+#else // !MODPLUG_TRACKER
+		m_modFormat.timezone = mpt::Date::LogicalTimezone::Unspecified;
+#endif // MODPLUG_TRACKER
+#endif
 	}
 
-	// Adjust channels
-	for(CHANNELINDEX ich = 0; ich < MAX_BASECHANNELS; ich++)
+#if MPT_TIME_UTC_ON_DISK
+#ifdef MODPLUG_TRACKER
+	// convert timestamps to UTC
+	if(m_modFormat.timezone == mpt::Date::LogicalTimezone::Local)
 	{
-		LimitMax(ChnSettings[ich].nVolume, uint16(64));
-		if (ChnSettings[ich].nPan > 256) ChnSettings[ich].nPan = 128;
-		m_PlayState.Chn[ich].Reset(ModChannel::resetTotal, *this, ich);
+		for(auto & fileHistoryEntry : m_FileHistory)
+		{
+			if(fileHistoryEntry.HasValidDate())
+			{
+				fileHistoryEntry.loadDate = mpt::Date::forget_timezone(mpt::Date::UnixAsUTC(mpt::Date::UnixFromLocal(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::Local>(fileHistoryEntry.loadDate))));
+			}
+		}
+		m_modFormat.timezone = mpt::Date::LogicalTimezone::UTC;
+	}
+#endif // MODPLUG_TRACKER
+#endif
+
+	// Adjust channels
+	const auto muteFlag = GetChannelMuteFlag();
+	for(CHANNELINDEX chn = 0; chn < MAX_BASECHANNELS; chn++)
+	{
+		LimitMax(ChnSettings[chn].nVolume, uint16(64));
+		if(ChnSettings[chn].nPan > 256)
+			ChnSettings[chn].nPan = 128;
+		if(ChnSettings[chn].nMixPlugin > MAX_MIXPLUGINS)
+			ChnSettings[chn].nMixPlugin = 0;
+		m_PlayState.Chn[chn].Reset(ModChannel::resetTotal, *this, chn, muteFlag);
 	}
 
 	// Checking samples, load external samples
@@ -489,18 +600,19 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 		if(SampleHasPath(nSmp))
 		{
 			mpt::PathString filename = GetSamplePath(nSmp);
-			if(!file.GetFileName().empty())
+			if(file.GetOptionalFileName())
 			{
-				filename = filename.RelativePathToAbsolute(file.GetFileName().GetPath());
+				filename = mpt::RelativePathToAbsolute(filename, file.GetOptionalFileName()->GetDirectoryWithDrive());
 			} else if(GetpModDoc() != nullptr)
 			{
-				filename = filename.RelativePathToAbsolute(GetpModDoc()->GetPathNameMpt().GetPath());
+				filename = mpt::RelativePathToAbsolute(filename, GetpModDoc()->GetPathNameMpt().GetDirectoryWithDrive());
 			}
+			filename = filename.Simplify();
 			if(!LoadExternalSample(nSmp, filename))
 			{
 #ifndef MODPLUG_TRACKER
 				// OpenMPT has its own way of reporting this error in CModDoc.
-				AddToLog(LogError, mpt::format(U_("Unable to load sample %1: %2"))(i, filename.ToUnicode()));
+				AddToLog(LogError, MPT_UFORMAT("Unable to load sample {}: {}")(i, filename.ToUnicode()));
 #endif // MODPLUG_TRACKER
 			}
 		} else
@@ -537,9 +649,23 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 	m_nInstruments = maxInstr;
 
 	// Set default play state values
-	if (!m_nDefaultTempo.GetInt()) m_nDefaultTempo.Set(125);
-	if (!m_nDefaultSpeed) m_nDefaultSpeed = 6;
-	if (m_nDefaultRowsPerMeasure < m_nDefaultRowsPerBeat) m_nDefaultRowsPerMeasure = m_nDefaultRowsPerBeat;
+	if(!m_nDefaultTempo.GetInt())
+		m_nDefaultTempo.Set(125);
+	else
+		LimitMax(m_nDefaultTempo, TEMPO(uint16_max, 0));
+	if(!m_nDefaultSpeed)
+		m_nDefaultSpeed = 6;
+
+	if(!m_nDefaultRowsPerBeat && m_nTempoMode == TempoMode::Modern)
+		m_nDefaultRowsPerBeat = 1;
+	if(m_nDefaultRowsPerMeasure < m_nDefaultRowsPerBeat)
+		m_nDefaultRowsPerMeasure = m_nDefaultRowsPerBeat;
+	LimitMax(m_nDefaultRowsPerBeat, MAX_ROWS_PER_BEAT);
+	LimitMax(m_nDefaultRowsPerMeasure, MAX_ROWS_PER_BEAT);
+	LimitMax(m_nDefaultGlobalVolume, MAX_GLOBAL_VOLUME);
+	if(!m_tempoSwing.empty())
+		m_tempoSwing.resize(m_nDefaultRowsPerBeat);
+
 	m_PlayState.m_nMusicSpeed = m_nDefaultSpeed;
 	m_PlayState.m_nMusicTempo = m_nDefaultTempo;
 	m_PlayState.m_nCurrentRowsPerBeat = m_nDefaultRowsPerBeat;
@@ -551,18 +677,20 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 	m_PlayState.m_nPattern = 0;
 	m_PlayState.m_nBufferCount = 0;
 	m_PlayState.m_dBufferDiff = 0;
-	m_PlayState.m_nTickCount = m_PlayState.m_nMusicSpeed;
+	m_PlayState.m_nTickCount = TICKS_ROW_FINISHED;
 	m_PlayState.m_nNextRow = 0;
 	m_PlayState.m_nRow = 0;
 	m_PlayState.m_nPatternDelay = 0;
 	m_PlayState.m_nFrameDelay = 0;
-	m_PlayState.m_nNextPatStartRow = 0;
+	m_PlayState.m_nextPatStartRow = 0;
 	m_PlayState.m_nSeqOverride = ORDERINDEX_INVALID;
+
+	if(UseFinetuneAndTranspose())
+		m_playBehaviour.reset(kPeriodsAreHertz);
 
 	m_nMaxOrderPosition = 0;
 
 	RecalculateSamplesPerTick();
-	visitedSongRows.Initialize(true);
 
 	for(auto &order : Order)
 	{
@@ -573,10 +701,23 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 		}
 	}
 
+	if(GetType() == MOD_TYPE_NONE)
+	{
+		return false;
+	}
+
+	SetModSpecsPointer(m_pModSpecs, GetBestSaveFormat());
+
+	// When reading a file made with an older version of MPT, it might be necessary to upgrade some settings automatically.
+	if(m_dwLastSavedWithVersion)
+	{
+		UpgradeModule();
+	}
+
 #ifndef NO_PLUGINS
 	// Load plugins
 #ifdef MODPLUG_TRACKER
-	std::string notFoundText;
+	mpt::ustring notFoundText;
 #endif // MODPLUG_TRACKER
 	std::vector<const SNDMIXPLUGININFO *> notFoundIDs;
 
@@ -590,7 +731,7 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 #ifdef MODPLUG_TRACKER
 				// Provide some visual feedback
 				{
-					mpt::ustring s = mpt::format(U_("Loading Plugin FX%1: %2 (%3)"))(
+					mpt::ustring s = MPT_UFORMAT("Loading Plugin FX{}: {} ({})")(
 						mpt::ufmt::dec0<2>(plug + 1),
 						mpt::ToUnicode(mpt::Charset::UTF8, plugin.Info.szLibraryName),
 						mpt::ToUnicode(mpt::Charset::Locale, plugin.Info.szName));
@@ -613,15 +754,18 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 						notFoundIDs.push_back(&plugin.Info);
 #ifdef MODPLUG_TRACKER
 						notFoundText.append(plugin.GetLibraryName());
-						notFoundText.append("\n");
+						notFoundText.append(UL_("\n"));
 #else
-						AddToLog(LogWarning, U_("Plugin not found: ") + mpt::ToUnicode(mpt::Charset::UTF8, plugin.GetLibraryName()));
+						AddToLog(LogWarning, U_("Plugin not found: ") + plugin.GetLibraryName());
 #endif // MODPLUG_TRACKER
 					}
 				}
 			}
 		}
 	}
+
+	// Set up mix levels (also recalculates plugin mix levels - must be done after plugins were loaded)
+	SetMixLevels(m_nMixLevels);
 
 #ifdef MODPLUG_TRACKER
 	// Display a nice message so the user sees which plugins are missing
@@ -630,41 +774,26 @@ bool CSoundFile::Create(FileReader file, ModLoadingFlags loadFlags)
 	{
 		if(notFoundIDs.size() == 1)
 		{
-			notFoundText = "The following plugin has not been found:\n\n" + notFoundText + "\nDo you want to search for it online?";
+			notFoundText = UL_("The following plugin has not been found:\n\n") + notFoundText + UL_("\nDo you want to search for it online?");
 		} else
 		{
-			notFoundText = "The following plugins have not been found:\n\n" + notFoundText + "\nDo you want to search for them online?";
+			notFoundText = UL_("The following plugins have not been found:\n\n") + notFoundText + UL_("\nDo you want to search for them online?");
 		}
-		if(Reporting::Confirm(mpt::ToUnicode(mpt::Charset::UTF8, notFoundText), U_("OpenMPT - Plugins missing"), false, true) == cnfYes)
+		if(Reporting::Confirm(notFoundText, U_("OpenMPT - Plugins missing"), false, true) == cnfYes)
 		{
-			std::string url = "https://resources.openmpt.org/plugins/search.php?p=";
+			mpt::ustring url = U_("https://resources.openmpt.org/plugins/search.php?p=");
 			for(const auto &id : notFoundIDs)
 			{
-				url += mpt::fmt::HEX0<8>(id->dwPluginId2.get());
-				url += id->szLibraryName;
-				url += "%0a";
+				url += mpt::ufmt::HEX0<8>(id->dwPluginId2.get());
+				url += mpt::ToUnicode(mpt::Charset::UTF8, id->szLibraryName);
+				url += UL_("%0a");
 			}
-			CTrackApp::OpenURL(mpt::PathString::FromUTF8(url));
+			CTrackApp::OpenURL(mpt::PathString::FromUnicode(url));
 		}
 	}
 #endif // MODPLUG_TRACKER
 #endif // NO_PLUGINS
 
-	// Set up mix levels
-	SetMixLevels(m_nMixLevels);
-
-	if(GetType() == MOD_TYPE_NONE)
-	{
-		return false;
-	}
-
-	SetModSpecsPointer(m_pModSpecs, GetBestSaveFormat());
-
-	// When reading a file made with an older version of MPT, it might be necessary to upgrade some settings automatically.
-	if(m_dwLastSavedWithVersion)
-	{
-		UpgradeModule();
-	}
 	return true;
 }
 
@@ -706,7 +835,7 @@ bool CSoundFile::Destroy()
 #endif // NO_PLUGINS
 
 	m_nType = MOD_TYPE_NONE;
-	m_ContainerType = MOD_CONTAINERTYPE_NONE;
+	m_ContainerType = ModContainerType::None;
 	m_nChannels = m_nSamples = m_nInstruments = 0;
 	return true;
 }
@@ -741,7 +870,7 @@ double CSoundFile::GetCurrentBPM() const
 {
 	double bpm;
 
-	if (m_nTempoMode == tempoModeModern)
+	if (m_nTempoMode == TempoMode::Modern)
 	{
 		// With modern mode, we trust that true bpm is close enough to what user chose.
 		// This avoids oscillation due to tick-to-tick corrections.
@@ -760,10 +889,11 @@ double CSoundFile::GetCurrentBPM() const
 
 void CSoundFile::ResetPlayPos()
 {
+	const auto muteFlag = GetChannelMuteFlag();
 	for(CHANNELINDEX i = 0; i < MAX_CHANNELS; i++)
-		m_PlayState.Chn[i].Reset(ModChannel::resetSetPosFull, *this, i);
+		m_PlayState.Chn[i].Reset(ModChannel::resetSetPosFull, *this, i, muteFlag);
 
-	visitedSongRows.Initialize(true);
+	m_visitedRows.Initialize(true);
 	m_SongFlags.reset(SONG_FADINGSONG | SONG_ENDREACHED);
 
 	m_PlayState.m_nGlobalVolume = m_nDefaultGlobalVolume;
@@ -775,11 +905,11 @@ void CSoundFile::ResetPlayPos()
 
 	m_PlayState.m_nNextOrder = 0;
 	m_PlayState.m_nNextRow = 0;
-	m_PlayState.m_nTickCount = m_PlayState.m_nMusicSpeed;
+	m_PlayState.m_nTickCount = TICKS_ROW_FINISHED;
 	m_PlayState.m_nBufferCount = 0;
 	m_PlayState.m_nPatternDelay = 0;
 	m_PlayState.m_nFrameDelay = 0;
-	m_PlayState.m_nNextPatStartRow = 0;
+	m_PlayState.m_nextPatStartRow = 0;
 	m_PlayState.m_lTotalSampleCount = 0;
 }
 
@@ -823,11 +953,11 @@ void CSoundFile::SetCurrentOrder(ORDERINDEX nOrder)
 		m_PlayState.m_nNextOrder = nOrder;
 		m_PlayState.m_nRow = m_PlayState.m_nNextRow = 0;
 		m_PlayState.m_nPattern = 0;
-		m_PlayState.m_nTickCount = m_PlayState.m_nMusicSpeed;
+		m_PlayState.m_nTickCount = TICKS_ROW_FINISHED;
 		m_PlayState.m_nBufferCount = 0;
 		m_PlayState.m_nPatternDelay = 0;
 		m_PlayState.m_nFrameDelay = 0;
-		m_PlayState.m_nNextPatStartRow = 0;
+		m_PlayState.m_nextPatStartRow = 0;
 	}
 
 	m_SongFlags.reset(SONG_FADINGSONG | SONG_ENDREACHED);
@@ -919,16 +1049,18 @@ void CSoundFile::ResetChannels()
 
 #ifdef MODPLUG_TRACKER
 
-void CSoundFile::PatternTranstionChnSolo(const CHANNELINDEX chnIndex)
+void CSoundFile::PatternTranstionChnSolo(const CHANNELINDEX first, const CHANNELINDEX last)
 {
-	if(chnIndex >= m_nChannels)
+	if(first >= m_nChannels || last < first)
 		return;
 
 	for(CHANNELINDEX i = 0; i < m_nChannels; i++)
 	{
-		m_bChannelMuteTogglePending[i] = !ChnSettings[i].dwFlags[CHN_MUTE];
+		if(i >= first && i <= last)
+			m_bChannelMuteTogglePending[i] = ChnSettings[i].dwFlags[CHN_MUTE];
+		else
+			m_bChannelMuteTogglePending[i] = !ChnSettings[i].dwFlags[CHN_MUTE];
 	}
-	m_bChannelMuteTogglePending[chnIndex] = ChnSettings[chnIndex].dwFlags[CHN_MUTE];
 }
 
 
@@ -953,13 +1085,13 @@ void CSoundFile::LoopPattern(PATTERNINDEX nPat, ROWINDEX nRow)
 		if(nRow >= Patterns[nPat].GetNumRows()) nRow = 0;
 		m_PlayState.m_nPattern = nPat;
 		m_PlayState.m_nRow = m_PlayState.m_nNextRow = nRow;
-		m_PlayState.m_nTickCount = m_PlayState.m_nMusicSpeed;
+		m_PlayState.m_nTickCount = TICKS_ROW_FINISHED;
 		m_PlayState.m_nPatternDelay = 0;
 		m_PlayState.m_nFrameDelay = 0;
-		m_PlayState.m_nBufferCount = 0;
-		m_PlayState.m_nNextPatStartRow = 0;
+		m_PlayState.m_nextPatStartRow = 0;
 		m_SongFlags.set(SONG_PATTERNLOOP);
 	}
+	m_PlayState.m_nBufferCount = 0;
 }
 
 
@@ -969,11 +1101,11 @@ void CSoundFile::DontLoopPattern(PATTERNINDEX nPat, ROWINDEX nRow)
 	if(nRow >= Patterns[nPat].GetNumRows()) nRow = 0;
 	m_PlayState.m_nPattern = nPat;
 	m_PlayState.m_nRow = m_PlayState.m_nNextRow = nRow;
-	m_PlayState.m_nTickCount = m_PlayState.m_nMusicSpeed;
+	m_PlayState.m_nTickCount = TICKS_ROW_FINISHED;
 	m_PlayState.m_nPatternDelay = 0;
 	m_PlayState.m_nFrameDelay = 0;
 	m_PlayState.m_nBufferCount = 0;
-	m_PlayState.m_nNextPatStartRow = 0;
+	m_PlayState.m_nextPatStartRow = 0;
 	m_SongFlags.reset(SONG_PATTERNLOOP);
 }
 
@@ -992,7 +1124,7 @@ PlayBehaviourSet CSoundFile::GetSupportedPlaybackBehaviour(MODTYPE type)
 	case MOD_TYPE_MPT:
 	case MOD_TYPE_IT:
 		playBehaviour.set(MSF_COMPATIBLE_PLAY);
-		playBehaviour.set(kHertzInLinearMode);
+		playBehaviour.set(kPeriodsAreHertz);
 		playBehaviour.set(kTempoClamp);
 		playBehaviour.set(kPerChannelGlobalVolSlide);
 		playBehaviour.set(kPanOverride);
@@ -1041,11 +1173,14 @@ PlayBehaviourSet CSoundFile::GetSupportedPlaybackBehaviour(MODTYPE type)
 		playBehaviour.set(kITInstrWithNoteOffOldEffects);
 		playBehaviour.set(kITDoNotOverrideChannelPan);
 		playBehaviour.set(kITDCTBehaviour);
+		playBehaviour.set(kITPitchPanSeparation);
+		playBehaviour.set(kITResetFilterOnPortaSmpChange);
+		playBehaviour.set(kITInitialNoteMemory);
 		if(type == MOD_TYPE_MPT)
 		{
 			playBehaviour.set(kOPLFlexibleNoteOff);
 			playBehaviour.set(kOPLwithNNA);
-			playBehaviour.set(kOPLRealRetrig);
+			playBehaviour.set(kOPLNoteOffOnNoteChange);
 		}
 		break;
 
@@ -1089,6 +1224,7 @@ PlayBehaviourSet CSoundFile::GetSupportedPlaybackBehaviour(MODTYPE type)
 		playBehaviour.set(kFT2PortaUpDownMemory);
 		playBehaviour.set(kFT2PanSustainRelease);
 		playBehaviour.set(kFT2NoteDelayWithoutInstr);
+		playBehaviour.set(kFT2PortaResetDirection);
 		break;
 
 	case MOD_TYPE_S3M:
@@ -1106,6 +1242,9 @@ PlayBehaviourSet CSoundFile::GetSupportedPlaybackBehaviour(MODTYPE type)
 		playBehaviour.set(kST3OffsetWithoutInstrument);
 		playBehaviour.set(kST3RetrigAfterNoteCut);
 		playBehaviour.set(kST3SampleSwap);
+		playBehaviour.set(kOPLNoteOffOnNoteChange);
+		playBehaviour.set(kApplyUpperPeriodLimit);
+		playBehaviour.set(kST3TonePortaWithAdlibNote);
 		break;
 
 	case MOD_TYPE_MOD:
@@ -1121,7 +1260,7 @@ PlayBehaviourSet CSoundFile::GetSupportedPlaybackBehaviour(MODTYPE type)
 
 	default:
 		playBehaviour.set(MSF_COMPATIBLE_PLAY);
-		playBehaviour.set(kHertzInLinearMode);
+		playBehaviour.set(kPeriodsAreHertz);
 		playBehaviour.set(kTempoClamp);
 		playBehaviour.set(kPanOverride);
 		break;
@@ -1136,7 +1275,7 @@ PlayBehaviourSet CSoundFile::GetDefaultPlaybackBehaviour(MODTYPE type)
 	switch(type)
 	{
 	case MOD_TYPE_MPT:
-		playBehaviour.set(kHertzInLinearMode);
+		playBehaviour.set(kPeriodsAreHertz);
 		playBehaviour.set(kPerChannelGlobalVolSlide);
 		playBehaviour.set(kPanOverride);
 		playBehaviour.set(kITArpeggio);
@@ -1166,7 +1305,7 @@ PlayBehaviourSet CSoundFile::GetDefaultPlaybackBehaviour(MODTYPE type)
 		playBehaviour.set(kITDoNotOverrideChannelPan);
 		playBehaviour.set(kITDCTBehaviour);
 		playBehaviour.set(kOPLwithNNA);
-		playBehaviour.set(kOPLRealRetrig);
+		playBehaviour.set(kITPitchPanSeparation);
 		break;
 
 	case MOD_TYPE_S3M:
@@ -1283,10 +1422,11 @@ const char *CSoundFile::GetInstrumentName(INSTRUMENTINDEX nInstr) const
 
 bool CSoundFile::InitChannel(CHANNELINDEX nChn)
 {
-	if(nChn >= MAX_BASECHANNELS) return true;
+	if(nChn >= MAX_BASECHANNELS)
+		return true;
 
 	ChnSettings[nChn].Reset();
-	m_PlayState.Chn[nChn].Reset(ModChannel::resetTotal, *this, nChn);
+	m_PlayState.Chn[nChn].Reset(ModChannel::resetTotal, *this, nChn, GetChannelMuteFlag());
 
 #ifdef MODPLUG_TRACKER
 	if(GetpModDoc() != nullptr)
@@ -1347,30 +1487,27 @@ SAMPLEINDEX CSoundFile::DetectUnusedSamples(std::vector<bool> &sampleUsed) const
 				if(p->IsNote())
 				{
 					ModCommand::INSTR instr = p->instr;
-					if(!p->instr) instr = lastIns[c];
-					if (instr)
+					if(!p->instr)
+						instr = lastIns[c];
+					INSTRUMENTINDEX minInstr = 1, maxInstr = GetNumInstruments();
+					if(instr > 0)
 					{
-						if(IsInRange(instr, (INSTRUMENTINDEX)0, MAX_INSTRUMENTS))
+						if(instr <= GetNumInstruments())
 						{
-							ModInstrument *pIns = Instruments[p->instr];
-							if (pIns)
-							{
-								SAMPLEINDEX n = pIns->Keyboard[p->note - NOTE_MIN];
-								if (n <= GetNumSamples()) sampleUsed[n] = true;
-							}
+							minInstr = maxInstr = instr;
 						}
 						lastIns[c] = instr;
 					} else
 					{
 						// No idea which instrument this note belongs to, so mark it used in any instruments.
-						for (INSTRUMENTINDEX k = GetNumInstruments(); k >= 1; k--)
+					}
+					for(INSTRUMENTINDEX i = minInstr; i <= maxInstr; i++)
+					{
+						if(const auto *pIns = Instruments[i]; pIns != nullptr)
 						{
-							ModInstrument *pIns = Instruments[k];
-							if (pIns)
-							{
-								SAMPLEINDEX n = pIns->Keyboard[p->note - NOTE_MIN];
-								if (n <= GetNumSamples()) sampleUsed[n] = true;
-							}
+							SAMPLEINDEX n = pIns->Keyboard[p->note - NOTE_MIN];
+							if(n <= GetNumSamples())
+								sampleUsed[n] = true;
 						}
 					}
 				}
@@ -1473,7 +1610,7 @@ std::unique_ptr<CTuning> CSoundFile::CreateTuning12TET(const mpt::ustring &name)
 }
 
 
-mpt::ustring CSoundFile::GetNoteName(const ModCommand::NOTE note, const INSTRUMENTINDEX inst) const
+mpt::ustring CSoundFile::GetNoteName(const ModCommand::NOTE note, const INSTRUMENTINDEX inst, const NoteName *noteNames) const
 {
 	// For MPTM instruments with custom tuning, find the appropriate note name. Else, use default note names.
 	if(ModCommand::IsNote(note) && GetType() == MOD_TYPE_MPT && inst >= 1 && inst <= GetNumInstruments() && Instruments[inst] && Instruments[inst]->pTuning)
@@ -1481,7 +1618,7 @@ mpt::ustring CSoundFile::GetNoteName(const ModCommand::NOTE note, const INSTRUME
 		return Instruments[inst]->pTuning->GetNoteName(note - NOTE_MIDDLEC);
 	} else
 	{
-		return GetNoteName(note);
+		return GetNoteName(note, noteNames ? noteNames : m_NoteNames);
 	}
 }
 
@@ -1499,13 +1636,13 @@ mpt::ustring CSoundFile::GetNoteName(const ModCommand::NOTE note, const NoteName
 		// cppcheck false-positive
 		// cppcheck-suppress constStatement
 		const mpt::uchar specialNoteNames[][4] = { UL_("PCs"), UL_("PC "), UL_("~~~"), UL_("^^^"), UL_("===") };
-		static_assert(CountOf(specialNoteNames) == NOTE_MAX_SPECIAL - NOTE_MIN_SPECIAL + 1);
+		static_assert(mpt::array_size<decltype(specialNoteNames)>::size == NOTE_MAX_SPECIAL - NOTE_MIN_SPECIAL + 1);
 		return specialNoteNames[note - NOTE_MIN_SPECIAL];
 	} else if(ModCommand::IsNote(note))
 	{
 		return mpt::ustring()
 			.append(noteNames[(note - NOTE_MIN) % 12])
-			.append(1, UC_('0') + (note - NOTE_MIN) / 12)
+			.append(1, static_cast<mpt::uchar>(UC_('0') + ((note - NOTE_MIN) / 12)))
 			;	// e.g. "C#" + "5"
 	} else if(note == NOTE_NONE)
 	{
@@ -1568,13 +1705,13 @@ void CSoundFile::SetType(MODTYPE type)
 
 #ifdef MODPLUG_TRACKER
 
-void CSoundFile::ChangeModTypeTo(const MODTYPE newType)
+void CSoundFile::ChangeModTypeTo(const MODTYPE newType, bool adjust)
 {
 	const MODTYPE oldType = GetType();
 	m_nType = newType;
 	SetModSpecsPointer(m_pModSpecs, m_nType);
 
-	if(oldType == newType)
+	if(oldType == newType || !adjust)
 		return;
 
 	SetupMODPanning(); // Setup LRRL panning scheme if needed
@@ -1597,7 +1734,7 @@ void CSoundFile::ChangeModTypeTo(const MODTYPE newType)
 	Order.OnModTypeChanged(oldType);
 	Patterns.OnModTypeChanged(oldType);
 
-	m_modFormat.type = mpt::ToUnicode(mpt::Charset::UTF8, GetModSpecifications().fileExtension);
+	m_modFormat.type = GetModSpecifications().GetFileExtension();
 }
 
 #endif // MODPLUG_TRACKER
@@ -1650,6 +1787,22 @@ double CSoundFile::GetPlaybackTimeAt(ORDERINDEX ord, ROWINDEX row, bool updateVa
 }
 
 
+std::vector<SubSong> CSoundFile::GetAllSubSongs()
+{
+	std::vector<SubSong> subSongs;
+	for(SEQUENCEINDEX seq = 0; seq < Order.GetNumSequences(); seq++)
+	{
+		const auto subSongsSeq = GetLength(eNoAdjust, GetLengthTarget(true).StartPos(seq, 0, 0));
+		subSongs.reserve(subSongs.size() + subSongsSeq.size());
+		for(const auto &song : subSongsSeq)
+		{
+			subSongs.push_back({song.duration, song.startRow, song.endRow, song.lastRow, song.startOrder, song.endOrder, song.lastOrder, seq});
+		}
+	}
+	return subSongs;
+}
+
+
 // Calculate the length of a tick, depending on the tempo mode.
 // This differs from GetTickDuration() by not accumulating errors
 // because this is not called once per tick but in unrelated
@@ -1658,16 +1811,16 @@ void CSoundFile::RecalculateSamplesPerTick()
 {
 	switch(m_nTempoMode)
 	{
-	case tempoModeClassic:
+	case TempoMode::Classic:
 	default:
 		m_PlayState.m_nSamplesPerTick = Util::muldiv(m_MixerSettings.gdwMixingFreq, 5 * TEMPO::fractFact, std::max(TEMPO::store_t(1), m_PlayState.m_nMusicTempo.GetRaw() << 1));
 		break;
 
-	case tempoModeModern:
+	case TempoMode::Modern:
 		m_PlayState.m_nSamplesPerTick = static_cast<uint32>((Util::mul32to64_unsigned(m_MixerSettings.gdwMixingFreq, 60 * TEMPO::fractFact) / std::max(uint64(1),  Util::mul32to64_unsigned(m_PlayState.m_nMusicSpeed, m_PlayState.m_nCurrentRowsPerBeat) * m_PlayState.m_nMusicTempo.GetRaw())));
 		break;
 
-	case tempoModeAlternative:
+	case TempoMode::Alternative:
 		m_PlayState.m_nSamplesPerTick = Util::muldiv(m_MixerSettings.gdwMixingFreq, TEMPO::fractFact, std::max(TEMPO::store_t(1), m_PlayState.m_nMusicTempo.GetRaw()));
 		break;
 	}
@@ -1687,18 +1840,18 @@ uint32 CSoundFile::GetTickDuration(PlayState &playState) const
 	uint32 retval = 0;
 	switch(m_nTempoMode)
 	{
-	case tempoModeClassic:
+	case TempoMode::Classic:
 	default:
 		retval = Util::muldiv(m_MixerSettings.gdwMixingFreq, 5 * TEMPO::fractFact, std::max(TEMPO::store_t(1), playState.m_nMusicTempo.GetRaw() << 1));
 		break;
 
-	case tempoModeAlternative:
+	case TempoMode::Alternative:
 		retval = Util::muldiv(m_MixerSettings.gdwMixingFreq, TEMPO::fractFact, std::max(TEMPO::store_t(1), playState.m_nMusicTempo.GetRaw()));
 		break;
 
-	case tempoModeModern:
+	case TempoMode::Modern:
 		{
-			double accurateBufferCount = static_cast<double>(m_MixerSettings.gdwMixingFreq) * (60.0 / (playState.m_nMusicTempo.ToDouble() * Util::mul32to64_unsigned(playState.m_nMusicSpeed, playState.m_nCurrentRowsPerBeat)));
+			double accurateBufferCount = static_cast<double>(m_MixerSettings.gdwMixingFreq) * (60.0 / (playState.m_nMusicTempo.ToDouble() * static_cast<double>(Util::mul32to64_unsigned(playState.m_nMusicSpeed, playState.m_nCurrentRowsPerBeat))));
 			const TempoSwing &swing = (Patterns.IsValidPat(playState.m_nPattern) && Patterns[playState.m_nPattern].HasTempoSwing())
 				? Patterns[playState.m_nPattern].GetTempoSwing()
 				: m_tempoSwing;
@@ -1741,17 +1894,17 @@ double CSoundFile::GetRowDuration(TEMPO tempo, uint32 speed) const
 {
 	switch(m_nTempoMode)
 	{
-	case tempoModeClassic:
+	case TempoMode::Classic:
 	default:
 		return static_cast<double>(2500 * speed) / tempo.ToDouble();
 
-	case tempoModeModern:
+	case TempoMode::Modern:
 		{
 			// If there are any row delay effects, the row length factor compensates for those.
 			return 60000.0 / tempo.ToDouble() / static_cast<double>(m_PlayState.m_nCurrentRowsPerBeat);
 		}
 
-	case tempoModeAlternative:
+	case TempoMode::Alternative:
 		return static_cast<double>(1000 * speed) / tempo.ToDouble();
 	}
 }
@@ -1762,6 +1915,35 @@ const CModSpecifications& CSoundFile::GetModSpecifications(const MODTYPE type)
 	const CModSpecifications* p = nullptr;
 	SetModSpecsPointer(p, type);
 	return *p;
+}
+
+
+ChannelFlags CSoundFile::GetChannelMuteFlag()
+{
+#ifdef MODPLUG_TRACKER
+	return (TrackerSettings::Instance().m_dwPatternSetup & PATTERN_SYNCMUTE) ? CHN_SYNCMUTE : CHN_MUTE;
+#else
+	return CHN_SYNCMUTE;
+#endif
+}
+
+
+// Resolve note/instrument combination to real sample index. Return value is guaranteed to be in [0, GetNumSamples()].
+SAMPLEINDEX CSoundFile::GetSampleIndex(ModCommand::NOTE note, uint32 instr) const noexcept
+{
+	SAMPLEINDEX smp = 0;
+	if(GetNumInstruments())
+	{
+		if(ModCommand::IsNote(note) && instr <= GetNumInstruments() && Instruments[instr] != nullptr)
+			smp = Instruments[instr]->Keyboard[note - NOTE_MIN];
+	} else
+	{
+		smp = static_cast<SAMPLEINDEX>(instr);
+	}
+	if(smp <= GetNumSamples())
+		return smp;
+	else
+		return 0;
 }
 
 
@@ -1832,22 +2014,14 @@ INSTRUMENTINDEX CSoundFile::GetNextFreeInstrument(INSTRUMENTINDEX start) const
 // Check whether a given sample is used by a given instrument.
 bool CSoundFile::IsSampleReferencedByInstrument(SAMPLEINDEX sample, INSTRUMENTINDEX instr) const
 {
-	ModInstrument *targetIns = nullptr;
-	if(instr > 0 && instr <= GetNumInstruments())
-	{
-		targetIns = Instruments[instr];
-	}
-	if(targetIns != nullptr)
-	{
-		for(size_t note = 0; note < NOTE_MAX /*CountOf(targetIns->Keyboard)*/; note++)
-		{
-			if(targetIns->Keyboard[note] == sample)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+	if(instr < 1 || instr > GetNumInstruments())
+		return false;
+
+	const ModInstrument *targetIns = Instruments[instr];
+	if(targetIns == nullptr)
+		return false;
+
+	return mpt::contains(mpt::as_span(targetIns->Keyboard).first(NOTE_MAX), sample);
 }
 
 
@@ -1891,7 +2065,7 @@ void CSoundFile::PrecomputeSampleLoops(bool updateChannels)
 bool CSoundFile::LoadExternalSample(SAMPLEINDEX smp, const mpt::PathString &filename)
 {
 	bool ok = false;
-	InputFile f(filename, SettingCacheCompleteFileBeforeLoading());
+	mpt::IO::InputFile f(filename, SettingCacheCompleteFileBeforeLoading());
 
 	if(f.IsValid())
 	{
@@ -1974,6 +2148,7 @@ void TempoSwing::Normalize()
 		sum += i;
 	}
 	sum /= size();
+	MPT_ASSERT(sum > 0); // clang-analyzer false-positive 
 	int64 remain = Unity * size();
 	for(auto &i : *this)
 	{

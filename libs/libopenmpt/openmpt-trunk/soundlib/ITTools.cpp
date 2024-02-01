@@ -9,8 +9,8 @@
 
 
 #include "stdafx.h"
-#include "Loaders.h"
 #include "ITTools.h"
+#include "Loaders.h"
 #include "Tables.h"
 #include "../common/mptStringBuffer.h"
 #include "../common/version.h"
@@ -42,14 +42,14 @@ void ITEnvelope::ConvertToIT(const InstrumentEnvelope &mptEnv, uint8 envOffset, 
 		// Attention: Full MPTM envelope is stored in extended instrument properties
 		for(uint32 ev = 0; ev < num; ev++)
 		{
-			data[ev].value = static_cast<int8>(mptEnv[ev].value) - envOffset;
+			data[ev].value = static_cast<int8>(static_cast<int8>(mptEnv[ev].value) - envOffset);
 			data[ev].tick = mptEnv[ev].tick;
 		}
 	} else
 	{
 		// Fix non-existing envelopes so that they can still be edited in Impulse Tracker.
 		num = 2;
-		data[0].value = data[1].value = envDefault - envOffset;
+		data[0].value = data[1].value = static_cast<int8>(envDefault - envOffset);
 		data[1].tick = 10;
 	}
 }
@@ -75,7 +75,7 @@ void ITEnvelope::ConvertToMPT(InstrumentEnvelope &mptEnv, uint8 envOffset, uint8
 	// Attention: Full MPTM envelope is stored in extended instrument properties
 	for(uint32 ev = 0; ev < std::min(uint8(25), num); ev++)
 	{
-		mptEnv[ev].value = Clamp<int8, int8>(data[ev].value + envOffset, 0, 64);
+		mptEnv[ev].value = Clamp<int8, int8>(static_cast<int8>(data[ev].value + envOffset), 0, 64);
 		mptEnv[ev].tick = data[ev].tick;
 		if(ev > 0 && mptEnv[ev].tick < mptEnv[ev - 1].tick && !(mptEnv[ev].tick & 0xFF00))
 		{
@@ -83,7 +83,7 @@ void ITEnvelope::ConvertToMPT(InstrumentEnvelope &mptEnv, uint8 envOffset, uint8
 			// NoGap.it was saved with MPT 1.07 - 1.09, which *normally* doesn't do this in IT files.
 			// However... It turns out that MPT 1.07 omitted the high byte of envelope nodes when saving an XI instrument file, and it looks like
 			// Instrument 2 and 3 in NoGap.it were loaded from XI files.
-			mptEnv[ev].tick |= mptEnv[ev - 1].tick & 0xFF00;
+			mptEnv[ev].tick |= static_cast<uint16>(mptEnv[ev - 1].tick & 0xFF00u);
 			if(mptEnv[ev].tick < mptEnv[ev - 1].tick)
 				mptEnv[ev].tick += 0x100;
 		}
@@ -181,9 +181,9 @@ uint32 ITInstrument::ConvertToIT(const ModInstrument &mptIns, bool compatExport,
 	rp = std::min(mptIns.nPanSwing, uint8(64));
 
 	// NNA Stuff
-	nna = mptIns.nNNA;
-	dct = (mptIns.nDCT < DCT_PLUGIN || !compatExport) ? mptIns.nDCT : DCT_NONE;
-	dca = mptIns.nDNA;
+	nna = static_cast<uint8>(mptIns.nNNA);
+	dct = static_cast<uint8>((mptIns.nDCT < DuplicateCheckType::Plugin || !compatExport) ? mptIns.nDCT : DuplicateCheckType::None);
+	dca = static_cast<uint8>(mptIns.nDNA);
 
 	// Pitch / Pan Separation
 	pps = mptIns.nPPS;
@@ -195,7 +195,7 @@ uint32 ITInstrument::ConvertToIT(const ModInstrument &mptIns, bool compatExport,
 
 	// MIDI Setup
 	if(mptIns.nMidiProgram > 0)
-		mpr = mptIns.nMidiProgram - 1u;
+		mpr = static_cast<uint8>(mptIns.nMidiProgram - 1u);
 	else
 		mpr = 0xFF;
 	if(mptIns.wMidiBank > 0)
@@ -316,7 +316,7 @@ uint32 ITInstrument::ConvertToMPT(ModInstrument &mptIns, MODTYPE modFormat) cons
 		if(mbank[0] < 128)
 			bank = mbank[0] + 1;
 		if(mbank[1] < 128)
-			bank += (mbank[1] << 7);
+			bank += static_cast<uint16>(mbank[1] << 7);
 		mptIns.wMidiBank = bank;
 	}
 	mptIns.nMidiChannel = mch;
@@ -448,7 +448,7 @@ void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compr
 	if(mptSmp.uFlags[CHN_PANNING]) dfp |= ITSample::enablePanning;
 
 	// Sample Format / Loop Flags
-	if(mptSmp.HasSampleData())
+	if(mptSmp.HasSampleData() && !mptSmp.uFlags[CHN_ADLIB])
 	{
 		flags = ITSample::sampleDataPresent;
 		if(mptSmp.uFlags[CHN_LOOP]) flags |= ITSample::sampleLoop;
@@ -498,22 +498,27 @@ void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compr
 	if((vid | vis) != 0 && (fromType & MOD_TYPE_XM))
 	{
 		// Sweep is upside down in XM
-		vir = 255 - vir;
+		if(mptSmp.nVibSweep != 0)
+			vir = mpt::saturate_cast<decltype(vir)::base_type>(Util::muldivr_unsigned(mptSmp.nVibDepth, 256, mptSmp.nVibSweep));
+		else
+			vir = 255;
 	}
 
 	if(mptSmp.uFlags[CHN_ADLIB])
 	{
 		length = 12;
+		flags = ITSample::sampleDataPresent;
 		cvt = ITSample::cvtOPLInstrument;
 	} else if(mptSmp.uFlags[SMP_KEEPONDISK])
 	{
-#ifndef MPT_EXTERNAL_SAMPLES
-		allowExternal = false;
-#endif  // MPT_EXTERNAL_SAMPLES
 		// Save external sample (filename at sample pointer)
-		if(allowExternal && mptSmp.HasSampleData())
+		if(mptSmp.HasSampleData())
 		{
-			cvt = ITSample::cvtExternalSample;
+#if !defined(MPT_EXTERNAL_SAMPLES)
+			allowExternal = false;
+#endif  // MPT_EXTERNAL_SAMPLES
+			if(allowExternal)
+				cvt = ITSample::cvtExternalSample;
 		} else
 		{
 			length = loopbegin = loopend = susloopbegin = susloopend = 0;
@@ -531,6 +536,7 @@ uint32 ITSample::ConvertToMPT(ModSample &mptSmp) const
 	}
 
 	mptSmp.Initialize(MOD_TYPE_IT);
+	mptSmp.SetDefaultCuePoints();  // For old IT/MPTM files
 	mptSmp.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 	// Volume / Panning
@@ -632,15 +638,15 @@ SampleIO ITSample::GetSampleFormat(uint16 cwtv) const
 void ITHistoryStruct::ConvertToMPT(FileHistory &mptHistory) const
 {
 	// Decode FAT date and time
-	MemsetZero(mptHistory.loadDate);
+	mptHistory.loadDate = mpt::Date::AnyGregorian{};
 	if(fatdate != 0 || fattime != 0)
 	{
-		mptHistory.loadDate.tm_year = ((fatdate >> 9) & 0x7F) + 80;
-		mptHistory.loadDate.tm_mon = Clamp((fatdate >> 5) & 0x0F, 1, 12) - 1;
-		mptHistory.loadDate.tm_mday = Clamp(fatdate & 0x1F, 1, 31);
-		mptHistory.loadDate.tm_hour = Clamp((fattime >> 11) & 0x1F, 0, 23);
-		mptHistory.loadDate.tm_min = Clamp((fattime >> 5) & 0x3F, 0, 59);
-		mptHistory.loadDate.tm_sec = Clamp((fattime & 0x1F) * 2, 0, 59);
+		mptHistory.loadDate.year = ((fatdate >> 9) & 0x7F) + 1980;
+		mptHistory.loadDate.month = Clamp((fatdate >> 5) & 0x0F, 1, 12);
+		mptHistory.loadDate.day = Clamp(fatdate & 0x1F, 1, 31);
+		mptHistory.loadDate.hours = Clamp((fattime >> 11) & 0x1F, 0, 23);
+		mptHistory.loadDate.minutes = Clamp((fattime >> 5) & 0x3F, 0, 59);
+		mptHistory.loadDate.seconds = Clamp((fattime & 0x1F) * 2, 0, 59);
 	}
 	mptHistory.openTime = static_cast<uint32>(runtime * (HISTORY_TIMER_PRECISION / 18.2));
 }
@@ -652,8 +658,8 @@ void ITHistoryStruct::ConvertToIT(const FileHistory &mptHistory)
 	// Create FAT file dates
 	if(mptHistory.HasValidDate())
 	{
-		fatdate = static_cast<uint16>(mptHistory.loadDate.tm_mday | ((mptHistory.loadDate.tm_mon + 1) << 5) | ((mptHistory.loadDate.tm_year - 80) << 9));
-		fattime = static_cast<uint16>((mptHistory.loadDate.tm_sec / 2) | (mptHistory.loadDate.tm_min << 5) | (mptHistory.loadDate.tm_hour << 11));
+		fatdate = static_cast<uint16>(mptHistory.loadDate.day | (mptHistory.loadDate.month << 5) | ((mptHistory.loadDate.year - 1980) << 9));
+		fattime = static_cast<uint16>((mptHistory.loadDate.seconds / 2) | (mptHistory.loadDate.minutes << 5) | (mptHistory.loadDate.hours << 11));
 	} else
 	{
 		fatdate = 0;
@@ -668,9 +674,9 @@ uint32 DecodeITEditTimer(uint16 cwtv, uint32 editTime)
 	if((cwtv & 0xFFF) >= 0x0208)
 	{
 		editTime ^= 0x4954524B;  // 'ITRK'
-		editTime = (editTime >> 7) | (editTime << (32 - 7));
+		editTime = mpt::rotr(editTime, 7);
 		editTime = ~editTime + 1;
-		editTime = (editTime << 4) | (editTime >> (32 - 4));
+		editTime = mpt::rotl(editTime, 4);
 		editTime ^= 0x4A54484C;  // 'JTHL'
 	}
 	return editTime;

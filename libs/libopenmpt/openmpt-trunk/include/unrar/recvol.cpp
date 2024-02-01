@@ -5,7 +5,7 @@
 
 
 
-bool RecVolumesRestore(RAROptions *Cmd,const wchar *Name,bool Silent)
+bool RecVolumesRestore(CommandData *Cmd,const wchar *Name,bool Silent)
 {
   Archive Arc(Cmd);
   if (!Arc.Open(Name))
@@ -31,18 +31,18 @@ bool RecVolumesRestore(RAROptions *Cmd,const wchar *Name,bool Silent)
   // handling exceptions. So it can close and delete files on Cancel.
   if (Fmt==RARFMT15)
   {
-    RecVolumes3 RecVol(false);
+    RecVolumes3 RecVol(Cmd,false);
     return RecVol.Restore(Cmd,Name,Silent);
   }
   else
   {
-    RecVolumes5 RecVol(false);
+    RecVolumes5 RecVol(Cmd,false);
     return RecVol.Restore(Cmd,Name,Silent);
   }
 }
 
 
-void RecVolumesTest(RAROptions *Cmd,Archive *Arc,const wchar *Name)
+void RecVolumesTest(CommandData *Cmd,Archive *Arc,const wchar *Name)
 {
   wchar RevName[NM];
   *RevName=0;
@@ -94,20 +94,18 @@ void RecVolumesTest(RAROptions *Cmd,Archive *Arc,const wchar *Name)
     ErrHandler.OpenErrorMsg(Name); // It also sets RARX_OPEN.
     return;
   }
-#ifndef GUI
   mprintf(L"\n");
-#endif
   byte Sign[REV5_SIGN_SIZE];
   bool Rev5=RevFile.Read(Sign,REV5_SIGN_SIZE)==REV5_SIGN_SIZE && memcmp(Sign,REV5_SIGN,REV5_SIGN_SIZE)==0;
   RevFile.Close();
   if (Rev5)
   {
-    RecVolumes5 RecVol(true);
+    RecVolumes5 RecVol(Cmd,true);
     RecVol.Test(Cmd,Name);
   }
   else
   {
-    RecVolumes3 RecVol(true);
+    RecVolumes3 RecVol(Cmd,true);
     RecVol.Test(Cmd,Name);
   }
 }

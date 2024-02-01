@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
 #include <string>
 
@@ -34,8 +34,6 @@ struct FileTags
 	mpt::ustring url;
 
 	mpt::ustring genre;
-
-	void SetEncoder();
 
 };
 

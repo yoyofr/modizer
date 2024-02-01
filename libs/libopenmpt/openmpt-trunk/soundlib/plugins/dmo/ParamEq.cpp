@@ -13,6 +13,7 @@
 #ifndef NO_PLUGINS
 #include "../../Sndfile.h"
 #include "ParamEq.h"
+#include "mpt/base/numbers.hpp"
 #endif // !NO_PLUGINS
 
 OPENMPT_NAMESPACE_BEGIN
@@ -22,13 +23,13 @@ OPENMPT_NAMESPACE_BEGIN
 namespace DMO
 {
 
-IMixPlugin* ParamEq::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
+IMixPlugin* ParamEq::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct)
 {
 	return new (std::nothrow) ParamEq(factory, sndFile, mixStruct);
 }
 
 
-ParamEq::ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
+ParamEq::ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
 	, m_maxFreqParam(1.0f)
 {
@@ -37,7 +38,6 @@ ParamEq::ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixSt
 	m_param[kEqGain] = 0.5f;
 
 	m_mixBuffer.Initialize(2, 2);
-	InsertIntoFactoryList();
 }
 
 
@@ -90,7 +90,7 @@ void ParamEq::SetParameter(PlugParamIndex index, PlugParamValue value)
 {
 	if(index < kEqNumParameters)
 	{
-		Limit(value, 0.0f, 1.0f);
+		value = mpt::safe_clamp(value, 0.0f, 1.0f);
 		m_param[index] = value;
 		RecalculateEqParams();
 	}
@@ -101,7 +101,7 @@ void ParamEq::Resume()
 {
 	m_isResumed = true;
 	// Limit center frequency to a third of the sampling rate.
-	m_maxFreqParam = Clamp((m_SndFile.GetSampleRate() / 3.0f - 80.0f) / 15920.0f, 0.0f, 1.0f);
+	m_maxFreqParam = Clamp((static_cast<float>(m_SndFile.GetSampleRate()) / 3.0f - 80.0f) / 15920.0f, 0.0f, 1.0f);
 	RecalculateEqParams();
 	PositionChanged();
 }
@@ -169,12 +169,12 @@ CString ParamEq::GetParamDisplay(PlugParamIndex param)
 void ParamEq::RecalculateEqParams()
 {
 	LimitMax(m_param[kEqCenter], m_maxFreqParam);
-	const float freq = FreqInHertz() / m_SndFile.GetSampleRate();
+	const float freq = FreqInHertz() / static_cast<float>(m_SndFile.GetSampleRate());
 	const float a = std::pow(10.0f, GainInDecibel() / 40.0f);
-	const float w0 = 2.0f * float(M_PI) * freq;
+	const float w0 = 2.0f * mpt::numbers::pi_v<float> * freq;
 	const float sinW0 = std::sin(w0);
 	const float cosW0 = std::cos(w0);
-	const float alpha = sinW0 * std::sinh((BandwidthInSemitones() * (float(M_LN2) / 24.0f)) * w0 / sinW0);
+	const float alpha = sinW0 * std::sinh((BandwidthInSemitones() * (mpt::numbers::ln2_v<float> / 24.0f)) * w0 / sinW0);
 
 	const float b0 = 1.0f + alpha * a;
 	const float b1 = -2.0f * cosW0;

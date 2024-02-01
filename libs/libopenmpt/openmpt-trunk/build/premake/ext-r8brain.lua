@@ -2,16 +2,10 @@
  project "r8brain"
   uuid "BC116B29-9958-4389-B294-7529BB7C7D37"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname .. "/ext" )
-  mpt_projectname = "r8brain"
-  dofile "../../build/premake/premake-defaults-LIB.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  dofile "../../build/premake/premake-defaults-winver.lua"
+  location ( "%{wks.location}" .. "/ext" )
+  mpt_kind "static"
   targetname "openmpt-r8brain"
   includedirs { "../../include/r8brain" }
-	filter {}
-	filter { "action:vs*" }
-		characterset "Unicode"
 	filter {}
   files {
    "../../include/r8brain/r8bbase.cpp",
@@ -20,6 +14,10 @@
    "../../include/r8brain/CDSPBlockConvolver.h",
    "../../include/r8brain/CDSPFIRFilter.h",
    "../../include/r8brain/CDSPFracInterpolator.h",
+   "../../include/r8brain/CDSPHBDownsampler.h",
+   "../../include/r8brain/CDSPHBDownsampler.inc",
+   "../../include/r8brain/CDSPHBUpsampler.h",
+   "../../include/r8brain/CDSPHBUpsampler.inc",
    "../../include/r8brain/CDSPProcessor.h",
    "../../include/r8brain/CDSPRealFFT.h",
    "../../include/r8brain/CDSPResampler.h",
@@ -29,3 +27,20 @@
    "../../include/r8brain/r8bconf.h",
    "../../include/r8brain/r8butil.h",
   }
+
+function mpt_use_r8brain ()
+	filter {}
+	filter { "action:vs*" }
+		includedirs {
+			"../../include",
+		}
+	filter { "not action:vs*" }
+		externalincludedirs {
+			"../../include",
+		}
+	filter {}
+	links {
+		"r8brain",
+	}
+	filter {}
+end

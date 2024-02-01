@@ -12,82 +12,44 @@
 #include "modsmp_ctrl.h"
 #include "AudioCriticalSection.h"
 #include "Sndfile.h"
-#include "../soundbase/SampleFormatConverters.h"
-#include "../soundbase/SampleFormatCopy.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 namespace ctrlSmp
 {
 
-void ReplaceSample(ModSample &smp, void *pNewSample, const SmpLength newLength, CSoundFile &sndFile)
+template <class T>
+static void ReverseSampleImpl(T *pStart, const SmpLength length)
 {
-	void * const pOldSmp = smp.samplev();
-	FlagSet<ChannelFlags> setFlags, resetFlags;
-
-	setFlags.set(CHN_16BIT, smp.uFlags[CHN_16BIT]);
-	resetFlags.set(CHN_16BIT, !smp.uFlags[CHN_16BIT]);
-
-	setFlags.set(CHN_STEREO, smp.uFlags[CHN_STEREO]);
-	resetFlags.set(CHN_STEREO, !smp.uFlags[CHN_STEREO]);
-
-	CriticalSection cs;
-
-	ctrlChn::ReplaceSample(sndFile, smp, pNewSample, newLength, setFlags, resetFlags);
-	smp.pData.pSample = pNewSample;
-	smp.nLength = newLength;
-	ModSample::FreeSample(pOldSmp);
+	for(SmpLength i = 0; i < length / 2; i++)
+	{
+		std::swap(pStart[i], pStart[length - 1 - i]);
+	}
 }
 
-
-// Propagate loop point changes to player
-bool UpdateLoopPoints(const ModSample &smp, CSoundFile &sndFile)
+// Reverse sample data
+bool ReverseSample(ModSample &smp, SmpLength start, SmpLength end, CSoundFile &sndFile)
 {
-	if(!smp.HasSampleData())
-		return false;
-
-	CriticalSection cs;
-
-	// Update channels with new loop values
-	for(auto &chn : sndFile.m_PlayState.Chn) if((chn.pModSample == &smp) && chn.nLength != 0)
+	if(!smp.HasSampleData()) return false;
+	if(end == 0 || start > smp.nLength || end > smp.nLength)
 	{
-		bool looped = false, bidi = false;
-
-		if(smp.nSustainStart < smp.nSustainEnd && smp.nSustainEnd <= smp.nLength && smp.uFlags[CHN_SUSTAINLOOP] && !chn.dwFlags[CHN_KEYOFF])
-		{
-			// Sustain loop is active
-			chn.nLoopStart = smp.nSustainStart;
-			chn.nLoopEnd = smp.nSustainEnd;
-			chn.nLength = smp.nSustainEnd;
-			looped = true;
-			bidi = smp.uFlags[CHN_PINGPONGSUSTAIN];
-		} else if(smp.nLoopStart < smp.nLoopEnd && smp.nLoopEnd <= smp.nLength && smp.uFlags[CHN_LOOP])
-		{
-			// Normal loop is active
-			chn.nLoopStart = smp.nLoopStart;
-			chn.nLoopEnd = smp.nLoopEnd;
-			chn.nLength = smp.nLoopEnd;
-			looped = true;
-			bidi = smp.uFlags[CHN_PINGPONGLOOP];
-		}
-		chn.dwFlags.set(CHN_LOOP, looped);
-		chn.dwFlags.set(CHN_PINGPONGLOOP, looped && bidi);
-
-		if(chn.position.GetUInt() > chn.nLength)
-		{
-			chn.position.Set(chn.nLoopStart);
-			chn.dwFlags.reset(CHN_PINGPONGFLAG);
-		}
-		if(!bidi)
-		{
-			chn.dwFlags.reset(CHN_PINGPONGFLAG);
-		}
-		if(!looped)
-		{
-			chn.nLength = smp.nLength;
-		}
+		start = 0;
+		end   = smp.nLength;
 	}
 
+	if(end - start < 2) return false;
+
+	static_assert(MaxSamplingPointSize <= 4);
+	if(smp.GetBytesPerSample() == 4)  // 16 bit stereo
+		ReverseSampleImpl(static_cast<int32 *>(smp.samplev()) + start, end - start);
+	else if(smp.GetBytesPerSample() == 2)  // 16 bit mono / 8 bit stereo
+		ReverseSampleImpl(static_cast<int16 *>(smp.samplev()) + start, end - start);
+	else if(smp.GetBytesPerSample() == 1)  // 8 bit mono
+		ReverseSampleImpl(static_cast<int8 *>(smp.samplev()) + start, end - start);
+	else
+		return false;
+
+	smp.PrecomputeLoops(sndFile, false);
 	return true;
 }
 
@@ -240,7 +202,70 @@ bool ConvertToMono(ModSample &smp, CSoundFile &sndFile, StereoToMonoMode convers
 
 
 template <class T>
-static void ConvertMonoToStereoImpl(const T * MPT_RESTRICT src, T * MPT_RESTRICT dst, SmpLength length)
+static void SplitStereoImpl(void *destL, void *destR, const T *source, SmpLength length)
+{
+	T *l = static_cast<T *>(destL), *r = static_cast<T*>(destR);
+	while(length--)
+	{
+		*(l++) = source[0];
+		*(r++) = source[1];
+		source += 2;
+	}
+}
+
+
+// Converts a stereo sample into two mono samples. Source sample will not be deleted.
+bool SplitStereo(const ModSample &source, ModSample &left, ModSample &right, CSoundFile &sndFile)
+{
+	if(!source.HasSampleData() || source.GetNumChannels() != 2 || &left == &right)
+		return false;
+	const bool sourceIsLeft = &left == &source, sourceIsRight = &right == &source;
+	if(left.HasSampleData() && !sourceIsLeft)
+		return false;
+	if(right.HasSampleData() && !sourceIsRight)
+		return false;
+
+	void *leftData  = sourceIsLeft ? left.samplev() : ModSample::AllocateSample(source.nLength, source.GetElementarySampleSize());
+	void *rightData = sourceIsRight ? right.samplev() : ModSample::AllocateSample(source.nLength, source.GetElementarySampleSize());
+	if(!leftData || !rightData)
+	{
+		if(!sourceIsLeft)
+			ModSample::FreeSample(leftData);
+		if(!sourceIsRight)
+			ModSample::FreeSample(rightData);
+		return false;
+	}
+
+	if(source.GetElementarySampleSize() == 2)
+		SplitStereoImpl(leftData, rightData, source.sample16(), source.nLength);
+	else if(source.GetElementarySampleSize() == 1)
+		SplitStereoImpl(leftData, rightData, source.sample8(), source.nLength);
+	else
+		MPT_ASSERT_NOTREACHED();
+
+	CriticalSection cs;
+	left = source;
+	left.uFlags.reset(CHN_STEREO);
+	left.pData.pSample = leftData;
+
+	right = source;
+	right.uFlags.reset(CHN_STEREO);
+	right.pData.pSample = rightData;
+
+	for(auto &chn : sndFile.m_PlayState.Chn)
+	{
+		if(chn.pModSample == &left || chn.pModSample == &right)
+			chn.dwFlags.reset(CHN_STEREO);
+	}
+
+	left.PrecomputeLoops(sndFile, false);
+	right.PrecomputeLoops(sndFile, false);
+	return true;
+}
+
+
+template <class T>
+static void ConvertMonoToStereoImpl(const T *MPT_RESTRICT src, T *MPT_RESTRICT dst, SmpLength length)
 {
 	while(length--)
 	{
@@ -272,7 +297,7 @@ bool ConvertToStereo(ModSample &smp, CSoundFile &sndFile)
 
 	CriticalSection cs;
 	smp.uFlags.set(CHN_STEREO);
-	ReplaceSample(smp, newSample, smp.nLength, sndFile);
+	smp.ReplaceWaveform(newSample, smp.nLength, sndFile);
 
 	smp.PrecomputeLoops(sndFile, false);
 	return true;

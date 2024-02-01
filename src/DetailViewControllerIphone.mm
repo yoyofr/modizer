@@ -62,7 +62,7 @@ static int *fft_freqAvgCount;
 
 #import "EQViewController.h"
 
-#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
+//#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
 
 #import "gme.h"

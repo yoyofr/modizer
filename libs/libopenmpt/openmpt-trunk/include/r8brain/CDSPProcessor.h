@@ -1,3 +1,4 @@
+//$ nobt
 //$ nocpp
 
 /**
@@ -8,8 +9,8 @@
  * This file includes the base virtual class for DSP processing algorithm
  * classes like FIR filtering and interpolation.
  *
- * r8brain-free-src Copyright (c) 2013-2014 Aleksey Vaneev
- * See the "License.txt" file for license.
+ * r8brain-free-src Copyright (c) 2013-2022 Aleksey Vaneev
+ * See the "LICENSE" file for license.
  */
 
 #ifndef R8B_CDSPPROCESSOR_INCLUDED
@@ -41,6 +42,25 @@ public:
 	}
 
 	/**
+	 * Function returns the number of input samples required to advance to
+	 * the specified output sample position (so that the next process() call
+	 * passes this output position), starting at the cleared or
+	 * after-construction state of *this object.
+	 *
+	 * Note that the implementation of this function assumes the caller only
+	 * needs to estimate an initial buffering requirement; passing a full
+	 * sample length value (e.g., greater than 100000) may overflow the
+	 * calculation or cause rounding errors.
+	 *
+	 * @param ReqOutPos The required output position. Set to 0 to obtain
+	 * "input length before output start" latency. Must be a non-negative
+	 * value.
+	 * @return The number of input samples required.
+	 */
+
+	virtual int getInLenBeforeOutPos( const int ReqOutPos ) const = 0;
+
+	/**
 	 * @return The latency, in samples, which is present in the output signal.
 	 * This value is usually zero if the DSP processor "consumes" the latency
 	 * automatically.
@@ -56,16 +76,6 @@ public:
 	 */
 
 	virtual double getLatencyFrac() const = 0;
-
-	/**
-	 * @param NextInLen The number of input samples required before the output
-	 * starts on the next resampling step.
-	 * @return The cumulative number of samples that should be passed to *this
-	 * object before the actual output starts. This value includes latencies
-	 * induced by all processors which run after *this processor in chain.
-	 */
-
-	virtual int getInLenBeforeOutStart( const int NextInLen ) const = 0;
 
 	/**
 	 * @param MaxInLen The number of samples planned to process at once, at

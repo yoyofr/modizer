@@ -9,26 +9,28 @@
 
 
 #include "stdafx.h"
-#include "Mainfrm.h"
-#include "Moddoc.h"
 #include "MIDIMappingDialog.h"
 #include "InputHandler.h"
+#include "Mainfrm.h"
+#include "Moddoc.h"
+#include "Mptrack.h"
+#include "Reporting.h"
+#include "resource.h"
+#include "WindowMessages.h"
+#include "../common/mptStringBuffer.h"
 #include "../soundlib/MIDIEvents.h"
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/plugins/PlugInterface.h"
-#include "../common/StringFixer.h"
 
 #ifndef NO_PLUGINS
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-// CMIDIMappingDialog dialog
-
-CMIDIMappingDialog::CMIDIMappingDialog(CWnd* pParent /*=NULL*/, CSoundFile& rSndfile)
-	: CDialog(CMIDIMappingDialog::IDD, pParent), m_rSndFile(rSndfile), 
-	  m_rMIDIMapper(m_rSndFile.GetMIDIMapper())
-//---------------------------------------------------------------------
+CMIDIMappingDialog::CMIDIMappingDialog(CWnd *pParent, CSoundFile &rSndfile)
+	: CDialog(IDD_MIDIPARAMCONTROL, pParent)
+	, m_sndFile(rSndfile)
+	, m_rMIDIMapper(m_sndFile.GetMIDIMapper())
 {
 	CMainFrame::GetInputHandler()->Bypass(true);
 	oldMIDIRecondWnd = CMainFrame::GetMainFrame()->GetMidiRecordWnd();
@@ -36,7 +38,6 @@ CMIDIMappingDialog::CMIDIMappingDialog(CWnd* pParent /*=NULL*/, CSoundFile& rSnd
 
 
 CMIDIMappingDialog::~CMIDIMappingDialog()
-//---------------------------------------
 {
 	CMainFrame::GetMainFrame()->SetMidiRecordWnd(oldMIDIRecondWnd);
 	CMainFrame::GetInputHandler()->Bypass(false);
@@ -44,7 +45,6 @@ CMIDIMappingDialog::~CMIDIMappingDialog()
 
 
 void CMIDIMappingDialog::DoDataExchange(CDataExchange* pDX)
-//---------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COMBO_CONTROLLER, m_ControllerCBox);
@@ -58,40 +58,45 @@ void CMIDIMappingDialog::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CMIDIMappingDialog, CDialog)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, OnSelectionChanged)
-	ON_BN_CLICKED(IDC_CHECKACTIVE, OnBnClickedCheckactive)
-	ON_BN_CLICKED(IDC_CHECKCAPTURE, OnBnClickedCheckCapture)
-	ON_CBN_SELCHANGE(IDC_COMBO_CONTROLLER, OnCbnSelchangeComboController)
-	ON_CBN_SELCHANGE(IDC_COMBO_CHANNEL, OnCbnSelchangeComboChannel)
-	ON_CBN_SELCHANGE(IDC_COMBO_PLUGIN, OnCbnSelchangeComboPlugin)
-	ON_CBN_SELCHANGE(IDC_COMBO_PARAM, OnCbnSelchangeComboParam)
-	ON_CBN_SELCHANGE(IDC_COMBO_EVENT, OnCbnSelchangeComboEvent)
-	ON_BN_CLICKED(IDC_BUTTON_ADD, OnBnClickedButtonAdd)
-	ON_BN_CLICKED(IDC_BUTTON_REPLACE, OnBnClickedButtonReplace)
-	ON_BN_CLICKED(IDC_BUTTON_REMOVE, OnBnClickedButtonRemove)
-	ON_MESSAGE(WM_MOD_MIDIMSG,		OnMidiMsg)
-	ON_NOTIFY(UDN_DELTAPOS, IDC_SPINMOVEMAPPING, OnDeltaposSpinmovemapping)
-	ON_BN_CLICKED(IDC_CHECK_PATRECORD, OnBnClickedCheckPatRecord)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CMIDIMappingDialog::OnSelectionChanged)
+	ON_BN_CLICKED(IDC_CHECKACTIVE, &CMIDIMappingDialog::OnBnClickedCheckactive)
+	ON_BN_CLICKED(IDC_CHECKCAPTURE, &CMIDIMappingDialog::OnBnClickedCheckCapture)
+	ON_CBN_SELCHANGE(IDC_COMBO_CONTROLLER, &CMIDIMappingDialog::OnCbnSelchangeComboController)
+	ON_CBN_SELCHANGE(IDC_COMBO_CHANNEL, &CMIDIMappingDialog::OnCbnSelchangeComboChannel)
+	ON_CBN_SELCHANGE(IDC_COMBO_PLUGIN, &CMIDIMappingDialog::OnCbnSelchangeComboPlugin)
+	ON_CBN_SELCHANGE(IDC_COMBO_PARAM, &CMIDIMappingDialog::OnCbnSelchangeComboParam)
+	ON_CBN_SELCHANGE(IDC_COMBO_EVENT, &CMIDIMappingDialog::OnCbnSelchangeComboEvent)
+	ON_BN_CLICKED(IDC_BUTTON_ADD, &CMIDIMappingDialog::OnBnClickedButtonAdd)
+	ON_BN_CLICKED(IDC_BUTTON_REPLACE, &CMIDIMappingDialog::OnBnClickedButtonReplace)
+	ON_BN_CLICKED(IDC_BUTTON_REMOVE, &CMIDIMappingDialog::OnBnClickedButtonRemove)
+	ON_MESSAGE(WM_MOD_MIDIMSG,		&CMIDIMappingDialog::OnMidiMsg)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPINMOVEMAPPING, &CMIDIMappingDialog::OnDeltaposSpinmovemapping)
+	ON_BN_CLICKED(IDC_CHECK_PATRECORD, &CMIDIMappingDialog::OnBnClickedCheckPatRecord)
 
-	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, OnToolTipNotify)
-
+	ON_NOTIFY_EX(TTN_NEEDTEXT, 0, &CMIDIMappingDialog::OnToolTipNotify)
 END_MESSAGE_MAP()
 
 
 LRESULT CMIDIMappingDialog::OnMidiMsg(WPARAM dwMidiDataParam, LPARAM)
-//-------------------------------------------------------------------
 {
+	uint32 midiData = static_cast<uint32>(dwMidiDataParam);
 	if(IsDlgButtonChecked(IDC_CHECK_MIDILEARN))
 	{
 		for(int i = 0; i < m_EventCBox.GetCount(); i++)
 		{
-			if(static_cast<MIDIEvents::EventType>(m_EventCBox.GetItemData(i)) == MIDIEvents::GetTypeFromEvent(dwMidiDataParam))
+			if(static_cast<MIDIEvents::EventType>(m_EventCBox.GetItemData(i)) == MIDIEvents::GetTypeFromEvent(midiData))
 			{
-				m_ChannelCBox.SetCurSel(1 + MIDIEvents::GetChannelFromEvent(dwMidiDataParam));
+				m_ChannelCBox.SetCurSel(1 + MIDIEvents::GetChannelFromEvent(midiData));
 				m_EventCBox.SetCurSel(i);
-				if(MIDIEvents::GetTypeFromEvent(dwMidiDataParam) == MIDIEvents::evControllerChange)
+				if(MIDIEvents::GetTypeFromEvent(midiData) == MIDIEvents::evControllerChange)
 				{
-					m_ControllerCBox.SetCurSel(MIDIEvents::GetDataByte1FromEvent(dwMidiDataParam));
+					uint8 cc = MIDIEvents::GetDataByte1FromEvent(midiData);
+					if(m_lastCC >= 32 || cc != m_lastCC + 32)
+					{
+						// Ignore second CC message of 14-bit CC.
+						m_ControllerCBox.SetCurSel(cc);
+					}
+					m_lastCC = cc;
 				}
 				OnCbnSelchangeComboChannel();
 				OnCbnSelchangeComboEvent();
@@ -105,7 +110,6 @@ LRESULT CMIDIMappingDialog::OnMidiMsg(WPARAM dwMidiDataParam, LPARAM)
 
 
 BOOL CMIDIMappingDialog::OnInitDialog()
-//-------------------------------------
 {
 	CDialog::OnInitDialog();
 
@@ -115,25 +119,26 @@ BOOL CMIDIMappingDialog::OnInitDialog()
 	m_EventCBox.SetItemData(m_EventCBox.AddString(_T("Channel Aftertouch")), MIDIEvents::evChannelAftertouch);
 	
 	// Add controller names
-	CString temp;
-	for(size_t i = MIDIEvents::MIDICC_start; i <= MIDIEvents::MIDICC_end; i++)
+	CString s;
+	for(uint8 i = MIDIEvents::MIDICC_start; i <= MIDIEvents::MIDICC_end; i++)
 	{
-		temp.Format("%3u %s", i, MIDIEvents::MidiCCNames[i]);
-		m_ControllerCBox.AddString(temp);
+		s.Format(_T("%3u "), i);
+		s += mpt::ToCString(mpt::Charset::UTF8, MIDIEvents::MidiCCNames[i]);
+		m_ControllerCBox.AddString(s);
 	}
 
 	// Add plugin names
-	AddPluginNamesToCombobox(m_PluginCBox, m_rSndFile.m_MixPlugins);
+	AddPluginNamesToCombobox(m_PluginCBox, m_sndFile.m_MixPlugins);
 
 	// Initialize mapping table
-	const CListCtrlEx::Header headers[] =
+	static constexpr CListCtrlEx::Header headers[] =
 	{
-		{ _T("Channel"),			58, LVCFMT_LEFT },
-		{ _T("Event / Controller"),	176, LVCFMT_LEFT },
-		{ _T("Plugin"),				120, LVCFMT_LEFT },
-		{ _T("Parameter"),			120, LVCFMT_LEFT },
-		{ _T("Capture"),			40, LVCFMT_LEFT },
-		{ _T("Pattern Record"),		40, LVCFMT_LEFT }
+		{ _T("Channel"),            58,  LVCFMT_LEFT },
+		{ _T("Event / Controller"), 176, LVCFMT_LEFT },
+		{ _T("Plugin"),             120, LVCFMT_LEFT },
+		{ _T("Parameter"),          120, LVCFMT_LEFT },
+		{ _T("Capture"),            40,  LVCFMT_LEFT },
+		{ _T("Pattern Record"),     40,  LVCFMT_LEFT }
 	};
 	m_List.SetHeaders(headers);
 	m_List.SetExtendedStyle(m_List.GetExtendedStyle() | LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT);
@@ -153,7 +158,7 @@ BOOL CMIDIMappingDialog::OnInitDialog()
 		UpdateDialog();
 	}
 
-	GetDlgItem(IDC_CHECK_PATRECORD)->EnableWindow((m_rSndFile.GetType() == MOD_TYPE_MPT) ? TRUE : FALSE);
+	GetDlgItem(IDC_CHECK_PATRECORD)->EnableWindow((m_sndFile.GetType() == MOD_TYPE_MPT) ? TRUE : FALSE);
 
 	CMainFrame::GetMainFrame()->SetMidiRecordWnd(GetSafeHwnd());
 
@@ -165,7 +170,6 @@ BOOL CMIDIMappingDialog::OnInitDialog()
 
 
 int CMIDIMappingDialog::InsertItem(const CMIDIMappingDirective &m, int insertAt)
-//------------------------------------------------------------------------------
 {
 	CString s;
 	if(m.GetAnyChannel())
@@ -182,7 +186,7 @@ int CMIDIMappingDialog::InsertItem(const CMIDIMappingDirective &m, int insertAt)
 	{
 	case MIDIEvents::evControllerChange:
 		s.Format(_T("CC %u: "), m.GetController());
-		if(m.GetController() <= MIDIEvents::MIDICC_end) s += MIDIEvents::MidiCCNames[m.GetController()];
+		if(m.GetController() <= MIDIEvents::MIDICC_end) s += mpt::ToCString(mpt::Charset::UTF8, MIDIEvents::MidiCCNames[m.GetController()]);
 		break;
 	case MIDIEvents::evPolyAftertouch:
 		s = _T("Polyphonic Aftertouch"); break;
@@ -196,9 +200,9 @@ int CMIDIMappingDialog::InsertItem(const CMIDIMappingDirective &m, int insertAt)
 	const PLUGINDEX plugindex = m.GetPlugIndex();
 	if(plugindex > 0 && plugindex < MAX_MIXPLUGINS)
 	{
-		const SNDMIXPLUGIN &plug = m_rSndFile.m_MixPlugins[plugindex - 1];
+		const SNDMIXPLUGIN &plug = m_sndFile.m_MixPlugins[plugindex - 1];
 		s.Format(_T("FX%u: "), plugindex);
-		s += plug.GetName();
+		s += mpt::ToCString(plug.GetName());
 		m_List.SetItemText(insertAt, 2, s);
 		if(plug.pMixPlugin != nullptr)
 			s = plug.pMixPlugin->GetFormattedParamName(m.GetParamIndex());
@@ -214,7 +218,6 @@ int CMIDIMappingDialog::InsertItem(const CMIDIMappingDirective &m, int insertAt)
 
 
 void CMIDIMappingDialog::SelectItem(int i)
-//----------------------------------------
 {
 	m_List.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
 	m_List.SetSelectionMark(i);
@@ -222,7 +225,6 @@ void CMIDIMappingDialog::SelectItem(int i)
 
 
 void CMIDIMappingDialog::UpdateDialog(int selItem)
-//------------------------------------------------
 {
 	CheckDlgButton(IDC_CHECKACTIVE, m_Setting.IsActive() ? BST_CHECKED : BST_UNCHECKED);
 	CheckDlgButton(IDC_CHECKCAPTURE, m_Setting.GetCaptureMIDI() ? BST_CHECKED : BST_UNCHECKED);
@@ -247,15 +249,18 @@ void CMIDIMappingDialog::UpdateDialog(int selItem)
 	UpdateEvent();
 	UpdateParameters();
 
-	const bool enableMover = selItem >= 0 && (
-		(selItem > 0 && m_rMIDIMapper.AreOrderEqual(selItem - 1, selItem)) ||
-		(selItem + 1 < m_List.GetItemCount() && m_rMIDIMapper.AreOrderEqual(selItem, selItem + 1)));
+	bool enableMover = selItem >= 0;
+	if(enableMover)
+	{
+		const bool previousEqual = (selItem > 0 && m_rMIDIMapper.AreOrderEqual(selItem - 1, selItem));
+		const bool nextEqual = (selItem + 1 < m_List.GetItemCount() && m_rMIDIMapper.AreOrderEqual(selItem, selItem + 1));
+		enableMover = previousEqual || nextEqual;
+	}
 	m_SpinMoveMapping.EnableWindow(enableMover);
 }
 
 
 void CMIDIMappingDialog::UpdateEvent()
-//------------------------------------
 {
 	m_ControllerCBox.EnableWindow(m_Setting.GetEvent() == MIDIEvents::evControllerChange ? TRUE : FALSE);
 	if(m_Setting.GetEvent() != MIDIEvents::evControllerChange)
@@ -264,11 +269,10 @@ void CMIDIMappingDialog::UpdateEvent()
 
 
 void CMIDIMappingDialog::UpdateParameters()
-//-----------------------------------------
 {
 	m_PlugParamCBox.SetRedraw(FALSE);
 	m_PlugParamCBox.ResetContent();
-	AddPluginParameternamesToCombobox(m_PlugParamCBox, m_rSndFile.m_MixPlugins[m_Setting.GetPlugIndex() - 1]);
+	AddPluginParameternamesToCombobox(m_PlugParamCBox, m_sndFile.m_MixPlugins[m_Setting.GetPlugIndex() - 1]);
 	m_PlugParamCBox.SetCurSel(m_Setting.GetParamIndex());
 	m_PlugParamCBox.SetRedraw(TRUE);
 	m_PlugParamCBox.Invalidate();
@@ -276,23 +280,21 @@ void CMIDIMappingDialog::UpdateParameters()
 
 
 void CMIDIMappingDialog::OnSelectionChanged(NMHDR *pNMHDR, LRESULT * /*pResult*/)
-//--------------------------------------------------------------------------------
 {
 	int i;
 	if(pNMHDR != nullptr)
 	{
 		NMLISTVIEW *nmlv = (NMLISTVIEW *)pNMHDR;
 
-		if(((nmlv->uOldState ^ nmlv->uNewState) & 0x3000) != 0 && nmlv->uOldState != 0)
+		if(((nmlv->uOldState ^ nmlv->uNewState) & INDEXTOSTATEIMAGEMASK(3)) != 0 && nmlv->uOldState != 0)
 		{
 			// Check box status changed
 			CMIDIMappingDirective m = m_rMIDIMapper.GetDirective(nmlv->iItem);
-			m.SetActive(nmlv->uNewState == 0x2000);
+			m.SetActive(nmlv->uNewState == INDEXTOSTATEIMAGEMASK(2));
 			m_rMIDIMapper.SetDirective(nmlv->iItem, m);
-			if(m_rSndFile.GetpModDoc())
-				m_rSndFile.GetpModDoc()->SetModified();
+			SetModified();
 			if(nmlv->iItem == m_List.GetSelectionMark())
-				CheckDlgButton(IDC_CHECKACTIVE, nmlv->uNewState == 0x2000 ? BST_CHECKED : BST_UNCHECKED);
+				CheckDlgButton(IDC_CHECKACTIVE, nmlv->uNewState == INDEXTOSTATEIMAGEMASK(2) ? BST_CHECKED : BST_UNCHECKED);
 		}
 
 		if(nmlv->uNewState & LVIS_SELECTED)
@@ -310,42 +312,36 @@ void CMIDIMappingDialog::OnSelectionChanged(NMHDR *pNMHDR, LRESULT * /*pResult*/
 
 
 void CMIDIMappingDialog::OnBnClickedCheckactive()
-//-----------------------------------------------
 {
 	m_Setting.SetActive(IsDlgButtonChecked(IDC_CHECKACTIVE) == BST_CHECKED);
 }
 
 
 void CMIDIMappingDialog::OnBnClickedCheckCapture()
-//------------------------------------------------
 {
 	m_Setting.SetCaptureMIDI(IsDlgButtonChecked(IDC_CHECKCAPTURE) == BST_CHECKED);
 }
 
 
 void CMIDIMappingDialog::OnBnClickedCheckPatRecord()
-//--------------------------------------------------
 {
 	m_Setting.SetAllowPatternEdit(IsDlgButtonChecked(IDC_CHECK_PATRECORD) == BST_CHECKED);
 }
 
 
 void CMIDIMappingDialog::OnCbnSelchangeComboController()
-//------------------------------------------------------
 {
 	m_Setting.SetController(m_ControllerCBox.GetCurSel());
 }
 
 
 void CMIDIMappingDialog::OnCbnSelchangeComboChannel()
-//---------------------------------------------------
 {
 	m_Setting.SetChannel(m_ChannelCBox.GetCurSel());
 }
 
 
 void CMIDIMappingDialog::OnCbnSelchangeComboPlugin()
-//--------------------------------------------------
 {
 	int i = m_PluginCBox.GetCurSel();
 	if(i < 0 || i >= MAX_MIXPLUGINS) return;
@@ -355,14 +351,12 @@ void CMIDIMappingDialog::OnCbnSelchangeComboPlugin()
 
 
 void CMIDIMappingDialog::OnCbnSelchangeComboParam()
-//-------------------------------------------------
 {
 	m_Setting.SetParamIndex(m_PlugParamCBox.GetCurSel());
 }
 
 
 void CMIDIMappingDialog::OnCbnSelchangeComboEvent()
-//-------------------------------------------------
 {
 	uint8 eventType = static_cast<uint8>(m_EventCBox.GetItemData(m_EventCBox.GetCurSel()));
 	m_Setting.SetEvent(eventType);
@@ -371,49 +365,43 @@ void CMIDIMappingDialog::OnCbnSelchangeComboEvent()
 
 
 void CMIDIMappingDialog::OnBnClickedButtonAdd()
-//---------------------------------------------
 {
-	if(m_rSndFile.GetModSpecifications().MIDIMappingDirectivesMax <= m_rMIDIMapper.GetCount())
+	if(m_sndFile.GetModSpecifications().MIDIMappingDirectivesMax <= m_rMIDIMapper.GetCount())
 	{
 		Reporting::Information("Maximum amount of MIDI Mapping directives reached.");
 	} else
 	{
 		const size_t i = m_rMIDIMapper.AddDirective(m_Setting);
-		if(m_rSndFile.GetpModDoc())
-			m_rSndFile.GetpModDoc()->SetModified();
+		SetModified();
 
-		SelectItem(InsertItem(m_Setting, i));
+		SelectItem(InsertItem(m_Setting, static_cast<int>(i)));
 		OnSelectionChanged();
 	}
 }
 
 
 void CMIDIMappingDialog::OnBnClickedButtonReplace()
-//-------------------------------------------------
 {
 	const int i = m_List.GetSelectionMark();
 	if(i >= 0 && (size_t)i < m_rMIDIMapper.GetCount())
 	{
 		const size_t newIndex = m_rMIDIMapper.SetDirective(i, m_Setting);
-		if(m_rSndFile.GetpModDoc())
-			m_rSndFile.GetpModDoc()->SetModified();
+		SetModified();
 
 		m_List.DeleteItem(i);
-		SelectItem(InsertItem(m_Setting, newIndex));
+		SelectItem(InsertItem(m_Setting, static_cast<int>(newIndex)));
 		OnSelectionChanged();
 	}
 }
 
 
 void CMIDIMappingDialog::OnBnClickedButtonRemove()
-//------------------------------------------------
 {
 	int i = m_List.GetSelectionMark();
 	if(i >= 0 && (size_t)i < m_rMIDIMapper.GetCount())
 	{
 		m_rMIDIMapper.RemoveDirective(i);
-		if(m_rSndFile.GetpModDoc())
-			m_rSndFile.GetpModDoc()->SetModified();
+		SetModified();
 
 		m_List.DeleteItem(i);
 		if(m_List.GetItemCount() > 0)
@@ -433,7 +421,6 @@ void CMIDIMappingDialog::OnBnClickedButtonRemove()
 
 
 void CMIDIMappingDialog::OnDeltaposSpinmovemapping(NMHDR *pNMHDR, LRESULT *pResult)
-//---------------------------------------------------------------------------------
 {
 	const int index = m_List.GetSelectionMark();
 	if(index < 0 || index >= m_List.GetItemCount()) return;
@@ -468,9 +455,8 @@ void CMIDIMappingDialog::OnDeltaposSpinmovemapping(NMHDR *pNMHDR, LRESULT *pResu
 
 
 BOOL CMIDIMappingDialog::OnToolTipNotify(UINT, NMHDR * pNMHDR, LRESULT *)
-//-----------------------------------------------------------------------
 {
-	TOOLTIPTEXT *pTTT = (TOOLTIPTEXTA*)pNMHDR;
+	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT*)pNMHDR;
 	const TCHAR *text = _T("");
 	UINT_PTR nID = pNMHDR->idFrom;
 	if(pTTT->uFlags & TTF_IDISHWND)
@@ -485,7 +471,7 @@ BOOL CMIDIMappingDialog::OnToolTipNotify(UINT, NMHDR * pNMHDR, LRESULT *)
 		text = _T("The event is not passed to any further MIDI mappings or recording facilities.");
 		break;
 	case IDC_CHECKACTIVE:
-		text = _T("The MIDI mapping is enabled and can be procssed.");
+		text = _T("The MIDI mapping is enabled and can be processed.");
 		break;
 	case IDC_CHECK_PATRECORD:
 		text = _T("Parameter changes are recorded into patterns as Parameter Control events.");
@@ -496,10 +482,26 @@ BOOL CMIDIMappingDialog::OnToolTipNotify(UINT, NMHDR * pNMHDR, LRESULT *)
 	case IDC_SPINMOVEMAPPING:
 		text = _T("Change the processing order of the current selected MIDI mapping.");
 		break;
+	case IDC_COMBO_CHANNEL:
+		text = _T("The MIDI channel to listen on for this event.");
+		break;
+	case IDC_COMBO_EVENT:
+		text = _T("The MIDI event to listen for.");
+		break;
+	case IDC_COMBO_CONTROLLER:
+		text = _T("The MIDI controler to listen for.");
+		break;
 	}
 
-	mpt::String::CopyN(pTTT->szText, text);
+	mpt::String::WriteWinBuf(pTTT->szText) = mpt::winstring(text);
 	return TRUE;
+}
+
+
+void CMIDIMappingDialog::SetModified()
+{
+	if(m_sndFile.GetpModDoc() != nullptr)
+		m_sndFile.GetpModDoc()->SetModified();
 }
 
 

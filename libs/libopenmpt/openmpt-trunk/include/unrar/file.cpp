@@ -7,16 +7,19 @@ File::File()
   NewFile=false;
   LastWrite=false;
   HandleType=FILE_HANDLENORMAL;
+  LineInput=false;
   SkipClose=false;
-  IgnoreReadErrors=false;
   ErrorType=FILE_SUCCESS;
   OpenShared=false;
   AllowDelete=true;
   AllowExceptions=true;
+  PreserveAtime=false;
 #ifdef _WIN_ALL
-  NoSequentialRead=false;
   CreateMode=FMF_UNDEFINED;
 #endif
+  ReadErrorMode=FREM_ASK;
+  TruncatedAfterReadError=false;
+  CurFilePos=0;
 }
 
 
@@ -36,6 +39,7 @@ void File::operator = (File &SrcFile)
   NewFile=SrcFile.NewFile;
   LastWrite=SrcFile.LastWrite;
   HandleType=SrcFile.HandleType;
+  TruncatedAfterReadError=SrcFile.TruncatedAfterReadError;
   wcsncpyz(FileName,SrcFile.FileName,ASIZE(FileName));
   SrcFile.SkipClose=true;
 }
@@ -55,7 +59,10 @@ bool File::Open(const wchar *Name,uint Mode)
   uint ShareMode=(Mode & FMF_OPENEXCLUSIVE) ? 0 : FILE_SHARE_READ;
   if (OpenShared)
     ShareMode|=FILE_SHARE_WRITE;
-  uint Flags=NoSequentialRead ? 0:FILE_FLAG_SEQUENTIAL_SCAN;
+  uint Flags=FILE_FLAG_SEQUENTIAL_SCAN;
+  FindData FD;
+  if (PreserveAtime)
+    Access|=FILE_WRITE_ATTRIBUTES; // Needed to preserve atime.
   hNewFile=CreateFile(Name,Access,ShareMode,NULL,OPEN_EXISTING,Flags,NULL);
 
   DWORD LastError;
@@ -84,9 +91,14 @@ bool File::Open(const wchar *Name,uint Mode)
         LastError=ERROR_FILE_NOT_FOUND;
     }
   }
-
   if (hNewFile==FILE_BAD_HANDLE && LastError==ERROR_FILE_NOT_FOUND)
     ErrorType=FILE_NOTFOUND;
+  if (PreserveAtime && hNewFile!=FILE_BAD_HANDLE)
+  {
+    FILETIME ft={0xffffffff,0xffffffff}; // This value prevents atime modification.
+    SetFileTime(hNewFile,NULL,&ft,NULL);
+  }
+
 #else
   int flags=UpdateMode ? O_RDWR:(WriteMode ? O_WRONLY:O_RDONLY);
 #ifdef O_BINARY
@@ -94,6 +106,11 @@ bool File::Open(const wchar *Name,uint Mode)
 #if defined(_AIX) && defined(_LARGE_FILE_API)
   flags|=O_LARGEFILE;
 #endif
+#endif
+  // NDK r20 has O_NOATIME, but fails to create files with it in Android 7+.
+#if defined(O_NOATIME)
+  if (PreserveAtime)
+    flags|=O_NOATIME;
 #endif
   char NameA[NM];
   WideToChar(Name,NameA,ASIZE(NameA));
@@ -104,12 +121,12 @@ bool File::Open(const wchar *Name,uint Mode)
 #ifdef _OSF_SOURCE
   extern "C" int flock(int, int);
 #endif
-
   if (!OpenShared && UpdateMode && handle>=0 && flock(handle,LOCK_EX|LOCK_NB)==-1)
   {
     close(handle);
     return false;
   }
+
 #endif
   if (handle==-1)
     hNewFile=FILE_BAD_HANDLE;
@@ -121,12 +138,6 @@ bool File::Open(const wchar *Name,uint Mode)
     hNewFile=fdopen(handle,UpdateMode ? UPDATEBINARY:READBINARY);
 #endif
   }
-#ifdef _ANDROID
-  // If we open an existing file in r&w mode and external card is read-only
-  // for usual file API.
-  if (hNewFile==FILE_BAD_HANDLE && UpdateMode && errno!=ENOENT)
-    hNewFile=JniOpenFile(Name);
-#endif
   if (hNewFile==FILE_BAD_HANDLE && errno==ENOENT)
     ErrorType=FILE_NOTFOUND;
 #endif
@@ -138,12 +149,13 @@ bool File::Open(const wchar *Name,uint Mode)
   {
     hFile=hNewFile;
     wcsncpyz(FileName,Name,ASIZE(FileName));
+    TruncatedAfterReadError=false;
   }
   return Success;
 }
 
 
-#if !defined(SHELL_EXT) && !defined(SFX_MODULE)
+#if !defined(SFX_MODULE)
 void File::TOpen(const wchar *Name)
 {
   if (!WOpen(Name))
@@ -163,8 +175,7 @@ bool File::WOpen(const wchar *Name)
 
 bool File::Create(const wchar *Name,uint Mode)
 {
-  return false;	// OPENMPT ADDITION
-  /*	// OPENMPT ADDITION
+  return false;	/* // OPENMPT ADDITION
   // OpenIndiana based NAS and CIFS shares fail to set the file time if file
   // was created in read+write mode and some data was written and not flushed
   // before SetFileTime call. So we should use the write only mode if we plan
@@ -181,7 +192,7 @@ bool File::Create(const wchar *Name,uint Mode)
   wchar *LastChar=PointToLastChar(Name);
   bool Special=*LastChar=='.' || *LastChar==' ';
   
-  if (Special)
+  if (Special && (Mode & FMF_STANDARDNAMES)==0)
     hFile=FILE_BAD_HANDLE;
   else
     hFile=CreateFile(Name,Access,ShareMode,NULL,CREATE_ALWAYS,0,NULL);
@@ -197,13 +208,7 @@ bool File::Create(const wchar *Name,uint Mode)
   char NameA[NM];
   WideToChar(Name,NameA,ASIZE(NameA));
 #ifdef FILE_USE_OPEN
-  hFile=open(NameA,(O_CREAT|O_TRUNC) | (WriteMode ? O_WRONLY : O_RDWR));
-#ifdef _ANDROID
-  if (hFile==FILE_BAD_HANDLE)
-    hFile=JniCreateFile(Name); // If external card is read-only for usual file API.
-  if (hFile!=FILE_BAD_HANDLE)
-    JniFileNotify(Name,false);
-#endif
+  hFile=open(NameA,(O_CREAT|O_TRUNC) | (WriteMode ? O_WRONLY : O_RDWR),0666);
 #else
   hFile=fopen(NameA,WriteMode ? WRITEBINARY:CREATEBINARY);
 #endif
@@ -217,7 +222,7 @@ bool File::Create(const wchar *Name,uint Mode)
 }
 
 
-#if !defined(SHELL_EXT) && !defined(SFX_MODULE)
+#if !defined(SFX_MODULE)
 void File::TCreate(const wchar *Name,uint Mode)
 {
   if (!WCreate(Name,Mode))
@@ -245,7 +250,7 @@ bool File::Close()
     {
 #ifdef _WIN_ALL
       // We use the standard system handle for stdout in Windows
-      // and it must not  be closed here.
+      // and it must not be closed here.
       if (HandleType==FILE_HANDLENORMAL)
         Success=CloseHandle(hFile)==TRUE;
 #else
@@ -286,7 +291,7 @@ bool File::Rename(const wchar *NewName)
     Success=RenameFile(FileName,NewName);
 
   if (Success)
-    wcscpy(FileName,NewName);
+    wcsncpyz(FileName,NewName,ASIZE(FileName));
 
   return Success;
 }
@@ -294,8 +299,7 @@ bool File::Rename(const wchar *NewName)
 
 bool File::Write(const void *Data,size_t Size)
 {
-  return true;	// OPENMPT ADDITION
-  /* 	// OPENMPT ADDITION
+  return true;	/* // OPENMPT ADDITION
   if (Size==0)
     return true;
   if (HandleType==FILE_HANDLESTD)
@@ -373,19 +377,23 @@ bool File::Write(const void *Data,size_t Size)
 
 int File::Read(void *Data,size_t Size)
 {
+  if (TruncatedAfterReadError)
+    return 0;
+
   int64 FilePos=0; // Initialized only to suppress some compilers warning.
 
-  if (IgnoreReadErrors)
+  if (ReadErrorMode==FREM_IGNORE)
     FilePos=Tell();
-  int ReadSize;
+  int TotalRead=0;
   while (true)
   {
-    ReadSize=DirectRead(Data,Size);
+    int ReadSize=DirectRead(Data,Size);
+
     if (ReadSize==-1)
     {
       ErrorType=FILE_READERROR;
       if (AllowExceptions)
-        if (IgnoreReadErrors)
+        if (ReadErrorMode==FREM_IGNORE)
         {
           ReadSize=0;
           for (size_t I=0;I<Size;I+=512)
@@ -394,18 +402,49 @@ int File::Read(void *Data,size_t Size)
             size_t SizeToRead=Min(Size-I,512);
             int ReadCode=DirectRead(Data,SizeToRead);
             ReadSize+=(ReadCode==-1) ? 512:ReadCode;
+            if (ReadSize!=-1)
+              TotalRead+=ReadSize;
           }
         }
         else
         {
-          if (HandleType==FILE_HANDLENORMAL && ErrHandler.AskRepeatRead(FileName))
-            continue;
+          bool Ignore=false,Retry=false,Quit=false;
+          if (ReadErrorMode==FREM_ASK && HandleType==FILE_HANDLENORMAL)
+          {
+            ErrHandler.AskRepeatRead(FileName,Ignore,Retry,Quit);
+            if (Retry)
+              continue;
+          }
+          if (Ignore || ReadErrorMode==FREM_TRUNCATE)
+          {
+            TruncatedAfterReadError=true;
+            return 0;
+          }
           ErrHandler.ReadError(FileName);
         }
     }
+    TotalRead+=ReadSize; // If ReadSize is -1, TotalRead is also set to -1 here.
+
+    if (HandleType==FILE_HANDLESTD && !LineInput && ReadSize>0 && (uint)ReadSize<Size)
+    {
+      // Unlike regular files, for pipe we can read only as much as was
+      // written at the other end of pipe. We had seen data coming in small
+      // ~80 byte chunks when piping from 'type arc.rar'. Extraction code
+      // would fail if we read an incomplete archive header from stdin.
+      // So here we ensure that requested size is completely read.
+      // But we return the available data immediately in "line input" mode,
+      // when processing user's input in console prompts. Otherwise apps
+      // piping user responses to multiple Ask() prompts can hang if no more
+      // data is available yet and pipe isn't closed.
+      Data=(byte*)Data+ReadSize;
+      Size-=ReadSize;
+      continue;
+    }
     break;
   }
-  return ReadSize;
+  if (TotalRead>0) // Can be -1 for error and AllowExceptions disabled.
+    CurFilePos+=TotalRead;
+  return TotalRead; // It can return -1 only if AllowExceptions is disabled.
 }
 
 
@@ -487,6 +526,36 @@ bool File::RawSeek(int64 Offset,int Method)
 {
   if (hFile==FILE_BAD_HANDLE)
     return true;
+  if (!IsSeekable()) // To extract archives from stdin with -si.
+  {
+    // We tried to dynamically allocate 32 KB buffer here, but it improved
+    // speed in Windows 10 by mere ~1.5%.
+    byte Buf[4096];
+    if (Method==SEEK_CUR || Method==SEEK_SET && Offset>=CurFilePos)
+    {
+      uint64 SkipSize=Method==SEEK_CUR ? Offset:Offset-CurFilePos;
+      while (SkipSize>0) // Reading to emulate seek forward.
+      {
+        int ReadSize=Read(Buf,(size_t)Min(SkipSize,ASIZE(Buf)));
+        if (ReadSize<=0)
+          return false;
+        SkipSize-=ReadSize;
+        CurFilePos+=ReadSize;
+      }
+      return true;
+    }
+    // May need it in FileLength() in Archive::UnexpEndArcMsg() when unpacking
+    // RAR 4.x archives without the end of archive block created with -en.
+    if (Method==SEEK_END)
+    {
+      int ReadSize;
+      while ((ReadSize=Read(Buf,ASIZE(Buf)))>0)
+        CurFilePos+=ReadSize;
+      return true;
+    }
+
+    return false; // Backward seek on unseekable file.
+  }
   if (Offset<0 && Method!=SEEK_SET)
   {
     Offset=(Method==SEEK_CUR ? Tell():FileLength())+Offset;
@@ -500,7 +569,7 @@ bool File::RawSeek(int64 Offset,int Method)
 #else
   LastWrite=false;
 #ifdef FILE_USE_OPEN
-  if (lseek64(hFile,Offset,Method)==-1)
+  if (lseek(hFile,(off_t)Offset,Method)==-1)
     return false;
 #elif defined(_LARGEFILE_SOURCE) && !defined(_OSF_SOURCE) && !defined(__VMS)
   if (fseeko(hFile,Offset,Method)!=0)
@@ -521,6 +590,8 @@ int64 File::Tell()
       ErrHandler.SeekError(FileName);
     else
       return -1;
+  if (!IsSeekable())
+    return CurFilePos;
 #ifdef _WIN_ALL
   LONG HighDist=0;
   uint LowDist=SetFilePointer(hFile,0,&HighDist,FILE_CURRENT);
@@ -532,7 +603,7 @@ int64 File::Tell()
   return INT32TO64(HighDist,LowDist);
 #else
 #ifdef FILE_USE_OPEN
-  return lseek64(hFile,0,SEEK_CUR);
+  return lseek(hFile,0,SEEK_CUR);
 #elif defined(_LARGEFILE_SOURCE) && !defined(_OSF_SOURCE)
   return ftello(hFile);
 #else
@@ -544,7 +615,7 @@ int64 File::Tell()
 
 void File::Prealloc(int64 Size)
 {
-  /*	// OPENMPT ADDITION
+  /* // OPENMPT ADDITION
 #ifdef _WIN_ALL
   if (RawSeek(Size,SEEK_SET))
   {
@@ -580,8 +651,7 @@ void File::PutByte(byte Byte)
 
 bool File::Truncate()
 {
-  return false;	// OPENMPT ADDITION
-  /*	// OPENMPT ADDITION
+  return false;	/* // OPENMPT ADDITION
 #ifdef _WIN_ALL
   return SetEndOfFile(hFile)==TRUE;
 #else
@@ -593,8 +663,7 @@ bool File::Truncate()
 
 void File::Flush()
 {
-  return; // OPENMPT ADDITION
-  /*	// OPENMPT ADDITION
+  return; /* // OPENMPT ADDITION
 #ifdef _WIN_ALL
   FlushFileBuffers(hFile);
 #else
@@ -622,11 +691,11 @@ void File::SetOpenFileTime(RarTime *ftm,RarTime *ftc,RarTime *fta)
   bool sa=fta!=NULL && fta->IsSet();
   FILETIME fm,fc,fa;
   if (sm)
-    ftm->GetWin32(&fm);
+    ftm->GetWinFT(&fm);
   if (sc)
-    ftc->GetWin32(&fc);
+    ftc->GetWinFT(&fc);
   if (sa)
-    fta->GetWin32(&fa);
+    fta->GetWinFT(&fa);
   SetFileTime(hFile,sc ? &fc:NULL,sa ? &fa:NULL,sm ? &fm:NULL);
 #endif
   */	// OPENMPT ADDITION
@@ -636,6 +705,12 @@ void File::SetOpenFileTime(RarTime *ftm,RarTime *ftc,RarTime *fta)
 void File::SetCloseFileTime(RarTime *ftm,RarTime *fta)
 {
   /*	// OPENMPT ADDITION
+// Android APP_PLATFORM := android-14 does not support futimens and futimes.
+// Newer platforms support futimens, but fail on Android 4.2.
+// We have to use utime for Android.
+// Also we noticed futimens fail to set timestamps on NTFS partition
+// mounted to virtual Linux x86 machine, but utimensat worked correctly.
+// So we set timestamps for already closed files in Unix.
 #ifdef _UNIX
   SetCloseFileTimeByName(FileName,ftm,fta);
 #endif
@@ -651,36 +726,69 @@ void File::SetCloseFileTimeByName(const wchar *Name,RarTime *ftm,RarTime *fta)
   bool seta=fta!=NULL && fta->IsSet();
   if (setm || seta)
   {
+    char NameA[NM];
+    WideToChar(Name,NameA,ASIZE(NameA));
+
+#ifdef UNIX_TIME_NS
+    timespec times[2];
+    times[0].tv_sec=seta ? fta->GetUnix() : 0;
+    times[0].tv_nsec=seta ? long(fta->GetUnixNS()%1000000000) : UTIME_NOW;
+    times[1].tv_sec=setm ? ftm->GetUnix() : 0;
+    times[1].tv_nsec=setm ? long(ftm->GetUnixNS()%1000000000) : UTIME_NOW;
+    utimensat(AT_FDCWD,NameA,times,0);
+#else
     utimbuf ut;
     if (setm)
       ut.modtime=ftm->GetUnix();
     else
-      ut.modtime=fta->GetUnix();
+      ut.modtime=fta->GetUnix(); // Need to set something, cannot left it 0.
     if (seta)
       ut.actime=fta->GetUnix();
     else
-      ut.actime=ut.modtime;
-    char NameA[NM];
-    WideToChar(Name,NameA,ASIZE(NameA));
+      ut.actime=ut.modtime; // Need to set something, cannot left it 0.
     utime(NameA,&ut);
+#endif
   }
 #endif
   */	// OPENMPT ADDITION
 }
 
 
-void File::GetOpenFileTime(RarTime *ft)
+#ifdef _UNIX
+void File::StatToRarTime(struct stat &st,RarTime *ftm,RarTime *ftc,RarTime *fta)
+{
+#ifdef UNIX_TIME_NS
+#if defined(_APPLE)
+  if (ftm!=NULL) ftm->SetUnixNS(st.st_mtimespec.tv_sec*(uint64)1000000000+st.st_mtimespec.tv_nsec);
+  if (ftc!=NULL) ftc->SetUnixNS(st.st_ctimespec.tv_sec*(uint64)1000000000+st.st_ctimespec.tv_nsec);
+  if (fta!=NULL) fta->SetUnixNS(st.st_atimespec.tv_sec*(uint64)1000000000+st.st_atimespec.tv_nsec);
+#else
+  if (ftm!=NULL) ftm->SetUnixNS(st.st_mtim.tv_sec*(uint64)1000000000+st.st_mtim.tv_nsec);
+  if (ftc!=NULL) ftc->SetUnixNS(st.st_ctim.tv_sec*(uint64)1000000000+st.st_ctim.tv_nsec);
+  if (fta!=NULL) fta->SetUnixNS(st.st_atim.tv_sec*(uint64)1000000000+st.st_atim.tv_nsec);
+#endif
+#else
+  if (ftm!=NULL) ftm->SetUnix(st.st_mtime);
+  if (ftc!=NULL) ftc->SetUnix(st.st_ctime);
+  if (fta!=NULL) fta->SetUnix(st.st_atime);
+#endif
+}
+#endif
+
+
+void File::GetOpenFileTime(RarTime *ftm,RarTime *ftc,RarTime *fta)
 {
   /*	// OPENMPT ADDITION
 #ifdef _WIN_ALL
-  FILETIME FileTime;
-  GetFileTime(hFile,NULL,NULL,&FileTime);
-  *ft=FileTime;
-#endif
-#if defined(_UNIX) || defined(_EMX)
+  FILETIME ctime,atime,mtime;
+  GetFileTime(hFile,&ctime,&atime,&mtime);
+  if (ftm!=NULL) ftm->SetWinFT(&mtime);
+  if (ftc!=NULL) ftc->SetWinFT(&ctime);
+  if (fta!=NULL) fta->SetWinFT(&atime);
+#elif defined(_UNIX)
   struct stat st;
   fstat(GetFD(),&st);
-  *ft=st.st_mtime;
+  StatToRarTime(st,ftm,ftc,fta);
 #endif
   */	// OPENMPT ADDITION
 }
@@ -688,9 +796,11 @@ void File::GetOpenFileTime(RarTime *ft)
 
 int64 File::FileLength()
 {
-  SaveFilePos SavePos(*this);
+  int64 SavePos=Tell();
   Seek(0,SEEK_END);
-  return Tell();
+  int64 Length=Tell();
+  Seek(SavePos,SEEK_SET);
+  return Length;
 }
 
 
@@ -710,7 +820,7 @@ bool File::IsDevice()
 #ifndef SFX_MODULE
 int64 File::Copy(File &Dest,int64 Length)
 {
-  Array<char> Buffer(0x40000);
+  Array<byte> Buffer(File::CopyBufferSize());
   int64 CopySize=0;
   bool CopyAll=(Length==INT64NDF);
 
@@ -718,7 +828,7 @@ int64 File::Copy(File &Dest,int64 Length)
   {
     Wait();
     size_t SizeToRead=(!CopyAll && Length<(int64)Buffer.Size()) ? (size_t)Length:Buffer.Size();
-    char *Buf=&Buffer[0];
+    byte *Buf=&Buffer[0];
     int ReadSize=Read(Buf,SizeToRead);
     if (ReadSize==0)
       break;

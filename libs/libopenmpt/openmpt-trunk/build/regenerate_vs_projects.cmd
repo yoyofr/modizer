@@ -13,112 +13,135 @@ if exist "include\premake\bin\release\premake5.exe" set PREMAKE=include\premake\
 
 
 
-echo dofile "build/premake/premake.lua" > premake5.lua || goto err
+copy /y include\premake\OpenMPT.txt include\premake\OpenMPT-expected.txt
+fc include\premake\OpenMPT-expected.txt include\premake\OpenMPT-version.txt
+if errorlevel 1 goto errversion
 
-%PREMAKE% --group=libopenmpt_test vs2010 || goto err
-%PREMAKE% --group=foo_openmpt vs2010 || goto err
-%PREMAKE% --group=in_openmpt vs2010 || goto err
-%PREMAKE% --group=xmp-openmpt vs2010 || goto err
-%PREMAKE% --group=libopenmpt-small vs2010 || goto err
-%PREMAKE% --group=libopenmpt vs2010 || goto err
-%PREMAKE% --group=openmpt123 vs2010 || goto err
-rem %PREMAKE% --group=PluginBridge vs2010 || goto err
-rem %PREMAKE% --group=OpenMPT-VSTi vs2010 || goto err
-rem %PREMAKE% --group=OpenMPT vs2010 || goto err
-%PREMAKE% --group=all-externals vs2010 || goto err
 
-%PREMAKE% --group=libopenmpt_test vs2012 || goto err
-%PREMAKE% --group=foo_openmpt vs2012 || goto err
-%PREMAKE% --group=in_openmpt vs2012 || goto err
-%PREMAKE% --group=xmp-openmpt vs2012 || goto err
-%PREMAKE% --group=libopenmpt-small vs2012 || goto err
-%PREMAKE% --group=libopenmpt vs2012 || goto err
-%PREMAKE% --group=openmpt123 vs2012 || goto err
-rem %PREMAKE% --group=PluginBridge vs2012 || goto err
-rem %PREMAKE% --group=OpenMPT-VSTi vs2012 || goto err
-rem %PREMAKE% --group=OpenMPT vs2012 || goto err
-%PREMAKE% --group=all-externals vs2012 || goto err
 
-%PREMAKE% --group=libopenmpt_test vs2013 || goto err
-%PREMAKE% --group=foo_openmpt vs2013 || goto err
-%PREMAKE% --group=in_openmpt vs2013 || goto err
-%PREMAKE% --group=xmp-openmpt vs2013 || goto err
-%PREMAKE% --group=libopenmpt-small vs2013 || goto err
-%PREMAKE% --group=libopenmpt vs2013 || goto err
-%PREMAKE% --group=openmpt123 vs2013 || goto err
-%PREMAKE% --group=PluginBridge vs2013 || goto err
-%PREMAKE% --group=OpenMPT-VSTi vs2013 || goto err
-%PREMAKE% --group=OpenMPT vs2013 || goto err
-%PREMAKE% --group=all-externals vs2013 || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2017 --windows-version=winxp --charset=MBCS ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% --group=libopenmpt_test vs2015 || goto err
-%PREMAKE% --group=foo_openmpt vs2015 || goto err
-%PREMAKE% --group=in_openmpt vs2015 || goto err
-%PREMAKE% --group=xmp-openmpt vs2015 || goto err
-%PREMAKE% --group=libopenmpt-small vs2015 || goto err
-%PREMAKE% --group=libopenmpt vs2015 || goto err
-%PREMAKE% --group=openmpt123 vs2015 || goto err
-%PREMAKE% --group=PluginBridge vs2015 || goto err
-%PREMAKE% --group=OpenMPT-VSTi vs2015 || goto err
-%PREMAKE% --group=OpenMPT vs2015 || goto err
-%PREMAKE% --group=all-externals vs2015 || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2017 --windows-version=winxp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2017 --windows-version=winxp ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% --group=libopenmpt_test vs2010 --xp || goto err
-%PREMAKE% --group=foo_openmpt vs2010 --xp || goto err
-%PREMAKE% --group=in_openmpt vs2010 --xp || goto err
-%PREMAKE% --group=xmp-openmpt vs2010 --xp || goto err
-%PREMAKE% --group=libopenmpt-small vs2010 --xp || goto err
-%PREMAKE% --group=libopenmpt vs2010 --xp || goto err
-%PREMAKE% --group=openmpt123 vs2010 --xp || goto err
-rem %PREMAKE% --group=PluginBridge vs2010 --xp || goto err
-rem %PREMAKE% --group=OpenMPT-VSTi vs2010 --xp || goto err
-rem %PREMAKE% --group=OpenMPT vs2010 --xp || goto err
-%PREMAKE% --group=all-externals vs2010 --xp || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2019 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2019 --windows-version=win7 ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% --group=libopenmpt_test vs2012 --xp || goto err
-%PREMAKE% --group=foo_openmpt vs2012 --xp || goto err
-%PREMAKE% --group=in_openmpt vs2012 --xp || goto err
-%PREMAKE% --group=xmp-openmpt vs2012 --xp || goto err
-%PREMAKE% --group=libopenmpt-small vs2012 --xp || goto err
-%PREMAKE% --group=libopenmpt vs2012 --xp || goto err
-%PREMAKE% --group=openmpt123 vs2012 --xp || goto err
-rem %PREMAKE% --group=PluginBridge vs2012 --xp || goto err
-rem %PREMAKE% --group=OpenMPT-VSTi vs2012 --xp || goto err
-rem %PREMAKE% --group=OpenMPT vs2012 --xp || goto err
-%PREMAKE% --group=all-externals vs2012 --xp || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2019 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2019 --windows-version=win81 ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% --group=libopenmpt_test vs2013 --xp || goto err
-%PREMAKE% --group=foo_openmpt vs2013 --xp || goto err
-%PREMAKE% --group=in_openmpt vs2013 --xp || goto err
-%PREMAKE% --group=xmp-openmpt vs2013 --xp || goto err
-%PREMAKE% --group=libopenmpt-small vs2013 --xp || goto err
-%PREMAKE% --group=libopenmpt vs2013 --xp || goto err
-%PREMAKE% --group=openmpt123 vs2013 --xp || goto err
-%PREMAKE% --group=PluginBridge vs2013 --xp || goto err
-%PREMAKE% --group=OpenMPT-VSTi vs2013 --xp || goto err
-%PREMAKE% --group=OpenMPT vs2013 --xp || goto err
-%PREMAKE% --group=all-externals vs2013 --xp || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2019 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2019 --windows-version=win10 ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% --group=libopenmpt_test vs2015 --xp || goto err
-%PREMAKE% --group=foo_openmpt vs2015 --xp || goto err
-%PREMAKE% --group=in_openmpt vs2015 --xp || goto err
-%PREMAKE% --group=xmp-openmpt vs2015 --xp || goto err
-%PREMAKE% --group=libopenmpt-small vs2015 --xp || goto err
-%PREMAKE% --group=libopenmpt vs2015 --xp || goto err
-%PREMAKE% --group=openmpt123 vs2015 --xp || goto err
-%PREMAKE% --group=PluginBridge vs2015 --xp || goto err
-%PREMAKE% --group=OpenMPT-VSTi vs2015 --xp || goto err
-%PREMAKE% --group=OpenMPT vs2015 --xp || goto err
-%PREMAKE% --group=all-externals vs2015 --xp || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2022 --windows-version=win7 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2022 --windows-version=win7 ^&^& ^
+echo Done ^) ^|^| pause
 
-%PREMAKE% postprocess || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2022 --windows-version=win81 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2022 --windows-version=win81 ^&^& ^
+echo Done ^) ^|^| pause
 
-del premake5.lua || goto err
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2022 --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2022 --windows-version=win10 ^&^& ^
+echo Done ^) ^|^| pause
+
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt_test  vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=in_openmpt       vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=xmp-openmpt      vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=openmpt123       vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=PluginBridge     vs2022 --clang --windows-version=win10 ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=OpenMPT          vs2022 --clang --windows-version=win10 ^&^& ^
+echo Done ^) ^|^| pause
+
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2019 --windows-version=win10 --windows-family=uwp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2019 --windows-version=win10 --windows-family=uwp ^&^& ^
+echo Done ^) ^|^| pause
+
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt-small vs2022 --windows-version=win10 --windows-family=uwp ^&^& ^
+%PREMAKE% --file=build/premake/premake.lua --group=libopenmpt       vs2022 --windows-version=win10 --windows-family=uwp ^&^& ^
+echo Done ^) ^|^| pause
+
+start cmd /c ^( ^
+%PREMAKE% --file=build/premake-xcode/premake.lua --target=macosx xcode4 ^&^& ^
+%PREMAKE% --file=build/premake-xcode/premake.lua --target=ios    xcode4 ^&^& ^
+echo Done ^) ^|^| pause
+
 
 
 cd %MY_DIR% || goto err
 
 goto end
+
+:errversion
+echo Premake version mismatch
+goto err
 
 :err
 echo ERROR!

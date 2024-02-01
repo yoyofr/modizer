@@ -9,10 +9,11 @@
 
 
 #include "stdafx.h"
-#include "Loaders.h"
 #include "XMTools.h"
+#include "Loaders.h"
 #include "Sndfile.h"
 #include "../common/version.h"
+
 #include <algorithm>
 
 
@@ -65,9 +66,17 @@ uint16 XMInstrument::ConvertToXM(const ModInstrument &mptIns, bool compatibility
 	ConvertEnvelopeToXM(mptIns.VolEnv, volPoints, volFlags, volSustain, volLoopStart, volLoopEnd, EnvTypeVol);
 	ConvertEnvelopeToXM(mptIns.PanEnv, panPoints, panFlags, panSustain, panLoopStart, panLoopEnd, EnvTypePan);
 
+	if(mptIns.nMidiChannel != MidiNoChannel)
+	{
+		midiEnabled = 1;
+		midiChannel = (mptIns.nMidiChannel != MidiMappedChannel ? (mptIns.nMidiChannel - MidiFirstChannel) : 0);
+	}
+	midiProgram = (mptIns.nMidiProgram != 0 ? mptIns.nMidiProgram - 1 : 0);
+	pitchWheelRange = std::min(mptIns.midiPWD, int8(36));
+
 	// Create sample assignment table
 	auto sampleList = GetSampleList(mptIns, compatibilityExport);
-	for(size_t i = 0; i < CountOf(sampleMap); i++)
+	for(std::size_t i = 0; i < std::size(sampleMap); i++)
 	{
 		if(mptIns.Keyboard[i + 12] > 0)
 		{
@@ -80,14 +89,6 @@ uint16 XMInstrument::ConvertToXM(const ModInstrument &mptIns, bool compatibility
 		}
 	}
 
-	if(mptIns.nMidiChannel != MidiNoChannel)
-	{
-		midiEnabled = 1;
-		midiChannel = (mptIns.nMidiChannel != MidiMappedChannel ? (mptIns.nMidiChannel - MidiFirstChannel) : 0);
-	}
-	midiProgram = (mptIns.nMidiProgram != 0 ? mptIns.nMidiProgram - 1 : 0);
-	pitchWheelRange = std::min(mptIns.midiPWD, int8(36));
-
 	return static_cast<uint16>(sampleList.size());
 }
 
@@ -99,7 +100,7 @@ std::vector<SAMPLEINDEX> XMInstrument::GetSampleList(const ModInstrument &mptIns
 	std::vector<bool> addedToList;			// Which samples did we already add to the sample list?
 
 	uint8 numSamples = 0;
-	for(size_t i = 0; i < CountOf(sampleMap); i++)
+	for(std::size_t i = 0; i < std::size(sampleMap); i++)
 	{
 		const SAMPLEINDEX smp = mptIns.Keyboard[i + 12];
 		if(smp > 0)
@@ -118,6 +119,9 @@ std::vector<SAMPLEINDEX> XMInstrument::GetSampleList(const ModInstrument &mptIns
 			}
 		}
 	}
+	// FT2 completely ignores MIDI settings (and also the less important stuff) if not at least one (empty) sample is assigned to this instrument!
+	if(sampleList.empty() && compatibilityExport && midiEnabled)
+		sampleList.assign(1, 0);
 	return sampleList;
 }
 
@@ -148,7 +152,7 @@ void XMInstrument::ConvertEnvelopeToMPT(InstrumentEnvelope &mptEnv, uint8 numPoi
 			// value. Try to compensate by adding the missing high byte."
 			// Note: MPT 1.07's XI instrument saver omitted the high byte of envelope nodes.
 			// This might be the source for some broken envelopes in IT and XM files.
-			mptEnv[i].tick |= mptEnv[i - 1].tick & 0xFF00;
+			mptEnv[i].tick |= static_cast<uint16>(mptEnv[i - 1].tick & 0xFF00u);
 			if(mptEnv[i].tick < mptEnv[i - 1].tick)
 				mptEnv[i].tick += 0x100;
 		}
@@ -184,7 +188,7 @@ void XMInstrument::ConvertToMPT(ModInstrument &mptIns) const
 	ConvertEnvelopeToMPT(mptIns.PanEnv, panPoints, panFlags, panSustain, panLoopStart, panLoopEnd, EnvTypePan);
 
 	// Create sample assignment table
-	for(size_t i = 0; i < CountOf(sampleMap); i++)
+	for(std::size_t i = 0; i < std::size(sampleMap); i++)
 	{
 		mptIns.Keyboard[i + 12] = sampleMap[i];
 	}
@@ -236,8 +240,8 @@ void XMInstrumentHeader::Finalise()
 		sampleHeaderSize = sizeof(XMSample);
 	} else
 	{
-		// TODO: FT2 completely ignores MIDI settings (and also the less important stuff) if not at least one (empty) sample is assigned to this instrument!
-		size -= sizeof(XMInstrument);
+		if(!instrument.midiEnabled)
+			size -= sizeof(XMInstrument);
 		sampleHeaderSize = 0;
 	}
 }
@@ -259,7 +263,7 @@ void XMInstrumentHeader::ConvertToMPT(ModInstrument &mptIns) const
 	instrument.ConvertToMPT(mptIns);
 
 	// Create sample assignment table
-	for(size_t i = 0; i < CountOf(instrument.sampleMap); i++)
+	for(std::size_t i = 0; i < std::size(instrument.sampleMap); i++)
 	{
 		if(instrument.sampleMap[i] < numSamples)
 		{
@@ -302,7 +306,7 @@ void XIInstrumentHeader::ConvertToMPT(ModInstrument &mptIns) const
 	instrument.ConvertToMPT(mptIns);
 
 	// Fix sample assignment table
-	for(size_t i = 12; i < CountOf(instrument.sampleMap) + 12; i++)
+	for(std::size_t i = 12; i < std::size(instrument.sampleMap) + 12; i++)
 	{
 		if(mptIns.Keyboard[i] >= numSamples)
 		{
@@ -330,9 +334,7 @@ void XMSample::ConvertToXM(const ModSample &mptSmp, MODTYPE fromType, bool compa
 		relnote = mptSmp.RelativeTone;
 	} else
 	{
-		int f2t = ModSample::FrequencyToTranspose(mptSmp.nC5Speed);
-		relnote = static_cast<int8>(f2t / 128);
-		finetune = static_cast<int8>(f2t & 0x7F);
+		std::tie(relnote, finetune) = ModSample::FrequencyToTranspose(mptSmp.nC5Speed);
 	}
 
 	flags = 0;

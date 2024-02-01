@@ -43,7 +43,6 @@ void ExtractACL20(Archive &Arc,const wchar *FileName)
     return;
   }
 
-  return;	// OPENMPT ADDITION
   SECURITY_INFORMATION  si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION|
                            DACL_SECURITY_INFORMATION;
   if (ReadSacl)
@@ -55,7 +54,10 @@ void ExtractACL20(Archive &Arc,const wchar *FileName)
   if (!SetCode)
   {
     uiMsg(UIERROR_ACLSET,Arc.FileName,FileName);
+    DWORD LastError=GetLastError();
     ErrHandler.SysErrMsg();
+    if (LastError==ERROR_ACCESS_DENIED && !IsUserAdmin())
+      uiMsg(UIERROR_NEEDADMIN);
     ErrHandler.SetErrorCode(RARX_WARNING);
   }
 }
@@ -65,7 +67,7 @@ void ExtractACL20(Archive &Arc,const wchar *FileName)
 void ExtractACL(Archive &Arc,const wchar *FileName)
 {
   Array<byte> SubData;
-  if (!Arc.ReadSubData(&SubData,NULL))
+  if (!Arc.ReadSubData(&SubData,NULL,false))
     return;
 
   return;	// OPENMPT ADDITION
@@ -88,7 +90,10 @@ void ExtractACL(Archive &Arc,const wchar *FileName)
   if (!SetCode)
   {
     uiMsg(UIERROR_ACLSET,Arc.FileName,FileName);
+    DWORD LastError=GetLastError();
     ErrHandler.SysErrMsg();
+    if (LastError==ERROR_ACCESS_DENIED && !IsUserAdmin())
+      uiMsg(UIERROR_NEEDADMIN);
     ErrHandler.SetErrorCode(RARX_WARNING);
   }
 }

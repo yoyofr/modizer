@@ -2,37 +2,48 @@
  project "openmpt123"
   uuid "2879F62E-9E2F-4EAB-AE7D-F60C194DD5CB"
   language "C++"
-  location ( "../../build/" .. mpt_projectpathname )
-  vpaths { ["*"] = "../../openmpt123/" }
-  mpt_projectname = "openmpt123"
-  dofile "../../build/premake/premake-defaults-EXE.lua"
-  dofile "../../build/premake/premake-defaults.lua"
-  local extincludedirs = {
-   "../..",
-   "../../include/flac/include",
-   "../../include/portaudio/include",
-  }
-	filter { "action:vs*" }
-		includedirs ( extincludedirs )
-	filter { "not action:vs*" }
-		sysincludedirs ( extincludedirs )
-	filter {}
+  vpaths { ["*"] = "../../" }
+  mpt_kind "Console"
+  warnings "Extra"
+	
+	mpt_use_libopenmpt()
+	
+	mpt_use_flac()
+	mpt_use_portaudio()
+	
+	defines {
+		"MPT_WITH_FLAC",
+		"MPT_WITH_PORTAUDIO",
+	}
+	
+	files {
+		"../../openmpt123/openmpt123.manifest",
+	}
   includedirs {
    "../..",
+   "../../src",
    "../../openmpt123",
    "$(IntDir)/svn_version",
-   "../../build/svn_version",
   }
   files {
+   "../../src/mpt/base/*.hpp",
+   "../../src/mpt/detect/*.hpp",
+   "../../src/mpt/exception/*.hpp",
+   "../../src/mpt/format/*.hpp",
+   "../../src/mpt/io/*.hpp",
+   "../../src/mpt/io_file/*.hpp",
+   "../../src/mpt/parse/*.hpp",
+   "../../src/mpt/path/*.hpp",
+   "../../src/mpt/string/*.hpp",
+   "../../src/mpt/string_transcode/*.hpp",
    "../../openmpt123/*.cpp",
    "../../openmpt123/*.hpp",
   }
-  defines { }
 	
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resdefines {
-			"MPT_BUILD_VER_FILENAME=\"" .. mpt_projectname .. ".exe\"",
-			"MPT_BUILD_VER_FILEDESC=\"" .. mpt_projectname .. "\"",
+			"MPT_BUILD_VER_FILENAME=\"" .. "openmpt123" .. ".exe\"",
+			"MPT_BUILD_VER_FILEDESC=\"" .. "openmpt123" .. "\"",
 		}
 	filter { "action:vs*", "kind:SharedLib or ConsoleApp or WindowedApp" }
 		resincludedirs {
@@ -49,30 +60,17 @@
 		resdefines { "MPT_BUILD_VER_EXE" }
 	filter {}
 	
-  characterset "Unicode"
+	if _OPTIONS["charset"] ~= "Unicode" then
+		defines { "MPT_CHECK_WINDOWS_IGNORE_WARNING_NO_UNICODE" }
+	end
+
   links {
-   "libopenmpt",
-   "flac",
-   "portaudio",
-   "winmm",  }
-  filter { "configurations:*Shared" }
-   defines { "LIBOPENMPT_USE_DLL" }
-  filter { "not configurations:*Shared" }
-   links {
-    "vorbis",
-    "ogg",
     "ksuser",
     "winmm",
-    "zlib",
-   }
-  filter { "not configurations:*Shared" }
-   links { "delayimp" }
-   linkoptions {
-    "/DELAYLOAD:mf.dll",
-    "/DELAYLOAD:mfplat.dll",
-    "/DELAYLOAD:mfreadwrite.dll",
---    "/DELAYLOAD:mfuuid.dll", -- static library
-    "/DELAYLOAD:propsys.dll",
-   }
+  }
+  
+  filter {}
+  filter { "action:vs*" }
+		linkoptions { "wsetargv.obj" }
   filter {}
   prebuildcommands { "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)" }

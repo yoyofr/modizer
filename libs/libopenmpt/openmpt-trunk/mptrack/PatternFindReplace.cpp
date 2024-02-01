@@ -9,54 +9,48 @@
  */
 
 #include "stdafx.h"
-#include "Mainfrm.h"
+#include "PatternFindReplace.h"
 #include "Moddoc.h"
+#include "PatternEditorDialogs.h"
+#include "PatternFindReplaceDlg.h"
+#include "Reporting.h"
 #include "resource.h"
 #include "View_pat.h"
-#include "PatternEditorDialogs.h"
-#include "PatternFindReplace.h"
-#include "PatternFindReplaceDlg.h"
+#include "WindowMessages.h"
 #include "../soundlib/mod_specifications.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 FindReplace FindReplace::instance;
 
-FindReplace::FindReplace()
-	: findFlags(FullSearch), replaceFlags(ReplaceAll)
-	, replaceNoteAction(ReplaceValue), replaceInstrAction(ReplaceValue), replaceVolumeAction(ReplaceValue), replaceParamAction(ReplaceValue)
-	, replaceNote(NOTE_NONE), replaceInstr(0), replaceVolume(0), replaceParam(0)
-	, replaceVolCmd(VOLCMD_NONE), replaceCommand(CMD_NONE)
-	, findNoteMin(NOTE_NONE), findNoteMax(NOTE_NONE)
-	, findInstrMin(0), findInstrMax(0)
-	, findVolCmd(VOLCMD_NONE)
-	, findVolumeMin(0), findVolumeMax(0)
-	, findCommand(CMD_NONE)
-	, findParamMin(0), findParamMax(0)
-	, selection(PatternRect())
-	, findChnMin(0), findChnMax(0)
-{ }
-
 
 void CViewPattern::OnEditFind()
-//-----------------------------
 {
+	static bool dialogOpen = false;
 	CModDoc *pModDoc = GetDocument();
-	if (pModDoc)
+	if (pModDoc && !dialogOpen)
 	{
+		CSoundFile &sndFile = pModDoc->GetSoundFile();
 		FindReplace settings = FindReplace::instance;
+		ModCommand m{};
 		if(m_Selection.GetUpperLeft() != m_Selection.GetLowerRight())
 		{
 			settings.findFlags.set(FindReplace::InPatSelection);
 			settings.findFlags.reset(FindReplace::FullSearch);
+		} else if(sndFile.Patterns.IsValidPat(m_nPattern))
+		{
+			const CPattern &pat = sndFile.Patterns[m_nPattern];
+			m_Cursor.Sanitize(pat.GetNumRows(), pat.GetNumChannels());
+			m = *pat.GetpModCommand(m_Cursor.GetRow(), m_Cursor.GetChannel());
 		}
 
-		CFindReplaceTab pageFind(IDD_EDIT_FIND, false, pModDoc->GetrSoundFile(), settings);
-		CFindReplaceTab pageReplace(IDD_EDIT_REPLACE, true, pModDoc->GetrSoundFile(), settings);
+		CFindReplaceTab pageFind(IDD_EDIT_FIND, false, sndFile, settings, m);
+		CFindReplaceTab pageReplace(IDD_EDIT_REPLACE, true, sndFile, settings, m);
 		CPropertySheet dlg(_T("Find/Replace"));
 
 		dlg.AddPage(&pageFind);
 		dlg.AddPage(&pageReplace);
+		dialogOpen = true;
 		if(dlg.DoModal() == IDOK)
 		{
 			FindReplace::instance = settings;
@@ -64,12 +58,12 @@ void CViewPattern::OnEditFind()
 			m_bContinueSearch = false;
 			OnEditFindNext();
 		}
+		dialogOpen = false;
 	}
 }
 
 
 void CViewPattern::OnEditFindNext()
-//---------------------------------
 {
 	CSoundFile &sndFile = *GetSoundFile();
 	const CModSpecifications &specs = sndFile.GetModSpecifications();
@@ -208,21 +202,25 @@ void CViewPattern::OnEditFindNext()
 				if(!m->IsPcNote())
 				{
 					if((FindReplace::instance.findFlags[FindReplace::VolCmd] && (!findWhere.volume || m->volcmd != FindReplace::instance.findVolCmd))
-					|| (FindReplace::instance.findFlags[FindReplace::Volume] && (!findWhere.volume || m->volcmd == VOLCMD_NONE || m->vol < FindReplace::instance.findVolumeMin || m->vol > FindReplace::instance.findVolumeMax))
-					|| (FindReplace::instance.findFlags[FindReplace::Command] && (!findWhere.command || m->command != FindReplace::instance.findCommand))
-					|| (FindReplace::instance.findFlags[FindReplace::Param] && (!findWhere.parameter || m->command == CMD_NONE ||  m->param < FindReplace::instance.findParamMin || m->param > FindReplace::instance.findParamMax)))
+						|| (FindReplace::instance.findFlags[FindReplace::Volume] && (!findWhere.volume || m->volcmd == VOLCMD_NONE || m->vol < FindReplace::instance.findVolumeMin || m->vol > FindReplace::instance.findVolumeMax))
+						|| (FindReplace::instance.findFlags[FindReplace::Command] && (!findWhere.command || m->command != FindReplace::instance.findCommand))
+						|| (FindReplace::instance.findFlags[FindReplace::Param] && (!findWhere.parameter || m->command == CMD_NONE ||  m->param < FindReplace::instance.findParamMin || m->param > FindReplace::instance.findParamMax))
+						|| FindReplace::instance.findFlags[FindReplace::PCParam]
+						|| FindReplace::instance.findFlags[FindReplace::PCValue])
 					{
 						continue;
 					}
-					MPT_ASSERT(!FindReplace::instance.findFlags[FindReplace::PCParam | FindReplace::PCValue]);
 				} else
 				{
 					if((FindReplace::instance.findFlags[FindReplace::PCParam] && (!findWhere.volume || m->GetValueVolCol() < FindReplace::instance.findParamMin || m->GetValueVolCol() > FindReplace::instance.findParamMax))
-						|| (FindReplace::instance.findFlags[FindReplace::PCValue] && (!(findWhere.command || findWhere.parameter) || m->GetValueVolCol() < FindReplace::instance.findVolumeMin || m->GetValueVolCol() > FindReplace::instance.findVolumeMax)))
+						|| (FindReplace::instance.findFlags[FindReplace::PCValue] && (!(findWhere.command || findWhere.parameter) || m->GetValueEffectCol() < FindReplace::instance.findVolumeMin || m->GetValueEffectCol() > FindReplace::instance.findVolumeMax))
+						|| FindReplace::instance.findFlags[FindReplace::VolCmd]
+						|| FindReplace::instance.findFlags[FindReplace::Volume]
+						|| FindReplace::instance.findFlags[FindReplace::Command]
+						|| FindReplace::instance.findFlags[FindReplace::Param])
 					{
 						continue;
 					}
-					MPT_ASSERT(!FindReplace::instance.findFlags[FindReplace::VolCmd | FindReplace::Volume | FindReplace::Command | FindReplace::Param]);
 				}
 
 				if((FindReplace::instance.findFlags & (FindReplace::Command | FindReplace::Param)) == FindReplace::Command && isExtendedEffect)
@@ -245,11 +243,23 @@ void CViewPattern::OnEditFindNext()
 						m_Status.reset(psFollowSong);
 						SendCtrlMessage(CTRLMSG_PAT_FOLLOWSONG, 0);
 					}
-					// This doesn't find the order if it's in another sequence :(
-					ORDERINDEX matchingOrder = sndFile.Order.FindOrder(pat, GetCurrentOrder());
-					if(matchingOrder != ORDERINDEX_INVALID)
+
+					// Find sequence and order where this pattern is used
+					const auto numSequences = sndFile.Order.GetNumSequences();
+					auto seq = sndFile.Order.GetCurrentSequenceIndex();
+					for(SEQUENCEINDEX i = 0; i < numSequences; i++)
 					{
-						SetCurrentOrder(matchingOrder);
+						const bool isCurrentSeq = (i == 0);
+						ORDERINDEX matchingOrder = sndFile.Order(seq).FindOrder(pat, isCurrentSeq ? GetCurrentOrder() : 0);
+						if(matchingOrder != ORDERINDEX_INVALID)
+						{
+							if(!isCurrentSeq)
+								SendCtrlMessage(CTRLMSG_PAT_SETSEQUENCE, seq);
+							SetCurrentOrder(matchingOrder);
+							break;
+						}
+						if(++seq >= numSequences)
+							seq = 0;
 					}
 					// go to place of finding
 					SetCurrentPattern(pat);
@@ -325,11 +335,7 @@ void CViewPattern::OnEditFindNext()
 						{
 							if(noteReplace == FindReplace::ReplaceOctaveUp || noteReplace == FindReplace::ReplaceOctaveDown)
 							{
-								INSTRUMENTINDEX instr = lastInstr[chn];
-								if(instr <= sndFile.GetNumInstruments() && sndFile.Instruments[instr] != nullptr && sndFile.Instruments[instr]->pTuning != nullptr)
-									noteReplace = sndFile.Instruments[instr]->pTuning->GetGroupSize() * sgn(noteReplace);
-								else
-									noteReplace = (noteReplace == FindReplace::ReplaceOctaveUp) ? 12 : -12;
+								noteReplace = GetDocument()->GetInstrumentGroupSize(lastInstr[chn]) * mpt::signum(noteReplace);
 							}
 							int note = Clamp(m->note + noteReplace, specs.noteMin, specs.noteMax);
 							m->note = static_cast<ModCommand::NOTE>(note);
@@ -395,6 +401,9 @@ void CViewPattern::OnEditFindNext()
 						int param = m->param;
 						if(FindReplace::instance.replaceParamAction == FindReplace::ReplaceRelative || FindReplace::instance.replaceParamAction == FindReplace::ReplaceMultiply)
 						{
+							if(isExtendedEffect)
+								param &= 0x0F;
+
 							if(!hadVolume && m->command == CMD_VOLUME)
 								param = GetDefaultVolume(*m, lastInstr[chn]);
 
@@ -402,13 +411,16 @@ void CViewPattern::OnEditFindNext()
 								param += paramReplace;
 							else
 								param = Util::muldivr(param, paramReplace, 100);
+
+							if(isExtendedEffect)
+								param = Clamp(param, 0, 15) | (m->param & 0xF0);
 						} else if(FindReplace::instance.replaceParamAction == FindReplace::ReplaceValue)
 						{
 							param = paramReplace;
 						}
 						
 						if(isExtendedEffect && !FindReplace::instance.replaceFlags[FindReplace::Command])
-							m->param = static_cast<ModCommand::PARAM>((m->param & 0xF0) | Clamp(param, 0, 15));
+							m->param = static_cast<ModCommand::PARAM>((m->param & 0xF0) | (param & 0x0F));
 						else
 							m->param = mpt::saturate_cast<ModCommand::PARAM>(param);
 					}
@@ -478,15 +490,15 @@ EndSearch:
 		// Note
 		if(FindReplace::instance.findFlags[FindReplace::Note])
 		{
-			result.Append(sndFile.GetNoteName(FindReplace::instance.findNoteMin).c_str());
+			result += mpt::ToCString(sndFile.GetNoteName(FindReplace::instance.findNoteMin));
 			if(FindReplace::instance.findNoteMax > FindReplace::instance.findNoteMin)
 			{
-				result.Append(_T("-"));
-				result.Append(sndFile.GetNoteName(FindReplace::instance.findNoteMax).c_str());
+				result.AppendChar(_T('-'));
+				result += mpt::ToCString(sndFile.GetNoteName(FindReplace::instance.findNoteMax));
 			}
 		} else
 		{
-			result.Append(_T("???"));
+			result += _T("???");
 		}
 		result.AppendChar(_T(' '));
 
@@ -512,6 +524,11 @@ EndSearch:
 				result.AppendChar(specs.GetVolEffectLetter(FindReplace::instance.findVolCmd));
 			else
 				result.AppendChar(_T('.'));
+		} else if(FindReplace::instance.findFlags[FindReplace::PCParam])
+		{
+			result.AppendFormat(_T("%03d"), FindReplace::instance.findParamMin);
+			if(FindReplace::instance.findParamMax > FindReplace::instance.findParamMin)
+				result.AppendFormat(_T("-%03d"), FindReplace::instance.findParamMax);
 		} else
 		{
 			result.AppendChar(_T('?'));
@@ -523,9 +540,9 @@ EndSearch:
 			result.AppendFormat(_T("%02d"), FindReplace::instance.findVolumeMin);
 			if(FindReplace::instance.findVolumeMax > FindReplace::instance.findVolumeMin)
 				result.AppendFormat(_T("-%02d"), FindReplace::instance.findVolumeMax);
-		} else
+		} else if(!FindReplace::instance.findFlags[FindReplace::PCParam])
 		{
-			result.AppendFormat(_T("??"));
+			result.Append(_T("??"));
 		}
 		result.AppendChar(_T(' '));
 
@@ -536,6 +553,11 @@ EndSearch:
 				result.AppendChar(specs.GetEffectLetter(FindReplace::instance.findCommand));
 			else
 				result.AppendChar(_T('.'));
+		} else if(FindReplace::instance.findFlags[FindReplace::PCValue])
+		{
+			result.AppendFormat(_T("%03d"), FindReplace::instance.findVolumeMin);
+			if(FindReplace::instance.findVolumeMax > FindReplace::instance.findVolumeMin)
+				result.AppendFormat(_T("-%03d"), FindReplace::instance.findVolumeMax);
 		} else
 		{
 			result.AppendChar(_T('?'));
@@ -547,9 +569,9 @@ EndSearch:
 			result.AppendFormat(_T("%02X"), FindReplace::instance.findParamMin);
 			if(FindReplace::instance.findParamMax > FindReplace::instance.findParamMin)
 				result.AppendFormat(_T("-%02X"), FindReplace::instance.findParamMax);
-		} else
+		} else if(!FindReplace::instance.findFlags[FindReplace::PCValue])
 		{
-			result.AppendFormat(_T("??"));
+			result.Append(_T("??"));
 		}
 
 		result.AppendChar(_T('"'));
@@ -557,6 +579,5 @@ EndSearch:
 		Reporting::Information(result, _T("Find/Replace"));
 	}
 }
-
 
 OPENMPT_NAMESPACE_END

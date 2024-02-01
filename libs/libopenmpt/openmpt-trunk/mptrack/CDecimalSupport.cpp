@@ -9,26 +9,23 @@
 
 
 #include "stdafx.h"
-#include "Snd_defs.h"
 #include "CDecimalSupport.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 BEGIN_MESSAGE_MAP(CNumberEdit, CEdit)
 	ON_WM_CHAR()
-	ON_MESSAGE(WM_PASTE, OnPaste)
+	ON_MESSAGE(WM_PASTE, &CNumberEdit::OnPaste)
 END_MESSAGE_MAP()
 
 
 void CNumberEdit::SetTempoValue(const TEMPO &t)
-//---------------------------------------------
 {
 	SetFixedValue(t.ToDouble(), 4);
 }
 
 
 TEMPO CNumberEdit::GetTempoValue()
-//--------------------------------
 {
 	double d;
 	GetDecimalValue(d);
@@ -37,7 +34,6 @@ TEMPO CNumberEdit::GetTempoValue()
 
 
 void CNumberEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-//-------------------------------------------------------------
 {
 	BOOL bHandled = false;
 	CDecimalSupport<CNumberEdit>::OnChar(0, nChar, 0, bHandled);
@@ -46,7 +42,6 @@ void CNumberEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 
 LPARAM CNumberEdit::OnPaste(WPARAM wParam, LPARAM lParam)
-//-------------------------------------------------------
 {
 	bool bHandled = false;
 	CDecimalSupport<CNumberEdit>::OnPaste(0, wParam, lParam, bHandled);

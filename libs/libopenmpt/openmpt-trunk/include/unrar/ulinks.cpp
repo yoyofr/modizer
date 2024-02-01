@@ -1,9 +1,14 @@
 
 
-static bool UnixSymlink(const char *Target,const wchar *LinkName,RarTime *ftm,RarTime *fta)
+static bool UnixSymlink(CommandData *Cmd,const char *Target,const wchar *LinkName,RarTime *ftm,RarTime *fta)
 {
-  CreatePath(LinkName,true);
+  CreatePath(LinkName,true,Cmd->DisableNames);
+
+  // Overwrite prompt was already issued and confirmed earlier, so we can
+  // remove existing symlink or regular file here. PrepareToDelete was also
+  // called earlier inside of uiAskReplaceEx.
   DelFile(LinkName);
+
   char LinkNameA[NM];
   WideToChar(LinkName,LinkNameA,ASIZE(LinkNameA));
   if (symlink(Target,LinkNameA)==-1) // Error.
@@ -18,12 +23,21 @@ static bool UnixSymlink(const char *Target,const wchar *LinkName,RarTime *ftm,Ra
     return false;
   }
 #ifdef USE_LUTIMES
+#ifdef UNIX_TIME_NS
+  timespec times[2];
+  times[0].tv_sec=fta->GetUnix();
+  times[0].tv_nsec=fta->IsSet() ? long(fta->GetUnixNS()%1000000000) : UTIME_NOW;
+  times[1].tv_sec=ftm->GetUnix();
+  times[1].tv_nsec=ftm->IsSet() ? long(ftm->GetUnixNS()%1000000000) : UTIME_NOW;
+  utimensat(AT_FDCWD,LinkNameA,times,AT_SYMLINK_NOFOLLOW);
+#else
   struct timeval tv[2];
   tv[0].tv_sec=fta->GetUnix();
-  tv[0].tv_usec=long(fta->GetRaw()%10000000/10);
+  tv[0].tv_usec=long(fta->GetUnixNS()%1000000000/1000);
   tv[1].tv_sec=ftm->GetUnix();
-  tv[1].tv_usec=long(ftm->GetRaw()%10000000/10);
+  tv[1].tv_usec=long(ftm->GetUnixNS()%1000000000/1000);
   lutimes(LinkNameA,tv);
+#endif
 #endif
 
   return true;
@@ -36,13 +50,37 @@ static bool IsFullPath(const char *PathA) // Unix ASCII version.
 }
 
 
-bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const wchar *LinkName)
+// For security purpose we prefer to be sure that CharToWide completed
+// successfully and even if it truncated a string for some reason,
+// it didn't affect the number of path related characters we analyze
+// in IsRelativeSymlinkSafe later.
+// This check is likely to be excessive, but let's keep it anyway.
+static bool SafeCharToWide(const char *Src,wchar *Dest,size_t DestSize)
+{
+  if (!CharToWide(Src,Dest,DestSize) || *Dest==0)
+    return false;
+  uint SrcChars=0,DestChars=0;
+  for (uint I=0;Src[I]!=0;I++)
+    if (Src[I]=='/' || Src[I]=='.')
+      SrcChars++;
+  for (uint I=0;Dest[I]!=0;I++)
+    if (Dest[I]=='/' || Dest[I]=='.')
+      DestChars++;
+  return SrcChars==DestChars;
+}
+
+
+static bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,
+                              const wchar *LinkName,bool &UpLink)
 {
   char Target[NM];
   if (IsLink(Arc.FileHead.FileAttr))
   {
-    size_t DataSize=Min(Arc.FileHead.PackSize,ASIZE(Target)-1);
-    DataIO.UnpRead((byte *)Target,DataSize);
+    size_t DataSize=(size_t)Arc.FileHead.PackSize;
+    if (DataSize>ASIZE(Target)-1)
+      return false;
+    if ((size_t)DataIO.UnpRead((byte *)Target,DataSize)!=DataSize)
+      return false;
     Target[DataSize]=0;
 
     DataIO.UnpHash.Init(Arc.FileHead.FileHash.Type,1);
@@ -54,16 +92,23 @@ bool ExtractUnixLink30(CommandData *Cmd,ComprDataIO &DataIO,Archive &Arc,const w
     if (!DataIO.UnpHash.Cmp(&Arc.FileHead.FileHash,Arc.FileHead.UseHashKey ? Arc.FileHead.HashKey:NULL))
       return true;
 
-    if (!Cmd->AbsoluteLinks && (IsFullPath(Target) ||
-        !IsRelativeSymlinkSafe(Arc.FileHead.FileName,Arc.FileHead.RedirName)))
+    wchar TargetW[NM];
+    if (!SafeCharToWide(Target,TargetW,ASIZE(TargetW)))
       return false;
-    return UnixSymlink(Target,LinkName,&Arc.FileHead.mtime,&Arc.FileHead.atime);
+    // Use Arc.FileHead.FileName instead of LinkName, since LinkName
+    // can include the destination path as a prefix, which can
+    // confuse IsRelativeSymlinkSafe algorithm.
+    if (!Cmd->AbsoluteLinks && (IsFullPath(TargetW) ||
+        !IsRelativeSymlinkSafe(Cmd,Arc.FileHead.FileName,LinkName,TargetW)))
+      return false;
+    UpLink=strstr(Target,"..")!=NULL;
+    return UnixSymlink(Cmd,Target,LinkName,&Arc.FileHead.mtime,&Arc.FileHead.atime);
   }
   return false;
 }
 
 
-bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
+static bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
 {
   char Target[NM];
   WideToChar(hd->RedirName,Target,ASIZE(Target));
@@ -77,8 +122,15 @@ bool ExtractUnixLink50(CommandData *Cmd,const wchar *Name,FileHeader *hd)
       return false;
     DosSlashToUnix(Target,Target,ASIZE(Target));
   }
-  if (!Cmd->AbsoluteLinks && (IsFullPath(Target) ||
-      !IsRelativeSymlinkSafe(hd->FileName,hd->RedirName)))
+
+  wchar TargetW[NM];
+  if (!SafeCharToWide(Target,TargetW,ASIZE(TargetW)))
     return false;
-  return UnixSymlink(Target,Name,&hd->mtime,&hd->atime);
+  // Use hd->FileName instead of LinkName, since LinkName can include
+  // the destination path as a prefix, which can confuse
+  // IsRelativeSymlinkSafe algorithm.
+  if (!Cmd->AbsoluteLinks && (IsFullPath(TargetW) ||
+      !IsRelativeSymlinkSafe(Cmd,hd->FileName,Name,TargetW)))
+    return false;
+  return UnixSymlink(Cmd,Target,Name,&hd->mtime,&hd->atime);
 }

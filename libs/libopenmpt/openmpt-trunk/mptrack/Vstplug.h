@@ -10,15 +10,19 @@
 
 #pragma once
 
-#ifndef NO_VST
+#include "openmpt/all/BuildSettings.hpp"
 
-#define VST_FORCE_DEPRECATED 0
-#include <pluginterfaces/vst2.x/aeffectx.h>			// VST
+#ifdef MPT_WITH_VST
 
 #include "../soundlib/Snd_defs.h"
 #include "../soundlib/plugins/PlugInterface.h"
-#include "../soundlib/plugins/PluginEventQueue.h"
 #include "../soundlib/Mixer.h"
+#include "plugins/VstDefinitions.h"
+#include "plugins/VstEventQueue.h"
+#if defined(MODPLUG_TRACKER)
+#include "ExceptionHandler.h"
+#endif // MODPLUG_TRACKER
+
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -28,133 +32,153 @@ struct SNDMIXPLUGIN;
 struct VSTPluginLib;
 
 
-//==================================
-class CVstPlugin: public IMidiPlugin
-//==================================
+class CVstPlugin final : public IMidiPlugin
 {
 protected:
 
-	enum
-	{
-		// Number of MIDI events that can be sent to a plugin at once (the internal queue is not affected by this number, it can hold any number of events)
-		vstNumProcessEvents = 256,
-	};
+	bool m_maskCrashes;
+	HMODULE m_hLibrary;
+	Vst::AEffect &m_Effect;
+	Vst::ProcessProc m_pProcessFP = nullptr; // Function pointer to AEffect processReplacing if supported, else process.
 
-	HINSTANCE m_hLibrary;
-	AEffect &m_Effect;
-	AEffectProcessProc m_pProcessFP; //Function pointer to AEffect processReplacing if supported, else process.
-
-	double lastBarStartPos;
+	double lastBarStartPos = -1.0;
 	uint32 m_nSampleRate;
-	bool m_bIsVst2 : 1;
-	bool m_bIsInstrument : 1;
+
+	bool m_isVst2 : 1;
+	bool m_isInstrument : 1;
 	bool m_isInitialized : 1;
-	bool m_bNeedIdle : 1;
+	bool m_needIdle : 1;
 	bool m_positionChanged : 1;
 
-	PluginEventQueue<vstNumProcessEvents> vstEvents;	// MIDI events that should be sent to the plugin
+	VstEventQueue vstEvents;	// MIDI events that should be sent to the plugin
 
-	static VstTimeInfo timeInfo;
+	Vst::VstTimeInfo timeInfo;
 
 public:
+
 	const bool isBridged : 1;		// True if our built-in plugin bridge is being used.
 
-public:
-	CVstPlugin(HINSTANCE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixPlugin, AEffect &effect, CSoundFile &sndFile);
-	virtual ~CVstPlugin();
+private:
 
-	static AEffect *LoadPlugin(VSTPluginLib &plugin, HINSTANCE &library, bool forceBridge);
+#if defined(MODPLUG_TRACKER)
+	ExceptionHandler::Context m_Ectx;
+#endif // MODPLUG_TRACKER
+
+public:
+	bool MaskCrashes() noexcept;
+
+public:
+	template <typename Tfn> static DWORD SETryOrError(bool maskCrashes, Tfn fn);
+
+private:
+	template <typename Tfn> DWORD SETryOrError(Tfn fn);
+
+public:
+	CVstPlugin(bool maskCrashes, HMODULE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixPlugin, Vst::AEffect &effect, CSoundFile &sndFile);
+	~CVstPlugin();
+
+	enum class BridgeMode
+	{
+		Automatic,
+		ForceBridgeWithFallback,
+		DetectRequiredBridgeMode,
+	};
+
+	static Vst::AEffect *LoadPlugin(bool maskCrashes, VSTPluginLib &plugin, HMODULE &library, BridgeMode bridgeMode);
 
 protected:
 	void Initialize();
 
 public:
-	virtual int32 GetUID() const;
-	virtual int32 GetVersion() const;
-	virtual void Idle();
-	virtual uint32 GetLatency() const { return m_Effect.initialDelay; }
+	int32 GetUID() const override;
+	int32 GetVersion() const override;
+	void Idle() override;
+	uint32 GetLatency() const override { return m_Effect.initialDelay; }
 
 	// Check if programs should be stored as chunks or parameters
-	virtual bool ProgramsAreChunks() const { return (m_Effect.flags & effFlagsProgramChunks) != 0; }
-	virtual size_t GetChunk(char *(&chunk), bool isBank);
-	virtual void SetChunk(size_t size, char *chunk, bool isBank);
+	bool ProgramsAreChunks() const override { return (m_Effect.flags & Vst::effFlagsProgramChunks) != 0; }
+	ChunkData GetChunk(bool isBank) override;
+	void SetChunk(const ChunkData &chunk, bool isBank) override;
 	// If true, the plugin produces an output even if silence is being fed into it.
-	virtual bool ShouldProcessSilence() { return IsInstrument() || ((m_Effect.flags & effFlagsNoSoundInStop) == 0 && Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f) != 1); }
+	//bool ShouldProcessSilence() { return IsInstrument() || ((m_Effect.flags & effFlagsNoSoundInStop) == 0 && Dispatch(effGetTailSize, 0, 0, nullptr, 0.0f) != 1) override; }
+	// Old JUCE versions set effFlagsNoSoundInStop even when the shouldn't (see various ValhallaDSP reverb plugins). While the user cannot change the plugin bypass setting manually yet, play safe with VST plugins and do not optimize.
+	bool ShouldProcessSilence() override { return true; }
 
-	virtual int32 GetNumPrograms() const;
-	virtual int32 GetCurrentProgram();
-	virtual void SetCurrentProgram(int32 nIndex);
+	int32 GetNumPrograms() const override;
+	int32 GetCurrentProgram() override;
+	void SetCurrentProgram(int32 nIndex) override;
 
-	virtual PlugParamIndex GetNumParameters() const;
-	virtual PlugParamValue GetParameter(PlugParamIndex nIndex);
-	virtual void SetParameter(PlugParamIndex nIndex, PlugParamValue fValue);
+	PlugParamIndex GetNumParameters() const override;
+	PlugParamValue GetParameter(PlugParamIndex nIndex) override;
+	void SetParameter(PlugParamIndex nIndex, PlugParamValue fValue) override;
 
-	virtual CString GetCurrentProgramName();
-	virtual void SetCurrentProgramName(const CString &name);
-	virtual CString GetProgramName(int32 program);
+	CString GetCurrentProgramName() override;
+	void SetCurrentProgramName(const CString &name) override;
+	CString GetProgramName(int32 program) override;
 
-	virtual CString GetParamName(PlugParamIndex param);
-	virtual CString GetParamLabel(PlugParamIndex param) { return GetParamPropertyString(param, effGetParamLabel); };
-	virtual CString GetParamDisplay(PlugParamIndex param) { return GetParamPropertyString(param, effGetParamDisplay); };
+	CString GetParamName(PlugParamIndex param) override;
+	CString GetParamLabel(PlugParamIndex param) override { return GetParamPropertyString(param, Vst::effGetParamLabel); };
+	CString GetParamDisplay(PlugParamIndex param) override { return GetParamPropertyString(param, Vst::effGetParamDisplay); };
 
-	static VstIntPtr DispatchSEH(AEffect *effect, VstInt32 opCode, VstInt32 index, VstIntPtr value, void *ptr, float opt, unsigned long &exception);
-	VstIntPtr Dispatch(VstInt32 opCode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
+	static intptr_t DispatchSEH(bool maskCrashes, Vst::AEffect *effect, Vst::VstOpcodeToPlugin opCode, int32 index, intptr_t value, void *ptr, float opt, unsigned long &exception);
+	intptr_t Dispatch(Vst::VstOpcodeToPlugin opCode, int32 index, intptr_t value, void *ptr, float opt);
 
-	virtual bool HasEditor() const { return (m_Effect.flags & effFlagsHasEditor) != 0; }
-	virtual CAbstractVstEditor *OpenEditor();
-	virtual CString GetDefaultEffectName();
+	bool HasEditor() const override { return (m_Effect.flags & Vst::effFlagsHasEditor) != 0; }
+	CAbstractVstEditor *OpenEditor() override;
+	CString GetDefaultEffectName() override;
 
-	virtual void Bypass(bool bypass = true);
+	void Bypass(bool bypass = true) override;
 
-	virtual bool IsInstrument() const;
-	virtual bool CanRecieveMidiEvents();
+	bool IsInstrument() const override;
+	bool CanRecieveMidiEvents() override;
 
-	virtual void CacheProgramNames(int32 firstProg, int32 lastProg);
-	virtual void CacheParameterNames(int32 firstParam, int32 lastParam);
+	void CacheProgramNames(int32 firstProg, int32 lastProg) override;
+	void CacheParameterNames(int32 firstParam, int32 lastParam) override;
 
 public:
-	virtual void Release();
-	virtual void SaveAllParameters();
-	virtual void RestoreAllParameters(int32 program);
-	virtual void Process(float *pOutL, float *pOutR, uint32 numFrames);
-	virtual bool MidiSend(uint32 dwMidiCode);
-	virtual bool MidiSysexSend(const void *message, uint32 length);
-	virtual void HardAllNotesOff();
-	virtual void NotifySongPlaying(bool playing);
+	void SaveAllParameters() override;
+	void RestoreAllParameters(int32 program) override;
+	void Process(float *pOutL, float *pOutR, uint32 numFrames) override;
+	bool MidiSend(uint32 dwMidiCode) override;
+	bool MidiSysexSend(mpt::const_byte_span sysex) override;
+	void HardAllNotesOff() override;
+	void NotifySongPlaying(bool playing) override;
 
-	virtual void Resume();
-	virtual void Suspend();
-	virtual void PositionChanged() { m_positionChanged = true; }
+	void Resume() override;
+	void Suspend() override;
+	void PositionChanged() override { m_positionChanged = true; }
 
 	// Check whether a VST parameter can be automated
 	bool CanAutomateParameter(PlugParamIndex index);
 
-	virtual int GetNumInputChannels() const { return m_Effect.numInputs; }
-	virtual int GetNumOutputChannels() const { return m_Effect.numOutputs; }
+	int GetNumInputChannels() const override { return m_Effect.numInputs; }
+	int GetNumOutputChannels() const override { return m_Effect.numOutputs; }
 
-	virtual void BeginSetProgram(int32 program);
-	virtual void EndSetProgram();
+	void BeginSetProgram(int32 program) override;
+	void EndSetProgram() override;
+	void BeginGetProgram(int32 program) override;
+	void EndGetProgram() override;
 
 protected:
 	// Helper function for retreiving parameter name / label / display
-	CString GetParamPropertyString(VstInt32 param, VstInt32 opcode);
+	CString GetParamPropertyString(PlugParamIndex param, Vst::VstOpcodeToPlugin opcode);
 
 	// Set up input / output buffers.
 	bool InitializeIOBuffers();
 
 	// Process incoming and outgoing VST events.
 	void ProcessVSTEvents();
-	void ReceiveVSTEvents(const VstEvents *events);
+	void ReceiveVSTEvents(const Vst::VstEvents *events);
 
-	void ReportPlugException(std::wstring text) const;
+	void ReportPlugException(const mpt::ustring &text) const;
 
 public:
-	static VstIntPtr VSTCALLBACK MasterCallBack(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
+	static intptr_t VSTCALLBACK MasterCallBack(Vst::AEffect *effect, Vst::VstOpcodeToHost opcode, int32 index, intptr_t value, void *ptr, float opt);
 protected:
-	VstIntPtr VstFileSelector(bool destructor, VstFileSelect *fileSel);
+	intptr_t VstFileSelector(bool destructor, Vst::VstFileSelect &fileSel);
 };
 
 
 OPENMPT_NAMESPACE_END
 
-#endif // NO_VST
+#endif // MPT_WITH_VST

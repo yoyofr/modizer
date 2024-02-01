@@ -10,39 +10,50 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+#include "PatternEditorDialogs.h"
+
 OPENMPT_NAMESPACE_BEGIN
 
 class CModDoc;
+struct UpdateHint;
 
-//======================================
 class CChannelManagerDlg: public CDialog
-//======================================
 {
+	enum Tab
+	{
+		kSoloMute      = 0,
+		kRecordSelect  = 1,
+		kPluginState   = 2,
+		kReorderRemove = 3,
+	};
+
 public:
 
-	static CChannelManagerDlg * sharedInstance() { return sharedInstance_;  }
-	static CChannelManagerDlg * sharedInstanceCreate();
+	static CChannelManagerDlg *sharedInstance() { return sharedInstance_; }
+	static CChannelManagerDlg *sharedInstanceCreate();
 	static void DestroySharedInstance() { delete sharedInstance_; sharedInstance_ = nullptr; }
 	void SetDocument(CModDoc *modDoc);
 	CModDoc *GetDocument() const { return m_ModDoc; }
-	bool IsDisplayed();
-	void Update();
+	bool IsDisplayed() const;
+	void Update(UpdateHint hint, CObject* pHint);
 	void Show();
 	void Hide();
 
 private:
 	static CChannelManagerDlg *sharedInstance_;
+	QuickChannelProperties m_quickChannelProperties;
 
 protected:
 
-	enum ButtonAction
+	enum ButtonAction : uint8
 	{
 		kUndetermined,
 		kAction1,
 		kAction2,
 	};
 
-	enum MouseButton
+	enum MouseButton : uint8
 	{
 		CM_BT_NONE,
 		CM_BT_LEFT,
@@ -53,43 +64,41 @@ protected:
 	~CChannelManagerDlg();
 
 	CHANNELINDEX memory[4][MAX_BASECHANNELS];
-	CHANNELINDEX pattern[MAX_BASECHANNELS];
+	std::array<CHANNELINDEX, MAX_BASECHANNELS> pattern;
 	std::bitset<MAX_BASECHANNELS> removed;
 	std::bitset<MAX_BASECHANNELS> select;
 	std::bitset<MAX_BASECHANNELS> state;
 	CRect move[MAX_BASECHANNELS];
 	CRect m_drawableArea;
-	CModDoc *m_ModDoc;
-	HBITMAP m_bkgnd;
-	int m_currentTab;
-	int m_downX, m_downY;
-	int m_moveX, m_moveY;
-	int m_buttonHeight;
+	CModDoc *m_ModDoc = nullptr;
+	HBITMAP m_bkgnd = nullptr;
+	Tab m_currentTab = kSoloMute;
+	int m_downX = 0, m_downY = 0;
+	int m_moveX = 0, m_moveY = 0;
+	int m_buttonHeight = 0;
 	ButtonAction m_buttonAction;
-	bool m_leftButton : 1;
-	bool m_rightButton : 1;
-	bool m_moveRect : 1;
-	bool m_show : 1;
+	bool m_leftButton = false;
+	bool m_rightButton = false;
+	bool m_moveRect = false;
+	bool m_show = false;
 
-	bool ButtonHit(CPoint point, CHANNELINDEX *id, CRect *invalidate);
-	void MouseEvent(UINT nFlags,CPoint point, MouseButton button);
+	bool ButtonHit(CPoint point, CHANNELINDEX *id, CRect *invalidate) const;
+	void MouseEvent(UINT nFlags, CPoint point, MouseButton button);
 	void ResetState(bool bSelection = true, bool bMove = true, bool bButton = true, bool bInternal = true, bool bOrder = false);
 	void ResizeWindow();
 
-	void DrawChannelButton(HDC hdc, LPRECT lpRect, LPCSTR lpszText, bool activate, bool enable, DWORD dwFlags);
-
 	//{{AFX_VIRTUAL(CChannelManagerDlg)
-	BOOL OnInitDialog();
-	void OnApply();
-	void OnClose();
-	void OnSelectAll();
-	void OnInvert();
-	void OnAction1();
-	void OnAction2();
-	void OnStore();
-	void OnRestore();
+	BOOL OnInitDialog() override;
 	//}}AFX_VIRTUAL
 	//{{AFX_MSG(CChannelManagerDlg)
+	afx_msg void OnApply();
+	afx_msg void OnClose();
+	afx_msg void OnSelectAll();
+	afx_msg void OnInvert();
+	afx_msg void OnAction1();
+	afx_msg void OnAction2();
+	afx_msg void OnStore();
+	afx_msg void OnRestore();
 	afx_msg void OnTabSelchange(NMHDR*, LRESULT* pResult);
 	afx_msg void OnPaint();
 	afx_msg void OnMouseMove(UINT nFlags,CPoint point);

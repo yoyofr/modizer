@@ -5,8 +5,8 @@
  * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
  * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
  *                                                                  *
- * THE libopusfile SOURCE CODE IS (C) COPYRIGHT 2012                *
- * by the Xiph.Org Foundation and contributors http://www.xiph.org/ *
+ * THE libopusfile SOURCE CODE IS (C) COPYRIGHT 2012-2020           *
+ * by the Xiph.Org Foundation and contributors https://xiph.org/    *
  *                                                                  *
  ********************************************************************/
 #ifdef HAVE_CONFIG_H
@@ -214,6 +214,7 @@ static const char *op_parse_file_url(const char *_src){
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
 #  include <openssl/ssl.h>
+#  include <openssl/asn1.h>
 #  include "winerrno.h"
 
 typedef SOCKET op_sock;
@@ -307,6 +308,12 @@ static int op_poll_win32(struct pollfd *_fds,nfds_t _nfds,int _timeout){
    operate on sockets, because we don't use non-socket I/O here, and this
    minimizes the changes needed to deal with Winsock.*/
 #  define close(_fd) closesocket(_fd)
+/*This takes an int for the address length, even though the value is of type
+   socklen_t (defined as an unsigned integer type with at least 32 bits).*/
+#  define connect(_fd,_addr,_addrlen) \
+ (OP_UNLIKELY((_addrlen)>(socklen_t)INT_MAX)? \
+  WSASetLastError(WSA_NOT_ENOUGH_MEMORY),-1: \
+  connect(_fd,_addr,(int)(_addrlen)))
 /*This relies on sizeof(u_long)==sizeof(int), which is always true on both
    Win32 and Win64.*/
 #  define ioctl(_fd,_req,_arg) ioctlsocket(_fd,_req,(u_long *)(_arg))
@@ -327,6 +334,9 @@ int SSL_CTX_set_default_verify_paths_win32(SSL_CTX *_ssl_ctx);
 
 # else
 /*Normal Berkeley sockets.*/
+#  ifndef BSD_COMP
+#   define BSD_COMP 1        /* for FIONREAD on Solaris/Illumos */
+#  endif
 #  include <sys/ioctl.h>
 #  include <sys/types.h>
 #  include <sys/socket.h>
@@ -338,6 +348,7 @@ int SSL_CTX_set_default_verify_paths_win32(SSL_CTX *_ssl_ctx);
 #  include <poll.h>
 #  include <unistd.h>
 #  include <openssl/ssl.h>
+#  include <openssl/asn1.h>
 
 typedef int op_sock;
 
@@ -347,8 +358,21 @@ typedef int op_sock;
 #  define op_reset_errno() (errno=0)
 
 # endif
-# include <sys/timeb.h>
+
+# ifdef OP_HAVE_CLOCK_GETTIME
+#  include <time.h>
+typedef struct timespec op_time;
+# else
+#  include <sys/timeb.h>
+typedef struct timeb op_time;
+# endif
+
 # include <openssl/x509v3.h>
+
+# if (defined(LIBRESSL_VERSION_NUMBER)&&OPENSSL_VERSION_NUMBER==0x20000000L)
+#  undef OPENSSL_VERSION_NUMBER
+#  define OPENSSL_VERSION_NUMBER 0x1000115fL
+# endif
 
 /*The maximum number of simultaneous connections.
   RFC 2616 says this SHOULD NOT be more than 2, but everyone on the modern web
@@ -471,7 +495,7 @@ static int op_parse_url_impl(OpusParsedURL *_dst,const char *_src){
   scheme_end=_src+strspn(_src,OP_URL_SCHEME);
   if(OP_UNLIKELY(*scheme_end!=':')
    ||OP_UNLIKELY(scheme_end-_src<4)||OP_UNLIKELY(scheme_end-_src>5)
-   ||OP_UNLIKELY(op_strncasecmp(_src,"https",scheme_end-_src)!=0)){
+   ||OP_UNLIKELY(op_strncasecmp(_src,"https",(int)(scheme_end-_src))!=0)){
     /*Unsupported protocol.*/
     return OP_EIMPL;
   }
@@ -540,7 +564,7 @@ static int op_parse_url_impl(OpusParsedURL *_dst,const char *_src){
   /*Discard the <fragment> component, if any.
     This doesn't get sent to the server.
     Some day we should add support for Media Fragment URIs
-     <http://www.w3.org/TR/media-frags/>.*/
+     <https://www.w3.org/TR/media-frags/>.*/
   if(*path_end=='#')uri_end=path_end+1+strspn(path_end+1,OP_URL_QUERY_FRAG);
   else uri_end=path_end;
   /*If there's anything left, this was not a valid URL.*/
@@ -674,7 +698,10 @@ static int op_sb_append(OpusStringBuf *_sb,const char *_s,int _len){
 }
 
 static int op_sb_append_string(OpusStringBuf *_sb,const char *_s){
-  return op_sb_append(_sb,_s,strlen(_s));
+  size_t len;
+  len=strlen(_s);
+  if(OP_UNLIKELY(len>(size_t)INT_MAX))return OP_EFAULT;
+  return op_sb_append(_sb,_s,(int)len);
 }
 
 static int op_sb_append_port(OpusStringBuf *_sb,unsigned _port){
@@ -788,7 +815,7 @@ struct OpusHTTPConn{
   /*The next connection in either the LRU or free list.*/
   OpusHTTPConn *next;
   /*The last time we blocked for reading from this connection.*/
-  struct timeb  read_time;
+  op_time       read_time;
   /*The number of bytes we've read since the last time we blocked.*/
   opus_int64    read_bytes;
   /*The estimated throughput of this connection, in bytes/s.*/
@@ -838,7 +865,7 @@ struct OpusHTTPStream{
     struct sockaddr_in6 v6;
   }                addr;
   /*The last time we re-resolved the host.*/
-  struct timeb     resolve_time;
+  op_time          resolve_time;
   /*A buffer used to build HTTP requests.*/
   OpusStringBuf    request;
   /*A buffer used to build proxy CONNECT requests.*/
@@ -962,7 +989,8 @@ static int op_http_conn_write_fully(OpusHTTPConn *_conn,
       ret=send(fd.fd,_buf,_buf_size,0);
       if(ret>0){
         _buf+=ret;
-        _buf_size-=ret;
+        OP_ASSERT(ret<=_buf_size);
+        _buf_size-=(int)ret;
         continue;
       }
       err=op_errno();
@@ -992,8 +1020,31 @@ static int op_http_conn_estimate_available(OpusHTTPConn *_conn){
   return available;
 }
 
-static opus_int32 op_time_diff_ms(const struct timeb *_end,
- const struct timeb *_start){
+static void op_time_get(op_time *now){
+# ifdef OP_HAVE_CLOCK_GETTIME
+  /*Prefer a monotonic clock that continues to increment during suspend.*/
+#  ifdef CLOCK_BOOTTIME
+  if(clock_gettime(CLOCK_BOOTTIME,now)!=0)
+#  endif
+#  ifdef CLOCK_MONOTONIC
+  if(clock_gettime(CLOCK_MONOTONIC,now)!=0)
+#  endif
+  OP_ALWAYS_TRUE(!clock_gettime(CLOCK_REALTIME,now));
+# else
+  ftime(now);
+# endif
+}
+
+static opus_int32 op_time_diff_ms(const op_time *_end, const op_time *_start){
+# ifdef OP_HAVE_CLOCK_GETTIME
+  opus_int64 dtime;
+  dtime=_end->tv_sec-(opus_int64)_start->tv_sec;
+  OP_ASSERT(_end->tv_nsec<1000000000);
+  OP_ASSERT(_start->tv_nsec<1000000000);
+  if(OP_UNLIKELY(dtime>(OP_INT32_MAX-1000)/1000))return OP_INT32_MAX;
+  if(OP_UNLIKELY(dtime<(OP_INT32_MIN+1000)/1000))return OP_INT32_MIN;
+  return (opus_int32)dtime*1000+(_end->tv_nsec-_start->tv_nsec)/1000000;
+# else
   opus_int64 dtime;
   dtime=_end->time-(opus_int64)_start->time;
   OP_ASSERT(_end->millitm<1000);
@@ -1001,17 +1052,18 @@ static opus_int32 op_time_diff_ms(const struct timeb *_end,
   if(OP_UNLIKELY(dtime>(OP_INT32_MAX-1000)/1000))return OP_INT32_MAX;
   if(OP_UNLIKELY(dtime<(OP_INT32_MIN+1000)/1000))return OP_INT32_MIN;
   return (opus_int32)dtime*1000+_end->millitm-_start->millitm;
+# endif
 }
 
 /*Update the read rate estimate for this connection.*/
 static void op_http_conn_read_rate_update(OpusHTTPConn *_conn){
-  struct timeb read_time;
+  op_time      read_time;
   opus_int32   read_delta_ms;
   opus_int64   read_delta_bytes;
   opus_int64   read_rate;
   read_delta_bytes=_conn->read_bytes;
   if(read_delta_bytes<=0)return;
-  ftime(&read_time);
+  op_time_get(&read_time);
   read_delta_ms=op_time_diff_ms(&read_time,&_conn->read_time);
   read_rate=_conn->read_rate;
   read_delta_ms=OP_MAX(read_delta_ms,1);
@@ -1077,8 +1129,9 @@ static int op_http_conn_read(OpusHTTPConn *_conn,
       if(ret>0){
         /*Read some data.
           Keep going to see if there's more.*/
-        nread+=ret;
-        nread_unblocked+=ret;
+        OP_ASSERT(ret<=_buf_size-nread);
+        nread+=(int)ret;
+        nread_unblocked+=(int)ret;
         continue;
       }
       /*If we already read some data or the connection was closed, return
@@ -1171,8 +1224,8 @@ static int op_http_conn_read_response(OpusHTTPConn *_conn,
     if(OP_UNLIKELY(ret<=0))return size<=0?OP_EREAD:OP_FALSE;
     /*We read some data.*/
     /*Make sure the starting characters are "HTTP".
-      Otherwise we could wind up waiting forever for a response from
-       something that is not an HTTP server.*/
+      Otherwise we could wind up waiting for a response from something that is
+       not an HTTP server until we time out.*/
     if(size<4&&op_strncasecmp(buf,"HTTP",OP_MIN(size+ret,4))!=0){
       return OP_FALSE;
     }
@@ -1245,10 +1298,10 @@ static char *op_http_parse_status_line(int *_v1_1_compat,
   char   *status_code;
   int     v1_1_compat;
   size_t  d;
-  /*RFC 2616 Section 6.1 does not say that the tokens in the Status-Line cannot
-     be separated by optional LWS, but since it specifically calls out where
+  /*RFC 2616 Section 6.1 does not say if the tokens in the Status-Line can be
+     separated by optional LWS, but since it specifically calls out where
      spaces are to be placed and that CR and LF are not allowed except at the
-     end, I am assuming this to be true.*/
+     end, we are assuming extra LWS is not allowed.*/
   /*We already validated that this starts with "HTTP"*/
   OP_ASSERT(op_strncasecmp(_response,"HTTP",4)==0);
   next=_response+4;
@@ -1272,7 +1325,7 @@ static char *op_http_parse_status_line(int *_v1_1_compat,
     d--;
   }
   /*We don't need to parse the version number.
-    Any non-zero digit means it's greater than 1.*/
+    Any non-zero digit means it's at least 1.*/
   v1_1_compat=d>0;
   next+=d;
   if(OP_UNLIKELY(*next++!=' '))return NULL;
@@ -1504,8 +1557,8 @@ static long op_bio_retry_ctrl(BIO *_b,int _cmd,long _num,void *_ptr){
     case BIO_CTRL_RESET:
     case BIO_C_RESET_READ_REQUEST:{
       BIO_clear_retry_flags(_b);
-      /*Fall through.*/
     }
+    /*Fall through.*/
     case BIO_CTRL_EOF:
     case BIO_CTRL_SET:
     case BIO_CTRL_SET_CLOSE:
@@ -1517,14 +1570,15 @@ static long op_bio_retry_ctrl(BIO *_b,int _cmd,long _num,void *_ptr){
   return ret;
 }
 
-# if OPENSSL_VERSION_NUMBER<0x10100000L
+# if (OPENSSL_VERSION_NUMBER<0x10100000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
 #  define BIO_set_data(_b,_ptr) ((_b)->ptr=(_ptr))
 #  define BIO_set_init(_b,_init) ((_b)->init=(_init))
+#  define ASN1_STRING_get0_data ASN1_STRING_data
 # endif
 
 static int op_bio_retry_new(BIO *_b){
   BIO_set_init(_b,1);
-# if OPENSSL_VERSION_NUMBER<0x10100000L
+# if (OPENSSL_VERSION_NUMBER<0x10100000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
   _b->num=0;
 # endif
   BIO_set_data(_b,NULL);
@@ -1535,7 +1589,7 @@ static int op_bio_retry_free(BIO *_b){
   return _b!=NULL;
 }
 
-# if OPENSSL_VERSION_NUMBER<0x10100000L
+# if (OPENSSL_VERSION_NUMBER<0x10100000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
 /*This is not const because OpenSSL doesn't allow it, even though it won't
    write to it.*/
 static BIO_METHOD op_bio_retry_method={
@@ -1556,7 +1610,7 @@ static BIO_METHOD op_bio_retry_method={
    proxying https URL requests.*/
 static int op_http_conn_establish_tunnel(OpusHTTPStream *_stream,
  OpusHTTPConn *_conn,op_sock _fd,SSL *_ssl_conn,BIO *_ssl_bio){
-# if OPENSSL_VERSION_NUMBER>=0x10100000L
+# if (OPENSSL_VERSION_NUMBER>=0x10100000L||LIBRESSL_VERSION_NUMBER>=0x2070000fL)
   BIO_METHOD *bio_retry_method;
 # endif
   BIO  *retry_bio;
@@ -1569,7 +1623,7 @@ static int op_http_conn_establish_tunnel(OpusHTTPStream *_stream,
   ret=op_http_conn_write_fully(_conn,
    _stream->proxy_connect.buf,_stream->proxy_connect.nbuf);
   if(OP_UNLIKELY(ret<0))return ret;
-# if OPENSSL_VERSION_NUMBER>=0x10100000L
+# if (OPENSSL_VERSION_NUMBER>=0x10100000L||LIBRESSL_VERSION_NUMBER>=0x2070000fL)
   bio_retry_method=BIO_meth_new(BIO_TYPE_NULL,"retry");
   if(bio_retry_method==NULL)return OP_EFAULT;
   BIO_meth_set_write(bio_retry_method,op_bio_retry_write);
@@ -1592,7 +1646,7 @@ static int op_http_conn_establish_tunnel(OpusHTTPStream *_stream,
   /*This shouldn't succeed, since we can't read yet.*/
   OP_ALWAYS_TRUE(SSL_connect(_ssl_conn)<0);
   SSL_set_bio(_ssl_conn,_ssl_bio,_ssl_bio);
-# if OPENSSL_VERSION_NUMBER>=0x10100000L
+# if (OPENSSL_VERSION_NUMBER>=0x10100000L||LIBRESSL_VERSION_NUMBER>=0x2070000fL)
   BIO_meth_free(bio_retry_method);
 # endif
   /*Only now do we disable write coalescing, to allow the CONNECT
@@ -1603,11 +1657,25 @@ static int op_http_conn_establish_tunnel(OpusHTTPStream *_stream,
   next=op_http_parse_status_line(NULL,&status_code,_stream->response.buf);
   /*According to RFC 2817, "Any successful (2xx) response to a
      CONNECT request indicates that the proxy has established a
-     connection to the requested host and port.*/
+     connection to the requested host and port."*/
   if(OP_UNLIKELY(next==NULL)||OP_UNLIKELY(status_code[0]!='2'))return OP_FALSE;
   return 0;
 }
 
+/*Convert a host to a numeric address, if possible.
+  Return: A struct addrinfo containing the address, if it was numeric, and NULL
+           otherwise.*/
+static struct addrinfo *op_inet_pton(const char *_host){
+  struct addrinfo *addrs;
+  struct addrinfo  hints;
+  memset(&hints,0,sizeof(hints));
+  hints.ai_socktype=SOCK_STREAM;
+  hints.ai_flags=AI_NUMERICHOST;
+  if(!getaddrinfo(_host,NULL,&hints,&addrs))return addrs;
+  return NULL;
+}
+
+# if (OPENSSL_VERSION_NUMBER<0x10002000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
 /*Match a host name against a host with a possible wildcard pattern according
    to the rules of RFC 6125 Section 6.4.3.
   Return: 0 if the pattern doesn't match, and a non-zero value if it does.*/
@@ -1620,13 +1688,15 @@ static int op_http_hostname_match(const char *_host,size_t _host_len,
   size_t      pattern_label_len;
   size_t      pattern_prefix_len;
   size_t      pattern_suffix_len;
-  pattern=(const char *)ASN1_STRING_data(_pattern);
+  if(OP_UNLIKELY(_host_len>(size_t)INT_MAX))return 0;
+  pattern=(const char *)ASN1_STRING_get0_data(_pattern);
   pattern_len=strlen(pattern);
   /*Check the pattern for embedded NULs.*/
   if(OP_UNLIKELY(pattern_len!=(size_t)ASN1_STRING_length(_pattern)))return 0;
   pattern_label_len=strcspn(pattern,".");
   OP_ASSERT(pattern_label_len<=pattern_len);
   pattern_prefix_len=strcspn(pattern,"*");
+  if(OP_UNLIKELY(pattern_prefix_len>(size_t)INT_MAX))return 0;
   if(pattern_prefix_len>=pattern_label_len){
     /*"The client SHOULD NOT attempt to match a presented identifier in which
        the wildcard character comprises a label other than the left-most label
@@ -1637,7 +1707,8 @@ static int op_http_hostname_match(const char *_host,size_t _host_len,
       Don't use the system strcasecmp here, as that uses the locale and
        RFC 4343 makes clear that DNS's case-insensitivity only applies to
        the ASCII range.*/
-    return _host_len==pattern_len&&op_strncasecmp(_host,pattern,_host_len)==0;
+    return _host_len==pattern_len
+     &&op_strncasecmp(_host,pattern,(int)_host_len)==0;
   }
   /*"However, the client SHOULD NOT attempt to match a presented identifier
      where the wildcard character is embedded within an A-label or U-label of
@@ -1672,34 +1743,25 @@ static int op_http_hostname_match(const char *_host,size_t _host_len,
   pattern_suffix_len=pattern_len-pattern_prefix_len-1;
   host_suffix_len=_host_len-host_label_len
    +pattern_label_len-pattern_prefix_len-1;
+  OP_ASSERT(host_suffix_len<=_host_len);
   return pattern_suffix_len==host_suffix_len
-   &&op_strncasecmp(_host,pattern,pattern_prefix_len)==0
+   &&op_strncasecmp(_host,pattern,(int)pattern_prefix_len)==0
    &&op_strncasecmp(_host+_host_len-host_suffix_len,
-   pattern+pattern_prefix_len+1,host_suffix_len)==0;
-}
-
-/*Convert a host to a numeric address, if possible.
-  Return: A struct addrinfo containing the address, if it was numeric, and NULL
-           otherise.*/
-static struct addrinfo *op_inet_pton(const char *_host){
-  struct addrinfo *addrs;
-  struct addrinfo  hints;
-  memset(&hints,0,sizeof(hints));
-  hints.ai_socktype=SOCK_STREAM;
-  hints.ai_flags=AI_NUMERICHOST;
-  if(!getaddrinfo(_host,NULL,&hints,&addrs))return addrs;
-  return NULL;
+   pattern+pattern_prefix_len+1,(int)host_suffix_len)==0;
 }
 
 /*Verify the server's hostname matches the certificate they presented using
    the procedure from Section 6 of RFC 6125.
   Return: 0 if the certificate doesn't match, and a non-zero value if it does.*/
 static int op_http_verify_hostname(OpusHTTPStream *_stream,SSL *_ssl_conn){
-  X509                   *peer_cert;
-  STACK_OF(GENERAL_NAME) *san_names;
-  char                   *host;
-  size_t                  host_len;
-  int                     ret;
+  X509            *peer_cert;
+  struct addrinfo *addr;
+  char            *host;
+  size_t           host_len;
+  unsigned char   *ip;
+  int              ip_len;
+  int              check_cn;
+  int              ret;
   host=_stream->url.host;
   host_len=strlen(host);
   peer_cert=SSL_get_peer_certificate(_ssl_conn);
@@ -1707,142 +1769,154 @@ static int op_http_verify_hostname(OpusHTTPStream *_stream,SSL *_ssl_conn){
   if(OP_UNLIKELY(peer_cert==NULL))return 0;
   ret=0;
   OP_ASSERT(host_len<INT_MAX);
-  /*RFC 2818 says (after correcting for Eratta 1077): "If a subjectAltName
-     extension of type dNSName is present, that MUST be used as the identity.
-    Otherwise, the (most specific) Common Name field in the Subject field of
-     the certificate MUST be used.
-    Although the use of the Common Name is existing practice, it is deprecated
-     and Certification Authorities are encouraged to use the dNSName
-     instead."
-    "Matching is performed using the matching rules specified by RFC 2459.
-    If more than one identity of a given type is present in the certificate
-     (e.g., more than one dNSName name), a match in any one of the set is
-     considered acceptable.
-    Names may contain the wildcard character * which is condered to match any
-     single domain name component or component fragment.
-    E.g., *.a.com matches foo.a.com but not bar.foo.a.com.
-    f*.com matches foo.com but not bar.com."
-    "In some cases, the URI is specified as an IP address rather than a
-     hostname.
-    In this case, the iPAddress subjectAltName must be present in the
-     certificate and must exactly match the IP in the URI."*/
-  san_names=X509_get_ext_d2i(peer_cert,NID_subject_alt_name,NULL,NULL);
-  if(san_names!=NULL){
-    struct addrinfo *addr;
-    unsigned char   *ip;
-    int              ip_len;
-    int              nsan_names;
-    int              sni;
-    /*Check to see if the host was specified as a simple IP address.*/
-    addr=op_inet_pton(host);
-    ip=NULL;
-    ip_len=0;
-    if(addr!=NULL){
-      switch(addr->ai_family){
-        case AF_INET:{
-          struct sockaddr_in *s;
-          s=(struct sockaddr_in *)addr->ai_addr;
-          OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
-          ip=(unsigned char *)&s->sin_addr;
-          ip_len=sizeof(s->sin_addr);
-        }break;
-        case AF_INET6:{
-          struct sockaddr_in6 *s;
-          s=(struct sockaddr_in6 *)addr->ai_addr;
-          OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
-          ip=(unsigned char *)&s->sin6_addr;
-          ip_len=sizeof(s->sin6_addr);
-        }break;
-      }
+  /*By default, fall back to checking the Common Name if we don't check any
+     subjectAltNames of type dNSName.*/
+  check_cn=1;
+  /*Check to see if the host was specified as a simple IP address.*/
+  addr=op_inet_pton(host);
+  ip=NULL;
+  ip_len=0;
+  if(addr!=NULL){
+    switch(addr->ai_family){
+      case AF_INET:{
+        struct sockaddr_in *s;
+        s=(struct sockaddr_in *)addr->ai_addr;
+        OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
+        ip=(unsigned char *)&s->sin_addr;
+        ip_len=sizeof(s->sin_addr);
+        /*RFC 6125 says, "In this case, the iPAddress subjectAltName must [sic]
+           be present in the certificate and must [sic] exactly match the IP in
+           the URI."
+          So don't allow falling back to a Common Name.*/
+        check_cn=0;
+      }break;
+      case AF_INET6:{
+        struct sockaddr_in6 *s;
+        s=(struct sockaddr_in6 *)addr->ai_addr;
+        OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
+        ip=(unsigned char *)&s->sin6_addr;
+        ip_len=sizeof(s->sin6_addr);
+        check_cn=0;
+      }break;
     }
-    /*We can only verify fully-qualified domain names.
-      To quote RFC 6125: "The extracted data MUST include only information that
-       can be securely parsed out of the inputs (e.g., parsing the fully
-       qualified DNS domain name out of the "host" component (or its
-       equivalent) of a URI or deriving the application service type from the
-       scheme of a URI) ..."
-      We don't have a way to check (without relying on DNS records, which might
-       be subverted) if this address is fully-qualified.
-      This is particularly problematic when using a CONNECT tunnel, as it is
-       the server that does DNS lookup, not us.
-      However, we are certain that if the hostname has no '.', it is definitely
-       not a fully-qualified domain name (with the exception of crazy TLDs that
-       actually resolve, like "uz", but I am willing to ignore those).
-      RFC 1535 says "...in any event where a '.' exists in a specified name it
-       should be assumed to be a fully qualified domain name (FQDN) and SHOULD
-       be tried as a rooted name first."
-      That doesn't give us any security guarantees, of course (a subverted DNS
-       could fail the original query and our resolver might still retry with a
-       local domain appended).
-      If we don't have a FQDN, just set the number of names to 0, so we'll fail
-       and clean up any resources we allocated.*/
-    if(ip==NULL&&strchr(host,'.')==NULL)nsan_names=0;
-    /*RFC 2459 says there MUST be at least one, but we don't depend on it.*/
-    else nsan_names=sk_GENERAL_NAME_num(san_names);
-    for(sni=0;sni<nsan_names;sni++){
-      const GENERAL_NAME *name;
-      name=sk_GENERAL_NAME_value(san_names,sni);
-      if(ip==NULL){
-        if(name->type==GEN_DNS
-         &&op_http_hostname_match(host,host_len,name->d.dNSName)){
-          ret=1;
-          break;
+  }
+  /*We can only verify IP addresses and "fully-qualified" domain names.
+    To quote RFC 6125: "The extracted data MUST include only information that
+     can be securely parsed out of the inputs (e.g., parsing the fully
+     qualified DNS domain name out of the "host" component (or its
+     equivalent) of a URI or deriving the application service type from the
+     scheme of a URI) ..."
+    We don't have a way to check (without relying on DNS records, which might
+     be subverted) if this address is fully-qualified.
+    This is particularly problematic when using a CONNECT tunnel, as it is
+     the server that does DNS lookup, not us.
+    However, we are certain that if the hostname has no '.', it is definitely
+     not a fully-qualified domain name (with the exception of crazy TLDs that
+     actually resolve, like "uz", but I am willing to ignore those).
+    RFC 1535 says "...in any event where a '.' exists in a specified name it
+     should be assumed to be a fully qualified domain name (FQDN) and SHOULD
+     be tried as a rooted name first."
+    That doesn't give us any security guarantees, of course (a subverted DNS
+     could fail the original query and our resolver might still retry with a
+     local domain appended).*/
+  if(ip!=NULL||strchr(host,'.')!=NULL){
+    STACK_OF(GENERAL_NAME) *san_names;
+    /*RFC 2818 says (after correcting for Eratta 1077): "If a subjectAltName
+       extension of type dNSName is present, that MUST be used as the identity.
+      Otherwise, the (most specific) Common Name field in the Subject field of
+       the certificate MUST be used.
+      Although the use of the Common Name is existing practice, it is
+       deprecated and Certification Authorities are encouraged to use the
+       dNSName instead."
+      "Matching is performed using the matching rules specified by RFC 2459.
+      If more than one identity of a given type is present in the certificate
+       (e.g., more than one dNSName name), a match in any one of the set is
+       considered acceptable.
+      Names may contain the wildcard character * which is condered to match any
+       single domain name component or component fragment.
+      E.g., *.a.com matches foo.a.com but not bar.foo.a.com.
+      f*.com matches foo.com but not bar.com."
+      "In some cases, the URI is specified as an IP address rather than a
+       hostname.
+      In this case, the iPAddress subjectAltName must be present in the
+       certificate and must exactly match the IP in the URI."*/
+    san_names=X509_get_ext_d2i(peer_cert,NID_subject_alt_name,NULL,NULL);
+    if(san_names!=NULL){
+      int nsan_names;
+      int sni;
+      /*RFC 2459 says there MUST be at least one, but we don't depend on it.*/
+      nsan_names=sk_GENERAL_NAME_num(san_names);
+      for(sni=0;sni<nsan_names;sni++){
+        const GENERAL_NAME *name;
+        name=sk_GENERAL_NAME_value(san_names,sni);
+        if(ip==NULL){
+          if(name->type==GEN_DNS){
+            /*We have a subjectAltName extension of type dNSName, so don't fall
+               back to a Common Name.
+              https://marc.info/?l=openssl-dev&m=139617145216047&w=2 says that
+               subjectAltNames of other types do not trigger this restriction,
+               (e.g., if they are all IP addresses, we will still check a
+               non-IP hostname against a Common Name).*/
+            check_cn=0;
+            if(op_http_hostname_match(host,host_len,name->d.dNSName)){
+              ret=1;
+              break;
+            }
+          }
+        }
+        else if(name->type==GEN_IPADD){
+          unsigned const char *cert_ip;
+          /*If we do have an IP address, compare it directly.
+            RFC 6125: "When the reference identity is an IP address, the
+             identity MUST be converted to the 'network byte order' octet
+             string representation.
+            For IP Version 4, as specified in RFC 791, the octet string will
+             contain exactly four octets.
+            For IP Version 6, as specified in RFC 2460, the octet string will
+             contain exactly sixteen octets.
+            This octet string is then compared against subjectAltName values of
+             type iPAddress.
+            A match occurs if the reference identity octet string and the value
+             octet strings are identical."*/
+          cert_ip=ASN1_STRING_get0_data(name->d.iPAddress);
+          if(ip_len==ASN1_STRING_length(name->d.iPAddress)
+           &&memcmp(ip,cert_ip,ip_len)==0){
+            ret=1;
+            break;
+          }
         }
       }
-      else if(name->type==GEN_IPADD){
-        unsigned char *cert_ip;
-        /*If we do have an IP address, compare it directly.
-          RFC 6125: "When the reference identity is an IP address, the identity
-           MUST be converted to the 'network byte order' octet string
-           representation.
-          For IP Version 4, as specified in RFC 791, the octet string will
-           contain exactly four octets.
-          For IP Version 6, as specified in RFC 2460, the octet string will
-           contain exactly sixteen octets.
-          This octet string is then compared against subjectAltName values of
-           type iPAddress.
-          A match occurs if the reference identity octet string and the value
-           octet strings are identical."*/
-        cert_ip=ASN1_STRING_data(name->d.iPAddress);
-        if(ip_len==ASN1_STRING_length(name->d.iPAddress)
-         &&memcmp(ip,cert_ip,ip_len)==0){
-          ret=1;
-          break;
-        }
+      sk_GENERAL_NAME_pop_free(san_names,GENERAL_NAME_free);
+    }
+    /*If we're supposed to fall back to a Common Name, match against it here.*/
+    if(check_cn){
+      int last_cn_loc;
+      int cn_loc;
+      /*RFC 6125 says that at least one significant CA is known to issue certs
+         with multiple CNs, although it SHOULD NOT.
+        It also says: "The server's identity may also be verified by comparing
+         the reference identity to the Common Name (CN) value in the last
+         Relative Distinguished Name (RDN) of the subject field of the server's
+         certificate (where "last" refers to the DER-encoded order...)."
+        So find the last one and check it.*/
+      cn_loc=-1;
+      do{
+        last_cn_loc=cn_loc;
+        cn_loc=X509_NAME_get_index_by_NID(X509_get_subject_name(peer_cert),
+         NID_commonName,last_cn_loc);
       }
+      while(cn_loc>=0);
+      ret=last_cn_loc>=0
+       &&op_http_hostname_match(host,host_len,
+       X509_NAME_ENTRY_get_data(
+       X509_NAME_get_entry(X509_get_subject_name(peer_cert),last_cn_loc)));
     }
-    sk_GENERAL_NAME_pop_free(san_names,GENERAL_NAME_free);
-    if(addr!=NULL)freeaddrinfo(addr);
   }
-  /*Do the same FQDN check we did above.
-    We don't do this once in advance for both cases, because in the
-     subjectAltName case we might have an IPv6 address without a dot.*/
-  else if(strchr(host,'.')!=NULL){
-    int last_cn_loc;
-    int cn_loc;
-    /*If there is no subjectAltName, match against commonName.
-      RFC 6125 says that at least one significant CA is known to issue certs
-       with multiple CNs, although it SHOULD NOT.
-      It also says: "The server's identity may also be verified by comparing
-       the reference identity to the Common Name (CN) value in the last
-       Relative Distinguished Name (RDN) of the subject field of the server's
-       certificate (where "last" refers to the DER-encoded order...)."
-      So find the last one and check it.*/
-    cn_loc=-1;
-    do{
-      last_cn_loc=cn_loc;
-      cn_loc=X509_NAME_get_index_by_NID(X509_get_subject_name(peer_cert),
-       NID_commonName,last_cn_loc);
-    }
-    while(cn_loc>=0);
-    ret=last_cn_loc>=0
-     &&op_http_hostname_match(host,host_len,
-     X509_NAME_ENTRY_get_data(
-     X509_NAME_get_entry(X509_get_subject_name(peer_cert),last_cn_loc)));
-  }
+  if(addr!=NULL)freeaddrinfo(addr);
   X509_free(peer_cert);
   return ret;
 }
+# endif
 
 /*Perform the TLS handshake on a new connection.*/
 static int op_http_conn_start_tls(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
@@ -1851,11 +1925,56 @@ static int op_http_conn_start_tls(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
   BIO         *ssl_bio;
   int          skip_certificate_check;
   int          ret;
-  ssl_bio=BIO_new_socket(_fd,BIO_NOCLOSE);
+  /*This always takes an int, even though with Winsock op_sock is a SOCKET.*/
+  ssl_bio=BIO_new_socket((int)_fd,BIO_NOCLOSE);
   if(OP_LIKELY(ssl_bio==NULL))return OP_FALSE;
 # if !defined(OPENSSL_NO_TLSEXT)
   /*Support for RFC 6066 Server Name Indication.*/
   SSL_set_tlsext_host_name(_ssl_conn,_stream->url.host);
+# endif
+  skip_certificate_check=_stream->skip_certificate_check;
+# if (OPENSSL_VERSION_NUMBER>=0x10002000L||LIBRESSL_VERSION_NUMBER>=0x2070000fL)
+  /*As of version 1.0.2, OpenSSL can finally do hostname checks automatically.
+    Of course, they make it much more complicated than it needs to be.*/
+  if(!skip_certificate_check){
+    X509_VERIFY_PARAM *param;
+    struct addrinfo   *addr;
+    char              *host;
+    unsigned char     *ip;
+    int                ip_len;
+    param=SSL_get0_param(_ssl_conn);
+    OP_ASSERT(param!=NULL);
+    host=_stream->url.host;
+    ip=NULL;
+    ip_len=0;
+    /*Check to see if the host was specified as a simple IP address.*/
+    addr=op_inet_pton(host);
+    if(addr!=NULL){
+      switch(addr->ai_family){
+        case AF_INET:{
+          struct sockaddr_in *s;
+          s=(struct sockaddr_in *)addr->ai_addr;
+          OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
+          ip=(unsigned char *)&s->sin_addr;
+          ip_len=sizeof(s->sin_addr);
+          host=NULL;
+        }break;
+        case AF_INET6:{
+          struct sockaddr_in6 *s;
+          s=(struct sockaddr_in6 *)addr->ai_addr;
+          OP_ASSERT(addr->ai_addrlen>=sizeof(*s));
+          ip=(unsigned char *)&s->sin6_addr;
+          ip_len=sizeof(s->sin6_addr);
+          host=NULL;
+        }break;
+      }
+    }
+    /*Always set both host and ip to prevent matching against an old one.
+      One of the two will always be NULL, clearing that parameter.*/
+    X509_VERIFY_PARAM_set1_host(param,host,0);
+    X509_VERIFY_PARAM_set1_ip(param,ip,ip_len);
+    if(addr!=NULL)freeaddrinfo(addr);
+  }
 # endif
   /*Resume a previous session if available.*/
   if(_stream->ssl_session!=NULL){
@@ -1876,17 +1995,22 @@ static int op_http_conn_start_tls(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
   ret=op_do_ssl_step(_ssl_conn,_fd,SSL_connect);
   if(OP_UNLIKELY(ret<=0))return OP_FALSE;
   ssl_session=_stream->ssl_session;
-  skip_certificate_check=_stream->skip_certificate_check;
-  if(ssl_session==NULL||!skip_certificate_check){
+  if(ssl_session==NULL
+# if (OPENSSL_VERSION_NUMBER<0x10002000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
+   ||!skip_certificate_check
+# endif
+   ){
     ret=op_do_ssl_step(_ssl_conn,_fd,SSL_do_handshake);
     if(OP_UNLIKELY(ret<=0))return OP_FALSE;
-    /*OpenSSL does not do hostname verification, despite the fact that we just
-       passed it the hostname above in the call to SSL_set_tlsext_host_name(),
-       because they are morons.
+# if (OPENSSL_VERSION_NUMBER<0x10002000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
+    /*OpenSSL before version 1.0.2 does not do automatic hostname verification,
+       despite the fact that we just passed it the hostname above in the call
+       to SSL_set_tlsext_host_name().
       Do it for them.*/
     if(!skip_certificate_check&&!op_http_verify_hostname(_stream,_ssl_conn)){
       return OP_FALSE;
     }
+# endif
     if(ssl_session==NULL){
       /*Save the session for later resumption.*/
       _stream->ssl_session=SSL_get1_session(_ssl_conn);
@@ -1911,11 +2035,10 @@ static int op_http_conn_start_tls(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
                     left to try.
                     *_addr will be set to NULL in this case.*/
 static int op_sock_connect_next(op_sock _fd,
- const struct addrinfo **_addr,int _ai_family){
-  const struct addrinfo *addr;
-  int                    err;
-  addr=*_addr;
-  for(;;){
+ struct addrinfo **_addr,int _ai_family){
+  struct addrinfo *addr;
+  int              err;
+  for(addr=*_addr;;addr=addr->ai_next){
     /*Move to the next address of the requested type.*/
     for(;addr!=NULL&&addr->ai_family!=_ai_family;addr=addr->ai_next);
     *_addr=addr;
@@ -1925,7 +2048,6 @@ static int op_sock_connect_next(op_sock _fd,
     err=op_errno();
     /*Winsock will set WSAEWOULDBLOCK.*/
     if(OP_LIKELY(err==EINPROGRESS||err==EWOULDBLOCK))return 0;
-    addr=addr->ai_next;
   }
 }
 
@@ -1933,15 +2055,15 @@ static int op_sock_connect_next(op_sock _fd,
 # define OP_NPROTOS (2)
 
 static int op_http_connect_impl(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
- const struct addrinfo *_addrs,struct timeb *_start_time){
-  const struct addrinfo *addr;
-  const struct addrinfo *addrs[OP_NPROTOS];
-  struct pollfd          fds[OP_NPROTOS];
-  int                    ai_family;
-  int                    nprotos;
-  int                    ret;
-  int                    pi;
-  int                    pj;
+ struct addrinfo *_addrs,op_time *_start_time){
+  struct addrinfo *addr;
+  struct addrinfo *addrs[OP_NPROTOS];
+  struct pollfd    fds[OP_NPROTOS];
+  int              ai_family;
+  int              nprotos;
+  int              ret;
+  int              pi;
+  int              pj;
   for(pi=0;pi<OP_NPROTOS;pi++)addrs[pi]=NULL;
   /*Try connecting via both IPv4 and IPv6 simultaneously, and keep the first
      one that succeeds.
@@ -1950,8 +2072,8 @@ static int op_http_connect_impl(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
      families were returned in the DNS records in accordance with RFC 6555.*/
   for(addr=_addrs,nprotos=0;addr!=NULL&&nprotos<OP_NPROTOS;addr=addr->ai_next){
     if(addr->ai_family==AF_INET6||addr->ai_family==AF_INET){
-      OP_ASSERT(addr->ai_addrlen<=sizeof(struct sockaddr_in6));
-      OP_ASSERT(addr->ai_addrlen<=sizeof(struct sockaddr_in));
+      OP_ASSERT(addr->ai_addrlen<=
+       OP_MAX(sizeof(struct sockaddr_in6),sizeof(struct sockaddr_in)));
       /*If we've seen this address family before, skip this address for now.*/
       for(pi=0;pi<nprotos;pi++)if(addrs[pi]->ai_family==addr->ai_family)break;
       if(pi<nprotos)continue;
@@ -1963,7 +2085,7 @@ static int op_http_connect_impl(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
   _stream->free_head=_conn->next;
   _conn->next=_stream->lru_head;
   _stream->lru_head=_conn;
-  ftime(_start_time);
+  op_time_get(_start_time);
   *&_conn->read_time=*_start_time;
   _conn->read_bytes=0;
   _conn->read_rate=0;
@@ -2065,14 +2187,14 @@ static int op_http_connect_impl(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
 }
 
 static int op_http_connect(OpusHTTPStream *_stream,OpusHTTPConn *_conn,
- const struct addrinfo *_addrs,struct timeb *_start_time){
-  struct timeb     resolve_time;
+ struct addrinfo *_addrs,op_time *_start_time){
+  op_time          resolve_time;
   struct addrinfo *new_addrs;
   int              ret;
   /*Re-resolve the host if we need to (RFC 6555 says we MUST do so
      occasionally).*/
   new_addrs=NULL;
-  ftime(&resolve_time);
+  op_time_get(&resolve_time);
   if(_addrs!=&_stream->addr_info||op_time_diff_ms(&resolve_time,
    &_stream->resolve_time)>=OP_RESOLVE_CACHE_TIMEOUT_MS){
     new_addrs=op_resolve(_stream->connect_host,_stream->connect_port);
@@ -2138,19 +2260,20 @@ static char *op_base64_encode(char *_dst,const char *_src,int _len){
    Scheme and append it to the given string buffer.*/
 static int op_sb_append_basic_auth_header(OpusStringBuf *_sb,
  const char *_header,const char *_user,const char *_pass){
-  int user_len;
-  int pass_len;
-  int user_pass_len;
-  int base64_len;
-  int nbuf_total;
-  int ret;
+  size_t user_len;
+  size_t pass_len;
+  int    user_pass_len;
+  int    base64_len;
+  int    nbuf_total;
+  int    ret;
   ret=op_sb_append_string(_sb,_header);
   ret|=op_sb_append(_sb,": Basic ",8);
   user_len=strlen(_user);
   pass_len=strlen(_pass);
+  if(OP_UNLIKELY(user_len>(size_t)INT_MAX))return OP_EFAULT;
   if(OP_UNLIKELY(pass_len>INT_MAX-user_len))return OP_EFAULT;
-  if(OP_UNLIKELY(user_len+pass_len>(INT_MAX>>2)*3-3))return OP_EFAULT;
-  user_pass_len=user_len+1+pass_len;
+  if(OP_UNLIKELY((int)(user_len+pass_len)>(INT_MAX>>2)*3-3))return OP_EFAULT;
+  user_pass_len=(int)(user_len+pass_len)+1;
   base64_len=OP_BASE64_LENGTH(user_pass_len);
   /*Stick "user:pass" at the end of the buffer so we can Base64 encode it
      in-place.*/
@@ -2160,9 +2283,9 @@ static int op_sb_append_basic_auth_header(OpusStringBuf *_sb,
   ret|=op_sb_ensure_capacity(_sb,nbuf_total);
   if(OP_UNLIKELY(ret<0))return ret;
   _sb->nbuf=nbuf_total-user_pass_len;
-  OP_ALWAYS_TRUE(!op_sb_append(_sb,_user,user_len));
+  OP_ALWAYS_TRUE(!op_sb_append(_sb,_user,(int)user_len));
   OP_ALWAYS_TRUE(!op_sb_append(_sb,":",1));
-  OP_ALWAYS_TRUE(!op_sb_append(_sb,_pass,pass_len));
+  OP_ALWAYS_TRUE(!op_sb_append(_sb,_pass,(int)pass_len));
   op_base64_encode(_sb->buf+nbuf_total-base64_len,
    _sb->buf+nbuf_total-user_pass_len,user_pass_len);
   return op_sb_append(_sb,"\r\n",2);
@@ -2222,8 +2345,8 @@ static int op_http_stream_open(OpusHTTPStream *_stream,const char *_url,
   addrs=NULL;
   for(nredirs=0;nredirs<OP_REDIRECT_LIMIT;nredirs++){
     OpusParsedURL  next_url;
-    struct timeb   start_time;
-    struct timeb   end_time;
+    op_time        start_time;
+    op_time        end_time;
     char          *next;
     char          *status_code;
     int            minor_version_pos;
@@ -2231,7 +2354,7 @@ static int op_http_stream_open(OpusHTTPStream *_stream,const char *_url,
     /*Initialize the SSL library if necessary.*/
     if(OP_URL_IS_SSL(&_stream->url)&&_stream->ssl_ctx==NULL){
       SSL_CTX *ssl_ctx;
-# if OPENSSL_VERSION_NUMBER<0x10100000L
+# if (OPENSSL_VERSION_NUMBER<0x10100000L&&LIBRESSL_VERSION_NUMBER<0x2070000fL)
 #  if !defined(OPENSSL_NO_LOCKING)
       /*The documentation says SSL_library_init() is not reentrant.
         We don't want to add our own depenencies on a threading library, and it
@@ -2357,7 +2480,7 @@ static int op_http_stream_open(OpusHTTPStream *_stream,const char *_url,
     if(OP_UNLIKELY(ret<0))return ret;
     ret=op_http_conn_read_response(_stream->conns+0,&_stream->response);
     if(OP_UNLIKELY(ret<0))return ret;
-    ftime(&end_time);
+    op_time_get(&end_time);
     next=op_http_parse_status_line(&v1_1_compat,&status_code,
      _stream->response.buf);
     if(OP_UNLIKELY(next==NULL))return OP_FALSE;
@@ -2769,8 +2892,8 @@ static int op_http_conn_handle_response(OpusHTTPStream *_stream,
                 converted into a request for the rest.*/
 static int op_http_conn_open_pos(OpusHTTPStream *_stream,
  OpusHTTPConn *_conn,opus_int64 _pos,opus_int32 _chunk_size){
-  struct timeb  start_time;
-  struct timeb  end_time;
+  op_time       start_time;
+  op_time       end_time;
   opus_int32    connect_rate;
   opus_int32    connect_time;
   int           ret;
@@ -2780,8 +2903,8 @@ static int op_http_conn_open_pos(OpusHTTPStream *_stream,
   if(OP_UNLIKELY(ret<0))return ret;
   ret=op_http_conn_handle_response(_stream,_conn);
   if(OP_UNLIKELY(ret!=0))return OP_FALSE;
-  ftime(&end_time);
-  _stream->cur_conni=_conn-_stream->conns;
+  op_time_get(&end_time);
+  _stream->cur_conni=(int)(_conn-_stream->conns);
   OP_ASSERT(_stream->cur_conni>=0&&_stream->cur_conni<OP_NCONNS_MAX);
   /*The connection has been successfully opened.
     Update the connection time estimate.*/
@@ -2885,7 +3008,7 @@ static int op_http_conn_read_body(OpusHTTPStream *_stream,
       content_length=_stream->content_length;
     }
     OP_ASSERT(end_pos>pos);
-    _buf_size=OP_MIN(_buf_size,end_pos-pos);
+    _buf_size=(int)OP_MIN(_buf_size,end_pos-pos);
   }
   nread=op_http_conn_read(_conn,(char *)_buf,_buf_size,1);
   if(OP_UNLIKELY(nread<0))return nread;
@@ -2921,7 +3044,7 @@ static int op_http_conn_read_body(OpusHTTPStream *_stream,
 static int op_http_stream_read(void *_stream,
  unsigned char *_ptr,int _buf_size){
   OpusHTTPStream *stream;
-  ptrdiff_t       nread;
+  int             nread;
   opus_int64      size;
   opus_int64      pos;
   int             ci;
@@ -3032,7 +3155,7 @@ static int op_http_conn_read_ahead(OpusHTTPStream *_stream,
 }
 
 static int op_http_stream_seek(void *_stream,opus_int64 _offset,int _whence){
-  struct timeb     seek_time;
+  op_time          seek_time;
   OpusHTTPStream  *stream;
   OpusHTTPConn    *conn;
   OpusHTTPConn   **pnext;
@@ -3063,8 +3186,10 @@ static int op_http_stream_seek(void *_stream,opus_int64 _offset,int _whence){
     }break;
     case SEEK_END:{
       /*Check for overflow:*/
-      if(_offset>content_length||_offset<content_length-OP_INT64_MAX)return -1;
-      pos=content_length-_offset;
+      if(_offset<-content_length||_offset>OP_INT64_MAX-content_length){
+        return -1;
+      }
+      pos=content_length+_offset;
     }break;
     default:return -1;
   }
@@ -3073,7 +3198,7 @@ static int op_http_stream_seek(void *_stream,opus_int64 _offset,int _whence){
     op_http_conn_read_rate_update(stream->conns+ci);
     *&seek_time=*&stream->conns[ci].read_time;
   }
-  else ftime(&seek_time);
+  else op_time_get(&seek_time);
   /*If we seeked past the end of the stream, just disable the active
      connection.*/
   if(pos>=content_length){
@@ -3125,7 +3250,8 @@ static int op_http_stream_seek(void *_stream,opus_int64 _offset,int _whence){
       *pnext=conn->next;
       conn->next=stream->lru_head;
       stream->lru_head=conn;
-      stream->cur_conni=conn-stream->conns;
+      stream->cur_conni=(int)(conn-stream->conns);
+      OP_ASSERT(stream->cur_conni>=0&&stream->cur_conni<OP_NCONNS_MAX);
       return 0;
     }
     pnext=&conn->next;
@@ -3177,7 +3303,8 @@ static int op_http_stream_seek(void *_stream,opus_int64 _offset,int _whence){
       *pnext=conn->next;
       conn->next=stream->lru_head;
       stream->lru_head=conn;
-      stream->cur_conni=conn-stream->conns;
+      stream->cur_conni=(int)(conn-stream->conns);
+      OP_ASSERT(stream->cur_conni>=0&&stream->cur_conni<OP_NCONNS_MAX);
       return 0;
     }
     close_pnext=pnext;
@@ -3323,7 +3450,7 @@ static void *op_url_stream_create_impl(OpusFileCallbacks *_cb,const char *_url,
    *_pinfo will be NULL.
   Our caller is responsible for copying *_info to **_pinfo if it ultimately
    succeeds, or for clearing *_info if it ultimately fails.*/
-void *op_url_stream_vcreate_impl(OpusFileCallbacks *_cb,
+static void *op_url_stream_vcreate_impl(OpusFileCallbacks *_cb,
  const char *_url,OpusServerInfo *_info,OpusServerInfo **_pinfo,va_list _ap){
   int             skip_certificate_check;
   const char     *proxy_host;
@@ -3337,6 +3464,7 @@ void *op_url_stream_vcreate_impl(OpusFileCallbacks *_cb,
   proxy_user=NULL;
   proxy_pass=NULL;
   pinfo=NULL;
+  *_pinfo=NULL;
   for(;;){
     ptrdiff_t request;
     request=va_arg(_ap,char *)-(char *)NULL;
@@ -3368,7 +3496,6 @@ void *op_url_stream_vcreate_impl(OpusFileCallbacks *_cb,
   }
   /*If the caller has requested server information, proxy it to a local copy to
      simplify error handling.*/
-  *_pinfo=NULL;
   if(pinfo!=NULL){
     void *ret;
     opus_server_info_init(_info);

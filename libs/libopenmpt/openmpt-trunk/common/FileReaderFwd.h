@@ -9,27 +9,67 @@
 
 #pragma once
 
-#include "BuildSettings.h"
+#include "openmpt/all/BuildSettings.hpp"
 
+#include "mpt/base/namespace.hpp"
+
+namespace mpt {
+inline namespace MPT_INLINE_NS {
+
+template <typename Traits, bool allow_transcode_locale>
+class BasicPathString;
+struct NativePathTraits;
+struct Utf8PathTraits;
+using native_path = BasicPathString<NativePathTraits, true>;
+
+namespace IO {
+
+class FileCursorTraitsMemory;
+
+class FileCursorTraitsFileData;
+
+class FileCursorFilenameTraitsNone;
+
+template <typename Tpath>
+class FileCursorFilenameTraits;
+
+template <typename Ttraits, typename Tfilenametraits>
+class FileCursor;
+
+}
+
+}
+}
 
 OPENMPT_NAMESPACE_BEGIN
 
-class FileReaderTraitsMemory;
+namespace mpt {
 
-class FileReaderTraitsStdStream;
-
-using FileReaderTraitsDefault = FileReaderTraitsStdStream;
+} // namespace mpt
 
 namespace detail {
 
-template <typename Ttraits>
+template <typename Ttraits, typename Tfilenametraits>
+using FileCursor = mpt::IO::FileCursor<Ttraits, Tfilenametraits>;
+
+template <typename Ttraits, typename Tfilenametraits>
 class FileReader;
 
 } // namespace detail
 
-using FileReader = detail::FileReader<FileReaderTraitsDefault>;
+namespace mpt {
+#if defined(MPT_ENABLE_CHARSET_LOCALE)
+using PathString = mpt::native_path;
+#else
+using PathString = mpt::BasicPathString<mpt::Utf8PathTraits, false>;
+#endif
+} // namespace mpt
 
-using MemoryFileReader = detail::FileReader<FileReaderTraitsMemory>;
+using FileCursor = detail::FileCursor<mpt::IO::FileCursorTraitsFileData, mpt::IO::FileCursorFilenameTraits<mpt::PathString>>;
+using FileReader = detail::FileReader<mpt::IO::FileCursorTraitsFileData, mpt::IO::FileCursorFilenameTraits<mpt::PathString>>;
+
+using MemoryFileCursor = detail::FileCursor<mpt::IO::FileCursorTraitsMemory, mpt::IO::FileCursorFilenameTraitsNone>;
+using MemoryFileReader = detail::FileReader<mpt::IO::FileCursorTraitsMemory, mpt::IO::FileCursorFilenameTraitsNone>;
 
 OPENMPT_NAMESPACE_END
 

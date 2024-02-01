@@ -9,31 +9,37 @@
 
 
 #include "stdafx.h"
-#include "Mainfrm.h"
 #include "GeneralConfigDlg.h"
-#include "Settings.h"
 #include "FileDialog.h"
-#include "../common/StringFixer.h"
 #include "FolderScanner.h"
+#include "Mainfrm.h"
+#include "Mptrack.h"
+#include "resource.h"
+#include "Settings.h"
+#include "TrackerSettings.h"
+#include "../common/mptStringBuffer.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 BEGIN_MESSAGE_MAP(COptionsGeneral, CPropertyPage)
-	ON_LBN_SELCHANGE(IDC_LIST1,		OnOptionSelChanged)
-	ON_CLBN_CHKCHANGE(IDC_LIST1,	OnSettingsChanged)
-	ON_COMMAND(IDC_RADIO1,			OnSettingsChanged)
-	ON_COMMAND(IDC_RADIO2,			OnSettingsChanged)
-	ON_COMMAND(IDC_RADIO3,			OnSettingsChanged)
-	ON_EN_CHANGE(IDC_EDIT1,			OnSettingsChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO1,	OnDefaultTypeChanged)
-	ON_CBN_SELCHANGE(IDC_COMBO2,	OnTemplateChanged)
-	ON_CBN_EDITCHANGE(IDC_COMBO2,	OnTemplateChanged)
-	ON_COMMAND(IDC_BUTTON1,			OnBrowseTemplate)
+	ON_LBN_SELCHANGE(IDC_LIST1,   &COptionsGeneral::OnOptionSelChanged)
+	ON_CLBN_CHKCHANGE(IDC_LIST1,  &COptionsGeneral::OnSettingsChanged)
+	ON_COMMAND(IDC_RADIO1,        &COptionsGeneral::OnSettingsChanged)
+	ON_COMMAND(IDC_RADIO2,        &COptionsGeneral::OnSettingsChanged)
+	ON_COMMAND(IDC_RADIO3,        &COptionsGeneral::OnSettingsChanged)
+	ON_EN_CHANGE(IDC_EDIT1,       &COptionsGeneral::OnSettingsChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO1,  &COptionsGeneral::OnDefaultTypeChanged)
+	ON_CBN_SELCHANGE(IDC_COMBO2,  &COptionsGeneral::OnTemplateChanged)
+	ON_CBN_EDITCHANGE(IDC_COMBO2, &COptionsGeneral::OnTemplateChanged)
+	ON_COMMAND(IDC_BUTTON1,       &COptionsGeneral::OnBrowseTemplate)
 END_MESSAGE_MAP()
 
 
-static const struct GeneralOptionsDescriptions
+COptionsGeneral::COptionsGeneral() : CPropertyPage(IDD_OPTIONS_GENERAL) {}
+
+
+static constexpr struct GeneralOptionsDescriptions
 {
 	uint32 flag;
 	const char *name, *description;
@@ -41,6 +47,7 @@ static const struct GeneralOptionsDescriptions
 {
 	{PATTERN_PLAYNEWNOTE,	"Play new notes while recording",	"When this option is enabled, notes entered in the pattern editor will always be played (If not checked, notes won't be played in record mode)."},
 	{PATTERN_PLAYEDITROW,	"Play whole row while recording",	"When this option is enabled, all notes on the current row are played when entering notes in the pattern editor."},
+	{PATTERN_PLAYNAVIGATEROW, "Play whole row when navigating",	"When this option is enabled, all notes on the current row are played when navigating vertically in the pattern editor."},
 	{PATTERN_PLAYTRANSPOSE,	"Play notes when transposing",		"When transposing a single note, the new note is previewed."},
 	{PATTERN_CENTERROW,		"Always center active row",			"Turn on this option to have the active row always centered in the pattern editor."},
 	{PATTERN_SMOOTHSCROLL,	"Smooth pattern scrolling",			"Scroll patterns tick by tick rather than row by row at the expense of an increased CPU load."},
@@ -54,7 +61,8 @@ static const struct GeneralOptionsDescriptions
 	{PATTERN_SHOWPREVIOUS,	"Show Prev/Next patterns",			"Displays grayed-out version of the previous/next patterns in the pattern editor. Does not work if \"always center active row\" is disabled."},
 	{PATTERN_CONTSCROLL,	"Continuous scroll",				"Jumps to the next pattern when moving past the end of a pattern"},
 	{PATTERN_KBDNOTEOFF,	"Record note off",					"Record note off when a key is released on the PC keyboard."},
-	{PATTERN_FOLLOWSONGOFF,	"Follow song off by default",		"Ensure follow song is off when opening or starting a new song."},
+	{PATTERN_FOLLOWSONGOFF,	"Follow Song off by default",		"Ensure Follow Song is off when opening or starting a new song."},
+	{PATTERN_NOFOLLOWONCLICK,"Disable Follow Song on click",	"Follow Song is deactivated when clicking into the pattern."},
 	{PATTERN_OLDCTXMENUSTYLE, "Old style pattern context menu", "Check this option to hide unavailable items in the pattern editor context menu. Uncheck to grey-out unavailable items instead."},
 	{PATTERN_SYNCMUTE,		"Maintain sample sync on mute",		"Samples continue to be processed when channels are muted (like in IT2 and FT2)"},
 	{PATTERN_SYNCSAMPLEPOS,	"Maintain sample sync on seek",		"Sample that are still active from previous patterns are continued to be played after seeking.\nNote: Some pattern commands may prevent samples from being synced. This feature may slow down seeking."},
@@ -70,7 +78,6 @@ static const struct GeneralOptionsDescriptions
 
 
 void COptionsGeneral::DoDataExchange(CDataExchange* pDX)
-//------------------------------------------------------
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CModTypeDlg)
@@ -83,16 +90,15 @@ void COptionsGeneral::DoDataExchange(CDataExchange* pDX)
 
 
 BOOL COptionsGeneral::OnInitDialog()
-//----------------------------------
 {
 	CPropertyPage::OnInitDialog();
 
-	::SetWindowTextW(m_defaultArtist.m_hWnd, mpt::ToWide(TrackerSettings::Instance().defaultArtist).c_str());
+	m_defaultArtist.SetWindowText(mpt::ToCString(TrackerSettings::Instance().defaultArtist.Get()));
 
 	const struct
 	{
 		MODTYPE type;
-		TCHAR *str;
+		const TCHAR *str;
 	} formats[] =
 	{
 		{ MOD_TYPE_MOD, _T("MOD") },
@@ -112,27 +118,27 @@ BOOL COptionsGeneral::OnInitDialog()
 		}
 	}
 
-	const mpt::PathString basePath = theApp.GetConfigPath() + MPT_PATHSTRING("TemplateModules\\");
-	FolderScanner scanner(basePath, true);
+	const mpt::PathString basePath = theApp.GetConfigPath() + P_("TemplateModules\\");
+	FolderScanner scanner(basePath, FolderScanner::kOnlyFiles | FolderScanner::kFindInSubDirectories);
 	mpt::PathString file;
-	while(scanner.NextFile(file))
+	while(scanner.Next(file))
 	{
-		std::wstring fileW = file.AsNative();
+		mpt::RawPathString fileW = file.AsNative();
 		fileW = fileW.substr(basePath.Length());
-		::SendMessageW(m_defaultTemplate.m_hWnd, CB_ADDSTRING, 0, (LPARAM)fileW.c_str());
+		::SendMessage(m_defaultTemplate.m_hWnd, CB_ADDSTRING, 0, (LPARAM)fileW.c_str());
 	}
 	file = TrackerSettings::Instance().defaultTemplateFile;
-	if(file.GetPath() == basePath)
+	if(file.GetDirectoryWithDrive() == basePath)
 	{
-		file = file.GetFullFileName();
+		file = file.GetFilename();
 	}
-	::SetWindowTextW(m_defaultTemplate.m_hWnd, file.AsNative().c_str());
+	m_defaultTemplate.SetWindowText(file.AsNative().c_str());
 
 	CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO1 + TrackerSettings::Instance().defaultNewFileAction);
 
 	for(const auto &opt : generalOptionsList)
 	{
-		auto idx = m_CheckList.AddString(opt.name);
+		auto idx = m_CheckList.AddString(mpt::ToCString(mpt::Charset::ASCII, opt.name));
 		const int check = (TrackerSettings::Instance().m_dwPatternSetup & opt.flag) != 0 ? BST_CHECKED : BST_UNCHECKED;
 		m_CheckList.SetCheck(idx, check);
 	}
@@ -144,15 +150,15 @@ BOOL COptionsGeneral::OnInitDialog()
 
 
 void COptionsGeneral::OnOK()
-//--------------------------
 {
-	TrackerSettings::Instance().defaultArtist = mpt::ToUnicode(GetWindowTextW(m_defaultArtist));
+	TrackerSettings::Instance().defaultArtist = GetWindowTextUnicode(m_defaultArtist);
 	TrackerSettings::Instance().defaultModType = static_cast<MODTYPE>(m_defaultFormat.GetItemData(m_defaultFormat.GetCurSel()));
-	TrackerSettings::Instance().defaultTemplateFile = mpt::PathString::FromNative(GetWindowTextW(m_defaultTemplate));
+	TrackerSettings::Instance().defaultTemplateFile = mpt::PathString::FromCString(GetWindowTextString(m_defaultTemplate));
 
 	NewFileAction action = nfDefaultFormat;
-	if(IsDlgButtonChecked(IDC_RADIO2)) action = nfSameAsCurrent;
-	if(IsDlgButtonChecked(IDC_RADIO3)) action = nfDefaultTemplate;
+	int newActionRadio = GetCheckedRadioButton(IDC_RADIO1, IDC_RADIO3);
+	if(newActionRadio == IDC_RADIO2) action = nfSameAsCurrent;
+	if(newActionRadio == IDC_RADIO3) action = nfDefaultTemplate;
 	if(action == nfDefaultTemplate && TrackerSettings::Instance().defaultTemplateFile.Get().empty())
 	{
 		action = nfDefaultFormat;
@@ -160,7 +166,7 @@ void COptionsGeneral::OnOK()
 	}
 	TrackerSettings::Instance().defaultNewFileAction = action;
 
-	for(int i = 0; i < CountOf(generalOptionsList); i++)
+	for(int i = 0; i < mpt::saturate_cast<int>(std::size(generalOptionsList)); i++)
 	{
 		const bool check = (m_CheckList.GetCheck(i) != BST_UNCHECKED);
 
@@ -175,7 +181,6 @@ void COptionsGeneral::OnOK()
 
 
 BOOL COptionsGeneral::OnSetActive()
-//---------------------------------
 {
 	CMainFrame::m_nLastOptionsPage = OPTIONS_PAGE_GENERAL;
 	return CPropertyPage::OnSetActive();
@@ -183,23 +188,21 @@ BOOL COptionsGeneral::OnSetActive()
 
 
 void COptionsGeneral::OnOptionSelChanged()
-//----------------------------------------
 {
-	LPCSTR pszDesc = NULL;
+	const char *desc = "";
 	const int sel = m_CheckList.GetCurSel();
-	if ((sel >= 0) && (sel < CountOf(generalOptionsList)))
+	if ((sel >= 0) && (sel < mpt::saturate_cast<int>(std::size(generalOptionsList))))
 	{
-		pszDesc = generalOptionsList[sel].description;
+		desc = generalOptionsList[sel].description;
 	}
-	SetDlgItemText(IDC_TEXT1, (pszDesc) ? pszDesc : "");
+	SetDlgItemText(IDC_TEXT1, mpt::ToCString(mpt::Charset::ASCII, desc));
 }
 
 
 void COptionsGeneral::OnBrowseTemplate()
-//--------------------------------------
 {
-	mpt::PathString basePath = theApp.GetAppDirPath() + MPT_PATHSTRING("TemplateModules\\");
-	mpt::PathString defaultFile = mpt::PathString::FromNative(GetWindowTextW(m_defaultTemplate));
+	mpt::PathString basePath = theApp.GetInstallPath() + P_("TemplateModules\\");
+	mpt::PathString defaultFile = mpt::PathString::FromCString(GetWindowTextString(m_defaultTemplate));
 	if(defaultFile.empty()) defaultFile = TrackerSettings::Instance().defaultTemplateFile;
 
 	OpenFileDialog dlg;
@@ -208,7 +211,7 @@ void COptionsGeneral::OnBrowseTemplate()
 		dlg.WorkingDirectory(basePath);
 	} else
 	{
-		if(defaultFile.ToWide().find_first_of(L"/\\") == std::wstring::npos)
+		if(defaultFile.AsNative().find_first_of(_T("/\\")) == mpt::RawPathString::npos)
 		{
 			// Relative path
 			defaultFile = basePath + defaultFile;
@@ -218,13 +221,18 @@ void COptionsGeneral::OnBrowseTemplate()
 	if(dlg.Show(this))
 	{
 		defaultFile = dlg.GetFirstFile();
-		if(defaultFile.GetPath() == basePath)
+		if(defaultFile.GetDirectoryWithDrive() == basePath)
 		{
-			defaultFile = defaultFile.GetFullFileName();
+			defaultFile = defaultFile.GetFilename();
 		}
-		::SetWindowTextW(m_defaultTemplate.m_hWnd, defaultFile.AsNative().c_str());
+		m_defaultTemplate.SetWindowText(defaultFile.AsNative().c_str());
 		OnTemplateChanged();
 	}
 }
+
+
+void COptionsGeneral::OnDefaultTypeChanged() { CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO1); OnSettingsChanged(); }
+void COptionsGeneral::OnTemplateChanged() { CheckRadioButton(IDC_RADIO1, IDC_RADIO3, IDC_RADIO3); OnSettingsChanged(); }
+
 
 OPENMPT_NAMESPACE_END

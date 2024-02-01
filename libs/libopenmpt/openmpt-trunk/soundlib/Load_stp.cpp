@@ -96,7 +96,7 @@ struct STPLoopInfo
 	SAMPLEINDEX nonLooped;
 };
 
-typedef std::vector<STPLoopInfo> STPLoopList;
+using STPLoopList = std::vector<STPLoopInfo>;
 
 
 static TEMPO ConvertTempo(uint16 ciaSpeed)
@@ -256,9 +256,9 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 
 	InitializeGlobals(MOD_TYPE_STP);
 
-	m_modFormat.formatName = mpt::format(U_("Soundtracker Pro II v%1"))(fileHeader.version);
+	m_modFormat.formatName = MPT_UFORMAT("Soundtracker Pro II v{}")(fileHeader.version);
 	m_modFormat.type = U_("stp");
-	m_modFormat.charset = mpt::Charset::ISO8859_1;
+	m_modFormat.charset = mpt::Charset::Amiga_no_C1;
 
 	m_nChannels = 4;
 	m_nSamples = 0;
@@ -333,7 +333,9 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 			STPLoopList &loopList = loopInfo[actualSmp - 1];
 			loopList.clear();
 
-			uint16 numLoops = file.ReadUint16BE();
+			const uint16 numLoops = file.ReadUint16BE();
+			if(!file.CanRead(numLoops * 8u))
+				return false;
 			loopList.reserve(numLoops);
 
 			STPLoopInfo loop;
@@ -363,7 +365,7 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 	if(fileHeader.version > 0)
 	{
 		// Scan for total number of channels
-		FileReader::off_t patOffset = file.GetPosition();
+		FileReader::pos_type patOffset = file.GetPosition();
 		for(uint16 pat = 0; pat < numPatterns; pat++)
 		{
 			PATTERNINDEX actualPat = file.ReadUint16BE();
@@ -372,13 +374,13 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 
 			patternLength = file.ReadUint16BE();
 			channels = file.ReadUint16BE();
+			if(channels > MAX_BASECHANNELS)
+				return false;
 			m_nChannels = std::max(m_nChannels, channels);
 
 			file.Skip(channels * patternLength * 4u);
 		}
 		file.Seek(patOffset);
-		if(m_nChannels > MAX_BASECHANNELS)
-			return false;
 	}
 
 	struct ChannelMemory
@@ -403,6 +405,9 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 			patternLength = file.ReadUint16BE();
 			channels = file.ReadUint16BE();
 		}
+
+		if(!file.CanRead(channels * patternLength * 4u))
+			break;
 
 		if(!(loadFlags & loadPatternData) || !Patterns.Insert(actualPat, patternLength))
 		{
@@ -787,6 +792,7 @@ bool CSoundFile::ReadSTP(FileReader &file, ModLoadingFlags loadFlags)
 						else if(m.param & 0xF0)
 							m.param |= 0x0F;
 						didVolSlide = true;
+						MPT_UNUSED(didVolSlide);
 
 					} else if(chnMem.autoTremolo)
 					{

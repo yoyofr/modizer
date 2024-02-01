@@ -9,8 +9,8 @@
 
 
 #include "stdafx.h"
-#include "Sndfile.h"
 #include "ModInstrument.h"
+#include "Sndfile.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -48,7 +48,7 @@ void InstrumentEnvelope::Convert(MODTYPE fromType, MODTYPE toType)
 			if(at(nLoopEnd).tick - 1 > at(nLoopEnd - 1).tick)
 			{
 				// Insert an interpolated point just before the loop point.
-				EnvelopeNode::tick_t tick = at(nLoopEnd).tick - 1u;
+				EnvelopeNode::tick_t tick = static_cast<EnvelopeNode::tick_t>(at(nLoopEnd).tick - 1u);
 				auto interpolatedValue = static_cast<EnvelopeNode::value_t>(GetValueFromPosition(tick, 64));
 				insert(begin() + nLoopEnd, EnvelopeNode(tick, interpolatedValue));
 			} else
@@ -70,6 +70,9 @@ void InstrumentEnvelope::Convert(MODTYPE fromType, MODTYPE toType)
 // returns value in range [0, rangeOut].
 int32 InstrumentEnvelope::GetValueFromPosition(int position, int32 rangeOut, int32 rangeIn) const
 {
+	if(empty())
+		return 0;
+
 	uint32 pt = size() - 1u;
 	const int32 ENV_PRECISION = 1 << 16;
 
@@ -106,7 +109,7 @@ int32 InstrumentEnvelope::GetValueFromPosition(int position, int32 rangeOut, int
 		{
 			// Linear approximation between the points;
 			// f(x + d) ~ f(x) + f'(x) * d, where f'(x) = (y2 - y1) / (x2 - x1)
-			value += ((position - x1) * (at(pt).value * ENV_PRECISION / rangeIn - value)) / (x2 - x1);
+			value += Util::muldiv(position - x1, (at(pt).value * ENV_PRECISION / rangeIn - value), x2 - x1);
 		}
 	}
 
@@ -126,13 +129,20 @@ void InstrumentEnvelope::Sanitize(uint8 maxValue)
 			it->tick = std::max(it->tick, (it - 1)->tick);
 			LimitMax(it->value, maxValue);
 		}
+		LimitMax(nLoopEnd, static_cast<decltype(nLoopEnd)>(size() - 1));
+		LimitMax(nLoopStart, nLoopEnd);
+		LimitMax(nSustainEnd, static_cast<decltype(nSustainEnd)>(size() - 1));
+		LimitMax(nSustainStart, nSustainEnd);
+		if(nReleaseNode != ENV_RELEASE_NODE_UNSET)
+			LimitMax(nReleaseNode, static_cast<decltype(nReleaseNode)>(size() - 1));
+	} else
+	{
+		nLoopStart = 0;
+		nLoopEnd = 0;
+		nSustainStart = 0;
+		nSustainEnd = 0;
+		nReleaseNode = ENV_RELEASE_NODE_UNSET;
 	}
-	LimitMax(nLoopEnd, static_cast<decltype(nLoopEnd)>(size() - 1));
-	LimitMax(nLoopStart, nLoopEnd);
-	LimitMax(nSustainEnd, static_cast<decltype(nSustainEnd)>(size() - 1));
-	LimitMax(nSustainStart, nSustainEnd);
-	if(nReleaseNode != ENV_RELEASE_NODE_UNSET)
-		LimitMax(nReleaseNode, static_cast<decltype(nReleaseNode)>(size() - 1));
 }
 
 
@@ -171,9 +181,9 @@ void ModInstrument::Convert(MODTYPE fromType, MODTYPE toType)
 		nPPC = NOTE_MIDDLEC - 1;
 		nPPS = 0;
 
-		nNNA = NNA_NOTECUT;
-		nDCT = DCT_NONE;
-		nDNA = DNA_NOTECUT;
+		nNNA = NewNoteAction::NoteCut;
+		nDCT = DuplicateCheckType::None;
+		nDNA = DuplicateNoteAction::NoteCut;
 
 		if(nMidiChannel == MidiMappedChannel)
 		{
@@ -269,9 +279,9 @@ void ModInstrument::Sanitize(MODTYPE modType)
 	LimitMax(nMidiProgram, uint8(128));
 	LimitMax(nMidiChannel, uint8(17));
 
-	if(nNNA > NNA_NOTEFADE) nNNA = NNA_NOTECUT;
-	if(nDCT > DCT_PLUGIN) nDCT = DCT_NONE;
-	if(nDNA > DNA_NOTEFADE) nDNA = DNA_NOTECUT;
+	if(nNNA > NewNoteAction::NoteFade) nNNA = NewNoteAction::NoteCut;
+	if(nDCT > DuplicateCheckType::Plugin) nDCT = DuplicateCheckType::None;
+	if(nDNA > DuplicateNoteAction::NoteFade) nDNA = DuplicateNoteAction::NoteCut;
 
 	LimitMax(nPanSwing, uint8(64));
 	LimitMax(nVolSwing, uint8(100));
@@ -285,7 +295,7 @@ void ModInstrument::Sanitize(MODTYPE modType)
 	MPT_UNREFERENCED_PARAMETER(modType);
 	const uint8 range = ENVELOPE_MAX;
 #else
-	const uint8 range = modType == MOD_TYPE_AMS ? uint8_max : ENVELOPE_MAX;
+	const uint8 range = modType == MOD_TYPE_AMS ? uint8_max : uint8(ENVELOPE_MAX);
 #endif
 	VolEnv.Sanitize();
 	PanEnv.Sanitize();
@@ -299,6 +309,38 @@ void ModInstrument::Sanitize(MODTYPE modType)
 
 	if(!Resampling::IsKnownMode(resampling))
 		resampling = SRCMODE_DEFAULT;
+
+	if(nMixPlug > MAX_MIXPLUGINS)
+		nMixPlug = 0;
+}
+
+
+std::map<SAMPLEINDEX, int8> ModInstrument::CanConvertToDefaultNoteMap() const
+{
+	std::map<SAMPLEINDEX, int8> transposeMap;
+	for(size_t i = 0; i < std::size(NoteMap); i++)
+	{
+		if(Keyboard[i] == 0)
+			continue;
+		if(NoteMap[i] == NOTE_NONE)
+			continue;
+
+		const int8 relativeNote = static_cast<int8>(NoteMap[i] - (i + NOTE_MIN));
+		if(transposeMap.count(Keyboard[i]) && transposeMap[Keyboard[i]] != relativeNote)
+			return {};
+		transposeMap[Keyboard[i]] = relativeNote;
+	}
+	// Remove all samples that wouldn't be transposed.
+	// They were previously inserted into the map to catch the case where a specific sample's
+	// map would start with a transpose value of 0 but end with a different value.
+	for(auto it = transposeMap.begin(); it != transposeMap.end();)
+	{
+		if(it->second == 0)
+			it = transposeMap.erase(it);
+		else
+			it++;
+	}
+	return transposeMap;
 }
 
 
@@ -311,13 +353,9 @@ void ModInstrument::Transpose(int8 amount)
 }
 
 
-uint8 ModInstrument::GetMIDIChannel(const CSoundFile &sndFile, CHANNELINDEX chn) const
+uint8 ModInstrument::GetMIDIChannel(const ModChannel &channel, CHANNELINDEX chn) const
 {
-	if(chn >= std::size(sndFile.m_PlayState.Chn))
-		return 0;
-
 	// For mapped channels, return their pattern channel, modulo 16 (because there are only 16 MIDI channels)
-	const ModChannel &channel = sndFile.m_PlayState.Chn[chn];
 	if(nMidiChannel == MidiMappedChannel)
 		return static_cast<uint8>((channel.nMasterChn ? (channel.nMasterChn - 1u) : chn) % 16u);
 	else if(HasValidMIDIChannel())

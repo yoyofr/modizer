@@ -30,7 +30,7 @@ protected:
 	IMediaParams *m_pMediaParams;
 
 	uint32 m_nSamplesPerSec;
-	uint32 m_uid;
+	const uint32 m_uid;
 	union
 	{
 		int16 *i16;
@@ -44,14 +44,13 @@ protected:
 	bool m_useFloat;
 
 public:
-	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
+	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct);
 
 protected:
-	DMOPlugin(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct, IMediaObject *pMO, IMediaObjectInPlace *pMOIP, uint32 uid);
+	DMOPlugin(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN &mixStruct, IMediaObject *pMO, IMediaObjectInPlace *pMOIP, uint32 uid);
 	~DMOPlugin();
 
 public:
-	void Release() override { delete this; }
 	int32 GetUID() const override { return m_uid; }
 	int32 GetVersion() const override { return 2; }
 	void Idle() override { }

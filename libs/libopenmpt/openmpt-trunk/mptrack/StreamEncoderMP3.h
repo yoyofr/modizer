@@ -10,36 +10,21 @@
 
 #pragma once
 
+#include "openmpt/all/BuildSettings.hpp"
+
 #include "StreamEncoder.h"
-
-#include "../common/ComponentManager.h"
-
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-#define MPT_MP3ENCODER_LAME
-#define MPT_MP3ENCODER_BLADE
-#define MPT_MP3ENCODER_ACM
-
-
-#ifdef MPT_MP3ENCODER_LAME
+#ifdef MPT_WITH_LAME
 class ComponentLame;
-#endif
-#ifdef MPT_MP3ENCODER_BLADE
-class ComponentBlade;
-#endif
-#ifdef MPT_MP3ENCODER_ACM
-class ComponentAcmMP3;
 #endif
 
 enum MP3EncoderType
 {
-	MP3EncoderDefault,
 	MP3EncoderLame,
 	MP3EncoderLameCompatible,
-	MP3EncoderBlade,
-	MP3EncoderACM,
 };
 
 class MP3Encoder : public EncoderFactoryBase
@@ -47,30 +32,18 @@ class MP3Encoder : public EncoderFactoryBase
 
 private:
 
-#ifdef MPT_MP3ENCODER_LAME
-	ComponentHandle<ComponentLame> m_Lame;
-#endif
-#ifdef MPT_MP3ENCODER_BLADE
-	ComponentHandle<ComponentBlade> m_Blade;
-#endif
-#ifdef MPT_MP3ENCODER_ACM
-	ComponentHandle<ComponentAcmMP3> m_Acm;
-#endif
-
 	MP3EncoderType m_Type;
 
 public:
 
-	IAudioStreamEncoder *ConstructStreamEncoder(std::ostream &file) const;
-	mpt::ustring DescribeQuality(float quality) const;
-	mpt::ustring DescribeBitrateABR(int bitrate) const;
-	bool IsAvailable() const;
+	std::unique_ptr<IAudioStreamEncoder> ConstructStreamEncoder(std::ostream &file, const Encoder::Settings &settings, const FileTags &tags) const override;
+	mpt::ustring DescribeQuality(float quality) const override;
+	mpt::ustring DescribeBitrateABR(int bitrate) const override;
+	bool IsAvailable() const override;
 
 public:
 
-	MP3Encoder(MP3EncoderType type=MP3EncoderDefault);
-
-	virtual ~MP3Encoder();
+	MP3Encoder(MP3EncoderType type);
 
 };
 
