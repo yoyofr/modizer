@@ -14,7 +14,8 @@
 #define ARCSUB_MODE_SUB 2
 static int current_selmode;
 
-static char *fontName[5]={"amiga","gb","c64","04b","tracking"};
+#define MOD_PATTERN_FONT_NB 5
+static char *fontName[MOD_PATTERN_FONT_NB]={"amiga","gb","c64","04b","tracking"};
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
@@ -695,21 +696,6 @@ static float movePinchScale,movePinchScaleOld;
             tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
         }
         
-        switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-            case 0:
-                mCurrentFontSize=10;
-                break;
-            case 1:
-                mCurrentFontSize=16;
-                break;
-            case 2:
-                mCurrentFontSize=24;
-                break;
-            case 3:
-                mCurrentFontSize=32;
-                break;
-        }
-        mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
         [self updateFont];
         [self updateVisibleChan];
         
@@ -4993,6 +4979,22 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     if (mFont) delete mFont;
     mFont=NULL;
             
+    mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
+    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
+        case 0:
+            mCurrentFontSize=10;
+            break;
+        case 1:
+            mCurrentFontSize=16;
+            break;
+        case 2:
+            mCurrentFontSize=24;
+            break;
+        case 3:
+            mCurrentFontSize=32;
+            break;
+    }
+    
     fontPath = [[NSBundle mainBundle] pathForResource: [NSString stringWithFormat:@"%s%d",fontName[mCurrentFontIdx],mCurrentFontSize] ofType: @"fnt"];
     if (!fontPath) {
         mCurrentFontIdx=0;
@@ -5178,23 +5180,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView layoutSubviews];
     [m_oglView bind];
     
-    
-    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-        case 0:
-            mCurrentFontSize=10;
-            break;
-        case 1:
-            mCurrentFontSize=16;
-            break;
-        case 2:
-            mCurrentFontSize=24;
-            break;
-        case 3:
-            mCurrentFontSize=32;
-            break;
-    }
-    mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
-    
     mFont=NULL;
     mFontMenu=NULL;
     
@@ -5202,8 +5187,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [self updateVisibleChan];
                     
     NSString *fontPath;
-    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"c6416" ofType: @"fnt"];
-    else fontPath = [[NSBundle mainBundle] pathForResource:@"c6424" ofType: @"fnt"];
+    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+    else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
     mFontMenu = new CFont([fontPath cStringUsingEncoding:1]);
     if (!mFontMenu) {
         NSLog(@"Issue with mFont init");
@@ -5961,8 +5946,6 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x02) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU4_START://14: //MOD Pattern
-                            //settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                            mCurrentFontSize=10;
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -5971,8 +5954,6 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x12) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU4_START://14: //MOD Pattern
-                            //settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                            mCurrentFontSize=16;
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -5981,8 +5962,6 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x22) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU4_START://14: //MOD Pattern
-                            //settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                            mCurrentFontSize=24;
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -5991,9 +5970,17 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x32) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU4_START://14: //MOD Pattern
-                            //settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                            mCurrentFontSize=32;
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=3;
+                            [self updateFont];
+                            [self updateVisibleChan];
+                            break;
+                    }
+                } else if (touched_coord==0x03) {
+                    switch (viewTapHelpShow_SubStart) {
+                        case SUBMENU4_START://14: //MOD Pattern
+                            viewTapHelpShow=2; //keep menu visible
+                            settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value++;
+                            if (settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value>=MOD_PATTERN_FONT_NB) settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
                             [self updateFont];
                             [self updateVisibleChan];
                             break;
@@ -6716,7 +6703,7 @@ extern "C" int current_sample;
                 int menu_cell_size=(ww<hh?ww:hh);
                 glPushMatrix();
                 glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/4+menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                 viewTapInfoStr[3]->Render(128+(fadelev/2));
                 glPopMatrix();
                 glPushMatrix();
@@ -6740,6 +6727,42 @@ extern "C" int current_sample;
                 viewTapInfoStr[7]->Render(128+(fadelev/2));
                 glPopMatrix();
                 
+                char tmp_str[64];
+                snprintf(tmp_str,64,"Font:");
+                CGLString *mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4+(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                mFontText->Render(128+(fadelev/2));
+                glPopMatrix();
+                delete mFontText;
+                
+                snprintf(tmp_str,64,"%s",fontName[mCurrentFontIdx]);
+                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                mFontText->Render(128+(fadelev/2));
+                glPopMatrix();
+                delete mFontText;
+                
+                snprintf(tmp_str,64,"Tap to");
+                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*4/2, 0.0f);
+                mFontText->Render(128+(fadelev/2));
+                glPopMatrix();
+                delete mFontText;
+                
+                snprintf(tmp_str,64,"change");
+                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*6/2, 0.0f);
+                mFontText->Render(128+(fadelev/2));
+                glPopMatrix();
+                delete mFontText;
             }
         }
         int menu_cell_size=(ww<hh?ww:hh);

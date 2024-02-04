@@ -928,7 +928,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].description=NULL;
     settings[GLOB_FXMODPattern_FontSize].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern_FontSize].sub_family=0;
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[0]=(char*)"10";

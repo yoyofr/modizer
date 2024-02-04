@@ -977,15 +977,15 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     glDrawArrays(GL_LINES, 0, 12);
     
     int factA,factB;
-    factA=230;
-    factB=16;
-    int colbgAR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
-    int colbgAG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
-    int colbgAB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
-    cpt+=8;
-    int colbgBR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
-    int colbgBG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
-    int colbgBB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
+    factA=180;
+    factB=32;
+    int colbgAR=factA+factB*(0.3*sin(cpt*7*3.1459/8192)+1.2*sin(cpt*17*8*3.1459/8192)+0.7*sin(cpt*31*8*3.1459/8192));
+    int colbgAG=factA+factB*(0.3*sin(cpt*5*3.1459/8192)+1.2*sin(cpt*11*8*3.1459/8192)-0.7*sin(cpt*27*8*3.1459/8192));
+    int colbgAB=factA+factB*(1.2*sin(cpt*7*3.1459/8192)-0.5*sin(cpt*13*8*3.1459/8192)+1.5*sin(cpt*57*8*3.1459/8192));
+    cpt+=1;
+    int colbgBR=factA+factB*(0.3*sin(cpt*3*3.1459/8192)+1.2*sin(cpt*15*8*3.1459/8192)+0.7*sin(cpt*19*8*3.1459/8192));
+    int colbgBG=factA+factB*(0.3*sin(cpt*2*3.1459/8192)+1.2*sin(cpt*9*8*3.1459/8192)-0.7*sin(cpt*27*8*3.1459/8192));
+    int colbgBB=factA+factB*(1.2*sin(cpt*5*3.1459/8192)-0.5*sin(cpt*17*8*3.1459/8192)+1.5*sin(cpt*37*8*3.1459/8192));
     
     if (colbgAR<0) colbgAR=0; if (colbgAR>255) colbgAR=255;
     if (colbgAG<0) colbgAG=0; if (colbgAG>255) colbgAG=255;
