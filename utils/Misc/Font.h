@@ -44,7 +44,7 @@ public:
 	
 	GLuint mTexId;
 	CCharacterData *mCharacterData;
-    int maxCharWidth,maxCharHeight;
+    int maxCharWidth,maxCharHeight,xCharOffset,yCharOffset;
 private:
 	
 	// Determine what size of texture we need for a given width of texture

@@ -134,20 +134,20 @@
 				<string>com.yoyofr.modizer.vgm</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>PT3 File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.pt3</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>PT3 File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.pt3</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -538,23 +538,23 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>PT3 File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.pt3</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>pt3</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PT3 File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.pt3</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>pt3</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

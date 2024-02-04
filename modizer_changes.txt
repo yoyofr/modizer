@@ -1,3 +1,11 @@
+Tips
+- identify all global symbols (to buid rename header file)=> nm -g liblibatariaudio.a
+one liner example:
+
+  nm -g liblibatariaudio.a|grep "_m68k"|cut -c 21-|awk -F: '{ print "-D " $1 "=as_" $1 }'
+
+- generate font from ttf file: FontGen.exe, needs wine
+
 Todo/Requested:
 ���������
 

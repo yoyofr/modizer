@@ -28,8 +28,8 @@ void drawbar3(float x,float y,float z,float sx,float sy,float sz,float crt,float
 
 void SetUpOrtho(float rotation,uint width,uint height);
 	
-void DrawChanLayout(uint ww,uint hh,int display_note_mode,int chanNb,int pixOfs,int char_size);
-void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs,int char_size,int rowToHighlight);
+void DrawChanLayout(uint ww,uint hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor);
+void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor);
 
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);

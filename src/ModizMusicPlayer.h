@@ -436,6 +436,9 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_gmeLoad:(NSString*)filePath;
 -(int) mmp_2sfLoad:(NSString*)filePath;
 
+-(int) ompt_getPrevPattern;
+-(int) ompt_getNextPattern;
+
 -(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows;
 
 -(NSString*) getFullFilePath:(NSString *)_filePath;

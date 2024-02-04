@@ -982,7 +982,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     int colbgAR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
     int colbgAG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
     int colbgAB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
-    cpt+=16;
+    cpt+=8;
     int colbgBR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
     int colbgBG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
     int colbgBB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
@@ -993,7 +993,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     if (colbgBR<0) colbgBR=0; if (colbgBR>255) colbgBR=255;
     if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
     if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
-    glLineWidth(2.0f*(is_retina?2:1));
+    glLineWidth(4.0f*(is_retina?2:1));
     fade_lev=255;
     glDisable(GL_BLEND);
     for (int y=0;y<4;y++)
@@ -1016,9 +1016,9 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,int pixOfs,int char_size) {
+void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
     int count=0;
-    int col_size,col_ofs;
+    float col_size,col_ofs;
     LineVertex pts[10*MAX_VISIBLE_CHAN+10],ptsD[4*2];
     //set the opengl state
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1026,12 +1026,12 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glLineWidth(1.0f*(is_retina?2:1));
+    glLineWidth(1.0f*mScaleFactor);
         
     switch (display_note_mode){
-        case 0:col_size=11*char_size;col_ofs=(char_size)*2+8+6-2;break;
-        case 1:col_size=6*char_size;col_ofs=(char_size)*2+8+6-2;break;
-        case 2:col_size=4*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
     }
     
     //then draw channels frame
@@ -1055,18 +1055,18 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     }
     
     //Header line
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+2,			140,160,255,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+2,		60,100,255,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+2,			140,160,255,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+2,		60,100,255,255);
     
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+1,	60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0),		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0),		60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-1,	60/3,100/3,255/3,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+1,		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+1,	60/3,100/3,255/3,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0),		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0),		60/3,100/3,255/3,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-1,		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-1,	60/3,100/3,255/3,255);
     
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-2,		140/6,160/6,255/6,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-2,	60/6,100/6,255/6,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-2,		140/6,160/6,255/6,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-2,	60/6,100/6,255/6,255);
     
     
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
@@ -1085,7 +1085,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     ptsD[5] = LineVertex(_ww-1, _hh,80,80,80,255);
     ptsD[6] = LineVertex(1, 0,		80,80,80,255);
     ptsD[7] = LineVertex(1, _hh,	20,20,20,255);
-    glLineWidth(2.0f*(is_retina?2:1));
+    glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsD[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsD[0].r);
     glDrawArrays(GL_LINES, 0, 8);
@@ -1096,29 +1096,29 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
 }
 
-void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs,int char_size,int rowToHighlight) {
+void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor) {
     LineVertex pts[64*2];
     int ii;
     int count=0;
-    int col_size,col_ofs;
+    float col_size,col_ofs;
     int colr,colg,colb,cola;
     
     //set the opengl state
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_BLEND);
-    glLineWidth(2.0f*(is_retina?2:1));
+    glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     
     colr=230;colg=76;colb=153;cola=150;
     //Draw current playing line
-    ii=_hh-NOTES_DISPLAY_TOPMARGIN-rowToHighlight*(char_size+4)-3;
+    ii=_hh-NOTES_DISPLAY_TOPMARGIN-rowToHighlight*(char_height+4)-char_yOfs-char_height+(char_yOfs+char_height)/2;
             
     pts[0] = LineVertex(0,     ii-3,		colr,colg,colb,cola);
     pts[1] = LineVertex(_ww-1, ii-3,		colr,colg,colb,cola);
-    pts[2] = LineVertex(0,     ii+char_size+2,		colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, ii+char_size+2,		colr,colg,colb,cola);
+    pts[2] = LineVertex(0,     ii+char_height+3,		colr,colg,colb,cola);
+    pts[3] = LineVertex(_ww-1, ii+char_height+3,		colr,colg,colb,cola);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     pts[0] = LineVertex(0,     ii-4,     colr/2,colg/2,colb/2,cola);
@@ -1127,14 +1127,14 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     colg*=1.4f;if (colg>255) colg=255;
     colb*=1.4f;if (colb>255) colb=255;
     cola*=1.4f;if (cola>255) cola=255;
-    pts[2] = LineVertex(0,     ii+char_size+3,     colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, ii+char_size+3,     colr,colg,colb,cola);
+    pts[2] = LineVertex(0,     ii+char_height+4,     colr,colg,colb,cola);
+    pts[3] = LineVertex(_ww-1, ii+char_height+4,     colr,colg,colb,cola);
     glDrawArrays(GL_LINES, 0, 4);
     
     switch (display_note_mode){
-        case 0:col_size=11*char_size;col_ofs=(char_size)*2+8+6-2;break;
-        case 1:col_size=6*char_size;col_ofs=(char_size)*2+8+6-2;break;
-        case 2:col_size=4*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
     }
     
     //Volumes bar

@@ -213,18 +213,18 @@ void CGLString::BuildString(int msg_type)
 					//note
 				case 0:
 				case 1:
-				case 2:valr=0xFF/3;valg=0xFF/3;valb=0xFF/3;break;
+				case 2:valr=0xFF*2/3;valg=0xFF*2/3;valb=0xFF*2/3;break;
 					//instr
 				case 3:
-				case 4:valr=0x80/3;valg=0xE0/3;valb=0xFF/3;break;
+				case 4:valr=0x80*2/3;valg=0xE0*2/3;valb=0xFF*2/3;break;
 					//vol
 				case 5:
-				case 6:valr=0x80/3;valg=0xFF/3;valb=0x80/3;break;
+				case 6:valr=0x80*2/3;valg=0xFF*2/3;valb=0x80*2/3;break;
 					//eff
-				case 7:valr=0xFF/3;valg=0x80/3;valb=0xE0/3;break;
+				case 7:valr=0xFF*2/3;valg=0x80*2/3;valb=0xE0*2/3;break;
 					//param
 				case 8:
-				case 9:valr=0xFF/3;valg=0xE0/3;valb=0x80/3;break;
+				case 9:valr=0xFF*2/3;valg=0xE0*2/3;valb=0x80*2/3;break;
 			}
 		} else if (msg_type==20+0) {
             switch (i%10) {
@@ -261,10 +261,10 @@ void CGLString::BuildString(int msg_type)
 					//note
 				case 0:
 				case 1:
-				case 2:valr=0xFF/3;valg=0xFF/3;valb=0xFF/3;break;
+				case 2:valr=0xFF*2/3;valg=0xFF*2/3;valb=0xFF*2/3;break;
 					//instr
 				case 3:
-				case 4:valr=0x80/3;valg=0xE0/3;valb=0xFF/3;break;
+				case 4:valr=0x80*2/3;valg=0xE0*2/3;valb=0xFF*2/3;break;
 			}
 		} else if (msg_type==20+1) {
             switch (i%5) {
@@ -290,7 +290,7 @@ void CGLString::BuildString(int msg_type)
 					//note
 				case 0:
 				case 1:
-				case 2:valr=0xFF/3;valg=0xFF/3;valb=0xFF/3;break;
+				case 2:valr=0xFF*2/3;valg=0xFF*2/3;valb=0xFF*2/3;break;
 			}
 		} else if (msg_type==20+2) {
             switch (i%3) {

@@ -7914,6 +7914,26 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return ompt_patterns[pattern];
 }
 
+-(int) ompt_getPrevPattern {
+    int ret=-1;
+    if (!ompt_mod) return ret;
+    if (!openmpt_module_ext_get_module(ompt_mod)) return ret;
+    int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+    if (current_order>0) ret=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
+    return ret;
+}
+
+
+-(int) ompt_getNextPattern {
+    int ret=-1;
+    if (!ompt_mod) return ret;
+    if (!openmpt_module_ext_get_module(ompt_mod)) return ret;
+    int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+    int num_order=openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod));
+    if (current_order<num_order) ret=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
+    return ret;
+}
+
 -(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows {
     int c;
     int r;

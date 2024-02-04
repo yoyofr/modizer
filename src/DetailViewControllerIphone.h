@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define MAX_MENU_FX_STRING 9
+
 #import "Queue.h"
 #import "DBHelper.h"
 #import "HardwareClock.h"
@@ -136,11 +138,14 @@ class CGLString;
 	int 	module_waiting;
 	NSTimer *repeatingTimer;
 	
-	CFont *mFont;
-    int mFontSize;
+	CFont *mFont,*mFontMenu;
+    int mFontWidth,mFontHeight;
+    int mCurrentFontSize;
+    int mCurrentFontIdx;
+    
 	CGLString *mText[512];
 	CGLString *mTextLine[512];
-	CGLString *viewTapInfoStr[9];
+	CGLString *viewTapInfoStr[MAX_MENU_FX_STRING];
 	CGLString *mHeader;
 	
 	int mDeviceType;
@@ -212,6 +217,8 @@ class CGLString;
 - (IBAction)infoFullscreen;
 - (IBAction)infoNormal;
 
+- (void)updateVisibleChan;
+- (void)updateFont;
 
 - (void)showRating:(int)rating;
 -(void) checkGLViewCanDisplay;

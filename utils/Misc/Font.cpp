@@ -113,7 +113,7 @@ CFont::CFont(const std::string &fontFilename)
 			{
 				maxSizeY = mCharacterData[i].byteHeight;
 			}
-            printf("%c: %.2dx%.2d %.2dx%.2d\n",i,mCharacterData[i].byteWidth,mCharacterData[i].byteHeight,mCharacterData[i].screenWidth,mCharacterData[i].screenHeight);
+            //printf("%c: %.2dx%.2d %.2dx%.2d %dx%d\n",i,mCharacterData[i].byteWidth,mCharacterData[i].byteHeight,mCharacterData[i].screenWidth,mCharacterData[i].screenHeight,mCharacterData[i].xOffset,mCharacterData[i].yOffset);
 
             if (maxCharWidth<mCharacterData[i].screenWidth) maxCharWidth=mCharacterData[i].screenWidth;
             if (maxCharHeight<mCharacterData[i].screenHeight) maxCharWidth=mCharacterData[i].screenHeight;
@@ -128,6 +128,8 @@ CFont::CFont(const std::string &fontFilename)
 #ifdef GLSTRING_FORCE_FIXED_SIZE
         maxCharWidth=(mCharacterData['0'].screenWidth+1)&(~1);
         maxCharHeight=(mCharacterData['0'].screenHeight+1)&(~1);
+        yCharOffset=(mCharacterData['0'].yOffset+1)&(~1);
+        xCharOffset=(mCharacterData['0'].xOffset+1)&(~1);
 #endif
         //maxCharWidth+=4;
         //maxCharHeight+=4;

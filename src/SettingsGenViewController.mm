@@ -330,6 +330,9 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
@@ -894,6 +897,44 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[4]=(char*)"4";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[5]=(char*)"5";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[6]=(char*)"6";
+    
+    settings[GLOB_FXMODPattern_CurrentLineMode].type=MDZ_SWITCH;
+    settings[GLOB_FXMODPattern_CurrentLineMode].label=(char*)"MOD Current Line";
+    settings[GLOB_FXMODPattern_CurrentLineMode].description=NULL;
+    settings[GLOB_FXMODPattern_CurrentLineMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_CurrentLineMode].sub_family=0;
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[0]=(char*)"Follow";
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[1]=(char*)"Fixed";
+    
+    settings[GLOB_FXMODPattern_Font].type=MDZ_SWITCH;
+    settings[GLOB_FXMODPattern_Font].label=(char*)"MOD Pattern Font";
+    settings[GLOB_FXMODPattern_Font].description=NULL;
+    settings[GLOB_FXMODPattern_Font].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_Font].sub_family=0;
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb=5;
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)"Amiga";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[1]=(char*)"C64";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[2]=(char*)"GB";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[3]=(char*)"04b";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[4]=(char*)"Trk";
+    
+    settings[GLOB_FXMODPattern_FontSize].type=MDZ_SWITCH;
+    settings[GLOB_FXMODPattern_FontSize].label=(char*)"MOD Pattern Font Size";
+    settings[GLOB_FXMODPattern_FontSize].description=NULL;
+    settings[GLOB_FXMODPattern_FontSize].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_FontSize].sub_family=0;
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[0]=(char*)"10";
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[1]=(char*)"16";
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[2]=(char*)"24";
+    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[3]=(char*)"32";
     
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
