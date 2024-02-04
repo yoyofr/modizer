@@ -6301,10 +6301,10 @@ extern "C" int current_sample;
                     currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
                     prevNotes=nil;
                     nextNotes=nil;
-                    int prevPattern=[mplayer ompt_getPrevPattern];
+                    int prevPattern=[mplayer prevPattern][playerpos];
                     if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
                 
-                    int nextPattern=[mplayer ompt_getNextPattern];
+                    int nextPattern=[mplayer nextPattern][playerpos];
                     if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
                     
                     if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;

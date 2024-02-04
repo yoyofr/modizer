@@ -1718,7 +1718,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize mVolume;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail,numVoicesChannels;
 @synthesize m_voicesDataAvail;
-@synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern;//,playOffset;
+@synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern,nextPattern,prevPattern;//,playOffset;
 @synthesize genVolData,playVolData;
 //GSF
 @synthesize optGSFsoundLowPass;
@@ -2028,6 +2028,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //genOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         playPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         playRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        prevPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        nextPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        genPrevPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        genNextPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         
         genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
         playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
@@ -2205,6 +2209,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
     free((void*)buffer_ana_flag);
     free(playRow);
     free(playPattern);
+    free(prevPattern);
+    free(nextPattern);
+    free(genPrevPattern);
+    free(genNextPattern);
     free(playVolData);
     //free(playOffset);
     free(genRow);
@@ -2292,7 +2300,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     //	genCurOffset=0;genCurOffsetCnt=0;
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         buffer_ana_flag[i]=0;
-        playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;//=genOffset[i]=playOffset[i]=0;
+        playRow[i]=playPattern[i]=prevPattern[i]=nextPattern[i]=genRow[i]=genPattern[i]=genPrevPattern[i]=genNextPattern[i]=0;
         memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
@@ -2363,7 +2371,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     //    genCurOffset=0;genCurOffsetCnt=0;
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         buffer_ana_flag[i]=0;
-        playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;//=genOffset[i]=playOffset[i]=0;
+        playRow[i]=playPattern[i]=prevPattern[i]=nextPattern[i]=genRow[i]=genPattern[i]=genPrevPattern[i]=genNextPattern[i]=0;
         memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
@@ -2412,6 +2420,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             if (mPatternDataAvail) {//Modplug
                 playPattern[buffer_ana_play_ofs]=genPattern[buffer_ana_play_ofs];
                 playRow[buffer_ana_play_ofs]=genRow[buffer_ana_play_ofs];
+                prevPattern[buffer_ana_play_ofs]=genPrevPattern[buffer_ana_play_ofs];
+                nextPattern[buffer_ana_play_ofs]=genNextPattern[buffer_ana_play_ofs];
                 memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
             }
@@ -4640,6 +4650,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
                             genRow[buffer_ana_gen_ofs]=xmp_fi.row;
+                            genPrevPattern[buffer_ana_gen_ofs]=-1;
+                            genNextPattern[buffer_ana_gen_ofs]=-1;
                                                         
                             for (int i=0;i<numChannels;i++) {
                                 int v=xmp_fi.channel_info[i].volume*4;
@@ -4670,6 +4682,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
                         genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
+                        
+                        int order_idx=-1;
+                        int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+                        if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
+                        genPrevPattern[buffer_ana_gen_ofs]=order_idx;
+                                                
+                        if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
+                        genNextPattern[buffer_ana_gen_ofs]=order_idx;                        
                         
                         nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
                         nbBytes*=4;
@@ -7912,26 +7932,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         }
     }
     return ompt_patterns[pattern];
-}
-
--(int) ompt_getPrevPattern {
-    int ret=-1;
-    if (!ompt_mod) return ret;
-    if (!openmpt_module_ext_get_module(ompt_mod)) return ret;
-    int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
-    if (current_order>0) ret=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
-    return ret;
-}
-
-
--(int) ompt_getNextPattern {
-    int ret=-1;
-    if (!ompt_mod) return ret;
-    if (!openmpt_module_ext_get_module(ompt_mod)) return ret;
-    int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
-    int num_order=openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod));
-    if (current_order<num_order) ret=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
-    return ret;
 }
 
 -(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows {

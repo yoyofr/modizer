@@ -1029,9 +1029,9 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     glLineWidth(1.0f*mScaleFactor);
         
     switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*2+8+6-2;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*2+8+6-2;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
     }
     
     //then draw channels frame

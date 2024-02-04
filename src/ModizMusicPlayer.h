@@ -224,7 +224,7 @@ enum MMP_PLAYER_TYPE {
     //
 	//Modplug stuff
 	
-	int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
+	int *genRow,*genPattern,*genPrevPattern,*genNextPattern,*playRow,*playPattern,*prevPattern,*nextPattern;//,*playOffset,*genOffset;
     unsigned char *genVolData,*playVolData;
 	char *mp_data;
 	int numPatterns,numSamples,numInstr;
@@ -255,7 +255,7 @@ enum MMP_PLAYER_TYPE {
 @property openmpt_module_ext *ompt_mod;
 @property ModPlug_Settings mp_settings;
 @property char *mp_data;
-@property int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
+@property int *genRow,*genPattern,*playRow,*playPattern,*nextPattern,*prevPattern;//,*playOffset,*genOffset;
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int numChannels,numPatterns,numSamples,numInstr,numVoicesChannels;
@@ -435,9 +435,6 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_adplugLoad:(NSString*)filePath;
 -(int) mmp_gmeLoad:(NSString*)filePath;
 -(int) mmp_2sfLoad:(NSString*)filePath;
-
--(int) ompt_getPrevPattern;
--(int) ompt_getNextPattern;
 
 -(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows;
 
