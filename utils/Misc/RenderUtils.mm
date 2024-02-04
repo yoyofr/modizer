@@ -9,6 +9,7 @@
 
 
 extern BOOL is_retina;
+extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
 #include "TextureUtils.h"
@@ -1015,7 +1016,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,int pixOfs) {
+void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,int pixOfs,int char_size) {
     int count=0;
     int col_size,col_ofs;
     LineVertex pts[10*MAX_VISIBLE_CHAN+10],ptsD[4*2];
@@ -1026,41 +1027,46 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glLineWidth(1.0f*(is_retina?2:1));
-    
-    
+        
     switch (display_note_mode){
-        case 0:col_size=12*6;col_ofs=25;break;
-        case 1:col_size=6*6;col_ofs=27;break;
-        case 2:col_size=4*6;col_ofs=27;break;
+        case 0:col_size=11*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 1:col_size=6*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 2:col_size=4*char_size;col_ofs=(char_size)*2+8+6-2;break;
     }
-    
     
     //then draw channels frame
     
     for (int i=0; i<chanNb; i++) {
-        if (col_size*i+col_ofs-2.0f>_ww) break;
+        if (pixOfs+col_size*i+col_ofs-2.0f>_ww) break;
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-2.0f, (i&1?_hh:0),	140,160,255,255);
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-2.0f,	(i&1?0:_hh),	60,100,255,255);
+        
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-1, (i&1?_hh:0),	140/3,160/3,255/3,255);
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-1, (i&1?0:_hh),	60/3,100/3,255/3,255);
+        
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs, (i&1?_hh:0),		140/3,160/3,255/3,255);
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs, (i&1?0:_hh),		60/3,100/3,255/3,255);
+        
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+1, (i&1?_hh:0),	140/3,160/3,255/3,255);
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+1, (i&1?0:_hh),	60/3,100/3,255/3,255);
         
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+2.0f, (i&1?_hh:0),	140/6,160/6,255/6,255);
         pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+2.0f, (i&1?0:_hh),	60/6,100/6,255/6,255);
     }
-    pts[count++] = LineVertex(1, _hh-20+2,			140,160,255,255);
-    pts[count++] = LineVertex(_ww-1, _hh-20+2,		60,100,255,255);
-    pts[count++] = LineVertex(1, _hh-20+1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-20+1,	60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1, _hh-20,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-20,		60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1, _hh-20-1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-20-1,	60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1, _hh-20-2,		140/6,160/6,255/6,255);
-    pts[count++] = LineVertex(_ww-1, _hh-20-2,	60/6,100/6,255/6,255);
+    
+    //Header line
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+2,			140,160,255,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+2,		60,100,255,255);
+    
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+1,		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)+1,	60/3,100/3,255/3,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0),		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0),		60/3,100/3,255/3,255);
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-1,		140/3,160/3,255/3,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-1,	60/3,100/3,255/3,255);
+    
+    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-2,		140/6,160/6,255/6,255);
+    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_size+2-0)-2,	60/6,100/6,255/6,255);
     
     
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
@@ -1090,7 +1096,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
 }
 
-void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs) {
+void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs,int char_size,int rowToHighlight) {
     LineVertex pts[64*2];
     int ii;
     int count=0;
@@ -1106,32 +1112,32 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     
     colr=230;colg=76;colb=153;cola=150;
-    //current playing line
-    ii=(_hh-30+11)/12;
-    pts[0] = LineVertex(0,     _hh-30-12*(ii/2)+3-8,		colr,colg,colb,cola);
-    pts[1] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3-8,		colr,colg,colb,cola);
-    pts[2] = LineVertex(0,     _hh-30-12*(ii/2)+3+8,		colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+8,		colr,colg,colb,cola);
+    //Draw current playing line
+    ii=_hh-NOTES_DISPLAY_TOPMARGIN-rowToHighlight*(char_size+4)-3;
+            
+    pts[0] = LineVertex(0,     ii-3,		colr,colg,colb,cola);
+    pts[1] = LineVertex(_ww-1, ii-3,		colr,colg,colb,cola);
+    pts[2] = LineVertex(0,     ii+char_size+2,		colr,colg,colb,cola);
+    pts[3] = LineVertex(_ww-1, ii+char_size+2,		colr,colg,colb,cola);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
-    pts[0] = LineVertex(0,     _hh-30-12*(ii/2)+3-9.0f,     colr/2,colg/2,colb/2,cola);
-    pts[1] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3-9.0f,     colr/2,colg/2,colb/2,cola);
+    pts[0] = LineVertex(0,     ii-4,     colr/2,colg/2,colb/2,cola);
+    pts[1] = LineVertex(_ww-1, ii-4,     colr/2,colg/2,colb/2,cola);
     colr*=1.4f;if (colr>255) colr=255;
     colg*=1.4f;if (colg>255) colg=255;
     colb*=1.4f;if (colb>255) colb=255;
     cola*=1.4f;if (cola>255) cola=255;
-    pts[2] = LineVertex(0,     _hh-30-12*(ii/2)+3+9.0f,     colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+9.0f,     colr,colg,colb,cola);
+    pts[2] = LineVertex(0,     ii+char_size+3,     colr,colg,colb,cola);
+    pts[3] = LineVertex(_ww-1, ii+char_size+3,     colr,colg,colb,cola);
     glDrawArrays(GL_LINES, 0, 4);
     
-    
     switch (display_note_mode){
-        case 0:col_size=12*6;col_ofs=25;break;
-        case 1:col_size=6*6;col_ofs=27;break;
-        case 2:col_size=4*6;col_ofs=27;break;
+        case 0:col_size=11*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 1:col_size=6*char_size;col_ofs=(char_size)*2+8+6-2;break;
+        case 2:col_size=4*char_size;col_ofs=(char_size)*2+8+6-2;break;
     }
     
-    
+    //Volumes bar
     count=0;
     if (volumeData) {
         for (int i=0; i<chanNb; i++) {

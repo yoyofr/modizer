@@ -63,7 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		058BB8B85C19232A349236F8 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		058BB8B85C19232A349236F8 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BE8ECA1ED129FC0EED250A /* window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = window.h; path = ../../../include/vorbis/lib/window.h; sourceTree = "<group>"; };
 		0944F5662F6B251896721BA6 /* bitrate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = bitrate.c; path = ../../../include/vorbis/lib/bitrate.c; sourceTree = "<group>"; };
 		0C6D4B2032937AD2999A7160 /* smallft.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = smallft.h; path = ../../../include/vorbis/lib/smallft.h; sourceTree = "<group>"; };
@@ -491,6 +491,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development: Yohann Magnien (BLWK78WX9A)";
 				CONFIGURATION_BUILD_DIR = "../../../bin/debug/xcode4-ios/all";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				EXECUTABLE_EXTENSION = a;
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;
@@ -506,6 +507,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development: Yohann Magnien (BLWK78WX9A)";
 				CONFIGURATION_BUILD_DIR = "../../../bin/release/xcode4-ios/all";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				EXECUTABLE_EXTENSION = a;
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;

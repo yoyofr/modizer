@@ -29,8 +29,9 @@ static int *fft_freqAvgCount;
 
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
-#define NOTES_DISPLAY_LEFTMARGIN 30
-#define NOTES_DISPLAY_TOPMARGIN 30
+//#define NOTES_DISPLAY_LEFTMARGIN 30
+int NOTES_DISPLAY_LEFTMARGIN=30;
+int NOTES_DISPLAY_TOPMARGIN=30;
 
 
 #include <sys/types.h>
@@ -687,18 +688,19 @@ static float movePinchScale,movePinchScaleOld;
         switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
             case 1:
             case 4:
-                size_chan=12*6;
+                size_chan=11*(mFontSize/mScaleFactor);
                 break;
             case 2:
             case 5:
-                size_chan=6*6;
+                size_chan=6*(mFontSize/mScaleFactor);
                 break;
             case 3:
             case 6:
-                size_chan=4*6;
+                size_chan=4*(mFontSize/mScaleFactor);
                 break;
         }
-        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
         if (startChan<0) startChan=0;
         
@@ -3323,18 +3325,19 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
-            size_chan=12*6;
+            size_chan=11*(mFontSize/mScaleFactor);
             break;
         case 2:
         case 5:
-            size_chan=6*6;
+            size_chan=6*(mFontSize/mScaleFactor);
             break;
         case 3:
         case 6:
-            size_chan=4*6;
+            size_chan=4*(mFontSize/mScaleFactor);
             break;
     }
-	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+    if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
     tim_midifx_note_range=88;// //128notes max
@@ -4865,27 +4868,23 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	NSLog(@"detail7 : %d",end_time-start_time);
 #endif
     
-    
-    
-    
-	
-	
 	int size_chan;
 	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
-            size_chan=12*6;
+            size_chan=11*(mFontSize/mScaleFactor);
             break;
         case 2:
         case 5:
-            size_chan=6*6;
+            size_chan=6*(mFontSize/mScaleFactor);
             break;
         case 3:
         case 6:
-            size_chan=4*6;
+            size_chan=4*(mFontSize/mScaleFactor);
             break;
     }
-	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+    if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
 	if ([self checkFlagOnStartup]) {
@@ -5160,6 +5159,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView layoutSubviews];
     [m_oglView bind];
     
+    NSString *fontPath;
+    if (mScaleFactor==1) fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas8" ofType: @"fnt"];
+    else fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas16" ofType: @"fnt"];
+    
+    fontPath = [[NSBundle mainBundle] pathForResource:  @"gb24" ofType: @"fnt"];
+    mFont = new CFont([fontPath cStringUsingEncoding:1]);
+    mFontSize= mFont->maxCharWidth;
+    NSLog(@"font size: %d",mFontSize);
+    NOTES_DISPLAY_LEFTMARGIN=(mFontSize/mScaleFactor)*2.5f+8+6;
+    NOTES_DISPLAY_TOPMARGIN=(mFontSize/mScaleFactor)*2+8+6;
 	
     //	self.navigationController.navigationBar.hidden = YES;
     m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
@@ -5197,7 +5206,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                 is_macOS=false;
             }
         }
-    if (!is_macOS) if (m_displayLink) [m_displayLink invalidate];
+    /*if (!is_macOS) */if (m_displayLink) [m_displayLink invalidate];
         
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0"))
@@ -5212,16 +5221,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 //    [[UIDevice currentDevice] systemVersion]
     statusbarHidden=NO;
     [self setNeedsStatusBarAppearanceUpdate];
-	
-	for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
-		delete viewTapInfoStr[i];
-		viewTapInfoStr[i]=NULL;
-	}
-	if (mFont) {
-		delete mFont;
-		mFont=NULL;
-	}
-	
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -5464,7 +5463,7 @@ extern "C" int current_sample;
 	uint ww,hh;
 	int nb_spectrum_bands;
 	uint hasdrawnotes;
-	char str_data[200];
+	char str_data[11*MAX_VISIBLE_MODCHANNELS+1]; //MAX 64 channels visible, much higher than what current screen can display
 	unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
 	int i,j,k,l,note_avail,idx,startRow;
@@ -5483,15 +5482,15 @@ extern "C" int current_sample;
 	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
-            size_chan=12*6;
+            size_chan=11*(mFontSize/mScaleFactor);
             break;
         case 2:
         case 5:
-            size_chan=6*6;
+            size_chan=6*(mFontSize/mScaleFactor);
             break;
         case 3:
         case 6:
-            size_chan=4*6;
+            size_chan=4*(mFontSize/mScaleFactor);
             break;
     }
     
@@ -5503,16 +5502,15 @@ extern "C" int current_sample;
     if (coverflow.hidden==FALSE) return;
     
     if (oglViewFullscreen) fxalpha=1.0;
+    
+    if (!mFont) {
+        //NSLog(@"mFont NULL!!");
+        return;
+    }
 	
-	if (!mFont) {
-        NSString *fontPath;
-        if (mScaleFactor==1) fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas8" ofType: @"fnt"];
-        else fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas16" ofType: @"fnt"];
-		mFont = new CFont([fontPath cStringUsingEncoding:1]);
-	}
-	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit Menu", mFont,(mScaleFactor>=2?2:mScaleFactor));
+	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFont,(mScaleFactor>=2?2:mScaleFactor));
 	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont,(mScaleFactor>=2?2:mScaleFactor));
-    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("All Off", mFont,(mScaleFactor>=2?2:mScaleFactor));
+    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("FX Off", mFont,(mScaleFactor>=2?2:mScaleFactor));
 	
 	
     
@@ -5542,9 +5540,9 @@ extern "C" int current_sample;
     
     
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-        if (visibleChan<mplayer.numChannels) {
+        if (visibleChan<=mplayer.numChannels+1) {
             if (movePxMOD>0) movePxMOD=0;
-            if (movePxMOD<-(mplayer.numChannels-visibleChan+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1)*size_chan;
+            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
             startChan=-movePxMOD/size_chan;
             
         } else movePxMOD=0;
@@ -5772,9 +5770,10 @@ extern "C" int current_sample;
                         break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
-                        size_chan=12*6;
+                        size_chan=11*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -5817,9 +5816,10 @@ extern "C" int current_sample;
                         break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
-                        size_chan=6*6;
+                        size_chan=6*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -5859,9 +5859,10 @@ extern "C" int current_sample;
                         break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
-                        size_chan=4*6;
+                        size_chan=4*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -5882,9 +5883,10 @@ extern "C" int current_sample;
                         break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
-                        size_chan=12*6;
+                        size_chan=11*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -5902,9 +5904,10 @@ extern "C" int current_sample;
                         break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
-                        size_chan=6*6;
+                        size_chan=6*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -5913,9 +5916,10 @@ extern "C" int current_sample;
                 switch (viewTapHelpShow_SubStart) {
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                        size_chan=4*6;
+                        size_chan=4*(mFontSize/mScaleFactor);
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+                        if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -6207,7 +6211,8 @@ extern "C" int current_sample;
                 }
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-                    linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+11)/12; //+11 => draw even if halfed for last line
+                    //DISPLAY MOD PATTERNS
+                    linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+mFontSize/mScaleFactor+3)/(mFontSize/mScaleFactor+4); //draw even if halfed for last line
                     midline=linestodraw>>1;
                     
                     for (i=0;i<linestodraw;i++) {
@@ -6220,8 +6225,6 @@ extern "C" int current_sample;
                     }
                     if (mHeader) delete mHeader;
                     mHeader=nil;
-                    
-                    
                     
                     int *pat,*row;
                     int playerpos;
@@ -6252,10 +6255,10 @@ extern "C" int current_sample;
                     else nextNotes=nil;
                     idx=startRow*mplayer.numChannels+startChan;
                     
-                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan));
+                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontSize/mScaleFactor);
                     
-                    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
-                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontSize/mScaleFactor,currentRow-startRow);
+                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontSize/mScaleFactor,currentRow-startRow);
                     
                     if (currentNotes) {
                         hasdrawnotes=1;
@@ -6321,7 +6324,7 @@ extern "C" int current_sample;
                                             } else {
                                                 str_data[k++]='.';str_data[k++]='.';
                                             }
-                                            str_data[k++]=' ';str_data[k++]=' ';
+                                            str_data[k++]=' ';
                                             idx++;
                                         }
                                         break;
@@ -6374,7 +6377,7 @@ extern "C" int current_sample;
                             i=l+startRow;
                             if (mText[l]) {
                                 glPushMatrix();
-                                glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
+                                glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontSize/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
                                 
                                 if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
                                 else {
@@ -6397,7 +6400,7 @@ extern "C" int current_sample;
                             }
                             mTextLine[l]= new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                             glPushMatrix();
-                            glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
+                            glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontSize/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
                             mTextLine[l]->Render(1+(l&1));
                             glPopMatrix();
                         }
@@ -6405,17 +6408,17 @@ extern "C" int current_sample;
                         
                     }
                     //draw header + fps
-                    memset(str_data,32,171);   //max 171 chars => 1026pix (6pix/char)
-                    str_data[12*16]=0;
+                    memset(str_data,32,11*visibleChan);
+                    str_data[11*visibleChan]=0; //11 chars max / channel
                     float xofs=0;
                     switch (display_note_mode) {
                         case 0:
                             for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*12+7]='0'+(j+1)/10;
-                                str_data[(j-startChan)*12+8]='0'+(j+1)%10;
+                                str_data[(j-startChan)*11+7]='0'+(j+1)/10;
+                                str_data[(j-startChan)*11+8]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-startChan)*12+9]=0;
-                            xofs=5.0f;
+                            str_data[(endChan-1-startChan)*11+9]=0;
+                            xofs=0.0f;
                             break;
                         case 1:
                             for (j=startChan;j<endChan;j++) {
@@ -6423,7 +6426,7 @@ extern "C" int current_sample;
                                 str_data[(j-startChan)*6+6]='0'+(j+1)%10;
                             }
                             str_data[(endChan-1-startChan)*6+7]=0;
-                            xofs=5.0f;
+                            xofs=0.0f;
                             break;
                         case 2:
                             for (j=startChan;j<endChan;j++) {
@@ -6431,18 +6434,18 @@ extern "C" int current_sample;
                                 str_data[(j-startChan)*4+5]='0'+(j+1)%10;
                             }
                             str_data[(endChan-1-startChan)*4+6]=0;
-                            xofs=8.0f;
+                            xofs=0.0f;
                             break;
                     }
                     mHeader= new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                     glPushMatrix();
-                    glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
+                    glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontSize/mScaleFactor+4), 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
                     mHeader->Render(0);
                     glPopMatrix();
                     
-                    //if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
-                    //else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    //if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontSize/mScaleFactor-2);
+                    //else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontSize/mScaleFactor-2);
                 }
             }
         }
@@ -6577,7 +6580,7 @@ extern "C" int current_sample;
             
             glPushMatrix();
             int menu_cell_size=(ww<hh?ww:hh);
-			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*6,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*(mFontSize/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
 			viewTapInfoStr[2]->Render(128+(fadelev/2));
 			glPopMatrix();
         }
@@ -6618,13 +6621,13 @@ extern "C" int current_sample;
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             int menu_cell_size=(ww<hh?ww:hh);
             glPushMatrix();
-			glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*6,menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
+			glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*(mFontSize/mScaleFactor),menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
 			viewTapInfoStr[1]->Render(128+(fadelev/2));
 			glPopMatrix();
         }
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
-		glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*6,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+		glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*(mFontSize/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
 		viewTapInfoStr[0]->Render(128+(fadelev/2));
 		glPopMatrix();
 	}
@@ -6640,6 +6643,16 @@ extern "C" int current_sample;
 
 - (void)viewDidDisappear:(BOOL)animated {
 	mHasFocus=0;
+    
+    for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
+        delete viewTapInfoStr[i];
+        viewTapInfoStr[i]=NULL;
+    }
+    if (mFont) {
+        delete mFont;
+        mFont=NULL;
+    }
+    
     [super viewDidDisappear:animated];
 }
 

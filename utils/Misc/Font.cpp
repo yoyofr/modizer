@@ -6,6 +6,8 @@
  *
  */
 
+#define GLSTRING_FORCE_FIXED_SIZE 1
+
 #include <stdlib.h>
 #include <string>
 
@@ -87,6 +89,7 @@ CFont::CFont(const std::string &fontFilename)
 		int i;
 		int numChars = 0;
 		int maxSizeX = 0, maxSizeY = 0;	// Find the largest character
+        maxCharWidth=maxCharHeight=0;
 		for (i = 0; i < 256; ++i)
 		{
 			mCharacterData[i].Load(fontFile);
@@ -110,6 +113,10 @@ CFont::CFont(const std::string &fontFilename)
 			{
 				maxSizeY = mCharacterData[i].byteHeight;
 			}
+            printf("%c: %.2dx%.2d %.2dx%.2d\n",i,mCharacterData[i].byteWidth,mCharacterData[i].byteHeight,mCharacterData[i].screenWidth,mCharacterData[i].screenHeight);
+
+            if (maxCharWidth<mCharacterData[i].screenWidth) maxCharWidth=mCharacterData[i].screenWidth;
+            if (maxCharHeight<mCharacterData[i].screenHeight) maxCharWidth=mCharacterData[i].screenHeight;
 		}
 
 		// We add a little extra space around all characters to avoid one
@@ -117,7 +124,14 @@ CFont::CFont(const std::string &fontFilename)
 		const int cCharacterPadding = 4;
 		maxSizeX += cCharacterPadding;
 		maxSizeY += cCharacterPadding;
-		
+
+#ifdef GLSTRING_FORCE_FIXED_SIZE
+        maxCharWidth=(mCharacterData['0'].screenWidth+1)&(~1);
+        maxCharHeight=(mCharacterData['0'].screenHeight+1)&(~1);
+#endif
+        //maxCharWidth+=4;
+        //maxCharHeight+=4;
+        
 		// Find the size of texture we need
 		int textureWidth = 256;
 		int textureHeight = GetHeightForTexture(textureWidth, maxSizeX, maxSizeY);
@@ -141,6 +155,11 @@ CFont::CFont(const std::string &fontFilename)
 			{
 				continue;
 			}
+            
+#ifdef GLSTRING_FORCE_FIXED_SIZE
+            mCharacterData[i].screenWidth=maxCharWidth; //Force fixed size font
+            mCharacterData[i].screenHeight=maxCharHeight; //Force fixed size font
+#endif
 			
 			if (texX + maxSizeX >= textureWidth)
 			{

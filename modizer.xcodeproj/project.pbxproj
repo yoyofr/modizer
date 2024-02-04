@@ -192,7 +192,6 @@
 		33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 33888AA112231EEA0030C82E /* 1237346308.jpg */; };
 		3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */ = {isa = PBXBuildFile; fileRef = 3388C3BA13842E9100DA8F05 /* playlist_del_all.png */; };
 		3388C3BD13842E9100DA8F05 /* playlist_del_all@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3388C3BB13842E9100DA8F05 /* playlist_del_all@2x.png */; };
-		3389C97815F2AAA9000B28BB /* consolas16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 3389C97715F2A8C5000B28BB /* consolas16.fnt */; };
 		3399D61217B5A143009E2AE9 /* RootViewControllerASMA.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */; };
 		3399D61617B5A5C6009E2AE9 /* asap.c in Sources */ = {isa = PBXBuildFile; fileRef = 3399D61417B5A5C6009E2AE9 /* asap.c */; };
 		33AB276B17B3D48F00C12189 /* MoreViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33AB276A17B3D48F00C12189 /* MoreViewController.mm */; };
@@ -588,7 +587,6 @@
 		CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A0B1200B3B8000A8A4E /* HardwareClock.cpp */; };
 		CC1E5C7E1200B3B8000A8A4E /* OGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A101200B3B8000A8A4E /* OGLView.mm */; };
 		CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A151200B3B8000A8A4E /* TextureUtils.mm */; };
-		CC1E5C931200B3B8000A8A4E /* consolas8.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2B1200B3B8000A8A4E /* consolas8.fnt */; };
 		CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */; };
 		CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */; };
 		CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */; };
@@ -951,6 +949,24 @@
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDE83492B6C5C1F00DC9F63 /* liblibopenmpt-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCDE83482B6C5C1000DC9F63 /* liblibopenmpt-static.a */; };
+		CCDE83D12B6EC38F00DC9F63 /* 04b10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */; };
+		CCDE83D22B6EC38F00DC9F63 /* amiga24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */; };
+		CCDE83D32B6EC38F00DC9F63 /* gb16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */; };
+		CCDE83D42B6EC38F00DC9F63 /* consolas32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C02B6EC38E00DC9F63 /* consolas32.fnt */; };
+		CCDE83D52B6EC38F00DC9F63 /* gb24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */; };
+		CCDE83D62B6EC38F00DC9F63 /* terminus8.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C22B6EC38E00DC9F63 /* terminus8.fnt */; };
+		CCDE83D72B6EC38F00DC9F63 /* amiga16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */; };
+		CCDE83D82B6EC38F00DC9F63 /* 04b32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */; };
+		CCDE83D92B6EC38F00DC9F63 /* amiga32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */; };
+		CCDE83DC2B6EC38F00DC9F63 /* terminus32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C82B6EC38E00DC9F63 /* terminus32.fnt */; };
+		CCDE83DD2B6EC38F00DC9F63 /* gb32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */; };
+		CCDE83DE2B6EC38F00DC9F63 /* 04b16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */; };
+		CCDE83DF2B6EC38F00DC9F63 /* terminus16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CB2B6EC38F00DC9F63 /* terminus16.fnt */; };
+		CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */; };
+		CCDE83E32B6EC38F00DC9F63 /* gb10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */; };
+		CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */; };
+		CCDE83E72B6EC3A500DC9F63 /* consolas16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83E52B6EC3A500DC9F63 /* consolas16.fnt */; };
+		CCDE83E82B6EC3A500DC9F63 /* consolas8.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83E62B6EC3A500DC9F63 /* consolas8.fnt */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -1538,7 +1554,6 @@
 		33888AA112231EEA0030C82E /* 1237346308.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1237346308.jpg; sourceTree = "<group>"; };
 		3388C3BA13842E9100DA8F05 /* playlist_del_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist_del_all.png; sourceTree = "<group>"; };
 		3388C3BB13842E9100DA8F05 /* playlist_del_all@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playlist_del_all@2x.png"; sourceTree = "<group>"; };
-		3389C97715F2A8C5000B28BB /* consolas16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = consolas16.fnt; sourceTree = "<group>"; };
 		3396B61A13297F8E001792E0 /* timidity.cfg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timidity.cfg; sourceTree = "<group>"; };
 		3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootViewControllerASMA.h; sourceTree = "<group>"; };
 		3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerASMA.mm; sourceTree = "<group>"; };
@@ -2102,7 +2117,6 @@
 		CC1E5A111200B3B8000A8A4E /* Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Queue.h; sourceTree = "<group>"; };
 		CC1E5A141200B3B8000A8A4E /* TextureUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUtils.h; sourceTree = "<group>"; };
 		CC1E5A151200B3B8000A8A4E /* TextureUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureUtils.mm; sourceTree = "<group>"; };
-		CC1E5A2B1200B3B8000A8A4E /* consolas8.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = consolas8.fnt; sourceTree = "<group>"; };
 		CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo-green.png"; sourceTree = "<group>"; };
 		CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo.png"; sourceTree = "<group>"; };
 		CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback-green.png"; sourceTree = "<group>"; };
@@ -2713,6 +2727,24 @@
 		CCDE82A82B6C531E00DC9F63 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCDE82AE2B6C591C00DC9F63 /* openmpt-mpg123.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "openmpt-mpg123.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCDE82B02B6C594200DC9F63 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b10.fnt; sourceTree = "<group>"; };
+		CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga24.fnt; sourceTree = "<group>"; };
+		CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb16.fnt; sourceTree = "<group>"; };
+		CCDE83C02B6EC38E00DC9F63 /* consolas32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = consolas32.fnt; sourceTree = "<group>"; };
+		CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb24.fnt; sourceTree = "<group>"; };
+		CCDE83C22B6EC38E00DC9F63 /* terminus8.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = terminus8.fnt; sourceTree = "<group>"; };
+		CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga16.fnt; sourceTree = "<group>"; };
+		CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b32.fnt; sourceTree = "<group>"; };
+		CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga32.fnt; sourceTree = "<group>"; };
+		CCDE83C82B6EC38E00DC9F63 /* terminus32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = terminus32.fnt; sourceTree = "<group>"; };
+		CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb32.fnt; sourceTree = "<group>"; };
+		CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b16.fnt; sourceTree = "<group>"; };
+		CCDE83CB2B6EC38F00DC9F63 /* terminus16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = terminus16.fnt; sourceTree = "<group>"; };
+		CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga10.fnt; sourceTree = "<group>"; };
+		CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb10.fnt; sourceTree = "<group>"; };
+		CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b24.fnt; sourceTree = "<group>"; };
+		CCDE83E52B6EC3A500DC9F63 /* consolas16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = consolas16.fnt; sourceTree = "<group>"; };
+		CCDE83E62B6EC3A500DC9F63 /* consolas8.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = consolas8.fnt; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -4151,9 +4183,25 @@
 		CC1E5A2A1200B3B8000A8A4E /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */,
+				CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */,
+				CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */,
+				CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */,
+				CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */,
+				CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */,
+				CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */,
+				CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */,
+				CCDE83E62B6EC3A500DC9F63 /* consolas8.fnt */,
+				CCDE83E52B6EC3A500DC9F63 /* consolas16.fnt */,
+				CCDE83C02B6EC38E00DC9F63 /* consolas32.fnt */,
+				CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */,
+				CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */,
+				CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */,
+				CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */,
+				CCDE83C22B6EC38E00DC9F63 /* terminus8.fnt */,
+				CCDE83CB2B6EC38F00DC9F63 /* terminus16.fnt */,
+				CCDE83C82B6EC38E00DC9F63 /* terminus32.fnt */,
 				3356548517B51924003AE763 /* UpheavalPro.ttf */,
-				3389C97715F2A8C5000B28BB /* consolas16.fnt */,
-				CC1E5A2B1200B3B8000A8A4E /* consolas8.fnt */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -5514,7 +5562,6 @@
 				CCB8D99D17F62A18008E6A45 /* txtMenu6_2x.png in Resources */,
 				59909B511E3E204E00C629AA /* tabview_gradient40Orange@2x.png in Resources */,
 				CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */,
-				CC1E5C931200B3B8000A8A4E /* consolas8.fnt in Resources */,
 				CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */,
 				59909B591E3E6B9A00C629AA /* tabview_gradient40Pink@2x.png in Resources */,
 				CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */,
@@ -5530,6 +5577,7 @@
 				CC1E5CA91200B3B8000A8A4E /* collapsed.png in Resources */,
 				CC1E5CAB1200B3B8000A8A4E /* expanded.png in Resources */,
 				CC1E5CAC1200B3B8000A8A4E /* folder32.png in Resources */,
+				CCDE83E32B6EC38F00DC9F63 /* gb10.fnt in Resources */,
 				CC1E5CAD1200B3B8000A8A4E /* info.png in Resources */,
 				CC1E5CAF1200B3B8000A8A4E /* next.png in Resources */,
 				CC1E5CB01200B3B8000A8A4E /* play.png in Resources */,
@@ -5568,6 +5616,7 @@
 				CC1E6313120423DF000A8A4E /* ADPCM_mono in Resources */,
 				CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */,
 				CC1E6314120423DF000A8A4E /* Alcatraz_Packer in Resources */,
+				CCDE83D62B6EC38F00DC9F63 /* terminus8.fnt in Resources */,
 				CC1E6315120423DF000A8A4E /* AM-Composer in Resources */,
 				CC1E6316120423DF000A8A4E /* AMOS in Resources */,
 				CC1E6317120423DF000A8A4E /* ArtAndMagic in Resources */,
@@ -5588,6 +5637,7 @@
 				CC33B4271ABE1FC6009608E8 /* slider.png in Resources */,
 				CC1E6321120423DF000A8A4E /* CoreDesign in Resources */,
 				CC1E6322120423DF000A8A4E /* CustomMade in Resources */,
+				CCDE83D12B6EC38F00DC9F63 /* 04b10.fnt in Resources */,
 				CC1E6323120423DF000A8A4E /* DariusZendeh in Resources */,
 				CC1E6324120423DF000A8A4E /* DaveLowe in Resources */,
 				CC1E6325120423DF000A8A4E /* DaveLowe_Deli in Resources */,
@@ -5613,6 +5663,7 @@
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
 				CC1E6334120423DF000A8A4E /* ahx in Resources */,
+				CCDE83D92B6EC38F00DC9F63 /* amiga32.fnt in Resources */,
 				CC1E6335120423DF000A8A4E /* ahx.waves in Resources */,
 				CC1E6336120423DF000A8A4E /* ems_v6.cfg in Resources */,
 				CC1E6337120423DF000A8A4E /* ems_v6.cfg.txt in Resources */,
@@ -5651,6 +5702,7 @@
 				CC1E634F120423DF000A8A4E /* JasonPage in Resources */,
 				CC1E6350120423DF000A8A4E /* JasonPage_JP in Resources */,
 				CC1E6351120423DF000A8A4E /* JeroenTel in Resources */,
+				CCDE83D42B6EC38F00DC9F63 /* consolas32.fnt in Resources */,
 				CC1E6352120423DF000A8A4E /* JesperOlsen in Resources */,
 				CC1E6353120423DF000A8A4E /* JesperOlsen_EP in Resources */,
 				CC1E6354120423DF000A8A4E /* Jochen_Hippel_ST in Resources */,
@@ -5662,6 +5714,7 @@
 				CC1E635A120423DF000A8A4E /* Laxity in Resources */,
 				CCB8D98017F62356008E6A45 /* txtMenu12b_2x.png in Resources */,
 				CC1E635B120423DF000A8A4E /* LegglessMusicEditor in Resources */,
+				CCDE83DF2B6EC38F00DC9F63 /* terminus16.fnt in Resources */,
 				CC1E635C120423DF000A8A4E /* Lionheart_Game in Resources */,
 				CC1E635D120423DF000A8A4E /* MagneticFieldsPacker in Resources */,
 				CC1E635E120423DF000A8A4E /* MajorTom in Resources */,
@@ -5678,6 +5731,7 @@
 				CC1E6366120423DF000A8A4E /* MED in Resources */,
 				CC1E6367120423DF000A8A4E /* Medley in Resources */,
 				CC1E6368120423DF000A8A4E /* MIDI-Loriciel in Resources */,
+				CCDE83D22B6EC38F00DC9F63 /* amiga24.fnt in Resources */,
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
 				CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */,
 				CC1E636A120423DF000A8A4E /* MMDC in Resources */,
@@ -5700,17 +5754,20 @@
 				CC1E6379120423DF000A8A4E /* PaulSummers in Resources */,
 				CC1E637A120423DF000A8A4E /* PeterVerswyvelen in Resources */,
 				CCB8D97A17F62356008E6A45 /* txtMenu7c_2x.png in Resources */,
+				CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */,
 				CC1E637B120423DF000A8A4E /* PierreAdane in Resources */,
 				CC1E637C120423DF000A8A4E /* ProfessionalSoundArtists in Resources */,
 				59BE91DB26000FE500414A42 /* NEWS in Resources */,
 				CC1E637D120423DF000A8A4E /* PTK-Prowiz in Resources */,
 				CC1E637E120423DF000A8A4E /* PumaTracker in Resources */,
 				CC1E637F120423DF000A8A4E /* QuadraComposer in Resources */,
+				CCDE83D82B6EC38F00DC9F63 /* 04b32.fnt in Resources */,
 				CC1E6380120423DF000A8A4E /* Quartet in Resources */,
 				CC1E6381120423DF000A8A4E /* Quartet_PSG in Resources */,
 				CC1E6382120423DF000A8A4E /* Quartet_ST in Resources */,
 				CC1E6383120423DF000A8A4E /* RichardJoseph in Resources */,
 				CC1E6384120423DF000A8A4E /* RiffRaff in Resources */,
+				CCDE83DC2B6EC38F00DC9F63 /* terminus32.fnt in Resources */,
 				CC1E6385120423DF000A8A4E /* RobHubbard in Resources */,
 				CC1E6386120423DF000A8A4E /* RobHubbardOld in Resources */,
 				CC1E6387120423DF000A8A4E /* dummy_file in Resources */,
@@ -5739,6 +5796,7 @@
 				CC1E639A120423E0000A8A4E /* SoundPlayer in Resources */,
 				CC1E639B120423E0000A8A4E /* SoundProgrammingLanguage in Resources */,
 				CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */,
+				CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */,
 				59909B581E3E6B9A00C629AA /* tabview_gradient40Pink.png in Resources */,
 				CC1E639C120423E0000A8A4E /* Soundtracker-IV in Resources */,
 				CCB8D99717F62A18008E6A45 /* txtMenu3b_2x.png in Resources */,
@@ -5773,6 +5831,7 @@
 				CC1E63B2120423E0000A8A4E /* TomyTracker in Resources */,
 				CC1E63B3120423E0000A8A4E /* Tronic in Resources */,
 				59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */,
+				CCDE83E72B6EC3A500DC9F63 /* consolas16.fnt in Resources */,
 				59805482262F7D8300BB0309 /* heart-filled.png in Resources */,
 				CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */,
 				CC1E63B4120423E0000A8A4E /* UltimateSoundtracker in Resources */,
@@ -5786,6 +5845,7 @@
 				CC1E63B9120423E0000A8A4E /* uade.conf in Resources */,
 				CC1E63BA120423E0000A8A4E /* uaerc in Resources */,
 				CCD00F7F1209EA92002A1D61 /* cancel.png in Resources */,
+				CCDE83DD2B6EC38F00DC9F63 /* gb32.fnt in Resources */,
 				CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */,
 				CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */,
 				CC03F2CE12160E9500F2AC65 /* button.png in Resources */,
@@ -5801,6 +5861,7 @@
 				CCD791731219FC6B0063D0E7 /* zoom.png in Resources */,
 				33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */,
 				3335B7CE122E30BB00E06F60 /* playlist_del.png in Resources */,
+				CCDE83DE2B6EC38F00DC9F63 /* 04b16.fnt in Resources */,
 				CCC678ED17F88AF900F16A54 /* star4@2x.png in Resources */,
 				CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */,
 				CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */,
@@ -5828,9 +5889,11 @@
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
+				CCDE83D32B6EC38F00DC9F63 /* gb16.fnt in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
 				330FB72D138053E9001EC7A2 /* play_all.png in Resources */,
 				330FB72F138053F6001EC7A2 /* play_all@2x.png in Resources */,
+				CCDE83D52B6EC38F00DC9F63 /* gb24.fnt in Resources */,
 				330FB73213810D1D001EC7A2 /* playlist_add_all.png in Resources */,
 				330FB73313810D1D001EC7A2 /* playlist_add_all@2x.png in Resources */,
 				3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */,
@@ -5849,11 +5912,11 @@
 				594CB8C2263358D900D154E5 /* txtMenu5c_2x.png in Resources */,
 				59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */,
 				33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */,
+				CCDE83D72B6EC38F00DC9F63 /* amiga16.fnt in Resources */,
 				33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */,
 				3358147914EC0F27003D7B5B /* pinfo.png in Resources */,
 				3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */,
 				CCB8D99917F62A18008E6A45 /* txtMenu4a_2x.png in Resources */,
-				3389C97815F2AAA9000B28BB /* consolas16.fnt in Resources */,
 				333DA8EA15F48CD80095494B /* arrow_left.png in Resources */,
 				333DA8EB15F48CD80095494B /* arrow_left@2x.png in Resources */,
 				333DA8FA15F48D5E0095494B /* video_next.png in Resources */,
@@ -5919,6 +5982,7 @@
 				CCB8D99517F62A18008E6A45 /* txtMenu2c_2x.png in Resources */,
 				33ABD4EF17BCC49000D50393 /* bb_stop.png in Resources */,
 				59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */,
+				CCDE83E82B6EC3A500DC9F63 /* consolas8.fnt in Resources */,
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,

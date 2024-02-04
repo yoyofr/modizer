@@ -22,6 +22,12 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
+- TODO: have step/loop/random settings for archive (for example vgz)
+
+3.4
+---
+- [PLAYER] libopenmpt updated (01/02/2024)
+- [UI] Improved patterns display
 
 3.3
 ---

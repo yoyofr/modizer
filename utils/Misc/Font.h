@@ -6,6 +6,7 @@
  *
  */
 
+
 #include <string>
 #include <vector>
 
@@ -43,6 +44,7 @@ public:
 	
 	GLuint mTexId;
 	CCharacterData *mCharacterData;
+    int maxCharWidth,maxCharHeight;
 private:
 	
 	// Determine what size of texture we need for a given width of texture
