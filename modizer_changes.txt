@@ -35,6 +35,7 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 3.4
 ---
 - [PLAYER] libopenmpt updated (01/02/2024)
+- [PLAYER] New player: Eupmini to cover Euphony (FM-Towns)
 - [UI] Improved patterns display
 
 3.3

@@ -498,6 +498,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
@@ -508,7 +509,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
                                   [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
+                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
     [filetype_ext addObjectsFromArray:filetype_extMDX];
@@ -528,6 +529,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
+    [filetype_ext addObjectsFromArray:filetype_extEUP];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
     [filetype_ext addObjectsFromArray:filetype_extS98];
     [filetype_ext addObjectsFromArray:filetype_extKSS];

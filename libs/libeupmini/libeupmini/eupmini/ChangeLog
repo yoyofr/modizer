@@ -1,0 +1,303 @@
+2000-04-15  Tomoaki Hayasaka  <hayasaka@postman.riken.go.jp>
+
+        * 0.008 released.  (v-0_008)
+
+	* configure.in:  incresed the version number.
+
+2000-04-13  Tomoaki Hayasaka  <hayasaka@postman.riken.go.jp>
+
+	* Makefile.am (eupplay_LDADD):  removed -lg++.
+
+	* eupplay.cc:  do not include GetOpt.h and String.h.  include
+	unistd.h, string, vector and strstream.  added using namespace
+	std.
+	(downcase, upcase):  new static functions.
+	(openFile_inPath, EUPPlayer_readFile):  these functions no longer
+	depend on libg++'s String.
+	(main):  this function no longer depend on libg++'s GetOpt.
+
+	* eupplayer.cc:  _commands and _fCommands are now const variables.
+
+	* eupplayer.h (class PolyphonicAudioDevice):  timeStep() is now
+	const method.  added const qualifier to the argument of
+	timeStep(struct timeval &).
+
+	* eupplayer_townsEmulator.cc:  do not include String.h.  include
+	string.h and stdint.h.  replaced all long long int with int64_t,
+	u_short with int16_t.
+
+	* eupplayer_townsEmulator.h (class
+	EUP_TownsEmulator_MonophonicAudioSynthesizer):  velocity() and
+	rate() is now const method.
+	(class TownsFmEmulator_Operator):  replaced all long long int with
+	int64_t.
+
+	* configure.in (EUPPLAYER_CHECK_LITTLE_ENDIAN):  rewritten.
+
+1998-10-14  Tomoaki Hayasaka  <hayasaka@fh.u-tokai.ac.jp>
+
+        * 0.007 released.  (v-0_007)
+
+	* eupplayer_townsEmulator.cc:  config.h を include しないようにし
+	た。
+
+	* configure.in:  automake を使うようにした。
+	config.h を作らないようにした。
+
+	* Makefile.am (EXTRA_DIST, man_MANS):  変数追加。
+	(eupplay.1):  新ターゲット。
+
+	* README, AUTHORS, NEWS, Makefile.am, eupplay.1.in:  新ファイル。
+
+	* Makefile.in, acconfig.h config.h.in, stamp-h.in:  cvs の管理下から外した。
+	
+	* make-depend, make-dist, tar-excludes:  削除。
+
+1998-10-14  Tomoaki Hayasaka  <hayasaka@fh.u-tokai.ac.jp>
+
+        * 0.006 released.  (v-0_006)
+
+	* eupplayer_townsEmulator.cc:  assert.h を include。
+	(CHECK_CHANNEL_NUM):  新規マクロ。channel 番号の check をする関数
+	でこれを使用するようにした。
+	(TownsFmEmulator::setInstrumentParameter,
+	TownsPcmEmulator::setInstrumentParameter):  渡された instrument が 
+	NULL ならメッセージを出して return するようにした。
+	(EUP_TownsEmulator::programChange):  instrument の番号が範囲に入っ
+	ていないときに、_channel[channel]->setInstrumentParameter に 
+	_fmInstrument[] や _pcmInstrument[] の外を渡さないようにした。
+	
+	* eupplayer.cc (EUPPlayer::EUPPlayer):  _track2channel[] の初期化
+	をするようにした。
+	(EUPPlayer::mapTrack_toChannel):  track と channel に関する 
+	assertion を追加。
+	
+	* eupplayer_towns.h (TownsAudioDevice::assignFmDeviceToChannel,
+	TownsAudioDevice::assignPcmDeviceToChannel,
+	setPcmInstrumentParameters):  = 0 の宣言を付けた。
+
+	* eupplay.cc (EUPPlayer_readFile):  EUP file があまりに小さいとき
+	はメッセージを出して止まるようにした。なにかエラーが起きたときに、
+	return する前にメッセージを出力するようにした。
+	(main):  EUP file の read に失敗したときのメッセージの出力に、
+	perror を使わないようにした。(すでに EUPPlayer_readFile が perror 
+	などで出力しているはず)
+
+Sun Apr 27 15:40:59 1997  Tomoaki HAYASAKA  <hayasaka@fh.u-tokai.ac.jp>
+
+ 	* NEWS-ja, README-ja, eupplayer.ggg, make-dist:  version を 0.006 
+	に。
+
+Sun Apr 27 15:20:04 1997  Tomoaki HAYASAKA  <hayasaka@fh.u-tokai.ac.jp>
+
+	* README-jp, README-ja, make-dist:  名前を README-jp から 
+	README-ja に変更。
+	
+	* NEWS-jp, NEWS-ja:  名前を NEWS-jp から NEWS-ja に変更。
+
+	* eupplayer_townsEmulator.cc (TownsFmEmulator::~TownsFmEmulator):
+  	delete に [] を追加。
+
+Mon Sep 30 01:34:21 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+        * 0.005 released.  (v-0_005)
+
+Tue Sep 17 18:34:52 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc:
+  	(TownsPcmEnvelope::TownsPcmEnvelope(TownsPcmEnvelope const *e)):
+ 	new method.
+	(TownsPcmInstrument::findEnvelope):  戻りを const に変更。
+	(TownsPcmEmulator::nextTick):  _currentEnvelope を使用し終ったら
+	delete するように変更。
+	(TownsPcmEmulator::note):  envelope をコピーして使うようにした。
+	
+Tue Sep 17 17:51:33 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* (w-1)
+
+	* eupplayer.cc:  (DB_PROCESSING):  新規マクロ。EUPPlayer_cmd_???? 
+	で使用。
+	
+	* eupplayer_townsEmulator.cc:  (TownsFmEmulator::velocity):
+  	control7 の扱いを変更。
+
+Sun Sep 15 11:47:57 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+	
+        * 0.004 released.  (v-0_004)
+
+	* eupplayer_townsEmulator.cc:
+  	(TownsFmEmulator::recalculateFrequency):  ピッチベンドの動作を純正
+	プレイヤーに合わせることに成功した。
+
+Thu Sep 12 20:36:33 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc: (TownsPcmEmulator::nextTick):  線型
+	補間するようにしてみた。
+
+Thu Sep 12 18:30:25 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* (w-0)
+	
+	* eupplayer_townsEmulator.cc:  (TownsPcmSound):  data -> samples,
+ 	dataLength -> numSamples
+
+	* eupplay.cc:  (EUPPlayer_readFile):  EUP_FMINST と EUP_FMINST の
+	デフォルトを変更した。
+
+	* mule-19.33-beta 使用開始。ときどき落ちる。
+	
+Fri Sep  6 12:50:17 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc:  (TownsPcmEmulator::nextTick):  音量
+	を 185/256 に。
+
+	* mule-19.33-alpha 使用開始。
+
+Wed Sep  4 14:48:48 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+        * 0.003 released.  (v-0_003)
+
+	* eupplayer_townsEmulator.cc:
+	(TownsFmEmulator_Operator):  attack 動作の改変に関する様々な改造。
+
+	* eupplayer_townsEmulator.h:
+        (TownsFmEmulator_Operator:_attackRate):  削除。
+	(TownsFmEmulator_Operator:_tickCount, _attackTime):  新規。
+
+	* eupplay.cc:  (main):  LSB first と MSB first とを入れ換え。
+
+	* mksintbl.c:  全部 const。
+	attackOut も出力するようにした。
+
+	* sintbl.h:  全部 const。
+
+Mon Sep  2 08:55:23 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc:
+  	(TownsFmEmulator::~TownsFmEmulator):  暫定的に _opr を delete しな
+	いようにした。
+
+	* eupplay.cc:  (main):  -t などの option を受けるようにした。
+
+	* eupplayer_townsEmulator.cc, eupplayer_townsEmulator.h:
+	(EUP_TownsEmulator::outputSampleUnsigned,
+	EUP_TownsEmulator::_outputSampleUnsigned,
+	EUP_TownsEmulator::outputSampleLSBFirst,
+	EUP_TownsEmulator::_outputSampleLSBFirst): 新規。
+	(EUP_TownsEmulator::EUP_TownsEmulator, EUP_TownsEmulator::nextTick):
+	上記に合わせて変更。
+
+	* eupplayer.cc, eupplayer_townsEmulator.h,
+ 	eupplayer_townsEmulator.cc:  outputDataLength -> outputSampleSize 
+	へ変更。
+
+Sun Sep  1 12:51:22 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.h:
+        (TownsFmEmulator_Operator::_specifiedSustainLevel):  新規。
+
+	* eupplayer_townsEmulator.cc:
+  	(TownsFmEmulator_Operator::nextTick, velocity):  _totalLevel で_
+	velocity を実装。これは、前に変更し忘れたところ。
+
+	* eupplayer.cc, eupplayer_townsEmulator.cc:  (DB):  新規。
+	(DB1, DB2, DB3):  削除。これらを使っていたところは DB を使うように
+	変更。
+
+Thu Aug 29 13:23:18 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+        * 0.002 released.
+
+	* eupplay.cc:  (main):
+	* eupplayer_townsEmulator.cc, eupplayer_townsEmulator.h:
+	(EUP_TownsEmulator):  出力ストリームとして ostream ではなく FILE 
+	を使うようにした。
+
+	* eupplayer_townsEmulator.cc:  (TownsPcmEnvelope::nextTick):
+ 	overflow 対策で long long。
+
+Wed Aug 28 04:23:08 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer.cc:  (EUPPlayer_cmd_9x):  offVelo の省略に対応。
+
+	* eupplayer_townsEmulator.cc:
+	* eupplayer_townsEmulator.h:
+	(EUP_TownsEmulator_MonophonicAudioSynthesizer,
+ 	TownsFmEmulator_Operator, TownsFmEmulator):  TL による velocity の
+	実装に関する様々な変更。
+
+	* eupplayer_townsEmulator.cc:  その他。
+
+Sun Aug 25 07:57:15 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* NEWS-jp:  新ファイル。
+
+	* eupplayer.cc:  (OVERSTEP, COMPRESSOVERSTEPS):  new macro
+	(WAIT4NEXTSTEP):  COMPRESSOVERSTEPS を使うように変更。
+	(EUPPlayer_cmd_f2):  OVERSTEP により処理を分けた。
+
+Sun Aug 25 05:39:49 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer.cc, eupplayer.h, eupplayer_towns.h,
+	eupplayer_townsEmulator.cc, eupplayer_townsEmulator.h: 
+	track -> channel の変換を行うようにしたことに関する様々な変更。
+
+	* eupplay.cc:  (openFile_inPath):  メッセージ表示を再封印。
+	(EUPPlayer_readFile):  MIDI-ch などの指定を読むようにした。
+
+
+Sat Aug 24 05:28:27 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc:  (TownsPcmEmulator::nextTick):  出力 
+	2 倍。
+
+Fri Aug 23 01:59:51 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.h:
+	(TownsFmEmulator_Operator::frequency):  new method。
+	(TownsFmEmulator_Operator::nextTick):  freq 引数を取らないようにし
+	た。
+	(TownsFmEmulator_Operator::_frequency, _releaseRate):  new
+ 	instance var。
+
+	* eupplayer_townsEmulator.cc:
+        (TownsFmEmulator_Operator::setInstrumentParameter):  SL の効力を 4 
+	倍に。
+
+	(TownsFmEmulator_Operator::keyOn):  _currentLevel をリセットするよ
+	うにした。
+
+	(TownsFmEmulator_Operator::frequency):  new method。nextTick の一
+	部を移植。
+
+	(TownsFmEmulator_Operator::nextTick):  変調量を調整。freq 引数を取
+	らないようにした (呼び元の TownsFmEmulator::nextTick も変更)。
+
+	(EUP_TownsEmulator::nextTick):  うちに合わせて速度を微調整。
+
+	* eupplay.cc: (openFile_inPath):  メッセージ出力を復活。
+
+Wed Aug 21 01:31:45 1996  tjh  <tjh@darkside.fh.u-tokai.ac.jp>
+
+	* eupplayer_townsEmulator.cc:  (TownsFmEmulator_Operator):
+  	envelope 関連の計算を setInstrumentParameter から nextTick へ移し
+	た。
+
+	* eupplayer_townsEmulator.h:  (TownsFmEmulator_Operator):
+  	envelope 関連の変数を追加。
+
+	* eupplay.cc:  (main):  error message の出力を復活。
+
+	* mksintbl.c:  keyscaleTable[] を作るようにした。
+
+	* sintbl.h:  (keyscaleTable[]):  new
+
+	* eupplayer_townsEmulator.cc:
+        (TownsFmEmulator_Operator::nextTick):  self feedback 量を半分に。
+
+	* Makefile.in:  (mostlyclean):  config.log も削除するようにした。
+
+--------
+
+        * 0.001 released.

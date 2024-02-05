@@ -117,6 +117,7 @@ extern "C" void updateMainLoopC(void) {
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","];
+    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP_EXT componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
@@ -143,6 +144,7 @@ extern "C" void updateMainLoopC(void) {
     [supportedExtension addObjectsFromArray:filetype_extGME];
     [supportedExtension addObjectsFromArray:filetype_extADPLUG];
     [supportedExtension addObjectsFromArray:filetype_extHC];
+    [supportedExtension addObjectsFromArray:filetype_extEUP];
     [supportedExtension addObjectsFromArray:filetype_extHVL];
     [supportedExtension addObjectsFromArray:filetype_extS98];
     [supportedExtension addObjectsFromArray:filetype_extKSS];

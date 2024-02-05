@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type"
+      content="text/html; charset=utf-8">
+
+<!--
+ webEuphony: enhanced HTML5 Audio/JavaScript port of eupplayer
+
+ Copyright (C) 2023 Juergen Wothke
+ LICENSE GPL2.0
+-->
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<title>webEuphony - a FN TOWNS "EUP" music player for the Web</title>
+
+<meta name="description" content="JavaScript port of eupplayer allows to playback .eup format files directly within the browser.">
+<meta name="author" content="Juergen Wothke">
+<meta name="keywords" content="FM TOWNS, Euphony, eup, Web Audio API, HTML5, JavaScript">
+
+<link href="stdlib/common.css" rel="stylesheet" type="text/css">
+
+<link rel="image_src" href="screenshot.gif" />
+<meta property="og:image" content="http://www.wothke.ch/webEuphony/screenshot.gif" />
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+<link type="image/x-icon" href="favicon.ico" />
+
+<script type="text/javascript">
+function tInit() {	// see "cb" param below
+	new google.translate.TranslateElement({
+		pageLanguage: 'ja', includedLanguages: 'en',
+		layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+	}, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=tInit"></script>
+<style>
+/* hide all the UI garbage that the "Google translate" stuff comes with */
+#translated {
+	color: #7f7F7F;
+	opacity: 0.1;
+}
+.goog-te-banner-frame {
+	display: none;
+	height: 0 !important;
+	visibility: hidden
+}
+#google_translate_element {
+	display: none;
+}
+body > .skiptranslate {
+	display: none;
+}
+body {
+	top: 0px !important;
+}
+</style>
+
+<style>
+.drop {
+	position: relative;
+	width:300px;
+	height:300px;
+	z-index:500;
+	-webkit-transform: translateX(-70px) translateY(60px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+	-moz-transform: translateX(-80px) translateY(40px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+}
+aside {
+	position: absolute;
+	z-index: 10;
+	left: 150px;
+	top: 15px;
+}
+details {
+	z-index: 1400;
+}
+
+</style>
+
+<script>
+	window.openDetails = false;
+
+	let allFilesLoadedCallback = function() {
+		$(function() {	// DOM also is loaded
+			try {
+				new Main().run();
+			}
+			catch (e) {
+				alert("fatal error: " + e);
+			}
+		});
+	}
+
+	/*
+	If HTML wasn't such a green banana joke, there would be a built-in feature to allow
+	to specify a simple "include dependencies" configuration in a human readable form... but
+	since this doesn't exist I am using https://github.com/muicss/loadjs as a poor man's
+	crutch (I somewhat enhanced that API with loadJsBundles)
+	*/
+	function loadJsBundles(e){const n=function(e,n,t){let s=n[0];loadjs(s,e);let r=n[1];if(void 0!==r&&null!=r)if("function"==typeof r){let n=function(){r()};loadjs.ready(e,{success:n})}else{let n=function(){t(r)};loadjs.ready(e,{success:n})}};for(const[t,s]of Object.entries(e))if("@onReady"==t){let e=s[0],n=function(){loadJsBundles(s[1])};loadjs.ready(e,{success:n})}else n(t,s,loadJsBundles)}loadjs=function(){var e=function(){},n={},t={},s={};function r(e,n){if(e){var r=s[e];if(t[e]=n,r)for(;r.length;)r[0](e,n),r.splice(0,1)}}function o(n,t){n.call&&(n={success:n}),t.length?(n.error||e)(t):(n.success||e)(n)}function c(n,t,s,r){var o,i,u=document,l=s.async,f=(s.numRetries||0)+1,a=s.before||e,d=n.replace(/[\?|#].*$/,""),h=n.replace(/^(css|img)!/,"");r=r||0,/(^css!|\.css$)/.test(d)?((i=u.createElement("link")).rel="stylesheet",i.href=h,(o="hideFocus"in i)&&i.relList&&(o=0,i.rel="preload",i.as="style")):/(^img!|\.(png|gif|jpg|svg|webp)$)/.test(d)?(i=u.createElement("img")).src=h:((i=u.createElement("script")).src=n,i.async=void 0===l||l),!(i.onload=i.onerror=i.onbeforeload=function(e){var u=e.type[0];if(o)try{i.sheet.cssText.length||(u="e")}catch(e){18!=e.code&&(u="e")}if("e"==u){if((r+=1)<f)return c(n,t,s,r)}else if("preload"==i.rel&&"style"==i.as)return i.rel="stylesheet";t(n,u,e.defaultPrevented)})!==a(n,i)&&u.head.appendChild(i)}function i(e,t,s){var i,u;if(t&&t.trim&&(i=t),u=(i?s:t)||{},i){if(i in n)throw"LoadJS";n[i]=!0}function l(n,t){!function(e,n,t){var s,r,o=(e=e.push?e:[e]).length,i=o,u=[];for(s=function(e,t,s){if("e"==t&&u.push(e),"b"==t){if(!s)return;u.push(e)}--o||n(u)},r=0;r<i;r++)c(e[r],s,t)}(e,(function(e){o(u,e),n&&o({success:n,error:t},e),r(i,e)}),u)}if(u.returnPromise)return new Promise(l);l()}return i.ready=function(e,n){return function(e,n){e=e.push?e:[e];var r,o,c,i=[],u=e.length,l=u;for(r=function(e,t){t.length&&i.push(e),--l||n(i)};u--;)o=e[u],(c=t[o])?r(o,c):(s[o]=s[o]||[]).push(r)}(e,(function(e){o(n,e)})),i},i.done=function(e){r(e,[])},i.reset=function(){n={},t={},s={}},i.isDefined=function(e){return e in n},i}();
+
+	loadJsBundles({
+		uiBundle:	[[
+						'stdlib/mini_controls.js',
+						'stdlib/analytics.js'
+						]],
+		jQueryBase: [[	'stdlib/jquery1.11.min.js'], {
+								jQueryBundle: [[	'stdlib/jquery.details.min.js',
+													'stdlib/mini_display.js',
+													]],
+						}],
+		playerBase: [[	'stdlib/scriptprocessor_player.min.js'], {
+								playerBundle: [[	'backend_eup.js'
+													]],
+							}],
+		"@onReady": [['uiBundle', 'jQueryBundle', 'playerBundle'], {
+								mainBundle: [['main.js'], allFilesLoadedCallback]
+							}]
+	});
+</script>
+</head>
+
+<body class="notranslate">
+<!-- hack: seems the element has to be visible for Google zo translate it..-->
+<div id="translated" class="translate" ></div>
+<div class="tooltip" id="tooltip" alt= "This is a hobby project, but it costs not only time to regularily maintain this site but also money to pay for the internet service provider (etc). If you want to keep this site up and running.. or if you just like my work (see https://jwothke.wordpress.com/) and you'd like to see more of it in the future, please make a contribution. Thank you!"></div>
+
+<details>
+  <summary>What's this?</summary>
+  <div>
+  <h1>FM Towns music for the Web</h1>
+ <p>Copyright 2023 by Juergen Wothke  (The source code can be found <a href="https://bitbucket.org/wothke/webEuphony" rel="noopener" target="_blank">here</a>.)</p>
+ <p>This JavaScript/WebAssembly/HTML5 port of an enhanced version of <a href="https://github.com/tjhayasaka/eupplayer" rel="noopener" target="_blank">eupplayer</a>
+  allows to play EUPHONY format songs directly within the browser.</p>
+ <p>The FM Towns was a Japanese personal computer, built by Fujitsu from February 1989 to the summer of 1997. For audio output
+ it was equipped with an 8-channel Ricoh RF5c68 for PCM sample playback and a Yamaha YM2612 (OPN2) for FM synthesis. (Outside of Japan the same
+ Yamaha chip was better known for its use in Sega's Mega Drive/Genesis video game consoles.)<p>
+
+ <p>The EUPHONY music format seems to have been popular on FM Towns - probably due to the freely available
+ "HEat-Oh!" ("High EUP active tool") that used the format. For many Japaneese computer enthusiasts this must have been their
+ first opportunity to try their luck at creating computer music themselves. (Unsurprisingly this resulted in many instances of
+ adaptations of sheet music from famous composers, like Beethoven, Mozart, etc. And still more works of "one time" composers  - that
+ often do not sound that great. At the time there had been "FM Towns Free Software Collections" circulating respective music files.</p>
+
+ <p>My enhanced player implementation uses a replacement "state-of-the-art" OPN2 emulation (MAME). Also I added
+ stereo support, fixed the flawed pitch-bending implementation and made various smaller fixes.</p>
+
+  <p>Bring your own .eup files by drag &amp; dropping them on the page (make sure to also drop the .fmb/.pmb libs that the song
+  depends on together with the main song file). Or use the below controls to navigate between the songs
+  in the playlist:</p>
+  <p>Credits: The base eupplayer is the creation of Tomoaki Hayasaka. Other contributors (IIJIMA Hiromitsu
+  (aka Delmonta), anonymous K., Giangiacomo Zaffini) have then made some small adjustments to that implementation (this
+  project originally started off from the <a href="https://github.com/gzaffin/eupmini" rel="noopener" target="_blank">eupmini</a> code base). The used
+  OPN2 emulation was created for MAME by Jarek Burczynski and Tatsuyuki Satoh - probably with some adjustments by ValleyBell for
+  use in vgmlib. This page uses Google Translate to automatically translate the original Japanese song titles. </p>
+ </div>
+ <div id="show"></div>
+</details>
+<aside>
+    <span id="controls" style="z-index: 1101;"></span>
+</aside>
+<section>
+  <div id="logo">
+		<!-- in new Chrome the SHIT reflections disapear dependig on the canvas height.. what a fucking joke -->
+		<div id="moz-reflect-logo"><canvas  id="logoCanvas"  width="450" height="100"></canvas></div>
+  </div>
+  <div id="spectrum" >
+		<!-- use "hight" greater than 80 and the fucking reflection is gone.. FUCK YOU IDIOTS -->
+		<div id="moz-reflect-spectrum"><canvas id="spectrumCanvas" width="800" height="80"></canvas></div>
+  </div>
+  <div id="drop" class="drop"><img src="fmtowns.gif"/></div><!--see BasicPlayerControls-->
+</section>
+
+<div id="google-translate" style="display:none"></div>
+<div id="google_translate_element" style="display:none"></div>
+</body>
+</html>

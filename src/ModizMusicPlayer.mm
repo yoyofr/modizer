@@ -13,6 +13,8 @@
 #include <sys/xattr.h>
 
 
+
+
 #include "fex.h"
 
 extern pthread_mutex_t db_mutex;
@@ -60,6 +62,320 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #include "builders/residfp-builder/residfp.h"
 #include "builders/resid-builder/resid.h"
+
+/* EUPMINI
+ * global data
+ *
+ */
+typedef struct {
+    char    title[32]; // オフセット/offset 000h タイトルは半角32文字，全角で16文字以内の文字列で指定します。The title is specified as a character string of 32 half-width characters or less and 16 full-width characters or less.
+    char    artist[8]; // オフセット/offset 020h
+    char    dummy[44]; // オフセット/offset 028h
+    char    trk_name[32][16]; // オフセット/offset 084h 512 = 32 * 16
+    char    short_trk_name[32][8]; // オフセット/offset 254h 256 = 32 * 8
+    char    trk_mute[32]; // オフセット/offset 354h
+    char    trk_port[32]; // オフセット/offset 374h
+    char    trk_midi_ch[32]; // オフセット/offset 394h
+    char    trk_key_bias[32]; // オフセット/offset 3B4h
+    char    trk_transpose[32]; // オフセット/offset 3D4h
+    char    trk_play_filter[32][7]; // オフセット/offset 3F4h 224 = 32 * 7
+                                    // ＦＩＬＴＥＲ：形式１ ベロシティフィルター/Format 1 velocity filter ＦＩＬＴＥＲ：形式２ ボリュームフィルター/FILTER: Format 2 volume filter ＦＩＬＴＥＲ：形式３ パンポットフィルター/FILTER: Format 3 panpot filter have 7 typed parameters 1 byte sized each parameter
+                                    // ＦＩＬＴＥＲ：形式４ ピッチベンドフィルター/Format 4 pitch bend filter has 7 typed parameters some parameters are 2 bytes sized
+    char    instruments_name[128][4]; // オフセット/offset 4D4h 512 = 128 * 4
+    char    fm_midi_ch[6]; // オフセット/offset 6D4h
+    char    pcm_midi_ch[8]; // オフセット/offset 6DAh
+    char    fm_file_name[8]; // オフセット/offset 6E2h
+    char    pcm_file_name[8]; // オフセット/offset 6EAh
+    char    reserved[260]; // オフセット/offset 6F2h 260 = (32 * 8) + 4 ??? ＦＩＬＴＥＲ：形式４ ピッチベンドフィルター/Format 4 pitch bend filter additional space ???
+    char    appli_name[8]; // オフセット/offset 7F6h
+    char    appli_version[2]; // オフセット/offset 7FEh
+    int32_t size; // オフセット/offset 800h
+    char    signature; // オフセット/offset 804h
+    char    first_tempo; // オフセット/offset 805h
+} EUPHEAD;
+
+typedef struct {
+    char    trk_mute[32];
+    char    trk_port[32];
+    char    trk_midi_ch[32];
+    char    trk_key_bias[32];
+    char    trk_transpose[32];
+    char    fm_midi_ch[6];
+    char    pcm_midi_ch[8];
+    int32_t size;
+    char    signature;
+    char    first_tempo;
+    char*   eupData;
+} EUPINFO;
+
+struct pcm_struct eup_pcm;
+int eup_mutemask;
+uint8_t *eup_buf;
+EUPPlayer *eup_player;
+EUP_TownsEmulator *eup_dev;
+EUPHEAD eup_header;
+char eup_filename[1024];
+
+#define PATH_DELIMITER      ";"
+#define PATH_DELIMITER_CHAR ';'
+
+static std::string const downcase(std::string const &s)
+{
+    std::string r;
+    for (std::string::const_iterator i = s.begin(); i != s.end(); i++) {
+        r += (*i >= 'A' && *i <= 'Z') ? (*i - 'A' + 'a') : *i;
+    }
+    return r;
+}
+
+static std::string const upcase(std::string const &s)
+{
+    std::string r;
+    for (std::string::const_iterator i = s.begin(); i != s.end(); i++) {
+        r += (*i >= 'a' && *i <= 'z') ? (*i - 'a' + 'A') : *i;
+    }
+    return r;
+}
+
+static FILE *openFile_inPath(std::string const &filename, std::string const &path)
+{
+    FILE *f = nullptr;
+    std::vector<std::string> fn2;
+    fn2.push_back(filename);
+    fn2.push_back(downcase(filename));
+    fn2.push_back(upcase(filename));
+
+    std::string::const_iterator i = path.begin();
+    while (i != path.end()) {
+        std::string dir{};
+        while (i != path.end() && *i != PATH_DELIMITER_CHAR) {
+            dir += *i++;
+        }
+        if (i != path.end() && *i == PATH_DELIMITER_CHAR) {
+            i++;
+        }
+        for (std::vector<std::string>::const_iterator j = fn2.begin(); j != fn2.end(); j++) {
+            std::string const filename(dir /*+ "/"*/ +*j);
+            //std::cerr << "trying " << filename << std::endl;
+            f = fopen(filename.c_str(), "rb");
+            if (f != nullptr) {
+                //std::cerr << "loading " << filename << std::endl;
+                return f;
+            }
+        }
+    }
+    if (f == nullptr) {
+        fprintf(stderr, "error finding %s\n", filename.c_str());
+        std::fflush(stderr);
+    }
+
+    return f;
+}
+
+uint8_t *EUPPlayer_readFile(EUPPlayer *player,
+        TownsAudioDevice *device,
+        std::string const &nameOfEupFile,EUPHEAD *eup_headerptr) {
+    // ヘッダ読み込み用バッファ
+    EUPHEAD eupHeader;
+    // EUP情報領域
+    EUPINFO eupInfo;
+
+    // とりあえず, TOWNS emu のみに対応.
+
+    uint8_t *eupbuf = nullptr;
+    player->stopPlaying();
+
+    {
+        FILE *f = fopen(nameOfEupFile.c_str(), "rb");
+        if (f == nullptr) {
+            perror(nameOfEupFile.c_str());
+            return nullptr;
+        }
+
+        struct stat statbufEupFile;
+        if (fstat(fileno(f), &statbufEupFile) != 0) {
+            perror(nameOfEupFile.c_str());
+            fclose(f);
+            return nullptr;
+        }
+
+        if (statbufEupFile.st_size < 2048 + 6 + 6) {
+            fprintf(stderr, "%s: too short file.\n", nameOfEupFile.c_str());
+            std::fflush(stderr);
+            fclose(f);
+            return nullptr;
+        }
+
+        size_t eupRead = fread(&eupHeader, 1, sizeof(EUPHEAD), f);
+        if (eupRead != sizeof(EUPHEAD)) {
+            fprintf(stderr, "EUP file does not follow specification.\n");
+            std::fflush(stderr);
+            fclose(f);
+            return nullptr;
+        }
+        else {
+            int trk;
+
+            // データー領域の確保
+            eupInfo.eupData = nullptr/*new uint8_t[eupHeader.size]*/;
+            //if (eupInfo.eupData == nullptr break;
+
+            eupInfo.first_tempo = eupHeader.first_tempo;
+            //player->tempo(eupInfo.first_tempo + 30);
+            //fprintf(stderr, "(eupInfo.first_tempo + 30) is %u.\n", static_cast<unsigned char>(eupInfo.first_tempo + 30u));
+            
+            player->tempo(eupInfo.first_tempo + 30);
+
+            // ヘッダ情報のコピー
+            for (trk = 0; trk < 32; trk++) {
+                eupInfo.trk_mute[trk] = eupHeader.trk_mute[trk];
+                eupInfo.trk_port[trk] = eupHeader.trk_port[trk];
+                eupInfo.trk_midi_ch[trk] = eupHeader.trk_midi_ch[trk];
+                eupInfo.trk_key_bias[trk] = eupHeader.trk_key_bias[trk];
+                eupInfo.trk_transpose[trk] = eupHeader.trk_transpose[trk];
+
+                player->mapTrack_toChannel(trk, eupInfo.trk_midi_ch[trk]);
+                //fprintf(stderr, "eupInfo.trk_midi_ch[%d] is %d.\n", trk, eupInfo.trk_midi_ch[trk]);
+            }
+            
+            
+            // FM/PCM may be arbitrarily mapped to the available 14 slots
+            for (int n = 0; n < 6; n++) {
+                eupInfo.fm_midi_ch[n] = eupHeader.fm_midi_ch[n];
+                device->assignFmDeviceToChannel(eupInfo.fm_midi_ch[n], n);
+            }
+            for (int n = 0; n < 8; n++) {
+                eupInfo.pcm_midi_ch[n] = eupHeader.pcm_midi_ch[n];
+                device->assignPcmDeviceToChannel(eupInfo.pcm_midi_ch[n]);
+            }
+                        
+            eupInfo.signature = eupHeader.signature;
+            //eupInfo.first_tempo = eupHeader.first_tempo;
+            eupInfo.size = eupHeader.size;
+        }
+
+        eupbuf = new uint8_t[statbufEupFile.st_size];
+        fseek(f, 0, SEEK_SET); // seek to start
+        eupRead = fread(eupbuf, 1, statbufEupFile.st_size, f);
+        if (eupRead != statbufEupFile.st_size) {
+            fprintf(stderr, "EUP not fully read: %zu instead of %lu.\n", eupRead, statbufEupFile.st_size);
+            fclose(f);
+            delete eupbuf;
+            return nullptr;
+        }
+        fclose(f);
+    }
+
+    //player->tempo(eupInfo.first_tempo + 30);
+    
+    char nameBuf[1024];
+    char *fmbpmbdir = std::getenv("HOME");
+    if (nullptr != fmbpmbdir)
+    {
+        std::strcpy(nameBuf, fmbpmbdir);
+        std::strcat(nameBuf, "/.eupplay/");
+    }
+    else
+    {
+        nameBuf[0] = 0;
+    }
+    std::string fmbPath(nameBuf);
+    std::string pmbPath(nameBuf);
+    std::string eupDir(nameOfEupFile.substr(0, nameOfEupFile.rfind("/") + 1)/* + "/"*/);
+    fmbPath = eupDir + PATH_DELIMITER + fmbPath;
+    //std::cerr << "fmbPath is " << fmbPath << std::endl;
+    pmbPath = eupDir + PATH_DELIMITER + pmbPath;
+    //std::cerr << "pmbPath is " << pmbPath << std::endl;
+
+    {
+        uint8_t instrument[] = {
+            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // name
+            17, 33, 10, 17,                         // detune / multiple
+            25, 10, 57, 0,                          // output level
+            154, 152, 218, 216,                     // key scale / attack rate
+            15, 12, 7, 12,                          // amon / decay rate
+            0, 5, 3, 5,                             // sustain rate
+            38, 40, 70, 40,                         // sustain level / release rate
+            20,                                     // feedback / algorithm
+            0xc0,                                   // pan, LFO
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        };
+        for (int n = 0; n < 128; n++) {
+            device->setFmInstrumentParameter(n, instrument);
+        }
+    }
+    /* FMB */
+    {
+        char fn0[16];
+        memcpy(fn0, eupHeader.fm_file_name/*eupbuf + 0x6e2*/, 8); /* verified 0x06e2 offset */
+        fn0[8] = '\0';
+        std::string fn1(std::string(fn0) + ".fmb");
+        if (fn1!=".fmb") {
+            FILE *f = openFile_inPath(fn1, fmbPath);
+            if (f != nullptr) {
+                struct stat statbuf1;
+                fstat(fileno(f), &statbuf1);
+                uint8_t buf1[statbuf1.st_size];
+                size_t fmbRead = fread(buf1, 1, statbuf1.st_size, f);
+                if (fmbRead != statbuf1.st_size) {
+                    fprintf(stderr, "FMB not fully read: %zu instead of %lu.\n", fmbRead, statbuf1.st_size);
+                }
+                fclose(f);
+                for (int n = 0; n < (statbuf1.st_size - 8) / 48; n++) {
+                    device->setFmInstrumentParameter(n, buf1 + 8 + 48 * n);
+                }
+                
+            } else {
+                delete eupbuf;
+                return nullptr;
+            }
+        }
+    }
+    /* PMB */
+    {
+        char fn0[16];
+        memcpy(fn0, eupHeader.pcm_file_name/*eupbuf + 0x6ea*/, 8); /* verified 0x06ea offset */
+        fn0[8] = '\0';
+        std::string fn1(std::string(fn0) + ".pmb");
+        if (fn1!=".pmb") {
+            FILE *f = openFile_inPath(fn1, pmbPath);
+            if (f != nullptr) {
+                struct stat statbuf1;
+                fstat(fileno(f), &statbuf1);
+                uint8_t buf1[statbuf1.st_size];
+                size_t pmbRead = fread(buf1, 1, statbuf1.st_size, f);
+                if (pmbRead != statbuf1.st_size) {
+                    fprintf(stderr, "PMB not fully read: %zu instead of %lu.\n", pmbRead, statbuf1.st_size);
+                }
+                fclose(f);
+                device->setPcmInstrumentParameters(buf1, statbuf1.st_size);
+            } else {
+                delete eupbuf;
+                return nullptr;
+            }
+        }
+    }
+
+    if (eup_headerptr) memcpy((char*)eup_headerptr,(char*)(&eupHeader),sizeof(EUPHEAD));
+    
+    return eupbuf;
+}
+
+int EUPPlayer_ResetReload(){
+    delete eup_buf;
+    delete eup_dev;
+    eup_dev = new EUP_TownsEmulator;
+    eup_dev->rate(streamAudioRate); /* Hz */
+    eup_player->outputDevice(eup_dev);
+    eup_buf = EUPPlayer_readFile(eup_player, eup_dev, eup_filename,&eup_header);
+    if (eup_buf == nullptr) {
+        fprintf(stderr, "%s: read failed\n", eup_filename);
+        std::fflush(stderr);
+        return -1;
+    }
+    eup_player->startPlaying(eup_buf + 2048 + 6);
+    return 0;
+}
 
 
 
@@ -623,10 +939,6 @@ void gsf_loop() {
     }
     //	printf("exit\n");
 }
-
-
-/*****************/
-
 
 static int16_t *vgm_sample_data;
 static float *vgm_sample_data_float;
@@ -1971,7 +2283,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
             m_voice_current_ptr[i]=0;
-            m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE);
+            m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*2);
         }
         for (int j=0;j<SOUND_BUFFER_NB;j++) {
             m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
@@ -2610,6 +2922,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
         }
     }
 }
+
 void gsf_update(unsigned char* pSound,int lBytes) {
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
         g_playing=0;
@@ -3342,7 +3655,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     bGlobalEndReached=1;
                     bGlobalAudioPause=2;
                 }
-                
                 if (mPlayType==MMP_GSF) {  //Special case : GSF
                     int counter=0;
                     [NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
@@ -3690,6 +4002,40 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_VGMPLAY) { //VGM
                             bGlobalSeekProgress=-1;
                             SeekVGM(false,mNeedSeekTime*441/10);
+                            //mNeedSeek=0;
+                        }
+                        if (mPlayType==MMP_EUP) { //EUP
+                            int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (mCurrentSamples >seekSample) {
+                                eup_player->stopPlaying();
+                                EUPPlayer_ResetReload();
+                                mCurrentSamples=0;
+                            }
+                            
+                            while (seekSample - mCurrentSamples > 0) {
+                                eup_player->nextTick(true);
+                                        
+                                mCurrentSamples+=eup_pcm.write_pos/2;
+                                iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                
+                                eup_pcm.write_pos=0;
+                                                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }
+                            
+                            
                             //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_HC) { //HC
@@ -5073,8 +5419,58 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_STSOUND) { //STSOUND
                         int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
-                        if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        else nbBytes=0;
+                        if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) { nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                        } else {
+                            nbBytes=0;
+                        }
+                    }
+                    if (mPlayType==MMP_EUP) { //EUP
+                        int nbSample = SOUND_BUFFER_SIZE_SAMPLE*2; //stereo
+                        if (eup_player->isPlaying()) {
+                            int smpl_available=0;
+                            if (eup_pcm.read_pos<=eup_pcm.write_pos) smpl_available=eup_pcm.write_pos-eup_pcm.read_pos;
+                            else smpl_available=streamAudioBufferSamples-eup_pcm.read_pos+eup_pcm.write_pos;
+                            
+                            /*if (numVoicesChannels) {
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                        memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    }
+                            }*/
+                            
+                            while (smpl_available<nbSample) {
+                                if (eup_player->isPlaying()) eup_player->nextTick();
+                                else {
+                                    nbBytes=0;
+                                    break;
+                                }
+                                
+                                if (eup_pcm.read_pos<=eup_pcm.write_pos) smpl_available=eup_pcm.write_pos-eup_pcm.read_pos;
+                                else smpl_available=streamAudioBufferSamples-eup_pcm.read_pos+eup_pcm.write_pos;
+                            }
+                                                        
+                            for (int j=0;j<nbSample;j++) {
+                                buffer_ana[buffer_ana_gen_ofs][j]=((int16_t *) (eup_pcm.buffer))[eup_pcm.read_pos++];
+                                if (eup_pcm.read_pos>=streamAudioBufferSamples) eup_pcm.read_pos=0;
+                            }
+                                                        
+                            
+                            //copy voice data for oscillo view
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                int voice_data_ofs=(m_voice_current_ptr[j]>>10)-smpl_available/2;
+                                if (voice_data_ofs<0) voice_data_ofs+=SOUND_BUFFER_SIZE_SAMPLE*2;
+                                
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
+                                    m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+                                    voice_data_ofs++;
+                                }
+                            }
+                            
+                            
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                        } else nbBytes=0;
                     }
                     if (mPlayType==MMP_ATARISOUND) { //ATARISOUND
                         int retAtari=atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE,atariWaveData);
@@ -5751,6 +6147,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
@@ -5762,7 +6159,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                   [filetype_extSTSOUND count]+[filetype_extATARISOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
+                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
     int err;
@@ -5788,6 +6185,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
+    [filetype_ext addObjectsFromArray:filetype_extEUP];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
     [filetype_ext addObjectsFromArray:filetype_extS98];
     [filetype_ext addObjectsFromArray:filetype_extKSS];
@@ -5885,6 +6283,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extEUP=(no_aux_file?[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_EUP_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
@@ -6042,6 +6441,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         mSingleFileType=0;break;
                     }
                 found=MMP_HC;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extEUP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
+                //check if file or ressources
+                NSArray *singlefile=[SUPPORTED_FILETYPE_EUP_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=MMP_EUP;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
+                //check if file or ressources
+                NSArray *singlefile=[SUPPORTED_FILETYPE_EUP_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=MMP_EUP;break;
             }
         }
     if (!found)
@@ -6623,6 +7043,101 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 
 }
 
+-(int) mmp_eupLoad:(NSString*)filePath{
+    mPlayType=MMP_EUP;
+    g_playing = 0;
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"EUP Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    
+    eup_dev = new EUP_TownsEmulator;
+    eup_player = new EUPPlayer();
+    /* signed 16 bit sample, little endian */
+    eup_dev->rate(streamAudioRate); /* Hz */
+    
+    eup_player->outputDevice(eup_dev);
+    
+    /* re-inizialize pcm struct */
+    memset(&eup_pcm, 0, sizeof(eup_pcm));
+    eup_pcm.on = true;
+    eup_pcm.read_pos = 0;
+        
+    
+    eup_buf = EUPPlayer_readFile(eup_player, eup_dev, [filePath UTF8String],&eup_header);
+    if (eup_buf == nullptr) {
+        fprintf(stderr, "%s: read failed\n", [filePath UTF8String]);
+        std::fflush(stderr);
+        return -1;
+    }
+
+    eup_player->startPlaying(eup_buf + 2048 + 6);
+    
+    //compute length
+    mCurrentSamples=0;
+    if (eup_player->isPlaying()) {
+        while (1) {
+            if (eup_player->isPlaying()) eup_player->nextTick(true);
+            else break;
+            
+            mCurrentSamples+=eup_pcm.write_pos/2;
+            eup_pcm.write_pos=0;
+            if (mCurrentSamples>streamAudioRate*60*30) break; //if more than 30min, exit
+        }
+        
+    }
+    if (mCurrentSamples>streamAudioRate*60*30) iModuleLength=-1;
+    else iModuleLength=mCurrentSamples*1000/streamAudioRate;
+    
+    eup_player->stopPlaying();
+    
+    strcpy(eup_filename,[filePath UTF8String]);
+
+    //Reset player
+    EUPPlayer_ResetReload();
+            
+    mCurrentSamples=0;
+    eup_mutemask=0;
+    
+    mod_subsongs=1;
+    mod_minsub=1;
+    mod_maxsub=1;
+    mod_currentsub=1;
+    if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+    if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    
+    if (mLoopMode) iModuleLength=-1;
+    else {
+        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    }
+    iCurrentTime=0;
+    
+    // song info
+    snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+    mod_title=[NSString stringWithUTF8String:mod_name];
+    
+    const char *title=[[self sjisToNS:eup_header.title] UTF8String];
+    if (title[0]) strncpy(mod_name,title,sizeof(mod_name)-1);
+    
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nArtist....: %s\nAppli....: %s\n",[[self sjisToNS:eup_header.title] UTF8String],[[self sjisToNS:eup_header.artist] UTF8String],[[self sjisToNS:eup_header.appli_name] UTF8String]);
+    artist=[NSString stringWithFormat:@"%s",[[self sjisToNS:eup_header.artist] UTF8String]];
+    
+    numChannels=6+8;
+    m_voicesDataAvail=1;
+    numVoicesChannels=numChannels;
+    for (int i=0;i<numVoicesChannels;i++) {
+        if (i<6) m_voice_voiceColor[i]=m_voice_systemColor[0];
+        else m_voice_voiceColor[i]=m_voice_systemColor[1];
+    }
+                
+    return 0;
+}
 
 -(int) mmp_pt3Load:(NSString*)filePath {  //PT3
     mPlayType=MMP_PT3;
@@ -9497,6 +10012,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
@@ -9935,6 +10451,16 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
+    for (int i=0;i<[filetype_extEUP count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_EUP]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_EUP]];
+            break;
+        }
+    }
     for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
@@ -10158,6 +10684,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             case MMP_PT3:
                 if ([self mmp_pt3Load:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
+            case MMP_EUP:
+                if ([self mmp_eupLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
+                break;
             case MMP_SIDPLAY:
                 if ([self mmp_sidplayLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
@@ -10327,6 +10856,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             iCurrentTime=startPos;
             break;
         case MMP_HC:  //HE
+            [self Play];
+            if (startPos) [self Seek:startPos];
+            break;
+        case MMP_EUP:  //EUP
             [self Play];
             if (startPos) [self Seek:startPos];
             break;
@@ -10613,6 +11146,17 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_HC) {
         [self MMP_HCClose];
     }
+    if (mPlayType==MMP_EUP) {
+        if (eup_player) {
+            eup_player->stopPlaying();
+            delete eup_player;
+            delete eup_dev;
+            delete eup_buf;
+            eup_player=NULL;
+            eup_dev=NULL;
+            eup_buf=NULL;
+        }
+    }
     if (mPlayType==MMP_UADE) {  //UADE
         //		NSLog(@"Wait for end of UADE thread");
         while (uadeThread_running) {
@@ -10783,6 +11327,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_ADPLUG) return @"Adplug";
     if (mPlayType==MMP_HC) return @"Highly Complete";
     if (mPlayType==MMP_UADE) return @"UADE";
+    if (mPlayType==MMP_EUP) return @"EUPMini";
     if (mPlayType==MMP_HVL) return @"HVL";
     if (mPlayType==MMP_KSS) return @"LIBKSS";
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
@@ -10896,6 +11441,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return result;
     }
     if (mPlayType==MMP_ADPLUG) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
+    if (mPlayType==MMP_EUP) return [NSString stringWithFormat:@"Euphony"];
     if (mPlayType==MMP_HC) {
         switch (HC_type) {
             case 1:
@@ -11355,6 +11901,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_EUP:
         case MMP_PT3:
         case MMP_2SF:
         case MMP_V2M:
@@ -11395,6 +11942,9 @@ extern "C" void adjust_amplification(void);
             } else result=[NSString stringWithFormat:@"#%d-OMPT",channel+1];
             return result;
         }
+        case MMP_EUP:
+            if (channel<6) return [NSString stringWithFormat:@"%d-FM",channel+1];
+            else return [NSString stringWithFormat:@"%d-PCM",channel-5];
         case MMP_GSF:
             if (channel<4) return [NSString stringWithFormat:@"#%d-DMG",channel+1];
             else return [NSString stringWithFormat:@"#%d-DirectSnd",channel-4+1];
@@ -11439,6 +11989,8 @@ extern "C" void adjust_amplification(void);
             return 1;
         case MMP_GSF:
             return 2;
+        case MMP_EUP:
+            return 2;
         case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_V2M:
@@ -11477,6 +12029,9 @@ extern "C" void adjust_amplification(void);
         case MMP_GSF:
             if (systemIdx==0) return @"DMG";
             return @"DirectSnd";
+        case MMP_EUP:
+            if (systemIdx==0) return @"YM2612";
+            else return @"RF5c68";
         case MMP_UADE:
             return @"PAULA";
         case MMP_OPENMPT:
@@ -11513,6 +12068,9 @@ extern "C" void adjust_amplification(void);
             return 0;
         case MMP_GSF:
             if (voiceIdx<4) return 0;
+            return 1;
+        case MMP_EUP:
+            if (voiceIdx<6) return 0;
             return 1;
         case MMP_2SF:
         case MMP_V2M:
@@ -11574,6 +12132,24 @@ extern "C" void adjust_amplification(void);
                     tmp+=(m_voicesStatus[i]?1:0);
                 }
                 if (tmp==2) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            }
+        case MMP_EUP:
+            if (systemIdx==0) {
+                tmp=0;
+                for (int i=0;i<6;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==6) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            } else {
+                tmp=0;
+                for (int i=6;i<14;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==8) return 2; //all active
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             }
@@ -11647,6 +12223,10 @@ extern "C" void adjust_amplification(void);
         case MMP_GSF:
             if (systemIdx==0) for (int i=0;i<4;i++) [self setm_voicesStatus:active index:i];
             else for (int i=4;i<6;i++) [self setm_voicesStatus:active index:i];
+            break;
+        case MMP_EUP:
+            if (systemIdx==0) for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i];
+            else for (int i=6;i<14;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_2SF:
         case MMP_V2M:
@@ -11738,6 +12318,12 @@ extern "C" void adjust_amplification(void);
             if (channel<4) GSFSoundChannelsEnable(1<<channel,active);
             else GSFSoundChannelsEnable(1<<(channel-4+8),active);
             break;
+        case MMP_EUP: {
+            int new_eup_mutemask=0;
+            for (int i=0;i<14;i++) if (!(m_voicesStatus[i])) new_eup_mutemask|=1<<i;
+            eup_mutemask=new_eup_mutemask;
+            break;
+        }
         case MMP_OPENMPT:
             ompt_mod_interactive->set_channel_mute_status(ompt_mod,channel,!active);
             break;

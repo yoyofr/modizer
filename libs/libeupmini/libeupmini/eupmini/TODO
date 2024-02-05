@@ -1,0 +1,61 @@
+これから:
+
+stereo output に対応。
+
+./eupplayer eupplay.cc >/dev/null すると seg. fault する。(読み込んだ
+データの終わりを越えて解釈を続けようとする)
+
+xmms のモジュール化。
+
+error handling をきれいにする。exception を使いたいけど、遅くなるかな?
+
+FM の出力波形のキャッシュはできないかな?
+
+純正では envelope の変化率が current level によって変化しているような
+んだけど?
+
+384、4/4 と仮定しない。
+
+名前を付け直す。
+
+FM と PCM の Envelope とを統合する。
+
+FM と PCM の音量バランスをとる。
+
+TOWNS emu を EUPPlayer 以外からも使えるようにする。使い道ある?
+
+emu と physical dev との共通部分を洗い出す。
+
+正しい減衰量、変調量を実現する。6db == *2 にしてしまっている。
+
+ドキュメントを整備する。
+
+テストデータを準備する。
+
+TOWNS の内蔵音源や USS に対応。ところで GUS の wave table 音源なら 
+TOWNS の PCM の代わりになりそうだけど、OPLL は TOWNS の OPM? の代わり
+にはなりそうにないなぁ。どうしよう?
+
+LFO 対応。
+
+音色データの持ち廻りをもう少しきれいに。
+
+高調波を含む音がきたないので、oversampling できたらいいなぁ。
+
+AMD5x86 なら 素直に floating point で計算した方が速くなったかも?  直し
+てしまいたいなぁ。
+
+完了:
+
+演奏終了後に segmentation fault で止まるのは仕様です。
+
+pitch bend の仕様を暴く。
+
+PCM でサンプル間を線形補間。でも、出力のサンプリング周波数が低けりゃ意
+味なし?
+
+./eupplay /dev/null >/dev/null で seg. fault する。
+
+./eupplay /dev/zero >/dev/null で seg. fault する。
+
+./eupplayer eupplayer >/dev/null すると seg. fault する。

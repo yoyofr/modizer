@@ -814,6 +814,7 @@
 		CC4F49D72B6FB728002A9309 /* tracking24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49CE2B6FB728002A9309 /* tracking24.fnt */; };
 		CC4F49DA2B7021A0002A9309 /* c6410.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D82B7021A0002A9309 /* c6410.fnt */; };
 		CC4F49DB2B7021A0002A9309 /* tracking10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D92B7021A0002A9309 /* tracking10.fnt */; };
+		CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4F49F62B704F4D002A9309 /* liblibeupmini.a */; };
 		CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
@@ -1136,6 +1137,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59FF994E263F3312004152B8;
 			remoteInfo = libkss;
+		};
+		CC4F49F52B704F4D002A9309 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC4F49E52B704F4C002A9309;
+			remoteInfo = libeupmini;
 		};
 		CC8369822B5DCF8E0035A4DA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2357,6 +2365,7 @@
 		CC4F49CE2B6FB728002A9309 /* tracking24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking24.fnt; sourceTree = "<group>"; };
 		CC4F49D82B7021A0002A9309 /* c6410.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6410.fnt; sourceTree = "<group>"; };
 		CC4F49D92B7021A0002A9309 /* tracking10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking10.fnt; sourceTree = "<group>"; };
+		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
 		CC59B9061AC4B882004FEEBA /* FileExtractor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FileExtractor.xcodeproj; path = utils/File_Extractor/libFileExtractor/FileExtractor.xcodeproj; sourceTree = "<group>"; };
 		CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12c_2x.png; sourceTree = "<group>"; };
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
@@ -2793,6 +2802,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */,
 				CCDE83492B6C5C1F00DC9F63 /* liblibopenmpt-static.a in Frameworks */,
 				CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */,
 				CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */,
@@ -3318,6 +3328,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
 				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
 				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
 				591CAAAF2648FAC100168C7E /* ffmpeg-kit-audio-4.4.LTS-ios-framework */,
@@ -4668,6 +4679,14 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
+		CC4F49F22B704F4C002A9309 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F49F62B704F4D002A9309 /* liblibeupmini.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC6BE1F612FF3CCD0035A210 /* libgme */ = {
 			isa = PBXGroup;
 			children = (
@@ -5316,6 +5335,10 @@
 					ProjectRef = CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */;
 				},
 				{
+					ProductGroup = CC4F49F22B704F4C002A9309 /* Products */;
+					ProjectRef = CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */;
+				},
+				{
 					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
 				},
@@ -5533,6 +5556,13 @@
 			fileType = archive.ar;
 			path = liblibkss.a;
 			remoteRef = 59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC4F49F62B704F4D002A9309 /* liblibeupmini.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibeupmini.a;
+			remoteRef = CC4F49F52B704F4D002A9309 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC8369832B5DCF8E0035A4DA /* liblibpt3.a */ = {
@@ -6368,6 +6398,9 @@
 					libs/libkss/libkss/modules,
 					libs/libpt3,
 					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
 				);
 			};
 			name = Debug;
@@ -6436,6 +6469,9 @@
 					libs/libkss/libkss/modules,
 					libs/libpt3,
 					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6532,6 +6568,7 @@
 					libs/libkss/libkss/modules,
 					libs/sc68/libsc68,
 					libs/sc68/file68,
+					libs/libeupmini/libeupmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6629,6 +6666,7 @@
 					libs/libkss/libkss/modules,
 					libs/sc68/libsc68,
 					libs/sc68/file68,
+					libs/libeupmini/libeupmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6724,6 +6762,7 @@
 					libs/libkss/libkss/modules,
 					libs/sc68/libsc68,
 					libs/sc68/file68,
+					libs/libeupmini/libeupmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6792,6 +6831,9 @@
 					libs/libkss/libkss/modules,
 					libs/libpt3,
 					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

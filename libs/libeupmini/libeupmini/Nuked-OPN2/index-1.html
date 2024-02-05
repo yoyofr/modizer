@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Unknown </title></head><body>
+<h1 id="nuked-opn2">Nuked-OPN2</h1>
+<p>High accuracy Yamaha YM3438(OPN2) emulator.</p>
+<p>The YM3438 is a CMOS variant of the YM2612 used in Sega MegaDrive(Genesis) and FM Towns.</p>
+<p>Genesis Plus GX fork with this core integrated is available here: https://github.com/nukeykt/Genesis-Plus-GX</p>
+<h1 id="features">Features:</h1>
+<ul>
+<li>
+<p>Based on YM3438 die shot reverse engineering and thus provides very high emulation accuracy.</p>
+</li>
+<li>
+<p>Cycle-accurate.</p>
+</li>
+<li>
+<p>Undocumented registers/features emulation.</p>
+</li>
+<li>SSG-EG, CSM mode emulation.</li>
+<li>Compatible with the YM2612.</li>
+</ul>
+<h1 id="api-documention">API documention</h1>
+<p><code>void OPN2_Reset(ym3438_t *chip) - Reset emulated chip
+void OPN2_Clock(ym3438_t *chip, Bit32s *buffer) - Advances emulated chip state by 1 internal clock(6 master clocks). Writes signed 9-bit MOL, MOR pin states to buffer. 
+void OPN2_Write(ym3438_t *chip, Bit32u port, Bit8u data) - Write 8-bit data to port.
+void OPN2_SetTestPin(ym3438_t *chip, Bit32u value) - Set TEST pin value.
+Bit32u OPN2_ReadTestPin(ym3438_t *chip) - Read TEST pin value.
+Bit32u OPN2_ReadIRQPin(ym3438_t *chip) - Read IRQ pin value.
+Bit8u OPN2_Read(ym3438_t *chip, Bit32u port) - Read chip status.</code></p>
+<h1 id="samples">Samples</h1>
+<p>Sonic the Hedgehog:
+https://youtu.be/ImmKy_-pJ8g</p>
+<p>Sega CD BIOS v1.10:
+https://youtu.be/s-8ASMbtojQ</p>
+</body></html>

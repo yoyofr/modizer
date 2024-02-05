@@ -1,0 +1,170 @@
+Tomoaki Hayasaka kindly pointed me to the "Red Book" that was one of the sources of information when 
+he created his eupplayer (this book is what the "red pagenumber" references in this code comments 
+refer to - there is also a "grey" book but he doesn't remember which book that was):
+
+"Revised 3rd Edition FM TOWNS Technical Data Book" by Noriaki Chiba
+(see https://archive.org/details/3FmTowns )
+
+
+Below the Google translated Euphony data format description based on the respective section in that 
+book (see p.609 ff). (unfortunately the automatic translation leaves a lot to be desired and the 
+original "specification" seems to leave out more than it actually explains..)
+
+
+There seem to be great similarities to MIDI, e.g. the MIDI "pitch bend" command has the code "E0" 
+it also uses 14-bit passed as a LSB / MSB pair.. and MIDI data bytes are 7-bit (which explains
+the respective eupplayer impl)
+
+
+notes: 
+- "n" in the "status" identifies the MIDI-channel.
+- timing:  LSB + 0x80*MSB	= trigger time for a step
+- the "track" IDs used in the commands are mapped to the actually used output channel
+- velocity: how hard a note is struck (impacts loudness)
+- aftertouch/presssure: how hard a key is still pressed down while note is playing..
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+In the traditional performance format for FM TOWNS, the time base has 96 chronometers per quarter tone.
+This is a lock. The data has a fixed length with 6 bytes per packet.
+
+Events include channel events and system exclusion events and others
+, each of which has the function and format shown in the below tables.
+
+
+
+EUP general packet format
+------------------------
+
+EUP uses a fixed 6 bytes per record format. Each record has the same basic structure: 
+
+byte0		byte1		byte2		byte3		byte4		byte5
+status		track		time		time		data 1		data 2
+						(low)		(high)
+							
+							
+							
+EUP format (channel event)
+---------------------------
+
+
+event			status
+				byte0	byte1	byte2	byte3	byte4	byte5			description
+------------------------------------------------------------------------------------------------------
+note off		$8n		|	duration				|	OFF				The note length (duration) takes out
+						LSB L	LSB H	MSB L	MSB H	VELO			 the lower 4 bits and makes 16 bits.
+						
+note on			$9n		track	time	time	pitch	ON				A note-on is always cured by its 
+						number	LSB		MSB				VELO			companion note-off: come later
+						
+Polyphonic		$An		track	time	time	pitch	pressure		Specify the note number and pressure value.
+key pressure			number	LSB		MSB		(note)	value
+
+Control			$Bn		track	time	time	ctrl	set value		Specify control number and control value do.
+change					number	LSB		MSB		value
+
+program			$Cn		track	time	time	prog	dummy			Specify the program number.
+change					number	LSB		MSB		value
+
+channel			$Dn		track	time	time	presser	dummy			Specifies the pressure value.
+Fresher					number	LSB		MSB		value
+
+
+pitch bend		$En		track	time	time	bend	bend			Bend value (total of 14 bit) - book doesn't say what the bits mean - or if it is 2x 7bits - like eupplayer seems to think
+						number	LSB		MSB		LSB		MSB				
+						
+						
+All channel messages have MIDI channels. Replaced by the MIDI channel, but for that track! When 
+the MIDI channel is 'omni', its Stay! MIDI Output in channel.
+
+
+
+EUP format (system class exclusive event)
+-----------------------------------------
+
+event			status
+				byte1	byte2	byte3	byte4	byte5	byte6			description
+------------------------------------------------------------------------------------------------------
+
+Exclusive		$F0		track	time	time	dummy	dummy			First packet of exclusive data
+status					number	LSB		MSB		($ff)	($ff)
+
+
+data			data column												Arbitrary data arranged in multiples of 6 bytes
+				Indefinite number of bytes (in units of 6 bytes)		(Fill the remaining part with criminal de)
+				
+end of			$F7		dummy	dummy	dummy	dummy	dumm			Packets after handling exclusive data
+Exclusive				($ff)	($ff)	($ff)	($ff)	($ff)			Bok
+
+
+Key of exclusive data No data is entered in the first packet, but data is entered from the second packet.
+No other packet should be entered in the exclusive question, and the packet containing $F7(End of Exclusive) 
+must be included afterward. must end with a packet. In that case, the extra part in the packet $FF put.
+
+
+
+EUP format (other events)
+-------------------------
+
+event			status
+				byte1	byte2	byte3	byte4	byte5	byte6			description
+------------------------------------------------------------------------------------------------------
+
+Bar marker		$F2		time 	time	time	dummy	dummy			
+						signa	LSB		MSB								at important events EUP - On the mat, be 
+						ture											sure to Without this bar marker don't be
+																		TimeL, TimeH is Time until this bar marker,
+																		In other words, the length of the previous 
+																		measure is entered.
+																		signature is the time signature of this 
+																		measure enters .
+																		of this bar marker TimeL, TimeH 
+																		and the previous measure one power one
+																		signature is inconsistent
+																		For example, the previous
+																		bar marker signature but
+																		If 4 / 4, of this bar marker
+																		Time must be 384( 96 * 4 )
+																		must.
+
+tempo			$F8		dummy	time	time	tempo	tempo
+								LSB		MSB		LSB		MSB				The tempo is displayed in 14 bits.
+																		Possible range is 0-250 The actual value is 30 added to it,
+																		30 bpm - 280 bpm become
+																		
+
+user call prg	$FA		track	time	time	program	dummy			not suppoerted
+(no support)			number	LSB		MSB		value
+
+
+pattern number	$FB		track	time	time	pattern	dummy			not supported
+(no support)			number	LSB		MSB		number
+
+
+track command	$FC		track	time	time	command	data
+						number	LSB		MSB				(changed val)	Ports and MIDI tea
+																		Command 1 to change the channel:
+																		port, 2: channel
+
+											
+data continue	$FD		-		-		-		-		-				Indicates that the song data will continue.
+																		Taste .Lingha to the sofa, etc.
+																		Play while transferring data
+																		MIDI manager
+																		overtakes the entry pointer
+																		I tried not to
+																		Use for
+																																				
+end marker		$FE		Time 	time	time	dummy	dummy			
+						signa	LSB		MSB								Always put this marker after the end of the song
+																		put in TimeL, TimeH teeth
+																		This bar marker as well as this end
+																		Time to end marker, i.e.
+																		Enter the length of the last measure .		
+																		
+dummy code		$FF														treated as a no-op event.
+																		It is divided (ignored).				
+																		
+																		

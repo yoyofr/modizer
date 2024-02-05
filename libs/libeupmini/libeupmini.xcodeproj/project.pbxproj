@@ -1,0 +1,539 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC4F4A342B70E616002A9309 /* fmopn.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A0C2B70E615002A9309 /* fmopn.c */; };
+		CC4F4A352B70E616002A9309 /* ym3438.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A162B70E616002A9309 /* ym3438.c */; };
+		CC4F4A362B70E616002A9309 /* opn2.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A1D2B70E616002A9309 /* opn2.c */; };
+		CC4F4A382B70E616002A9309 /* eupplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A2C2B70E616002A9309 /* eupplayer.cpp */; };
+		CC4F4A392B70E616002A9309 /* TownsFmEmulator2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A2D2B70E616002A9309 /* TownsFmEmulator2.cpp */; };
+		CC4F4A3A2B70E616002A9309 /* sintbl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A2E2B70E616002A9309 /* sintbl.cpp */; };
+		CC4F4A3B2B70E616002A9309 /* eupplayer_townsEmulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A2F2B70E616002A9309 /* eupplayer_townsEmulator.cpp */; };
+		CC4F4A3C2B70E616002A9309 /* TownsFmEmulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4F4A302B70E616002A9309 /* TownsFmEmulator.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC4F49E32B704F4C002A9309 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC4F49E52B704F4C002A9309 /* liblibeupmini.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibeupmini.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC4F4A082B70E615002A9309 /* snddef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snddef.h; sourceTree = "<group>"; };
+		CC4F4A092B70E615002A9309 /* fmopn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmopn.h; sourceTree = "<group>"; };
+		CC4F4A0A2B70E615002A9309 /* EmuStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmuStructs.h; sourceTree = "<group>"; };
+		CC4F4A0B2B70E615002A9309 /* EmuHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmuHelper.h; sourceTree = "<group>"; };
+		CC4F4A0C2B70E615002A9309 /* fmopn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmopn.c; sourceTree = "<group>"; };
+		CC4F4A0D2B70E615002A9309 /* stdbool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdbool.h; sourceTree = "<group>"; };
+		CC4F4A0E2B70E615002A9309 /* common_def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_def.h; sourceTree = "<group>"; };
+		CC4F4A102B70E615002A9309 /* stdtype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdtype.h; sourceTree = "<group>"; };
+		CC4F4A122B70E616002A9309 /* ym3438.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ym3438.h; sourceTree = "<group>"; };
+		CC4F4A142B70E616002A9309 /* mamedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mamedef.h; sourceTree = "<group>"; };
+		CC4F4A162B70E616002A9309 /* ym3438.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ym3438.c; sourceTree = "<group>"; };
+		CC4F4A192B70E616002A9309 /* sintbl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sintbl.hpp; sourceTree = "<group>"; };
+		CC4F4A1A2B70E616002A9309 /* eupplayer_townsEmulator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = eupplayer_townsEmulator.hpp; sourceTree = "<group>"; };
+		CC4F4A1B2B70E616002A9309 /* TownsFmEmulator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TownsFmEmulator.hpp; sourceTree = "<group>"; };
+		CC4F4A1D2B70E616002A9309 /* opn2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opn2.c; sourceTree = "<group>"; };
+		CC4F4A222B70E616002A9309 /* MonophonicAudioSynthesizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MonophonicAudioSynthesizer.hpp; sourceTree = "<group>"; };
+		CC4F4A242B70E616002A9309 /* eupplayer_towns.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = eupplayer_towns.hpp; sourceTree = "<group>"; };
+		CC4F4A252B70E616002A9309 /* eupplayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = eupplayer.hpp; sourceTree = "<group>"; };
+		CC4F4A262B70E616002A9309 /* TownsFmEmulator2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TownsFmEmulator2.hpp; sourceTree = "<group>"; };
+		CC4F4A2B2B70E616002A9309 /* opn2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opn2.h; sourceTree = "<group>"; };
+		CC4F4A2C2B70E616002A9309 /* eupplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eupplayer.cpp; sourceTree = "<group>"; };
+		CC4F4A2D2B70E616002A9309 /* TownsFmEmulator2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TownsFmEmulator2.cpp; sourceTree = "<group>"; };
+		CC4F4A2E2B70E616002A9309 /* sintbl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sintbl.cpp; sourceTree = "<group>"; };
+		CC4F4A2F2B70E616002A9309 /* eupplayer_townsEmulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eupplayer_townsEmulator.cpp; sourceTree = "<group>"; };
+		CC4F4A302B70E616002A9309 /* TownsFmEmulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TownsFmEmulator.cpp; sourceTree = "<group>"; };
+		CC4F4A3E2B710327002A9309 /* audioout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = audioout.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC4F49E22B704F4C002A9309 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC4F49DC2B704F4C002A9309 = {
+			isa = PBXGroup;
+			children = (
+				CC4F49E72B704F4C002A9309 /* libeupmini */,
+				CC4F49E62B704F4C002A9309 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC4F49E62B704F4C002A9309 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F49E52B704F4C002A9309 /* liblibeupmini.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC4F49E72B704F4C002A9309 /* libeupmini */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F4A182B70E616002A9309 /* eupmini */,
+				CC4F4A072B70E615002A9309 /* mame */,
+				CC4F4A112B70E616002A9309 /* Nuked-OPN2 */,
+			);
+			path = libeupmini;
+			sourceTree = "<group>";
+		};
+		CC4F4A072B70E615002A9309 /* mame */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F4A082B70E615002A9309 /* snddef.h */,
+				CC4F4A092B70E615002A9309 /* fmopn.h */,
+				CC4F4A0A2B70E615002A9309 /* EmuStructs.h */,
+				CC4F4A0B2B70E615002A9309 /* EmuHelper.h */,
+				CC4F4A0C2B70E615002A9309 /* fmopn.c */,
+				CC4F4A0D2B70E615002A9309 /* stdbool.h */,
+				CC4F4A0E2B70E615002A9309 /* common_def.h */,
+				CC4F4A102B70E615002A9309 /* stdtype.h */,
+			);
+			path = mame;
+			sourceTree = "<group>";
+		};
+		CC4F4A112B70E616002A9309 /* Nuked-OPN2 */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F4A122B70E616002A9309 /* ym3438.h */,
+				CC4F4A142B70E616002A9309 /* mamedef.h */,
+				CC4F4A162B70E616002A9309 /* ym3438.c */,
+			);
+			path = "Nuked-OPN2";
+			sourceTree = "<group>";
+		};
+		CC4F4A182B70E616002A9309 /* eupmini */ = {
+			isa = PBXGroup;
+			children = (
+				CC4F4A3E2B710327002A9309 /* audioout.hpp */,
+				CC4F4A242B70E616002A9309 /* eupplayer_towns.hpp */,
+				CC4F4A2F2B70E616002A9309 /* eupplayer_townsEmulator.cpp */,
+				CC4F4A1A2B70E616002A9309 /* eupplayer_townsEmulator.hpp */,
+				CC4F4A2C2B70E616002A9309 /* eupplayer.cpp */,
+				CC4F4A252B70E616002A9309 /* eupplayer.hpp */,
+				CC4F4A222B70E616002A9309 /* MonophonicAudioSynthesizer.hpp */,
+				CC4F4A1D2B70E616002A9309 /* opn2.c */,
+				CC4F4A2B2B70E616002A9309 /* opn2.h */,
+				CC4F4A2E2B70E616002A9309 /* sintbl.cpp */,
+				CC4F4A192B70E616002A9309 /* sintbl.hpp */,
+				CC4F4A302B70E616002A9309 /* TownsFmEmulator.cpp */,
+				CC4F4A1B2B70E616002A9309 /* TownsFmEmulator.hpp */,
+				CC4F4A2D2B70E616002A9309 /* TownsFmEmulator2.cpp */,
+				CC4F4A262B70E616002A9309 /* TownsFmEmulator2.hpp */,
+			);
+			path = eupmini;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC4F49E42B704F4C002A9309 /* libeupmini */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC4F49EE2B704F4C002A9309 /* Build configuration list for PBXNativeTarget "libeupmini" */;
+			buildPhases = (
+				CC4F49E12B704F4C002A9309 /* Sources */,
+				CC4F49E22B704F4C002A9309 /* Frameworks */,
+				CC4F49E32B704F4C002A9309 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libeupmini;
+			productName = libeupmini;
+			productReference = CC4F49E52B704F4C002A9309 /* liblibeupmini.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC4F49DD2B704F4C002A9309 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CC4F49E42B704F4C002A9309 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CC4F49E02B704F4C002A9309 /* Build configuration list for PBXProject "libeupmini" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC4F49DC2B704F4C002A9309;
+			productRefGroup = CC4F49E62B704F4C002A9309 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC4F49E42B704F4C002A9309 /* libeupmini */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC4F49E12B704F4C002A9309 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC4F4A382B70E616002A9309 /* eupplayer.cpp in Sources */,
+				CC4F4A362B70E616002A9309 /* opn2.c in Sources */,
+				CC4F4A342B70E616002A9309 /* fmopn.c in Sources */,
+				CC4F4A352B70E616002A9309 /* ym3438.c in Sources */,
+				CC4F4A392B70E616002A9309 /* TownsFmEmulator2.cpp in Sources */,
+				CC4F4A3A2B70E616002A9309 /* sintbl.cpp in Sources */,
+				CC4F4A3B2B70E616002A9309 /* eupplayer_townsEmulator.cpp in Sources */,
+				CC4F4A3C2B70E616002A9309 /* TownsFmEmulator.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC4F49EC2B704F4C002A9309 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = (
+					"../Nuked-OPN2",
+					../mame,
+					../eupmini,
+				);
+			};
+			name = Debug;
+		};
+		CC4F49ED2B704F4C002A9309 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = (
+					"../Nuked-OPN2",
+					../mame,
+					../eupmini,
+				);
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC4F49EF2B704F4C002A9309 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_CFLAGS = (
+					"-DSNDDEV_SELECT",
+					"-DSNDDEV_YM2612",
+					"-DNO_DEBUG_LOGS",
+					"-DHAVE_LIMITS_H",
+					"-DHAVE_STDINT_H",
+					"-D",
+					"OPN2_ChGenerate=eup_OPN2_ChGenerate\n-D",
+					"OPN2_ChOutput=eup_OPN2_ChOutput\n-D",
+					"OPN2_Clock=eup_OPN2_Clock\n-D",
+					"OPN2_DoIO=eup_OPN2_DoIO\n-D",
+					"OPN2_DoRegWrite=eup_OPN2_DoRegWrite\n-D",
+					"OPN2_DoTimerA=eup_OPN2_DoTimerA\n-D",
+					"OPN2_DoTimerB=eup_OPN2_DoTimerB\n-D",
+					"OPN2_EnvelopeADSR=eup_OPN2_EnvelopeADSR\n-D",
+					"OPN2_EnvelopeGenerate=eup_OPN2_EnvelopeGenerate\n-D",
+					"OPN2_EnvelopePrepare=eup_OPN2_EnvelopePrepare\n-D",
+					"OPN2_EnvelopeSSGEG=eup_OPN2_EnvelopeSSGEG\n-D",
+					"OPN2_FMGenerate=eup_OPN2_FMGenerate\n-D",
+					"OPN2_FMPrepare=eup_OPN2_FMPrepare\n-D",
+					"OPN2_GenerateResampled=eup_OPN2_GenerateResampled\n-D",
+					"OPN2_GenerateStream=eup_OPN2_GenerateStream\n-D",
+					"OPN2_KeyOn=eup_OPN2_KeyOn\n-D",
+					"OPN2_PhaseCalcIncrement=eup_OPN2_PhaseCalcIncrement\n-D",
+					"OPN2_PhaseGenerate=eup_OPN2_PhaseGenerate\n-D",
+					"OPN2_Read=eup_OPN2_Read\n-D",
+					"OPN2_ReadIRQPin=eup_OPN2_ReadIRQPin\n-D",
+					"OPN2_ReadTestPin=eup_OPN2_ReadTestPin\n-D",
+					"OPN2_Reset=eup_OPN2_Reset\n-D",
+					"OPN2_SetChipType=eup_OPN2_SetChipType\n-D",
+					"OPN2_SetMute=eup_OPN2_SetMute\n-D",
+					"OPN2_SetOptions=eup_OPN2_SetOptions\n-D",
+					"OPN2_SetTestPin=eup_OPN2_SetTestPin\n-D",
+					"OPN2_UpdateLFO=eup_OPN2_UpdateLFO\n-D",
+					"OPN2_Write=eup_OPN2_Write\n-D",
+					"OPN2_WriteBuffered=eup_OPN2_WriteBuffered\n-D",
+					"device_reset_ym2612=eup_device_reset_ym2612\n-D",
+					"device_start_ym2612=eup_device_start_ym2612\n-D",
+					"device_stop_ym2612=eup_device_stop_ym2612\n-D",
+					"ym2612_control_port_a_w=eup_ym2612_control_port_a_w\n-D",
+					"ym2612_control_port_b_w=eup_ym2612_control_port_b_w\n-D",
+					"ym2612_data_port_a_r=eup_ym2612_data_port_a_r\n-D",
+					"ym2612_data_port_a_w=eup_ym2612_data_port_a_w\n-D",
+					"ym2612_data_port_b_r=eup_ym2612_data_port_b_r\n-D",
+					"ym2612_data_port_b_w=eup_ym2612_data_port_b_w\n-D",
+					"ym2612_init=eup_ym2612_init\n-D",
+					"ym2612_r=eup_ym2612_r\n-D",
+					"ym2612_read=eup_ym2612_read\n-D",
+					"ym2612_reset_chip=eup_ym2612_reset_chip\n-D",
+					"ym2612_set_mute_mask=eup_ym2612_set_mute_mask\n-D",
+					"ym2612_set_mutemask=eup_ym2612_set_mutemask\n-D",
+					"ym2612_set_options=eup_ym2612_set_options\n-D",
+					"ym2612_setoptions=eup_ym2612_setoptions\n-D",
+					"ym2612_shutdown=eup_ym2612_shutdown\n-D",
+					"ym2612_status_port_a_r=eup_ym2612_status_port_a_r\n-D",
+					"ym2612_status_port_b_r=eup_ym2612_status_port_b_r\n-D",
+					"ym2612_stream_update=eup_ym2612_stream_update\n-D",
+					"ym2612_update_one=eup_ym2612_update_one\n-D",
+					"ym2612_update_request=eup_ym2612_update_request\n-D",
+					"ym2612_w=eup_ym2612_w\n-D",
+					"ym2612_write=eup_ym2612_write\n-D",
+					"ym2612_init=eup_ym2612_init\n-D",
+					"ym2612_read=eup_ym2612_read\n-D",
+					"ym2612_reset_chip=eup_ym2612_reset_chip\n-D",
+					"ym2612_set_log_cb=eup_ym2612_set_log_cb\n-D",
+					"ym2612_set_mute_mask=eup_ym2612_set_mute_mask\n-D",
+					"ym2612_set_options=eup_ym2612_set_options\n-D",
+					"ym2612_shutdown=eup_ym2612_shutdown\n-D",
+					"ym2612_timer_over=eup_ym2612_timer_over\n-D",
+					"ym2612_update_one=eup_ym2612_update_one\n-D",
+					"ym2612_write=eup_ym2612_write\n-D",
+					"device_stop_ym2612=eup_device_stop_ym2612\n-D",
+					"ym2612_stream_update=eup_ym2612_stream_update\n",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC4F49F02B704F4C002A9309 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_CFLAGS = (
+					"-DSNDDEV_SELECT",
+					"-DSNDDEV_YM2612",
+					"-DNO_DEBUG_LOGS",
+					"-DHAVE_LIMITS_H",
+					"-DHAVE_STDINT_H",
+					"-D",
+					"OPN2_ChGenerate=eup_OPN2_ChGenerate\n-D",
+					"OPN2_ChOutput=eup_OPN2_ChOutput\n-D",
+					"OPN2_Clock=eup_OPN2_Clock\n-D",
+					"OPN2_DoIO=eup_OPN2_DoIO\n-D",
+					"OPN2_DoRegWrite=eup_OPN2_DoRegWrite\n-D",
+					"OPN2_DoTimerA=eup_OPN2_DoTimerA\n-D",
+					"OPN2_DoTimerB=eup_OPN2_DoTimerB\n-D",
+					"OPN2_EnvelopeADSR=eup_OPN2_EnvelopeADSR\n-D",
+					"OPN2_EnvelopeGenerate=eup_OPN2_EnvelopeGenerate\n-D",
+					"OPN2_EnvelopePrepare=eup_OPN2_EnvelopePrepare\n-D",
+					"OPN2_EnvelopeSSGEG=eup_OPN2_EnvelopeSSGEG\n-D",
+					"OPN2_FMGenerate=eup_OPN2_FMGenerate\n-D",
+					"OPN2_FMPrepare=eup_OPN2_FMPrepare\n-D",
+					"OPN2_GenerateResampled=eup_OPN2_GenerateResampled\n-D",
+					"OPN2_GenerateStream=eup_OPN2_GenerateStream\n-D",
+					"OPN2_KeyOn=eup_OPN2_KeyOn\n-D",
+					"OPN2_PhaseCalcIncrement=eup_OPN2_PhaseCalcIncrement\n-D",
+					"OPN2_PhaseGenerate=eup_OPN2_PhaseGenerate\n-D",
+					"OPN2_Read=eup_OPN2_Read\n-D",
+					"OPN2_ReadIRQPin=eup_OPN2_ReadIRQPin\n-D",
+					"OPN2_ReadTestPin=eup_OPN2_ReadTestPin\n-D",
+					"OPN2_Reset=eup_OPN2_Reset\n-D",
+					"OPN2_SetChipType=eup_OPN2_SetChipType\n-D",
+					"OPN2_SetMute=eup_OPN2_SetMute\n-D",
+					"OPN2_SetOptions=eup_OPN2_SetOptions\n-D",
+					"OPN2_SetTestPin=eup_OPN2_SetTestPin\n-D",
+					"OPN2_UpdateLFO=eup_OPN2_UpdateLFO\n-D",
+					"OPN2_Write=eup_OPN2_Write\n-D",
+					"OPN2_WriteBuffered=eup_OPN2_WriteBuffered\n-D",
+					"device_reset_ym2612=eup_device_reset_ym2612\n-D",
+					"device_start_ym2612=eup_device_start_ym2612\n-D",
+					"device_stop_ym2612=eup_device_stop_ym2612\n-D",
+					"ym2612_control_port_a_w=eup_ym2612_control_port_a_w\n-D",
+					"ym2612_control_port_b_w=eup_ym2612_control_port_b_w\n-D",
+					"ym2612_data_port_a_r=eup_ym2612_data_port_a_r\n-D",
+					"ym2612_data_port_a_w=eup_ym2612_data_port_a_w\n-D",
+					"ym2612_data_port_b_r=eup_ym2612_data_port_b_r\n-D",
+					"ym2612_data_port_b_w=eup_ym2612_data_port_b_w\n-D",
+					"ym2612_init=eup_ym2612_init\n-D",
+					"ym2612_r=eup_ym2612_r\n-D",
+					"ym2612_read=eup_ym2612_read\n-D",
+					"ym2612_reset_chip=eup_ym2612_reset_chip\n-D",
+					"ym2612_set_mute_mask=eup_ym2612_set_mute_mask\n-D",
+					"ym2612_set_mutemask=eup_ym2612_set_mutemask\n-D",
+					"ym2612_set_options=eup_ym2612_set_options\n-D",
+					"ym2612_setoptions=eup_ym2612_setoptions\n-D",
+					"ym2612_shutdown=eup_ym2612_shutdown\n-D",
+					"ym2612_status_port_a_r=eup_ym2612_status_port_a_r\n-D",
+					"ym2612_status_port_b_r=eup_ym2612_status_port_b_r\n-D",
+					"ym2612_stream_update=eup_ym2612_stream_update\n-D",
+					"ym2612_update_one=eup_ym2612_update_one\n-D",
+					"ym2612_update_request=eup_ym2612_update_request\n-D",
+					"ym2612_w=eup_ym2612_w\n-D",
+					"ym2612_write=eup_ym2612_write\n-D",
+					"ym2612_init=eup_ym2612_init\n-D",
+					"ym2612_read=eup_ym2612_read\n-D",
+					"ym2612_reset_chip=eup_ym2612_reset_chip\n-D",
+					"ym2612_set_log_cb=eup_ym2612_set_log_cb\n-D",
+					"ym2612_set_mute_mask=eup_ym2612_set_mute_mask\n-D",
+					"ym2612_set_options=eup_ym2612_set_options\n-D",
+					"ym2612_shutdown=eup_ym2612_shutdown\n-D",
+					"ym2612_timer_over=eup_ym2612_timer_over\n-D",
+					"ym2612_update_one=eup_ym2612_update_one\n-D",
+					"ym2612_write=eup_ym2612_write\n-D",
+					"device_stop_ym2612=eup_device_stop_ym2612\n-D",
+					"ym2612_stream_update=eup_ym2612_stream_update\n",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC4F49E02B704F4C002A9309 /* Build configuration list for PBXProject "libeupmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4F49EC2B704F4C002A9309 /* Debug */,
+				CC4F49ED2B704F4C002A9309 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC4F49EE2B704F4C002A9309 /* Build configuration list for PBXNativeTarget "libeupmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4F49EF2B704F4C002A9309 /* Debug */,
+				CC4F49F02B704F4C002A9309 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC4F49DD2B704F4C002A9309 /* Project object */;
+}

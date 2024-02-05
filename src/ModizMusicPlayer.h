@@ -68,6 +68,10 @@ typedef struct _ModPlug_Settings
 //SNSF
 #import "snsf_drvimpl.h"
 
+//EUPMINI
+#include "eupplayer.hpp"
+#include "eupplayer_townsEmulator.hpp"
+
 
 //GME
 #import "gme.h"
@@ -131,6 +135,7 @@ enum MMP_PLAYER_TYPE {
     MMP_2SF,
     MMP_SNSF,
     MMP_HC,
+    MMP_EUP,
     MMP_V2M,
     MMP_S98,
     MMP_KSS,
@@ -417,6 +422,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_mdxpdxLoad:(NSString*)filePath;
 -(int) mmp_sc68Load:(NSString*)filePath;
 -(int) mmp_pt3Load:(NSString*)filePath;
+-(int) mmp_eupLoad:(NSString*)filePath;
 -(int) mmp_stsoundLoad:(NSString*)filePath;
 -(int) mmp_AtariSoundLoad:(NSString*)filePath;
 -(int) mmp_sidplayLoad:(NSString*)filePath;

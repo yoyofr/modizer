@@ -1,0 +1,110 @@
+EUPPlayer - EUP Interpreter and Audio Synthesizer.
+Copyright (C) 1995-1997,2000 Tomoaki Hayasaka.
+
+* EUPPlayer の概要
+
+EUPPlayer は、富士通 FM-TOWNS で一般的に使用されてきた音楽ファイル形式
+であるいわゆる EUP ファイルを解釈し演奏するプログラムです。
+
+EUPPlayer は、FM-TOWNS に標準装備されている FM 音源と PCM 音源のエミュ
+レートを行ない、一般性のある PCM データへと変換することが出来ます。
+
+EUPPlayer の一次配布元は:
+  http://hellfire.rikne.go.jp/%7Ehayasaka/eupplayer/
+
+* 動作環境
+
+UN*X。
+
+一応コンパイルできて動作するらしいと確認した環境は:
+
+    Debian GNU/Linux (woody) + egcs-2.95.2
+
+* コンパイル
+
+コンパイルには、最近の g++ (2.7.0 以降) とそれに対応した libstdc++ が
+必要です。クロスコンパイルには対応していません。
+
+    $ ./configure 
+    $ make
+
+また、必要に応じて
+
+    # make install
+
+* 使い方
+
+  eupplayer [オプション] EUPファイル名
+
+  例:
+      $ eupplayer pon29.eup >/dev/dsp
+      $ eupplayer -r 22050 pon29.eup | \
+            sox -r 22050 -t .ub - -t .wav - | bplay
+      $ eupplayer -t .sw -r 48000 pon29.eup | \
+            sox -r 48000 -t .sw - pon29.wav
+
+出力は、デフォルトでは、符号無し 8bit、8000 samples/sec. で、標準出力
+に行なわれます。
+
+現在有効なオプションは以下の通りです。
+
+  -r n         出力を n samples/sec. で行なう。デフォルトは 8000。
+
+  -t format    出力のサンプルフォーマットを指定する。デフォルトは .ub。
+
+	       指定できる format は:
+
+               .ub     符号無し 8bit/sample
+               .sb     符号付き 8bit/sample
+               .uw     符号無し 16bit/sample、LSB first
+               .sw     符号付き 16bit/sample、LSB first
+               .wu     符号無し 16bit/sample、MSB first
+               .ws     符号付き 16bit/sample、MSB first
+
+  -v n         出力レベルを指定する。出力が数値に比例した大きさで行な
+               われる。デフォルトは 256。
+
+  -d n[,n...]  指定したチャンネルの出力を行なわないようにする。
+
+動作に影響のある環境変数は以下の通りです。
+
+  EUP_FMINST   FMB ファイルのサーチパスを指定します。実際には、このパ
+	       スの前に、EUP ファイルのあったディレクトリが探索されま
+	       す。
+
+	       変数が存在しないときのデフォルトパスは、
+
+                 .:/usr/local/share/fj2/tone:/usr/share/fj2/tone
+
+  EUP_PCMINST  PMB ファイルのサーチパスを指定します。実際には、このパ
+	       スの前に、EUP ファイルのあったディレクトリが探索されま
+	       す。
+
+	       変数が存在しないときのデフォルトパスは、
+
+                 .:/usr/local/share/fj2/tone:/usr/share/fj2/tone
+
+* バグ
+
+TOWNS 内蔵音源用の EUP ファイル以外は正しく演奏できません。
+
+たとえ TOWNS で動かしたとしても、内蔵音源を直接ドライブすることは出来
+ません。
+
+LFO など、未実装の機能がかなりあります。また、減衰量や変調量など、音質
+に直接関るパラメータの調整がされていません。
+
+* 配布条件
+
+EUPPlayer はフリーソフトウェアです。パブリックドメインソフトウェア 
+(PDS) ではありません。EUPPlayer の著作権は、早坂智明 (Tomoaki Hayasaka
+<hayasaka@postman.riken.go.jp>) が保持しています。
+
+EUPPlayer のコピー、配布、使用、改造、販売、他のプログラムへの組み込み
+等は、GNU General Public License version 2 に従う限り自由に行えます。
+これらの行為にあたって、著作権者に連絡する必要はありません。
+
+配布条件の正確なところは、ファイル COPYING を参照してください。
+
+--
+Tomoaki Hayasaka <hayasaka@postman.riken.go.jp>
