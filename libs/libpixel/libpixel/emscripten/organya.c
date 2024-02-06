@@ -6,6 +6,12 @@
 #include <math.h>
 #include <string.h>
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern uint64_t organya_mute_mask;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "Wave100.inc"
 
 // Org-02 drums
@@ -52,7 +58,7 @@
 #define FALSE 0
 #define TRUE 1
 
-#define MAX_PATH 512
+#define MAX_PATH 1024
 char lastfn[MAX_PATH];
 int decode_pos_ms; // current decoding position, in milliseconds
 
@@ -66,7 +72,7 @@ int decode_pos_ms; // current decoding position, in milliseconds
 #define SAMPLERATE (44100)
 //char sample_buffer[576*NCH*(BPS/8)*2]; // sample buffer
 
-extern char *pixel_sample_buffer;	// use same as for PXtone
+//extern char *pixel_sample_buffer;	// use same as for PXtone
 
 
 #define CHANNELS 16
@@ -512,7 +518,7 @@ int org_play(const char *fn, char *buf) {
 		return 1;
 	strcpy(lastfn,fn);
 	decode_pos_ms=0;
-	memset(pixel_sample_buffer, 0, 576*NCH*(BPS/8)*2);
+	//memset(pixel_sample_buffer, 0, 576*NCH*(BPS/8)*2);
 
 	return 0;
 }
@@ -522,13 +528,25 @@ int org_getoutputtime(void)
 	return org.loop_end*org.tempo;
 }
 
-static int get_576_samples(char *buf)
+static int get_samples(char *buf,int samplesNb)
 {
 	int l, wave;
 	double pan, move;
 	if(org.nonlooping && org.step >= org.loop_start)
 		return 0;
-	for(l = 0; l < 576*NCH*(BPS/8); l++)
+    
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=0;
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+	for(l = 0; l < samplesNb*NCH*(BPS/8)/*576*NCH*(BPS/8)*/; l++)
 	{
 		int i;
 		// Calculate the current waves
@@ -571,6 +589,7 @@ static int get_576_samples(char *buf)
 		wave = 0x00;
 		for(i = 0; i < CHANNELS; i++)
 		{
+            int smpl;
 			if(org.chan[i].pos < -1.0)
 				continue;
 			pan = 1.0;
@@ -583,7 +602,25 @@ static int get_576_samples(char *buf)
 					pan = 1.0;
 			}
 			//if (i>=CHANNELS/2)
-			wave += org.chan[i].wave*pan;
+            if (organya_mute_mask&(1<<i)) smpl=0;
+            else {
+                wave += org.chan[i].wave*pan;
+                smpl=org.chan[i].wave*pan;
+            }
+                        
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(((smpl)>>0));
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 
 		// Clip the wave, don't overflow!
@@ -636,8 +673,8 @@ int org_currentpos() {
 	return decode_pos_ms;
 }
 
-int org_gensamples() {
-	int l= get_576_samples(pixel_sample_buffer);
+int org_gensamples(char *pixel_sample_buffer,int samplesNb) {    // use same as for PXtone) {
+	int l= get_samples(pixel_sample_buffer,samplesNb);
 	if(!l) {
 		return 0;
 	} else {

@@ -63,14 +63,16 @@ extern "C" void unload_org(void);
 extern "C" int org_play(const char *fn, char *buf);
 extern "C" int org_getoutputtime(void);
 extern "C" int org_currentpos();
-extern "C" int org_gensamples();
+extern "C" int org_gensamples(char *pixel_sample_buffer,int samplesNb);
+extern "C" int org_getlength(void);
 
 bool pixel_organya_mode;
 pxtnService*    pixel_pxtn;
 pxtnDescriptor*    pixel_desc;
 char*            pixel_fileBuffer;
 uint32_t        pixel_fileBufferLen;
-char *pixel_sample_buffer;    // use same as for PXtone
+uint64_t organya_mute_mask;
+char org_filename[1024];
 #define PIXEL_BUF_SIZE 1024
 
 //SID2
@@ -4029,31 +4031,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             bGlobalSeekProgress=-1;
                             if (mCurrentSamples >seekSample) {
                                 
-                                pixel_pxtn->clear();
-                                pixel_pxtn->init();
-                                
-                                pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ);
-                                pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen);
-                                pixel_pxtn->read(pixel_desc);
-                                pixel_pxtn->tones_ready();
-                                
-                                
-                                pxtnVOMITPREPARATION prep = {0};
-                                //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
-                                prep.start_pos_float = 0;
-                                prep.master_volume = 1; //(volume / 100.0f);
-
-                                pixel_pxtn->moo_preparation(&prep);
-                                
+                                if (!pixel_organya_mode) {
+                                    pixel_pxtn->clear();
+                                    pixel_pxtn->init();
+                                    
+                                    pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ);
+                                    pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen);
+                                    pixel_pxtn->read(pixel_desc);
+                                    pixel_pxtn->tones_ready();
+                                    
+                                    
+                                    pxtnVOMITPREPARATION prep = {0};
+                                    //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
+                                    prep.start_pos_float = 0;
+                                    prep.master_volume = 1; //(volume / 100.0f);
+                                    
+                                    pixel_pxtn->moo_preparation(&prep);
+                                } else {
+                                    org_play(org_filename, pixel_fileBuffer);
+                                }
                                 mCurrentSamples=0;
                             }
                             
                             while (seekSample - mCurrentSamples > 0) {
-                                pixel_pxtn->Moo(NULL, SOUND_BUFFER_SIZE_SAMPLE*2*2);
-                                        
+                                if (pixel_organya_mode) org_gensamples((char*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE);
+                                else pixel_pxtn->Moo(NULL, SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                                                                
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
-                                                                                                                                                                
+                                
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
                                 NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                 [invo start];
@@ -5490,13 +5496,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                     }
                     if (mPlayType==MMP_PIXEL) {
-                        
                         if (pixel_organya_mode) {
-                            if (!org_gensamples()) {
+                            if (!org_gensamples((char*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)) {
                                 nbBytes=0;
                             } else {
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                
+                                //copy voice data for oscillo view
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<numVoicesChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                    }
+                                }
                             }
                         } else {
                             if (!pixel_pxtn->Moo(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2)) {
@@ -7380,16 +7391,19 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     fclose(f);
     
     pixel_organya_mode=false;
-    if ([[[filePath lastPathComponent] lowercaseString] isEqualToString:@"org"]) pixel_organya_mode=true;
+    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[filePath lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+    NSString *extension = (NSString *)[temparray_filepath lastObject];
+    if ([extension isEqualToString:@"ORG"]) pixel_organya_mode=true;
+    
     
     bool success = false;
     pixel_pxtn = new pxtnService();
     pixel_desc = new pxtnDescriptor();
     
-    pixel_sample_buffer = (char *)calloc(pxtnBITPERSAMPLE / 8 * 2 * PIXEL_BUF_SIZE, sizeof(char));
-
     if (pixel_organya_mode) {
-        success = !org_play([filePath UTF8String], pixel_fileBuffer);
+        organya_mute_mask=0;
+        strcpy(org_filename,[filePath UTF8String]);
+        success = !org_play(org_filename, pixel_fileBuffer);
     } else {
         // pxtone
         if (pixel_pxtn->init() == pxtnOK) {
@@ -7418,8 +7432,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         pixel_pxtn=NULL;
         if (pixel_desc) delete pixel_desc;
         pixel_desc=NULL;
-        free(pixel_sample_buffer);
-        pixel_sample_buffer=NULL;
         return -2;
     }
     
@@ -7427,18 +7439,20 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
     mod_title=[NSString stringWithUTF8String:mod_name];
     
-    const char *name=pixel_pxtn->text->get_name_buf(NULL);
-    const char *comment=pixel_pxtn->text->get_comment_buf(NULL);
-    if (name) snprintf(mod_name,sizeof(mod_name)," %s",[[self sjisToNS:name] UTF8String]);
-    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nComment...: %s\nVoices....:%d\n",name,comment,pixel_pxtn->Woice_Num());
-    for (int i=0;i<pixel_pxtn->Woice_Num();i++) {
-        strcat(mod_message,pixel_pxtn->Woice_Get(i)->get_name_buf(NULL));
-        strcat(mod_message,"\n");
+    if (!pixel_organya_mode) {
+        const char *name=pixel_pxtn->text->get_name_buf(NULL);
+        const char *comment=pixel_pxtn->text->get_comment_buf(NULL);
+        if (name) snprintf(mod_name,sizeof(mod_name)," %s",[[self sjisToNS:name] UTF8String]);
+        snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nComment...: %s\nVoices....:%d\n",name,comment,pixel_pxtn->Woice_Num());
+        for (int i=0;i<pixel_pxtn->Woice_Num();i++) {
+            strcat(mod_message,pixel_pxtn->Woice_Get(i)->get_name_buf(NULL));
+            strcat(mod_message,"\n");
+        }
+        
+        iModuleLength=(int64_t)(pixel_pxtn->moo_get_total_sample())*1000/PLAYBACK_FREQ;
+    } else {
+        iModuleLength=org_getlength();
     }
-    //mod_message[0]=0;
-    
-    
-    
     artist=[NSString stringWithFormat:@"%s",""];
     
     mod_subsongs=1;
@@ -7451,18 +7465,26 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     if (mLoopMode) iModuleLength=-1;
     else {
-        iModuleLength=(int64_t)(pixel_pxtn->moo_get_total_sample())*1000/PLAYBACK_FREQ;
+        
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
     }
     iCurrentTime=0;
     
-    numChannels=pixel_pxtn->Unit_Num();
-    m_voicesDataAvail=1;
-    numVoicesChannels=numChannels;
-    for (int i=0;i<numVoicesChannels;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    if (!pixel_organya_mode) {
+        numChannels=pixel_pxtn->Unit_Num();
+        m_voicesDataAvail=1;
+        numVoicesChannels=numChannels;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+    } else {
+        numChannels=16;
+        m_voicesDataAvail=1;
+        numVoicesChannels=numChannels;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
     }
-    
     return 0;
 }
 
@@ -11385,8 +11407,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         pixel_pxtn=NULL;
         if (pixel_desc) delete pixel_desc;
         pixel_desc=NULL;
-        free(pixel_sample_buffer);
-        pixel_sample_buffer=NULL;
     }
     if (mPlayType==MMP_EUP) {
         if (eup_player) {
@@ -12174,9 +12194,13 @@ extern "C" void adjust_amplification(void);
         case MMP_V2M:
             return [NSString stringWithFormat:@"#%d-V2",channel+1];
         case MMP_PIXEL: {
-            const char *name=pixel_pxtn->Unit_Get(channel)->get_name_buf(NULL);
-            if (name) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
-            else return [NSString stringWithFormat:@"#%d",channel+1];
+            if (pixel_organya_mode) {
+                return [NSString stringWithFormat:@"#%d",channel+1];
+            } else {
+                const char *name=pixel_pxtn->Unit_Get(channel)->get_name_buf(NULL);
+                if (name) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
+                else return [NSString stringWithFormat:@"#%d",channel+1];
+            }
         }
         case MMP_HC:
             if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
@@ -12546,8 +12570,13 @@ extern "C" void adjust_amplification(void);
             else v2m_voices_mask&=0xFFFFFFFF^(1<<channel);
             break;
         case MMP_PIXEL:
-            if (!active) pixel_pxtn->mute_mask|=1<<channel;
-            else pixel_pxtn->mute_mask&=0xFFFFFFFF^1<<channel;
+            if (pixel_organya_mode) {
+                if (!active) organya_mute_mask|=1<<channel;
+                else organya_mute_mask&=0xFFFFFFFF^1<<channel;
+            } else {
+                if (!active) pixel_pxtn->mute_mask|=1<<channel;
+                else pixel_pxtn->mute_mask&=0xFFFFFFFF^1<<channel;
+            }
             break;
         case MMP_UADE:
             if (active) HC_voicesMuteMask1|=1<<channel;
