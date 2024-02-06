@@ -139,7 +139,8 @@ enum MMP_PLAYER_TYPE {
     MMP_V2M,
     MMP_S98,
     MMP_KSS,
-    MMP_PT3
+    MMP_PT3,
+    MMP_PIXEL
 };
 
 @class DetailViewControllerIphone;
@@ -421,6 +422,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_gsfLoad:(NSString*)filePath;
 -(int) mmp_mdxpdxLoad:(NSString*)filePath;
 -(int) mmp_sc68Load:(NSString*)filePath;
+-(int) mmp_pixelLoad:(NSString*)filePath;
 -(int) mmp_pt3Load:(NSString*)filePath;
 -(int) mmp_eupLoad:(NSString*)filePath;
 -(int) mmp_stsoundLoad:(NSString*)filePath;

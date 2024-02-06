@@ -53,6 +53,26 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #import "EQViewController.h"
 
+//PxTone & Organya
+#include "pxtnService.h"
+#include "pxtnError.h"
+
+
+// organya
+extern "C" void unload_org(void);
+extern "C" int org_play(const char *fn, char *buf);
+extern "C" int org_getoutputtime(void);
+extern "C" int org_currentpos();
+extern "C" int org_gensamples();
+
+bool pixel_organya_mode;
+pxtnService*    pixel_pxtn;
+pxtnDescriptor*    pixel_desc;
+char*            pixel_fileBuffer;
+uint32_t        pixel_fileBufferLen;
+char *pixel_sample_buffer;    // use same as for PXtone
+#define PIXEL_BUF_SIZE 1024
+
 //SID2
 #include "sidplayfp/sidplayfp.h"
 #include "sidplayfp/SidTune.h"
@@ -4004,6 +4024,50 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             SeekVGM(false,mNeedSeekTime*441/10);
                             //mNeedSeek=0;
                         }
+                        if (mPlayType==MMP_PIXEL) {
+                            int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (mCurrentSamples >seekSample) {
+                                
+                                pixel_pxtn->clear();
+                                pixel_pxtn->init();
+                                
+                                pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ);
+                                pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen);
+                                pixel_pxtn->read(pixel_desc);
+                                pixel_pxtn->tones_ready();
+                                
+                                
+                                pxtnVOMITPREPARATION prep = {0};
+                                //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
+                                prep.start_pos_float = 0;
+                                prep.master_volume = 1; //(volume / 100.0f);
+
+                                pixel_pxtn->moo_preparation(&prep);
+                                
+                                mCurrentSamples=0;
+                            }
+                            
+                            while (seekSample - mCurrentSamples > 0) {
+                                pixel_pxtn->Moo(NULL, SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                                        
+                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                                                                                                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=mCurrentSamples;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
+                            }
+                        }
                         if (mPlayType==MMP_EUP) { //EUP
                             int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                             bGlobalSeekProgress=-1;
@@ -5425,6 +5489,32 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=0;
                         }
                     }
+                    if (mPlayType==MMP_PIXEL) {
+                        
+                        if (pixel_organya_mode) {
+                            if (!org_gensamples()) {
+                                nbBytes=0;
+                            } else {
+                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            }
+                        } else {
+                            if (!pixel_pxtn->Moo(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2)) {
+                                nbBytes=0;
+                            }
+                            else {
+                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                
+                                //copy voice data for oscillo view
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<numVoicesChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
                     if (mPlayType==MMP_EUP) { //EUP
                         int nbSample = SOUND_BUFFER_SIZE_SAMPLE*2; //stereo
                         if (eup_player->isPlaying()) {
@@ -6137,6 +6227,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
@@ -6157,7 +6248,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extATARISOUND count]+[filetype_extPMD count]+
-                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
@@ -6175,6 +6266,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
     [filetype_ext addObjectsFromArray:filetype_extSC68];
     [filetype_ext addObjectsFromArray:filetype_extPT3];
+    [filetype_ext addObjectsFromArray:filetype_extPIXEL];
     [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
     [filetype_ext addObjectsFromArray:filetype_extUADE];
     [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
@@ -6275,6 +6367,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -6395,6 +6488,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         for (int i=0;i<[filetype_extPT3 count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extPIXEL count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {found=MMP_PIXEL;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {found=MMP_PIXEL;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_ext2SF count];i++) {
@@ -7257,6 +7355,117 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     return 0;
 }
+
+-(int) mmp_pixelLoad:(NSString*)filePath {  //PxTone Collage & Organya
+    mPlayType=MMP_PIXEL;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"PT3 Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    pixel_fileBufferLen=mp_datasize;
+    pixel_fileBuffer=(char*)malloc(pixel_fileBufferLen);
+    if (!pixel_fileBuffer) {
+        NSLog(@"cannot allocate pixel_fileBuffer");
+        fclose(f);
+        return -1;
+    }
+    fseek(f,0L,SEEK_SET);
+    fread(pixel_fileBuffer,1,pixel_fileBufferLen,f);
+    fclose(f);
+    
+    pixel_organya_mode=false;
+    if ([[[filePath lastPathComponent] lowercaseString] isEqualToString:@"org"]) pixel_organya_mode=true;
+    
+    bool success = false;
+    pixel_pxtn = new pxtnService();
+    pixel_desc = new pxtnDescriptor();
+    
+    pixel_sample_buffer = (char *)calloc(pxtnBITPERSAMPLE / 8 * 2 * PIXEL_BUF_SIZE, sizeof(char));
+
+    if (pixel_organya_mode) {
+        success = !org_play([filePath UTF8String], pixel_fileBuffer);
+    } else {
+        // pxtone
+        if (pixel_pxtn->init() == pxtnOK) {
+            if (pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ)) {
+                if (pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen) && (pixel_pxtn->read(pixel_desc) == pxtnOK) && (pixel_pxtn->tones_ready() == pxtnOK)) {
+                    success = true;
+
+                    pxtnVOMITPREPARATION prep = {0};
+                    //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
+                    prep.start_pos_float = 0;
+                    prep.master_volume = 1; //(volume / 100.0f);
+
+                    if (!pixel_pxtn->moo_preparation(&prep)) {
+                        success = false;
+                    }
+                } else {
+                    pixel_pxtn->evels->Release();
+                }
+            }
+        }
+    }
+    if (!success) {
+        free(pixel_fileBuffer);
+        pixel_fileBuffer=NULL;
+        if (pixel_pxtn) delete pixel_pxtn;
+        pixel_pxtn=NULL;
+        if (pixel_desc) delete pixel_desc;
+        pixel_desc=NULL;
+        free(pixel_sample_buffer);
+        pixel_sample_buffer=NULL;
+        return -2;
+    }
+    
+    // song info
+    snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+    mod_title=[NSString stringWithUTF8String:mod_name];
+    
+    const char *name=pixel_pxtn->text->get_name_buf(NULL);
+    const char *comment=pixel_pxtn->text->get_comment_buf(NULL);
+    if (name) snprintf(mod_name,sizeof(mod_name)," %s",[[self sjisToNS:name] UTF8String]);
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nComment...: %s\nVoices....:%d\n",name,comment,pixel_pxtn->Woice_Num());
+    for (int i=0;i<pixel_pxtn->Woice_Num();i++) {
+        strcat(mod_message,pixel_pxtn->Woice_Get(i)->get_name_buf(NULL));
+        strcat(mod_message,"\n");
+    }
+    //mod_message[0]=0;
+    
+    
+    
+    artist=[NSString stringWithFormat:@"%s",""];
+    
+    mod_subsongs=1;
+    mod_minsub=1;
+    mod_maxsub=1;
+    mod_currentsub=1;
+    mCurrentSamples=0;
+    if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+    if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    
+    if (mLoopMode) iModuleLength=-1;
+    else {
+        iModuleLength=(int64_t)(pixel_pxtn->moo_get_total_sample())*1000/PLAYBACK_FREQ;
+        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    }
+    iCurrentTime=0;
+    
+    numChannels=pixel_pxtn->Unit_Num();
+    m_voicesDataAvail=1;
+    numVoicesChannels=numChannels;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
+    return 0;
+}
+
 
 -(int) mmp_stsoundLoad:(NSString*)filePath {  //STSOUND
     mPlayType=MMP_STSOUND;
@@ -10003,6 +10212,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -10421,6 +10631,16 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
+    for (int i=0;i<[filetype_extPIXEL count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
+            break;
+        }
+    }
     for (int i=0;i<[filetype_ext2SF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
@@ -10683,6 +10903,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 break;
             case MMP_PT3:
                 if ([self mmp_pt3Load:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
+                break;
+            case MMP_PIXEL:
+                if ([self mmp_pixelLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_EUP:
                 if ([self mmp_eupLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
@@ -10973,6 +11196,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             iCurrentTime=startPos;
             break;
+        case MMP_PIXEL:  //PxTone & Orgaya
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            iCurrentTime=startPos;
+            break;
         case MMP_SC68: //SC68
             if (startPos) [self Seek:startPos];
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
@@ -11146,6 +11374,20 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_HC) {
         [self MMP_HCClose];
     }
+    if (mPlayType==MMP_PIXEL) {
+        
+        if (pixel_organya_mode) unload_org();
+        if (pixel_pxtn) pixel_pxtn->clear();
+                        
+        free(pixel_fileBuffer);
+        pixel_fileBuffer=NULL;
+        if (pixel_pxtn) delete pixel_pxtn;
+        pixel_pxtn=NULL;
+        if (pixel_desc) delete pixel_desc;
+        pixel_desc=NULL;
+        free(pixel_sample_buffer);
+        pixel_sample_buffer=NULL;
+    }
     if (mPlayType==MMP_EUP) {
         if (eup_player) {
             eup_player->stopPlaying();
@@ -11296,7 +11538,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
-    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -11334,6 +11576,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_ATARISOUND) return @"ATARISOUND";
     if (mPlayType==MMP_PT3) return @"PT3 Player";
+    if (mPlayType==MMP_PIXEL) return @"PxTone/Organya";
     if (mPlayType==MMP_SC68) return @"SC68";
     if (mPlayType==MMP_MDXPDX) return @"MDX";
     if (mPlayType==MMP_GSF) return @"GSF";
@@ -11469,6 +11712,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
     if (mPlayType==MMP_PT3) return @"PT3";
+    if (mPlayType==MMP_PIXEL) {
+        if (pixel_organya_mode) return @"Organya";
+        else return @"PxTone";
+    }
     if (mPlayType==MMP_SC68) {
         sc68_music_info_t info;
         sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
@@ -11901,6 +12148,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_PIXEL:
         case MMP_EUP:
         case MMP_PT3:
         case MMP_2SF:
@@ -11925,6 +12173,11 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-NDS",channel+1];
         case MMP_V2M:
             return [NSString stringWithFormat:@"#%d-V2",channel+1];
+        case MMP_PIXEL: {
+            const char *name=pixel_pxtn->Unit_Get(channel)->get_name_buf(NULL);
+            if (name) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
+            else return [NSString stringWithFormat:@"#%d",channel+1];
+        }
         case MMP_HC:
             if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
@@ -11991,6 +12244,7 @@ extern "C" void adjust_amplification(void);
             return 2;
         case MMP_EUP:
             return 2;
+        case MMP_PIXEL:
         case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_V2M:
@@ -12018,6 +12272,9 @@ extern "C" void adjust_amplification(void);
             return @"NDS";
         case MMP_V2M:
             return @"V2";
+        case MMP_PIXEL:
+            if (pixel_organya_mode) return @"Organya";
+            else return @"PxTone";
         case MMP_HC:
             if (HC_type==1) return @"SPU";
             else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
@@ -12072,6 +12329,7 @@ extern "C" void adjust_amplification(void);
         case MMP_EUP:
             if (voiceIdx<6) return 0;
             return 1;
+        case MMP_PIXEL:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
@@ -12153,6 +12411,7 @@ extern "C" void adjust_amplification(void);
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             }
+        case MMP_PIXEL:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
@@ -12228,6 +12487,7 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i];
             else for (int i=6;i<14;i++) [self setm_voicesStatus:active index:i];
             break;
+        case MMP_PIXEL:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
@@ -12284,6 +12544,10 @@ extern "C" void adjust_amplification(void);
         case MMP_V2M:
             if (active) v2m_voices_mask|=1<<channel;
             else v2m_voices_mask&=0xFFFFFFFF^(1<<channel);
+            break;
+        case MMP_PIXEL:
+            if (!active) pixel_pxtn->mute_mask|=1<<channel;
+            else pixel_pxtn->mute_mask&=0xFFFFFFFF^1<<channel;
             break;
         case MMP_UADE:
             if (active) HC_voicesMuteMask1|=1<<channel;

@@ -905,6 +905,7 @@
 		CCB21EDA1246C9E900A30F62 /* unzoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21ED91246C9E900A30F62 /* unzoom@2x.png */; };
 		CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EDB1246C9F200A30F62 /* zoom@2x.png */; };
 		CCB21EE21246CA5100A30F62 /* close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EE11246CA5100A30F62 /* close@2x.png */; };
+		CCB818302B7278BF00364D64 /* liblibpixel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB816FE2B7196A500364D64 /* liblibpixel.a */; };
 		CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */; };
 		CCB8D97017F6172D008E6A45 /* txtMenu7a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D96F17F6172D008E6A45 /* txtMenu7a_2x.png */; };
 		CCB8D97217F61AEA008E6A45 /* txtMenu2a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D97117F61AEA008E6A45 /* txtMenu2a_2x.png */; };
@@ -1158,6 +1159,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC836A492B6322770035A4DA;
 			remoteInfo = libatariaudio;
+		};
+		CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCB816F92B7196A500364D64 /* libpixel.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCB816ED2B7196A500364D64;
+			remoteInfo = libpixel;
 		};
 		CCDE83472B6C5C1000DC9F63 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2672,6 +2680,7 @@
 		CCB21ED91246C9E900A30F62 /* unzoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "unzoom@2x.png"; sourceTree = "<group>"; };
 		CCB21EDB1246C9F200A30F62 /* zoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "zoom@2x.png"; sourceTree = "<group>"; };
 		CCB21EE11246CA5100A30F62 /* close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "close@2x.png"; sourceTree = "<group>"; };
+		CCB816F92B7196A500364D64 /* libpixel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpixel.xcodeproj; path = libpixel/libpixel.xcodeproj; sourceTree = "<group>"; };
 		CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDZUIImageView.h; sourceTree = "<group>"; };
 		CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MDZUIImageView.m; sourceTree = "<group>"; };
 		CCB8D96F17F6172D008E6A45 /* txtMenu7a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7a_2x.png; sourceTree = "<group>"; };
@@ -2802,6 +2811,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCB818302B7278BF00364D64 /* liblibpixel.a in Frameworks */,
 				CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */,
 				CCDE83492B6C5C1F00DC9F63 /* liblibopenmpt-static.a in Frameworks */,
 				CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */,
@@ -3328,6 +3338,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
 				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
 				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
 				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
@@ -5108,6 +5119,14 @@
 			path = Samples;
 			sourceTree = "<group>";
 		};
+		CCB816FA2B7196A500364D64 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCB816FE2B7196A500364D64 /* liblibpixel.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCBF0FF91221788200E8DE4E /* STSound */ = {
 			isa = PBXGroup;
 			children = (
@@ -5347,6 +5366,10 @@
 					ProjectRef = CCD0D1182B6C360F00C0F71E /* libopenmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CCB816FA2B7196A500364D64 /* Products */;
+					ProjectRef = CCB816F92B7196A500364D64 /* libpixel.xcodeproj */;
+				},
+				{
 					ProductGroup = CC83697F2B5DCF8D0035A4DA /* Products */;
 					ProjectRef = CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */;
 				},
@@ -5577,6 +5600,13 @@
 			fileType = archive.ar;
 			path = liblibatariaudio.a;
 			remoteRef = CC836A592B6322780035A4DA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCB816FE2B7196A500364D64 /* liblibpixel.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibpixel.a;
+			remoteRef = CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CCDE83482B6C5C1000DC9F63 /* liblibopenmpt-static.a */ = {
@@ -6346,12 +6376,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.4.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6372,36 +6396,6 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-					libs/libkss/libkss/src,
-					libs/libkss/libkss/modules,
-					libs/libpt3,
-					libs/libatariaudio/AtariAudio,
-					"libs/libeupmini/libeupmini/Nuked-OPN2",
-					libs/libeupmini/libeupmini/mame,
-					libs/libeupmini/libeupmini/eupmini,
-				);
 			};
 			name = Debug;
 		};
@@ -6417,12 +6411,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.4.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6443,36 +6431,6 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-					libs/libkss/libkss/src,
-					libs/libkss/libkss/modules,
-					libs/libpt3,
-					libs/libatariaudio/AtariAudio,
-					"libs/libeupmini/libeupmini/Nuked-OPN2",
-					libs/libeupmini/libeupmini/mame,
-					libs/libeupmini/libeupmini/eupmini,
-				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6507,6 +6465,12 @@
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -6566,9 +6530,12 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
-					libs/sc68/libsc68,
-					libs/sc68/file68,
-					libs/libeupmini/libeupmini,
+					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
+					libs/libpixel/libpixel/src/pxtone,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6603,6 +6570,12 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -6664,9 +6637,12 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
-					libs/sc68/libsc68,
-					libs/sc68/file68,
-					libs/libeupmini/libeupmini,
+					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
+					libs/libpixel/libpixel/src/pxtone,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6700,6 +6676,12 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
+					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -6760,9 +6742,12 @@
 					libs/pmdmini/pmdmini,
 					libs/libkss/libkss/src,
 					libs/libkss/libkss/modules,
-					libs/sc68/libsc68,
-					libs/sc68/file68,
-					libs/libeupmini/libeupmini,
+					libs/libpt3,
+					libs/libatariaudio/AtariAudio,
+					"libs/libeupmini/libeupmini/Nuked-OPN2",
+					libs/libeupmini/libeupmini/mame,
+					libs/libeupmini/libeupmini/eupmini,
+					libs/libpixel/libpixel/src/pxtone,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6780,12 +6765,6 @@
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 3.4.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/libs/bundle-apple-framework-ios",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-min-4.4.LTS-ios-framework",
-					"$(PROJECT_DIR)/libs/ffmpeg-kit-audio-4.4.LTS-ios-framework",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -6805,36 +6784,6 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-					libs/libkss/libkss/src,
-					libs/libkss/libkss/modules,
-					libs/libpt3,
-					libs/libatariaudio/AtariAudio,
-					"libs/libeupmini/libeupmini/Nuked-OPN2",
-					libs/libeupmini/libeupmini/mame,
-					libs/libeupmini/libeupmini/eupmini,
-				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;

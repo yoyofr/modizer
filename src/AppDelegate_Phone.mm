@@ -111,6 +111,7 @@ extern "C" void updateMainLoopC(void) {
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -138,6 +139,7 @@ extern "C" void updateMainLoopC(void) {
     [supportedExtension addObjectsFromArray:filetype_extATARISOUND];
     [supportedExtension addObjectsFromArray:filetype_extSC68];
     [supportedExtension addObjectsFromArray:filetype_extPT3];
+    [supportedExtension addObjectsFromArray:filetype_extPIXEL];
     [supportedExtension addObjectsFromArray:filetype_extUADE];
     [supportedExtension addObjectsFromArray:filetype_extMODPLUG];
     [supportedExtension addObjectsFromArray:filetype_extXMP];
