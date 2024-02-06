@@ -1,4 +1,4 @@
-﻿
+
 #include "./pxtn.h"
 
 #include "./pxtnMax.h"
@@ -146,6 +146,17 @@ pxtnERR pxtnDelay::Read( pxtnDescriptor *p_doc )
 	_freq  = dela.freq ;
 	_rate  = dela.rate ;
 	_group = dela.group;
+    
+    //yoyofr
+    if (_freq<0.001f) {
+        printf("PxTone: very low freq %f, forcing to 0\n",_freq);
+        _freq=0;
+    }
+    /*if (_rate<0.1f) {
+        printf("low rate %f!!!\n",_rate);
+        _rate=0.1f;
+    }*/
+    //yoyofr
 
 	if( _group >= pxtnMAX_TUNEGROUPNUM ) _group = 0;
 
