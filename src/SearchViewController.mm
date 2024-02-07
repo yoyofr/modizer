@@ -1805,7 +1805,7 @@ static NSFileManager *mFileMngr;
 		[actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
 	}
 	
-	actionView.frame = CGRectMake(tableView.bounds.size.width - 40,0,40,40);
+	actionView.frame = CGRectMake(tableView.bounds.size.width - 40-tableView.safeAreaInsets.left-tableView.safeAreaInsets.right,0,40,40);
 	
 	bottomLabel.frame = CGRectMake( cell.indentationWidth*1.0,
 									22,

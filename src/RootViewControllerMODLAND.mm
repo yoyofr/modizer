@@ -2247,7 +2247,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
                     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                                0,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
                                                22);
                     
                     if (cur_db_entries[section][indexPath.row].downloaded==1) {
@@ -2309,7 +2309,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                         [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                         [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                     }
-                    actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                    actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                     actionView.enabled=YES;
                     actionView.hidden=NO;
                     

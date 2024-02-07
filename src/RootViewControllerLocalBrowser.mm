@@ -2979,7 +2979,7 @@ static int shouldRestart=1;
         [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
         [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
         
-        int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE;
+        int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
         icon_posx-=32;
         actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
         actionView.enabled=YES;
@@ -3003,13 +3003,13 @@ static int shouldRestart=1;
                                        40);
             
         } else  { //file
-            int actionicon_offsetx=0;
+            int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             //archive file ?
             if ((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3)) {
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 
-                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 
                 [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
                 [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];

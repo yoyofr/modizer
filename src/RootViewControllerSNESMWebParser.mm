@@ -1348,7 +1348,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
         }
-        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
                                       0,
                                       PRI_SEC_ACTIONS_IMAGE_SIZE,
                                       PRI_SEC_ACTIONS_IMAGE_SIZE);
