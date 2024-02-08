@@ -35,7 +35,7 @@ void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 	
 void DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos);
-void DrawOscilloMultiple(signed char *snd_data,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode);
+void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode);
 void DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint color_mode);
 void DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands);
 

@@ -575,8 +575,8 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            
-        NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[2]/p"];
+                    
+        NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];  ///
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_system count]);
         int we_index=0;
@@ -586,29 +586,33 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             for (int j=0;j<[arr_system count];j++) {
                 TFHppleElement *el=[arr_system objectAtIndex:j];
                 
-                NSString *system=[[[NSString stringWithString:[el text]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
-                
-                bool isAlreadyCovered=false;
-                we[we_index].file_name=system;
-                //check if already existing
-                if (we_index) {
-                    for (int i=0;i<we_index;i++) {
-                        if ([we[we_index].file_name isEqualToString:we[i].file_name]) {
-                            isAlreadyCovered=true;
-                            we[i].entries_nb++;
-                            break;
+                if ([el hasChildren]) {
+                    TFHppleElement *elchild=(TFHppleElement *)[[el children] lastObject];
+                    
+                    NSString *system=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    
+                    bool isAlreadyCovered=false;
+                    we[we_index].file_name=system;
+                    //check if already existing
+                    if (we_index) {
+                        for (int i=0;i<we_index;i++) {
+                            if ([we[we_index].file_name isEqualToString:we[i].file_name]) {
+                                isAlreadyCovered=true;
+                                we[i].entries_nb++;
+                                break;
+                            }
                         }
                     }
-                }
-                
-                if (!isAlreadyCovered) {
-                    we[we_index].file_URL=@"https://www.smspower.org/Music/VGMs";
-                    we[we_index].file_type=0;
-                    we[we_index].entries_nb=1;
-                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                    we_index++;
-                } else {
-                    we[we_index].file_name=nil;
+                    
+                    if (!isAlreadyCovered) {
+                        we[we_index].file_URL=@"https://www.smspower.org/Music/VGMs";
+                        we[we_index].file_type=0;
+                        we[we_index].entries_nb=1;
+                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                        we_index++;
+                    } else {
+                        we[we_index].file_name=nil;
+                    }
                 }
             }
         }
@@ -619,12 +623,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            
+            ///html/body/div[1]/div[2]/div[4]/div
         NSString *cur_system=self.title;
-        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//h3//a[@class='wikilink']"];
-        NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[2]/p"];
-        NSArray *arr_filesize=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[1]/text()"];
-        NSArray *arr_fileinfo=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[2]/p"];
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
@@ -632,32 +633,31 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         if (arr_url&&[arr_url count]) {
             
             for (int j=0;j<[arr_url count];j++) {
-                TFHppleElement *el=[arr_system objectAtIndex:j];
-                we[we_index].file_systems=[[[NSString stringWithString:[el text]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
-                if ([we[we_index].file_systems isEqualToString:cur_system]) {
+                TFHppleElement *el=[arr_url objectAtIndex:j];
                 
-                    el=[arr_url objectAtIndex:j];
+                if ([el hasChildren]) {
+                    TFHppleElement *elchild=(TFHppleElement *)[[el children] lastObject];
                     
-                    we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[el objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
-                                                              
-                    we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[el objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                    we[we_index].file_systems=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
                     
-                    we[we_index].file_name=[[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                    we[we_index].file_type=1;
-                    
-                    we[we_index].file_rating=0;
-                    
-                                                    
-                    el=[arr_filesize objectAtIndex:j];
-                    we[we_index].file_details=[NSString stringWithFormat:@"%@",[el raw]];
-                    
-                    el=[arr_fileinfo objectAtIndex:j];
-                    we[we_index].file_details=[NSString stringWithFormat:@"%@・%@",we[we_index].file_details,[el text]];
-                                    
-                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                    we_index++;
-                } else {
-                    we[we_index].file_systems=nil;
+                    if ([we[we_index].file_systems isEqualToString:cur_system]) {
+                        
+                        TFHppleElement *elchild2=[el firstChildWithTagName:@"a"];
+                        
+                        we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                        
+                        we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                        
+                        we[we_index].file_name=[[[[elchild2 text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                        we[we_index].file_type=1;
+                        
+                        we[we_index].file_rating=0;
+                                                                        
+                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                        we_index++;
+                    } else {
+                        we[we_index].file_systems=nil;
+                    }
                 }
             }
         }
@@ -669,10 +669,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
             
-        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//h3//a[@class='wikilink']"];
-        NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[2]/p"];
-        NSArray *arr_filesize=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[1]/text()"];
-        NSArray *arr_fileinfo=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[2]/p"];
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];  ///
+        //NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"]; //""  and remove first part before \n
+        //NSArray *arr_filesize=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[1]/text()"];
+        //NSArray *arr_fileinfo=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[2]/p"];
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
@@ -682,26 +682,35 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             for (int j=0;j<[arr_url count];j++) {
                 TFHppleElement *el=[arr_url objectAtIndex:j];
                 
-                we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[el objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
-                                                          
-                we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[el objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                TFHppleElement *elchild=[el firstChildWithTagName:@"a"];
                 
-                we[we_index].file_name=[[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                we[we_index].file_type=1;
-                
-                we[we_index].file_rating=0;
-                
-                el=[arr_system objectAtIndex:j];
-                we[we_index].file_systems=[[[NSString stringWithString:[el text]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
-                
-                el=[arr_filesize objectAtIndex:j];
-                we[we_index].file_details=[NSString stringWithFormat:@"%@",[el raw]];
-                
-                el=[arr_fileinfo objectAtIndex:j];
-                we[we_index].file_details=[NSString stringWithFormat:@"%@・%@",we[we_index].file_details,[el text]];
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                we_index++;
+                if (elchild) {
+                    
+                    we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                    
+                    we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                    
+                    we[we_index].file_name=[[[[elchild text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                    we[we_index].file_type=1;
+                    
+                    we[we_index].file_rating=0;
+                    
+                    elchild=(TFHppleElement *)[[el children] lastObject];
+                    
+                    //el=[arr_system objectAtIndex:j];
+                    we[we_index].file_systems=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    
+                    //we[we_index].file_details=@"";
+                    
+                    /* el=[arr_filesize objectAtIndex:j];
+                     we[we_index].file_details=[NSString stringWithFormat:@"%@",[el raw]];
+                     
+                     el=[arr_fileinfo objectAtIndex:j];
+                     we[we_index].file_details=[NSString stringWithFormat:@"%@・%@",we[we_index].file_details,[el text]];*/
+                    
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                    we_index++;
+                }
             }
         }
     }
@@ -773,7 +782,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=wef->file_type;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
         if (wef->file_type) {
-            dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%@",wef->file_systems, [wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""]];
+            dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@",wef->file_systems/*, [wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""]*/];
             dbWEB_entries[index][dbWEB_entries_count[index]].webRating=wef->file_rating;
         }
         else {

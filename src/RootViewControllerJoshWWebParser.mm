@@ -499,7 +499,8 @@ extern pthread_mutex_t db_mutex;
         {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles"},
         {@"http://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles"},
         {@"http://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles"},
-        {@"http://ps4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles"},
+        {@"http://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles"},
+        {@"http://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles"},
         //portables
         {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables"},
         {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables"},
