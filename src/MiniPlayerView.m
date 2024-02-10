@@ -14,11 +14,7 @@
     self = [super init];
     if (self) {
         darkMode=false;
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-            if (@available(iOS 12.0, *)) {
-                if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-            }
-        }
+        if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         
     }
     
@@ -33,11 +29,7 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;    
 }
 
 // Only override drawRect: if you perform custom drawing.

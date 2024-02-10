@@ -155,11 +155,7 @@ static NSFileManager *mFileMngr;
     
     forceReloadCells=false;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     /////////////////////////////////////
     // Waiting view
@@ -234,11 +230,7 @@ static NSFileManager *mFileMngr;
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
@@ -263,11 +255,7 @@ static NSFileManager *mFileMngr;
     
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];

@@ -1156,11 +1156,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     forceReloadCells=false;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
@@ -1338,22 +1334,14 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     self.navigationController.delegate = self;
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     
     CGFloat safe_top=0;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-        if (@available(iOS 11.0, *)) {
-            safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-        }
-    }
+    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
         
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;

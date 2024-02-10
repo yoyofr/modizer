@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -148,6 +149,34 @@
 				<string>com.yoyofr.modizer.pt3</string>
 			</array>
 		</dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>PxTone File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.pxtone</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>Organya File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.organya</string>
+            </array>
+        </dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -318,6 +347,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+    <key>UISupportsTrueScreenSizeOnMac</key>
+    <true/>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
@@ -555,6 +586,41 @@
 				</array>
 			</dict>
 		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>PxTone File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.pxtone</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>ptcop</string>
+                    <string>pttune</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>Organya File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.organya</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>org</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

@@ -182,6 +182,11 @@ extern "C" void updateMainLoopC(void) {
     
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     
+    //check iCloud availability
+    if (![mFileMngr ubiquityIdentityToken]) {
+        NSLog(@"iCloud not available");
+    } else NSLog(@"got iCloud token");
+    
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
@@ -257,10 +262,10 @@ extern "C" void updateMainLoopC(void) {
     if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
             CGRect frame = [modizerWin frame];
-            frame.size.height = 480*1.5f;
-            frame.size.width = 480*1.5f;
-            [modizerWin setFrame: frame];
-            [modizerWin setBounds:frame];
+            frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+            frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+            //[modizerWin setFrame: frame];
+            //[modizerWin setBounds:frame];
         }
     }
     
@@ -318,13 +323,10 @@ extern "C" void updateMainLoopC(void) {
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
 	}
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0"))
-     if (@available(iOS 9.0, *)) {
-         cpMngt=[[CarPlayAndRemoteManagement alloc] init];
-         cpMngt.detailViewController=detailViewControlleriPhone;
-         cpMngt.rootVCLocalB=rootViewControlleriPhone;
-         [cpMngt initCarPlayAndRemote];
-    }
+    cpMngt=[[CarPlayAndRemoteManagement alloc] init];
+    cpMngt.detailViewController=detailViewControlleriPhone;
+    cpMngt.rootVCLocalB=rootViewControlleriPhone;
+    [cpMngt initCarPlayAndRemote];
     
 	return YES;
 }

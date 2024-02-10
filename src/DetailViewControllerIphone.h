@@ -136,7 +136,7 @@ class CGLString;
 	int sliderProgressModuleEdit;
 	int sliderProgressModuleChanged;
 	int 	module_waiting;
-	NSTimer *repeatingTimer;
+	NSTimer *repeatingTimer;        
 	
 	CFont *mFont,*mFontMenu;
     int mFontWidth,mFontHeight;

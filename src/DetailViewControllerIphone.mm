@@ -30,6 +30,8 @@ static FFTAccelerate *fftAccel;
 static float *fft_frequency,*fft_time,*fft_frequencyAvg;
 static int *fft_freqAvgCount;
 
+#import "AppDelegate_Phone.h"
+#import "ModizerWin.h"
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 //#define NOTES_DISPLAY_LEFTMARGIN 30
@@ -1017,69 +1019,35 @@ static float movePinchScale,movePinchScaleOld;
         NSString *album=mplayer.album;
         NSString *title=[mplayer getModName];
         
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
-         if (@available(iOS 10.0, *)) {
-             infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      title,
-                                      MPMediaItemPropertyTitle,
-                                      artist,
-                                      MPMediaItemPropertyArtist,
-                                      artwork,
-                                      MPMediaItemPropertyArtwork,
-                                      artist,
-                                      MPMediaItemPropertyAlbumArtist,
-                                      album,
-                                      MPMediaItemPropertyAlbumTitle,
-                                      [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
-                                      MPNowPlayingInfoPropertyMediaType,
-                                      
-                                      [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                      MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                      [NSNumber numberWithUnsignedInteger:mPlaylist_size],
-                                      MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                                                           
-                                      [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                      MPMediaItemPropertyPlaybackDuration,
-                                      [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                      MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                      (mPaused?@0:@1),
-                                      MPNowPlayingInfoPropertyPlaybackRate,
-                                                                      
-                                      //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                      //MPMediaItemPropertyPersistentID,
-                                      nil];
-         }
-         else {
-             infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                 title,
-                                 MPMediaItemPropertyTitle,
-                                 artist,
-                                 MPMediaItemPropertyArtist,
-                                 artwork,
-                                 MPMediaItemPropertyArtwork,
-                                 artist,
-                                 MPMediaItemPropertyAlbumArtist,
-                                 album,
-                                 MPMediaItemPropertyAlbumTitle,
-                                 /*[NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
-                                 MPNowPlayingInfoPropertyMediaType,*/
-                                 
-                                 [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                 [NSNumber numberWithUnsignedInteger:mPlaylist_size],
-                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                                                      
-                                 [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                 MPMediaItemPropertyPlaybackDuration,
-                                 [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                 (mPaused?@0:@1),
-                                 MPNowPlayingInfoPropertyPlaybackRate,
-                                                                 
-                                 //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                 //MPMediaItemPropertyPersistentID,
-                                 nil];
-         }
+         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  title,
+                                  MPMediaItemPropertyTitle,
+                                  artist,
+                                  MPMediaItemPropertyArtist,
+                                  artwork,
+                                  MPMediaItemPropertyArtwork,
+                                  artist,
+                                  MPMediaItemPropertyAlbumArtist,
+                                  album,
+                                  MPMediaItemPropertyAlbumTitle,
+                                  [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                  MPNowPlayingInfoPropertyMediaType,
+                                  
+                                  [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                  MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                  [NSNumber numberWithUnsignedInteger:mPlaylist_size],
+                                  MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                                                       
+                                  [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                  MPMediaItemPropertyPlaybackDuration,
+                                  [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                  MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                  (mPaused?@0:@1),
+                                  MPNowPlayingInfoPropertyPlaybackRate,
+                                                                  
+                                  //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                  //MPMediaItemPropertyPersistentID,
+                                  nil];
     } else {
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                  artwork,
@@ -2976,29 +2944,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
         
         if (coverflow) {
-        if (coverflow.hidden==FALSE) {
-            
-            [UIView beginAnimations:@"cflow_out" context:nil];
-            [UIView setAnimationDelay:0.0];
-            [UIView setAnimationDuration:0.4];
-            [UIView setAnimationDelegate:self];
-            coverflow.alpha=0.0;
-            lblMainCoverflow.alpha=0;
-            lblSecCoverflow.alpha=0;
-            lblCurrentSongCFlow.alpha=0;
-            lblTimeFCflow.alpha=0;
-            btnPlayCFlow.alpha=0;
-            btnPauseCFlow.alpha=0;
-            btnBackCFlow.alpha=0;
-            btnPrevCFlow.alpha=0;
-            btnNextCFlow.alpha=0;
-            btnPrevSubCFlow.alpha=0;
-            btnNextSubCFlow.alpha=0;
-            coverflow.hidden=true;
-            [UIView commitAnimations];
-            
-            //[[self navigationController] setNavigationBarHidden:NO animated:NO];
-        }
+            if (coverflow.hidden==FALSE) {
+                
+                [UIView beginAnimations:@"cflow_out" context:nil];
+                [UIView setAnimationDelay:0.0];
+                [UIView setAnimationDuration:0.4];
+                [UIView setAnimationDelegate:self];
+                coverflow.alpha=0.0;
+                lblMainCoverflow.alpha=0;
+                lblSecCoverflow.alpha=0;
+                lblCurrentSongCFlow.alpha=0;
+                lblTimeFCflow.alpha=0;
+                btnPlayCFlow.alpha=0;
+                btnPauseCFlow.alpha=0;
+                btnBackCFlow.alpha=0;
+                btnPrevCFlow.alpha=0;
+                btnNextCFlow.alpha=0;
+                btnPrevSubCFlow.alpha=0;
+                btnNextSubCFlow.alpha=0;
+                coverflow.hidden=true;
+                [UIView commitAnimations];
+                
+                //[[self navigationController] setNavigationBarHidden:NO animated:NO];
+            }
         }
 		if (oglViewFullscreen) {
             if (mHasFocus) {
@@ -3020,7 +2988,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
             int yofs=self.navigationItem.titleView.frame.size.height;
-            if (is_macOS) yofs+=20;
+            if (is_macOS) yofs+=0*20;
             //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
             
             safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
@@ -3029,26 +2997,38 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
             if (safe_bottom>0) safe_bottom+=20;
             
-            
-			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
+            if (is_macOS) {
+                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
+            } else{
+                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
+                if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
+            }
+			
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
+            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+            
             
             if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             
             
-            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-			oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             
-            volWin.hidden=NO;
-            volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
-			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,
-                                          volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
-            //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
-            //			[volumeView sizeToFit];
-			
+            
+            if (is_macOS) {
+                volWin.hidden=TRUE;
+            } else {
+                volWin.hidden=NO;
+                volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
+                volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,
+                                              volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
+                //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
+                //			[volumeView sizeToFit];
+            }
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
@@ -3267,9 +3247,18 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
                 if (safe_bottom>0) safe_bottom+=20;
                 
-                                
-                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
-                m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                if (is_macOS) {
+                    mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
+                    
+                } else {
+                    mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
+                    
+                }
+                
                 cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
                 cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
                 if (gifAnimation) {
@@ -3280,7 +3269,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
                 if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
 
-                oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volWin.hidden=YES;
@@ -3345,10 +3333,18 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)updateBarPos {
 	if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
-		playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-		pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+        
+        if (is_macOS) {
+            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+6), mDevice_ww, 44);
+            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+6), mDevice_ww, 44);
+            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+6), mDevice_ww, 44);
+            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+6), mDevice_ww, 44);
+        } else {
+            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+        }
 	} else {
         int xofs=24*5+36*3+10;
 		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
@@ -4173,11 +4169,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (alertTableView) [alertTableView reloadData];
 }
@@ -4187,8 +4179,39 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewDidLoad {
 	clock_t start_time,end_time;
 	start_time=clock();
-    
     [super viewDidLoad];
+    
+    if (@available(iOS 14.0, *)) {
+            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+                is_macOS=1;
+                mDeviceType=3;
+            }else{
+                is_macOS=0;
+            }
+        }
+
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+     if (@available(iOS 14.0, *)) {
+         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+             for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+                 if ([scene isKindOfClass:[UIWindowScene class]]) {
+                     UIWindowScene* windowScene = (UIWindowScene*) scene;
+                     //windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
+                     //windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
+                 }
+             }
+         
+             AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+             ModizerWin *modizerWin=[main_delegate modizerWin];
+             
+             CGRect frame = [modizerWin frame];
+             frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+             frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+             //[modizerWin setFrame: frame];
+             //[modizerWin setBounds:frame];
+         }
+     }
     
     self.navigationController.delegate = self;
     
@@ -4198,11 +4221,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     forceReloadCells=false;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
@@ -4317,14 +4336,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	mPaused=1;
 	mScaleFactor=1.0f;
     
-    if (@available(iOS 14.0, *)) {
-            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-                is_macOS=1;
-                mDeviceType=3;
-            }else{
-                is_macOS=0;
-            }
-        }
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -4576,9 +4587,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	infoUnzoom.hidden=YES;
     
     
-	volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
-    volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
-    [volWin addSubview:volumeView];
+    if (!is_macOS) {
+        volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
+        volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
+        [volWin addSubview:volumeView];
+    }
     
 	
 	mRestart=0;
@@ -4936,6 +4949,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillLayoutSubviews {
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     
+    
+    AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
+    CGRect frame = [[app_delegate modizerWin] frame];
+    
     [super viewWillLayoutSubviews];
 }
 
@@ -4947,11 +4964,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (!is_macOS) mDeviceType=1; //ipad
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (size.height>size.width) {
-            mDevice_hh=size.height;
+            mDevice_hh=size.height+68;
             mDevice_ww=size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=size.height;
+            mDevice_ww=size.height+68;
             mDevice_hh=size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
@@ -5039,6 +5056,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     NOTES_DISPLAY_TOPMARGIN=(mFontHeight/mScaleFactor)*2+8+6;
 }
 - (void)viewWillAppear:(BOOL)animated {
+    
+    
+    
+    
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
     
@@ -5090,11 +5111,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (alertTableView) [alertTableView reloadData];
     

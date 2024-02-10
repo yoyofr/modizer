@@ -160,11 +160,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     forceReloadCells=false;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     mFileMngr=[[NSFileManager alloc] init];
 	
@@ -1571,11 +1567,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
@@ -1595,11 +1587,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];

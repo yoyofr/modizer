@@ -2559,8 +2559,6 @@
 		CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KUVO - Say goodbye (6ch) (2023).pt3"; sourceTree = "<group>"; };
 		CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3"; sourceTree = "<group>"; };
 		CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sauron - OOOPS!.pt3"; sourceTree = "<group>"; };
-		CC8369AC2B6320420035A4DA /* libatariaudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libatariaudio.h; sourceTree = "<group>"; };
-		CC8369AD2B6320420035A4DA /* libatariaudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libatariaudio.m; sourceTree = "<group>"; };
 		CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libatariaudio.xcodeproj; path = libatariaudio/libatariaudio.xcodeproj; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
@@ -2905,7 +2903,6 @@
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
-				CC8369AB2B6320420035A4DA /* libatariaudio */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
@@ -4963,15 +4960,6 @@
 				CC8369922B5DD5510035A4DA /* playpt3.txt */,
 			);
 			path = pt3;
-			sourceTree = "<group>";
-		};
-		CC8369AB2B6320420035A4DA /* libatariaudio */ = {
-			isa = PBXGroup;
-			children = (
-				CC8369AC2B6320420035A4DA /* libatariaudio.h */,
-				CC8369AD2B6320420035A4DA /* libatariaudio.m */,
-			);
-			path = libatariaudio;
 			sourceTree = "<group>";
 		};
 		CC836A562B6322770035A4DA /* Products */ = {

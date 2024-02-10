@@ -29,12 +29,8 @@
     CGFloat safe_bottom=0;
     CGFloat device_height=[[UIApplication sharedApplication] keyWindow].frame.size.height;
     CGFloat device_winy=[[UIApplication sharedApplication] keyWindow].frame.origin.y;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-        if (@available(iOS 11.0, *)) {
-            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-            
-        }
-    }
+    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+    
     CGFloat max_y=device_height+device_winy-safe_bottom;
     CGFloat miniplayer_y=self.view.frame.origin.y+self.view.frame.size.height;
     CGFloat adjust_y=max_y-miniplayer_y;

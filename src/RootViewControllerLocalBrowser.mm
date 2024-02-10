@@ -33,6 +33,7 @@ static volatile int mPopupAnimation=0;
 
 #import "RootViewControllerLocalBrowser.h"
 #import "AppDelegate_Phone.h"
+#import "ModizerWin.h"
 #import "DetailViewControllerIphone.h"
 #import "QuartzCore/CAAnimation.h"
 #import "SettingsGenViewController.h"
@@ -130,127 +131,127 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     //NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     @autoreleasepool {
         
-    NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_USER];
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-    NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
-    NSError *error;
-    NSFileManager *fileManager=[[NSFileManager alloc] init];
-    
-    pthread_mutex_lock(&db_mutex);
-    
-    if (mUpdateToNewDB) {
-        [fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
-        //        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
-    }
-    
-    [fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
-    //    [self addSkipBackupAttributeToItemAtPath:pathToDB];
-    
-    
-    if (mUpdateToNewDB) {
-        sqlite3 *db,*dbold;
+        NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_USER];
+        NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+        NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
+        NSError *error;
+        NSFileManager *fileManager=[[NSFileManager alloc] init];
         
-        if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-            if (sqlite3_open([pathToOldDB UTF8String], &dbold) == SQLITE_OK){
-                char sqlStatementR[1024];
-                char sqlStatementR2[1024];
-                char sqlStatementW[1024];
-                sqlite3_stmt *stmt,*stmt2;
-                int err;
-                
-                err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
-                if (err==SQLITE_OK){
-                } else NSLog(@"ErrSQL : %d",err);
-                
-                //Migrate DB user data : song length, ratings, playlists, ...
-                sprintf(sqlStatementR,"SELECT name,fullpath,play_count,rating FROM user_stats");
-                err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
-                if (err==SQLITE_OK){
-                    while (sqlite3_step(stmt) == SQLITE_ROW) {
-                        
-                        sprintf(sqlStatementW,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
-                                (char*)sqlite3_column_text(stmt, 0),
-                                (char*)sqlite3_column_text(stmt, 1),
-                                sqlite3_column_int(stmt, 2),
-                                sqlite3_column_int(stmt, 3));
-                        err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
-                    }
-                    sqlite3_finalize(stmt);
-                } else NSLog(@"ErrSQL : %d",err);
-                
-                /*sprintf(sqlStatementR,"SELECT id_md5,track_nb,song_length FROM songlength");
-                 err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
-                 if (err==SQLITE_OK){
-                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                 
-                 sprintf(sqlStatementW,"INSERT INTO songlength (id_md5,track_nb,song_length) SELECT \"%s\",%d,%d",
-                 (char*)sqlite3_column_text(stmt, 0),
-                 sqlite3_column_int(stmt, 1),
-                 sqlite3_column_int(stmt, 2));
-                 err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                 if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
-                 }
-                 sqlite3_finalize(stmt);
-                 } else NSLog(@"ErrSQL : %d",err);*/
-                
-                
-                sprintf(sqlStatementR,"SELECT id,name,num_files FROM playlists");
-                err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
-                if (err==SQLITE_OK){
-                    while (sqlite3_step(stmt) == SQLITE_ROW) {
-                        int id_playlist;
-                        //CREATE NEW PL
-                        sprintf(sqlStatementW,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
-                                (char*)sqlite3_column_text(stmt, 1),
-                                sqlite3_column_int(stmt, 2));
-                        err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
-                        
-                        //GET NEW PL ID
-                        id_playlist=sqlite3_last_insert_rowid(db);
-                        
-                        //RECOPY PL ENTRIES
-                        sprintf(sqlStatementR2,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
-                        err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
-                        if (err==SQLITE_OK){
-                            while (sqlite3_step(stmt2) == SQLITE_ROW) {
-                                
-                                sprintf(sqlStatementW,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
-                                        id_playlist,
-                                        (char*)sqlite3_column_text(stmt2, 0),
-                                        (char*)sqlite3_column_text(stmt2, 1));
-                                err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                                if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
-                            }
-                            sqlite3_finalize(stmt2);
-                        } else NSLog(@"ErrSQL : %d",err);
-                        
-                    }
-                    sqlite3_finalize(stmt);
-                } else NSLog(@"ErrSQL : %d",err);
-                
-                
-                
-                sqlite3_close(dbold);
-                
-                //remove old DB
-                [fileManager removeItemAtPath:pathToOldDB error:&error];
-            }
-            sqlite3_close(db);
-        };
-    }
-    
-    /*	rar_main(argc,argv);
-     free(argv_buffer);
-     free(argv);*/
-    pthread_mutex_unlock(&db_mutex);
-    //	[self recreateDBIndexes];
-    
-    //[unrarPath release];
-    db_checked=1;
-    mDatabaseCreationInProgress=0;
-    
+        pthread_mutex_lock(&db_mutex);
+        
+        if (mUpdateToNewDB) {
+            [fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
+            //        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
+        }
+        
+        [fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
+        //    [self addSkipBackupAttributeToItemAtPath:pathToDB];
+        
+        
+        if (mUpdateToNewDB) {
+            sqlite3 *db,*dbold;
+            
+            if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+                if (sqlite3_open([pathToOldDB UTF8String], &dbold) == SQLITE_OK){
+                    char sqlStatementR[1024];
+                    char sqlStatementR2[1024];
+                    char sqlStatementW[1024];
+                    sqlite3_stmt *stmt,*stmt2;
+                    int err;
+                    
+                    err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+                    if (err==SQLITE_OK){
+                    } else NSLog(@"ErrSQL : %d",err);
+                    
+                    //Migrate DB user data : song length, ratings, playlists, ...
+                    sprintf(sqlStatementR,"SELECT name,fullpath,play_count,rating FROM user_stats");
+                    err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+                    if (err==SQLITE_OK){
+                        while (sqlite3_step(stmt) == SQLITE_ROW) {
+                            
+                            sprintf(sqlStatementW,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
+                                    (char*)sqlite3_column_text(stmt, 0),
+                                    (char*)sqlite3_column_text(stmt, 1),
+                                    sqlite3_column_int(stmt, 2),
+                                    sqlite3_column_int(stmt, 3));
+                            err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                            if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                        }
+                        sqlite3_finalize(stmt);
+                    } else NSLog(@"ErrSQL : %d",err);
+                    
+                    /*sprintf(sqlStatementR,"SELECT id_md5,track_nb,song_length FROM songlength");
+                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+                     if (err==SQLITE_OK){
+                     while (sqlite3_step(stmt) == SQLITE_ROW) {
+                     
+                     sprintf(sqlStatementW,"INSERT INTO songlength (id_md5,track_nb,song_length) SELECT \"%s\",%d,%d",
+                     (char*)sqlite3_column_text(stmt, 0),
+                     sqlite3_column_int(stmt, 1),
+                     sqlite3_column_int(stmt, 2));
+                     err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                     if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                     }
+                     sqlite3_finalize(stmt);
+                     } else NSLog(@"ErrSQL : %d",err);*/
+                    
+                    
+                    sprintf(sqlStatementR,"SELECT id,name,num_files FROM playlists");
+                    err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+                    if (err==SQLITE_OK){
+                        while (sqlite3_step(stmt) == SQLITE_ROW) {
+                            int id_playlist;
+                            //CREATE NEW PL
+                            sprintf(sqlStatementW,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
+                                    (char*)sqlite3_column_text(stmt, 1),
+                                    sqlite3_column_int(stmt, 2));
+                            err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                            if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                            
+                            //GET NEW PL ID
+                            id_playlist=sqlite3_last_insert_rowid(db);
+                            
+                            //RECOPY PL ENTRIES
+                            sprintf(sqlStatementR2,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
+                            err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
+                            if (err==SQLITE_OK){
+                                while (sqlite3_step(stmt2) == SQLITE_ROW) {
+                                    
+                                    sprintf(sqlStatementW,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
+                                            id_playlist,
+                                            (char*)sqlite3_column_text(stmt2, 0),
+                                            (char*)sqlite3_column_text(stmt2, 1));
+                                    err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                                    if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                                }
+                                sqlite3_finalize(stmt2);
+                            } else NSLog(@"ErrSQL : %d",err);
+                            
+                        }
+                        sqlite3_finalize(stmt);
+                    } else NSLog(@"ErrSQL : %d",err);
+                    
+                    
+                    
+                    sqlite3_close(dbold);
+                    
+                    //remove old DB
+                    [fileManager removeItemAtPath:pathToOldDB error:&error];
+                }
+                sqlite3_close(db);
+            };
+        }
+        
+        /*	rar_main(argc,argv);
+         free(argv_buffer);
+         free(argv);*/
+        pthread_mutex_unlock(&db_mutex);
+        //	[self recreateDBIndexes];
+        
+        //[unrarPath release];
+        db_checked=1;
+        mDatabaseCreationInProgress=0;
+        
         fileManager=nil;
     }
 }
@@ -346,11 +347,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     else {
         UIAlertView *alert1;
         if (forceInit) alert1 = [[UIAlertView alloc] initWithTitle:@"Info"
-                                                            message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil];
+                                                           message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil];
         else {
             if (wrongversion) {
                 alert1 = [[UIAlertView alloc] initWithTitle:@"Info" message:
-                           [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
+                          [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
                 [alert1 show];
             }
             else  {
@@ -503,17 +504,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     start_time=clock();
     childController=nil;
     
+    
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     self.navigationController.delegate = self;
     
     forceReloadCells=false;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     mFileMngr=[[NSFileManager alloc] init];
     
@@ -667,7 +665,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     sqlite3 *db;
     int err;
     
-        
+    
     strcpy(browser_stil_info,"");
     pthread_mutex_lock(&db_mutexHVSCSTIL);
     
@@ -761,7 +759,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         tmp_str_idx=0;
                         idx+=strlen("TITLE: ")-1;
                     } else
-                    break;
+                        break;
                 case 4: // "NAME: "
                     if (browser_stil_info[idx]==0x0A) {
                         parser_status=0;
@@ -1012,49 +1010,49 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             //Compute MD5
             memset(browser_song_md5,0,33);
             /*int tmp_md5_data_size=sidtune_info->c64dataLen()+2*3+sizeof(sidtune_info->songSpeed())*sidtune_info->songs();
-            char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-            memset(tmp_md5_data,0,tmp_md5_data_size);
-            int ofs_md5_data=0;
-            unsigned char tmp[2];
-            memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info->c64dataLen());
-            ofs_md5_data+=sidtune_info->c64dataLen();
-            // Include INIT and PLAY address.
-            writeLEword(tmp,sidtune_info->initAddr());
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            writeLEword(tmp,sidtune_info->playAddr());
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            // Include number of songs.
-            writeLEword(tmp,sidtune_info->songs());
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            
-            // Include song speed for each song.
-            for (unsigned int s = 1; s <= sidtune_info->songs(); s++)
-            {
-                mSidTune->selectSong(s);
-                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-                //NSLog(@"sp : %d %d %d",s,mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-                ofs_md5_data+=sizeof(mSidTune->info.songSpeed);
-            }
-            // Deal with PSID v2NG clock speed flags: Let only NTSC
-            // clock speed change the MD5 fingerprint. That way the
-            // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
-            // PSID v2NG format is the same.
-            if ( mSidTune->info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
-                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.clockSpeed,sizeof(mSidTune->info.clockSpeed));
-                ofs_md5_data+=sizeof(mSidTune->info.clockSpeed);
-                //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
-            }
-            md5_from_buffer(browser_song_md5,33,tmp_md5_data,tmp_md5_data_size);
-            free(tmp_md5_data);*/
+             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
+             memset(tmp_md5_data,0,tmp_md5_data_size);
+             int ofs_md5_data=0;
+             unsigned char tmp[2];
+             memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info->c64dataLen());
+             ofs_md5_data+=sidtune_info->c64dataLen();
+             // Include INIT and PLAY address.
+             writeLEword(tmp,sidtune_info->initAddr());
+             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+             ofs_md5_data+=2;
+             writeLEword(tmp,sidtune_info->playAddr());
+             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+             ofs_md5_data+=2;
+             // Include number of songs.
+             writeLEword(tmp,sidtune_info->songs());
+             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+             ofs_md5_data+=2;
+             
+             // Include song speed for each song.
+             for (unsigned int s = 1; s <= sidtune_info->songs(); s++)
+             {
+             mSidTune->selectSong(s);
+             memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
+             //NSLog(@"sp : %d %d %d",s,mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
+             ofs_md5_data+=sizeof(mSidTune->info.songSpeed);
+             }
+             // Deal with PSID v2NG clock speed flags: Let only NTSC
+             // clock speed change the MD5 fingerprint. That way the
+             // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
+             // PSID v2NG format is the same.
+             if ( mSidTune->info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
+             memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.clockSpeed,sizeof(mSidTune->info.clockSpeed));
+             ofs_md5_data+=sizeof(mSidTune->info.clockSpeed);
+             //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
+             }
+             md5_from_buffer(browser_song_md5,33,tmp_md5_data,tmp_md5_data_size);
+             free(tmp_md5_data);*/
             mSidTune->createMD5New(browser_song_md5);
             browser_song_md5[32]=0;
             
             
             //Get STIL info
-            browser_stil_info=(char*)calloc(1,MAX_STIL_DATA_LENGTH);            
+            browser_stil_info=(char*)calloc(1,MAX_STIL_DATA_LENGTH);
             [self getStilInfo:(char*)[cpath UTF8String]];
             
             [self sid_parseStilInfo:sidtune_info->songs()];
@@ -1091,7 +1089,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             }
             
             
-
+            
             
             if (local_nb_entries) {
                 //2nd initialize array to receive entries
@@ -1224,45 +1222,45 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
                 gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
             }
-
+            
             
             int total_trackNb=gme_track_count( gme_emu );
             for (int i=0;i<total_trackNb;i++) {
                 //err=gme_start_track( gme_emu, i );
                 //if (!err) {
-                    if (gme_track_info( gme_emu, &gme_info, i )==0) {
-                        file=nil;
-                        if (gme_info->song) {
-                            if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->song];
-                        }
-                        if (!file) {
-                            if (gme_info->game) {
-                                if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->game];
-                            }
-                        }
-                        if (!file) {
-                            file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
-                        }
-                        
-                        int filtered=0;
-                        if ((mSearch)&&([mSearchText length]>0)) {
-                            filtered=1;
-                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            if (r.location != NSNotFound) {
-                                /*if(r.location== 0)*/ filtered=0;
-                            }
-                        }
-                        if (!filtered) {
-                            
-                            const char *str=[file UTF8String];
-                            int index=0;
-                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                            local_entries_count[index]++;
-                            local_nb_entries++;
-                        }
-                        gme_free_info(gme_info);
+                if (gme_track_info( gme_emu, &gme_info, i )==0) {
+                    file=nil;
+                    if (gme_info->song) {
+                        if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->song];
                     }
+                    if (!file) {
+                        if (gme_info->game) {
+                            if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->game];
+                        }
+                    }
+                    if (!file) {
+                        file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
+                    }
+                    
+                    int filtered=0;
+                    if ((mSearch)&&([mSearchText length]>0)) {
+                        filtered=1;
+                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        if (r.location != NSNotFound) {
+                            /*if(r.location== 0)*/ filtered=0;
+                        }
+                    }
+                    if (!filtered) {
+                        
+                        const char *str=[file UTF8String];
+                        int index=0;
+                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                        local_entries_count[index]++;
+                        local_nb_entries++;
+                    }
+                    gme_free_info(gme_info);
+                }
                 //}
             }
             gme_delete(gme_emu);
@@ -1746,9 +1744,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                                         if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
                                         local_entries[index][local_entries_count[index]].type=0;
-                                                                                
+                                        
                                         local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:file];
-                                                                                
+                                        
                                         local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                         local_entries_count[index]++;
                                         if (local_nb_entries_limit) {
@@ -1871,11 +1869,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
@@ -1890,26 +1884,42 @@ static int shouldRestart=1;
 }
 
 -(void) viewWillAppear:(BOOL)animated {
+    static int firstcall=0;
+    
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+     if (@available(iOS 14.0, *)) {
+         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+             
+             AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+             ModizerWin *modizerWin=[main_delegate modizerWin];
+             
+             
+             
+             CGRect frame = [modizerWin frame];
+             frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+             frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+             //[modizerWin setFrame: frame];
+             //[modizerWin setBounds:frame];
+         }
+     }
+    
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
-        
+    
     [self.navigationController setNeedsStatusBarAppearanceUpdate];
     
     self.navigationController.delegate = self;
     
     bool oldmode=darkMode;
     darkMode=false;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
-        if (@available(iOS 12.0, *)) {
-            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        }
-    }
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     
-        
+    
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     [[self navigationController] setNavigationBarHidden:NO animated:YES];
     
@@ -2035,7 +2045,7 @@ static int shouldRestart=1;
         
         [detailViewController play_restart];
         //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
-                
+        
         //self.view.alpha=1.0f;
         
         [self hideWaiting];
@@ -2054,8 +2064,8 @@ static int shouldRestart=1;
     [self hideWaiting];
     [self hideMiniPlayer];
     /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
+     [childController viewDidDisappear:FALSE];
+     }*/
     [super viewDidDisappear:animated];
 }
 
