@@ -149,7 +149,7 @@ class CGLString;
 	CGLString *mHeader;
 	
 	int mDeviceType;
-    CGFloat safe_bottom;
+    CGFloat safe_bottom,safe_left,safe_right,safe_top;
     char is_macOS;
 	
 	short int real_spectrumL[SPECTRUM_BANDS*2],oreal_spectrumL[SPECTRUM_BANDS];

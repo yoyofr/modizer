@@ -8,7 +8,7 @@
  */
 
 
-extern BOOL is_retina;
+//extern BOOL is_retina;
 extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
@@ -113,7 +113,7 @@ int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode) {
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode,float mScaleFactor) {
     LineVertex *pts,*ptsB;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -300,7 +300,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             }
         }
     }
-    glLineWidth(2.0f);
+    glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     glDrawArrays(GL_LINES, 0, count);
@@ -311,7 +311,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     free(pts);
 }
 
-void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint color_mode) {
+void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint color_mode,float mScaleFactor) {
     LineVertex *pts,*ptsB;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -449,7 +449,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
             }
         }
     }
-    glLineWidth(3.0f);
+    glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     glDrawArrays(GL_LINES, 0, count);
@@ -464,7 +464,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
 }
 
 
-void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos) {
+void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,float mScaleFactor) {
     LineVertex *pts,*ptsB;
     int mulfactor;
     int dval,valL,valR,ovalL,ovalR,ospl,ospr,spl,spr,colR1,colL1,colR2,colL2,ypos;
@@ -546,7 +546,7 @@ void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uin
                 if (colR2<32) colR2=32;if (colR2>255) colR2=255;
                 pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
             }
-            glLineWidth(2.0f);
+            glLineWidth(2.0f*mScaleFactor);
             glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
             glDrawArrays(GL_LINES, 0, count);
@@ -599,7 +599,7 @@ void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uin
                 pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colL2,colL1,colL2,192);
                 
             }
-            glLineWidth(1.0f);
+            glLineWidth(1.0f*mScaleFactor);
             glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
             glDrawArrays(GL_LINES, 0, count);
@@ -635,7 +635,7 @@ void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uin
                 if (colR2<48) colR2=48;if (colR2>255) colR2=255;
                 pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
             }
-            glLineWidth(2.0f);
+            glLineWidth(2.0f*mScaleFactor);
             glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
             glDrawArrays(GL_LINES, 0, count);
@@ -659,7 +659,7 @@ static int spectrumPeakValueL_index[SPECTRUM_BANDS];
 static int spectrumPeakValueR_index[SPECTRUM_BANDS];
 
 
-void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands,float mScaleFactor) {
     LineVertex *pts,*ptsB,*ptsC;
     float x,y;
     int spl,spr,mulfactor,cr,cg,cb;
@@ -810,7 +810,7 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
         }
     }
     
-    glLineWidth((band_width-1)*(is_retina?2:1));
+    glLineWidth((band_width-1)*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     glDrawArrays(GL_LINES, 0, count);
@@ -945,7 +945,7 @@ void RenderUtils::DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uin
     free(ptsB);
 }
 
-void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt) {
+void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt,float mScaleFactor) {
     LineVertex pts[24];
     //set the opengl state
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1001,7 +1001,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     
     for (int i=0;i<24;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
     
-    glLineWidth(1.0f*(is_retina?2:1));
+    glLineWidth(1.0f*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 24);
     
     
@@ -1021,7 +1021,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     
     for (int i=0;i<12;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
     
-    glLineWidth(2.0f*(is_retina?2:1));
+    glLineWidth(2.0f*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 12);
     
     int factA,factB;
@@ -1041,7 +1041,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     if (colbgBR<0) colbgBR=0; if (colbgBR>255) colbgBR=255;
     if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
     if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
-    glLineWidth(4.0f*(is_retina?2:1));
+    glLineWidth(4.0f*mScaleFactor);
     fade_lev=255;
     glDisable(GL_BLEND);
     for (int y=0;y<4;y++)
@@ -5307,7 +5307,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
 }
 
-void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode) {
+void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
     LineVertex *ptsB;
     int crt,cgt,cbt,ca;
     int index;
@@ -5497,7 +5497,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         }
     }
     
-    glLineWidth(line_width*(is_retina?2:1));
+    glLineWidth(line_width*mScaleFactor);
     index=0;
     
     //TO OPTIMIZE
@@ -5591,7 +5591,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,  120,100,200,120);
         
     }
-    glLineWidth(band_width*(is_retina?2:1));
+    glLineWidth(band_width*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 2);
     
     /*    if (horiz_vert==0) {
@@ -5606,7 +5606,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
      ptsB[3] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS)*band_width, 200,160,250,120);
      
      }
-     //    glLineWidth(2.0f*(is_retina?2:1));
+     //    glLineWidth(2.0f*mScaleFactor);
      glDrawArrays(GL_LINES, 0, 4);*/
     
     glDisableClientState(GL_VERTEX_ARRAY);

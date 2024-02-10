@@ -3023,8 +3023,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (is_macOS) yofs+=20;
             //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
             
+            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+            safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+            safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
+            safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+            if (safe_bottom>0) safe_bottom+=20;
+            
+            
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
+			m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             
@@ -3033,7 +3040,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
+			oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             
             volWin.hidden=NO;
             volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
@@ -3253,9 +3260,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 int yofs=self.navigationItem.titleView.frame.size.height;
                 if (is_macOS) yofs+=20;
                 //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
+                
+                safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+                safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+                safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
+                safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+                if (safe_bottom>0) safe_bottom+=20;
+                
                                 
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
-                m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-safe_bottom-yofs);
+                m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                 cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
                 cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
                 if (gifAnimation) {
@@ -3266,7 +3280,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
                 if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
 
-                oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30-safe_bottom);
+                oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volWin.hidden=YES;
@@ -4312,12 +4326,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             }
         }
     
-    safe_bottom=0;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-        if (@available(iOS 11.0, *)) {
-            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-        }
-    }
+    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+    safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
+    safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+    
     if (safe_bottom>0) safe_bottom+=20;
     //NSLog(@"saf bottom: %f\n",safe_bottom);
     
@@ -4920,6 +4933,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	}
 }
 
+- (void)viewWillLayoutSubviews {
+    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    
+    [super viewWillLayoutSubviews];
+}
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
@@ -5061,12 +5080,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (mScaleFactor>=2) mDeviceType=2;
     }
     
-    safe_bottom=0;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
-        if (@available(iOS 11.0, *)) {
-            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-        }
-    }
+    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+    safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
+    safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+    
     if (safe_bottom>0) safe_bottom+=20;
     
     
@@ -6226,7 +6244,7 @@ extern "C" int current_sample;
             
             if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
                 
                 if (mHeader) delete mHeader;
                 mHeader=nil;
@@ -6268,7 +6286,7 @@ extern "C" int current_sample;
                         }
                     }
                     
-                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
                 }
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
@@ -6539,16 +6557,16 @@ extern "C" int current_sample;
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
-                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0);
-                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor);
+                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
-                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0);
-                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor);
+                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
                 break;
         }
 	}
@@ -6643,7 +6661,7 @@ extern "C" int current_sample;
             active_idx=[self computeActiveFX];
             
             //NSLog(@"alpha: %d / %d",fadelev,(int)(fxalpha*255));
-            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt);
+            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt,mScaleFactor);
             infoMenuShowImages(ww,hh,fadelev);
             
             glPushMatrix();
@@ -6691,7 +6709,7 @@ extern "C" int current_sample;
             }
             if (active_idx==1) active_idx=0;
             
-            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt);
+            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt,mScaleFactor);
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             int menu_cell_size=(ww<hh?ww:hh);
             glPushMatrix();
