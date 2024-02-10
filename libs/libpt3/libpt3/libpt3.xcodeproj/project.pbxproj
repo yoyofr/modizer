@@ -56,7 +56,6 @@
 				CC8369892B5DCFEF0035A4DA /* load_text.h */,
 				CC8369852B5DCFEF0035A4DA /* pt3player.c */,
 				CC83698A2B5DCFEF0035A4DA /* pt3player.h */,
-				CC8369742B5DCF8D0035A4DA /* libpt3 */,
 				CC8369732B5DCF8D0035A4DA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -67,13 +66,6 @@
 				CC8369722B5DCF8D0035A4DA /* liblibpt3.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		CC8369742B5DCF8D0035A4DA /* libpt3 */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = libpt3;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -605,11 +605,15 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     }
                     
                     if (!isAlreadyCovered) {
-                        we[we_index].file_URL=@"https://www.smspower.org/Music/VGMs";
-                        we[we_index].file_type=0;
-                        we[we_index].entries_nb=1;
-                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                        we_index++;
+                        TFHppleElement *elchild2=[el firstChildWithTagName:@"a"];
+                        
+                        if (elchild2) {                            
+                            we[we_index].file_URL=@"https://www.smspower.org/Music/VGMs";
+                            we[we_index].file_type=0;
+                            we[we_index].entries_nb=1;
+                            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                            we_index++;
+                        }
                     } else {
                         we[we_index].file_name=nil;
                     }
@@ -644,17 +648,21 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                         
                         TFHppleElement *elchild2=[el firstChildWithTagName:@"a"];
                         
+                        if (elchild2) {
+                        
                         we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
                         
-                        we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
-                        
-                        we[we_index].file_name=[[[[elchild2 text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                        we[we_index].file_type=1;
-                        
-                        we[we_index].file_rating=0;
-                                                                        
-                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                        we_index++;
+                            
+                            we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                            
+                            we[we_index].file_name=[[[[elchild2 text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                            we[we_index].file_type=1;
+                            
+                            we[we_index].file_rating=0;
+                            
+                            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                            we_index++;
+                        }
                     } else {
                         we[we_index].file_systems=nil;
                     }

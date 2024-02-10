@@ -2879,7 +2879,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
     return 0;
 }
 -(int) getCurrentPlayedBufferIdx {
-    return (buffer_ana_play_ofs+0*1)%SOUND_BUFFER_NB;
+    //buffer_ana_play_ofs is the last one enqueued, so +1 should be the one playing right one.
+    //take some contingency in case it is updated just after
+    //at 44100Hz and with sound buffer=1024 samples, 1 buffer is 23ms. So 3 buffers are ~70ms 
+    int idx=(buffer_ana_play_ofs+3)%SOUND_BUFFER_NB;
+    return idx;
 }
 void mdx_update(unsigned char *data,int len,int end_reached) {
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
@@ -5575,6 +5579,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         } else nbBytes=0;
                     }
                     if (mPlayType==MMP_ATARISOUND) { //ATARISOUND
+                        if (numVoicesChannels) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    m_voice_current_ptr[j]=0;
+                                }
+                        }
+                        
                         int retAtari=atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE,atariWaveData);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
@@ -5628,9 +5639,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_PT3) { //PT3
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        
+                        if (numVoicesChannels) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    m_voice_current_ptr[j]=0;
+                                }
+                        }
+                        
                         for (int ch = 0; ch<pt3_numofchips; ch++) {
                             if (pt3_renday(pt3_tmpbuf[ch], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,mLoopMode)) {
-                                printf("PT3: loop/end point reached\n");
+                                //printf("PT3: loop/end point reached\n");
                                 if (mLoopMode) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 else nbBytes=0;
                             }
@@ -6829,7 +6848,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     numChannels=6;
     numVoicesChannels=numChannels;
     for (int i=0;i<numVoicesChannels;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[i/3];        
+        m_voice_voiceColor[i]=m_voice_systemColor[i/4];
     }
     m_voicesDataAvail=1;
     
@@ -11559,7 +11578,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
-    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
