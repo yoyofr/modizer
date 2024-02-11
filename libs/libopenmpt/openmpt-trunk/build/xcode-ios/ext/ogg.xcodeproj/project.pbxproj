@@ -28,7 +28,7 @@
 /* Begin PBXFileReference section */
 		1891292F3EB758E1A5BE4F6F /* bitwise.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = bitwise.c; path = ../../../include/ogg/src/bitwise.c; sourceTree = "<group>"; };
 		1E47F32D446E22DFAB75196D /* ogg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ogg.h; path = ../../../include/ogg/include/ogg/ogg.h; sourceTree = "<group>"; };
-		5036DE60765D0E12DD6404A0 /* openmpt-ogg.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "openmpt-ogg.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5036DE60765D0E12DD6404A0 /* openmpt-ogg.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "openmpt-ogg.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93F6FCDFE159F3115778F31F /* os_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = os_types.h; path = ../../../include/ogg/include/ogg/os_types.h; sourceTree = "<group>"; };
 		B766F1A9DD8D215B449417E9 /* framing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = framing.c; path = ../../../include/ogg/src/framing.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -192,6 +192,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "openmpt-ogg";
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -236,6 +237,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "openmpt-ogg";
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;

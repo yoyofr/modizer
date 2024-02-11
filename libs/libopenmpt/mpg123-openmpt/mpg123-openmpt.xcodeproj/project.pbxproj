@@ -1,0 +1,1450 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC48839A2B797CEE00BCFFCC /* icy.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883132B797CEE00BCFFCC /* icy.c */; };
+		CC4883A32B797CEE00BCFFCC /* dct64.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48831E2B797CEE00BCFFCC /* dct64.c */; };
+		CC4883A82B797CEE00BCFFCC /* layer2.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883252B797CEE00BCFFCC /* layer2.c */; };
+		CC4883AA2B797CEE00BCFFCC /* icy2utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883272B797CEE00BCFFCC /* icy2utf8.c */; };
+		CC4883AD2B797CEE00BCFFCC /* format.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48832C2B797CEE00BCFFCC /* format.c */; };
+		CC4883B22B797CEE00BCFFCC /* synth_s32.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883342B797CEE00BCFFCC /* synth_s32.c */; };
+		CC4883B92B797CEE00BCFFCC /* readers.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48833D2B797CEE00BCFFCC /* readers.c */; };
+		CC4883BB2B797CEE00BCFFCC /* id3.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883402B797CEE00BCFFCC /* id3.c */; };
+		CC4883BD2B797CEE00BCFFCC /* equalizer.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883422B797CEE00BCFFCC /* equalizer.c */; };
+		CC4883C12B797CEE00BCFFCC /* layer1.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883462B797CEE00BCFFCC /* layer1.c */; };
+		CC4883C72B797CEF00BCFFCC /* stringbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883502B797CEE00BCFFCC /* stringbuf.c */; };
+		CC4883CB2B797CEF00BCFFCC /* index.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883542B797CEE00BCFFCC /* index.c */; };
+		CC4883CD2B797CEF00BCFFCC /* synth_8bit.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883572B797CEE00BCFFCC /* synth_8bit.c */; };
+		CC4883CE2B797CEF00BCFFCC /* synth_real.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883582B797CEE00BCFFCC /* synth_real.c */; };
+		CC4883D32B797CEF00BCFFCC /* tabinit.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48835E2B797CEE00BCFFCC /* tabinit.c */; };
+		CC4883D62B797CEF00BCFFCC /* optimize.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883612B797CEE00BCFFCC /* optimize.c */; };
+		CC4883DB2B797CEF00BCFFCC /* lfs_wrap.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883672B797CEE00BCFFCC /* lfs_wrap.c */; };
+		CC4883E32B797CEF00BCFFCC /* libmpg123.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48836F2B797CEE00BCFFCC /* libmpg123.c */; };
+		CC4883E42B797CEF00BCFFCC /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883702B797CEE00BCFFCC /* frame.c */; };
+		CC4883EA2B797CEF00BCFFCC /* parse.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883792B797CEE00BCFFCC /* parse.c */; };
+		CC4883EE2B797CEF00BCFFCC /* synth.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48837D2B797CEE00BCFFCC /* synth.c */; };
+		CC4883F22B797CEF00BCFFCC /* feature.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883842B797CEE00BCFFCC /* feature.c */; };
+		CC4883F82B797CEF00BCFFCC /* ntom.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48838E2B797CEE00BCFFCC /* ntom.c */; };
+		CC4883F92B797CEF00BCFFCC /* layer3.c in Sources */ = {isa = PBXBuildFile; fileRef = CC48838F2B797CEE00BCFFCC /* layer3.c */; };
+		CC4883FA2B797CEF00BCFFCC /* compat.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883922B797CEE00BCFFCC /* compat.c */; };
+		CC4883FB2B797CEF00BCFFCC /* compat_str.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4883942B797CEE00BCFFCC /* compat_str.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC4882F62B797CC800BCFFCC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC4882F82B797CC800BCFFCC /* libmpg123-openmpt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmpg123-openmpt.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC4883132B797CEE00BCFFCC /* icy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = icy.c; sourceTree = "<group>"; };
+		CC48831E2B797CEE00BCFFCC /* dct64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dct64.c; sourceTree = "<group>"; };
+		CC4883252B797CEE00BCFFCC /* layer2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = layer2.c; sourceTree = "<group>"; };
+		CC4883272B797CEE00BCFFCC /* icy2utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = icy2utf8.c; sourceTree = "<group>"; };
+		CC48832C2B797CEE00BCFFCC /* format.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = format.c; sourceTree = "<group>"; };
+		CC4883342B797CEE00BCFFCC /* synth_s32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = synth_s32.c; sourceTree = "<group>"; };
+		CC48833D2B797CEE00BCFFCC /* readers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = readers.c; sourceTree = "<group>"; };
+		CC4883402B797CEE00BCFFCC /* id3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = id3.c; sourceTree = "<group>"; };
+		CC4883422B797CEE00BCFFCC /* equalizer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = equalizer.c; sourceTree = "<group>"; };
+		CC4883462B797CEE00BCFFCC /* layer1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = layer1.c; sourceTree = "<group>"; };
+		CC4883502B797CEE00BCFFCC /* stringbuf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stringbuf.c; sourceTree = "<group>"; };
+		CC4883542B797CEE00BCFFCC /* index.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = index.c; sourceTree = "<group>"; };
+		CC4883572B797CEE00BCFFCC /* synth_8bit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = synth_8bit.c; sourceTree = "<group>"; };
+		CC4883582B797CEE00BCFFCC /* synth_real.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = synth_real.c; sourceTree = "<group>"; };
+		CC48835E2B797CEE00BCFFCC /* tabinit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tabinit.c; sourceTree = "<group>"; };
+		CC4883612B797CEE00BCFFCC /* optimize.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = optimize.c; sourceTree = "<group>"; };
+		CC4883672B797CEE00BCFFCC /* lfs_wrap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs_wrap.c; sourceTree = "<group>"; };
+		CC48836F2B797CEE00BCFFCC /* libmpg123.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libmpg123.c; sourceTree = "<group>"; };
+		CC4883702B797CEE00BCFFCC /* frame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = frame.c; sourceTree = "<group>"; };
+		CC4883792B797CEE00BCFFCC /* parse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
+		CC48837D2B797CEE00BCFFCC /* synth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = synth.c; sourceTree = "<group>"; };
+		CC4883842B797CEE00BCFFCC /* feature.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = feature.c; sourceTree = "<group>"; };
+		CC48838E2B797CEE00BCFFCC /* ntom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ntom.c; sourceTree = "<group>"; };
+		CC48838F2B797CEE00BCFFCC /* layer3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = layer3.c; sourceTree = "<group>"; };
+		CC4883922B797CEE00BCFFCC /* compat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compat.c; sourceTree = "<group>"; };
+		CC4883942B797CEE00BCFFCC /* compat_str.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compat_str.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC4882F52B797CC800BCFFCC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC4882EF2B797CC800BCFFCC = {
+			isa = PBXGroup;
+			children = (
+				CC4883912B797CEE00BCFFCC /* compat */,
+				CC48830A2B797CEE00BCFFCC /* libmpg123 */,
+				CC4882F92B797CC800BCFFCC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC4882F92B797CC800BCFFCC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC4882F82B797CC800BCFFCC /* libmpg123-openmpt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC48830A2B797CEE00BCFFCC /* libmpg123 */ = {
+			isa = PBXGroup;
+			children = (
+				CC48831E2B797CEE00BCFFCC /* dct64.c */,
+				CC4883422B797CEE00BCFFCC /* equalizer.c */,
+				CC4883842B797CEE00BCFFCC /* feature.c */,
+				CC48832C2B797CEE00BCFFCC /* format.c */,
+				CC4883702B797CEE00BCFFCC /* frame.c */,
+				CC4883132B797CEE00BCFFCC /* icy.c */,
+				CC4883272B797CEE00BCFFCC /* icy2utf8.c */,
+				CC4883402B797CEE00BCFFCC /* id3.c */,
+				CC4883542B797CEE00BCFFCC /* index.c */,
+				CC4883462B797CEE00BCFFCC /* layer1.c */,
+				CC4883252B797CEE00BCFFCC /* layer2.c */,
+				CC48838F2B797CEE00BCFFCC /* layer3.c */,
+				CC4883672B797CEE00BCFFCC /* lfs_wrap.c */,
+				CC48836F2B797CEE00BCFFCC /* libmpg123.c */,
+				CC48838E2B797CEE00BCFFCC /* ntom.c */,
+				CC4883612B797CEE00BCFFCC /* optimize.c */,
+				CC4883792B797CEE00BCFFCC /* parse.c */,
+				CC48833D2B797CEE00BCFFCC /* readers.c */,
+				CC4883502B797CEE00BCFFCC /* stringbuf.c */,
+				CC4883572B797CEE00BCFFCC /* synth_8bit.c */,
+				CC4883582B797CEE00BCFFCC /* synth_real.c */,
+				CC4883342B797CEE00BCFFCC /* synth_s32.c */,
+				CC48837D2B797CEE00BCFFCC /* synth.c */,
+				CC48835E2B797CEE00BCFFCC /* tabinit.c */,
+			);
+			name = libmpg123;
+			path = "../openmpt-trunk/include/mpg123/src/libmpg123";
+			sourceTree = "<group>";
+		};
+		CC4883912B797CEE00BCFFCC /* compat */ = {
+			isa = PBXGroup;
+			children = (
+				CC4883942B797CEE00BCFFCC /* compat_str.c */,
+				CC4883922B797CEE00BCFFCC /* compat.c */,
+			);
+			name = compat;
+			path = "../openmpt-trunk/include/mpg123/src/compat";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC4882F72B797CC800BCFFCC /* mpg123-openmpt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC4883012B797CC800BCFFCC /* Build configuration list for PBXNativeTarget "mpg123-openmpt" */;
+			buildPhases = (
+				CC4882F42B797CC800BCFFCC /* Sources */,
+				CC4882F52B797CC800BCFFCC /* Frameworks */,
+				CC4882F62B797CC800BCFFCC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "mpg123-openmpt";
+			productName = "mpg123-openmpt";
+			productReference = CC4882F82B797CC800BCFFCC /* libmpg123-openmpt.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC4882F02B797CC800BCFFCC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CC4882F72B797CC800BCFFCC = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CC4882F32B797CC800BCFFCC /* Build configuration list for PBXProject "mpg123-openmpt" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC4882EF2B797CC800BCFFCC;
+			productRefGroup = CC4882F92B797CC800BCFFCC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC4882F72B797CC800BCFFCC /* mpg123-openmpt */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC4882F42B797CC800BCFFCC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC4883F82B797CEF00BCFFCC /* ntom.c in Sources */,
+				CC4883A82B797CEE00BCFFCC /* layer2.c in Sources */,
+				CC4883DB2B797CEF00BCFFCC /* lfs_wrap.c in Sources */,
+				CC4883C72B797CEF00BCFFCC /* stringbuf.c in Sources */,
+				CC4883BB2B797CEE00BCFFCC /* id3.c in Sources */,
+				CC4883CD2B797CEF00BCFFCC /* synth_8bit.c in Sources */,
+				CC4883FB2B797CEF00BCFFCC /* compat_str.c in Sources */,
+				CC4883BD2B797CEE00BCFFCC /* equalizer.c in Sources */,
+				CC4883D32B797CEF00BCFFCC /* tabinit.c in Sources */,
+				CC4883AD2B797CEE00BCFFCC /* format.c in Sources */,
+				CC48839A2B797CEE00BCFFCC /* icy.c in Sources */,
+				CC4883EA2B797CEF00BCFFCC /* parse.c in Sources */,
+				CC4883CE2B797CEF00BCFFCC /* synth_real.c in Sources */,
+				CC4883AA2B797CEE00BCFFCC /* icy2utf8.c in Sources */,
+				CC4883E42B797CEF00BCFFCC /* frame.c in Sources */,
+				CC4883B92B797CEE00BCFFCC /* readers.c in Sources */,
+				CC4883F22B797CEF00BCFFCC /* feature.c in Sources */,
+				CC4883CB2B797CEF00BCFFCC /* index.c in Sources */,
+				CC4883A32B797CEE00BCFFCC /* dct64.c in Sources */,
+				CC4883D62B797CEF00BCFFCC /* optimize.c in Sources */,
+				CC4883FA2B797CEF00BCFFCC /* compat.c in Sources */,
+				CC4883E32B797CEF00BCFFCC /* libmpg123.c in Sources */,
+				CC4883C12B797CEE00BCFFCC /* layer1.c in Sources */,
+				CC4883B22B797CEE00BCFFCC /* synth_s32.c in Sources */,
+				CC4883F92B797CEF00BCFFCC /* layer3.c in Sources */,
+				CC4883EE2B797CEF00BCFFCC /* synth.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC4882FF2B797CC800BCFFCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_DEBUG,
+					OPT_GENERIC,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-D",
+					"mpg123_close=ompt_mpg123_close\n-D",
+					"mpg123_decode_frame=ompt_mpg123_decode_frame\n-D",
+					"mpg123_decode_frame64=ompt_mpg123_decode_frame64\n-D",
+					"mpg123_decode_frame_64=ompt_mpg123_decode_frame_64\n-D",
+					"mpg123_feedseek=ompt_mpg123_feedseek\n-D",
+					"mpg123_feedseek64=ompt_mpg123_feedseek64\n-D",
+					"mpg123_feedseek_64=ompt_mpg123_feedseek_64\n-D",
+					"mpg123_framebyframe_decode=ompt_mpg123_framebyframe_decode\n-D",
+					"mpg123_framebyframe_decode64=ompt_mpg123_framebyframe_decode64\n-D",
+					"mpg123_framebyframe_decode_64=ompt_mpg123_framebyframe_decode_64\n-D",
+					"mpg123_framelength=ompt_mpg123_framelength\n-D",
+					"mpg123_framelength64=ompt_mpg123_framelength64\n-D",
+					"mpg123_framelength_64=ompt_mpg123_framelength_64\n-D",
+					"mpg123_framepos=ompt_mpg123_framepos\n-D",
+					"mpg123_framepos64=ompt_mpg123_framepos64\n-D",
+					"mpg123_framepos_64=ompt_mpg123_framepos_64\n-D",
+					"mpg123_index=ompt_mpg123_index\n-D",
+					"mpg123_index64=ompt_mpg123_index64\n-D",
+					"mpg123_index_64=ompt_mpg123_index_64\n-D",
+					"mpg123_length=ompt_mpg123_length\n-D",
+					"mpg123_length64=ompt_mpg123_length64\n-D",
+					"mpg123_length_64=ompt_mpg123_length_64\n-D",
+					"mpg123_open=ompt_mpg123_open\n-D",
+					"mpg123_open_64=ompt_mpg123_open_64\n-D",
+					"mpg123_open_fd=ompt_mpg123_open_fd\n-D",
+					"mpg123_open_fd_64=ompt_mpg123_open_fd_64\n-D",
+					"mpg123_open_fixed=ompt_mpg123_open_fixed\n-D",
+					"mpg123_open_fixed_64=ompt_mpg123_open_fixed_64\n-D",
+					"mpg123_open_handle=ompt_mpg123_open_handle\n-D",
+					"mpg123_open_handle_64=ompt_mpg123_open_handle_64\n-D",
+					"mpg123_position=ompt_mpg123_position\n-D",
+					"mpg123_position64=ompt_mpg123_position64\n-D",
+					"mpg123_position_64=ompt_mpg123_position_64\n-D",
+					"mpg123_reader64=ompt_mpg123_reader64\n-D",
+					"mpg123_replace_reader=ompt_mpg123_replace_reader\n-D",
+					"mpg123_replace_reader_64=ompt_mpg123_replace_reader_64\n-D",
+					"mpg123_replace_reader_handle=ompt_mpg123_replace_reader_handle\n-D",
+					"mpg123_replace_reader_handle_64=ompt_mpg123_replace_reader_handle_64\n-D",
+					"mpg123_seek=ompt_mpg123_seek\n-D",
+					"mpg123_seek64=ompt_mpg123_seek64\n-D",
+					"mpg123_seek_64=ompt_mpg123_seek_64\n-D",
+					"mpg123_seek_frame=ompt_mpg123_seek_frame\n-D",
+					"mpg123_seek_frame64=ompt_mpg123_seek_frame64\n-D",
+					"mpg123_seek_frame_64=ompt_mpg123_seek_frame_64\n-D",
+					"mpg123_set_filesize=ompt_mpg123_set_filesize\n-D",
+					"mpg123_set_filesize64=ompt_mpg123_set_filesize64\n-D",
+					"mpg123_set_filesize_64=ompt_mpg123_set_filesize_64\n-D",
+					"mpg123_set_index=ompt_mpg123_set_index\n-D",
+					"mpg123_set_index64=ompt_mpg123_set_index64\n-D",
+					"mpg123_set_index_64=ompt_mpg123_set_index_64\n-D",
+					"mpg123_tell=ompt_mpg123_tell\n-D",
+					"mpg123_tell64=ompt_mpg123_tell64\n-D",
+					"mpg123_tell_64=ompt_mpg123_tell_64\n-D",
+					"mpg123_tell_stream=ompt_mpg123_tell_stream\n-D",
+					"mpg123_tell_stream64=ompt_mpg123_tell_stream64\n-D",
+					"mpg123_tell_stream_64=ompt_mpg123_tell_stream_64\n-D",
+					"mpg123_tellframe=ompt_mpg123_tellframe\n-D",
+					"mpg123_tellframe64=ompt_mpg123_tellframe64\n-D",
+					"mpg123_tellframe_64=ompt_mpg123_tellframe_64\n-D",
+					"mpg123_timeframe=ompt_mpg123_timeframe\n-D",
+					"mpg123_timeframe64=ompt_mpg123_timeframe64\n-D",
+					"mpg123_timeframe_64=ompt_mpg123_timeframe_64\n-D",
+					"mpg123_add_string=ompt_mpg123_add_string\n-D",
+					"mpg123_add_substring=ompt_mpg123_add_substring\n-D",
+					"mpg123_chomp_string=ompt_mpg123_chomp_string\n-D",
+					"mpg123_copy_string=ompt_mpg123_copy_string\n-D",
+					"mpg123_delete_string=ompt_mpg123_delete_string\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_grow_string=ompt_mpg123_grow_string\n-D",
+					"mpg123_init_string=ompt_mpg123_init_string\n-D",
+					"mpg123_move_string=ompt_mpg123_move_string\n-D",
+					"mpg123_new_string=ompt_mpg123_new_string\n-D",
+					"mpg123_resize_string=ompt_mpg123_resize_string\n-D",
+					"mpg123_same_string=ompt_mpg123_same_string\n-D",
+					"mpg123_set_string=ompt_mpg123_set_string\n-D",
+					"mpg123_set_substring=ompt_mpg123_set_substring\n-D",
+					"mpg123_strlen=ompt_mpg123_strlen\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_grow_string=ompt_mpg123_grow_string\n-D",
+					"mpg123_init_string=ompt_mpg123_init_string\n-D",
+					"mpg123_move_string=ompt_mpg123_move_string\n-D",
+					"mpg123_same_string=ompt_mpg123_same_string\n-D",
+					"mpg123_encodings=ompt_mpg123_encodings\n-D",
+					"mpg123_encsize=ompt_mpg123_encsize\n-D",
+					"mpg123_fmt=ompt_mpg123_fmt\n-D",
+					"mpg123_fmt2=ompt_mpg123_fmt2\n-D",
+					"mpg123_fmt_all=ompt_mpg123_fmt_all\n-D",
+					"mpg123_fmt_none=ompt_mpg123_fmt_none\n-D",
+					"mpg123_fmt_support=ompt_mpg123_fmt_support\n-D",
+					"mpg123_format=ompt_mpg123_format\n-D",
+					"mpg123_format2=ompt_mpg123_format2\n-D",
+					"mpg123_format_all=ompt_mpg123_format_all\n-D",
+					"mpg123_format_none=ompt_mpg123_format_none\n-D",
+					"mpg123_format_support=ompt_mpg123_format_support\n-D",
+					"mpg123_rates=ompt_mpg123_rates\n-D",
+					"mpg123_position64=ompt_mpg123_position64\n-D",
+					"mpg123_spf=ompt_mpg123_spf\n-D",
+					"mpg123_tpf=ompt_mpg123_tpf\n-D",
+					"mpg123_delete_pars=ompt_mpg123_delete_pars\n-D",
+					"mpg123_fmt_all=ompt_mpg123_fmt_all\n-D",
+					"mpg123_framedata=ompt_mpg123_framedata\n-D",
+					"mpg123_framepos64=ompt_mpg123_framepos64\n-D",
+					"mpg123_getvolume=ompt_mpg123_getvolume\n-D",
+					"mpg123_new_pars=ompt_mpg123_new_pars\n-D",
+					"mpg123_replace_buffer=ompt_mpg123_replace_buffer\n-D",
+					"mpg123_reset_eq=ompt_mpg123_reset_eq\n-D",
+					"mpg123_set_moreinfo=ompt_mpg123_set_moreinfo\n-D",
+					"mpg123_volume=ompt_mpg123_volume\n-D",
+					"mpg123_volume_change=ompt_mpg123_volume_change\n-D",
+					"mpg123_volume_change_db=ompt_mpg123_volume_change_db\n-D",
+					"mpg123_feature=ompt_mpg123_feature\n-D",
+					"mpg123_feature2=ompt_mpg123_feature2\n-D",
+					"mpg123_current_decoder=ompt_mpg123_current_decoder\n-D",
+					"mpg123_decoders=ompt_mpg123_decoders\n-D",
+					"mpg123_supported_decoders=ompt_mpg123_supported_decoders\n-D",
+					"mpg123_clip=ompt_mpg123_clip\n-D",
+					"mpg123_close=ompt_mpg123_close\n-D",
+					"mpg123_decode=ompt_mpg123_decode\n-D",
+					"mpg123_decode_frame64=ompt_mpg123_decode_frame64\n-D",
+					"mpg123_decoder=ompt_mpg123_decoder\n-D",
+					"mpg123_delete=ompt_mpg123_delete\n-D",
+					"mpg123_distversion=ompt_mpg123_distversion\n-D",
+					"mpg123_enc_from_id3=ompt_mpg123_enc_from_id3\n-D",
+					"mpg123_enc_from_id3_2=ompt_mpg123_enc_from_id3_2\n-D",
+					"mpg123_eq=ompt_mpg123_eq\n-D",
+					"mpg123_eq2=ompt_mpg123_eq2\n-D",
+					"mpg123_eq_bands=ompt_mpg123_eq_bands\n-D",
+					"mpg123_eq_change=ompt_mpg123_eq_change\n-D",
+					"mpg123_errcode=ompt_mpg123_errcode\n-D",
+					"mpg123_exit=ompt_mpg123_exit\n-D",
+					"mpg123_feed=ompt_mpg123_feed\n-D",
+					"mpg123_feedseek64=ompt_mpg123_feedseek64\n-D",
+					"mpg123_format=ompt_mpg123_format\n-D",
+					"mpg123_format2=ompt_mpg123_format2\n-D",
+					"mpg123_format_none=ompt_mpg123_format_none\n-D",
+					"mpg123_framebyframe_decode64=ompt_mpg123_framebyframe_decode64\n-D",
+					"mpg123_framebyframe_next=ompt_mpg123_framebyframe_next\n-D",
+					"mpg123_framelength64=ompt_mpg123_framelength64\n-D",
+					"mpg123_free=ompt_mpg123_free\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_geteq=ompt_mpg123_geteq\n-D",
+					"mpg123_geteq2=ompt_mpg123_geteq2\n-D",
+					"mpg123_getformat=ompt_mpg123_getformat\n-D",
+					"mpg123_getformat2=ompt_mpg123_getformat2\n-D",
+					"mpg123_getpar=ompt_mpg123_getpar\n-D",
+					"mpg123_getpar2=ompt_mpg123_getpar2\n-D",
+					"mpg123_getparam=ompt_mpg123_getparam\n-D",
+					"mpg123_getparam2=ompt_mpg123_getparam2\n-D",
+					"mpg123_getstate=ompt_mpg123_getstate\n-D",
+					"mpg123_getstate2=ompt_mpg123_getstate2\n-D",
+					"mpg123_icy=ompt_mpg123_icy\n-D",
+					"mpg123_icy2utf8=ompt_mpg123_icy2utf8\n-D",
+					"mpg123_id3=ompt_mpg123_id3\n-D",
+					"mpg123_id3_raw=ompt_mpg123_id3_raw\n-D",
+					"mpg123_index64=ompt_mpg123_index64\n-D",
+					"mpg123_info=ompt_mpg123_info\n-D",
+					"mpg123_info2=ompt_mpg123_info2\n-D",
+					"mpg123_init=ompt_mpg123_init\n-D",
+					"mpg123_length64=ompt_mpg123_length64\n-D",
+					"mpg123_libversion=ompt_mpg123_libversion\n-D",
+					"mpg123_meta_check=ompt_mpg123_meta_check\n-D",
+					"mpg123_meta_free=ompt_mpg123_meta_free\n-D",
+					"mpg123_new=ompt_mpg123_new\n-D",
+					"mpg123_open=ompt_mpg123_open\n-D",
+					"mpg123_open_fd=ompt_mpg123_open_fd\n-D",
+					"mpg123_open_feed=ompt_mpg123_open_feed\n-D",
+					"mpg123_open_fixed=ompt_mpg123_open_fixed\n-D",
+					"mpg123_open_handle=ompt_mpg123_open_handle\n-D",
+					"mpg123_outblock=ompt_mpg123_outblock\n-D",
+					"mpg123_par=ompt_mpg123_par\n-D",
+					"mpg123_par2=ompt_mpg123_par2\n-D",
+					"mpg123_param=ompt_mpg123_param\n-D",
+					"mpg123_param2=ompt_mpg123_param2\n-D",
+					"mpg123_parnew=ompt_mpg123_parnew\n-D",
+					"mpg123_plain_strerror=ompt_mpg123_plain_strerror\n-D",
+					"mpg123_read=ompt_mpg123_read\n-D",
+					"mpg123_reader64=ompt_mpg123_reader64\n-D",
+					"mpg123_safe_buffer=ompt_mpg123_safe_buffer\n-D",
+					"mpg123_scan=ompt_mpg123_scan\n-D",
+					"mpg123_seek64=ompt_mpg123_seek64\n-D",
+					"mpg123_seek_frame64=ompt_mpg123_seek_frame64\n-D",
+					"mpg123_set_filesize64=ompt_mpg123_set_filesize64\n-D",
+					"mpg123_set_index64=ompt_mpg123_set_index64\n-D",
+					"mpg123_set_string=ompt_mpg123_set_string\n-D",
+					"mpg123_store_utf8=ompt_mpg123_store_utf8\n-D",
+					"mpg123_store_utf8_2=ompt_mpg123_store_utf8_2\n-D",
+					"mpg123_strerror=ompt_mpg123_strerror\n-D",
+					"mpg123_tell64=ompt_mpg123_tell64\n-D",
+					"mpg123_tell_stream64=ompt_mpg123_tell_stream64\n-D",
+					"mpg123_tellframe64=ompt_mpg123_tellframe64\n-D",
+					"mpg123_timeframe64=ompt_mpg123_timeframe64\n-D",
+					"mpg123_tpf=ompt_mpg123_tpf\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_ntom_frame_outsamples=ompt_INT123_ntom_frame_outsamples\n-D",
+					"INT123_ntom_frameoff=ompt_INT123_ntom_frameoff\n-D",
+					"INT123_ntom_frmouts=ompt_INT123_ntom_frmouts\n-D",
+					"INT123_ntom_ins2outs=ompt_INT123_ntom_ins2outs\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_ntom_val=ompt_INT123_ntom_val\n-D",
+					"INT123_synth_ntom_set_step=ompt_INT123_synth_ntom_set_step\n-D",
+					"INT123_do_layer2=ompt_INT123_do_layer2\n-D",
+					"INT123_init_layer12_stuff=ompt_INT123_init_layer12_stuff\n-D",
+					"INT123_init_layer12_table=ompt_INT123_init_layer12_table\n-D",
+					"INT123_compat_open=ompt_INT123_compat_open\n-D",
+					"INT123_set_err=ompt_INT123_set_err\n-D",
+					"INT123_strerror=ompt_INT123_strerror\n-D",
+					"INT123_wrap_destroy=ompt_INT123_wrap_destroy\n-D",
+					"INT123_wrap_handle=ompt_INT123_wrap_handle\n-D",
+					"INT123_wrap_open=ompt_INT123_wrap_open\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_exit_id3=ompt_INT123_exit_id3\n-D",
+					"INT123_id3_link=ompt_INT123_id3_link\n-D",
+					"INT123_id3_to_utf8=ompt_INT123_id3_to_utf8\n-D",
+					"INT123_init_id3=ompt_INT123_init_id3\n-D",
+					"INT123_parse_new_id3=ompt_INT123_parse_new_id3\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_8bit=ompt_INT123_synth_1to1_8bit\n-D",
+					"INT123_synth_1to1_8bit_m2s=ompt_INT123_synth_1to1_8bit_m2s\n-D",
+					"INT123_synth_1to1_8bit_mono=ompt_INT123_synth_1to1_8bit_mono\n-D",
+					"INT123_synth_1to1_8bit_wrap=ompt_INT123_synth_1to1_8bit_wrap\n-D",
+					"INT123_synth_1to1_8bit_wrap_m2s=ompt_INT123_synth_1to1_8bit_wrap_m2s\n-D",
+					"INT123_synth_1to1_8bit_wrap_mono=ompt_INT123_synth_1to1_8bit_wrap_mono\n-D",
+					"INT123_synth_2to1_8bit=ompt_INT123_synth_2to1_8bit\n-D",
+					"INT123_synth_2to1_8bit_m2s=ompt_INT123_synth_2to1_8bit_m2s\n-D",
+					"INT123_synth_2to1_8bit_mono=ompt_INT123_synth_2to1_8bit_mono\n-D",
+					"INT123_synth_4to1_8bit=ompt_INT123_synth_4to1_8bit\n-D",
+					"INT123_synth_4to1_8bit_m2s=ompt_INT123_synth_4to1_8bit_m2s\n-D",
+					"INT123_synth_4to1_8bit_mono=ompt_INT123_synth_4to1_8bit_mono\n-D",
+					"INT123_synth_ntom_8bit=ompt_INT123_synth_ntom_8bit\n-D",
+					"INT123_synth_ntom_8bit_m2s=ompt_INT123_synth_ntom_8bit_m2s\n-D",
+					"INT123_synth_ntom_8bit_mono=ompt_INT123_synth_ntom_8bit_mono\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_safer_realloc=ompt_INT123_safer_realloc\n-D",
+					"INT123_strerror=ompt_INT123_strerror\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_make_conv16to8_table=ompt_INT123_make_conv16to8_table\n-D",
+					"INT123_make_decode_tables=ompt_INT123_make_decode_tables\n-D",
+					"INT123_pnts=ompt_INT123_pnts\n-D",
+					"INT123_bytes_to_samples=ompt_INT123_bytes_to_samples\n-D",
+					"INT123_decoder_synth_bytes=ompt_INT123_decoder_synth_bytes\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_output_format=ompt_INT123_frame_output_format\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_outblock_bytes=ompt_INT123_outblock_bytes\n-D",
+					"INT123_postprocess_buffer=ompt_INT123_postprocess_buffer\n-D",
+					"INT123_samples_to_bytes=ompt_INT123_samples_to_bytes\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_init_icy=ompt_INT123_init_icy\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_compute_bpf=ompt_INT123_compute_bpf\n-D",
+					"INT123_do_layer1=ompt_INT123_do_layer1\n-D",
+					"INT123_do_layer2=ompt_INT123_do_layer2\n-D",
+					"INT123_do_layer3=ompt_INT123_do_layer3\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_fi_add=ompt_INT123_fi_add\n-D",
+					"INT123_frame_bitrate=ompt_INT123_frame_bitrate\n-D",
+					"INT123_frame_fill_toc=ompt_INT123_frame_fill_toc\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_gapless_init=ompt_INT123_frame_gapless_init\n-D",
+					"INT123_parse_new_id3=ompt_INT123_parse_new_id3\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_real=ompt_INT123_synth_1to1_real\n-D",
+					"INT123_synth_1to1_real_m2s=ompt_INT123_synth_1to1_real_m2s\n-D",
+					"INT123_synth_1to1_real_mono=ompt_INT123_synth_1to1_real_mono\n-D",
+					"INT123_synth_2to1_real=ompt_INT123_synth_2to1_real\n-D",
+					"INT123_synth_2to1_real_m2s=ompt_INT123_synth_2to1_real_m2s\n-D",
+					"INT123_synth_2to1_real_mono=ompt_INT123_synth_2to1_real_mono\n-D",
+					"INT123_synth_4to1_real=ompt_INT123_synth_4to1_real\n-D",
+					"INT123_synth_4to1_real_m2s=ompt_INT123_synth_4to1_real_m2s\n-D",
+					"INT123_synth_4to1_real_mono=ompt_INT123_synth_4to1_real_mono\n-D",
+					"INT123_synth_ntom_real=ompt_INT123_synth_ntom_real\n-D",
+					"INT123_synth_ntom_real_m2s=ompt_INT123_synth_ntom_real_m2s\n-D",
+					"INT123_synth_ntom_real_mono=ompt_INT123_synth_ntom_real_mono\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_icy2utf8=ompt_INT123_icy2utf8\n-D",
+					"INT123_bc_cleanup=ompt_INT123_bc_cleanup\n-D",
+					"INT123_bc_prepare=ompt_INT123_bc_prepare\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_decclass=ompt_INT123_decclass\n-D",
+					"INT123_defdec=ompt_INT123_defdec\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_exit_id3=ompt_INT123_exit_id3\n-D",
+					"INT123_fi_exit=ompt_INT123_fi_exit\n-D",
+					"INT123_fi_init=ompt_INT123_fi_init\n-D",
+					"INT123_fi_reset=ompt_INT123_fi_reset\n-D",
+					"INT123_fi_resize=ompt_INT123_fi_resize\n-D",
+					"INT123_frame_buffers=ompt_INT123_frame_buffers\n-D",
+					"INT123_frame_buffers_reset=ompt_INT123_frame_buffers_reset\n-D",
+					"INT123_frame_exit=ompt_INT123_frame_exit\n-D",
+					"INT123_frame_expect_outsamples=ompt_INT123_frame_expect_outsamples\n-D",
+					"INT123_frame_fill_toc=ompt_INT123_frame_fill_toc\n-D",
+					"INT123_frame_gapless_init=ompt_INT123_frame_gapless_init\n-D",
+					"INT123_frame_gapless_realinit=ompt_INT123_frame_gapless_realinit\n-D",
+					"INT123_frame_gapless_update=ompt_INT123_frame_gapless_update\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_frame_index_setup=ompt_INT123_frame_index_setup\n-D",
+					"INT123_frame_init=ompt_INT123_frame_init\n-D",
+					"INT123_frame_init_par=ompt_INT123_frame_init_par\n-D",
+					"INT123_frame_ins2outs=ompt_INT123_frame_ins2outs\n-D",
+					"INT123_frame_offset=ompt_INT123_frame_offset\n-D",
+					"INT123_frame_outbuffer=ompt_INT123_frame_outbuffer\n-D",
+					"INT123_frame_outs=ompt_INT123_frame_outs\n-D",
+					"INT123_frame_reset=ompt_INT123_frame_reset\n-D",
+					"INT123_frame_set_frameseek=ompt_INT123_frame_set_frameseek\n-D",
+					"INT123_frame_set_seek=ompt_INT123_frame_set_seek\n-D",
+					"INT123_frame_skip=ompt_INT123_frame_skip\n-D",
+					"INT123_init_icy=ompt_INT123_init_icy\n-D",
+					"INT123_init_id3=ompt_INT123_init_id3\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_ntom_frame_outsamples=ompt_INT123_ntom_frame_outsamples\n-D",
+					"INT123_ntom_frameoff=ompt_INT123_ntom_frameoff\n-D",
+					"INT123_ntom_frmouts=ompt_INT123_ntom_frmouts\n-D",
+					"INT123_ntom_ins2outs=ompt_INT123_ntom_ins2outs\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_open_bad=ompt_INT123_open_bad\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_bc_cleanup=ompt_INT123_bc_cleanup\n-D",
+					"INT123_bc_fill=ompt_INT123_bc_fill\n-D",
+					"INT123_bc_poolsize=ompt_INT123_bc_poolsize\n-D",
+					"INT123_bc_prepare=ompt_INT123_bc_prepare\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_feed_more=ompt_INT123_feed_more\n-D",
+					"INT123_feed_set_pos=ompt_INT123_feed_set_pos\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_open_bad=ompt_INT123_open_bad\n-D",
+					"INT123_open_feed=ompt_INT123_open_feed\n-D",
+					"INT123_open_stream_handle=ompt_INT123_open_stream_handle\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_fi_add=ompt_INT123_fi_add\n-D",
+					"INT123_fi_exit=ompt_INT123_fi_exit\n-D",
+					"INT123_fi_init=ompt_INT123_fi_init\n-D",
+					"INT123_fi_reset=ompt_INT123_fi_reset\n-D",
+					"INT123_fi_resize=ompt_INT123_fi_resize\n-D",
+					"INT123_fi_set=ompt_INT123_fi_set\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_pnts=ompt_INT123_pnts\n-D",
+					"INT123_decclass=ompt_INT123_decclass\n-D",
+					"INT123_dectype=ompt_INT123_dectype\n-D",
+					"INT123_defdec=ompt_INT123_defdec\n-D",
+					"INT123_frame_buffers=ompt_INT123_frame_buffers\n-D",
+					"INT123_frame_cpu_opt=ompt_INT123_frame_cpu_opt\n-D",
+					"INT123_init_layer12_stuff=ompt_INT123_init_layer12_stuff\n-D",
+					"INT123_init_layer12_table=ompt_INT123_init_layer12_table\n-D",
+					"INT123_init_layer3_gainpow2=ompt_INT123_init_layer3_gainpow2\n-D",
+					"INT123_init_layer3_stuff=ompt_INT123_init_layer3_stuff\n-D",
+					"INT123_make_conv16to8_table=ompt_INT123_make_conv16to8_table\n-D",
+					"INT123_make_decode_tables=ompt_INT123_make_decode_tables\n-D",
+					"INT123_set_synth_functions=ompt_INT123_set_synth_functions\n-D",
+					"INT123_synth_1to1=ompt_INT123_synth_1to1\n-D",
+					"INT123_synth_1to1_8bit=ompt_INT123_synth_1to1_8bit\n-D",
+					"INT123_synth_1to1_8bit_m2s=ompt_INT123_synth_1to1_8bit_m2s\n-D",
+					"INT123_synth_1to1_8bit_mono=ompt_INT123_synth_1to1_8bit_mono\n-D",
+					"INT123_synth_1to1_8bit_wrap=ompt_INT123_synth_1to1_8bit_wrap\n-D",
+					"INT123_synth_1to1_8bit_wrap_m2s=ompt_INT123_synth_1to1_8bit_wrap_m2s\n-D",
+					"INT123_synth_1to1_8bit_wrap_mono=ompt_INT123_synth_1to1_8bit_wrap_mono\n-D",
+					"INT123_synth_1to1_m2s=ompt_INT123_synth_1to1_m2s\n-D",
+					"INT123_synth_1to1_mono=ompt_INT123_synth_1to1_mono\n-D",
+					"INT123_synth_1to1_real=ompt_INT123_synth_1to1_real\n-D",
+					"INT123_synth_1to1_real_m2s=ompt_INT123_synth_1to1_real_m2s\n-D",
+					"INT123_synth_1to1_real_mono=ompt_INT123_synth_1to1_real_mono\n-D",
+					"INT123_synth_1to1_s32=ompt_INT123_synth_1to1_s32\n-D",
+					"INT123_synth_1to1_s32_m2s=ompt_INT123_synth_1to1_s32_m2s\n-D",
+					"INT123_synth_1to1_s32_mono=ompt_INT123_synth_1to1_s32_mono\n-D",
+					"INT123_synth_2to1=ompt_INT123_synth_2to1\n-D",
+					"INT123_synth_2to1_8bit=ompt_INT123_synth_2to1_8bit\n-D",
+					"INT123_synth_2to1_8bit_m2s=ompt_INT123_synth_2to1_8bit_m2s\n-D",
+					"INT123_synth_2to1_8bit_mono=ompt_INT123_synth_2to1_8bit_mono\n-D",
+					"INT123_synth_2to1_m2s=ompt_INT123_synth_2to1_m2s\n-D",
+					"INT123_synth_2to1_mono=ompt_INT123_synth_2to1_mono\n-D",
+					"INT123_synth_2to1_real=ompt_INT123_synth_2to1_real\n-D",
+					"INT123_synth_2to1_real_m2s=ompt_INT123_synth_2to1_real_m2s\n-D",
+					"INT123_synth_2to1_real_mono=ompt_INT123_synth_2to1_real_mono\n-D",
+					"INT123_synth_2to1_s32=ompt_INT123_synth_2to1_s32\n-D",
+					"INT123_synth_2to1_s32_m2s=ompt_INT123_synth_2to1_s32_m2s\n-D",
+					"INT123_synth_2to1_s32_mono=ompt_INT123_synth_2to1_s32_mono\n-D",
+					"INT123_synth_4to1=ompt_INT123_synth_4to1\n-D",
+					"INT123_synth_4to1_8bit=ompt_INT123_synth_4to1_8bit\n-D",
+					"INT123_synth_4to1_8bit_m2s=ompt_INT123_synth_4to1_8bit_m2s\n-D",
+					"INT123_synth_4to1_8bit_mono=ompt_INT123_synth_4to1_8bit_mono\n-D",
+					"INT123_synth_4to1_m2s=ompt_INT123_synth_4to1_m2s\n-D",
+					"INT123_synth_4to1_mono=ompt_INT123_synth_4to1_mono\n-D",
+					"INT123_synth_4to1_real=ompt_INT123_synth_4to1_real\n-D",
+					"INT123_synth_4to1_real_m2s=ompt_INT123_synth_4to1_real_m2s\n-D",
+					"INT123_synth_4to1_real_mono=ompt_INT123_synth_4to1_real_mono\n-D",
+					"INT123_synth_4to1_s32=ompt_INT123_synth_4to1_s32\n-D",
+					"INT123_synth_4to1_s32_m2s=ompt_INT123_synth_4to1_s32_m2s\n-D",
+					"INT123_synth_4to1_s32_mono=ompt_INT123_synth_4to1_s32_mono\n-D",
+					"INT123_synth_ntom=ompt_INT123_synth_ntom\n-D",
+					"INT123_synth_ntom_8bit=ompt_INT123_synth_ntom_8bit\n-D",
+					"INT123_synth_ntom_8bit_m2s=ompt_INT123_synth_ntom_8bit_m2s\n-D",
+					"INT123_synth_ntom_8bit_mono=ompt_INT123_synth_ntom_8bit_mono\n-D",
+					"INT123_synth_ntom_m2s=ompt_INT123_synth_ntom_m2s\n-D",
+					"INT123_synth_ntom_mono=ompt_INT123_synth_ntom_mono\n-D",
+					"INT123_synth_ntom_real=ompt_INT123_synth_ntom_real\n-D",
+					"INT123_synth_ntom_real_m2s=ompt_INT123_synth_ntom_real_m2s\n-D",
+					"INT123_synth_ntom_real_mono=ompt_INT123_synth_ntom_real_mono\n-D",
+					"INT123_synth_ntom_s32=ompt_INT123_synth_ntom_s32\n-D",
+					"INT123_synth_ntom_s32_m2s=ompt_INT123_synth_ntom_s32_m2s\n-D",
+					"INT123_synth_ntom_s32_mono=ompt_INT123_synth_ntom_s32_mono\n-D",
+					"INT123_catchsignal=ompt_INT123_catchsignal\n-D",
+					"INT123_compat_binmode=ompt_INT123_compat_binmode\n-D",
+					"INT123_compat_catpath=ompt_INT123_compat_catpath\n-D",
+					"INT123_compat_close=ompt_INT123_compat_close\n-D",
+					"INT123_compat_dirclose=ompt_INT123_compat_dirclose\n-D",
+					"INT123_compat_diropen=ompt_INT123_compat_diropen\n-D",
+					"INT123_compat_fclose=ompt_INT123_compat_fclose\n-D",
+					"INT123_compat_fdopen=ompt_INT123_compat_fdopen\n-D",
+					"INT123_compat_fopen=ompt_INT123_compat_fopen\n-D",
+					"INT123_compat_getenv=ompt_INT123_compat_getenv\n-D",
+					"INT123_compat_isdir=ompt_INT123_compat_isdir\n-D",
+					"INT123_compat_nextdir=ompt_INT123_compat_nextdir\n-D",
+					"INT123_compat_nextfile=ompt_INT123_compat_nextfile\n-D",
+					"INT123_compat_open=ompt_INT123_compat_open\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_unintr_fwrite=ompt_INT123_unintr_fwrite\n-D",
+					"INT123_unintr_read=ompt_INT123_unintr_read\n-D",
+					"INT123_unintr_write=ompt_INT123_unintr_write\n-D",
+					"INT123_bc_fill=ompt_INT123_bc_fill\n-D",
+					"INT123_bc_poolsize=ompt_INT123_bc_poolsize\n-D",
+					"INT123_bytes_to_samples=ompt_INT123_bytes_to_samples\n-D",
+					"INT123_compute_bpf=ompt_INT123_compute_bpf\n-D",
+					"INT123_decode_update=ompt_INT123_decode_update\n-D",
+					"INT123_decoder_synth_bytes=ompt_INT123_decoder_synth_bytes\n-D",
+					"INT123_dectype=ompt_INT123_dectype\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_feed_more=ompt_INT123_feed_more\n-D",
+					"INT123_feed_set_pos=ompt_INT123_feed_set_pos\n-D",
+					"INT123_fi_set=ompt_INT123_fi_set\n-D",
+					"INT123_frame_bitrate=ompt_INT123_frame_bitrate\n-D",
+					"INT123_frame_buffers_reset=ompt_INT123_frame_buffers_reset\n-D",
+					"INT123_frame_cpu_opt=ompt_INT123_frame_cpu_opt\n-D",
+					"INT123_frame_exit=ompt_INT123_frame_exit\n-D",
+					"INT123_frame_expect_outsamples=ompt_INT123_frame_expect_outsamples\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_gapless_realinit=ompt_INT123_frame_gapless_realinit\n-D",
+					"INT123_frame_gapless_update=ompt_INT123_frame_gapless_update\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_frame_index_setup=ompt_INT123_frame_index_setup\n-D",
+					"INT123_frame_init_par=ompt_INT123_frame_init_par\n-D",
+					"INT123_frame_ins2outs=ompt_INT123_frame_ins2outs\n-D",
+					"INT123_frame_outbuffer=ompt_INT123_frame_outbuffer\n-D",
+					"INT123_frame_output_format=ompt_INT123_frame_output_format\n-D",
+					"INT123_frame_outs=ompt_INT123_frame_outs\n-D",
+					"INT123_frame_reset=ompt_INT123_frame_reset\n-D",
+					"INT123_frame_set_frameseek=ompt_INT123_frame_set_frameseek\n-D",
+					"INT123_frame_set_seek=ompt_INT123_frame_set_seek\n-D",
+					"INT123_frame_skip=ompt_INT123_frame_skip\n-D",
+					"INT123_icy2utf8=ompt_INT123_icy2utf8\n-D",
+					"INT123_id3_link=ompt_INT123_id3_link\n-D",
+					"INT123_id3_to_utf8=ompt_INT123_id3_to_utf8\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_open_feed=ompt_INT123_open_feed\n-D",
+					"INT123_open_fixed_post=ompt_INT123_open_fixed_post\n-D",
+					"INT123_open_fixed_pre=ompt_INT123_open_fixed_pre\n-D",
+					"INT123_open_stream_handle=ompt_INT123_open_stream_handle\n-D",
+					"INT123_outblock_bytes=ompt_INT123_outblock_bytes\n-D",
+					"INT123_postprocess_buffer=ompt_INT123_postprocess_buffer\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_samples_to_bytes=ompt_INT123_samples_to_bytes\n-D",
+					"INT123_set_err=ompt_INT123_set_err\n-D",
+					"INT123_set_synth_functions=ompt_INT123_set_synth_functions\n-D",
+					"INT123_synth_ntom_set_step=ompt_INT123_synth_ntom_set_step\n-D",
+					"INT123_wrap_destroy=ompt_INT123_wrap_destroy\n-D",
+					"INT123_wrap_handle=ompt_INT123_wrap_handle\n-D",
+					"INT123_wrap_open=ompt_INT123_wrap_open\n-D",
+					"INT123_do_layer1=ompt_INT123_do_layer1\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_s32=ompt_INT123_synth_1to1_s32\n-D",
+					"INT123_synth_1to1_s32_m2s=ompt_INT123_synth_1to1_s32_m2s\n-D",
+					"INT123_synth_1to1_s32_mono=ompt_INT123_synth_1to1_s32_mono\n-D",
+					"INT123_synth_2to1_s32=ompt_INT123_synth_2to1_s32\n-D",
+					"INT123_synth_2to1_s32_m2s=ompt_INT123_synth_2to1_s32_m2s\n-D",
+					"INT123_synth_2to1_s32_mono=ompt_INT123_synth_2to1_s32_mono\n-D",
+					"INT123_synth_4to1_s32=ompt_INT123_synth_4to1_s32\n-D",
+					"INT123_synth_4to1_s32_m2s=ompt_INT123_synth_4to1_s32_m2s\n-D",
+					"INT123_synth_4to1_s32_mono=ompt_INT123_synth_4to1_s32_mono\n-D",
+					"INT123_synth_ntom_s32=ompt_INT123_synth_ntom_s32\n-D",
+					"INT123_synth_ntom_s32_m2s=ompt_INT123_synth_ntom_s32_m2s\n-D",
+					"INT123_synth_ntom_s32_mono=ompt_INT123_synth_ntom_s32_mono\n-D",
+					"INT123_COS9=ompt_INT123_COS9\n-D",
+					"INT123_do_layer3=ompt_INT123_do_layer3\n-D",
+					"INT123_init_layer3_gainpow2=ompt_INT123_init_layer3_gainpow2\n-D",
+					"INT123_init_layer3_stuff=ompt_INT123_init_layer3_stuff\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_tfcos36=ompt_INT123_tfcos36\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1=ompt_INT123_synth_1to1\n-D",
+					"INT123_synth_1to1_m2s=ompt_INT123_synth_1to1_m2s\n-D",
+					"INT123_synth_1to1_mono=ompt_INT123_synth_1to1_mono\n-D",
+					"INT123_synth_2to1=ompt_INT123_synth_2to1\n-D",
+					"INT123_synth_2to1_m2s=ompt_INT123_synth_2to1_m2s\n-D",
+					"INT123_synth_2to1_mono=ompt_INT123_synth_2to1_mono\n-D",
+					"INT123_synth_4to1=ompt_INT123_synth_4to1\n-D",
+					"INT123_synth_4to1_m2s=ompt_INT123_synth_4to1_m2s\n-D",
+					"INT123_synth_4to1_mono=ompt_INT123_synth_4to1_mono\n-D",
+					"INT123_synth_ntom=ompt_INT123_synth_ntom\n-D",
+					"INT123_synth_ntom_m2s=ompt_INT123_synth_ntom_m2s\n-D",
+					"INT123_synth_ntom_mono=ompt_INT123_synth_ntom_mono\n",
+				);
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = (
+					"../openmpt-trunk/include/mpg123/ports/Xcode",
+					"../openmpt-trunk/include/mpg123/src/include",
+				);
+			};
+			name = Debug;
+		};
+		CC4883002B797CC800BCFFCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					OPT_GENERIC,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"-D",
+					"mpg123_close=ompt_mpg123_close\n-D",
+					"mpg123_decode_frame=ompt_mpg123_decode_frame\n-D",
+					"mpg123_decode_frame64=ompt_mpg123_decode_frame64\n-D",
+					"mpg123_decode_frame_64=ompt_mpg123_decode_frame_64\n-D",
+					"mpg123_feedseek=ompt_mpg123_feedseek\n-D",
+					"mpg123_feedseek64=ompt_mpg123_feedseek64\n-D",
+					"mpg123_feedseek_64=ompt_mpg123_feedseek_64\n-D",
+					"mpg123_framebyframe_decode=ompt_mpg123_framebyframe_decode\n-D",
+					"mpg123_framebyframe_decode64=ompt_mpg123_framebyframe_decode64\n-D",
+					"mpg123_framebyframe_decode_64=ompt_mpg123_framebyframe_decode_64\n-D",
+					"mpg123_framelength=ompt_mpg123_framelength\n-D",
+					"mpg123_framelength64=ompt_mpg123_framelength64\n-D",
+					"mpg123_framelength_64=ompt_mpg123_framelength_64\n-D",
+					"mpg123_framepos=ompt_mpg123_framepos\n-D",
+					"mpg123_framepos64=ompt_mpg123_framepos64\n-D",
+					"mpg123_framepos_64=ompt_mpg123_framepos_64\n-D",
+					"mpg123_index=ompt_mpg123_index\n-D",
+					"mpg123_index64=ompt_mpg123_index64\n-D",
+					"mpg123_index_64=ompt_mpg123_index_64\n-D",
+					"mpg123_length=ompt_mpg123_length\n-D",
+					"mpg123_length64=ompt_mpg123_length64\n-D",
+					"mpg123_length_64=ompt_mpg123_length_64\n-D",
+					"mpg123_open=ompt_mpg123_open\n-D",
+					"mpg123_open_64=ompt_mpg123_open_64\n-D",
+					"mpg123_open_fd=ompt_mpg123_open_fd\n-D",
+					"mpg123_open_fd_64=ompt_mpg123_open_fd_64\n-D",
+					"mpg123_open_fixed=ompt_mpg123_open_fixed\n-D",
+					"mpg123_open_fixed_64=ompt_mpg123_open_fixed_64\n-D",
+					"mpg123_open_handle=ompt_mpg123_open_handle\n-D",
+					"mpg123_open_handle_64=ompt_mpg123_open_handle_64\n-D",
+					"mpg123_position=ompt_mpg123_position\n-D",
+					"mpg123_position64=ompt_mpg123_position64\n-D",
+					"mpg123_position_64=ompt_mpg123_position_64\n-D",
+					"mpg123_reader64=ompt_mpg123_reader64\n-D",
+					"mpg123_replace_reader=ompt_mpg123_replace_reader\n-D",
+					"mpg123_replace_reader_64=ompt_mpg123_replace_reader_64\n-D",
+					"mpg123_replace_reader_handle=ompt_mpg123_replace_reader_handle\n-D",
+					"mpg123_replace_reader_handle_64=ompt_mpg123_replace_reader_handle_64\n-D",
+					"mpg123_seek=ompt_mpg123_seek\n-D",
+					"mpg123_seek64=ompt_mpg123_seek64\n-D",
+					"mpg123_seek_64=ompt_mpg123_seek_64\n-D",
+					"mpg123_seek_frame=ompt_mpg123_seek_frame\n-D",
+					"mpg123_seek_frame64=ompt_mpg123_seek_frame64\n-D",
+					"mpg123_seek_frame_64=ompt_mpg123_seek_frame_64\n-D",
+					"mpg123_set_filesize=ompt_mpg123_set_filesize\n-D",
+					"mpg123_set_filesize64=ompt_mpg123_set_filesize64\n-D",
+					"mpg123_set_filesize_64=ompt_mpg123_set_filesize_64\n-D",
+					"mpg123_set_index=ompt_mpg123_set_index\n-D",
+					"mpg123_set_index64=ompt_mpg123_set_index64\n-D",
+					"mpg123_set_index_64=ompt_mpg123_set_index_64\n-D",
+					"mpg123_tell=ompt_mpg123_tell\n-D",
+					"mpg123_tell64=ompt_mpg123_tell64\n-D",
+					"mpg123_tell_64=ompt_mpg123_tell_64\n-D",
+					"mpg123_tell_stream=ompt_mpg123_tell_stream\n-D",
+					"mpg123_tell_stream64=ompt_mpg123_tell_stream64\n-D",
+					"mpg123_tell_stream_64=ompt_mpg123_tell_stream_64\n-D",
+					"mpg123_tellframe=ompt_mpg123_tellframe\n-D",
+					"mpg123_tellframe64=ompt_mpg123_tellframe64\n-D",
+					"mpg123_tellframe_64=ompt_mpg123_tellframe_64\n-D",
+					"mpg123_timeframe=ompt_mpg123_timeframe\n-D",
+					"mpg123_timeframe64=ompt_mpg123_timeframe64\n-D",
+					"mpg123_timeframe_64=ompt_mpg123_timeframe_64\n-D",
+					"mpg123_add_string=ompt_mpg123_add_string\n-D",
+					"mpg123_add_substring=ompt_mpg123_add_substring\n-D",
+					"mpg123_chomp_string=ompt_mpg123_chomp_string\n-D",
+					"mpg123_copy_string=ompt_mpg123_copy_string\n-D",
+					"mpg123_delete_string=ompt_mpg123_delete_string\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_grow_string=ompt_mpg123_grow_string\n-D",
+					"mpg123_init_string=ompt_mpg123_init_string\n-D",
+					"mpg123_move_string=ompt_mpg123_move_string\n-D",
+					"mpg123_new_string=ompt_mpg123_new_string\n-D",
+					"mpg123_resize_string=ompt_mpg123_resize_string\n-D",
+					"mpg123_same_string=ompt_mpg123_same_string\n-D",
+					"mpg123_set_string=ompt_mpg123_set_string\n-D",
+					"mpg123_set_substring=ompt_mpg123_set_substring\n-D",
+					"mpg123_strlen=ompt_mpg123_strlen\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_grow_string=ompt_mpg123_grow_string\n-D",
+					"mpg123_init_string=ompt_mpg123_init_string\n-D",
+					"mpg123_move_string=ompt_mpg123_move_string\n-D",
+					"mpg123_same_string=ompt_mpg123_same_string\n-D",
+					"mpg123_encodings=ompt_mpg123_encodings\n-D",
+					"mpg123_encsize=ompt_mpg123_encsize\n-D",
+					"mpg123_fmt=ompt_mpg123_fmt\n-D",
+					"mpg123_fmt2=ompt_mpg123_fmt2\n-D",
+					"mpg123_fmt_all=ompt_mpg123_fmt_all\n-D",
+					"mpg123_fmt_none=ompt_mpg123_fmt_none\n-D",
+					"mpg123_fmt_support=ompt_mpg123_fmt_support\n-D",
+					"mpg123_format=ompt_mpg123_format\n-D",
+					"mpg123_format2=ompt_mpg123_format2\n-D",
+					"mpg123_format_all=ompt_mpg123_format_all\n-D",
+					"mpg123_format_none=ompt_mpg123_format_none\n-D",
+					"mpg123_format_support=ompt_mpg123_format_support\n-D",
+					"mpg123_rates=ompt_mpg123_rates\n-D",
+					"mpg123_position64=ompt_mpg123_position64\n-D",
+					"mpg123_spf=ompt_mpg123_spf\n-D",
+					"mpg123_tpf=ompt_mpg123_tpf\n-D",
+					"mpg123_delete_pars=ompt_mpg123_delete_pars\n-D",
+					"mpg123_fmt_all=ompt_mpg123_fmt_all\n-D",
+					"mpg123_framedata=ompt_mpg123_framedata\n-D",
+					"mpg123_framepos64=ompt_mpg123_framepos64\n-D",
+					"mpg123_getvolume=ompt_mpg123_getvolume\n-D",
+					"mpg123_new_pars=ompt_mpg123_new_pars\n-D",
+					"mpg123_replace_buffer=ompt_mpg123_replace_buffer\n-D",
+					"mpg123_reset_eq=ompt_mpg123_reset_eq\n-D",
+					"mpg123_set_moreinfo=ompt_mpg123_set_moreinfo\n-D",
+					"mpg123_volume=ompt_mpg123_volume\n-D",
+					"mpg123_volume_change=ompt_mpg123_volume_change\n-D",
+					"mpg123_volume_change_db=ompt_mpg123_volume_change_db\n-D",
+					"mpg123_feature=ompt_mpg123_feature\n-D",
+					"mpg123_feature2=ompt_mpg123_feature2\n-D",
+					"mpg123_current_decoder=ompt_mpg123_current_decoder\n-D",
+					"mpg123_decoders=ompt_mpg123_decoders\n-D",
+					"mpg123_supported_decoders=ompt_mpg123_supported_decoders\n-D",
+					"mpg123_clip=ompt_mpg123_clip\n-D",
+					"mpg123_close=ompt_mpg123_close\n-D",
+					"mpg123_decode=ompt_mpg123_decode\n-D",
+					"mpg123_decode_frame64=ompt_mpg123_decode_frame64\n-D",
+					"mpg123_decoder=ompt_mpg123_decoder\n-D",
+					"mpg123_delete=ompt_mpg123_delete\n-D",
+					"mpg123_distversion=ompt_mpg123_distversion\n-D",
+					"mpg123_enc_from_id3=ompt_mpg123_enc_from_id3\n-D",
+					"mpg123_enc_from_id3_2=ompt_mpg123_enc_from_id3_2\n-D",
+					"mpg123_eq=ompt_mpg123_eq\n-D",
+					"mpg123_eq2=ompt_mpg123_eq2\n-D",
+					"mpg123_eq_bands=ompt_mpg123_eq_bands\n-D",
+					"mpg123_eq_change=ompt_mpg123_eq_change\n-D",
+					"mpg123_errcode=ompt_mpg123_errcode\n-D",
+					"mpg123_exit=ompt_mpg123_exit\n-D",
+					"mpg123_feed=ompt_mpg123_feed\n-D",
+					"mpg123_feedseek64=ompt_mpg123_feedseek64\n-D",
+					"mpg123_format=ompt_mpg123_format\n-D",
+					"mpg123_format2=ompt_mpg123_format2\n-D",
+					"mpg123_format_none=ompt_mpg123_format_none\n-D",
+					"mpg123_framebyframe_decode64=ompt_mpg123_framebyframe_decode64\n-D",
+					"mpg123_framebyframe_next=ompt_mpg123_framebyframe_next\n-D",
+					"mpg123_framelength64=ompt_mpg123_framelength64\n-D",
+					"mpg123_free=ompt_mpg123_free\n-D",
+					"mpg123_free_string=ompt_mpg123_free_string\n-D",
+					"mpg123_geteq=ompt_mpg123_geteq\n-D",
+					"mpg123_geteq2=ompt_mpg123_geteq2\n-D",
+					"mpg123_getformat=ompt_mpg123_getformat\n-D",
+					"mpg123_getformat2=ompt_mpg123_getformat2\n-D",
+					"mpg123_getpar=ompt_mpg123_getpar\n-D",
+					"mpg123_getpar2=ompt_mpg123_getpar2\n-D",
+					"mpg123_getparam=ompt_mpg123_getparam\n-D",
+					"mpg123_getparam2=ompt_mpg123_getparam2\n-D",
+					"mpg123_getstate=ompt_mpg123_getstate\n-D",
+					"mpg123_getstate2=ompt_mpg123_getstate2\n-D",
+					"mpg123_icy=ompt_mpg123_icy\n-D",
+					"mpg123_icy2utf8=ompt_mpg123_icy2utf8\n-D",
+					"mpg123_id3=ompt_mpg123_id3\n-D",
+					"mpg123_id3_raw=ompt_mpg123_id3_raw\n-D",
+					"mpg123_index64=ompt_mpg123_index64\n-D",
+					"mpg123_info=ompt_mpg123_info\n-D",
+					"mpg123_info2=ompt_mpg123_info2\n-D",
+					"mpg123_init=ompt_mpg123_init\n-D",
+					"mpg123_length64=ompt_mpg123_length64\n-D",
+					"mpg123_libversion=ompt_mpg123_libversion\n-D",
+					"mpg123_meta_check=ompt_mpg123_meta_check\n-D",
+					"mpg123_meta_free=ompt_mpg123_meta_free\n-D",
+					"mpg123_new=ompt_mpg123_new\n-D",
+					"mpg123_open=ompt_mpg123_open\n-D",
+					"mpg123_open_fd=ompt_mpg123_open_fd\n-D",
+					"mpg123_open_feed=ompt_mpg123_open_feed\n-D",
+					"mpg123_open_fixed=ompt_mpg123_open_fixed\n-D",
+					"mpg123_open_handle=ompt_mpg123_open_handle\n-D",
+					"mpg123_outblock=ompt_mpg123_outblock\n-D",
+					"mpg123_par=ompt_mpg123_par\n-D",
+					"mpg123_par2=ompt_mpg123_par2\n-D",
+					"mpg123_param=ompt_mpg123_param\n-D",
+					"mpg123_param2=ompt_mpg123_param2\n-D",
+					"mpg123_parnew=ompt_mpg123_parnew\n-D",
+					"mpg123_plain_strerror=ompt_mpg123_plain_strerror\n-D",
+					"mpg123_read=ompt_mpg123_read\n-D",
+					"mpg123_reader64=ompt_mpg123_reader64\n-D",
+					"mpg123_safe_buffer=ompt_mpg123_safe_buffer\n-D",
+					"mpg123_scan=ompt_mpg123_scan\n-D",
+					"mpg123_seek64=ompt_mpg123_seek64\n-D",
+					"mpg123_seek_frame64=ompt_mpg123_seek_frame64\n-D",
+					"mpg123_set_filesize64=ompt_mpg123_set_filesize64\n-D",
+					"mpg123_set_index64=ompt_mpg123_set_index64\n-D",
+					"mpg123_set_string=ompt_mpg123_set_string\n-D",
+					"mpg123_store_utf8=ompt_mpg123_store_utf8\n-D",
+					"mpg123_store_utf8_2=ompt_mpg123_store_utf8_2\n-D",
+					"mpg123_strerror=ompt_mpg123_strerror\n-D",
+					"mpg123_tell64=ompt_mpg123_tell64\n-D",
+					"mpg123_tell_stream64=ompt_mpg123_tell_stream64\n-D",
+					"mpg123_tellframe64=ompt_mpg123_tellframe64\n-D",
+					"mpg123_timeframe64=ompt_mpg123_timeframe64\n-D",
+					"mpg123_tpf=ompt_mpg123_tpf\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_ntom_frame_outsamples=ompt_INT123_ntom_frame_outsamples\n-D",
+					"INT123_ntom_frameoff=ompt_INT123_ntom_frameoff\n-D",
+					"INT123_ntom_frmouts=ompt_INT123_ntom_frmouts\n-D",
+					"INT123_ntom_ins2outs=ompt_INT123_ntom_ins2outs\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_ntom_val=ompt_INT123_ntom_val\n-D",
+					"INT123_synth_ntom_set_step=ompt_INT123_synth_ntom_set_step\n-D",
+					"INT123_do_layer2=ompt_INT123_do_layer2\n-D",
+					"INT123_init_layer12_stuff=ompt_INT123_init_layer12_stuff\n-D",
+					"INT123_init_layer12_table=ompt_INT123_init_layer12_table\n-D",
+					"INT123_compat_open=ompt_INT123_compat_open\n-D",
+					"INT123_set_err=ompt_INT123_set_err\n-D",
+					"INT123_strerror=ompt_INT123_strerror\n-D",
+					"INT123_wrap_destroy=ompt_INT123_wrap_destroy\n-D",
+					"INT123_wrap_handle=ompt_INT123_wrap_handle\n-D",
+					"INT123_wrap_open=ompt_INT123_wrap_open\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_exit_id3=ompt_INT123_exit_id3\n-D",
+					"INT123_id3_link=ompt_INT123_id3_link\n-D",
+					"INT123_id3_to_utf8=ompt_INT123_id3_to_utf8\n-D",
+					"INT123_init_id3=ompt_INT123_init_id3\n-D",
+					"INT123_parse_new_id3=ompt_INT123_parse_new_id3\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_8bit=ompt_INT123_synth_1to1_8bit\n-D",
+					"INT123_synth_1to1_8bit_m2s=ompt_INT123_synth_1to1_8bit_m2s\n-D",
+					"INT123_synth_1to1_8bit_mono=ompt_INT123_synth_1to1_8bit_mono\n-D",
+					"INT123_synth_1to1_8bit_wrap=ompt_INT123_synth_1to1_8bit_wrap\n-D",
+					"INT123_synth_1to1_8bit_wrap_m2s=ompt_INT123_synth_1to1_8bit_wrap_m2s\n-D",
+					"INT123_synth_1to1_8bit_wrap_mono=ompt_INT123_synth_1to1_8bit_wrap_mono\n-D",
+					"INT123_synth_2to1_8bit=ompt_INT123_synth_2to1_8bit\n-D",
+					"INT123_synth_2to1_8bit_m2s=ompt_INT123_synth_2to1_8bit_m2s\n-D",
+					"INT123_synth_2to1_8bit_mono=ompt_INT123_synth_2to1_8bit_mono\n-D",
+					"INT123_synth_4to1_8bit=ompt_INT123_synth_4to1_8bit\n-D",
+					"INT123_synth_4to1_8bit_m2s=ompt_INT123_synth_4to1_8bit_m2s\n-D",
+					"INT123_synth_4to1_8bit_mono=ompt_INT123_synth_4to1_8bit_mono\n-D",
+					"INT123_synth_ntom_8bit=ompt_INT123_synth_ntom_8bit\n-D",
+					"INT123_synth_ntom_8bit_m2s=ompt_INT123_synth_ntom_8bit_m2s\n-D",
+					"INT123_synth_ntom_8bit_mono=ompt_INT123_synth_ntom_8bit_mono\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_safer_realloc=ompt_INT123_safer_realloc\n-D",
+					"INT123_strerror=ompt_INT123_strerror\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_make_conv16to8_table=ompt_INT123_make_conv16to8_table\n-D",
+					"INT123_make_decode_tables=ompt_INT123_make_decode_tables\n-D",
+					"INT123_pnts=ompt_INT123_pnts\n-D",
+					"INT123_bytes_to_samples=ompt_INT123_bytes_to_samples\n-D",
+					"INT123_decoder_synth_bytes=ompt_INT123_decoder_synth_bytes\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_output_format=ompt_INT123_frame_output_format\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_outblock_bytes=ompt_INT123_outblock_bytes\n-D",
+					"INT123_postprocess_buffer=ompt_INT123_postprocess_buffer\n-D",
+					"INT123_samples_to_bytes=ompt_INT123_samples_to_bytes\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_init_icy=ompt_INT123_init_icy\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_compute_bpf=ompt_INT123_compute_bpf\n-D",
+					"INT123_do_layer1=ompt_INT123_do_layer1\n-D",
+					"INT123_do_layer2=ompt_INT123_do_layer2\n-D",
+					"INT123_do_layer3=ompt_INT123_do_layer3\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_fi_add=ompt_INT123_fi_add\n-D",
+					"INT123_frame_bitrate=ompt_INT123_frame_bitrate\n-D",
+					"INT123_frame_fill_toc=ompt_INT123_frame_fill_toc\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_gapless_init=ompt_INT123_frame_gapless_init\n-D",
+					"INT123_parse_new_id3=ompt_INT123_parse_new_id3\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_real=ompt_INT123_synth_1to1_real\n-D",
+					"INT123_synth_1to1_real_m2s=ompt_INT123_synth_1to1_real_m2s\n-D",
+					"INT123_synth_1to1_real_mono=ompt_INT123_synth_1to1_real_mono\n-D",
+					"INT123_synth_2to1_real=ompt_INT123_synth_2to1_real\n-D",
+					"INT123_synth_2to1_real_m2s=ompt_INT123_synth_2to1_real_m2s\n-D",
+					"INT123_synth_2to1_real_mono=ompt_INT123_synth_2to1_real_mono\n-D",
+					"INT123_synth_4to1_real=ompt_INT123_synth_4to1_real\n-D",
+					"INT123_synth_4to1_real_m2s=ompt_INT123_synth_4to1_real_m2s\n-D",
+					"INT123_synth_4to1_real_mono=ompt_INT123_synth_4to1_real_mono\n-D",
+					"INT123_synth_ntom_real=ompt_INT123_synth_ntom_real\n-D",
+					"INT123_synth_ntom_real_m2s=ompt_INT123_synth_ntom_real_m2s\n-D",
+					"INT123_synth_ntom_real_mono=ompt_INT123_synth_ntom_real_mono\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_icy2utf8=ompt_INT123_icy2utf8\n-D",
+					"INT123_bc_cleanup=ompt_INT123_bc_cleanup\n-D",
+					"INT123_bc_prepare=ompt_INT123_bc_prepare\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_decclass=ompt_INT123_decclass\n-D",
+					"INT123_defdec=ompt_INT123_defdec\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_exit_id3=ompt_INT123_exit_id3\n-D",
+					"INT123_fi_exit=ompt_INT123_fi_exit\n-D",
+					"INT123_fi_init=ompt_INT123_fi_init\n-D",
+					"INT123_fi_reset=ompt_INT123_fi_reset\n-D",
+					"INT123_fi_resize=ompt_INT123_fi_resize\n-D",
+					"INT123_frame_buffers=ompt_INT123_frame_buffers\n-D",
+					"INT123_frame_buffers_reset=ompt_INT123_frame_buffers_reset\n-D",
+					"INT123_frame_exit=ompt_INT123_frame_exit\n-D",
+					"INT123_frame_expect_outsamples=ompt_INT123_frame_expect_outsamples\n-D",
+					"INT123_frame_fill_toc=ompt_INT123_frame_fill_toc\n-D",
+					"INT123_frame_gapless_init=ompt_INT123_frame_gapless_init\n-D",
+					"INT123_frame_gapless_realinit=ompt_INT123_frame_gapless_realinit\n-D",
+					"INT123_frame_gapless_update=ompt_INT123_frame_gapless_update\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_frame_index_setup=ompt_INT123_frame_index_setup\n-D",
+					"INT123_frame_init=ompt_INT123_frame_init\n-D",
+					"INT123_frame_init_par=ompt_INT123_frame_init_par\n-D",
+					"INT123_frame_ins2outs=ompt_INT123_frame_ins2outs\n-D",
+					"INT123_frame_offset=ompt_INT123_frame_offset\n-D",
+					"INT123_frame_outbuffer=ompt_INT123_frame_outbuffer\n-D",
+					"INT123_frame_outs=ompt_INT123_frame_outs\n-D",
+					"INT123_frame_reset=ompt_INT123_frame_reset\n-D",
+					"INT123_frame_set_frameseek=ompt_INT123_frame_set_frameseek\n-D",
+					"INT123_frame_set_seek=ompt_INT123_frame_set_seek\n-D",
+					"INT123_frame_skip=ompt_INT123_frame_skip\n-D",
+					"INT123_init_icy=ompt_INT123_init_icy\n-D",
+					"INT123_init_id3=ompt_INT123_init_id3\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_ntom_frame_outsamples=ompt_INT123_ntom_frame_outsamples\n-D",
+					"INT123_ntom_frameoff=ompt_INT123_ntom_frameoff\n-D",
+					"INT123_ntom_frmouts=ompt_INT123_ntom_frmouts\n-D",
+					"INT123_ntom_ins2outs=ompt_INT123_ntom_ins2outs\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_open_bad=ompt_INT123_open_bad\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_bc_cleanup=ompt_INT123_bc_cleanup\n-D",
+					"INT123_bc_fill=ompt_INT123_bc_fill\n-D",
+					"INT123_bc_poolsize=ompt_INT123_bc_poolsize\n-D",
+					"INT123_bc_prepare=ompt_INT123_bc_prepare\n-D",
+					"INT123_clear_icy=ompt_INT123_clear_icy\n-D",
+					"INT123_feed_more=ompt_INT123_feed_more\n-D",
+					"INT123_feed_set_pos=ompt_INT123_feed_set_pos\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_open_bad=ompt_INT123_open_bad\n-D",
+					"INT123_open_feed=ompt_INT123_open_feed\n-D",
+					"INT123_open_stream_handle=ompt_INT123_open_stream_handle\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_fi_add=ompt_INT123_fi_add\n-D",
+					"INT123_fi_exit=ompt_INT123_fi_exit\n-D",
+					"INT123_fi_init=ompt_INT123_fi_init\n-D",
+					"INT123_fi_reset=ompt_INT123_fi_reset\n-D",
+					"INT123_fi_resize=ompt_INT123_fi_resize\n-D",
+					"INT123_fi_set=ompt_INT123_fi_set\n-D",
+					"INT123_safe_realloc=ompt_INT123_safe_realloc\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_pnts=ompt_INT123_pnts\n-D",
+					"INT123_decclass=ompt_INT123_decclass\n-D",
+					"INT123_dectype=ompt_INT123_dectype\n-D",
+					"INT123_defdec=ompt_INT123_defdec\n-D",
+					"INT123_frame_buffers=ompt_INT123_frame_buffers\n-D",
+					"INT123_frame_cpu_opt=ompt_INT123_frame_cpu_opt\n-D",
+					"INT123_init_layer12_stuff=ompt_INT123_init_layer12_stuff\n-D",
+					"INT123_init_layer12_table=ompt_INT123_init_layer12_table\n-D",
+					"INT123_init_layer3_gainpow2=ompt_INT123_init_layer3_gainpow2\n-D",
+					"INT123_init_layer3_stuff=ompt_INT123_init_layer3_stuff\n-D",
+					"INT123_make_conv16to8_table=ompt_INT123_make_conv16to8_table\n-D",
+					"INT123_make_decode_tables=ompt_INT123_make_decode_tables\n-D",
+					"INT123_set_synth_functions=ompt_INT123_set_synth_functions\n-D",
+					"INT123_synth_1to1=ompt_INT123_synth_1to1\n-D",
+					"INT123_synth_1to1_8bit=ompt_INT123_synth_1to1_8bit\n-D",
+					"INT123_synth_1to1_8bit_m2s=ompt_INT123_synth_1to1_8bit_m2s\n-D",
+					"INT123_synth_1to1_8bit_mono=ompt_INT123_synth_1to1_8bit_mono\n-D",
+					"INT123_synth_1to1_8bit_wrap=ompt_INT123_synth_1to1_8bit_wrap\n-D",
+					"INT123_synth_1to1_8bit_wrap_m2s=ompt_INT123_synth_1to1_8bit_wrap_m2s\n-D",
+					"INT123_synth_1to1_8bit_wrap_mono=ompt_INT123_synth_1to1_8bit_wrap_mono\n-D",
+					"INT123_synth_1to1_m2s=ompt_INT123_synth_1to1_m2s\n-D",
+					"INT123_synth_1to1_mono=ompt_INT123_synth_1to1_mono\n-D",
+					"INT123_synth_1to1_real=ompt_INT123_synth_1to1_real\n-D",
+					"INT123_synth_1to1_real_m2s=ompt_INT123_synth_1to1_real_m2s\n-D",
+					"INT123_synth_1to1_real_mono=ompt_INT123_synth_1to1_real_mono\n-D",
+					"INT123_synth_1to1_s32=ompt_INT123_synth_1to1_s32\n-D",
+					"INT123_synth_1to1_s32_m2s=ompt_INT123_synth_1to1_s32_m2s\n-D",
+					"INT123_synth_1to1_s32_mono=ompt_INT123_synth_1to1_s32_mono\n-D",
+					"INT123_synth_2to1=ompt_INT123_synth_2to1\n-D",
+					"INT123_synth_2to1_8bit=ompt_INT123_synth_2to1_8bit\n-D",
+					"INT123_synth_2to1_8bit_m2s=ompt_INT123_synth_2to1_8bit_m2s\n-D",
+					"INT123_synth_2to1_8bit_mono=ompt_INT123_synth_2to1_8bit_mono\n-D",
+					"INT123_synth_2to1_m2s=ompt_INT123_synth_2to1_m2s\n-D",
+					"INT123_synth_2to1_mono=ompt_INT123_synth_2to1_mono\n-D",
+					"INT123_synth_2to1_real=ompt_INT123_synth_2to1_real\n-D",
+					"INT123_synth_2to1_real_m2s=ompt_INT123_synth_2to1_real_m2s\n-D",
+					"INT123_synth_2to1_real_mono=ompt_INT123_synth_2to1_real_mono\n-D",
+					"INT123_synth_2to1_s32=ompt_INT123_synth_2to1_s32\n-D",
+					"INT123_synth_2to1_s32_m2s=ompt_INT123_synth_2to1_s32_m2s\n-D",
+					"INT123_synth_2to1_s32_mono=ompt_INT123_synth_2to1_s32_mono\n-D",
+					"INT123_synth_4to1=ompt_INT123_synth_4to1\n-D",
+					"INT123_synth_4to1_8bit=ompt_INT123_synth_4to1_8bit\n-D",
+					"INT123_synth_4to1_8bit_m2s=ompt_INT123_synth_4to1_8bit_m2s\n-D",
+					"INT123_synth_4to1_8bit_mono=ompt_INT123_synth_4to1_8bit_mono\n-D",
+					"INT123_synth_4to1_m2s=ompt_INT123_synth_4to1_m2s\n-D",
+					"INT123_synth_4to1_mono=ompt_INT123_synth_4to1_mono\n-D",
+					"INT123_synth_4to1_real=ompt_INT123_synth_4to1_real\n-D",
+					"INT123_synth_4to1_real_m2s=ompt_INT123_synth_4to1_real_m2s\n-D",
+					"INT123_synth_4to1_real_mono=ompt_INT123_synth_4to1_real_mono\n-D",
+					"INT123_synth_4to1_s32=ompt_INT123_synth_4to1_s32\n-D",
+					"INT123_synth_4to1_s32_m2s=ompt_INT123_synth_4to1_s32_m2s\n-D",
+					"INT123_synth_4to1_s32_mono=ompt_INT123_synth_4to1_s32_mono\n-D",
+					"INT123_synth_ntom=ompt_INT123_synth_ntom\n-D",
+					"INT123_synth_ntom_8bit=ompt_INT123_synth_ntom_8bit\n-D",
+					"INT123_synth_ntom_8bit_m2s=ompt_INT123_synth_ntom_8bit_m2s\n-D",
+					"INT123_synth_ntom_8bit_mono=ompt_INT123_synth_ntom_8bit_mono\n-D",
+					"INT123_synth_ntom_m2s=ompt_INT123_synth_ntom_m2s\n-D",
+					"INT123_synth_ntom_mono=ompt_INT123_synth_ntom_mono\n-D",
+					"INT123_synth_ntom_real=ompt_INT123_synth_ntom_real\n-D",
+					"INT123_synth_ntom_real_m2s=ompt_INT123_synth_ntom_real_m2s\n-D",
+					"INT123_synth_ntom_real_mono=ompt_INT123_synth_ntom_real_mono\n-D",
+					"INT123_synth_ntom_s32=ompt_INT123_synth_ntom_s32\n-D",
+					"INT123_synth_ntom_s32_m2s=ompt_INT123_synth_ntom_s32_m2s\n-D",
+					"INT123_synth_ntom_s32_mono=ompt_INT123_synth_ntom_s32_mono\n-D",
+					"INT123_catchsignal=ompt_INT123_catchsignal\n-D",
+					"INT123_compat_binmode=ompt_INT123_compat_binmode\n-D",
+					"INT123_compat_catpath=ompt_INT123_compat_catpath\n-D",
+					"INT123_compat_close=ompt_INT123_compat_close\n-D",
+					"INT123_compat_dirclose=ompt_INT123_compat_dirclose\n-D",
+					"INT123_compat_diropen=ompt_INT123_compat_diropen\n-D",
+					"INT123_compat_fclose=ompt_INT123_compat_fclose\n-D",
+					"INT123_compat_fdopen=ompt_INT123_compat_fdopen\n-D",
+					"INT123_compat_fopen=ompt_INT123_compat_fopen\n-D",
+					"INT123_compat_getenv=ompt_INT123_compat_getenv\n-D",
+					"INT123_compat_isdir=ompt_INT123_compat_isdir\n-D",
+					"INT123_compat_nextdir=ompt_INT123_compat_nextdir\n-D",
+					"INT123_compat_nextfile=ompt_INT123_compat_nextfile\n-D",
+					"INT123_compat_open=ompt_INT123_compat_open\n-D",
+					"INT123_compat_strdup=ompt_INT123_compat_strdup\n-D",
+					"INT123_unintr_fwrite=ompt_INT123_unintr_fwrite\n-D",
+					"INT123_unintr_read=ompt_INT123_unintr_read\n-D",
+					"INT123_unintr_write=ompt_INT123_unintr_write\n-D",
+					"INT123_bc_fill=ompt_INT123_bc_fill\n-D",
+					"INT123_bc_poolsize=ompt_INT123_bc_poolsize\n-D",
+					"INT123_bytes_to_samples=ompt_INT123_bytes_to_samples\n-D",
+					"INT123_compute_bpf=ompt_INT123_compute_bpf\n-D",
+					"INT123_decode_update=ompt_INT123_decode_update\n-D",
+					"INT123_decoder_synth_bytes=ompt_INT123_decoder_synth_bytes\n-D",
+					"INT123_dectype=ompt_INT123_dectype\n-D",
+					"INT123_do_rva=ompt_INT123_do_rva\n-D",
+					"INT123_feed_more=ompt_INT123_feed_more\n-D",
+					"INT123_feed_set_pos=ompt_INT123_feed_set_pos\n-D",
+					"INT123_fi_set=ompt_INT123_fi_set\n-D",
+					"INT123_frame_bitrate=ompt_INT123_frame_bitrate\n-D",
+					"INT123_frame_buffers_reset=ompt_INT123_frame_buffers_reset\n-D",
+					"INT123_frame_cpu_opt=ompt_INT123_frame_cpu_opt\n-D",
+					"INT123_frame_exit=ompt_INT123_frame_exit\n-D",
+					"INT123_frame_expect_outsamples=ompt_INT123_frame_expect_outsamples\n-D",
+					"INT123_frame_freq=ompt_INT123_frame_freq\n-D",
+					"INT123_frame_gapless_realinit=ompt_INT123_frame_gapless_realinit\n-D",
+					"INT123_frame_gapless_update=ompt_INT123_frame_gapless_update\n-D",
+					"INT123_frame_index_find=ompt_INT123_frame_index_find\n-D",
+					"INT123_frame_index_setup=ompt_INT123_frame_index_setup\n-D",
+					"INT123_frame_init_par=ompt_INT123_frame_init_par\n-D",
+					"INT123_frame_ins2outs=ompt_INT123_frame_ins2outs\n-D",
+					"INT123_frame_outbuffer=ompt_INT123_frame_outbuffer\n-D",
+					"INT123_frame_output_format=ompt_INT123_frame_output_format\n-D",
+					"INT123_frame_outs=ompt_INT123_frame_outs\n-D",
+					"INT123_frame_reset=ompt_INT123_frame_reset\n-D",
+					"INT123_frame_set_frameseek=ompt_INT123_frame_set_frameseek\n-D",
+					"INT123_frame_set_seek=ompt_INT123_frame_set_seek\n-D",
+					"INT123_frame_skip=ompt_INT123_frame_skip\n-D",
+					"INT123_icy2utf8=ompt_INT123_icy2utf8\n-D",
+					"INT123_id3_link=ompt_INT123_id3_link\n-D",
+					"INT123_id3_to_utf8=ompt_INT123_id3_to_utf8\n-D",
+					"INT123_invalidate_format=ompt_INT123_invalidate_format\n-D",
+					"INT123_ntom_set_ntom=ompt_INT123_ntom_set_ntom\n-D",
+					"INT123_open_feed=ompt_INT123_open_feed\n-D",
+					"INT123_open_fixed_post=ompt_INT123_open_fixed_post\n-D",
+					"INT123_open_fixed_pre=ompt_INT123_open_fixed_pre\n-D",
+					"INT123_open_stream_handle=ompt_INT123_open_stream_handle\n-D",
+					"INT123_outblock_bytes=ompt_INT123_outblock_bytes\n-D",
+					"INT123_postprocess_buffer=ompt_INT123_postprocess_buffer\n-D",
+					"INT123_read_frame=ompt_INT123_read_frame\n-D",
+					"INT123_reset_icy=ompt_INT123_reset_icy\n-D",
+					"INT123_reset_id3=ompt_INT123_reset_id3\n-D",
+					"INT123_samples_to_bytes=ompt_INT123_samples_to_bytes\n-D",
+					"INT123_set_err=ompt_INT123_set_err\n-D",
+					"INT123_set_synth_functions=ompt_INT123_set_synth_functions\n-D",
+					"INT123_synth_ntom_set_step=ompt_INT123_synth_ntom_set_step\n-D",
+					"INT123_wrap_destroy=ompt_INT123_wrap_destroy\n-D",
+					"INT123_wrap_handle=ompt_INT123_wrap_handle\n-D",
+					"INT123_wrap_open=ompt_INT123_wrap_open\n-D",
+					"INT123_do_layer1=ompt_INT123_do_layer1\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1_s32=ompt_INT123_synth_1to1_s32\n-D",
+					"INT123_synth_1to1_s32_m2s=ompt_INT123_synth_1to1_s32_m2s\n-D",
+					"INT123_synth_1to1_s32_mono=ompt_INT123_synth_1to1_s32_mono\n-D",
+					"INT123_synth_2to1_s32=ompt_INT123_synth_2to1_s32\n-D",
+					"INT123_synth_2to1_s32_m2s=ompt_INT123_synth_2to1_s32_m2s\n-D",
+					"INT123_synth_2to1_s32_mono=ompt_INT123_synth_2to1_s32_mono\n-D",
+					"INT123_synth_4to1_s32=ompt_INT123_synth_4to1_s32\n-D",
+					"INT123_synth_4to1_s32_m2s=ompt_INT123_synth_4to1_s32_m2s\n-D",
+					"INT123_synth_4to1_s32_mono=ompt_INT123_synth_4to1_s32_mono\n-D",
+					"INT123_synth_ntom_s32=ompt_INT123_synth_ntom_s32\n-D",
+					"INT123_synth_ntom_s32_m2s=ompt_INT123_synth_ntom_s32_m2s\n-D",
+					"INT123_synth_ntom_s32_mono=ompt_INT123_synth_ntom_s32_mono\n-D",
+					"INT123_COS9=ompt_INT123_COS9\n-D",
+					"INT123_do_layer3=ompt_INT123_do_layer3\n-D",
+					"INT123_init_layer3_gainpow2=ompt_INT123_init_layer3_gainpow2\n-D",
+					"INT123_init_layer3_stuff=ompt_INT123_init_layer3_stuff\n-D",
+					"INT123_set_pointer=ompt_INT123_set_pointer\n-D",
+					"INT123_tfcos36=ompt_INT123_tfcos36\n-D",
+					"INT123_dct64=ompt_INT123_dct64\n-D",
+					"INT123_do_equalizer=ompt_INT123_do_equalizer\n-D",
+					"INT123_synth_1to1=ompt_INT123_synth_1to1\n-D",
+					"INT123_synth_1to1_m2s=ompt_INT123_synth_1to1_m2s\n-D",
+					"INT123_synth_1to1_mono=ompt_INT123_synth_1to1_mono\n-D",
+					"INT123_synth_2to1=ompt_INT123_synth_2to1\n-D",
+					"INT123_synth_2to1_m2s=ompt_INT123_synth_2to1_m2s\n-D",
+					"INT123_synth_2to1_mono=ompt_INT123_synth_2to1_mono\n-D",
+					"INT123_synth_4to1=ompt_INT123_synth_4to1\n-D",
+					"INT123_synth_4to1_m2s=ompt_INT123_synth_4to1_m2s\n-D",
+					"INT123_synth_4to1_mono=ompt_INT123_synth_4to1_mono\n-D",
+					"INT123_synth_ntom=ompt_INT123_synth_ntom\n-D",
+					"INT123_synth_ntom_m2s=ompt_INT123_synth_ntom_m2s\n-D",
+					"INT123_synth_ntom_mono=ompt_INT123_synth_ntom_mono\n",
+				);
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = (
+					"../openmpt-trunk/include/mpg123/ports/Xcode",
+					"../openmpt-trunk/include/mpg123/src/include",
+				);
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC4883022B797CC800BCFFCC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC4883032B797CC800BCFFCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC4882F32B797CC800BCFFCC /* Build configuration list for PBXProject "mpg123-openmpt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4882FF2B797CC800BCFFCC /* Debug */,
+				CC4883002B797CC800BCFFCC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC4883012B797CC800BCFFCC /* Build configuration list for PBXNativeTarget "mpg123-openmpt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4883022B797CC800BCFFCC /* Debug */,
+				CC4883032B797CC800BCFFCC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC4882F02B797CC800BCFFCC /* Project object */;
+}

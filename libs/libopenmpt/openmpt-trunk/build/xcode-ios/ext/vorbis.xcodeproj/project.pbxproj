@@ -63,7 +63,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		058BB8B85C19232A349236F8 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		058BB8B85C19232A349236F8 /* openmpt-vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "openmpt-vorbis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		07BE8ECA1ED129FC0EED250A /* window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = window.h; path = ../../../include/vorbis/lib/window.h; sourceTree = "<group>"; };
 		0944F5662F6B251896721BA6 /* bitrate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = bitrate.c; path = ../../../include/vorbis/lib/bitrate.c; sourceTree = "<group>"; };
 		0C6D4B2032937AD2999A7160 /* smallft.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = smallft.h; path = ../../../include/vorbis/lib/smallft.h; sourceTree = "<group>"; };
@@ -211,9 +211,9 @@
 				501CFA76672F95A8574B90B6 /* floor1.c */,
 				374A6BCA5F85247C4720B20A /* highlevel.h */,
 				E03CFA68E3ADCC9A651A70A8 /* info.c */,
+				6B3067A02E9C29526D3FCDE0 /* lookup_data.h */,
 				35F064C44D02FFF63D1EFB04 /* lookup.c */,
 				CB8BC3CEE29E5F00D2BA5A0E /* lookup.h */,
-				6B3067A02E9C29526D3FCDE0 /* lookup_data.h */,
 				7091344E14E3D200271C1A8E /* lpc.c */,
 				175A5978BBACF72ACDE53FB8 /* lpc.h */,
 				6F30132E1382B0E025BAF96E /* lsp.c */,
@@ -373,7 +373,7 @@
 /* Begin PBXReferenceProxy section */
 		322B76417ACAB4739DF66C81 /* openmpt-ogg.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
+			fileType = archive.ar;
 			path = "openmpt-ogg.a";
 			remoteRef = EAF35B5FE4595CD1D7F4B99F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -496,6 +496,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "openmpt-vorbis";
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -512,6 +513,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				INSTALL_PATH = /usr/local/lib;
 				PRODUCT_NAME = "openmpt-vorbis";
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

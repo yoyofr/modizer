@@ -1,0 +1,9 @@
+Target dependency graph (4 targets)
+Target 'libopenmpt-static' in project 'libopenmpt'
+➜ Implicit dependency on target 'openmpg123' in project 'mpg123' via file 'libopenmpg123.a' in build phase 'Link Binary'
+➜ Implicit dependency on target 'ogg' in project 'ogg' via file 'openmpt-ogg.a' in build phase 'Link Binary'
+➜ Implicit dependency on target 'vorbis' in project 'vorbis' via file 'openmpt-vorbis.a' in build phase 'Link Binary'
+Target 'vorbis' in project 'vorbis'
+➜ Explicit dependency on target 'ogg' in project 'ogg'
+Target 'ogg' in project 'ogg' (no dependencies)
+Target 'openmpg123' in project 'mpg123' (no dependencies)

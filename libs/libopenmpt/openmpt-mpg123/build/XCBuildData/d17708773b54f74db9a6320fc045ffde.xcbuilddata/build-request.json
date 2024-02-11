@@ -1,0 +1,56 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "cceefca447fb87f8302476321b2bd724c29b738caca125b2e203d6a423467c1f"
+    },
+    {
+      "guid" : "17bf80c56cbf664801299e46666a509a44fb99aba50464c782d7e8d64b00717e"
+    },
+    {
+      "guid" : "4324f406a522c1b8f3d4014072f31725aaf1929a1b7027ed1d010b9248f42e15"
+    },
+    {
+      "guid" : "407ff5b2d1fa7ee22781822673b19456be9267aa1c1c84e9c93c5c310b87a94a"
+    },
+    {
+      "guid" : "539f4fb7ec3d2827c794a6c2a51a82f7a614cc19b1f0356d76448c112d89edbe"
+    }
+  ],
+  "containerPath" : "/Users/yoyofr/Documents/Dev/modizer/libs/libopenmpt/openmpt-trunk/build/xcode-ios/libopenmpt.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/yoyofr/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/yoyofr/Library/Developer/Xcode/DerivedData/libopenmpt-dkioocfdegaruifrmmbnfqopjvsi/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/yoyofr/Library/Developer/Xcode/DerivedData/libopenmpt-dkioocfdegaruifrmmbnfqopjvsi/Index.noindex/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "NO"
+        }
+      }
+    }
+  },
+  "qos" : "default",
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : true,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
