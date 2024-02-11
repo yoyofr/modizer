@@ -29,6 +29,8 @@ static BOOL backgroundSupported;
 
 char homedirectory[512*4];
 char bundledirectory[512*4];
+NSURL *icloudURL;
+bool icloud_available;
 
 
 extern "C" {
@@ -184,8 +186,18 @@ extern "C" void updateMainLoopC(void) {
     
     //check iCloud availability
     if (![mFileMngr ubiquityIdentityToken]) {
+        icloud_available=false;
+        icloudURL=nil;
         NSLog(@"iCloud not available");
-    } else NSLog(@"got iCloud token");
+    } else {
+        icloud_available=true;
+        NSLog(@"got iCloud token");
+        NSURL *url=[mFileMngr URLForUbiquityContainerIdentifier:nil];
+        
+        if (url) {
+            icloudURL=[url URLByAppendingPathComponent:@"Documents"];
+        } else icloudURL=nil;
+    }
     
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     

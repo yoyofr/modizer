@@ -10193,12 +10193,19 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     return strcasecmp(*pa,*pb);
 }
 
+extern NSURL *icloudURL;
+extern bool icloud_available;
+
+
 -(NSString*) getFullFilePath:(NSString *)_filePath {
     NSString *fullFilePath;
     
     if ([_filePath length]>2) {
         if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:2];
-        else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+        else {
+            if (icloud_available && ([_filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:_filePath];
+            else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+        }
     } else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     return fullFilePath;
 }

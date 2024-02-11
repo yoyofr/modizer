@@ -192,6 +192,7 @@
 "Issue %d while trying to renamefile.\n%@"="Erreur %d lors de la tentative de renommage.\n%@";
 "Issue %d while moving: %@.\n%@"="Erreur %d lors de la tentative de déplacement: %@.\n%@";
 "Issue %d while creating folder\n%@"="Erreur %d lors de la tentative de création du dossier\n%@";
+"Cannot use iCloud as folder name"="Ne peut pas utiliser iCloud comme nom de dossier";
 
 "Filter"="Filtre";
 

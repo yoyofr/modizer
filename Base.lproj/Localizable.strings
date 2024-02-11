@@ -171,6 +171,8 @@
 "Issue %d while trying to renamefile.\n%@"="Issue %d while trying to renamefile.\n%@";
 "Issue %d while moving: %@.\n%@"="Issue %d while moving: %@.\n%@";
 "Issue %d while creating folder\n%@"="Issue %d while creating folder\n%@";
+"Cannot use iCloud as folder name"="Cannot use iCloud as folder name";
+
 
 "Choose a subsong"="Choose a subsong";
 "Choose a song"="Choose a song";

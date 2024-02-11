@@ -65,7 +65,8 @@
 	int search_local;
 		
 	NSString *currentPath;
-	int mSearch;
+    bool icloud_folder_mode;
+    int mSearch;
 	NSString *mSearchText;
 	
 	UIViewController *childController;

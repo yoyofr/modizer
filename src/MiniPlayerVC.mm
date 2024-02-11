@@ -346,18 +346,20 @@ int gesture_move_file_min_trans;
     
     //Labels
     int ww=self.view.frame.size.width;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+    
+    //if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
     if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
-                if ([scene isKindOfClass:[UIWindowScene class]]) {
-                    //UIWindowScene* windowScene = (UIWindowScene*) scene;
-                    ww=MODIZER_MACM1_WIDTH_MIN;
-                }
-            }
+            UIScreen* mainscr = [UIScreen mainScreen];
+            UIWindow *win=[UIApplication sharedApplication].keyWindow;
+            //NSLog(@"%f %f : %f %f",win.bounds.size.width,win.bounds.size.height,win.frame.size.width,win.frame.size.height);
+            
+            ww=win.bounds.size.width;
         }
+    } else {
+        
     }
-
+    
     songInfoView=[[UIView alloc] init];
     songInfoView.frame=CGRectMake(50,0,(ww-50-150),48);
     songInfoView.userInteractionEnabled=true;

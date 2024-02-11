@@ -11,6 +11,9 @@
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define LIMITED_LIST_SIZE 1024
 
+extern NSURL *icloudURL;
+extern bool icloud_available;
+
 NSString *cutpaste_filesrcpath=nil;
 
 #include <sys/types.h>
@@ -75,7 +78,12 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 
 #include "MiniPlayerImplementTableView.h"
 
-
+-(NSString*) getFullPathForFilePath:(NSString*)filePath {
+    NSString *fullFilePath;
+    if (icloud_available && ([filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:filePath];
+    else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:filePath];
+    return fullFilePath;
+}
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -392,8 +400,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
             
             NSString *curPath,*tgtPath;
-            curPath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[renameSec][renameIdx].fullpath];
-            tgtPath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[renameSec][renameIdx].fullpath];
+            
+            curPath=[self getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+            tgtPath=[self getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
             
             tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
             //NSLog(@"rename %@ to %@",curPath,tgtPath);
@@ -428,7 +437,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
             
             NSString *newPath;
-            newPath=[[NSHomeDirectory() stringByAppendingPathComponent:currentPath] stringByAppendingPathComponent:tf.text];
+            newPath=[[self getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
             
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
@@ -979,7 +988,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     for (int i=0;i<27;i++) local_entries_count[i]=0;
     
     // First check count for each section
-    cpath=[NSHomeDirectory() stringByAppendingPathComponent:  currentPath];
+    cpath=[self getFullPathForFilePath:  currentPath];
     //NSLog(@"%@\n%@",cpath,currentPath);
     //Check if it is a directory or an archive
     BOOL isDirectory;
@@ -2177,7 +2186,10 @@ static int shouldRestart=1;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section==0) return 0;
-    if (section==1) return 1;
+    if (section==1) {
+        if (browse_depth==0) return 2;
+        else return 1;
+    }
     return (search_local?search_local_entries_count[section-2]:local_entries_count[section-2]);
 }
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
@@ -2607,8 +2619,8 @@ static int shouldRestart=1;
         //Paste file or dir
             //NSLog(@"Pasting: %@",cutpaste_filesrcpath);
         
-            NSString *sourcePath=[NSHomeDirectory() stringByAppendingPathComponent:cutpaste_filesrcpath];
-            NSString *destPath=[[NSHomeDirectory() stringByAppendingPathComponent:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
+            NSString *sourcePath=[self getFullPathForFilePath:cutpaste_filesrcpath];
+            NSString *destPath=[[self getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
             NSError *err;
         
             //NSLog(@"Pasting: %@ to %@",sourcePath,destPath);
@@ -2676,9 +2688,9 @@ static int shouldRestart=1;
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                                 
-                NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+                NSString *filePath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
                 NSString *tgtPath;
-                tgtPath=[NSHomeDirectory() stringByAppendingPathComponent:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
+                tgtPath=[self getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
                 int files_found=[self fex_scanarchive:[filePath UTF8String]];
                 if (files_found) {
                     //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
@@ -2727,7 +2739,7 @@ static int shouldRestart=1;
             //delete entry
             t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
             int section=indexPath.section-2;
-            NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+            NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
             NSError *err;
         
         if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
@@ -2965,39 +2977,76 @@ static int shouldRestart=1;
     
     // Set up the cell...
     if (indexPath.section==1){
-        cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
-        bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
-        
-        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-                                       22,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
-                                       18);
-        
-        if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
-        else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
-        
-        topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
-                                   0,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                   22);
-        
-        [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
-        [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
-        [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-        
-        [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
-        [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
-        [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-        
-        int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
-        icon_posx-=32;
-        actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-        actionView.enabled=YES;
-        actionView.hidden=NO;
-        secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-        secActionView.enabled=YES;
-        secActionView.hidden=NO;
-        
+        if (indexPath.row==0) {
+            cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
+            bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
+            
+            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                           22,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                           18);
+            
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+            else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+            
+            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       22);
+            
+            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
+            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
+            [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            
+            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
+            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
+            [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            
+            int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
+            icon_posx-=32;
+            actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            actionView.enabled=YES;
+            actionView.hidden=NO;
+            secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            secActionView.enabled=YES;
+            secActionView.hidden=NO;
+        } else {
+            cellValue=NSLocalizedString(@"iCloud","");
+            bottomLabel.text=@"";
+            
+            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                           22,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                           18);
+            
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+            else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+            
+            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       22);
+            actionView.enabled=NO;
+            actionView.hidden=YES;
+            secActionView.enabled=NO;
+            secActionView.hidden=YES;
+            /*[secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
+            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
+            [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            
+            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
+            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
+            [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            
+            int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
+            icon_posx-=32;
+            actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            actionView.enabled=YES;
+            actionView.hidden=NO;
+            secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            secActionView.enabled=YES;
+            secActionView.hidden=NO;*/
+        }
     } else {
         int section=indexPath.section-2;
         cellValue=cur_local_entries[section][indexPath.row].label;
@@ -3116,7 +3165,7 @@ static int shouldRestart=1;
         
         //delete entry
         int section=indexPath.section-2;
-        NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
         NSError *err;
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
@@ -3163,7 +3212,7 @@ static int shouldRestart=1;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     int section=indexPath.section-2;
     if (section>=0) {
-        NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
         BOOL res;
         NSFileManager *myMngr=[[NSFileManager alloc] init];
         res=[myMngr isDeletableFileAtPath:fullpath];
@@ -3525,34 +3574,68 @@ static int shouldRestart=1;
     
     if (indexPath.section==1) {
         int donothing=0;
-        if (mSearch) {
-            if (mSearchText==nil) donothing=1;
-        }
-        if (!donothing) {
-            mShowSubdir^=1;
-            shouldFillKeys=1;
-            
-            [self updateWaitingTitle:@""];
-            [self updateWaitingDetail:@""];
-            [self hideWaitingCancel];
-            [self showWaiting];
-            [self flushMainLoop];
-            
-            
-            int old_mSearch=mSearch;
-            NSString *old_mSearchText=mSearchText;
-            mSearch=0;
-            mSearchText=nil;
-            [self fillKeys];   //1st load eveything
-            mSearch=old_mSearch;
-            mSearchText=old_mSearchText;
+        if (indexPath.row==0) {
             if (mSearch) {
-                shouldFillKeys=1;
-                [self fillKeys];   //2nd filter for drawing
+                if (mSearchText==nil) donothing=1;
             }
-            [tabView reloadData];
-            
-            [self hideWaiting];
+            if (!donothing) {
+                mShowSubdir^=1;
+                shouldFillKeys=1;
+                
+                [self updateWaitingTitle:@""];
+                [self updateWaitingDetail:@""];
+                [self hideWaitingCancel];
+                [self showWaiting];
+                [self flushMainLoop];
+                
+                
+                int old_mSearch=mSearch;
+                NSString *old_mSearchText=mSearchText;
+                mSearch=0;
+                mSearchText=nil;
+                [self fillKeys];   //1st load eveything
+                mSearch=old_mSearch;
+                mSearchText=old_mSearchText;
+                if (mSearch) {
+                    shouldFillKeys=1;
+                    [self fillKeys];   //2nd filter for drawing
+                }
+                [tabView reloadData];
+                
+                [self hideWaiting];
+            }
+        }else {
+            if (icloud_available) {
+                [self updateWaitingTitle:@""];
+                [self updateWaitingDetail:@""];
+                [self hideWaitingCancel];
+                [self showWaiting];
+                [self flushMainLoop];
+                
+                
+                NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
+                //[newPath retain];
+                if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                else {// Don't cache childviews
+                }
+                //set new title
+                childController.title = @"iCloud";
+                // Set new depth & new directory
+                ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode=true;
+                ((RootViewControllerLocalBrowser*)childController)->currentPath = [icloudURL path];
+                ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
+                ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+                
+                childController.view.frame=self.view.frame;
+                // And push the window
+                [self.navigationController pushViewController:childController animated:YES];
+                
+                
+                [self hideWaiting];
+            } else {
+                //iCloud not available
+                NSLog(@"icloud not available");
+            }
         }
     } else {
         cellValue=cur_local_entries[section][indexPath.row].label;
@@ -3575,6 +3658,7 @@ static int shouldRestart=1;
             childController.title = cellValue;
             // Set new depth & new directory
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
+            ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode=icloud_folder_mode;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
             childController.view.frame=self.view.frame;
@@ -3716,7 +3800,7 @@ static int shouldRestart=1;
                 NSFileManager *fileManager=[[NSFileManager alloc] init];
                 
                 NSString *str=[NSString stringWithFormat:@"%@\n%@",cur_local_entries[csection][crow].label,cur_local_entries[csection][crow].fullpath];
-                dict=[fileManager attributesOfItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[csection][crow].fullpath] error:&err];
+                dict=[fileManager attributesOfItemAtPath:[self getFullPathForFilePath:cur_local_entries[csection][crow].fullpath] error:&err];
                 if (dict) {
                     str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
                 }

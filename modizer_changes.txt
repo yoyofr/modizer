@@ -38,10 +38,12 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - [PLAYER] New player: Eupmini to cover Euphony (FM-Towns)
 - [PLAYER] New player: PxTone/Organya
 - [PLAYER] Fixed issue with SSF playback introduced in v3.3
+- [GLOBAL] Basic iCloud support (Modizer folder visible in Files app and in iCloud folder in Modizer)
 - [DB] Modland 2024/02/10
 - [DB] Asma 2024/02/10
 - [DB] Fixed issues with SMSPower browser
 - [UI] Improved patterns display
+- [UI] Better management when running in macos
 - [FX] Improved oscilloscope FX
 
 

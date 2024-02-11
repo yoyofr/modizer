@@ -114,7 +114,7 @@ int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 
 #define FIXED_POINT_PRECISION 16
 void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode,float mScaleFactor) {
-    LineVertex *pts,*ptsB;
+    LineVertex *pts;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
     int oval[SOUND_MAXVOICES_BUFFER_FX];
@@ -262,7 +262,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     for (int r=0;r<rows_nb;r++) {
         int xpos=xofs+r*rows_width;
         int max_voices=num_voices*(r+1)/rows_nb;
-        int ypos=hh-mulfactor/2-1;
+        int ypos=hh-mulfactor*0.75f-1;
         
         for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
             int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
@@ -312,101 +312,159 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
 }
 
 void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint color_mode,float mScaleFactor) {
-    LineVertex *pts,*ptsB;
+    LineVertex *pts;
     int mulfactor;
-    int val[SOUND_MAXVOICES_BUFFER_FX];
-    int oval[SOUND_MAXVOICES_BUFFER_FX];
-    int sp[SOUND_MAXVOICES_BUFFER_FX];
-    int osp[SOUND_MAXVOICES_BUFFER_FX];
+    int val[2];
+    int oval[2];
+    int sp[2];
+    int osp[2];
+    
     int colR,colG,colB,tmpR,tmpG,tmpB;
     int count;
-    int min_gap,tmp_gap,ofs,old_ofs;
+    int min_gap,tmp_gap,ofs1,ofs2,old_ofs;
     
     static char first_call=1;
+        
+    int max_ofs=(SOUND_BUFFER_SIZE_SAMPLE*2/6);
+    int min_ofs=0;
+    int max_len_oscillo_buffer=SOUND_BUFFER_SIZE_SAMPLE*4/6;
+    
+    int num_voices=2;
     
     if (first_call) {
-        prev_snd_dataStereo=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2);
+        prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2);
         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-            prev_snd_dataStereo[i*2+0]=snd_data[i*2+0]>>9;
-            prev_snd_dataStereo[i*2+1]=snd_data[i*2+1]>>9;
+            prev_snd_data[i*2+0]=(snd_data[i*2+0]>>8);
+            prev_snd_data[i*2+1]=(snd_data[i*2+1]>>8);
         }
         
-        memset(snd_data_ofs,0,SOUND_MAXVOICES_BUFFER_FX*4);
+        for (int i=0;i<2;i++)
+            snd_data_ofs[i]=max_ofs/2;
         first_call=0;
     }
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*SOUND_BUFFER_SIZE_SAMPLE*2);
-    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
-    count=0;
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-    int rows_nb=((2-1)/FX_OSCILLO_MAXROWS)+1;
+    
+    int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
-    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*1024/rows_width;
+    int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/rows_width;
     int cur_voices=0;
         
-    int max_voices_by_row=(2+rows_nb-1)/rows_nb;
-    mulfactor=hh/max_voices_by_row;
+    int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
+    mulfactor=hh/(max_voices_by_row+1);
     
-    // Search the right offset to realign oscilloscope view / previous one
-    int bufflen;
-    //compute bufflen / size of the oscilloscope
-    if (rows_width>SOUND_BUFFER_SIZE_SAMPLE) bufflen=SOUND_BUFFER_SIZE_SAMPLE;
-    else bufflen=rows_width;
-    //compute sample increment fixed point
-    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*1024/bufflen;
+    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
+    count=0;
+    
+    //determine min smplincr / width of oscillo on screen, help reduce processing time
+    int smplincr=SOUND_BUFFER_SIZE_SAMPLE/rows_width;
+    if (smplincr<1) smplincr=1;
+    int bufflen=max_len_oscillo_buffer/smplincr;
+        
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
-    for (int j=0;j<2;j++) {
+    
+    for (int j=0;j<num_voices;j++) {
         // for each voices
         min_gap=bufflen*256;
         //reset start offset / previous frame
-        old_ofs=snd_data_ofs[j]<<10;
-        //start at 1/4 before previous one to help tuning
-        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<10;
-        for (int l=0;l<bufflen-1;l++) {
+        old_ofs=0;
+        
+        ofs1=snd_data_ofs[j];
+        ofs2=snd_data_ofs[j];
+        int right_done=0;
+        int left_done=0;
+        for (;;) {
             // start analyzing
-            tmp_gap=0;
-            for (int i=0,smplindex=0;i<bufflen;i++,smplindex+=smplincr) {
-                //compute diff between 2 samples with respective offset
-                tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j]>>9)-(int)(prev_snd_dataStereo[(((old_ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j])));
-                if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
-            }
-            if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
-                min_gap=tmp_gap;
-                snd_data_ofs[j]=(ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1);
-                if (min_gap<=min_gap_threshold) break;
-            }
-            ofs+=smplincr;
+                        
+            //check on right side, ofs1
+            if ((ofs1<max_ofs)&& !right_done) {
+                tmp_gap=0;
+                short int *snd_data_ptr=snd_data+ofs1*2+j;
+                signed char *prev_snd_data_ptr=prev_snd_data+j;
+                int val;
+                int incr=smplincr*2;
+                for (int i=0;i<bufflen;i++) {
+                    //compute diff between 2 samples with respective offset
+                    val=((int)(*snd_data_ptr)>>8)-(int)(*prev_snd_data_ptr);
+                    if (val>0) tmp_gap+=val;
+                    else if (val<0) tmp_gap-=val;
+                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
+                    snd_data_ptr+=incr;
+                    prev_snd_data_ptr+=incr;
+                }
+                
+                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
+                    min_gap=tmp_gap;
+                    snd_data_ofs[j]=ofs1;
+                    if (min_gap<=min_gap_threshold) {
+                        left_done=1;
+                        right_done=1;
+                        break;
+                    }
+                }
+                
+                ofs1+=smplincr;
+            } else right_done=1;
+            //check on left side, ofs2
+            if ((ofs2>0)&& !left_done) {
+                tmp_gap=0;
+                short int *snd_data_ptr=snd_data+ofs2*2+j;
+                signed char *prev_snd_data_ptr=prev_snd_data+j;
+                int val;
+                int incr=smplincr*2;
+                for (int i=0;i<bufflen;i++) {
+                    //compute diff between 2 samples with respective offset
+                    val=((int)(*snd_data_ptr)>>8)-(int)(*prev_snd_data_ptr);
+                    if (val>0) tmp_gap+=val;
+                    else if (val<0) tmp_gap-=val;
+                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
+                    snd_data_ptr+=incr;
+                    prev_snd_data_ptr+=incr;
+                }
+                
+                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
+                    min_gap=tmp_gap;
+                    snd_data_ofs[j]=ofs2;
+                    if (min_gap<=min_gap_threshold)  {
+                        left_done=1;
+                        right_done=1;
+                        break;
+                    }
+                }
+                ofs2-=smplincr;
+            } else left_done=1;
+            
+            if ( left_done && right_done ) break;
+        }
+        //snd_data_ofs[j]=0;
+    }
+    
+    for (int i=0;i<max_len_oscillo_buffer;i++){
+        for (int j=0;j<num_voices;j++) {
+            prev_snd_data[i*2+j]=snd_data[(i+(snd_data_ofs[j]))*2+j]>>8;
         }
     }
-    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-        prev_snd_dataStereo[i*2+0]=snd_data[i*2+0]>>9;
-        prev_snd_dataStereo[i*2+1]=snd_data[i*2+1]>>9;
-    }
     
-    
-    for (int i=0;i<2;i++) {
-        val[i]=(signed int)(snd_data[((snd_data_ofs[i])&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+i]>>9)*mulfactor>>8;
+    for (int i=0;i<num_voices;i++) {
+        val[i]=(signed int)(snd_data[((snd_data_ofs[i]))*2+i]>>8)*mulfactor>>8;
         sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
     }
     
-    
     for (int r=0;r<rows_nb;r++) {
-        
         int xpos=xofs+r*rows_width;
-        int max_voices=2*(r+1)/rows_nb;
-        int ypos=hh-mulfactor/2-1;
+        int max_voices=num_voices*(r+1)/rows_nb;
+        int ypos=hh-mulfactor*0.75f-1;
         
         for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
-            
-            int smpl_ofs=snd_data_ofs[cur_voices]<<10;
+            int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
             
             if (color_mode==1) {
                 colR=0;
@@ -416,24 +474,16 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
                 colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
+                colR*=1.2f;
+                colG*=1.2f;
+                colB*=1.2f;
             }
-            /*colR+=(colR+colG+colB)/(3*4);
-            colG+=(colR+colG+colB)/(3*4);
-            colB+=(colR+colG+colB)/(3*4);*/
-                
-            /*if (!basic_voicedata_mode && !m_voicesStatus[cur_voices]) {
-                tmpR=colR/2;
-                tmpG=colG/2;
-                tmpB=colB/2;
-                pts[count++] = LineVertex(xpos, ypos,tmpR,tmpG,tmpB,220);
-                pts[count++] = LineVertex(xpos+rows_width-1, ypos,tmpR,tmpG,tmpB,220);
-                
-            } else */for (int i=0; i<rows_width-2; i++) {
+            for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=snd_data[((smpl_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+cur_voices]>>9;
+                val[cur_voices]=snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*2+cur_voices]>>8;
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*mulfactor>>8; if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
-                
+                                
                 tmpR=colR;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpG=colG;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpB=colB;//+((val[cur_voices]-oval[cur_voices])<<1);
@@ -445,7 +495,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
                 
                 
-                smpl_ofs+=smpl_ofs_incr;
+                smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
         }
     }
@@ -453,14 +503,11 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     glDrawArrays(GL_LINES, 0, count);
-                            
+    
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     free(pts);
-    free(ptsB);
-
-    
 }
 
 
