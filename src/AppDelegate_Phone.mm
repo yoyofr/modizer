@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-//#define GEN_EXT_LIST
+#define GEN_EXT_LIST
 #import "AppDelegate_Phone.h"
 #import <MediaPlayer/MediaPlayer.h>
 
