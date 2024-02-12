@@ -166,7 +166,7 @@ static int display_length_mode=0;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
 @synthesize labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
-@synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
+@synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,buttonShuffleOneSel,btnLoopInf;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
 @synthesize detailView,commandViewU,volWin,playlistPos;
@@ -902,16 +902,27 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 - (IBAction)shuffle {
-	if (mShuffle) {
-		buttonShuffle.hidden=NO;
-		buttonShuffleSel.hidden=YES;
-		mShuffle=NO;
-	}
-	else {
-		buttonShuffle.hidden=YES;
-		buttonShuffleSel.hidden=NO;
-		mShuffle=YES;
-	}
+    mShuffle=(mShuffle+1)%3;
+    switch (mShuffle) {
+        case 0:
+            [mplayer setArchiveSubShuffle:NO];
+            buttonShuffle.hidden=NO;
+            buttonShuffleSel.hidden=YES;
+            buttonShuffleOneSel.hidden=YES;
+            break;
+        case 1:
+            [mplayer setArchiveSubShuffle:TRUE];
+            buttonShuffle.hidden=YES;
+            buttonShuffleSel.hidden=YES;
+            buttonShuffleOneSel.hidden=NO;
+            break;
+        case 2:
+            [mplayer setArchiveSubShuffle:TRUE];
+            buttonShuffle.hidden=YES;
+            buttonShuffleSel.hidden=NO;
+            buttonShuffleOneSel.hidden=YES;
+            break;
+    }
 }
 
 - (void)oglViewSwitchFS {
@@ -1282,13 +1293,13 @@ static float movePinchScale,movePinchScaleOld;
 		//and go to next entry if playlist
 		if ((mLoopMode==2)||(mplayer.mLoopMode==1))  [self play_curEntry];
 		else {
-            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1)&&(mOnlyCurrentEntry==0)) {
-                [mplayer selectNextArcEntry];
-                
-                [self showWaitingLoading];
-                
-                [self play_loadArchiveModule];
-                [self hideWaiting];
+            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) {
+                if ([mplayer selectNextArcEntry]<0) [self play_nextEntry];
+                else {
+                    [self showWaitingLoading];
+                    [self play_loadArchiveModule];
+                    [self hideWaiting];
+                }
             } else [self play_nextEntry];
         }
 		
@@ -1582,7 +1593,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playPrevSub {
     static bool no_reentrant=false;
-    if (mShuffle) {
+    if (mShuffle==1) {
         [self playPrev];
         return;
     }
@@ -1607,19 +1618,33 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         no_reentrant=false;
         return;
     }
-    //if archive and no subsongs => change archive index
-    if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub<=mplayer.mod_minsub))) {
-        if ([mplayer getArcIndex]>0) {
-            [mplayer selectPrevArcEntry];
+    
+    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
+        //if archive and no subsongs => change archive index
+        if ([mplayer selectPrevArcEntry]<0) [self playPrev];
+        else {
             [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
-        } else [self playPrev];
+        }
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     } else {
-        if ((mplayer.mod_subsongs>1)&&(mplayer.mod_currentsub>mplayer.mod_minsub)) [mplayer playPrevSub];
-        else [self playPrev];
+        if (mplayer.mod_subsongs>1) {
+            //Subsongs, try previous one
+            if ([mplayer playPrevSub]<0) {
+                //reach end
+                if ([mplayer isArchive]) {
+                    //archive, try previous one
+                    if ([mplayer selectPrevArcEntry]<0) [self playPrev];
+                    else {
+                        [self showWaitingLoading];
+                        [self play_loadArchiveModule];
+                        [self hideWaiting];
+                    }
+                } else [self playPrev];
+            }
+        } else [self playPrev];
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }
@@ -1628,25 +1653,36 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playNextSub {
     static bool no_reentrant=false;
-    if (mShuffle) {
+    if (mShuffle==1) {
         [self playNext];
         return;
     }
     if (no_reentrant) return;
     no_reentrant=true;
     //if archive and no subsongs => change archive index
-    if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub>=mplayer.mod_maxsub))) {
-        if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) [self playNext];
+    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
+        if ([mplayer selectNextArcEntry]<0) [self playNext];
         else {
-            [mplayer selectNextArcEntry];
             [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
             [self refreshCurrentVC];
         }
     } else {
-        if (mplayer.mod_currentsub>=mplayer.mod_maxsub) [self playNext];
-        else [mplayer playNextSub];
+        if (mplayer.mod_subsongs>1) { //subsongs
+            if ([mplayer playNextSub]<0) { //end reached
+                if ([mplayer isArchive]) {
+                    //it is an archive, select next entry
+                    if ([mplayer selectNextArcEntry]<0) [self playNext];
+                    else {
+                        [self showWaitingLoading];
+                        [self play_loadArchiveModule];
+                        [self hideWaiting];
+                        [self refreshCurrentVC];
+                    }
+                } else [self playNext]; //not an archive, next entry
+            }
+        }
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }
@@ -1659,11 +1695,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     no_reentrant=true;
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
-            [mplayer selectNextArcEntry];
-            [self showWaitingLoading];
-            [self play_loadArchiveModule];
-            [self hideWaiting];
-            [self refreshCurrentVC];
+            if ([mplayer selectNextArcEntry]<0) [self playNext];
+            else {
+                [self showWaitingLoading];
+                [self play_loadArchiveModule];
+                [self hideWaiting];
+                [self refreshCurrentVC];
+            }
         }
     }
     no_reentrant=false;
@@ -1672,11 +1710,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
-            [mplayer selectPrevArcEntry];
-            [self showWaitingLoading];
-            [self play_loadArchiveModule];
-            [self hideWaiting];
-            [self refreshCurrentVC];
+            if ([mplayer selectPrevArcEntry]<0) [self playPrev];
+            else {
+                [self showWaitingLoading];
+                [self play_loadArchiveModule];
+                [self hideWaiting];
+                [self refreshCurrentVC];
+            }
         }
     }
 }
@@ -2195,24 +2235,22 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //ensure any settings changes to be taken into account before loading next file
     [self settingsChanged:(int)SETTINGS_ALL];
     
-    if (mShuffle) {
+    if (mShuffle==1) {
         mOnlyCurrentSubEntry=1;
         mOnlyCurrentEntry=1;
     }
-    
 	// load module
 
 	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
 		//error while loading
         
         if ( [mplayer isArchive] &&
-            ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
             !mOnlyCurrentSubEntry &&
             !mOnlyCurrentEntry ) {
             
             do {
-                [mplayer selectNextArcEntry];
-                if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                if ([mplayer selectNextArcEntry]<0) break;
+                
                 mRestart_arc=[mplayer getArcIndex];
                 retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
             } while (retcode);
@@ -2226,7 +2264,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
 	}
     
-    if (mShuffle) {
+    
+    if (mShuffle==1) {
         if ([mplayer isArchive]) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
@@ -2234,13 +2273,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
-                    ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
                     !mOnlyCurrentSubEntry &&
                     !mOnlyCurrentEntry ) {
                     
                     do {
-                        [mplayer selectNextArcEntry];
-                        if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                        if ([mplayer selectNextArcEntry]<0) break;
                         mRestart_arc=[mplayer getArcIndex];
                         retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     } while (retcode);
@@ -2299,7 +2336,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
     //random mode & mutli song ?
-    if (mShuffle) {
+    if (mShuffle==1) {
         if ([mplayer isMultiSongs]) {
             mOnlyCurrentSubEntry=1;
             mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
@@ -2579,7 +2616,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //ensure any settings changes to be taken into account before loading next file
     [self settingsChanged:(int)SETTINGS_ALL];
     
-    if (mShuffle) {
+    if (mShuffle==1) {
         mOnlyCurrentSubEntry=1;
         mOnlyCurrentEntry=1;
     }
@@ -2589,12 +2626,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //error while loading
         //if it is an archive, try to load next entry until end or valid one reached
         if ( [mplayer isArchive] &&
-            ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
             !mOnlyCurrentSubEntry &&
             !mOnlyCurrentEntry ) {
         
             do {
-                [mplayer selectNextArcEntry];
+                if ([mplayer selectNextArcEntry]<0) break;
                 mRestart_arc=[mplayer getArcIndex];
                 retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
@@ -2613,7 +2649,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
 	}
     
-    if (mShuffle) {
+    if (mShuffle==1) {
         if ([mplayer isArchive]) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
@@ -2622,10 +2658,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //error while loading
                 
                 do {
-                    [mplayer selectNextArcEntry];
-                    mRestart_arc=[mplayer getArcIndex];
-                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
-                    if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
+                    if ([mplayer selectNextArcEntry]<0) {
+                        retcode=-1;
+                        break;
+                    } else {
+                        mRestart_arc=[mplayer getArcIndex];
+                        retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                    }
                 } while (retcode);
                 
                 if (retcode) {
@@ -2696,7 +2735,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mPaused=1;
     } else {
         //random mode & multi song ?
-        if (mShuffle&&(found_sub==0)) {
+        if ((mShuffle==1)&&(found_sub==0)) {
             /*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
              mOnlyCurrentSubEntry=1;
              }*/
@@ -2704,6 +2743,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 mOnlyCurrentSubEntry=1;
                 mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
             }
+        } else if (mShuffle==2) {
+            if ([mplayer isMultiSongs]) mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
         }
         self.pauseBarSub.hidden=YES;
         self.playBarSub.hidden=YES;
@@ -3042,6 +3083,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             buttonLoopListSel.frame = CGRectMake(10,0+48,32,32);
             buttonShuffle.frame = CGRectMake(50,0+48,32,32);
             buttonShuffleSel.frame = CGRectMake(50,0+48,32,32);
+            buttonShuffleOneSel.frame = CGRectMake(50,0+48,32,32);
             
             btnLoopInf.frame = CGRectMake(88,48+3,28,28);
             
@@ -3293,6 +3335,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
 				buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
 				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
+                buttonShuffleOneSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
 				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
                 
                 mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
@@ -3711,8 +3754,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	[self changeLoopMode];
     [mplayer setLoopInf:mplayer.mLoopMode^1];
     [self pushedLoopInf];
-    if (mShuffle) mShuffle=NO;
-    else mShuffle=YES;
+    
+    mShuffle--;
+    if (mShuffle<0) mShuffle=2;
 	[self shuffle];
 	
 	//update settings according toi what was loaded

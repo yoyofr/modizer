@@ -317,11 +317,11 @@
         </tabBarController>
         <viewController title="File" modalTransitionStyle="flipHorizontal" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="15" userLabel="PlayerView">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="386"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="X7f-i5-f7a">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="386"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="442" userLabel="main view">
@@ -420,6 +420,22 @@
                                         </state>
                                         <connections>
                                             <action selector="shuffle" destination="11" eventType="touchUpInside" id="262"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bTr-Ng-Uld" userLabel="Shuffle One Sel">
+                                        <rect key="frame" x="50" y="0.0" width="32" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
+                                        <state key="normal" image="05-shuffleone-green.png">
+                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="shuffle" destination="11" eventType="touchUpInside" id="B7N-72-Qbq"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1544" userLabel="Loop Inf">
@@ -875,7 +891,7 @@
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <view userInteractionEnabled="NO" alpha="0.69999999999999973" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1620" userLabel="Info Msg Player">
-                        <rect key="frame" x="0.0" y="218.5" width="320" height="140"/>
+                        <rect key="frame" x="0.0" y="158" width="320" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="1621" userLabel="Pri Msg Label">
@@ -922,6 +938,7 @@
                 <outlet property="buttonLoopListSel" destination="263" id="266"/>
                 <outlet property="buttonLoopTitleSel" destination="255" id="257"/>
                 <outlet property="buttonShuffle" destination="248" id="259"/>
+                <outlet property="buttonShuffleOneSel" destination="bTr-Ng-Uld" id="GiT-Pq-AxY"/>
                 <outlet property="buttonShuffleSel" destination="261" id="265"/>
                 <outlet property="commandViewU" destination="293" id="304"/>
                 <outlet property="cover_view" destination="1730" id="1731"/>
@@ -1248,6 +1265,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         <image name="03-loopback.png" width="26" height="26"/>
         <image name="05-shuffle-green.png" width="26" height="26"/>
         <image name="05-shuffle.png" width="26" height="26"/>
+        <image name="05-shuffleone-green.png" width="26" height="26"/>
         <image name="1237346308.jpg" width="320" height="480"/>
         <image name="bb_caret-left.png" width="24" height="24"/>
         <image name="bb_caret-right.png" width="24" height="24"/>

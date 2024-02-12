@@ -56,6 +56,10 @@ enum MDZ_SETTINGS {
     GLOB_Panning,
     GLOB_PanningValue,
     GLOB_DefaultLength,
+    //ALBUM/ARCHIVE
+    GLOB_ArchiveReadMode,
+    GLOB_ArchiveReadModeMaxLoop,
+    //
     GLOB_CoverFlow,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,

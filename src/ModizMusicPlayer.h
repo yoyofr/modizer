@@ -294,6 +294,7 @@ enum MMP_PLAYER_TYPE {
 
 -(BOOL) isMultiSongs;
 -(BOOL) isArchive;
+-(bool) isArchiveFullyPlayed;
 -(int) getArcEntriesCnt;
 -(int) getArcIndex;
 
@@ -318,12 +319,18 @@ enum MMP_PLAYER_TYPE {
 -(void) Play;
 -(void) PlaySeek:(int)startPos subsong:(int)subsong;
 
--(void) playPrevSub;
--(void) playNextSub;
+
+-(void) updateCurSubSongPlayed:(int)idx;
+-(void) initSubSongPlayed;
+
+-(int) playPrevSub;
+-(int) playNextSub;
 -(void) playGoToSub:(int)sub_index;
 
--(void) selectPrevArcEntry;
--(void) selectNextArcEntry;
+
+-(void) setArchiveSubShuffle:(bool)shuffle;
+-(int) selectPrevArcEntry;
+-(int) selectNextArcEntry;
 -(void) selectArcEntry:(int)arc_index;
 
 -(int) getSongLengthfromMD5:(int)track_nb;

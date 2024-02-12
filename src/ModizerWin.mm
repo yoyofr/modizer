@@ -95,9 +95,9 @@
         else {
             //no more subsongs, check if within an archive to play next entry
             
-            if ([detailViewControllerIphone.mplayer isArchive]&&([detailViewControllerIphone.mplayer getArcEntriesCnt]>1)&&([detailViewControllerIphone.mplayer getArcIndex]<[detailViewControllerIphone.mplayer getArcEntriesCnt]-1)&&(detailViewControllerIphone.mOnlyCurrentEntry==0)) {
-                [detailViewControllerIphone.mplayer selectNextArcEntry];
-                [detailViewControllerIphone play_loadArchiveModule];
+            if ([detailViewControllerIphone.mplayer isArchive]&&([detailViewControllerIphone.mplayer getArcEntriesCnt]>1)&&(detailViewControllerIphone.mOnlyCurrentEntry==0)) {
+                if ([detailViewControllerIphone.mplayer selectNextArcEntry]<0) [detailViewControllerIphone play_nextEntry];
+                else [detailViewControllerIphone play_loadArchiveModule];
             } else [detailViewControllerIphone play_nextEntry];
         }
 	}

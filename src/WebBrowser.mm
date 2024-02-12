@@ -418,7 +418,7 @@ static UIAlertView *alertChooseName;
 	NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
 	BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
-    NSLog(@"Connection : %@",MIME);
+    //NSLog(@"Connection : %@",MIME);
         	
 	if (asdf==NO) {
         r.location=NSNotFound;
