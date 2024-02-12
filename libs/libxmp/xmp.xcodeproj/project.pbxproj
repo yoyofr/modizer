@@ -333,7 +333,6 @@
 		59805308262F0CA000BB0309 /* dbm_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dbm_load.c; sourceTree = "<group>"; };
 		59805309262F0CA000BB0309 /* st_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = st_load.c; sourceTree = "<group>"; };
 		5980530A262F0CA000BB0309 /* imf_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = imf_load.c; sourceTree = "<group>"; };
-		5980530B262F0CA000BB0309 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		5980530C262F0CA000BB0309 /* dmf_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dmf_load.c; sourceTree = "<group>"; };
 		5980530D262F0CA000BB0309 /* ptm_load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ptm_load.c; sourceTree = "<group>"; };
 		5980530E262F0CA000BB0309 /* mmd_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mmd_common.c; sourceTree = "<group>"; };
@@ -581,7 +580,6 @@
 				59805319262F0CA000BB0309 /* itsex.c */,
 				5980531B262F0CA000BB0309 /* liq_load.c */,
 				59805322262F0CA000BB0309 /* loader.h */,
-				5980530B262F0CA000BB0309 /* Makefile */,
 				59805343262F0CA000BB0309 /* masi_load.c */,
 				59805328262F0CA000BB0309 /* mdl_load.c */,
 				59805325262F0CA000BB0309 /* med.h */,

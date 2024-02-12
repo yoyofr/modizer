@@ -3012,15 +3012,16 @@ static int shouldRestart=1;
             secActionView.hidden=NO;
         } else {
             cellValue=NSLocalizedString(@"iCloud","");
-            bottomLabel.text=@"";
+            if (icloud_available) bottomLabel.text=@"available";
+            else bottomLabel.text=@"unavailable";
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                            18);
             
-            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
-            else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ICLOUD_COLOR_RED_DARKMODE green:ICLOUD_COLOR_GREEN_DARKMODE blue:ICLOUD_COLOR_BLUE_DARKMODE alpha:1.0];
+            else topLabel.textColor=[UIColor colorWithRed:ICLOUD_COLOR_RED green:ICLOUD_COLOR_GREEN blue:ICLOUD_COLOR_BLUE alpha:1.0];
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,

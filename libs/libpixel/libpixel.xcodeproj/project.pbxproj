@@ -182,14 +182,12 @@
 		CCB817512B7196C800364D64 /* HiClose.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = HiClose.inc; sourceTree = "<group>"; };
 		CCB817522B7196C800364D64 /* HiClos3.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = HiClos3.inc; sourceTree = "<group>"; };
 		CCB817542B7196C800364D64 /* smallft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smallft.h; sourceTree = "<group>"; };
-		CCB817552B7196C800364D64 /* vorbisenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vorbisenc.c; sourceTree = "<group>"; };
 		CCB817562B7196C800364D64 /* res0.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = res0.c; sourceTree = "<group>"; };
 		CCB817582B7196C800364D64 /* ogg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogg.h; sourceTree = "<group>"; };
 		CCB817592B7196C800364D64 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		CCB8175A2B7196C800364D64 /* config_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config_types.h; sourceTree = "<group>"; };
 		CCB8175B2B7196C800364D64 /* os_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = os_types.h; sourceTree = "<group>"; };
 		CCB8175C2B7196C800364D64 /* block.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = block.c; sourceTree = "<group>"; };
-		CCB8175D2B7196C800364D64 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		CCB8175F2B7196C800364D64 /* vorbisfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vorbisfile.h; sourceTree = "<group>"; };
 		CCB817602B7196C800364D64 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		CCB817612B7196C800364D64 /* codec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = codec.h; sourceTree = "<group>"; };
@@ -215,13 +213,10 @@
 		CCB817762B7196C800364D64 /* residue_16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = residue_16.h; sourceTree = "<group>"; };
 		CCB817772B7196C800364D64 /* psych_11.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psych_11.h; sourceTree = "<group>"; };
 		CCB817782B7196C800364D64 /* setup_X.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = setup_X.h; sourceTree = "<group>"; };
-		CCB817792B7196C800364D64 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		CCB8177A2B7196C800364D64 /* barkmel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = barkmel.c; sourceTree = "<group>"; };
 		CCB8177B2B7196C800364D64 /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
 		CCB8177C2B7196C800364D64 /* info.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = info.c; sourceTree = "<group>"; };
 		CCB8177D2B7196C800364D64 /* mdct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdct.c; sourceTree = "<group>"; };
 		CCB8177E2B7196C800364D64 /* os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = os.h; sourceTree = "<group>"; };
-		CCB8177F2B7196C800364D64 /* tone.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tone.c; sourceTree = "<group>"; };
 		CCB817802B7196C800364D64 /* envelope.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = envelope.c; sourceTree = "<group>"; };
 		CCB817812B7196C800364D64 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
 		CCB817822B7196C800364D64 /* analysis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = analysis.c; sourceTree = "<group>"; };
@@ -243,7 +238,6 @@
 		CCB817962B7196C800364D64 /* psy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psy.c; sourceTree = "<group>"; };
 		CCB817972B7196C800364D64 /* lpc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lpc.h; sourceTree = "<group>"; };
 		CCB817982B7196C800364D64 /* highlevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = highlevel.h; sourceTree = "<group>"; };
-		CCB817992B7196C800364D64 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		CCB8179A2B7196C800364D64 /* smallft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = smallft.c; sourceTree = "<group>"; };
 		CCB8179B2B7196C800364D64 /* lookup_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lookup_data.h; sourceTree = "<group>"; };
 		CCB8179C2B7196C800364D64 /* scales.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scales.h; sourceTree = "<group>"; };
@@ -254,19 +248,15 @@
 		CCB817A12B7196C800364D64 /* envelope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = envelope.h; sourceTree = "<group>"; };
 		CCB817A22B7196C800364D64 /* masking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = masking.h; sourceTree = "<group>"; };
 		CCB817A32B7196C800364D64 /* mdct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdct.h; sourceTree = "<group>"; };
-		CCB817A42B7196C800364D64 /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
 		CCB817A52B7196C800364D64 /* mapping0.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapping0.c; sourceTree = "<group>"; };
 		CCB817A62B7196C800364D64 /* psy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psy.h; sourceTree = "<group>"; };
 		CCB817A72B7196C800364D64 /* lpc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lpc.c; sourceTree = "<group>"; };
-		CCB817A82B7196C800364D64 /* psytune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psytune.c; sourceTree = "<group>"; };
 		CCB817A92B7196C800364D64 /* bitrate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitrate.h; sourceTree = "<group>"; };
 		CCB817AA2B7196C800364D64 /* lsp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lsp.c; sourceTree = "<group>"; };
 		CCB817AB2B7196C800364D64 /* registry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = registry.c; sourceTree = "<group>"; };
-		CCB817AC2B7196C800364D64 /* vorbisfile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vorbisfile.c; sourceTree = "<group>"; };
 		CCB817AD2B7196C800364D64 /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
 		CCB817AE2B7196C800364D64 /* codec_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = codec_internal.h; sourceTree = "<group>"; };
 		CCB817AF2B7196C800364D64 /* codebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = codebook.h; sourceTree = "<group>"; };
-		CCB818072B7196D600364D64 /* makeEmscripten.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = makeEmscripten.bat; sourceTree = "<group>"; };
 		CCB8180E2B7196D600364D64 /* Adapter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Adapter.cpp; sourceTree = "<group>"; };
 		CCB8182B2B7196D600364D64 /* organya.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = organya.c; sourceTree = "<group>"; };
 		CCB8182D2B71A0C100364D64 /* MetaInfoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetaInfoHelper.h; sourceTree = "<group>"; };
@@ -418,58 +408,49 @@
 			isa = PBXGroup;
 			children = (
 				CCB817822B7196C800364D64 /* analysis.c */,
-				CCB817862B7196C800364D64 /* backends.h */,
-				CCB8177A2B7196C800364D64 /* barkmel.c */,
 				CCB817882B7196C800364D64 /* bitrate.c */,
-				CCB817A92B7196C800364D64 /* bitrate.h */,
 				CCB8175C2B7196C800364D64 /* block.c */,
-				CCB8178A2B7196C800364D64 /* books */,
-				CCB8175D2B7196C800364D64 /* CMakeLists.txt */,
 				CCB817842B7196C800364D64 /* codebook.c */,
-				CCB817AF2B7196C800364D64 /* codebook.h */,
-				CCB817AE2B7196C800364D64 /* codec_internal.h */,
 				CCB817802B7196C800364D64 /* envelope.c */,
-				CCB817A12B7196C800364D64 /* envelope.h */,
 				CCB817852B7196C800364D64 /* floor0.c */,
 				CCB8179E2B7196C800364D64 /* floor1.c */,
-				CCB817982B7196C800364D64 /* highlevel.h */,
 				CCB8177C2B7196C800364D64 /* info.c */,
-				CCB817792B7196C800364D64 /* LICENSE */,
-				CCB8179B2B7196C800364D64 /* lookup_data.h */,
 				CCB817632B7196C800364D64 /* lookup.c */,
-				CCB8179F2B7196C800364D64 /* lookup.h */,
-				CCB817832B7196C800364D64 /* lookups.pl */,
 				CCB817A72B7196C800364D64 /* lpc.c */,
-				CCB817972B7196C800364D64 /* lpc.h */,
 				CCB817AA2B7196C800364D64 /* lsp.c */,
-				CCB817872B7196C800364D64 /* lsp.h */,
-				CCB817992B7196C800364D64 /* Makefile.am */,
 				CCB817A52B7196C800364D64 /* mapping0.c */,
-				CCB817A22B7196C800364D64 /* masking.h */,
 				CCB8177D2B7196C800364D64 /* mdct.c */,
-				CCB817A32B7196C800364D64 /* mdct.h */,
-				CCB817A42B7196C800364D64 /* misc.c */,
-				CCB8177B2B7196C800364D64 /* misc.h */,
-				CCB817642B7196C800364D64 /* modes */,
-				CCB817572B7196C800364D64 /* ogg */,
-				CCB8177E2B7196C800364D64 /* os.h */,
 				CCB817962B7196C800364D64 /* psy.c */,
-				CCB817A62B7196C800364D64 /* psy.h */,
-				CCB817A82B7196C800364D64 /* psytune.c */,
 				CCB817AB2B7196C800364D64 /* registry.c */,
-				CCB817892B7196C800364D64 /* registry.h */,
 				CCB817562B7196C800364D64 /* res0.c */,
-				CCB8179C2B7196C800364D64 /* scales.h */,
 				CCB8179D2B7196C800364D64 /* sharedbook.c */,
 				CCB8179A2B7196C800364D64 /* smallft.c */,
-				CCB817542B7196C800364D64 /* smallft.h */,
 				CCB817A02B7196C800364D64 /* synthesis.c */,
-				CCB8177F2B7196C800364D64 /* tone.c */,
-				CCB8175E2B7196C800364D64 /* vorbis */,
-				CCB817552B7196C800364D64 /* vorbisenc.c */,
-				CCB817AC2B7196C800364D64 /* vorbisfile.c */,
 				CCB817AD2B7196C800364D64 /* window.c */,
+				CCB817862B7196C800364D64 /* backends.h */,
+				CCB817A92B7196C800364D64 /* bitrate.h */,
+				CCB817AF2B7196C800364D64 /* codebook.h */,
+				CCB817AE2B7196C800364D64 /* codec_internal.h */,
+				CCB817A12B7196C800364D64 /* envelope.h */,
+				CCB817982B7196C800364D64 /* highlevel.h */,
+				CCB8179B2B7196C800364D64 /* lookup_data.h */,
+				CCB8179F2B7196C800364D64 /* lookup.h */,
+				CCB817972B7196C800364D64 /* lpc.h */,
+				CCB817872B7196C800364D64 /* lsp.h */,
+				CCB817A22B7196C800364D64 /* masking.h */,
+				CCB817A32B7196C800364D64 /* mdct.h */,
+				CCB8177B2B7196C800364D64 /* misc.h */,
+				CCB8177E2B7196C800364D64 /* os.h */,
+				CCB817A62B7196C800364D64 /* psy.h */,
+				CCB817892B7196C800364D64 /* registry.h */,
+				CCB8179C2B7196C800364D64 /* scales.h */,
+				CCB817542B7196C800364D64 /* smallft.h */,
 				CCB817812B7196C800364D64 /* window.h */,
+				CCB817832B7196C800364D64 /* lookups.pl */,
+				CCB8178A2B7196C800364D64 /* books */,
+				CCB817642B7196C800364D64 /* modes */,
+				CCB817572B7196C800364D64 /* ogg */,
+				CCB8175E2B7196C800364D64 /* vorbis */,
 			);
 			path = vorbis;
 			sourceTree = "<group>";
@@ -567,7 +548,6 @@
 			children = (
 				CCB8182E2B71A0C100364D64 /* MetaInfoHelper.cpp */,
 				CCB8182D2B71A0C100364D64 /* MetaInfoHelper.h */,
-				CCB818072B7196D600364D64 /* makeEmscripten.bat */,
 				CCB8180E2B7196D600364D64 /* Adapter.cpp */,
 				CCB8182B2B7196D600364D64 /* organya.c */,
 			);

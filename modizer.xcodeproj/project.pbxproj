@@ -252,10 +252,8 @@
 		591CAAC82648FAC100168C7E /* libswresample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB12648FAC100168C7E /* libswresample.framework */; };
 		591CAACA2648FAC100168C7E /* opus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB22648FAC100168C7E /* opus.framework */; };
 		591CAACC2648FAC100168C7E /* libavfilter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB32648FAC100168C7E /* libavfilter.framework */; };
-		591CAACE2648FAC100168C7E /* libvorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB42648FAC100168C7E /* libvorbis.framework */; };
 		591CAAD02648FAC100168C7E /* libavformat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB52648FAC100168C7E /* libavformat.framework */; };
 		591CAAD22648FAC100168C7E /* libavutil.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB62648FAC100168C7E /* libavutil.framework */; };
-		591CAAD42648FAC100168C7E /* libvorbisenc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB72648FAC100168C7E /* libvorbisenc.framework */; };
 		591CAAD62648FAC100168C7E /* libogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB82648FAC100168C7E /* libogg.framework */; };
 		591CAAD82648FAC100168C7E /* libsndfile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAB92648FAC100168C7E /* libsndfile.framework */; };
 		591CAADA2648FAC100168C7E /* libswscale.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAABA2648FAC100168C7E /* libswscale.framework */; };
@@ -269,7 +267,6 @@
 		591CAAEA2648FAC100168C7E /* speex.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAC22648FAC100168C7E /* speex.framework */; };
 		591CAAEC2648FAC100168C7E /* twolame.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAC32648FAC100168C7E /* twolame.framework */; };
 		591CAAEE2648FAC100168C7E /* libilbc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAC42648FAC100168C7E /* libilbc.framework */; };
-		591CAAF02648FAC100168C7E /* libvorbisfile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 591CAAC52648FAC100168C7E /* libvorbisfile.framework */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -2862,7 +2859,6 @@
 				591CAAEC2648FAC100168C7E /* twolame.framework in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				591CAAE42648FAC100168C7E /* libopencore-amrnb.framework in Frameworks */,
-				591CAAF02648FAC100168C7E /* libvorbisfile.framework in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				CC4883FD2B797F8000BCFFCC /* libmpg123-openmpt.a in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
@@ -2872,7 +2868,6 @@
 				591CAACC2648FAC100168C7E /* libavfilter.framework in Frameworks */,
 				591CAAE22648FAC100168C7E /* ffmpegkit.framework in Frameworks */,
 				591CAADA2648FAC100168C7E /* libswscale.framework in Frameworks */,
-				591CAACE2648FAC100168C7E /* libvorbis.framework in Frameworks */,
 				CC1E56C51200B391000A8A4E /* CFNetwork.framework in Frameworks */,
 				5966D0C725CFEE3600520777 /* libtim.a in Frameworks */,
 				CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */,
@@ -2884,7 +2879,6 @@
 				59FF9943263C3256004152B8 /* libpmdmini.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
-				591CAAD42648FAC100168C7E /* libvorbisenc.framework in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
 			);

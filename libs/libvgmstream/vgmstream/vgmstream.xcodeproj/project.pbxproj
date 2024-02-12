@@ -454,7 +454,6 @@
 		59000CC025CE913D008673C4 /* clHCA.c in Sources */ = {isa = PBXBuildFile; fileRef = 59000CA225CE913D008673C4 /* clHCA.c */; };
 		59321B5B1E24CBBC00020079 /* streamfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 59321B541E24CBBC00020079 /* streamfile.c */; };
 		59321B5C1E24CBBC00020079 /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = 59321B571E24CBBC00020079 /* util.c */; };
-		5939289C25CF2C0C009281DC /* libmpg123-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5939289B25CF2C0C009281DC /* libmpg123-ios.a */; };
 		59B2AB4225A64F800008EAEF /* vgmstream.c in Sources */ = {isa = PBXBuildFile; fileRef = 59B2AB4025A64F800008EAEF /* vgmstream.c */; };
 		CC8366592B56FE290035A4DA /* bw_mp3_riff.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8366552B56FE290035A4DA /* bw_mp3_riff.c */; };
 		CC83665A2B56FE290035A4DA /* cps.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8366572B56FE290035A4DA /* cps.c */; };
@@ -580,16 +579,6 @@
 		CCBEFBD72B56FAB500C4E937 /* ads_midway.c in Sources */ = {isa = PBXBuildFile; fileRef = CCBEFBC62B56FAB500C4E937 /* ads_midway.c */; };
 		CCBEFBD82B56FAB500C4E937 /* bns.c in Sources */ = {isa = PBXBuildFile; fileRef = CCBEFBC82B56FAB500C4E937 /* bns.c */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		593928EA25CF5271009281DC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 593928E625CF5271009281DC /* mpg123.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CD132C0E152A48C200B4F5A8;
-			remoteInfo = "mpg123-ios";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		59321B431E24CB8B00020079 /* CopyFiles */ = {
@@ -1241,8 +1230,6 @@
 		59321B551E24CBBC00020079 /* streamfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = streamfile.h; path = ../streamfile.h; sourceTree = "<group>"; };
 		59321B561E24CBBC00020079 /* streamtypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = streamtypes.h; path = ../streamtypes.h; sourceTree = "<group>"; };
 		59321B571E24CBBC00020079 /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = util.c; path = ../util.c; sourceTree = "<group>"; };
-		5939289B25CF2C0C009281DC /* libmpg123-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libmpg123-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		593928E625CF5271009281DC /* mpg123.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = mpg123.xcodeproj; path = "../../node-lame-master/deps/mpg123/ports/Xcode/mpg123.xcodeproj"; sourceTree = "<group>"; };
 		59B2AB3F25A64F800008EAEF /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../util.h; sourceTree = "<group>"; };
 		59B2AB4025A64F800008EAEF /* vgmstream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vgmstream.c; path = ../vgmstream.c; sourceTree = "<group>"; };
 		59B2AB4125A64F800008EAEF /* vgmstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vgmstream.h; path = ../vgmstream.h; sourceTree = "<group>"; };
@@ -1425,7 +1412,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5939289C25CF2C0C009281DC /* libmpg123-ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2295,7 +2281,6 @@
 		59321B3C1E24CB8B00020079 = {
 			isa = PBXGroup;
 			children = (
-				593928E625CF5271009281DC /* mpg123.xcodeproj */,
 				59321B471E24CB8B00020079 /* vgmstream */,
 				59321B461E24CB8B00020079 /* Products */,
 				5939289A25CF2C0C009281DC /* Frameworks */,
@@ -2338,17 +2323,8 @@
 		5939289A25CF2C0C009281DC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				5939289B25CF2C0C009281DC /* libmpg123-ios.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		593928E725CF5271009281DC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				593928EB25CF5271009281DC /* libmpg123-ios.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		CCBEFB692B56FA6700C4E937 /* base */ = {
@@ -2466,28 +2442,12 @@
 			mainGroup = 59321B3C1E24CB8B00020079;
 			productRefGroup = 59321B461E24CB8B00020079 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 593928E725CF5271009281DC /* Products */;
-					ProjectRef = 593928E625CF5271009281DC /* mpg123.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				59321B441E24CB8B00020079 /* vgmstream */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		593928EB25CF5271009281DC /* libmpg123-ios.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmpg123-ios.a";
-			remoteRef = 593928EA25CF5271009281DC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		59321B411E24CB8B00020079 /* Sources */ = {
@@ -3110,7 +3070,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../node-lame-master/deps/mpg123/ports/Xcode",
+					"../../libopenmpt/openmpt-trunk/include/mpg123/src/include",
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 					../../libvgmstream/ext_includes/,
@@ -3171,7 +3131,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../node-lame-master/deps/mpg123/ports/Xcode",
+					"../../libopenmpt/openmpt-trunk/include/mpg123/src/include",
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 					../../libvgmstream/ext_includes/,

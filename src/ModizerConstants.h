@@ -28,6 +28,15 @@
 #define ACTION_COLOR_GREEN_DARKMODE ((float)(0x6A)/255.0)
 #define ACTION_COLOR_BLUE_DARKMODE ((float)(0xEA)/255.0)
 
+#define ICLOUD_COLOR_RED ((float)(0x20)/255.0)
+#define ICLOUD_COLOR_GREEN ((float)(0x40)/255.0)
+#define ICLOUD_COLOR_BLUE ((float)(0xF5)/255.0)
+
+#define ICLOUD_COLOR_RED_DARKMODE ((float)(0x20)/255.0)
+#define ICLOUD_COLOR_GREEN_DARKMODE ((float)(0x40)/255.0)
+#define ICLOUD_COLOR_BLUE_DARKMODE ((float)(0xF5)/255.0)
+
+
 #define MDZ_RENAME_COL_R (0xEE/255.0f)
 #define MDZ_RENAME_COL_G (0x31/255.0f)
 #define MDZ_RENAME_COL_B (0x6B/255.0f)

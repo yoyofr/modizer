@@ -2248,49 +2248,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
         sampleRate = session.sampleRate;
         bufferDuration = session.IOBufferDuration;
         
-        NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
+        //NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
         
         [session setPreferredSampleRate:sampleRate error:&audioSessionError];
         if (audioSessionError) {
             NSLog(@"Error %ld, %@",
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
-        
-        // Get current values
-        sampleRate = session.sampleRate;
-        bufferDuration = session.IOBufferDuration;
-         
-        NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
-        
-        /*AudioSessionInitialize (
-                                NULL,
-                                NULL,
-                                interruptionListenerCallback,
-                                (__bridge void*)self
-                                );*/
-        
-        
-        /*UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
-        AudioSessionSetProperty (
-                                 kAudioSessionProperty_AudioCategory,
-                                 sizeof (sessionCategory),
-                                 &sessionCategory
-                                 );
-        //Check if still required or not
-        Float32 preferredBufferDuration = SOUND_BUFFER_SIZE_SAMPLE*1.0f/PLAYBACK_FREQ;                      // 1
-        AudioSessionSetProperty (                                     // 2
-                                 kAudioSessionProperty_PreferredHardwareIOBufferDuration,
-                                 sizeof (preferredBufferDuration),
-                                 &preferredBufferDuration
-                                 );
-        AudioSessionPropertyID routeChangeID = kAudioSessionProperty_AudioRouteChange;    // 1
-        AudioSessionAddPropertyListener (                                 // 2
-                                         routeChangeID,                                                 // 3
-                                         propertyListenerCallback,                                      // 4
-                                         (__bridge void*)self                                                       // 5
-                                         );
-        AudioSessionSetActive (true);*/
-        
         
         
         buffer_ana_flag=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
@@ -9523,6 +9487,13 @@ int vgmGetFileLength()
     mPlayType=MMP_VGMPLAY;
     FILE *f;
     int song,duration;
+    
+    
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    // Get current values
+    double sampleRate = session.sampleRate;
+    double bufferDuration = session.IOBufferDuration;
+    NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
     
     f = fopen([filePath UTF8String], "rb");
     if (f == NULL) {
