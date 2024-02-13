@@ -1872,6 +1872,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "-ObjC";

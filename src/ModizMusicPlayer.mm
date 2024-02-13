@@ -4795,6 +4795,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if (mPlayType==MMP_KSS) {
                         KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                         mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+
                         /* If looped, start fadeout */
                         if ( (KSSPLAY_get_loop_count(kssplay) > kssOptLoopNb) && (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_NONE) ) {
                           KSSPLAY_fade_start(kssplay, 5000); //5s fadeout when looping
@@ -7601,7 +7602,7 @@ char* loadRom(const char* path, size_t romSize)
     
     // song info
     strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
-    printf("mod filename: %s\n",mod_filename);
+    //printf("mod filename: %s\n",mod_filename);
     
     sprintf(mod_name," %s",mod_filename);
     sprintf(mod_message,"%s\n",mod_name);

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		59FF98F3263C2769004152B8 /* pmdmini.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 59FF98F0263C2769004152B8 /* pmdmini.h */; };
 		59FF9928263C2795004152B8 /* pmdmini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59FF98F9263C2794004152B8 /* pmdmini.cpp */; };
 		59FF9929263C2795004152B8 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59FF98FF263C2794004152B8 /* fmtimer.cpp */; };
 		59FF992A263C2795004152B8 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59FF9905263C2794004152B8 /* opna.cpp */; };
@@ -31,7 +30,6 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				59FF98F3263C2769004152B8 /* pmdmini.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -39,7 +37,6 @@
 
 /* Begin PBXFileReference section */
 		59FF98ED263C2769004152B8 /* libpmdmini.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpmdmini.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		59FF98F0263C2769004152B8 /* pmdmini.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pmdmini.h; sourceTree = "<group>"; };
 		59FF98F9263C2794004152B8 /* pmdmini.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmdmini.cpp; sourceTree = "<group>"; };
 		59FF98FA263C2794004152B8 /* pmdmini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdmini.h; sourceTree = "<group>"; };
 		59FF98FC263C2794004152B8 /* change.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = change.txt; sourceTree = "<group>"; };
@@ -117,7 +114,6 @@
 		59FF98EF263C2769004152B8 /* pmdmini */ = {
 			isa = PBXGroup;
 			children = (
-				59FF98F0263C2769004152B8 /* pmdmini.h */,
 				59FF98FB263C2794004152B8 /* fmgen */,
 				59FF98F9263C2794004152B8 /* pmdmini.cpp */,
 				59FF98FA263C2794004152B8 /* pmdmini.h */,
@@ -129,24 +125,24 @@
 		59FF98FB263C2794004152B8 /* fmgen */ = {
 			isa = PBXGroup;
 			children = (
-				59FF98FC263C2794004152B8 /* change.txt */,
-				59FF9909263C2794004152B8 /* diag.h */,
 				59FF9908263C2794004152B8 /* fmgen.cpp */,
+				59FF98FF263C2794004152B8 /* fmtimer.cpp */,
+				59FF9905263C2794004152B8 /* opna.cpp */,
+				59FF9907263C2794004152B8 /* pmdmini_file.cpp */,
+				59FF990D263C2794004152B8 /* psg.cpp */,
+				59FF9909263C2794004152B8 /* diag.h */,
 				59FF9903263C2794004152B8 /* fmgen.h */,
 				59FF990A263C2794004152B8 /* fmgeninl.h */,
-				59FF98FF263C2794004152B8 /* fmtimer.cpp */,
 				59FF98FD263C2794004152B8 /* fmtimer.h */,
 				59FF9904263C2794004152B8 /* headers.h */,
 				59FF9900263C2794004152B8 /* misc.h */,
-				59FF9905263C2794004152B8 /* opna.cpp */,
 				59FF990C263C2794004152B8 /* opna.h */,
-				59FF9907263C2794004152B8 /* pmdmini_file.cpp */,
 				59FF9901263C2794004152B8 /* pmdmini_file.h */,
 				59FF9906263C2794004152B8 /* portability.h */,
-				59FF990D263C2794004152B8 /* psg.cpp */,
 				59FF9902263C2794004152B8 /* psg.h */,
-				59FF990B263C2794004152B8 /* readme.txt */,
 				59FF98FE263C2794004152B8 /* types.h */,
+				59FF98FC263C2794004152B8 /* change.txt */,
+				59FF990B263C2794004152B8 /* readme.txt */,
 			);
 			path = fmgen;
 			sourceTree = "<group>";
