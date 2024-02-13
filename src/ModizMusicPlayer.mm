@@ -460,7 +460,6 @@ static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
-static bool *mdz_subEntryPlayed;
 static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
 
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -3168,6 +3167,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         subsong_bytes = 0;
                         uade_change_subsong(state);
                         mod_currentsub=us->cur_subsong;
+                        
                         iCurrentTime=0;
                         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                         
@@ -3289,6 +3289,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 printf("\nCan not receive events from uade\n");
                 return 0;
             }
+            
+            int prev_mod_subsongs=mod_subsongs;
             
             switch (um->msgtype) {
                     
@@ -3455,6 +3457,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 default:
                     printf("\nExpected sound data. got %u.\n", (unsigned int) um->msgtype);
                     return 0;
+            }
+            
+            if ((prev_mod_subsongs!=mod_subsongs)&&(mod_subsongs>1)) {
+                [self initSubSongPlayed];
+                printf("initsubsong / %d subsongs\n",mod_subsongs);
+                if (mdz_ShufflePlayMode) {
+                    [self playNextSub];
+                }
             }
         }
     }

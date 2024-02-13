@@ -2336,9 +2336,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
     //random mode & mutli song ?
-    if (mShuffle==1) {
+    if (mShuffle) {
         if ([mplayer isMultiSongs]) {
-            mOnlyCurrentSubEntry=1;
+            if (mShuffle==1) mOnlyCurrentSubEntry=1;
             mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
         }
         [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
