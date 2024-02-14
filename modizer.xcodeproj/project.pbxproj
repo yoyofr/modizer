@@ -571,6 +571,7 @@
 		CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2DA12160FE000F2AC65 /* buttonY.png */; };
 		CC16383B2B7CCC22003323FD /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1638392B7CCC22003323FD /* folder.png */; };
 		CC16383C2B7CCC22003323FD /* folder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC16383A2B7CCC22003323FD /* folder@2x.png */; };
+		CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1638572B7CDF92003323FD /* liblibnsfplay.a */; };
 		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
 		CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C01200B391000A8A4E /* AudioToolbox.framework */; };
 		CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C21200B391000A8A4E /* AVFoundation.framework */; };
@@ -1142,6 +1143,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59FF994E263F3312004152B8;
 			remoteInfo = libkss;
+		};
+		CC1638562B7CDF92003323FD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC1638462B7CDF91003323FD;
+			remoteInfo = libnsfplay;
 		};
 		CC4F49F52B704F4D002A9309 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2112,6 +2120,8 @@
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC1638392B7CCC22003323FD /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
+		CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libnsfplay.xcodeproj; path = libnsfplay/libnsfplay.xcodeproj; sourceTree = "<group>"; };
+		CC1638EE2B7CE5CF003323FD /* FileTypeCommonFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileTypeCommonFunctions.h; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
 		CC19620E1B66BCD600778A3E /* Resample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Resample.xcodeproj; sourceTree = "<group>"; };
 		CC1E56C01200B391000A8A4E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -2849,6 +2859,7 @@
 				CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */,
 				591CAADC2648FAC100168C7E /* libavdevice.framework in Frameworks */,
 				5905DE87284F12AE007DA8EE /* libpsflib.a in Frameworks */,
+				CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */,
 				593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
@@ -3349,6 +3360,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */,
 				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
 				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
 				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
@@ -3947,6 +3959,7 @@
 				59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */,
 				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
 				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
+				CC1638EE2B7CE5CF003323FD /* FileTypeCommonFunctions.h */,
 			);
 			name = CommonFunctions;
 			sourceTree = "<group>";
@@ -4068,6 +4081,14 @@
 				CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */,
 			);
 			path = libvgmplay;
+			sourceTree = "<group>";
+		};
+		CC1638532B7CDF91003323FD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638572B7CDF92003323FD /* liblibnsfplay.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
@@ -5368,6 +5389,10 @@
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
 				},
 				{
+					ProductGroup = CC1638532B7CDF91003323FD /* Products */;
+					ProjectRef = CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */;
+				},
+				{
 					ProductGroup = CCE352A12B79704200E06DE1 /* Products */;
 					ProjectRef = CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */;
 				},
@@ -5585,6 +5610,13 @@
 			fileType = archive.ar;
 			path = liblibkss.a;
 			remoteRef = 59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC1638572B7CDF92003323FD /* liblibnsfplay.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibnsfplay.a;
+			remoteRef = CC1638562B7CDF92003323FD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC4F49F62B704F4D002A9309 /* liblibeupmini.a */ = {
@@ -6550,6 +6582,7 @@
 					libs/libeupmini/libeupmini/mame,
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
+					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6657,6 +6690,7 @@
 					libs/libeupmini/libeupmini/mame,
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
+					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6762,6 +6796,7 @@
 					libs/libeupmini/libeupmini/mame,
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
+					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 				);
 				VALIDATE_PRODUCT = YES;
 			};

@@ -1,0 +1,674 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC1638CF2B7CE0D2003323FD /* fileutil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638582B7CE0D2003323FD /* fileutil.cpp */; };
+		CC1638D12B7CE0D2003323FD /* sstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16386C2B7CE0D2003323FD /* sstream.cpp */; };
+		CC1638D22B7CE0D2003323FD /* ppls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16386E2B7CE0D2003323FD /* ppls.cpp */; };
+		CC1638D32B7CE0D2003323FD /* nsf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16386F2B7CE0D2003323FD /* nsf.cpp */; };
+		CC1638D42B7CE0D2003323FD /* nsfplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638702B7CE0D2003323FD /* nsfplay.cpp */; };
+		CC1638D52B7CE0D2003323FD /* nsfconfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638722B7CE0D2003323FD /* nsfconfig.cpp */; };
+		CC1638D62B7CE0D2003323FD /* detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16387A2B7CE0D2003323FD /* detect.cpp */; };
+		CC1638D72B7CE0D2003323FD /* log_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16387F2B7CE0D2003323FD /* log_cpu.cpp */; };
+		CC1638D82B7CE0D2003323FD /* nes_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638802B7CE0D2003323FD /* nes_detect.cpp */; };
+		CC1638D92B7CE0D2003323FD /* nsf2_irq.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638812B7CE0D2003323FD /* nsf2_irq.cpp */; };
+		CC1638DA2B7CE0D2003323FD /* nsf2_vectors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638862B7CE0D2003323FD /* nsf2_vectors.cpp */; };
+		CC1638DB2B7CE0D2003323FD /* ram64k.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638892B7CE0D2003323FD /* ram64k.cpp */; };
+		CC1638DC2B7CE0D2003323FD /* nes_mem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16388A2B7CE0D2003323FD /* nes_mem.cpp */; };
+		CC1638DD2B7CE0D2003323FD /* nes_bank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16388B2B7CE0D2003323FD /* nes_bank.cpp */; };
+		CC1638DE2B7CE0D2003323FD /* nes_cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC16388F2B7CE0D2003323FD /* nes_cpu.cpp */; };
+		CC1638DF2B7CE0D2003323FD /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638A42B7CE0D2003323FD /* filter.cpp */; };
+		CC1638E02B7CE0D2003323FD /* echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638A72B7CE0D2003323FD /* echo.cpp */; };
+		CC1638E12B7CE0D2003323FD /* MedianFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638A82B7CE0D2003323FD /* MedianFilter.cpp */; };
+		CC1638E22B7CE0D2003323FD /* rconv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638AA2B7CE0D2003323FD /* rconv.cpp */; };
+		CC1638E32B7CE0D2003323FD /* nes_fds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638AE2B7CE0D2003323FD /* nes_fds.cpp */; };
+		CC1638E42B7CE0D2003323FD /* nes_n106.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638AF2B7CE0D2003323FD /* nes_n106.cpp */; };
+		CC1638E52B7CE0D2003323FD /* emu2212.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1638B72B7CE0D2003323FD /* emu2212.c */; };
+		CC1638E62B7CE0D2003323FD /* emu2149.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1638C32B7CE0D2003323FD /* emu2149.c */; };
+		CC1638E72B7CE0D2003323FD /* emu2413.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1638C52B7CE0D2003323FD /* emu2413.c */; };
+		CC1638E82B7CE0D2003323FD /* nes_mmc5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638C62B7CE0D2003323FD /* nes_mmc5.cpp */; };
+		CC1638E92B7CE0D2003323FD /* nes_apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638C72B7CE0D2003323FD /* nes_apu.cpp */; };
+		CC1638EA2B7CE0D3003323FD /* nes_dmc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638C92B7CE0D2003323FD /* nes_dmc.cpp */; };
+		CC1638EB2B7CE0D3003323FD /* nes_vrc6.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638CA2B7CE0D2003323FD /* nes_vrc6.cpp */; };
+		CC1638EC2B7CE0D3003323FD /* nes_fme7.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638CB2B7CE0D2003323FD /* nes_fme7.cpp */; };
+		CC1638ED2B7CE0D3003323FD /* nes_vrc7.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1638CC2B7CE0D2003323FD /* nes_vrc7.cpp */; };
+		CC1639202B7CF8F9003323FD /* value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1639112B7CF8F9003323FD /* value.cpp */; };
+		CC1639212B7CF8F9003323FD /* group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1639152B7CF8F9003323FD /* group.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC1638442B7CDF91003323FD /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC1638462B7CDF91003323FD /* liblibnsfplay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibnsfplay.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC1638582B7CE0D2003323FD /* fileutil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fileutil.cpp; path = "nsfplay-master/xgm/fileutil.cpp"; sourceTree = "<group>"; };
+		CC1638592B7CE0D2003323FD /* xgm.vcproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xgm.vcproj; path = "nsfplay-master/xgm/xgm.vcproj"; sourceTree = "<group>"; };
+		CC16385A2B7CE0D2003323FD /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fileutil.h; path = "nsfplay-master/xgm/fileutil.h"; sourceTree = "<group>"; };
+		CC16385D2B7CE0D2003323FD /* tagctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagctrl.h; sourceTree = "<group>"; };
+		CC1638602B7CE0D2003323FD /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = version.h; path = "nsfplay-master/xgm/version.h"; sourceTree = "<group>"; };
+		CC1638622B7CE0D2003323FD /* browser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = browser.h; sourceTree = "<group>"; };
+		CC1638632B7CE0D2003323FD /* xgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xgm.h; path = "nsfplay-master/xgm/xgm.h"; sourceTree = "<group>"; };
+		CC1638652B7CE0D2003323FD /* all.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = all.h; sourceTree = "<group>"; };
+		CC1638662B7CE0D2003323FD /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
+		CC1638682B7CE0D2003323FD /* nsfplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsfplay.h; sourceTree = "<group>"; };
+		CC1638692B7CE0D2003323FD /* nsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsf.h; sourceTree = "<group>"; };
+		CC16386B2B7CE0D2003323FD /* sstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sstream.h; sourceTree = "<group>"; };
+		CC16386C2B7CE0D2003323FD /* sstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sstream.cpp; sourceTree = "<group>"; };
+		CC16386D2B7CE0D2003323FD /* ppls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppls.h; sourceTree = "<group>"; };
+		CC16386E2B7CE0D2003323FD /* ppls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppls.cpp; sourceTree = "<group>"; };
+		CC16386F2B7CE0D2003323FD /* nsf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nsf.cpp; sourceTree = "<group>"; };
+		CC1638702B7CE0D2003323FD /* nsfplay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nsfplay.cpp; sourceTree = "<group>"; };
+		CC1638712B7CE0D2003323FD /* nsfconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsfconfig.h; sourceTree = "<group>"; };
+		CC1638722B7CE0D2003323FD /* nsfconfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nsfconfig.cpp; sourceTree = "<group>"; };
+		CC1638732B7CE0D2003323FD /* midi_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = midi_interface.h; sourceTree = "<group>"; };
+		CC1638742B7CE0D2003323FD /* soundData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = soundData.h; sourceTree = "<group>"; };
+		CC1638752B7CE0D2003323FD /* debugout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugout.h; path = "nsfplay-master/xgm/debugout.h"; sourceTree = "<group>"; };
+		CC1638762B7CE0D2003323FD /* xgm.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xgm.vcxproj; path = "nsfplay-master/xgm/xgm.vcxproj"; sourceTree = "<group>"; };
+		CC1638792B7CE0D2003323FD /* detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = detect.h; sourceTree = "<group>"; };
+		CC16387A2B7CE0D2003323FD /* detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = detect.cpp; sourceTree = "<group>"; };
+		CC16387B2B7CE0D2003323FD /* log_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_cpu.h; sourceTree = "<group>"; };
+		CC16387C2B7CE0D2003323FD /* nsf2_irq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsf2_irq.h; sourceTree = "<group>"; };
+		CC16387D2B7CE0D2003323FD /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = block.h; sourceTree = "<group>"; };
+		CC16387E2B7CE0D2003323FD /* nes_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_detect.h; sourceTree = "<group>"; };
+		CC16387F2B7CE0D2003323FD /* log_cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_cpu.cpp; sourceTree = "<group>"; };
+		CC1638802B7CE0D2003323FD /* nes_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_detect.cpp; sourceTree = "<group>"; };
+		CC1638812B7CE0D2003323FD /* nsf2_irq.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nsf2_irq.cpp; sourceTree = "<group>"; };
+		CC1638822B7CE0D2003323FD /* devinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devinfo.h; sourceTree = "<group>"; };
+		CC1638832B7CE0D2003323FD /* device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device.h; sourceTree = "<group>"; };
+		CC1638852B7CE0D2003323FD /* ram64k.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ram64k.h; sourceTree = "<group>"; };
+		CC1638862B7CE0D2003323FD /* nsf2_vectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nsf2_vectors.cpp; sourceTree = "<group>"; };
+		CC1638872B7CE0D2003323FD /* nsf2_vectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsf2_vectors.h; sourceTree = "<group>"; };
+		CC1638882B7CE0D2003323FD /* nes_mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_mem.h; sourceTree = "<group>"; };
+		CC1638892B7CE0D2003323FD /* ram64k.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ram64k.cpp; sourceTree = "<group>"; };
+		CC16388A2B7CE0D2003323FD /* nes_mem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_mem.cpp; sourceTree = "<group>"; };
+		CC16388B2B7CE0D2003323FD /* nes_bank.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_bank.cpp; sourceTree = "<group>"; };
+		CC16388C2B7CE0D2003323FD /* nes_bank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_bank.h; sourceTree = "<group>"; };
+		CC16388E2B7CE0D2003323FD /* nes_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_cpu.h; sourceTree = "<group>"; };
+		CC16388F2B7CE0D2003323FD /* nes_cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_cpu.cpp; sourceTree = "<group>"; };
+		CC1638912B7CE0D2003323FD /* km6502ct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502ct.h; sourceTree = "<group>"; };
+		CC1638922B7CE0D2003323FD /* km6280.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6280.h; sourceTree = "<group>"; };
+		CC1638932B7CE0D2003323FD /* km6502m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502m.h; sourceTree = "<group>"; };
+		CC1638942B7CE0D2003323FD /* km65c02.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km65c02.h; sourceTree = "<group>"; };
+		CC1638952B7CE0D2003323FD /* km6502ft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502ft.h; sourceTree = "<group>"; };
+		CC1638962B7CE0D2003323FD /* km6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502.h; sourceTree = "<group>"; };
+		CC1638972B7CE0D2003323FD /* km6502ex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502ex.h; sourceTree = "<group>"; };
+		CC1638982B7CE0D2003323FD /* km6280m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6280m.h; sourceTree = "<group>"; };
+		CC1638992B7CE0D2003323FD /* km6502ot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502ot.h; sourceTree = "<group>"; };
+		CC16389B2B7CE0D2003323FD /* km6502cd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km6502cd.h; sourceTree = "<group>"; };
+		CC16389C2B7CE0D2003323FD /* kmconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmconfig.h; sourceTree = "<group>"; };
+		CC16389D2B7CE0D2003323FD /* km65c02m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = km65c02m.h; sourceTree = "<group>"; };
+		CC16389E2B7CE0D2003323FD /* all.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = all.h; sourceTree = "<group>"; };
+		CC1638A02B7CE0D2003323FD /* MedianFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MedianFilter.h; sourceTree = "<group>"; };
+		CC1638A12B7CE0D2003323FD /* amplifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amplifier.h; sourceTree = "<group>"; };
+		CC1638A22B7CE0D2003323FD /* fader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fader.h; sourceTree = "<group>"; };
+		CC1638A32B7CE0D2003323FD /* echo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = echo.h; sourceTree = "<group>"; };
+		CC1638A42B7CE0D2003323FD /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
+		CC1638A52B7CE0D2003323FD /* mixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mixer.h; sourceTree = "<group>"; };
+		CC1638A62B7CE0D2003323FD /* rconv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rconv.h; sourceTree = "<group>"; };
+		CC1638A72B7CE0D2003323FD /* echo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = echo.cpp; sourceTree = "<group>"; };
+		CC1638A82B7CE0D2003323FD /* MedianFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MedianFilter.cpp; sourceTree = "<group>"; };
+		CC1638A92B7CE0D2003323FD /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
+		CC1638AA2B7CE0D2003323FD /* rconv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rconv.cpp; sourceTree = "<group>"; };
+		CC1638AC2B7CE0D2003323FD /* nes_apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_apu.h; sourceTree = "<group>"; };
+		CC1638AD2B7CE0D2003323FD /* nes_n106.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_n106.h; sourceTree = "<group>"; };
+		CC1638AE2B7CE0D2003323FD /* nes_fds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_fds.cpp; sourceTree = "<group>"; };
+		CC1638AF2B7CE0D2003323FD /* nes_n106.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_n106.cpp; sourceTree = "<group>"; };
+		CC1638B02B7CE0D2003323FD /* nes_dmc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_dmc.h; sourceTree = "<group>"; };
+		CC1638B12B7CE0D2003323FD /* nes_vrc6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_vrc6.h; sourceTree = "<group>"; };
+		CC1638B22B7CE0D2003323FD /* nes_fds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_fds.h; sourceTree = "<group>"; };
+		CC1638B32B7CE0D2003323FD /* nes_fme7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_fme7.h; sourceTree = "<group>"; };
+		CC1638B52B7CE0D2003323FD /* vrc7tone_mo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_mo.h; sourceTree = "<group>"; };
+		CC1638B62B7CE0D2003323FD /* vrc7tone_kt1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_kt1.h; sourceTree = "<group>"; };
+		CC1638B72B7CE0D2003323FD /* emu2212.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2212.c; sourceTree = "<group>"; };
+		CC1638B82B7CE0D2003323FD /* vrc7tone_ft36.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_ft36.h; sourceTree = "<group>"; };
+		CC1638B92B7CE0D2003323FD /* vrc7tone_kt2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_kt2.h; sourceTree = "<group>"; };
+		CC1638BA2B7CE0D2003323FD /* emu2413.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2413.h; sourceTree = "<group>"; };
+		CC1638BB2B7CE0D2003323FD /* emu2149.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2149.h; sourceTree = "<group>"; };
+		CC1638BC2B7CE0D2003323FD /* vrc7tone_ft35.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_ft35.h; sourceTree = "<group>"; };
+		CC1638BD2B7CE0D2003323FD /* emu2212.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2212.h; sourceTree = "<group>"; };
+		CC1638BE2B7CE0D2003323FD /* emutypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emutypes.h; sourceTree = "<group>"; };
+		CC1638BF2B7CE0D2003323FD /* vrc7tone_nuke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_nuke.h; sourceTree = "<group>"; };
+		CC1638C02B7CE0D2003323FD /* 2413tone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 2413tone.h; sourceTree = "<group>"; };
+		CC1638C12B7CE0D2003323FD /* 281btone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 281btone.h; sourceTree = "<group>"; };
+		CC1638C22B7CE0D2003323FD /* vrc7tone_rw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vrc7tone_rw.h; sourceTree = "<group>"; };
+		CC1638C32B7CE0D2003323FD /* emu2149.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2149.c; sourceTree = "<group>"; };
+		CC1638C42B7CE0D2003323FD /* 281btone_plgdavid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 281btone_plgdavid.h; sourceTree = "<group>"; };
+		CC1638C52B7CE0D2003323FD /* emu2413.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2413.c; sourceTree = "<group>"; };
+		CC1638C62B7CE0D2003323FD /* nes_mmc5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_mmc5.cpp; sourceTree = "<group>"; };
+		CC1638C72B7CE0D2003323FD /* nes_apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_apu.cpp; sourceTree = "<group>"; };
+		CC1638C82B7CE0D2003323FD /* nes_mmc5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_mmc5.h; sourceTree = "<group>"; };
+		CC1638C92B7CE0D2003323FD /* nes_dmc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_dmc.cpp; sourceTree = "<group>"; };
+		CC1638CA2B7CE0D2003323FD /* nes_vrc6.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_vrc6.cpp; sourceTree = "<group>"; };
+		CC1638CB2B7CE0D2003323FD /* nes_fme7.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_fme7.cpp; sourceTree = "<group>"; };
+		CC1638CC2B7CE0D2003323FD /* nes_vrc7.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_vrc7.cpp; sourceTree = "<group>"; };
+		CC1638CD2B7CE0D2003323FD /* nes_vrc7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nes_vrc7.h; sourceTree = "<group>"; };
+		CC1638CE2B7CE0D2003323FD /* xtypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xtypes.h; path = "nsfplay-master/xgm/xtypes.h"; sourceTree = "<group>"; };
+		CC16390F2B7CF8F9003323FD /* vcm_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vcm_ui.h; sourceTree = "<group>"; };
+		CC1639112B7CF8F9003323FD /* value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = value.cpp; sourceTree = "<group>"; };
+		CC1639142B7CF8F9003323FD /* vcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vcm.h; sourceTree = "<group>"; };
+		CC1639152B7CF8F9003323FD /* group.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = group.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC1638432B7CDF91003323FD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC16383D2B7CDF91003323FD = {
+			isa = PBXGroup;
+			children = (
+				CC1638F02B7CF8F9003323FD /* vcm */,
+				CC1638582B7CE0D2003323FD /* fileutil.cpp */,
+				CC1638752B7CE0D2003323FD /* debugout.h */,
+				CC16385A2B7CE0D2003323FD /* fileutil.h */,
+				CC1638602B7CE0D2003323FD /* version.h */,
+				CC1638632B7CE0D2003323FD /* xgm.h */,
+				CC1638CE2B7CE0D2003323FD /* xtypes.h */,
+				CC1638592B7CE0D2003323FD /* xgm.vcproj */,
+				CC1638762B7CE0D2003323FD /* xgm.vcxproj */,
+				CC1638612B7CE0D2003323FD /* browser */,
+				CC1638772B7CE0D2003323FD /* devices */,
+				CC1638642B7CE0D2003323FD /* player */,
+				CC1638472B7CDF91003323FD /* Products */,
+				CC16385C2B7CE0D2003323FD /* utils */,
+			);
+			sourceTree = "<group>";
+		};
+		CC1638472B7CDF91003323FD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638462B7CDF91003323FD /* liblibnsfplay.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC16385C2B7CE0D2003323FD /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				CC16385D2B7CE0D2003323FD /* tagctrl.h */,
+			);
+			name = utils;
+			path = "nsfplay-master/xgm/utils";
+			sourceTree = "<group>";
+		};
+		CC1638612B7CE0D2003323FD /* browser */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638622B7CE0D2003323FD /* browser.h */,
+			);
+			name = browser;
+			path = "nsfplay-master/xgm/browser";
+			sourceTree = "<group>";
+		};
+		CC1638642B7CE0D2003323FD /* player */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638652B7CE0D2003323FD /* all.h */,
+				CC1638732B7CE0D2003323FD /* midi_interface.h */,
+				CC1638662B7CE0D2003323FD /* player.h */,
+				CC1638742B7CE0D2003323FD /* soundData.h */,
+				CC1638672B7CE0D2003323FD /* nsf */,
+			);
+			name = player;
+			path = "nsfplay-master/xgm/player";
+			sourceTree = "<group>";
+		};
+		CC1638672B7CE0D2003323FD /* nsf */ = {
+			isa = PBXGroup;
+			children = (
+				CC16386F2B7CE0D2003323FD /* nsf.cpp */,
+				CC1638722B7CE0D2003323FD /* nsfconfig.cpp */,
+				CC1638702B7CE0D2003323FD /* nsfplay.cpp */,
+				CC1638692B7CE0D2003323FD /* nsf.h */,
+				CC1638712B7CE0D2003323FD /* nsfconfig.h */,
+				CC1638682B7CE0D2003323FD /* nsfplay.h */,
+				CC16386A2B7CE0D2003323FD /* pls */,
+			);
+			path = nsf;
+			sourceTree = "<group>";
+		};
+		CC16386A2B7CE0D2003323FD /* pls */ = {
+			isa = PBXGroup;
+			children = (
+				CC16386E2B7CE0D2003323FD /* ppls.cpp */,
+				CC16386C2B7CE0D2003323FD /* sstream.cpp */,
+				CC16386D2B7CE0D2003323FD /* ppls.h */,
+				CC16386B2B7CE0D2003323FD /* sstream.h */,
+			);
+			path = pls;
+			sourceTree = "<group>";
+		};
+		CC1638772B7CE0D2003323FD /* devices */ = {
+			isa = PBXGroup;
+			children = (
+				CC16389E2B7CE0D2003323FD /* all.h */,
+				CC1638832B7CE0D2003323FD /* device.h */,
+				CC1638822B7CE0D2003323FD /* devinfo.h */,
+				CC16389F2B7CE0D2003323FD /* Audio */,
+				CC16388D2B7CE0D2003323FD /* CPU */,
+				CC1638842B7CE0D2003323FD /* Memory */,
+				CC1638782B7CE0D2003323FD /* Misc */,
+				CC1638AB2B7CE0D2003323FD /* Sound */,
+			);
+			name = devices;
+			path = "nsfplay-master/xgm/devices";
+			sourceTree = "<group>";
+		};
+		CC1638782B7CE0D2003323FD /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				CC16387A2B7CE0D2003323FD /* detect.cpp */,
+				CC16387F2B7CE0D2003323FD /* log_cpu.cpp */,
+				CC1638802B7CE0D2003323FD /* nes_detect.cpp */,
+				CC1638812B7CE0D2003323FD /* nsf2_irq.cpp */,
+				CC16387D2B7CE0D2003323FD /* block.h */,
+				CC1638792B7CE0D2003323FD /* detect.h */,
+				CC16387B2B7CE0D2003323FD /* log_cpu.h */,
+				CC16387E2B7CE0D2003323FD /* nes_detect.h */,
+				CC16387C2B7CE0D2003323FD /* nsf2_irq.h */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
+		CC1638842B7CE0D2003323FD /* Memory */ = {
+			isa = PBXGroup;
+			children = (
+				CC16388B2B7CE0D2003323FD /* nes_bank.cpp */,
+				CC16388A2B7CE0D2003323FD /* nes_mem.cpp */,
+				CC1638862B7CE0D2003323FD /* nsf2_vectors.cpp */,
+				CC1638892B7CE0D2003323FD /* ram64k.cpp */,
+				CC16388C2B7CE0D2003323FD /* nes_bank.h */,
+				CC1638882B7CE0D2003323FD /* nes_mem.h */,
+				CC1638872B7CE0D2003323FD /* nsf2_vectors.h */,
+				CC1638852B7CE0D2003323FD /* ram64k.h */,
+			);
+			path = Memory;
+			sourceTree = "<group>";
+		};
+		CC16388D2B7CE0D2003323FD /* CPU */ = {
+			isa = PBXGroup;
+			children = (
+				CC16388E2B7CE0D2003323FD /* nes_cpu.h */,
+				CC16388F2B7CE0D2003323FD /* nes_cpu.cpp */,
+				CC1638902B7CE0D2003323FD /* km6502 */,
+			);
+			path = CPU;
+			sourceTree = "<group>";
+		};
+		CC1638902B7CE0D2003323FD /* km6502 */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638942B7CE0D2003323FD /* km65c02.h */,
+				CC16389D2B7CE0D2003323FD /* km65c02m.h */,
+				CC1638922B7CE0D2003323FD /* km6280.h */,
+				CC1638982B7CE0D2003323FD /* km6280m.h */,
+				CC1638962B7CE0D2003323FD /* km6502.h */,
+				CC16389B2B7CE0D2003323FD /* km6502cd.h */,
+				CC1638912B7CE0D2003323FD /* km6502ct.h */,
+				CC1638972B7CE0D2003323FD /* km6502ex.h */,
+				CC1638952B7CE0D2003323FD /* km6502ft.h */,
+				CC1638932B7CE0D2003323FD /* km6502m.h */,
+				CC1638992B7CE0D2003323FD /* km6502ot.h */,
+				CC16389C2B7CE0D2003323FD /* kmconfig.h */,
+			);
+			path = km6502;
+			sourceTree = "<group>";
+		};
+		CC16389F2B7CE0D2003323FD /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638A72B7CE0D2003323FD /* echo.cpp */,
+				CC1638A42B7CE0D2003323FD /* filter.cpp */,
+				CC1638A82B7CE0D2003323FD /* MedianFilter.cpp */,
+				CC1638AA2B7CE0D2003323FD /* rconv.cpp */,
+				CC1638A12B7CE0D2003323FD /* amplifier.h */,
+				CC1638A32B7CE0D2003323FD /* echo.h */,
+				CC1638A22B7CE0D2003323FD /* fader.h */,
+				CC1638A92B7CE0D2003323FD /* filter.h */,
+				CC1638A02B7CE0D2003323FD /* MedianFilter.h */,
+				CC1638A52B7CE0D2003323FD /* mixer.h */,
+				CC1638A62B7CE0D2003323FD /* rconv.h */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		CC1638AB2B7CE0D2003323FD /* Sound */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638C72B7CE0D2003323FD /* nes_apu.cpp */,
+				CC1638C92B7CE0D2003323FD /* nes_dmc.cpp */,
+				CC1638AE2B7CE0D2003323FD /* nes_fds.cpp */,
+				CC1638CB2B7CE0D2003323FD /* nes_fme7.cpp */,
+				CC1638C62B7CE0D2003323FD /* nes_mmc5.cpp */,
+				CC1638AF2B7CE0D2003323FD /* nes_n106.cpp */,
+				CC1638CA2B7CE0D2003323FD /* nes_vrc6.cpp */,
+				CC1638CC2B7CE0D2003323FD /* nes_vrc7.cpp */,
+				CC1638AC2B7CE0D2003323FD /* nes_apu.h */,
+				CC1638B02B7CE0D2003323FD /* nes_dmc.h */,
+				CC1638B22B7CE0D2003323FD /* nes_fds.h */,
+				CC1638B32B7CE0D2003323FD /* nes_fme7.h */,
+				CC1638C82B7CE0D2003323FD /* nes_mmc5.h */,
+				CC1638AD2B7CE0D2003323FD /* nes_n106.h */,
+				CC1638B12B7CE0D2003323FD /* nes_vrc6.h */,
+				CC1638CD2B7CE0D2003323FD /* nes_vrc7.h */,
+				CC1638B42B7CE0D2003323FD /* legacy */,
+			);
+			path = Sound;
+			sourceTree = "<group>";
+		};
+		CC1638B42B7CE0D2003323FD /* legacy */ = {
+			isa = PBXGroup;
+			children = (
+				CC1638C32B7CE0D2003323FD /* emu2149.c */,
+				CC1638B72B7CE0D2003323FD /* emu2212.c */,
+				CC1638C52B7CE0D2003323FD /* emu2413.c */,
+				CC1638C42B7CE0D2003323FD /* 281btone_plgdavid.h */,
+				CC1638C12B7CE0D2003323FD /* 281btone.h */,
+				CC1638C02B7CE0D2003323FD /* 2413tone.h */,
+				CC1638BB2B7CE0D2003323FD /* emu2149.h */,
+				CC1638BD2B7CE0D2003323FD /* emu2212.h */,
+				CC1638BA2B7CE0D2003323FD /* emu2413.h */,
+				CC1638BE2B7CE0D2003323FD /* emutypes.h */,
+				CC1638BC2B7CE0D2003323FD /* vrc7tone_ft35.h */,
+				CC1638B82B7CE0D2003323FD /* vrc7tone_ft36.h */,
+				CC1638B62B7CE0D2003323FD /* vrc7tone_kt1.h */,
+				CC1638B92B7CE0D2003323FD /* vrc7tone_kt2.h */,
+				CC1638B52B7CE0D2003323FD /* vrc7tone_mo.h */,
+				CC1638BF2B7CE0D2003323FD /* vrc7tone_nuke.h */,
+				CC1638C22B7CE0D2003323FD /* vrc7tone_rw.h */,
+			);
+			path = legacy;
+			sourceTree = "<group>";
+		};
+		CC1638F02B7CF8F9003323FD /* vcm */ = {
+			isa = PBXGroup;
+			children = (
+				CC1639152B7CF8F9003323FD /* group.cpp */,
+				CC1639112B7CF8F9003323FD /* value.cpp */,
+				CC16390F2B7CF8F9003323FD /* vcm_ui.h */,
+				CC1639142B7CF8F9003323FD /* vcm.h */,
+			);
+			name = vcm;
+			path = "nsfplay-master/vcm";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC1638452B7CDF91003323FD /* libnsfplay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC16384F2B7CDF91003323FD /* Build configuration list for PBXNativeTarget "libnsfplay" */;
+			buildPhases = (
+				CC1638422B7CDF91003323FD /* Sources */,
+				CC1638432B7CDF91003323FD /* Frameworks */,
+				CC1638442B7CDF91003323FD /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libnsfplay;
+			productName = libnsfplay;
+			productReference = CC1638462B7CDF91003323FD /* liblibnsfplay.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC16383E2B7CDF91003323FD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CC1638452B7CDF91003323FD = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CC1638412B7CDF91003323FD /* Build configuration list for PBXProject "libnsfplay" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC16383D2B7CDF91003323FD;
+			productRefGroup = CC1638472B7CDF91003323FD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC1638452B7CDF91003323FD /* libnsfplay */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC1638422B7CDF91003323FD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC1638D22B7CE0D2003323FD /* ppls.cpp in Sources */,
+				CC1638DF2B7CE0D2003323FD /* filter.cpp in Sources */,
+				CC1638E32B7CE0D2003323FD /* nes_fds.cpp in Sources */,
+				CC1638E02B7CE0D2003323FD /* echo.cpp in Sources */,
+				CC1638D52B7CE0D2003323FD /* nsfconfig.cpp in Sources */,
+				CC1638E82B7CE0D2003323FD /* nes_mmc5.cpp in Sources */,
+				CC1638EC2B7CE0D3003323FD /* nes_fme7.cpp in Sources */,
+				CC1638D82B7CE0D2003323FD /* nes_detect.cpp in Sources */,
+				CC1638CF2B7CE0D2003323FD /* fileutil.cpp in Sources */,
+				CC1638EA2B7CE0D3003323FD /* nes_dmc.cpp in Sources */,
+				CC1638D62B7CE0D2003323FD /* detect.cpp in Sources */,
+				CC1638DC2B7CE0D2003323FD /* nes_mem.cpp in Sources */,
+				CC1639212B7CF8F9003323FD /* group.cpp in Sources */,
+				CC1638ED2B7CE0D3003323FD /* nes_vrc7.cpp in Sources */,
+				CC1638D72B7CE0D2003323FD /* log_cpu.cpp in Sources */,
+				CC1638E42B7CE0D2003323FD /* nes_n106.cpp in Sources */,
+				CC1638E22B7CE0D2003323FD /* rconv.cpp in Sources */,
+				CC1638EB2B7CE0D3003323FD /* nes_vrc6.cpp in Sources */,
+				CC1638E92B7CE0D2003323FD /* nes_apu.cpp in Sources */,
+				CC1638DD2B7CE0D2003323FD /* nes_bank.cpp in Sources */,
+				CC1638E52B7CE0D2003323FD /* emu2212.c in Sources */,
+				CC1638DE2B7CE0D2003323FD /* nes_cpu.cpp in Sources */,
+				CC1639202B7CF8F9003323FD /* value.cpp in Sources */,
+				CC1638D32B7CE0D2003323FD /* nsf.cpp in Sources */,
+				CC1638E62B7CE0D2003323FD /* emu2149.c in Sources */,
+				CC1638D12B7CE0D2003323FD /* sstream.cpp in Sources */,
+				CC1638D42B7CE0D2003323FD /* nsfplay.cpp in Sources */,
+				CC1638E12B7CE0D2003323FD /* MedianFilter.cpp in Sources */,
+				CC1638DB2B7CE0D2003323FD /* ram64k.cpp in Sources */,
+				CC1638D92B7CE0D2003323FD /* nsf2_irq.cpp in Sources */,
+				CC1638DA2B7CE0D2003323FD /* nsf2_vectors.cpp in Sources */,
+				CC1638E72B7CE0D2003323FD /* emu2413.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC16384D2B7CDF91003323FD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CC16384E2B7CDF91003323FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC1638502B7CDF91003323FD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC1638512B7CDF91003323FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC1638412B7CDF91003323FD /* Build configuration list for PBXProject "libnsfplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC16384D2B7CDF91003323FD /* Debug */,
+				CC16384E2B7CDF91003323FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC16384F2B7CDF91003323FD /* Build configuration list for PBXNativeTarget "libnsfplay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC1638502B7CDF91003323FD /* Debug */,
+				CC1638512B7CDF91003323FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC16383E2B7CDF91003323FD /* Project object */;
+}

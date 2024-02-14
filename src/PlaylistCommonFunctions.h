@@ -488,6 +488,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
@@ -508,7 +509,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
-                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
@@ -520,6 +521,7 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
     [filetype_ext addObjectsFromArray:filetype_extSC68];
     [filetype_ext addObjectsFromArray:filetype_extPT3];
+    [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
     [filetype_ext addObjectsFromArray:filetype_extPIXEL];
     [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
     [filetype_ext addObjectsFromArray:filetype_extUADE];

@@ -124,6 +124,7 @@ enum MMP_PLAYER_TYPE {
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
     MMP_VGMPLAY,
+    MMP_NSFPLAY,
     MMP_GME,
     MMP_ASAP,
     MMP_GSF,
@@ -431,6 +432,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_sc68Load:(NSString*)filePath;
 -(int) mmp_pixelLoad:(NSString*)filePath;
 -(int) mmp_pt3Load:(NSString*)filePath;
+-(int) mmp_nsfplayLoad:(NSString*)filePath;
 -(int) mmp_eupLoad:(NSString*)filePath;
 -(int) mmp_stsoundLoad:(NSString*)filePath;
 -(int) mmp_AtariSoundLoad:(NSString*)filePath;

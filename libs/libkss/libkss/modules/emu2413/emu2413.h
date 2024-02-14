@@ -1,5 +1,5 @@
-#ifndef _EMU2413_H_
-#define _EMU2413_H_
+#ifndef _KSSEMU2413_H_
+#define _KSSEMU2413_H_
 
 #include <stdint.h>
 
