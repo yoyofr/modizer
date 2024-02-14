@@ -149,7 +149,7 @@ void optGSFChangedC(id param) {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
     NSString *str;
-    
+            
     [prefs synchronize];
 
 	for (int i=0;i<MAX_SETTINGS;i++)
@@ -1735,6 +1735,8 @@ void optGSFChangedC(id param) {
     settings[XMP_MasterVolume].type=MDZ_SLIDER_DISCRETE;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_min_value=0;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_max_value=200;
+    settings[XMP_MasterVolume].detail.mdz_slider.slider_value=100;
+    
     
     settings[XMP_StereoSeparation].label=(char*)"Stereo Separation";
     settings[XMP_StereoSeparation].description=NULL;
@@ -1744,6 +1746,8 @@ void optGSFChangedC(id param) {
     settings[XMP_StereoSeparation].type=MDZ_SLIDER_DISCRETE;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_max_value=100;
+    settings[XMP_StereoSeparation].detail.mdz_slider.slider_value=100;
+    
     
     settings[XMP_Interpolation].type=MDZ_SWITCH;
     settings[XMP_Interpolation].label=(char*)"Interpolation";
@@ -1756,6 +1760,9 @@ void optGSFChangedC(id param) {
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Near.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Spl.";
+    settings[XMP_Interpolation].detail.mdz_switch.switch_value=1;
+    
+    
     
     settings[XMP_Amplification].type=MDZ_SWITCH;
     settings[XMP_Amplification].label=(char*)"Amplification";
@@ -1769,13 +1776,16 @@ void optGSFChangedC(id param) {
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[3]=(char*)"3";
-    
+    settings[XMP_Amplification].detail.mdz_switch.switch_value=1;
+        
     /*settings[XMP_DSPLowPass].type=MDZ_BOOLSWITCH;
     settings[XMP_DSPLowPass].label=(char*)"Lowpass filter";
     settings[XMP_DSPLowPass].description=NULL;
     settings[XMP_DSPLowPass].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_DSPLowPass].sub_family=0;
-    settings[XMP_DSPLowPass].callback=&optXMPChangedC;*/
+    settings[XMP_DSPLowPass].callback=&optXMPChangedC;
+    settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value=1;*/
+    
     
     settings[XMP_FLAGS_A500F].type=MDZ_BOOLSWITCH;
     settings[XMP_FLAGS_A500F].label=(char*)"Amiga 500 Filter";
@@ -1783,7 +1793,9 @@ void optGSFChangedC(id param) {
     settings[XMP_FLAGS_A500F].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_FLAGS_A500F].sub_family=0;
     settings[XMP_FLAGS_A500F].callback=&optXMPChangedC;
+    settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value=0;
     
+    [SettingsGenViewController applyDefaultSettings];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil

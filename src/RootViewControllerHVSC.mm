@@ -1466,6 +1466,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewDidDisappear:animated];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
     [tableView reloadData];
 }

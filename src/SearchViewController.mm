@@ -286,6 +286,12 @@ static NSFileManager *mFileMngr;
 	[tableView reloadData];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations

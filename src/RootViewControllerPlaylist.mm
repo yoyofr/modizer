@@ -2152,6 +2152,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
     [self.tableView reloadData];
 }

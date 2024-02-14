@@ -1893,21 +1893,18 @@ static int shouldRestart=1;
 }
 
 -(void) viewWillAppear:(BOOL)animated {
-    static int firstcall=0;
-    
-    
+    //static int firstcall=0;
+        
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
      if (@available(iOS 14.0, *)) {
          if ([NSProcessInfo processInfo].isiOSAppOnMac) {
              
              AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
              ModizerWin *modizerWin=[main_delegate modizerWin];
-             
-             
-             
-             CGRect frame = [modizerWin frame];
-             frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-             frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+                                       
+             //CGRect frame = [modizerWin frame];
+             //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+             //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
              //[modizerWin setFrame: frame];
              //[modizerWin setBounds:frame];
          }
@@ -1983,9 +1980,7 @@ static int shouldRestart=1;
     
     [super viewWillAppear:animated];
     
-    
     [self hideWaiting];
-    
     
     //[tableView reloadData];
     //[self.view setNeedsLayout];
@@ -2077,6 +2072,13 @@ static int shouldRestart=1;
      }*/
     [super viewDidDisappear:animated];
 }
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+            
+    [tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
     [tableView reloadData];
@@ -2830,7 +2832,6 @@ static int shouldRestart=1;
     if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    
     if ((cell == nil)||(forceReloadCells)) {
             if (indexPath.section>1) {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
@@ -2947,7 +2948,7 @@ static int shouldRestart=1;
     }
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
-    
+        
     [cell layoutIfNeeded];
     
     if (darkMode) {
@@ -2961,6 +2962,8 @@ static int shouldRestart=1;
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
+    
+    
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
@@ -3056,12 +3059,26 @@ static int shouldRestart=1;
         if (cur_local_entries[section][indexPath.row].type==0) { //directory
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
             else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            //cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
                                        40);
             
+            int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
+            actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
+            //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+            secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            
+            [secActionView setImage:[UIImage imageNamed:@"folder.png"] forState:UIControlStateNormal];
+            [secActionView setImage:[UIImage imageNamed:@"folder.png"] forState:UIControlStateHighlighted];
+            [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+            [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            
+            secActionView.enabled=YES;
+            secActionView.hidden=NO;
         } else  { //file
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             //archive file ?
@@ -3080,7 +3097,6 @@ static int shouldRestart=1;
                 secActionView.hidden=NO;
                 
             }
-            
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
@@ -3133,9 +3149,7 @@ static int shouldRestart=1;
                 else bottomStr=[NSString stringWithFormat:@"%@|%d f",bottomStr,-cur_local_entries[section][indexPath.row].songs];
             }
             
-            
             bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
-            
             
             /*if (!cur_local_entries[section][indexPath.row].playcount)
              bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played0time];

@@ -4994,8 +4994,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     
     
-    AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
-    CGRect frame = [[app_delegate modizerWin] frame];
+    //AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
+    //CGRect frame = [[app_delegate modizerWin] frame];
     
     [super viewWillLayoutSubviews];
 }

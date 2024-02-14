@@ -41,7 +41,6 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
-BOOL is_retina;
 
 /*
 @interface MyClass : NSObject
@@ -234,17 +233,6 @@ extern "C" void updateMainLoopC(void) {
         multitaskingSupported;
 	
     
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] == YES && [[UIScreen mainScreen] scale] == 2.00) {
-        // RETINA DISPLAY
-        is_retina=TRUE;
-    } else is_retina=FALSE;
-    
-    /*if (!is_ios7) {
-        [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque];
-    } else {
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }*/
-    
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
 		printf("cannot create uade mutex");
 		return NO;
@@ -273,26 +261,16 @@ extern "C" void updateMainLoopC(void) {
    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            CGRect frame = [modizerWin frame];
-            frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-            frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+            //CGRect frame = [modizerWin frame];
+            //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+            //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
             //[modizerWin setFrame: frame];
             //[modizerWin setBounds:frame];
         }
     }
-    
-
     modizerWin.rootViewController=(UITabBarController*)tabBarController;
-    
-    
-
 	[modizerWin addSubview:[(UITabBarController*)tabBarController view]];
 	[modizerWin makeKeyAndVisible];
-	
-    
-    
-    
-    
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;
     
@@ -330,7 +308,6 @@ extern "C" void updateMainLoopC(void) {
         }*/
     }
 
-    
 	if (detailViewControlleriPhone.mPlaylist_size) {		
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
 	}
@@ -339,7 +316,7 @@ extern "C" void updateMainLoopC(void) {
     cpMngt.detailViewController=detailViewControlleriPhone;
     cpMngt.rootVCLocalB=rootViewControlleriPhone;
     [cpMngt initCarPlayAndRemote];
-    
+        
 	return YES;
 }
 
@@ -464,50 +441,6 @@ extern "C" void updateMainLoopC(void) {
         [detailViewControlleriPhone updateFlagOnExit];
 		exit(0);
 	}
-	
-
-	
-	//return;
-/***********************************************************************************/
-/*	UIApplication*    app = [UIApplication sharedApplication];
-	
-    // Request permission to run in the background. Provide an
-    // expiration handler in case the task runs long.
-    NSAssert(bgTask == UIBackgroundTaskInvalid, nil);
-	NSLog(@"yo2");
-	
-	bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
-        // Synchronize the cleanup call on the main thread in case
-        // the task actually finishes at around the same time.
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (bgTask != UIBackgroundTaskInvalid)
-            {
-                [app endBackgroundTask:bgTask];
-                self->bgTask = UIBackgroundTaskInvalid;
-            }
-        });
-    }];
-	
-    // Start the long-running task and return immediately.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        // Do the work associated with the task.
-		while ( (exit_background==0) && (bgTask != UIBackgroundTaskInvalid)&&([app backgroundTimeRemaining] > 595.0f) ) {		
-			NSLog(@"Remaining : %f, state : %d",[app backgroundTimeRemaining],[app applicationState]);
-			[NSThread sleepForTimeInterval:1]; //1s
-		}
-		
-        // Synchronize the cleanup call on the main thread in case
-        // the expiration handler is fired at the same time.
-        dispatch_async(dispatch_get_main_queue(), ^{
-			if (bgTask != UIBackgroundTaskInvalid)
-            {
-				exit_background=1;
-                [app endBackgroundTask:bgTask];
-                self->bgTask = UIBackgroundTaskInvalid;
-            }
-        });
-    });*/
-/***********************************************************************************/
 }
 
 - (void)didReceiveMemoryWarning

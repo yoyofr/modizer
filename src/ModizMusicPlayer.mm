@@ -3461,7 +3461,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             
             if ((prev_mod_subsongs!=mod_subsongs)&&(mod_subsongs>1)) {
                 [self initSubSongPlayed];
-                printf("initsubsong / %d subsongs\n",mod_subsongs);
+                //printf("initsubsong / %d subsongs\n",mod_subsongs);
                 if (mdz_ShufflePlayMode) {
                     [self playNextSub];
                 }
@@ -9935,10 +9935,9 @@ extern bool icloud_available;
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
     
-    printf("stat\n");
+    /*printf("stat\n");
     for (int i=0;i<mdz_ArchiveFilesCnt;i++) printf("%d ",mdz_ArchiveEntryPlayed[i]);
-    printf("\n");
-    
+    printf("\n");*/    
     
     for (int i=0;i<[filetype_extVGM count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {

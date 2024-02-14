@@ -96,6 +96,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];    
     self.navigationController.delegate = self;
+    
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;
