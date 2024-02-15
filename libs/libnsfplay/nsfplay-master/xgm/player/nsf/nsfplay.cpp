@@ -738,24 +738,24 @@ void NSFPlayer::SetPlayFreq (double r)
             m_voice_currentChannel++;
             
             if (nsf->use_fds) {
-                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( fds->GetOut()>>5 );
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( fds->GetOut()>>4 );
                 m_voice_currentChannel++;
             }
             if (nsf->use_fme7) {
                 for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( fme7->GetOut(j)>>5 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( fme7->GetOut(j)>>2 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_mmc5) {
                 for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( mmc5->GetOut(j)>>5 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( mmc5->GetOut(j)>>2 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_n106) {
                 for (int j=0;j<8;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( n106->GetOut(j)>>5 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( n106->GetOut(j)>>7 );
                     m_voice_currentChannel++;
                 }
             }

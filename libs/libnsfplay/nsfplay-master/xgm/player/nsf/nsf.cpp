@@ -412,9 +412,9 @@ static const char* nsf_error = "(no NSF loaded)";
     if (nsfe_entry[s].time >= 0)
     {
       return nsfe_entry[s].time;
-    }
+    } else return default_playtime; //YOYOFR
 
-    return time_in_ms < 0 ? default_playtime : time_in_ms;
+    //return time_in_ms < 0 ? default_playtime : time_in_ms; //YOYOFR
   }
 
   int NSF::GetLoopTime ()
