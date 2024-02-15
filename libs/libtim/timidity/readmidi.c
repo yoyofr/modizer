@@ -125,7 +125,7 @@ static int32 sample_increment, sample_correction; /*samples per MIDI delta-t*/
     { MidiEvent event; SETMIDIEVENT(event, at, t, ch, pa, pb); \
       readmidi_add_event(&event); }
 
-#if MAX_CHANNELS <= 16
+#if TIM_MAX_CHANNELS <= 16
 #define MERGE_CHANNEL_PORT(ch) ((int)(ch))
 #define MERGE_CHANNEL_PORT2(ch, port) ((int)(ch))
 #else
@@ -3878,9 +3878,9 @@ static void move_channels(int *chidx)
 				if (chidx[ch = e->event.channel] != -1)
 					ch = e->event.channel = chidx[ch];
 				else {	/* -1 */
-					if (ch >= MAX_CHANNELS) {
+					if (ch >= TIM_MAX_CHANNELS) {
 						newch = ch % REDUCE_CHANNELS;
-						while (newch < ch && newch < MAX_CHANNELS) {
+						while (newch < ch && newch < TIM_MAX_CHANNELS) {
 							if (chidx[newch] == -1) {
 								ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
 										"channel %d => %d", ch, newch);
@@ -3891,10 +3891,10 @@ static void move_channels(int *chidx)
 						}
 					}
 					if (chidx[ch] == -1) {
-						if (ch < MAX_CHANNELS)
+						if (ch < TIM_MAX_CHANNELS)
 							chidx[ch] = ch;
 						else {
-							newch = ch % MAX_CHANNELS;
+							newch = ch % TIM_MAX_CHANNELS;
 							ctl->cmsg(CMSG_WARNING, VERB_VERBOSE,
 									"channel %d => %d (mixed)", ch, newch);
 							ch = e->event.channel = chidx[ch] = newch;
@@ -4004,10 +4004,10 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
     int32 i, j, our_event_count, tempo, skip_this_event;
     int32 sample_cum, samples_to_do, at, st, dt, counting_time;
     int ch, gch;
-    uint8 current_set[MAX_CHANNELS],
+    uint8 current_set[TIM_MAX_CHANNELS],
 	warn_tonebank[128 + MAP_BANK_COUNT], warn_drumset[128 + MAP_BANK_COUNT];
-    int8 bank_lsb[MAX_CHANNELS], bank_msb[MAX_CHANNELS], mapID[MAX_CHANNELS];
-    int current_program[MAX_CHANNELS];
+    int8 bank_lsb[TIM_MAX_CHANNELS], bank_msb[TIM_MAX_CHANNELS], mapID[TIM_MAX_CHANNELS];
+    int current_program[TIM_MAX_CHANNELS];
     int wrd_args[WRD_MAXPARAM];
     int wrd_argc;
     int chidx[256];
@@ -4019,7 +4019,7 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
     COPY_CHANNELMASK(drumchannel_mask, current_file_info->drumchannel_mask);
 
     /* Move drumchannels */
-    for(ch = REDUCE_CHANNELS; ch < MAX_CHANNELS; ch++)
+    for(ch = REDUCE_CHANNELS; ch < TIM_MAX_CHANNELS; ch++)
     {
 	i = chidx[ch];
 	if(i != -1 && i != ch && !IS_SET_CHANNELMASK(drumchannel_mask, i))
@@ -4036,7 +4036,7 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
 	newbank = special_tonebank;
     else
 	newbank = default_tonebank;
-    for(j = 0; j < MAX_CHANNELS; j++)
+    for(j = 0; j < TIM_MAX_CHANNELS; j++)
     {
 	if(ISDRUMCHANNEL(j))
 	    current_set[j] = 0;
@@ -4075,7 +4075,7 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
     wrd_argc = 0;
     change_system_mode(DEFAULT_SYSTEM_MODE);
 
-    for(j = 0; j < MAX_CHANNELS; j++)
+    for(j = 0; j < TIM_MAX_CHANNELS; j++)
 	mapID[j] = get_default_mapID(j);
 
     for(i = 0; i < event_count; i++)
@@ -4083,8 +4083,8 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
 	skip_this_event = 0;
 	ch = meep->event.channel;
 	gch = GLOBAL_CHANNEL_EVENT_TYPE(meep->event.type);
-	if(!gch && ch >= MAX_CHANNELS) /* For safety */
-	    meep->event.channel = ch = ch % MAX_CHANNELS;
+	if(!gch && ch >= TIM_MAX_CHANNELS) /* For safety */
+	    meep->event.channel = ch = ch % TIM_MAX_CHANNELS;
 
 	if(!gch && IS_SET_CHANNELMASK(quietchannels, ch))
 	    skip_this_event = 1;
@@ -4097,7 +4097,7 @@ static MidiEvent *groom_list(int32 divisions, int32 *eventsp, int32 *samplesp)
 	    change_system_mode(meep->event.a);
 	    ctl->cmsg(CMSG_INFO, VERB_NOISY, "MIDI reset at %d sec",
 		      (int)((double)st / play_mode->rate + 0.5));
-	    for(j = 0; j < MAX_CHANNELS; j++)
+	    for(j = 0; j < TIM_MAX_CHANNELS; j++)
 	    {
 		if(play_system_mode == XG_SYSTEM_MODE && j % 16 == 9)
 		    mapID[j] = XG_DRUM_MAP;
@@ -4505,7 +4505,7 @@ void readmidi_read_init(void)
 	static int first = 1;
 
 	/* initialize effect status */
-	for (i = 0; i < MAX_CHANNELS; i++)
+	for (i = 0; i < TIM_MAX_CHANNELS; i++)
 		init_channel_layer(i);
 	free_effect_buffers();
 	init_reverb_status_gs();
@@ -4629,8 +4629,8 @@ MidiEvent *read_midi_file(struct timidity_file *tf, int32 *count, int32 *sp,
 	url_cache_disable(tf->url);
     }
 */
-#if MAX_CHANNELS > 16
-    for(i = 16; i < MAX_CHANNELS; i++)
+#if TIM_MAX_CHANNELS > 16
+    for(i = 16; i < TIM_MAX_CHANNELS; i++)
     {
 	if(!IS_SET_CHANNELMASK(drumchannel_mask, i))
 	{
@@ -6238,7 +6238,7 @@ void realloc_insertion_effect_gs(void)
 /*! initialize channel layers. */
 void init_channel_layer(int ch)
 {
-	if (ch >= MAX_CHANNELS)
+	if (ch >= TIM_MAX_CHANNELS)
 		return;
 	CLEAR_CHANNELMASK(channel[ch].channel_layer);
 	SET_CHANNELMASK(channel[ch].channel_layer, ch);
@@ -6248,7 +6248,7 @@ void init_channel_layer(int ch)
 /*! add a new layer. */
 void add_channel_layer(int to_ch, int from_ch)
 {
-	if (to_ch >= MAX_CHANNELS || from_ch >= MAX_CHANNELS)
+	if (to_ch >= TIM_MAX_CHANNELS || from_ch >= TIM_MAX_CHANNELS)
 		return;
 	/* add a channel layer */
 	UNSET_CHANNELMASK(channel[to_ch].channel_layer, to_ch);
@@ -6262,7 +6262,7 @@ void remove_channel_layer(int ch)
 {
 	int i, offset;
 	
-	if (ch >= MAX_CHANNELS)
+	if (ch >= TIM_MAX_CHANNELS)
 		return;
 	/* remove channel layers */
 	offset = ch & ~0xf;

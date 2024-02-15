@@ -212,8 +212,8 @@ typedef unsigned long  u_ptr_size_t;
 # endif /* __FreeBSD__ */
 #endif /* LITTLE_ENDIAN */
 
-/* max_channels is defined in "timidity.h" */
-#if MAX_CHANNELS <= 32
+/* TIM_MAX_CHANNELS is defined in "timidity.h" */
+#if TIM_MAX_CHANNELS <= 32
 typedef struct _ChannelBitMask
 {
     uint32 b; /* 32-bit bitvector */

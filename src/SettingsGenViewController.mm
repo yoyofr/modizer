@@ -259,11 +259,10 @@ void optGSFChangedC(id param) {
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_value=0;
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
@@ -544,32 +543,6 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=600;
     
-    settings[GLOB_ArchiveReadMode].type=MDZ_SWITCH;
-    settings[GLOB_ArchiveReadMode].label=(char*)"Archive read mode";
-    settings[GLOB_ArchiveReadMode].description=NULL;
-    settings[GLOB_ArchiveReadMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_ArchiveReadMode].sub_family=0;
-    settings[GLOB_ArchiveReadMode].callback=&optGLOBALChangedC;
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_value=0;
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_labels[0]=(char*)"Seq.";
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_labels[1]=(char*)"Rand.";
-    settings[GLOB_ArchiveReadMode].detail.mdz_switch.switch_labels[2]=(char*)"Loop";
-    
-    settings[GLOB_ArchiveReadModeMaxLoop].type=MDZ_SWITCH;
-    settings[GLOB_ArchiveReadModeMaxLoop].label=(char*)"Archive max loop";
-    settings[GLOB_ArchiveReadModeMaxLoop].description=NULL;
-    settings[GLOB_ArchiveReadModeMaxLoop].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_ArchiveReadModeMaxLoop].sub_family=0;
-    settings[GLOB_ArchiveReadModeMaxLoop].callback=&optGLOBALChangedC;
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_value=0;
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_value_nb=4;
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_labels[0]=(char*)"1";
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_labels[1]=(char*)"2";
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_labels[2]=(char*)"3";
-    settings[GLOB_ArchiveReadModeMaxLoop].detail.mdz_switch.switch_labels[3]=(char*)"∞";
     
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
@@ -607,6 +580,18 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultNSFPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultNSFPlayer].label=(char*)"Default NSF player";
+    settings[GLOB_DefaultNSFPlayer].description=NULL;
+    settings[GLOB_DefaultNSFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_DefaultNSFPlayer].sub_family=0;
+    settings[GLOB_DefaultNSFPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"NSFPLAY";
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
     settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";

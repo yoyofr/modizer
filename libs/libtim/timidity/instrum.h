@@ -191,7 +191,7 @@ extern ToneBank *tonebank[], *drumset[];
 extern Instrument *default_instrument;
 #define NSPECIAL_PATCH 256
 extern SpecialPatch *special_patch[ /* NSPECIAL_PATCH */ ];
-extern int default_program[MAX_CHANNELS];
+extern int default_program[TIM_MAX_CHANNELS];
 extern int antialiasing_allowed;
 extern int fast_decay;
 extern int free_instruments_afterwards;

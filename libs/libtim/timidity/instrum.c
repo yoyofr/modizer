@@ -85,7 +85,7 @@ struct inst_map_elem
 static struct inst_map_elem *inst_map_table[NUM_INST_MAP][128];
 
 /* This is only used for tracks that don't specify a program */
-int default_program[MAX_CHANNELS];
+int default_program[TIM_MAX_CHANNELS];
 
 char *default_instrument_name = NULL;
 
@@ -1602,7 +1602,7 @@ int set_default_instrument(char *name)
     if(default_instrument)
 	free_instrument(default_instrument);
     default_instrument = ip;
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	default_program[i] = SPECIAL_PROGRAM;
     last_name = name;
 

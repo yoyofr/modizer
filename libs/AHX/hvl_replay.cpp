@@ -257,7 +257,7 @@ void hvl_reset_some_stuff( struct hvl_tune *ht )
 {
   uint32 i;
 
-  for( i=0; i<MAX_CHANNELS; i++ )
+  for( i=0; i<HVL_MAX_CHANNELS; i++ )
   {
     ht->ht_Voices[i].vc_Delta=1;
     ht->ht_Voices[i].vc_OverrideTranspose=1000;  // 1.5
@@ -284,7 +284,7 @@ void hvl_reset_some_stuff( struct hvl_tune *ht )
     memset(&ht->ht_Voices[i].vc_RingVoiceBuffer,0,0x281);
   }
   
-  for( i=0; i<MAX_CHANNELS; i++ )
+  for( i=0; i<HVL_MAX_CHANNELS; i++ )
   {
     ht->ht_Voices[i].vc_WNRandom          = 0x280;
     ht->ht_Voices[i].vc_VoiceNum          = i;
@@ -317,7 +317,7 @@ HVL_BOOL hvl_InitSubsong( struct hvl_tune *ht, uint32 nr )
   ht->ht_SongEndReached = 0;
   ht->ht_PlayingTime    = 0;
   
-  for( i=0; i<MAX_CHANNELS; i+=4 )
+  for( i=0; i<HVL_MAX_CHANNELS; i+=4 )
   {
     ht->ht_Voices[i+0].vc_Pan          = ht->ht_defpanleft;
     ht->ht_Voices[i+0].vc_SetPan       = ht->ht_defpanleft; // 1.4
@@ -1919,17 +1919,17 @@ void hvl_play_irq( struct hvl_tune *ht )
 
 void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, int32 bufmod )
 {
-  int8   *src[MAX_CHANNELS];
-  int8   *rsrc[MAX_CHANNELS];
-  uint32  delta[MAX_CHANNELS];
-  uint32  rdelta[MAX_CHANNELS];
-  int32   vol[MAX_CHANNELS];
-  uint32  pos[MAX_CHANNELS];
-  uint32  rpos[MAX_CHANNELS];
+  int8   *src[HVL_MAX_CHANNELS];
+  int8   *rsrc[HVL_MAX_CHANNELS];
+  uint32  delta[HVL_MAX_CHANNELS];
+  uint32  rdelta[HVL_MAX_CHANNELS];
+  int32   vol[HVL_MAX_CHANNELS];
+  uint32  pos[HVL_MAX_CHANNELS];
+  uint32  rpos[HVL_MAX_CHANNELS];
   uint32  cnt;
-  int32   panl[MAX_CHANNELS];
-  int32   panr[MAX_CHANNELS];
-//  uint32  vu[MAX_CHANNELS];
+  int32   panl[HVL_MAX_CHANNELS];
+  int32   panr[HVL_MAX_CHANNELS];
+//  uint32  vu[HVL_MAX_CHANNELS];
   int32   a=0, b=0, j;
   uint32  i, chans, loops;
   

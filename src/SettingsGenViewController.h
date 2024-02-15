@@ -50,16 +50,13 @@ enum MDZ_SETTINGS {
     GLOB_DefaultMODPlayer,
     GLOB_DefaultSAPPlayer,
     GLOB_DefaultVGMPlayer,
+    GLOB_DefaultNSFPlayer,
     //GLOB_PlaybackFrequency,
     GLOB_ResumeOnStart,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
     GLOB_DefaultLength,
-    //ALBUM/ARCHIVE
-    GLOB_ArchiveReadMode,
-    GLOB_ArchiveReadModeMaxLoop,
-    //
     GLOB_CoverFlow,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,

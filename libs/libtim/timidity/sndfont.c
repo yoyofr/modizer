@@ -1940,7 +1940,7 @@ void recompute_freq(int v) {} // not pass
 int32 control_ratio = 0;
 int reduce_quality_flag = 0;
 Voice *voice = NULL;
-Channel channel[MAX_CHANNELS];
+Channel channel[TIM_MAX_CHANNELS];
 // from playmidi.c
 int32 get_note_freq(Sample *sp, int note)
 {

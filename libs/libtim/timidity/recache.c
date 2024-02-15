@@ -76,7 +76,7 @@ static MBlockList hash_entry_pool;
 static struct {
 	int32 on[128];
 	struct cache_hash *cache[128];
-} channel_note_table[MAX_CHANNELS];
+} channel_note_table[TIM_MAX_CHANNELS];
 
 static double sample_resamp_info(Sample *, int,
 		splen_t *, splen_t *, splen_t *);

@@ -39,7 +39,7 @@
 #define ENTITY 1    /*EXTERN*/
 #include "mfnode.h"
 
-Instr_comment instr_comment[MAX_CHANNELS];
+Instr_comment instr_comment[TIM_MAX_CHANNELS];
 
 MFnode *make_new_MFnode_entry(char *file)
 {

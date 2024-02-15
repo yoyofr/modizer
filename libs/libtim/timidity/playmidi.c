@@ -106,7 +106,7 @@ static int midi_streaming = 0;
 int volatile stream_max_compute = 500; /* compute time limit (in msec) when streaming */
 static int prescanning_flag;
 static int32 midi_restart_time = 0;
-Channel channel[MAX_CHANNELS];
+Channel channel[TIM_MAX_CHANNELS];
 int max_voices = DEFAULT_VOICES;
 Voice *voice = NULL;
 int8 current_keysig = 0;
@@ -135,7 +135,7 @@ static void set_reverb_level(int ch, int level);
 static int make_rvid_flag = 0; /* For reverb optimization */
 
 /* Ring voice id for each notes.  This ID enables duplicated note. */
-static uint8 vidq_head[128 * MAX_CHANNELS], vidq_tail[128 * MAX_CHANNELS];
+static uint8 vidq_head[128 * TIM_MAX_CHANNELS], vidq_tail[128 * TIM_MAX_CHANNELS];
 
 #ifdef MODULATION_WHEEL_ALLOW
 int opt_modulation_wheel = 1;
@@ -248,7 +248,7 @@ static int32 common_buffer[AUDIO_BUFFER_SIZE*2], /* stereo samples */
              *buffer_pointer;
 static int16 wav_buffer[AUDIO_BUFFER_SIZE*2];
 static int32 buffered_count;
-static char *reverb_buffer = NULL; /* MAX_CHANNELS*AUDIO_BUFFER_SIZE*8 */
+static char *reverb_buffer = NULL; /* TIM_MAX_CHANNELS*AUDIO_BUFFER_SIZE*8 */
 
 #ifdef USE_DSP_EFFECT
 static int32 insertion_effect_buffer[AUDIO_BUFFER_SIZE * 2];
@@ -682,7 +682,7 @@ void reset_midi(int playing)
 {
 	int i, cnt;
 	
-	for (i = 0; i < MAX_CHANNELS; i++) {
+	for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 		reset_controllers(i);
 		reset_nrpn_controllers(i);
      	reset_module_dependent_controllers(i);
@@ -719,7 +719,7 @@ void reset_midi(int playing)
 			else
 				CLEAR_CHANNELMASK(channel_mute);
 		}
-		for (i = 0; i < MAX_CHANNELS; i++)
+		for (i = 0; i < TIM_MAX_CHANNELS; i++)
 			redraw_controllers(i);
 		if (midi_streaming && free_instruments_afterwards) {
 			free_instruments(0);
@@ -3193,7 +3193,7 @@ static void adjust_all_pitch(void)
 {
 	int ch, i, uv = upper_voices;
 	
-	for (ch = 0; ch < MAX_CHANNELS; ch++)
+	for (ch = 0; ch < TIM_MAX_CHANNELS; ch++)
 		channel[ch].pitchfactor = 0;
 	for (i = 0; i < uv; i++)
 		if (voice[i].status != VOICE_FREE)
@@ -3257,7 +3257,7 @@ static void make_rvid(void)
 {
     int i, j, lv, maxrv;
 
-    for(maxrv = MAX_CHANNELS - 1; maxrv >= 0; maxrv--)
+    for(maxrv = TIM_MAX_CHANNELS - 1; maxrv >= 0; maxrv--)
     {
 	if(channel[maxrv].reverb_level == -1)
 	    channel[maxrv].reverb_id = -1;
@@ -3527,7 +3527,7 @@ static void process_sysex_event(int ev, int ch, int val, int b)
 {
 	int temp, msb, note;
 
-	if (ch >= MAX_CHANNELS)
+	if (ch >= TIM_MAX_CHANNELS)
 		return;
 	if (ev == ME_SYSEX_MSB) {
 		channel[ch].sysex_msb_addr = b;
@@ -5090,8 +5090,8 @@ static void play_midi_prescan(MidiEvent *ev)
 #ifndef SUPPRESS_CHANNEL_LAYER
 		orig_ch = ev->channel;
 		layered = ! IS_SYSEX_EVENT_TYPE(ev);
-		for (j = 0; j < MAX_CHANNELS; j += 16) {
-			port_ch = (orig_ch + j) % MAX_CHANNELS;
+		for (j = 0; j < TIM_MAX_CHANNELS; j += 16) {
+			port_ch = (orig_ch + j) % TIM_MAX_CHANNELS;
 			offset = port_ch & ~0xf;
 			for (k = offset; k < offset + 16; k++) {
 				if (! layered && (j || k != offset))
@@ -5194,7 +5194,7 @@ static void play_midi_prescan(MidiEvent *ev)
       ctl->cmsg(CMSG_INFO,VERB_DEBUG,"Compensation ratio:%lf",compensation_ratio);
     }
 
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	resamp_cache_refer_alloff(i, ev->time);
     resamp_cache_create();
     prescanning_flag = 0;
@@ -5631,8 +5631,8 @@ static void seek_forward(int32 until_time)
 #ifndef SUPPRESS_CHANNEL_LAYER
 		orig_ch = current_event->channel;
 		layered = ! IS_SYSEX_EVENT_TYPE(current_event);
-		for (j = 0; j < MAX_CHANNELS; j += 16) {
-			port_ch = (orig_ch + j) % MAX_CHANNELS;
+		for (j = 0; j < TIM_MAX_CHANNELS; j += 16) {
+			port_ch = (orig_ch + j) % TIM_MAX_CHANNELS;
 			offset = port_ch & ~0xf;
 			for (k = offset; k < offset + 16; k++) {
 				if (! layered && (j || k != offset))
@@ -5945,7 +5945,7 @@ static void seek_forward(int32 until_time)
 		break;
 
 	case ME_MASTER_TEMPER_TYPE:
-		for (i = 0; i < MAX_CHANNELS; i++)
+		for (i = 0; i < TIM_MAX_CHANNELS; i++)
 			channel[i].temper_type = current_event->a;
 		break;
 
@@ -6017,7 +6017,7 @@ static void skip_to(int32 until_time)
 
   if (until_time)
     seek_forward(until_time);
-  for(ch = 0; ch < MAX_CHANNELS; ch++)
+  for(ch = 0; ch < TIM_MAX_CHANNELS; ch++)
       channel[ch].lasttime = current_sample;
 
   ctl_mode_event(CTLE_RESET, 0, 0, 0);
@@ -6592,7 +6592,7 @@ static int apply_controls(void)
 		if (! COMPARE_CHANNELMASK(tmp_chbitmask, channel_mute)) {
 			sync_restart(0);
 			jump_flag = 1;
-			for (i = 0; i < MAX_CHANNELS; i++)
+			for (i = 0; i < TIM_MAX_CHANNELS; i++)
 				ctl_mode_event(CTLE_MUTE, 0, i, 1);
 			ctl_mode_event(CTLE_MUTE, 0, val, 0);
 		}
@@ -6604,7 +6604,7 @@ static int apply_controls(void)
 		if (! COMPARE_CHANNELMASK(tmp_chbitmask, channel_mute)) {
 			sync_restart(0);
 			jump_flag = 1;
-			for (i = 0; i < MAX_CHANNELS; i++)
+			for (i = 0; i < TIM_MAX_CHANNELS; i++)
 				ctl_mode_event(CTLE_MUTE, 0, i, 0);
 		}
 		continue;
@@ -6651,7 +6651,7 @@ inline static int is_insertion_effect_xg(int ch)
 static void do_compute_data_midi(int32 count)
 {
 	int i, j, uv, stereo, n, ch, note;
-	int32 *vpblist[MAX_CHANNELS];
+	int32 *vpblist[TIM_MAX_CHANNELS];
 	int channel_effect, channel_reverb, channel_chorus, channel_delay, channel_eq;
 	int32 cnt = count * 2, rev_max_delay_out;
 	struct DrumPartEffect *de;
@@ -6694,10 +6694,10 @@ static void do_compute_data_midi(int32 count)
 		int buf_index = 0;
 		
 		if(reverb_buffer == NULL) {	/* allocating buffer for channel effect */
-			reverb_buffer = (char *)safe_malloc(MAX_CHANNELS * AUDIO_BUFFER_SIZE * 8);
+			reverb_buffer = (char *)safe_malloc(TIM_MAX_CHANNELS * AUDIO_BUFFER_SIZE * 8);
 		}
 
-		for(i = 0; i < MAX_CHANNELS; i++) {
+		for(i = 0; i < TIM_MAX_CHANNELS; i++) {
 			if(opt_insertion_effect && channel[i].insertion_effect) {
 				vpblist[i] = insertion_effect_buffer;
 			} else if(channel[i].eq_gs || (get_reverb_level(i) != DEFAULT_REVERB_SEND_LEVEL
@@ -6770,17 +6770,17 @@ static void do_compute_data_midi(int32 count)
 	if(play_system_mode == XG_SYSTEM_MODE && channel_effect) {	/* XG */
 		if (opt_insertion_effect) { 	/* insertion effect */
 			for (i = 0; i < XG_INSERTION_EFFECT_NUM; i++) {
-				if (insertion_effect_xg[i].part <= MAX_CHANNELS) {
+				if (insertion_effect_xg[i].part <= TIM_MAX_CHANNELS) {
 					do_insertion_effect_xg(vpblist[insertion_effect_xg[i].part], cnt, &insertion_effect_xg[i]);
 				}
 			}
 			for (i = 0; i < XG_VARIATION_EFFECT_NUM; i++) {
-				if (variation_effect_xg[i].part <= MAX_CHANNELS) {
+				if (variation_effect_xg[i].part <= TIM_MAX_CHANNELS) {
 					do_insertion_effect_xg(vpblist[variation_effect_xg[i].part], cnt, &variation_effect_xg[i]);
 				}
 			}
 		}
-		for(i = 0; i < MAX_CHANNELS; i++) {	/* system effects */
+		for(i = 0; i < TIM_MAX_CHANNELS; i++) {	/* system effects */
 			int32 *p;
 			p = vpblist[i];
 			if(p != buffer_pointer) {
@@ -6847,7 +6847,7 @@ static void do_compute_data_midi(int32 count)
 			}
 		}
 
-		for(i = 0; i < MAX_CHANNELS; i++) {	/* system effects */
+		for(i = 0; i < TIM_MAX_CHANNELS; i++) {	/* system effects */
 			int32 *p;	
 			p = vpblist[i];
 			if(p != buffer_pointer && p != insertion_effect_buffer) {
@@ -6906,8 +6906,8 @@ static void do_compute_data_midi(int32 count)
 static void do_compute_data_midi(int32 count)
 {
 	int i, j, uv, stereo, n, ch, note;
-	int32 *vpblist[MAX_CHANNELS];
-	int vc[MAX_CHANNELS];
+	int32 *vpblist[TIM_MAX_CHANNELS];
+	int vc[TIM_MAX_CHANNELS];
 	int channel_reverb;
 	int channel_effect;
 	int32 cnt = count * 2;
@@ -6935,13 +6935,13 @@ static void do_compute_data_midi(int32 count)
 			make_rvid_flag = 1;
 		}
 		chbufidx = 0;
-		for (i = 0; i < MAX_CHANNELS; i++) {
+		for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 			vc[i] = 0;
 			if (channel[i].reverb_id != -1
 					&& current_sample - channel[i].lasttime
 					< REVERB_MAX_DELAY_OUT) {
 				if (reverb_buffer == NULL)
-					reverb_buffer = (char *) safe_malloc(MAX_CHANNELS
+					reverb_buffer = (char *) safe_malloc(TIM_MAX_CHANNELS
 							* AUDIO_BUFFER_SIZE * 8);
 				if (channel[i].reverb_id != i)
 					vpblist[i] = vpblist[channel[i].reverb_id];
@@ -6986,7 +6986,7 @@ static void do_compute_data_midi(int32 count)
 		int k;
 		
 		k = count * 2; /* calclated buffer length in int32 */
-		for (i = 0; i < MAX_CHANNELS; i++) {
+		for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 			int32 *p;
 			
 			p = vpblist[i];
@@ -7119,7 +7119,7 @@ static int midi_play_end(void)
 
     /* clear reverb echo sound */
     init_reverb();
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
     {
 	channel[i].reverb_level = -1;
 	channel[i].reverb_id = -1;
@@ -7577,8 +7577,8 @@ int play_event(MidiEvent *ev)
 #ifndef SUPPRESS_CHANNEL_LAYER
 	orig_ch = ev->channel;
 	layered = ! IS_SYSEX_EVENT_TYPE(ev);
-	for (k = 0; k < MAX_CHANNELS; k += 16) {
-		port_ch = (orig_ch + k) % MAX_CHANNELS;
+	for (k = 0; k < TIM_MAX_CHANNELS; k += 16) {
+		port_ch = (orig_ch + k) % TIM_MAX_CHANNELS;
 		offset = port_ch & ~0xf;
 		for (l = offset; l < offset + 16; l++) {
 			if (! layered && (k || l != offset))
@@ -8041,7 +8041,7 @@ int play_event(MidiEvent *ev)
 		break;
 
 	case ME_MASTER_TEMPER_TYPE:
-		for (i = 0; i < MAX_CHANNELS; i++) {
+		for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 			channel[i].temper_type = current_event->a;
 			ctl_mode_event(CTLE_TEMPER_TYPE, 1, i, channel[i].temper_type);
 		}
@@ -8049,11 +8049,11 @@ int play_event(MidiEvent *ev)
 			if (temper_type_mute & 1 << current_event->a
 					- ((current_event->a >= 0x40) ? 0x3c : 0)) {
 				FILL_CHANNELMASK(channel_mute);
-				for (i = 0; i < MAX_CHANNELS; i++)
+				for (i = 0; i < TIM_MAX_CHANNELS; i++)
 					ctl_mode_event(CTLE_MUTE, 1, i, 1);
 			} else {
 				CLEAR_CHANNELMASK(channel_mute);
-				for (i = 0; i < MAX_CHANNELS; i++)
+				for (i = 0; i < TIM_MAX_CHANNELS; i++)
 					ctl_mode_event(CTLE_MUTE, 1, i, 0);
 			}
 		}
@@ -8290,7 +8290,7 @@ static int play_midi(MidiEvent *eventlist, int32 samples)
 
     if(midi_restart_time > 0) { /* Need to update interface display */
       int i;
-      for(i = 0; i < MAX_CHANNELS; i++)
+      for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	redraw_controllers(i);
     }
     rc = RC_NONE;
@@ -8521,7 +8521,7 @@ int play_midi_file(char *fn)
     current_keysig = (opt_init_keysig == 8) ? 0 : opt_init_keysig;
     note_key_offset = key_adjust;
     midi_time_ratio = tempo_adjust;
-	for (i = 0; i < MAX_CHANNELS; i++) {
+	for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 		for (j = 0; j < 12; j++)
 			channel[i].scale_tuning[j] = 0;
 		channel[i].prev_scale_tuning = 0;
@@ -8558,7 +8558,7 @@ int play_midi_file(char *fn)
 	current_freq_table = j;
 	ctl_mode_event(CTLE_TEMPO, 0, current_play_tempo, 0);
 	ctl_mode_event(CTLE_TIME_RATIO, 0, 100 / midi_time_ratio + 0.5, 0);
-	for (i = 0; i < MAX_CHANNELS; i++) {
+	for (i = 0; i < TIM_MAX_CHANNELS; i++) {
 		ctl_mode_event(CTLE_TEMPER_TYPE, 0, i, channel[i].temper_type);
 		ctl_mode_event(CTLE_MUTE, 0, i, temper_type_mute & 1);
 	}
@@ -8575,7 +8575,7 @@ int play_midi_file(char *fn)
     ctl_mode_event(CTLE_PLAY_END, 0, 0, 0);
     reuse_mblock(&playmidi_pool);
 
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	memset(channel[i].drums, 0, sizeof(channel[i].drums));
 
   play_end:
@@ -8836,7 +8836,7 @@ void playmidi_stream_init(void)
     current_file_info->time_sig_c = 24; /* clock */
     current_file_info->time_sig_b = 8;  /* q.n. */
     current_file_info->samples = 0;
-    current_file_info->max_channel = MAX_CHANNELS;
+    current_file_info->max_channel = TIM_MAX_CHANNELS;
     current_file_info->compressed = 0;
     current_file_info->midi_data = NULL;
     current_file_info->midi_data_size = 0;
@@ -8848,7 +8848,7 @@ void playmidi_stream_init(void)
     /* Setup default drums */
 	COPY_CHANNELMASK(current_file_info->drumchannels, default_drumchannels);
 	COPY_CHANNELMASK(current_file_info->drumchannel_mask, default_drumchannel_mask);
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	memset(channel[i].drums, 0, sizeof(channel[i].drums));
     change_system_mode(DEFAULT_SYSTEM_MODE);
     reset_midi(0);
@@ -8865,7 +8865,7 @@ void playmidi_tmr_reset(void)
         current_sample = 0;
     buffered_count = 0;
     buffer_pointer = common_buffer;
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
 	channel[i].lasttime = 0;
 }
 
@@ -8956,7 +8956,7 @@ static void init_rx(int ch)
 
 static void set_rx(int ch, int32 rx, int flag)
 {
-	if(ch > MAX_CHANNELS) {return;}
+	if(ch > TIM_MAX_CHANNELS) {return;}
 	if(flag) {channel[ch].rx |= rx;}
 	else {channel[ch].rx &= ~rx;}
 }

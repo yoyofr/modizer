@@ -13,7 +13,7 @@ typedef int HVL_BOOL;
 #define FALSE 0
 
 // Woohoo!
-#define MAX_CHANNELS 16
+#define HVL_MAX_CHANNELS 16
 
 #define Period2Freq(period) ((3546897.f * 65536.f) / (period)) 
 
@@ -64,8 +64,8 @@ struct hvl_instrument
 
 struct hvl_position
 {
-  uint8 pos_Track[MAX_CHANNELS];
-  int8  pos_Transpose[MAX_CHANNELS];
+  uint8 pos_Track[HVL_MAX_CHANNELS];
+  int8  pos_Transpose[HVL_MAX_CHANNELS];
 };
 
 struct hvl_step
@@ -183,7 +183,7 @@ struct hvl_tune
   uint16                 ht_SongNum;
   uint32                 ht_Frequency;
   float64                ht_FreqF;
-  int8                  *ht_WaveformTab[MAX_CHANNELS];
+  int8                  *ht_WaveformTab[HVL_MAX_CHANNELS];
   uint16                 ht_Restart;
   uint16                 ht_PositionNr;
   uint8                  ht_SpeedMultiplier;
@@ -207,7 +207,7 @@ struct hvl_tune
   struct hvl_position   *ht_Positions;
   struct hvl_step        ht_Tracks[256][64];
   struct hvl_instrument *ht_Instruments;
-  struct hvl_voice       ht_Voices[MAX_CHANNELS];
+  struct hvl_voice       ht_Voices[HVL_MAX_CHANNELS];
   int32                  ht_defstereo;
   int32                  ht_defpanleft;
   int32                  ht_defpanright;

@@ -3292,11 +3292,11 @@ static inline int parse_opt_default_program(const char *arg)
 	if (set_value(&prog, atoi(arg), 0, 0x7f, "Program number"))
 		return 1;
 	if ((p = strchr(arg, '/')) != NULL) {
-		if (set_value(&i, atoi(++p), 1, MAX_CHANNELS, "Program channel"))
+		if (set_value(&i, atoi(++p), 1, TIM_MAX_CHANNELS, "Program channel"))
 			return 1;
 		default_program[i - 1] = prog;
 	} else
-		for (i = 0; i < MAX_CHANNELS; i++)
+		for (i = 0; i < TIM_MAX_CHANNELS; i++)
 			default_program[i] = prog;
 	return 0;
 }
@@ -3312,11 +3312,11 @@ static inline int parse_opt_force_program(const char *arg)
 	if (ctl->opened)
 		set_default_program(def_prog);
 	if ((p = strchr(arg, '/')) != NULL) {
-		if (set_value(&i, atoi(++p), 1, MAX_CHANNELS, "Program channel"))
+		if (set_value(&i, atoi(++p), 1, TIM_MAX_CHANNELS, "Program channel"))
 			return 1;
 		default_program[i - 1] = SPECIAL_PROGRAM;
 	} else
-		for (i = 0; i < MAX_CHANNELS; i++)
+		for (i = 0; i < TIM_MAX_CHANNELS; i++)
 			default_program[i] = SPECIAL_PROGRAM;
 	return 0;
 }
@@ -5050,10 +5050,10 @@ static inline int set_channel_flag(ChannelBitMask *flags, int32 i, char *name)
 	if (i == 0) {
 		FILL_CHANNELMASK(*flags);
 		return 0;
-	} else if (abs(i) > MAX_CHANNELS) {
+	} else if (abs(i) > TIM_MAX_CHANNELS) {
 		ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
 				"%s must be between (-)1 and (-)%d, or 0",
-						name, MAX_CHANNELS);
+						name, TIM_MAX_CHANNELS);
 		return 1;
 	}
 	if (i > 0)
@@ -5220,7 +5220,7 @@ MAIN_INTERFACE void timidity_start_initialize(void)
 	exit(1);
     }
 
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
     {
 	memset(&(channel[i]), 0, sizeof(Channel));
     }
@@ -5230,8 +5230,8 @@ MAIN_INTERFACE void timidity_start_initialize(void)
 
     for(i = 0; drums[i] > 0; i++)
 	SET_CHANNELMASK(default_drumchannels, drums[i] - 1);
-#if MAX_CHANNELS > 16
-    for(i = 16; i < MAX_CHANNELS; i++)
+#if TIM_MAX_CHANNELS > 16
+    for(i = 16; i < TIM_MAX_CHANNELS; i++)
 	if(IS_SET_CHANNELMASK(default_drumchannels, i & 0xF))
 	    SET_CHANNELMASK(default_drumchannels, i);
 #endif
@@ -5239,7 +5239,7 @@ MAIN_INTERFACE void timidity_start_initialize(void)
     if(program_name == NULL)
 	program_name = "TiMidity";
     uudecode_unquote_html = 1;
-    for(i = 0; i < MAX_CHANNELS; i++)
+    for(i = 0; i < TIM_MAX_CHANNELS; i++)
     {
 	default_program[i] = DEFAULT_PROGRAM;
 	memset(channel[i].drums, 0, sizeof(channel[i].drums));
@@ -5773,7 +5773,7 @@ int tim_main(int argc, char **argv) {
 	free_effect_buffers();
 	free(voice);voice=NULL;
 	free_gauss_table();
-	for (int i = 0; i < MAX_CHANNELS; i++)
+	for (int i = 0; i < TIM_MAX_CHANNELS; i++)
 		free_drum_effect(i);
 
    	tmdy_free_config();

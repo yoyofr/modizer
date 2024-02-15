@@ -410,8 +410,8 @@ typedef float FLOAT_T;
 #define AMP_BITS (15-GUARD_BITS)
 
 #define MAX_AMPLIFICATION 800
-#define MAX_CHANNELS 32
-/*#define MAX_CHANNELS 256*/
+//#define TIM_MAX_CHANNELS 32
+#define TIM_MAX_CHANNELS 256
 #define MAXMIDIPORT 16
 
 /* Vibrato and tremolo Choices of the Day */
