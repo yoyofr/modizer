@@ -62,11 +62,12 @@ namespace xgm
 
       b[0] = b[1] = 0;
 
+        
       for (it = dlist.begin (); it != dlist.end (); it++)
       {
         (*it)->Render (tmp);
         b[0] += tmp[0];
-        b[1] += tmp[1];
+        b[1] += tmp[1];          
       }
 
       return 2;

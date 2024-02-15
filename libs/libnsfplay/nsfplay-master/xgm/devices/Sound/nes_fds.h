@@ -27,6 +27,9 @@ protected:
     int mask;
     INT32 sm[2]; // stereo mix
     INT32 fout; // current output
+    //YOYOFR
+    UINT32 outOscillo;
+    //YOYOFR
     TrackInfoFDS trkinfo;
     int option[OPT_END];
 
@@ -76,6 +79,9 @@ public:
     virtual void SetMask(int m){ mask = m&1; }
     virtual void SetStereoMix (int trk, INT16 mixl, INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
+    //YOYOFR
+    virtual INT32 GetOut() {return outOscillo;}
+    //YOYOFR
 };
 
 } // namespace xgm

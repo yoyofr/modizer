@@ -32,6 +32,9 @@ namespace xgm
     int freq_shift;
     double clock, rate;
     INT32 out[3];
+      //YOYOFR
+      INT32 outOscillo[3];
+      //YOYOFR
     TrackInfoBasic trkinfo[3];
 
   public:
@@ -49,6 +52,9 @@ namespace xgm
     virtual void SetMask (int m){ mask = m; }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
   };
 
 }                               // namespace

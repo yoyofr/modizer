@@ -164,6 +164,11 @@ UINT32 NES_N106::Render (INT32 b[2])
 {
     b[0] = 0;
     b[1] = 0;
+    
+    //YOYOFR
+    for (int i=0;i<8;i++) outOscillo[i]=0;
+    //YOYOFR
+    
     if (master_disable) return 2;
 
     int channels = get_channels();
@@ -180,6 +185,9 @@ UINT32 NES_N106::Render (INT32 b[2])
             {
                 b[0] += fout[c] * sm[0][c];
                 b[1] += fout[c] * sm[1][c];
+                //YOYOFR
+                outOscillo[c]=fout[c]*(sm[0][c]+sm[1][c]);
+                //YOYOFR
             }
             
             ++render_subclock;
@@ -213,6 +221,10 @@ UINT32 NES_N106::Render (INT32 b[2])
             {
                 b[0] += fout[i] * sm[0][i];
                 b[1] += fout[i] * sm[1][i];
+                
+                //YOYOFR
+                outOscillo[i]=fout[i]*(sm[0][i]+sm[1][i]);
+                //YOYOFR
             }
         }
 

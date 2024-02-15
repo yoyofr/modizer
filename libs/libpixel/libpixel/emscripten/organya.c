@@ -538,7 +538,6 @@ static int get_samples(char *buf,int samplesNb)
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int m_voice_ofs=0;
     if (!m_voice_current_samplerate) {
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
@@ -609,17 +608,16 @@ static int get_samples(char *buf,int samplesNb)
             }
                         
             //TODO:  MODIZER changes start / YOYOFR
-            if (m_voice_ofs>=0) {
-                int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
-                int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+            
+                int ofs_start=m_voice_current_ptr[i];
+                int ofs_end=(m_voice_current_ptr[i]+smplIncr);
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(((smpl)>>0));
+                    m_voice_buff[i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(((smpl)>>0));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
                 while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
-                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
-            }
+                m_voice_current_ptr[i]=ofs_end;
             //TODO:  MODIZER changes end / YOYOFR
 		}
 

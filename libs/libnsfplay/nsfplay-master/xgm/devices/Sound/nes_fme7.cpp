@@ -110,6 +110,11 @@ xgm::UINT32 NES_FME7::Render (xgm::INT32 b[2])
   const INT32 MASTER = INT32(0.64 * 256.0);
   b[0] = (b[0] * MASTER) >> 8;
   b[1] = (b[1] * MASTER) >> 8;
+    //YOYOFR
+    outOscillo[0]=-((psg->count[0] * (sm[0][0]+sm[1][0])*MASTER) >> 15);
+    outOscillo[1]=-((psg->count[1] * (sm[0][1]+sm[1][1])*MASTER) >> 15);
+    outOscillo[2]=-((psg->count[2] * (sm[0][2]+sm[1][2])*MASTER) >> 15);
+    //YOYOFR
 
   return 2;
 }

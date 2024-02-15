@@ -4435,7 +4435,6 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int m_voice_ofs=0;
     int m_total_channels=6;
     if (!m_voice_current_samplerate) {
         m_voice_current_samplerate=44100;
@@ -4525,22 +4524,22 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
         
         
         //TODO:  MODIZER changes start / YOYOFR
-        if (m_voice_ofs>=0) {
-            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
-            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+        
+            int ofs_start=m_voice_current_ptr[0];
+            int ofs_end=(m_voice_current_ptr[0]+smplIncr);
             for (;;) {
-                for (int jj=0;jj<4;jj++) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[jj]>>5));
+                for (int jj=0;jj<4;jj++) m_voice_buff[jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[jj]>>5));
                 
-                if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((dacout>>5));
-                else m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[4]>>5));
-                m_voice_buff[m_voice_ofs+5][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[5]>>5));
+                if (F2612->dac_test) m_voice_buff[4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((dacout>>5));
+                else m_voice_buff[4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[4]>>5));
+                m_voice_buff[5][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((out_fm[5]>>5));
                 
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
             while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
-            for (int jj=0;jj<6;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
-        }
+            for (int jj=0;jj<6;jj++) m_voice_current_ptr[jj]=ofs_end;
+        
         //TODO:  MODIZER changes end / YOYOFR
 
 		/* 6-channels mixing  */

@@ -29,6 +29,9 @@ namespace xgm
     UINT32 gclock;
     UINT8 reg[0x20];
     INT32 out[2];
+      //YOYOFR
+      INT32 outOscillo[2];
+      //YOYOFR
     double rate, clock;
 
     INT32 square_table[32];     // nonlinear mixer
@@ -81,6 +84,9 @@ namespace xgm
     virtual void SetMask(int m){ mask = m; }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
   };
 
 }                               // namespace

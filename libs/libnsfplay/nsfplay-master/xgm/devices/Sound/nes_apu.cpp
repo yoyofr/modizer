@@ -175,6 +175,10 @@ namespace xgm
     b[1]  = m[0] * sm[1][0];
     b[1] += m[1] * sm[1][1];
     b[1] >>= 7;
+      //YOYOFR
+      outOscillo[0]=m[0] * (sm[0][0]+sm[1][0]) >> 7;
+      outOscillo[1]=m[1] * (sm[0][1]+sm[1][1]) >> 7;
+      //YOYOFR
 
     return 2;
   }

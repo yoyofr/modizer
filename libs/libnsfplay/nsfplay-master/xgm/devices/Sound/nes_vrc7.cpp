@@ -149,6 +149,9 @@ namespace xgm
         INT32 val = (mask & (1<<i)) ? 0 : opll->ch_out[i] >> 4;
         b[0] += val * sm[0][i];
         b[1] += val * sm[1][i];
+        //YOYOFR
+        outOscillo[i]=(val*(sm[0][i]+sm[1][i]))>>1;
+        //YOYOFR
     }
 
     // HACK for YM2413 support
@@ -173,6 +176,10 @@ namespace xgm
             val >>= 4;
             b[0] += val * sm[0][i];
             b[1] += val * sm[1][i];
+            
+            //YOYOFR
+            outOscillo[i]=(val*(sm[0][i]+sm[1][i]))>>1;
+            //YOYOFR
         }
     }
 
@@ -183,6 +190,8 @@ namespace xgm
     const INT32 MASTER = INT32(1.15 * 256.0);
     b[0] = (b[0] * MASTER) >> 8;
     b[1] = (b[1] * MASTER) >> 8;
+      
+      
 
     return 2;
   }

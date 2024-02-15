@@ -205,7 +205,6 @@ bool pxtnService::_moo_PXTONE_SAMPLE( void *p_data )
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int m_voice_ofs=0;
     int m_total_channels=7;
     if (!m_voice_current_samplerate) {
         m_voice_current_samplerate=44100;
@@ -225,17 +224,17 @@ bool pxtnService::_moo_PXTONE_SAMPLE( void *p_data )
             //YOYOFR
 
             //TODO:  MODIZER changes start / YOYOFR
-            if (m_voice_ofs>=0) {
-                int ofs_start=m_voice_current_ptr[m_voice_ofs+u];
-                int ofs_end=(m_voice_current_ptr[m_voice_ofs+u]+smplIncr);
+            
+                int ofs_start=m_voice_current_ptr[u];
+                int ofs_end=(m_voice_current_ptr[u]+smplIncr);
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+u][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((_units [ u ]->last_smpl>>8));
+                    m_voice_buff[u][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((_units [ u ]->last_smpl>>8));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
                 while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
-                m_voice_current_ptr[m_voice_ofs+u]=ofs_end;
-            }
+                m_voice_current_ptr[u]=ofs_end;
+            
             //TODO:  MODIZER changes end / YOYOFR
         }
 		for( int32_t o = 0; o < _ovdrv_num; o++ ) _ovdrvs[ o ]->Tone_Supple(     _moo_group_smps );

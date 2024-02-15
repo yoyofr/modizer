@@ -22,6 +22,9 @@ namespace xgm
     //INT32 sm[2][6]; // stereo mix
     INT32 sm[2][9]; // stereo mix temporary HACK to support YM2413
     INT16 buf[2];
+      //YOYOFR
+      INT32 outOscillo[9];
+      //YOYOFR
     OPLL *opll;
     UINT32 divider; // clock divider
     double clock, rate;
@@ -46,6 +49,9 @@ namespace xgm
     virtual void SetMask (int m){ mask = m; if(opll) OPLL_setMask(opll, m); }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
   };
 
 }                               // namespace

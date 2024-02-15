@@ -21,6 +21,9 @@ namespace xgm
     int divider; // clock divider
     double clock, rate;
     TrackInfoBasic trkinfo[5];
+      //YOYOFR
+      INT32 outOscillo[3];
+      //YOYOFR
   public:
       NES_FME7 ();
      ~NES_FME7 ();
@@ -35,6 +38,9 @@ namespace xgm
     virtual void SetMask (int m){ if(psg) PSG_setMask(psg,m); }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
   };
 
 }                               // namespace

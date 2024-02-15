@@ -192,6 +192,12 @@ namespace xgm
     const INT32 MASTER = INT32(256.0 * 1223.0 / 1920.0);
     b[0] = (b[0] * MASTER) >> 8;
     b[1] = (b[1] * MASTER) >> 8;
+      
+      //YOYOFR
+      outOscillo[0]=(m[0] * (sm[0][0]+sm[1][0])*MASTER) >> 9;
+      outOscillo[1]=(m[1] * (sm[0][1]+sm[1][1])*MASTER) >> 9;
+      outOscillo[2]=(m[2] * (sm[0][2]+sm[1][2])*MASTER) >> 9;
+      //YOYOFR
 
     return 2;
   }

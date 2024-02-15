@@ -40,6 +40,9 @@ namespace xgm
     UINT32 adr_reg;
     IDevice *memory;
     UINT32 out[3];
+      //YOYOFR
+      UINT32 outOscillo[3];
+      //YOYOFR
     UINT32 daddress;
     UINT32 dlength;
     UINT32 data;
@@ -120,7 +123,9 @@ namespace xgm
     virtual void SetMask(int m){ mask = m; }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
-
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
     void SetCPU(NES_CPU* cpu_);
   };
 

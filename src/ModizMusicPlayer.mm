@@ -1894,6 +1894,23 @@ xgm::NSFPlayer *nsfPlayer;
 xgm::NSFPlayerConfig *nsfPlayerConfig;
 xgm::NSF *nsfData;
 
+#define NES_MAX_CHIPS 8
+enum {
+    NES_OFF=0,
+    NES_APU,
+    NES_FDS,
+    NES_FME7,
+    NES_MMC5,
+    NES_N106,
+    NES_VRC6,
+    NES_VRC7
+};
+char nsfChipsetType[NES_MAX_CHIPS];
+char nsfChipsetStartVoice[NES_MAX_CHIPS];
+char nsfChipsetVoicesCount[NES_MAX_CHIPS];
+char nsfChipsetName[NES_MAX_CHIPS][16];
+char nsfChipsetCount;
+
 
 static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsize)
 {
@@ -2685,6 +2702,8 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(buffer_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
         memset(tim_notes[i],0,DEFAULT_VOICES*4);
         memset(tim_notes_cpy[i],0,DEFAULT_VOICES*4);
+        memset(m_voice_buff_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+        memset(m_voice_buff_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
     }
     
@@ -4290,8 +4309,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                                 else mFadeSamplesStart=1<<30;
                                 mod_message_updated=2;
-                            }
-                            if (mPlayType==MMP_HVL) {
+                            } else if (mPlayType==MMP_HVL) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
                                 
                                 iModuleLength=hvl_GetPlayTime(hvl_song);
@@ -4302,8 +4320,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
-                            }
-                            if (mPlayType==MMP_XMP) {
+                            } else if (mPlayType==MMP_XMP) {
                                 xmp_set_position(xmp_ctx,mod_currentsub);
                                 
                                 iModuleLength=xmp_mi->seq_data[mod_currentsub].duration;
@@ -4315,8 +4332,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
-                            }
-                            if (mPlayType==MMP_VGMSTREAM) {
+                            } else if (mPlayType==MMP_VGMSTREAM) {
                                 [self vgmStream_ChangeToSub:mod_currentsub];
                                 iCurrentTime=0;
                                 
@@ -4328,8 +4344,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=2;
-                            }
-                            if (mPlayType==MMP_OPENMPT) {
+                            } else if (mPlayType==MMP_OPENMPT) {
                                 openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
                                 iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                                 iCurrentTime=0;
@@ -4341,8 +4356,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
-                            }
-                            if (mPlayType==MMP_GME) {//GME
+                            } else if (mPlayType==MMP_GME) {//GME
                                 gme_start_track(gme_emu,mod_currentsub);
                                 sprintf(mod_name," %s",mod_filename);
                                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
@@ -4379,8 +4393,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut );
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
-                            }
-                            if (mPlayType==MMP_SIDPLAY) { //SID
+                            } else if (mPlayType==MMP_SIDPLAY) { //SID
                                 mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                                 
@@ -4396,8 +4409,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
-                            }
-                            if (mPlayType==MMP_SC68) {//SC68
+                            } else if (mPlayType==MMP_SC68) {//SC68
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                 sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
@@ -4410,8 +4422,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
                                 mod_message_updated=1;
-                            }
-                            if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
+                            } else if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
                                 atariSndh.InitSubSong(mod_currentsub);
                                 SndhFile::SubSongInfo info;
                                 atariSndh.GetSubsongInfo(mod_currentsub,info);
@@ -4435,33 +4446,32 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         iModuleLength=frames*1000/info.playerTickRate;
                                     }
                                 }
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 mod_message_updated=2;
-                            }
-                            if (mPlayType==MMP_PT3) {//PT3
+                            } else if (mPlayType==MMP_PT3) {//PT3
                                 //subsong not supported
-                            }
-                            if (mPlayType==MMP_NSFPLAY) { //NSFPLAY
+                            } else if (mPlayType==MMP_NSFPLAY) { //NSFPLAY
                                 nsfPlayer->SetSong(mod_currentsub);
                                 nsfPlayer->Reset();
                                 
+                                iCurrentTime=0;
+                                mCurrentSamples=0;
+                                
                                 iModuleLength=nsfPlayer->GetLength();
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 mod_message_updated=2;
-                            }
-                            if (mPlayType==MMP_ASAP) {//ASAP
+                            } else if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
                                 if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
-                                
                                 
                                 iCurrentTime=0;
                                 
@@ -5006,9 +5016,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_NSFPLAY) {
+                            
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                m_voice_current_ptr[j]=0;
+                            }
+                        
+                            
                             nbBytes=nsfPlayer->Render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes*=4;
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<numVoicesChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                }
+                            }
                         }
                         if (mPlayType==MMP_PT3) { //PT3
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -6362,9 +6385,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     }
     mod_title=[NSString stringWithUTF8String:mod_name];
     artist=[NSString stringWithFormat:@"%s",nsfData->artist];
-    
-    mod_message[0]=0;
-    
+            
     mod_subsongs=nsfData->GetSongNum();
     mod_minsub=0;
     mod_maxsub=mod_subsongs-1;
@@ -6377,12 +6398,102 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     iCurrentTime=0;
     
-    numChannels=2;
-    m_voicesDataAvail=0;
-    numVoicesChannels=numChannels;
-    for (int i=0;i<numVoicesChannels;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    
+    
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\Artist...: %s\n",nsfData->title,nsfData->artist);
+    
+    numChannels=0;
+    memset(nsfChipsetType,0,sizeof(nsfChipsetType));
+    nsfChipsetCount=0;
+    nsfChipsetType[nsfChipsetCount]=NES_APU;
+    nsfChipsetStartVoice[nsfChipsetCount]=0;
+    nsfChipsetVoicesCount[nsfChipsetCount]=5;
+    snprintf(nsfChipsetName[nsfChipsetCount],16,"APU");
+    for (int i=numChannels;i<numChannels+5;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
     }
+    numChannels+=5;
+    nsfChipsetCount++;
+    
+    
+    if (nsfData->use_fds) {
+        strcat(mod_message,"Mapper: FDS\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_FDS;
+        nsfChipsetVoicesCount[nsfChipsetCount]=1;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"FDS");
+        for (int i=numChannels;i<numChannels+1;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels++;
+        nsfChipsetCount++;
+        
+    }
+    if (nsfData->use_fme7) {
+        strcat(mod_message,"Mapper: FME7\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_FME7;
+        nsfChipsetVoicesCount[nsfChipsetCount]=3;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"FME7");
+        for (int i=numChannels;i<numChannels+3;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels+=3;
+        nsfChipsetCount++;
+    }
+    if (nsfData->use_mmc5) {
+        strcat(mod_message,"Mapper: MMC5\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_MMC5;
+        nsfChipsetVoicesCount[nsfChipsetCount]=3;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"MMC5");
+        for (int i=numChannels;i<numChannels+3;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels+=3;
+        nsfChipsetCount++;
+    }
+    if (nsfData->use_n106) {
+        strcat(mod_message,"Mapper: N106\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_N106;
+        nsfChipsetVoicesCount[nsfChipsetCount]=8;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"N106");
+        for (int i=numChannels;i<numChannels+8;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels+=8;
+        nsfChipsetCount++;
+    }
+    if (nsfData->use_vrc6) {
+        strcat(mod_message,"Mapper: VRC6\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_VRC6;
+        nsfChipsetVoicesCount[nsfChipsetCount]=3;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"VRC6");
+        for (int i=numChannels;i<numChannels+3;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels+=3;
+        nsfChipsetCount++;
+    }
+    if (nsfData->use_vrc7) {
+        strcat(mod_message,"Mapper: VRC7\n");
+        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
+        nsfChipsetType[nsfChipsetCount]=NES_VRC7;
+        nsfChipsetVoicesCount[nsfChipsetCount]=9;
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"VRC7");
+        for (int i=numChannels;i<numChannels+9;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        }
+        numChannels+=9;
+        nsfChipsetCount++;
+    }
+    
+    
+    
+    m_voicesDataAvail=1;
+    numVoicesChannels=numChannels;
     
     return 0;
 }
@@ -10498,6 +10609,12 @@ extern bool icloud_available;
             [self Play];
             break;
         case MMP_NSFPLAY:  //TODO: TO COMPLETE with subsong
+            mod_currentsub=subsong;
+            nsfPlayer->SetSong(mod_currentsub-mod_minsub);
+            nsfPlayer->Reset();
+            iModuleLength=nsfPlayer->GetLength();
+            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -11521,6 +11638,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_NSFPLAY:
         case MMP_PIXEL:
         case MMP_EUP:
         case MMP_PT3:
@@ -11542,6 +11660,10 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_NSFPLAY: {
+            int chipIdx=[self getSystemForVoice:channel];
+            return [NSString stringWithFormat:@"%d-%s",channel-nsfChipsetStartVoice[chipIdx]+1,nsfChipsetName[chipIdx]];
+        }
         case MMP_2SF:
             return [NSString stringWithFormat:@"#%d-NDS",channel+1];
         case MMP_V2M:
@@ -11610,6 +11732,8 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemsNb {
     switch (mPlayType) {
+        case MMP_NSFPLAY:
+            return nsfChipsetCount;
         case MMP_HC:
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
@@ -11645,6 +11769,8 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_NSFPLAY:
+            return [NSString stringWithFormat:@"%s",nsfChipsetName[systemIdx]];
         case MMP_2SF:
             return @"NDS";
         case MMP_V2M:
@@ -11693,6 +11819,11 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
+        case MMP_NSFPLAY:
+            for (int i=0;i<nsfChipsetCount;i++) {
+                if ((voiceIdx>=nsfChipsetStartVoice[i])&&(voiceIdx<nsfChipsetStartVoice[i]+nsfChipsetVoicesCount[i])) return i;
+            }
+            return 0;
         case MMP_HC:
             if (HC_type==1) return 0;
             else if (HC_type==2) return voiceIdx/24;
@@ -11736,6 +11867,12 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemm_voicesStatus:(int)systemIdx {
     int tmp;
     switch (mPlayType) {
+        case MMP_NSFPLAY:
+            tmp=0;
+            for (int i=nsfChipsetStartVoice[systemIdx];i<nsfChipsetStartVoice[systemIdx]+nsfChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
+            if (tmp==nsfChipsetVoicesCount[systemIdx]) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
         case MMP_HC:
             tmp=0;
             if (HC_type==1) {
@@ -11864,6 +12001,9 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i];
             else for (int i=6;i<14;i++) [self setm_voicesStatus:active index:i];
             break;
+        case MMP_NSFPLAY:
+            for (int i=nsfChipsetStartVoice[systemIdx];i<nsfChipsetStartVoice[systemIdx]+nsfChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
+            break;
         case MMP_PIXEL:
         case MMP_2SF:
         case MMP_V2M:
@@ -11915,6 +12055,44 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_NSFPLAY: {
+            int chipIdx=[self getSystemForVoice:channel];
+            int voiceIdx=channel-nsfChipsetStartVoice[chipIdx];
+            int current_mask=(*nsfPlayerConfig)["MASK"];
+            switch (nsfChipsetType[chipIdx]) {
+                case NES_APU:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<voiceIdx);
+                    else current_mask|=(1<<voiceIdx);
+                    break;
+                case NES_FDS:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<5);
+                    else current_mask|=(1<<5);
+                    break;
+                case NES_MMC5:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+6));
+                    else current_mask|=(1<<(voiceIdx+6));
+                    break;
+                case NES_FME7:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+9));
+                    else current_mask|=(1<<(voiceIdx+9));
+                    break;
+                case NES_VRC6:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+12));
+                    else current_mask|=(1<<(voiceIdx+12));
+                    break;
+                case NES_VRC7:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+15));
+                    else current_mask|=(1<<(voiceIdx+15));
+                    break;
+                case NES_N106:
+                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+21));
+                    else current_mask|=(1<<(voiceIdx+21));
+                    break;
+            }
+            (*nsfPlayerConfig)["MASK"]=current_mask;
+            nsfPlayer->Notify(-1);
+        }
+            break;
         case MMP_2SF:
             xSFPlayer->MuteChannels(channel,active);
             break;

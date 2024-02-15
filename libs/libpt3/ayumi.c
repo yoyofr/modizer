@@ -6,7 +6,6 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../src/ModizerVoicesData.h"
-static int m_voice_ofs;
 static int smplIncr;
 static int m_voice_currentChannel;
 //TODO:  MODIZER changes end / YOYOFR
@@ -148,10 +147,10 @@ static void update_mixer(struct ayumi* ay,int ch) {
     ay->right += ay->dac_table[out] * ay->channels[i].pan_right;
       
       //TODO:  MODIZER changes start / YOYOFR
-      if (m_voice_ofs>=0) {
+      
           m_voice_currentChannel=ch*3+i;
           m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( ay->dac_table[out]*224 );
-      }
+      
       //TODO:  MODIZER changes end / YOYOFR
   }
 }
@@ -350,12 +349,14 @@ void ayumi_process(struct ayumi* ay,int ch) {
   ay->left = decimate(fir_left);
   ay->right = decimate(fir_right);
     
+    //YOYOFR
     smplIncr=1024;
     for (int i=0;i<TONE_CHANNELS;i++) {
         m_voice_currentChannel=ch*3+i;
         m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
         if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
     }
+    //YOYOFR
 }
 
 

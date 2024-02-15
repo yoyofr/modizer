@@ -29,6 +29,9 @@ namespace xgm
     UINT32 volume[2];
     UINT32 freq[2];
     INT32 out[3];
+      //YOYOFR
+      INT32 outOscillo[3];
+      //YOYOFR
     bool enable[2];
 
     bool envelope_disable[2];   // エンベロープ有効フラグ
@@ -65,7 +68,9 @@ namespace xgm
     virtual void SetMask (int m){ mask = m; }
     virtual void SetStereoMix (int trk, xgm::INT16 mixl, xgm::INT16 mixr);
     virtual ITrackInfo *GetTrackInfo(int trk);
-
+      //YOYOFR
+      virtual INT32 GetOut(int trk) {return outOscillo[trk];}
+      //YOYOFR
     void SetCPU(NES_CPU* cpu_);
   };
 
