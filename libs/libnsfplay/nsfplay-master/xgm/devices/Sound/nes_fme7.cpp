@@ -111,9 +111,9 @@ xgm::UINT32 NES_FME7::Render (xgm::INT32 b[2])
   b[0] = (b[0] * MASTER) >> 8;
   b[1] = (b[1] * MASTER) >> 8;
     //YOYOFR
-    outOscillo[0]=((psg->cout[0] * (sm[0][0]+sm[1][0])*MASTER) >> 11);
-    outOscillo[1]=((psg->cout[1] * (sm[0][1]+sm[1][1])*MASTER) >> 11);
-    outOscillo[2]=((psg->cout[2] * (sm[0][2]+sm[1][2])*MASTER) >> 11);
+    outOscillo[0]=-((psg->cout[0] * (sm[0][0]+sm[1][0])*MASTER) >> 11);
+    outOscillo[1]=-((psg->cout[1] * (sm[0][1]+sm[1][1])*MASTER) >> 11);
+    outOscillo[2]=-((psg->cout[2] * (sm[0][2]+sm[1][2])*MASTER) >> 11);
     //YOYOFR
 
   return 2;

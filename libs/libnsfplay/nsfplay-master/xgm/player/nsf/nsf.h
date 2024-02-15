@@ -42,6 +42,9 @@ namespace xgm
     const char* copyright;
     const char* ripper; // NSFe only
     const char* text; // NSFe only
+      //YOYOFR
+      bool is_nsfe;
+      //YOYOFR
     UINT32 text_len; // NSFe only
     UINT16 speed_ntsc;
     UINT8 bankswitch[8];

@@ -88,6 +88,9 @@ static const char* nsf_error = "(no NSF loaded)";
     nsfe_image = NULL;
     nsfe_plst = NULL;
     nsfe_plst_size = 0;
+      //YOYOFR
+      is_nsfe=false;
+      //YOYOFR
     for (unsigned int i=0; i<NSFE_MIXES; ++i) nsfe_mixe[i] = NSFE_MIXE_DEFAULT;
   }
 
@@ -281,7 +284,7 @@ static const char* nsf_error = "(no NSF loaded)";
       } while (true);
     }
 
-    title_unknown = false;
+    //title_unknown = false;
     return print_title;
   }
 
@@ -510,6 +513,9 @@ static const char* nsf_error = "(no NSF loaded)";
     memcpy (magic, image, 4);
     magic[4] = '\0';
 
+      //YOYOFR
+      is_nsfe=false;
+      //YOYOFR
     if (strcmp ("NESM", magic))
     {
       bool result = LoadNSFe(image, size, false);
@@ -932,6 +938,10 @@ static const char* nsf_error = "(no NSF loaded)";
         chunk_offset += chunk_size;
     }
 
+      //YOYOFR
+      is_nsfe=true;
+      //YOYOFR
+      
     nsfe_error = "";
     return true;
   }

@@ -4462,11 +4462,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 
                                 iModuleLength=nsfPlayer->GetLength();
-                                NSLog(@"song length: %d",iModuleLength);
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
+                                const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
+                                const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+                                if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
+                                    
+                                if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
+                                else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+                                
                                 
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_ASAP) {//ASAP
@@ -6391,14 +6398,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     nsfPlayer->SetSong(0);
     nsfPlayer->Reset();
     
-    // song info
-    if (nsfData->title[0]) {
-        sprintf(mod_name," %s",nsfData->title);
-    } else {
-        sprintf(mod_name," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
-    }
-    mod_title=[NSString stringWithUTF8String:mod_name];
-    artist=[NSString stringWithFormat:@"%s",nsfData->artist];
             
     mod_subsongs=nsfData->GetSongNum();
     mod_minsub=0;
@@ -6412,9 +6411,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     iCurrentTime=0;
     
+    // song info
+    const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
+    const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+    if (nsf_title[0]==0) nsf_title=[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String];
+        
+    if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
+    else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+    mod_title=[NSString stringWithUTF8String:nsf_title];
     
+    artist=[NSString stringWithFormat:@"%s",nsfData->artist];
     
-    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\Artist...: %s\n",nsfData->title,nsfData->artist);
+
     
     numChannels=0;
     memset(nsfChipsetType,0,sizeof(nsfChipsetType));
@@ -6430,8 +6438,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     nsfChipsetCount++;
     
     
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nArtist...: %s\nCopyright: %s\n",nsfData->GetTitleString("%T",-1),nsfData->artist,nsfData->copyright);
+    if (nsfData->ripper) {
+        strcat(mod_message,"Ripper...: ");
+        strcat(mod_message,nsfData->ripper);
+        strcat(mod_message,"\n");
+    }
+    
     if (nsfData->use_fds) {
-        strcat(mod_message,"Mapper: FDS\n");
+        strcat(mod_message,"Mapper...: FDS\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_FDS;
         nsfChipsetVoicesCount[nsfChipsetCount]=1;
@@ -6444,7 +6459,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
     }
     if (nsfData->use_fme7) {
-        strcat(mod_message,"Mapper: FME7\n");
+        strcat(mod_message,"Mapper...: FME7\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_FME7;
         nsfChipsetVoicesCount[nsfChipsetCount]=3;
@@ -6456,7 +6471,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetCount++;
     }
     if (nsfData->use_mmc5) {
-        strcat(mod_message,"Mapper: MMC5\n");
+        strcat(mod_message,"Mapper...: MMC5\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_MMC5;
         nsfChipsetVoicesCount[nsfChipsetCount]=3;
@@ -6468,7 +6483,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetCount++;
     }
     if (nsfData->use_n106) {
-        strcat(mod_message,"Mapper: N106\n");
+        strcat(mod_message,"Mapper...: N106\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_N106;
         nsfChipsetVoicesCount[nsfChipsetCount]=8;
@@ -6480,7 +6495,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetCount++;
     }
     if (nsfData->use_vrc6) {
-        strcat(mod_message,"Mapper: VRC6\n");
+        strcat(mod_message,"Mapper...: VRC6\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_VRC6;
         nsfChipsetVoicesCount[nsfChipsetCount]=3;
@@ -6492,7 +6507,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetCount++;
     }
     if (nsfData->use_vrc7) {
-        strcat(mod_message,"Mapper: VRC7\n");
+        strcat(mod_message,"Mapper...: VRC7\n");
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_VRC7;
         nsfChipsetVoicesCount[nsfChipsetCount]=9;
@@ -6503,6 +6518,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         numChannels+=9;
         nsfChipsetCount++;
     }
+    
+    if (nsfData->text) {
+        strcat(mod_message,"\n");
+        strcat(mod_message,nsfData->text);
+        strcat(mod_message,"\n");
+    }
+    
     
     
     
@@ -10622,10 +10644,17 @@ extern bool icloud_available;
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
-        case MMP_NSFPLAY:  //TODO: TO COMPLETE with subsong
+        case MMP_NSFPLAY:{
             mod_currentsub=subsong;
             nsfPlayer->SetSong(mod_currentsub-mod_minsub);
             nsfPlayer->Reset();
+            
+            const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
+            const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+            if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
+            if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
+            else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+            
             iModuleLength=nsfPlayer->GetLength();
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
             
@@ -10633,6 +10662,7 @@ extern bool icloud_available;
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
+        }
         case MMP_ATARISOUND:  //SNDH
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
@@ -11032,7 +11062,7 @@ extern bool icloud_available;
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
-    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)||(mPlayType==MMP_NSFPLAY)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -11049,7 +11079,7 @@ extern bool icloud_available;
 
 -(NSString*) getModName {
     NSString *modName;
-    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX) ) return [[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];;
+    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_NSFPLAY) ) return [[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];;
     modName=[[NSString stringWithUTF8String:mod_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
     
     if (modName==nil) return @"";
@@ -11159,6 +11189,8 @@ extern bool icloud_available;
         const char *str=info.musicSubTitle;
         if (!str) str=info.musicTitle;
         return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:str]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];;
+    } else if (mPlayType==MMP_NSFPLAY) {
+        return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,nsfData->GetTitleString("%L",subsong)];
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
 }
@@ -11207,7 +11239,10 @@ extern bool icloud_available;
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
     if (mPlayType==MMP_PT3) return @"PT3";
-    if (mPlayType==MMP_NSFPLAY) return @"NSF"; //TODO: manage NSFE
+    if (mPlayType==MMP_NSFPLAY) {
+        if (nsfData->is_nsfe) return @"NSFe";
+        return @"NSF";
+    }
     if (mPlayType==MMP_PIXEL) {
         if (pixel_organya_mode) return @"Organya";
         else return @"PxTone";
