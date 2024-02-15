@@ -14,6 +14,13 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 #include "RenderUtils.h"
 #include "TextureUtils.h"
 
+#import "Font.h"
+#import "GLString.h"
+
+
+//class CFont;
+//class CGLString;
+
 #define MAX_VISIBLE_CHAN 64
 
 #define SPECTRUM_DEPTH 32
@@ -108,13 +115,16 @@ static signed char *prev_snd_dataStereo;
 int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 signed char cur_snd_data[SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX];
 
+CFont *mOscilloFont=NULL;
+CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
+
 #define FX_OSCILLO_MAXROWS 8
 #include "ModizerVoicesData.h"
 
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode,float mScaleFactor) {
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,uint basic_voicedata_mode,float mScaleFactor,char *voices_label) {
     LineVertex *pts;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -151,15 +161,28 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         first_call=0;
     }
     
+    if (!mOscilloFont) {
+        NSString *fontPath;
+        if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking12" ofType: @"fnt"];
+        mOscilloFont = new CFont([fontPath cStringUsingEncoding:1]);
+    }
+    
+    if (mOscilloFont && voices_label)
+    for (int i=0;i<num_voices;i++) {
+        if (mVoicesName[i]) {
+            if (strcmp(mVoicesName[i]->mText,voices_label+i*32)) {
+                //not the same, reset string
+                delete mVoicesName[i];
+                mVoicesName[i]=NULL;
+            }
+        }
+        if (!mVoicesName[i]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont,mScaleFactor);
+    }
     
         
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     
     int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
@@ -293,6 +316,15 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 colG*=1.2f;
                 colB*=1.2f;
             }
+            
+            //draw label if specified
+            if (voices_label&&mVoicesName[cur_voices]) {
+                glPushMatrix();
+                glTranslatef(xpos,ypos-mulfactor/4-(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
+                mVoicesName[cur_voices]->Render(255);
+                glPopMatrix();
+            }
+            
             for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
                 val[cur_voices]=cur_snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
@@ -314,6 +346,14 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             }
         }
     }
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
     glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);

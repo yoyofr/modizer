@@ -821,6 +821,8 @@
 		CC4F49DA2B7021A0002A9309 /* c6410.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D82B7021A0002A9309 /* c6410.fnt */; };
 		CC4F49DB2B7021A0002A9309 /* tracking10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D92B7021A0002A9309 /* tracking10.fnt */; };
 		CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4F49F62B704F4D002A9309 /* liblibeupmini.a */; };
+		CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333582B7E938B009ED5D7 /* tracking12.fnt */; };
+		CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333592B7E938C009ED5D7 /* tracking14.fnt */; };
 		CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
@@ -2395,6 +2397,8 @@
 		CC4F49D82B7021A0002A9309 /* c6410.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6410.fnt; sourceTree = "<group>"; };
 		CC4F49D92B7021A0002A9309 /* tracking10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking10.fnt; sourceTree = "<group>"; };
 		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
+		CC5333582B7E938B009ED5D7 /* tracking12.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking12.fnt; sourceTree = "<group>"; };
+		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC59B9061AC4B882004FEEBA /* FileExtractor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FileExtractor.xcodeproj; path = utils/File_Extractor/libFileExtractor/FileExtractor.xcodeproj; sourceTree = "<group>"; };
 		CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12c_2x.png; sourceTree = "<group>"; };
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
@@ -4247,6 +4251,8 @@
 				CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */,
 				CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */,
 				CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */,
+				CC5333582B7E938B009ED5D7 /* tracking12.fnt */,
+				CC5333592B7E938C009ED5D7 /* tracking14.fnt */,
 				CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */,
 				CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */,
 				CC4F49C72B6FB728002A9309 /* c6416.fnt */,
@@ -5891,6 +5897,7 @@
 				CC1E6390120423E0000A8A4E /* SonicArranger in Resources */,
 				CC1E6391120423E0000A8A4E /* SonicArranger-pc-all in Resources */,
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
+				CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */,
 				CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */,
 				CC1E6393120423E0000A8A4E /* Sound-FX in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
@@ -6095,6 +6102,7 @@
 				59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */,
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
+				CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
 				59909B601E3E7F2400C629AA /* tabview_gradient40Black.png in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,

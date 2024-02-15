@@ -6637,12 +6637,29 @@ extern "C" int current_sample;
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
-                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor);
+                    char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
+                    
+                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
+                        memset(voicesName,0,sizeof(voicesName));
+                        for (int i=0;i<mplayer.numVoicesChannels;i++) {
+                            snprintf(voicesName+i*32,32,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                        }
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
                 } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
-                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor);
+                    char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
+                    
+                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
+                        memset(voicesName,0,sizeof(voicesName));
+                        for (int i=0;i<mplayer.numVoicesChannels;i++) {
+                            snprintf(voicesName+i*32,32,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                        }
+                        
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,NULL);
                 } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
                 break;
             case 3:

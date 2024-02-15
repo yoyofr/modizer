@@ -329,6 +329,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
@@ -883,6 +884,13 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Multi 1";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo";
+    
+    settings[GLOB_FXOscilloShowLabel].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXOscilloShowLabel].label=(char*)"Oscillo show label";
+    settings[GLOB_FXOscilloShowLabel].description=NULL;
+    settings[GLOB_FXOscilloShowLabel].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXOscilloShowLabel].sub_family=0;
+    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";

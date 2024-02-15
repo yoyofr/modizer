@@ -183,6 +183,7 @@ enum MDZ_SETTINGS {
         GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
     GLOB_FXOscillo,
+        GLOB_FXOscilloShowLabel,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
     GLOB_FX1,
