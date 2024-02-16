@@ -4402,7 +4402,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     iModuleLength=gme_info->play_length;
                                     if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                     
-                                    sprintf(mod_message,"Song:%s\nGame:%s\nAuthor:%s\nDumper:%s\nCopyright:%s\nTracks:%d\n%s",
+                                    sprintf(mod_message,"Song.......: %s\nGame.......: %s\nAuthor.....: %s\nDumper.....: %s\nCopyright..: %s\nTracks......: %d\n%s",
                                             (gme_info->song?gme_info->song:" "),
                                             (gme_info->game?gme_info->game:" "),
                                             (gme_info->author?gme_info->author:" "),
@@ -5908,52 +5908,52 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     if (!psftag_getvar(tag, "title", title_str, sizeof(title_str)-1)) {
         //BOLD(); printf("Title: "); NORMAL();
-        sprintf(mod_message,"%sTitle:%s\n",mod_message,title_str);
+        sprintf(mod_message,"%sTitle......: %s\n",mod_message,title_str);
         //printf("%s\n", title_str);
     }
     
     if (!psftag_getvar(tag, "artist", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Artist: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sArtist:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sArtist.....: %s\n",mod_message,tmp_str);
         artist=[NSString stringWithFormat:@"%s",tmp_str];
     }
     
     if (!psftag_getvar(tag, "game", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Game: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sGame:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sGame.......: %s\n",mod_message,tmp_str);
         album=[NSString stringWithFormat:@"%s",tmp_str];
     }
     
     if (!psftag_getvar(tag, "year", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Year: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sYear:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sYear.......: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "copyright", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Copyright: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sCopyright:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sCopyright..: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "gsfby", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("GSF By: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sGSFby:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sGSFby......: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "tagger", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Tagger: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sTagger:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sTagger.....: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "comment", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Comment: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sComment:%s\n",mod_message,tmp_str);
+        sprintf(mod_message,"%sComment....: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "fade", fade_str, sizeof(fade_str)-1)) {
@@ -8764,7 +8764,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         
         if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
         
-        sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nUSF By:\t%s\nCopyright:\t%s\nTrack:\t%s\nSample rate: %dHz\nLength: %ds\n",
+        sprintf(mod_message,"Game.......:\t%s\nTitle......:\t%s\nArtist.....:\t%s\nYear.......:\t%s\nGenre......:\t%s\nRipper.....:\t%s\nCopyright..:\t%s\nTrack......:\t%s\nSample rate: %dHz\nLength: %ds\n",
                 (usf_info_data->inf_game?usf_info_data->inf_game:""),
                 (usf_info_data->inf_title?usf_info_data->inf_title:""),
                 (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
@@ -8785,9 +8785,13 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
         
         sprintf(mod_message,"\n");
+        const char *padding="...........";
+        int tgtstrlen=11;
         for (id key in info.info) {
+            
             id value = info.info[key];
-            NSString *tmpstr=[NSString stringWithFormat:@"%@:%@\n",key,value];
+            int padLen=tgtstrlen-[key length];
+            NSString *tmpstr=[NSString stringWithFormat:@"%@%*.*s: %@\n",key,padLen,padLen,padding,value];
             strcat(mod_message,[tmpstr UTF8String]);
             
             if ([key isEqualToString:@"album"]&&([value length]>0)) {
@@ -8798,7 +8802,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
                 artist=[NSString stringWithString:value];
             }
         }
-        strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength: %ds\n",hc_sample_rate,iModuleLength/1000] UTF8String]);
+        //strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength.....: %ds\n",hc_sample_rate,iModuleLength/1000] UTF8String]);
     }
     //Loop
     if (mLoopMode==1) iModuleLength=-1;

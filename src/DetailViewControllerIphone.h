@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-#define MAX_MENU_FX_STRING 9
+#define MAX_MENU_FX_STRING 10
 
 #import "Queue.h"
 #import "DBHelper.h"

@@ -510,6 +510,8 @@ static int display_length_mode=0;
     if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) active_idx|=1<<10;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<11;
+    
+    if (oglViewFullscreen) active_idx|=1<<13;
     return active_idx;
 }
 
@@ -4716,12 +4718,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView addGestureRecognizer:glViewOneFingerOneTap];
     
     // Create gesture recognizer
-    UITapGestureRecognizer *glViewOneFingerTwoTaps = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)];
+    /*UITapGestureRecognizer *glViewOneFingerTwoTaps = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)];
     // Set required taps and number of touches
     [glViewOneFingerTwoTaps setNumberOfTapsRequired:2];
     [glViewOneFingerTwoTaps setNumberOfTouchesRequired:1];
     // Add the gesture to the view
-    [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];
+    [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];*/
     
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)];
@@ -5538,11 +5540,11 @@ void infoSubMenuShowImages(int window_width,int window_height,int start_index,in
 
 
 static int mOglView1Tap=0;
-static int mOglView2Taps=0;
--(void) glViewOneFingerTwoTaps {
+//static int mOglView2Taps=0;
+/*-(void) glViewOneFingerTwoTaps {
     mOglView2Taps=1;
     mOglView1Tap=0;
-}
+}*/
 
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
     mOglView1Tap=2;
@@ -5640,6 +5642,8 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[5]) viewTapInfoStr[5]= new CGLString("Size 16", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[6]) viewTapInfoStr[6]= new CGLString("Size 24", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[7]) viewTapInfoStr[7]= new CGLString("Size 32", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[8]) viewTapInfoStr[8]= new CGLString("Show labels", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[9]) viewTapInfoStr[9]= new CGLString("Fullscreen", mFontMenu,mScaleFactor);
     
 		    
 	//get ogl view dimension
@@ -5729,13 +5733,13 @@ extern "C" int current_sample;
             note_fx_linewidth=hh/tim_midifx_note_range;
         }
     }
-		if (mOglView2Taps) { //double tap: fullscreen switch
+		/*if (mOglView2Taps) { //double tap: fullscreen switch
             mOglView2Taps=0;
 			oglViewFullscreen^=1;
 			oglViewFullscreenChanged=1;
             viewTapHelpShow=0;
 			[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-		}
+		}*/
 
     
 	//check for click
@@ -5818,7 +5822,11 @@ extern "C" int current_sample;
                 viewTapHelpShow_SubNb=SUBMENU8_SIZE;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
-			} else if (touched_coord==0x23) {
+            } else if (touched_coord==0x13) {
+                oglViewFullscreen^=1;
+                oglViewFullscreenChanged=1;
+                [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+            } else if (touched_coord==0x23) {
                 settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
                 settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                 settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
@@ -6000,6 +6008,11 @@ extern "C" int current_sample;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
+                        case SUBMENU3_START://11: //Oscillo
+                            if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
+                            else settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
+                            break;
+                        
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
                             size_chan=11*(mFontWidth/mScaleFactor);
@@ -6766,6 +6779,11 @@ extern "C" int current_sample;
 			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
 			viewTapInfoStr[2]->Render(128+(fadelev/2));
 			glPopMatrix();
+            
+            glPushMatrix();
+            glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+            viewTapInfoStr[9]->Render(128+(fadelev/2));
+            glPopMatrix();
         }
         if (viewTapHelpShowMode==2) {
             
@@ -6781,11 +6799,11 @@ extern "C" int current_sample;
                     break;
                 case SUBMENU3_START: //Oscillo
                     active_idx=1<<settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
+                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
                     break;
                 case SUBMENU4_START: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
                     if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) active_idx|=1<<7;
-                    
                     if (mCurrentFontSize==10) active_idx|=1<<8;
                     else if (mCurrentFontSize==16) active_idx|=1<<9;
                     else if (mCurrentFontSize==24) active_idx|=1<<10;
@@ -6804,7 +6822,7 @@ extern "C" int current_sample;
                     active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
             }
-            if (active_idx==1) active_idx=0;
+            //if (active_idx==1) active_idx=0;
             
             RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt,mScaleFactor);
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
@@ -6814,70 +6832,96 @@ extern "C" int current_sample;
 			viewTapInfoStr[1]->Render(128+(fadelev/2));
 			glPopMatrix();
             
-            if (viewTapHelpShow_SubStart==SUBMENU4_START) { //MOD PATTERN
-                int menu_cell_size=(ww<hh?ww:hh);
-                glPushMatrix();
-                glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
-                viewTapInfoStr[3]->Render(128+(fadelev/2));
-                glPopMatrix();
-                glPushMatrix();
-                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
-                viewTapInfoStr[4]->Render(128+(fadelev/2));
-                glPopMatrix();
-                glPushMatrix();
-                glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
-                viewTapInfoStr[5]->Render(128+(fadelev/2));
-                glPopMatrix();
-                glPushMatrix();
-                glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
-                viewTapInfoStr[6]->Render(128+(fadelev/2));
-                glPopMatrix();
-                glPushMatrix();
-                glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[7]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
-                viewTapInfoStr[7]->Render(128+(fadelev/2));
-                glPopMatrix();
-                
-                char tmp_str[64];
-                snprintf(tmp_str,64,"Font:");
-                CGLString *mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
-                glPushMatrix();
-                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4+(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
-                mFontText->Render(128+(fadelev/2));
-                glPopMatrix();
-                delete mFontText;
-                
-                snprintf(tmp_str,64,"%s",fontName[mCurrentFontIdx]);
-                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
-                glPushMatrix();
-                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
-                mFontText->Render(128+(fadelev/2));
-                glPopMatrix();
-                delete mFontText;
-                
-                snprintf(tmp_str,64,"Tap to");
-                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
-                glPushMatrix();
-                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*4/2, 0.0f);
-                mFontText->Render(128+(fadelev/2));
-                glPopMatrix();
-                delete mFontText;
-                
-                snprintf(tmp_str,64,"change");
-                mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
-                glPushMatrix();
-                glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                             menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*6/2, 0.0f);
-                mFontText->Render(128+(fadelev/2));
-                glPopMatrix();
-                delete mFontText;
+            switch (viewTapHelpShow_SubStart) {
+                case SUBMENU0_START: //FX2
+                    break;
+                case SUBMENU1_START: //FX3
+                    break;
+                case SUBMENU2_START: //Spectrum
+                    break;
+                case SUBMENU3_START:{ //Oscillo
+                    int menu_cell_size=(ww<hh?ww:hh);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                    viewTapInfoStr[8]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                }
+                    break;
+                case SUBMENU4_START:{ //MOD Pattern
+                    int menu_cell_size=(ww<hh?ww:hh);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                    viewTapInfoStr[3]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[4]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[5]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[6]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[7]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[7]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    
+                    char tmp_str[64];
+                    snprintf(tmp_str,64,"Font:");
+                    CGLString *mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4+(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    mFontText->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    delete mFontText;
+                    
+                    snprintf(tmp_str,64,"%s",fontName[mCurrentFontIdx]);
+                    mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    mFontText->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    delete mFontText;
+                    
+                    snprintf(tmp_str,64,"Tap to");
+                    mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*4/2, 0.0f);
+                    mFontText->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    delete mFontText;
+                    
+                    snprintf(tmp_str,64,"change");
+                    mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*6/2, 0.0f);
+                    mFontText->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    delete mFontText;
+                }
+                    break;
+                case SUBMENU5_START: //MIDI Pattern
+                    break;
+                case SUBMENU6_START: //3D Sphere/Torus
+                    break;
+                case SUBMENU7_START: //Piano
+                    break;
+                case SUBMENU8_START:
+                    break;
             }
         }
         int menu_cell_size=(ww<hh?ww:hh);
