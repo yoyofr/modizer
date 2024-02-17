@@ -1,0 +1,263 @@
+concerning SID digi samples
+---------------------------
+
+To get into the mood for the subject matter, you might want to head 
+over to my online playlist in DeepSID first, to have a listen to respective
+SID digi sample music: 
+https://deepsid.chordian.net/?file=/$TinyRSid%27s%20Digi%20Favourites/
+
+
+The MOS SID chips were not designed to directly replay recorded audio 
+samples and the small amount of RAM available on the C64 severely limits
+the amount and/or quality of sampled data that can be used under the 
+best of circumstances. 
+
+Obviously that sounds exactly like the kind of challenge that C64 geeks
+would just be too happy to accept.
+
+
+The memory limitations mean that the total playback length of sampled
+data is typically limited to a few seconds and to make the most of it, 
+respective sequences are usually used for reusable instruments. But 
+people have also searched ways around the RAM limitation, e.g. by 
+reloading data from secondary storage during playback (see 
+Wonderland XIII: https://youtu.be/bIM4p0uL6Pw?t=452 ) or by abusing 
+built-in ROM code as a sample data replacement (see 
+Acid_Flashback.sid ). One of the most impressive examples is probably 
+the "compression" approach used in Cubase64 (see 
+https://www.youtube.com/watch?v=k4GWheE4Gkw ).
+
+
+The below will look into the different techniques that have been 
+used to trick the SID chip into then actually play random audio samples. 
+The respective techniques are all more or less timing sensitive and 
+usually the newer, higher quality techniques differ from the older,
+lower quality implementations by now well they manage to control
+cycle exact timing (which, depending on the available timing disturbances,
+is a challenge in its own right - see clock cycles abducted by the VIC-II 
+chip used for sprites and text lines, or the suitable synchronisation of
+general purpose CIA timers with respective "screen refresh" specific 
+timings; example: Immigrant_Song.sid).
+
+There are basically 4 general approaches:
+
+- $d418 "volume register" based 
+- frequency modulation based
+- pulse waveform based
+- waveform toggling based
+
+
+
+1) $d418 "volume register" based
+
+This is probably the oldest technique: The SID's audio output is directly 
+modulated by changing the master volume. The result of this approach 
+primarily depends on the original output available for modulation, i.e. 
+ideally the original output would need to be at a constant maximum which 
+would then allow the technique to modulate it to "anything" 
+between 0 and that maximum. A flaw in the old 6581 SIDs made them
+particularly suceptible to this exploit: respective chips always produce 
+a relatively large DC voltage offset on the master volume D/A which means 
+that there is always "some" kind of original signal that can be modulated 
+via the master volume - even when there is no regular voice output.
+
+The advantage of this approach is the fast execution speed, since it
+only requires one register-write (i.e. 4-clock cycles) to output a sample.
+
+A disadvantage of the approach is that the quality of the digi-signal
+will usually suffer when the SID's voices are already producing 
+regular waveform output (it will just modulate whatever the current
+output level might be).
+
+Another limitation of this approach is that by hacking into the last 
+stage of the audio output generation, the filter does not affect the 
+respective digi-signal.
+
+Also the volume part of the D418 register is 4-bits - which limits the 
+resolution of individual samples accordingly. 
+
+
+	example songs: Arkanoid.sid, Arcade_Classics.sid
+	(ps: use https://deepsid.chordian.net/ to play the songs online)
+
+However this technique usually works poorly on the newer 8580 SID 
+chips, since those no longer produce the flawed DC voltage offset, meaning 
+that there may be very little original signal avilable for modulation 
+(depending on what other regular output the SID's voices are producing).
+
+For more information the following page also might be interesting:
+http://sid.kubarth.com/articles/the_c64_digi.txt
+
+WebSid's digi-detection will report "D418" for respective songs.
+
+
+
+Mahoney's "8-bit samples"
+
+There is a more recent "turbo charged" variant of the $d418 approach that 
+was first presented by Pex 'Mahoney' Tufvesson in 2014 (see
+https://livet.se/mahoney/c64-files/Musik_RunStop_Technical_Details_by_Pex_Mahoney_Tufvesson_v2.pdf )
+Here the trick is to carefully setup the regular voice output such that 
+not only the volume but also different filter activation will influence 
+the modulated result. Since both the volume as well as the filter 
+activation are controlled via the D418 register, the approach still only 
+requires one register-write (i.e. 4-clock cycles) to output a sample, 
+i.e. it is extremely fast allowing for maximum sample rates.
+
+Due to the fact that the "carrier signal" has been specifically set up,
+the approach runs fine also on newer 8580 models. However, due to the 
+different behavior of their A/D converter and filter components, older
+6581 SID chips must be configured somewhat differently than newer 8580 
+SID chips in order to get optimum results.
+
+A sample can now have more than 4-bits (though Mahoney's 8-bit claim 
+is exaggerated and it is probably closer to 6-7 bits)
+
+While being a technically impressive trick, the disadvantage of this 
+approach is that the SID's 3 voices are completely dedicated to the
+task so that 3 voices are needed to play 1 digi-track. 
+
+WebSid's digi-detection will report "M418" for respective songs.
+
+
+
+2) frequency modulation based
+
+This technique probably produces the highest-quality sample playback, 
+allowing for actual 8-bit samples.
+
+The underlying principle is to use one of the waveforms that linearly 
+transition from 0x0 to 0xfff (i.e sawtooth or triangle), to start it at 0 
+and then let it go up for a fixed number of clock cycles until it has 
+reached the desired output level and then output that level for the 
+duration of a sample. 
+
+The sample playback rate of this type of player is fixed, e.g. the 
+player might play a new sample every 129 cycles. This means the SID 
+will *always* "step up" the waveform output for *exactly* 129 cycles 
+and it is then just a matter of finding suitable frequency settings 
+that will result in the desired output levels after 129 clock cycles.
+
+(see https://codebase64.org/doku.php?id=base:vicious_sid_demo_routine_explained )
+
+In addition to the high sample resolution, an advantage of this approach 
+is that the resulting output can still be routed through the SID's filter.
+Also it only requires one voice and the SID's other 2 voices can still
+be used for something else.
+
+Disadvantages of the approach are its precise timing requirements and the 
+relatively slow execution speed (in the order of 20 clock cycles to 
+perform the various SID register writes). This results in typical output
+sample rates around 20kHz.
+
+	example songs: LMan - Vortex.sid, Vicious_SID_2-15638Hz.sid, Soundcheck.sid
+
+WebSid's digi-detection will report "FM" for respective songs.
+
+
+
+3) pulse waveform based
+
+An early/primitive form of pulse-waveform based sample output can be 
+found in Slapshot_1987.sid. Here a 7kHz 1-bit signal is generated by 
+manually turning the test-bit on/off and thereby toggling betweeen 
+the 0x0 and 0xfff output level. Obviously the respective result 
+leaves a lot to be desired and the fact that the timing is badly 
+off as well just adds insult to injury..
+
+
+More sophisticated later players use what might be be called a
+"pulse width modulation" approach. (WebSid's digi-detection will 
+report "PWM" for respective songs.)
+
+Their principle is to use a high frequency pulse-waveform and then 
+manipulate the "average" output signal by shifting the pulse-width
+one way or another to get any average level between 0x0 and 0xfff.
+
+Computationally, respective players are similarly expensive as the 
+above "FM" players - since the waveform's test-bit, as well as the 
+pulse-width have to be updated for every output sample.
+
+As with the "FM" approach the resulting output can still be routed
+through the SID's filter.
+
+But the big disadvantage is that respective songs tend to create 
+a very annoying high-pitched carrier signal. (And most emulators
+seem to make things even worse.)
+
+	example songs: Voodoo_People_part_1.sid, Wonderland_IX_part_5.sid, 
+					Wonderland_XII-Digi_part_1.sid
+
+
+					
+4) waveform toggling based
+
+Finally there is an approach that tries to let one voice create 
+different output levels by toggling between different waveforms. The 
+respective frequency and pulse-width settings of that voice are 
+previously configured in such a way that the respective waveforms 
+result in the desired output levels.
+
+The advantage of the approach is its fast execution speed: similar 
+to the $d418 approach only one register write is needed for each 
+sample. The other two voices can still be used for regular output 
+without any interference from the digi-output and the result can 
+still be routed through the SID's filter.
+
+The disadvantage is that the effective sample resolution may be lacking.
+
+	examples: Ice_Guys.sid (2-bit samples), Wonderland_XIII_tune_1.sid
+
+
+	
+	
+There are songs that switch between the above techniques.
+	examples: Storebror.sid
+	
+or use a voice specific technique on multiple voices:
+	examples: Super_Carling_the_Spider_credits.sid
+
+	
+
+long-digi
+---------
+
+The above was all about how to get the SID chip to reproduce a sequence 
+of individually recorded random audio samples. These approaches all come at
+the cost of manually updating SID registers at the speed of the intended 
+output sample rate, thus placing a considerable burden on the C64's CPU.
+
+However attempts have been made to "digitize" some recorded audio signal, but
+instead of directly using individual samples the idea is to find SID 
+settings that create an audio signal that resembles the recorded audio 
+signal during a longer interval (e.g. 10ms), and to then replay those 
+settings basically using a regular player that writes to the SID once 
+or twice every screen refresh. 
+
+As compared to individual digi-sample players, the frequency of necessary 
+SID updates is thereby reduced by about two orders of magnitude. The below 
+song is one example for this class of songs:
+
+https://deepsid.chordian.net/?file=/MUSICIANS/K/Khugiani_Naveed/Taylortest.sid
+
+It is certainly an original approach, but as compared to the original 
+recording the output audio quality usually leaves a lot to be desired.
+
+
+
+
+[Please let me know in case I missed something..] 
+	
+
+WebSid specifics
+----------------
+
+WebSid uses specific detection logic to recognize the most commonly
+used digi-approaches. The main purpose is to allow a respective 
+distinction between "regular" voice-output and digi-shenanigans in
+the emulation's "scope view" output visualizations and playback status.
+	
+In addition WebSid may use respective digi information to get rid
+of unpleasant high pitched hissing noises that some approaches might 
+be normally plagued by (respective songs may sound better in WebSid 
+than they ever would in the real world.. sorry about that).

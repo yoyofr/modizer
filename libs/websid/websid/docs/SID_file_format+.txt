@@ -1,0 +1,114 @@
+
+                          ============================
+                          SID FILE FORMAT+ DESCRIPTION
+                          ============================
+
+AUTHOR:
+Jürgen Wothke (v4E)
+
+
+INTRODUCTION
+============
+
+This document describes the "SID file format+" used for multi-SID tunes
+played by WebSid. The format is a simple generalization of the respective
+SID FILE FORMAT used by the HVSC and this document uses the same structure
+as the respective HVSC document. This is not an official HVSC format
+but a "proprietary" modification. It addresses shortcomings of the official
+SID FILE FORMAT with regard to multi-SID songs:
+
+1) it allows to use an arbitrary number of SIDs (rather than hard coded special cases) 
+2) it allows to model how SIDs should be wired to available mono/stereo output channels
+
+Ideally the respective extensions should eventually be integrated as an official HVSC 
+version. 
+
+Since SID v4E is a simple modification of the respective v3/4 formats, only 
+the differences are described below.
+
+An old/official version song file can be easily extended with the v4E specific 
+meta-data (e.g. using a hex editor) since except for the multi-SID specific additions at the
+very end of the header the file/header structure is unchanged.
+
+SID files use the .sid file extension.
+
+
+LEGEND
+======
+
++xx - The hexadecimal offset of the field from the beginning of the SID file
+
+BYTE - 8-bit binary value
+
+WORD - 16-bit big endian encoded binary value
+
+
+Hexadecimal values appear with the `0x` prefix in the document. Other values are decimal.
+
+
+The SID file header v4E
+=======================
+
+[.. unchanged ..]
+
++04    WORD version
+
+Valid value:
+- 0x004E 	The version number used (representing ASCII letter 'N') was chosen to be at a safe 
+			distance from the official versions used by HVSC. (This should avoid any clashes with
+			new official versions that HVSC might introduce in the foreseeable future.)
+
+
++06    WORD dataOffset
+
+The dataOffset is still the offset from the start of the file to the binary C64 program 
+contained in the file.
+
+The main difference to older versions is that a variable length header is used, whose
+length depends on the number of SIDs that are actually used. This means that 
+the respective dataOffset MUST NEVER be guessed based on the file version but instead the  
+dataOffset field must always be consulted!
+
+Example: for a 1-SID file the offset would be 0x7C, for a 2-SID file the offset would be 0x7E, etc.
+
+
+[.. unchanged ..]
+
++76    WORD flags
+
+This is a 16 bit big endian number containing the "same" bit-fields as in the original
+HVSC format. 
+
+The only difference to the "official" HVSC versions is that the bits 6-7 and 8-9 ARE NOT
+used for 2nd and 3rd SID specific information.
+
+New flag:
+- Bit  6     output channel for main $d400 SID - aka SID #0 (default: 0 )
+		     the bit allows for a maximum of 2 channels (which seems sufficient since 
+		     all the songs found so far seem to max out at 2 stereo channels, and support for 
+		     exotic scenarios like 5.1 etc seems to be overkill)
+
+- Bits 7-15  unused
+
+
++78    BYTE startPage unchanged
++79    BYTE pageLength unchanged
+
+
++7A (etc) WORD nSidFlags
+
+For each additional SID there is one additional nSidFlags WORD. A 0-WORD must be used
+as an "end" marker, i.e. with only 1 SID the nSidFlags at +7A would be 0. (This corresponds to the 
+reserved 0 WORD that old versions require at 0x7A.)
+
+Flags used for additional SID:
+- Bits 0-3  unused
+- Bits 4-5  SID version (same as respective flag for main SID - see +76):
+	        00 = Unknown: defaults to respective main SID setting
+	
+- Bit  6    output channel (same position as respective flag for main SID - see +76) 
+- Bit  7    unused 
+- Bits 8-15 address of SID chip (same "2 center nibbles" format as used in original HVSC formats,
+            e.g. "D420" would be represented as 0x42)
+
+

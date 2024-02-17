@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<!--
+ Hacked player screen used to run test cases instead of songs.
+-->
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<title>WebSid - emulation test cases</title>
+
+<link href="stdlib/font.css" rel="stylesheet" type="text/css">
+<link href="stdlib/common.css" rel="stylesheet" type="text/css">
+<link href="add_on.css" rel="stylesheet" type="text/css">
+
+<link rel="image_src" href="screenshot.gif" />
+<meta property="og:image" content="http://www.wothke.ch/websid/screenshot_2.gif" />
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+<link type="image/x-icon" href="favicon.ico" />
+
+<script type="text/javascript" src="stdlib/jquery1.11.min.js"></script>
+<script type="text/javascript" src="stdlib/jquery.details.min.js"></script>
+<script type="text/javascript" src="stdlib/scriptprocessor_player.min.js"></script>
+
+<script>window.openDetails=false;</script>
+<script type="text/javascript" src="stdlib/mini_display.js"></script>
+<script type="text/javascript" src="stdlib/mini_controls.js"></script>
+<script type="text/javascript" src="stdlib/sid_tracer.js"></script>
+
+<script type="text/javascript" src="backend_tinyrsid.js"></script>
+
+<style>
+div#log {
+  font-family: "Courier New", Courier, monospace;
+}
+</style>
+
+<script>
+
+var petsciiMap= [
+	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF100, 0x0000, 0x0000, 0xF118, 0xF119, 0x0000, 0x0000, 0x0000, 0x000D, 0x000E, 0x0000, 
+	0x0000, 0xF11C, 0xF11A, 0xF120, 0x007F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xF101, 0xF11D, 0xF102, 0xF103, 
+	0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027, 0x0028, 0x0029, 0x002A, 0x002B, 0x002C, 0x002D, 0x002E, 0x002F, 
+	0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F, 
+	0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047, 0x0048, 0x0049, 0x004A, 0x004B, 0x004C, 0x004D, 0x004E, 0x004F, 
+	0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058, 0x0059, 0x005A, 0x005B, 0x00A3, 0x005D, 0x2191, 0x2190, 
+	0x2501, 0x2660, 0x2502, 0x2501, 0xF122, 0xF123, 0xF124, 0xF126, 0xF128, 0x256E, 0x2570, 0x256F, 0xF12A, 0x2572, 0x2571, 0xF12B, 
+	0xF12C, 0x25CF, 0xF125, 0x2665, 0xF127, 0x256D, 0x2573, 0x25CB, 0x2663, 0xF129, 0x2666, 0x253C, 0xF12E, 0x2502, 0x03C0, 0x25E5, 
+	0x0000, 0xF104, 0x0000, 0x0000, 0x0000, 0xF110, 0xF112, 0xF114, 0xF116, 0xF111, 0xF113, 0xF115, 0xF117, 0x000A, 0x000F, 0x0000, 
+	0xF105, 0xF11E, 0xF11B, 0x000C, 0xF121, 0xF106, 0xF107, 0xF108, 0xF109, 0xF10A, 0xF10B, 0xF10C, 0xF10D, 0xF11D, 0xF10E, 0xF10F, 
+	0x00A0, 0x258C, 0x2584, 0x2594, 0x2581, 0x258F, 0x2592, 0x2595, 0xF12F, 0x25E4, 0xF130, 0x251C, 0xF134, 0x2514, 0x2510, 0x2582, 
+	0x250C, 0x2534, 0x252C, 0x2524, 0x258E, 0x258D, 0xF131, 0xF132, 0xF133, 0x2583, 0xF12D, 0xF135, 0xF136, 0x2518, 0xF137, 0xF138, 
+	0x2501, 0x2660, 0x2502, 0x2501, 0xF122, 0xF123, 0xF124, 0xF126, 0xF128, 0x256E, 0x2570, 0x256F, 0xF12A, 0x2572, 0x2571, 0xF12B, 
+	0xF12C, 0x25CF, 0xF125, 0x2665, 0xF127, 0x256D, 0x2573, 0x25CB, 0x2663, 0xF129, 0x2666, 0x253C, 0xF12E, 0x2502, 0x03C0, 0x25E5, 
+	0x00A0, 0x258C, 0x2584, 0x2594, 0x2581, 0x258F, 0x2592, 0x2595, 0xF12F, 0x25E4, 0xF130, 0x251C, 0xF134, 0x2514, 0x2510, 0x2582,
+	0x250C, 0x2534, 0x252C, 0x2524, 0x258E, 0x258D, 0xF131, 0xF132, 0xF133, 0x2583, 0xF12D, 0xF135, 0xF136, 0x2518, 0xF137, 0x03C0
+];
+
+window.screenw= 40;
+window.screenh= 25;
+window.screenx= 0;
+window.screeny= 0;
+window.screen= new Array(screenw*screenh);
+
+function resetScreen() {
+	window.screenx= window.screeny= 0;
+	for (var i= 0; i< (window.screenw*window.screenh); i++) {
+		window.screen[i]= null;
+	}
+// unfortunately the loadFileError() does not always seem to get called after successful tests 
+// so the below impl to show success/failure status does not work:	
+//	document.getElementById("result").innerHTML = ' <font color="red">failed</font>';	// default
+}
+
+window.color= 'black';
+
+function loadFileError(filename) {
+//	document.getElementById("result").innerHTML = ' <font color="green">success</font>';	// default
+}
+
+function updateColor(p) {
+	switch (p) {
+		case 0x05:
+//			window.color= 'white';	break;
+			window.color= 'black';	break;	// incorrect but better
+		case 0x1c:
+			window.color= 'red';	break;
+		case 0x1e:
+			window.color= 'green';	break;
+		case 0x1f:
+			window.color= 'blue';	break;
+		case 0x81:
+			window.color= '#FFA500';	break;	// orange
+			
+		case 0x90:
+			window.color= 'black';	break;
+		case 0x95:
+			window.color= 'maroon';	break;
+		case 0x96:
+			window.color= '#F08080';	break;	// light red
+		case 0x97:
+			window.color= 'grey';	break;
+		case 0x98:
+			window.color= 'silver';	break;
+		case 0x99:
+			window.color= 'green';	break;
+		case 0x9a:
+			window.color= '#ADD8E6';	break;	// light blue
+		case 0x9b:
+			window.color= 'silver';	break;	
+		case 0x9c:
+			window.color= 'purple';	break;
+		case 0x9e:
+			window.color= 'yellow';	break;
+		case 0x9f:
+			window.color= 'aqua';	break;
+				
+		default: 
+			return false;
+	}
+	return true;
+}
+
+function getCurrentColor() {
+	// it seems the tests use the directly set cursor color
+	// rather than PETSCII based color controls
+	
+	var c= backend.getRAM(0x0286) & 0xf;	
+
+	switch (c) {
+		case 0:
+			return 'black';
+		case 2:
+			return 'red';
+		default: 
+			return 'green';	// just in case some fancy colors were actually used
+	}
+}
+
+backend= new SIDBackendAdapter();
+
+window.outputPETSCII= function(c) {	// see https://www.c64-wiki.com/wiki/control_character
+
+	// CAUTION: it seems that some tests manually patch the cursor position held in (zeropage $d3)
+	// and a positioning exclusively based on PETSCII controls is therefore doomed (see
+	// "CIA1TAB" which shifts back 3 positions to turn a sawtooth layout into a square table)
+	
+		if (typeof backend.setRAM != 'undefined') {	// backward compatibility when testing older versions
+			window.screenx = backend.getRAM(0x00d3);	// sync
+			window.screeny = backend.getRAM(0x00d6);	// sync
+		}
+	window.color = getCurrentColor();	
+	
+	if (!updateColor(c)) {
+		if (c == 4) { 								// WTF is this supposed to do?
+		}else if (c == 19) { 								// home
+			window.screeny = window.screenx= 0;		
+		} else if (c == 147) { 						// clear screen
+			resetScreen();
+			
+		} else if ((c == 13) || (c == 141)) {		// CR / shift CR
+			window.screenx= 0;
+			if (window.screeny<(window.screenh-1)) window.screeny++;
+									
+		} else if (c == 145) {											// cursor up
+		
+			// tests start with return (13) + up(145) sequence !
+			if (window.screeny>0) window.screeny--;			
+			
+		} else if (c == 17) { 											// cursor down
+			if (window.screeny<(window.screenh-1)) window.screeny++;
+			
+		} else if (c == 29) {	// cursor right
+			if (window.screenx < (window.screenw-1)) window.screenx++;
+		} else if (c == 157) {	// cursor left
+			if (window.screenx > 0) window.screenx--;
+			
+		} else if (c == 20) {	// back		
+			if (window.screenx > 0) { 
+				window.screenx--;
+				window.screen[window.screenx + window.screeny*screenw]= null;
+			}
+		} else if (c == 159) {	// back		
+			if (window.screenx > 0) { 
+				window.screenx--;
+			} else {
+				if (window.screeny > 0) {
+					window.screeny--;
+					window.screenx= window.screenw-1;
+				}
+			}
+		} else if (c == 18) { // reverse
+			console.log("ERROR: PETSCII  reverse not implemented");
+		} else if (c == 146) { // disable reverse
+			console.log("ERROR: PETSCII disable reverse not implemented");
+		} else if (c == 148) { // insert
+			for (var i = window.screenx; i<window.screenw-1; i++) {
+				window.screen[window.screenx + window.screeny*screenw+1]= window.screen[window.screenx + window.screeny*screenw];
+			}
+			window.screen[window.screenx + window.screeny*screenw]= null;
+		} else {
+			var unicode= petsciiMap[c];
+			if (unicode == 0) {
+				console.log ("unknown code: "+c);
+			}
+			
+			var u= String.fromCharCode(unicode);
+			if (u == ' ') u= "&nbsp;";
+			
+			window.screen[window.screenx+ window.screeny*screenw] = '<font color="'+window.color+'">'+u+'</font>';
+
+			window.screenx++;
+			if (window.screenx == window.screenw) {
+				window.screenx= 0;
+				
+				window.screeny++; 
+				if (window.screeny == window.screenh) {
+					window.screeny = window.screenh-1;
+				}
+			}
+		}
+		if (typeof backend.setRAM != 'undefined') {	// backward compatibility when testing older versions
+			backend.setRAM(0x00d3, window.screenx);	// sync back
+			backend.setRAM(0x00d6, window.screeny);	// sync back (probably not needed)
+		}
+		// render all
+		
+		var content= "";
+		for (var y= 0; y<window.screenh; y++) {
+			for (var x= 0; x<window.screenw; x++) {
+				var c= window.screen[y*window.screenw + x];
+				content+= (c == null) ? "&nbsp;" : c;
+			}
+			content+= "<br>";
+		}
+		document.getElementById("log").innerHTML= content;
+		
+	} else {
+	console.log("color change");
+	}
+}
+
+var playerControls;
+
+
+// link player events to "controls" and "display"
+function doOnTrackEnd(){
+}
+function doOnTrackReadyToPlay(){ 	
+}
+// depending on the browser/timing the player may be ready before or after (see WASM) init(), i.e.
+// the startup sequence must handle both cases (music can only be started when
+// both the player is ready and init() has been completed..)
+var playerReady= false;		
+function doOnPlayerReady() {
+	playerReady= true;
+}
+
+function init() {
+	// --------------------------- SID music player -----------------------
+	var basePath= '';		// not needed here
+	ScriptNodePlayer.createInstance(backend, basePath, [], true, doOnPlayerReady,
+										doOnTrackReadyToPlay, doOnTrackEnd, function(){});
+		
+	// --------------------------- UI - basic player controls --------------
+//	var songs = [
+	var instruction_tests_passed1 = [
+		// CPU instructions
+		'/cpu/ldab',
+		'/cpu/ldaz',
+		'/cpu/ldazx',
+		'/cpu/ldaa',
+		'/cpu/ldaax',
+		'/cpu/ldaay',
+		'/cpu/ldaix',
+		'/cpu/ldaiy',
+		'/cpu/staz',
+		'/cpu/staa',
+		'/cpu/staax',
+		'/cpu/staay',
+		'/cpu/staix',
+		'/cpu/staiy',
+		'/cpu/ldxb',
+		'/cpu/ldxz',
+		'/cpu/ldxzy',
+		'/cpu/ldxay',
+		'/cpu/stxz',
+		'/cpu/stxzy',
+		'/cpu/stxa',
+		'/cpu/ldyb',
+		'/cpu/ldyz',
+		'/cpu/ldyzx',
+		'/cpu/ldya',
+		'/cpu/ldyax',
+		'/cpu/styz',
+		'/cpu/styzx',
+		'/cpu/stya',
+		'/cpu/taxn',
+		'/cpu/tayn',
+		'/cpu/txan',
+		'/cpu/tyan',
+		'/cpu/tsxn',
+		'/cpu/txsn',
+		'/cpu/phan',
+		'/cpu/plan',
+		'/cpu/phpn',
+		'/cpu/plpn',
+		'/cpu/inxn',
+		'/cpu/inyn',
+		'/cpu/dexn',
+		'/cpu/deyn',
+		'/cpu/incz',
+		'/cpu/inczx',
+		'/cpu/inca',
+		'/cpu/incax',
+		'/cpu/decz',
+		'/cpu/deczx',
+		'/cpu/deca',
+		'/cpu/decax',
+		'/cpu/asln',
+		'/cpu/aslz',
+		'/cpu/aslzx',
+		'/cpu/asla',
+		'/cpu/aslax',
+		'/cpu/lsrn',
+		'/cpu/lsrz',
+		'/cpu/lsrzx',
+		'/cpu/lsra',
+		'/cpu/lsrax',
+		'/cpu/roln',
+		'/cpu/rolz',
+		'/cpu/rolzx',
+		'/cpu/rola',
+		'/cpu/rolax',
+		'/cpu/rorn',
+		'/cpu/rorz',
+		'/cpu/rorzx',
+		'/cpu/rora',
+		'/cpu/rorax',
+		'/cpu/andz',
+		'/cpu/andzx',
+		'/cpu/anda',
+		'/cpu/andax',
+		'/cpu/anday',
+		'/cpu/andix',
+		'/cpu/andiy',
+		'/cpu/orab',
+		'/cpu/oraz',
+		'/cpu/orazx',
+		'/cpu/oraa',
+		'/cpu/oraax',
+		'/cpu/oraay',
+		'/cpu/oraix',
+		'/cpu/oraiy',
+		'/cpu/eorb',
+		'/cpu/eorz',
+		'/cpu/eorzx',
+		'/cpu/eora',
+		'/cpu/eorax',
+		'/cpu/eoray',
+		'/cpu/eorix',
+		'/cpu/eoriy',
+		'/cpu/clcn',
+		'/cpu/secn',
+		'/cpu/cldn',
+		'/cpu/sedn',
+		'/cpu/clin',
+		'/cpu/sein',
+		'/cpu/clvn', 
+		'/cpu/adcb',	// the DEC mode logic in below adc* & sbc* tests is being disabled 
+		'/cpu/adcz',
+		'/cpu/adczx',
+		'/cpu/adca',
+		'/cpu/adcax',
+		'/cpu/adcay',
+		'/cpu/adcix',
+		'/cpu/adciy',
+		'/cpu/sbcb',
+		'/cpu/sbcz',
+		'/cpu/sbczx',
+		'/cpu/sbca',
+		'/cpu/sbcax',
+		'/cpu/sbcay',
+		'/cpu/sbcix',
+		'/cpu/sbciy',
+		'/cpu/cmpb',
+		'/cpu/cmpz',
+		'/cpu/cmpzx',
+		'/cpu/cmpa',
+		'/cpu/cmpax',
+		'/cpu/cmpay',
+		'/cpu/cmpix',
+		'/cpu/cmpiy',
+		'/cpu/cpxb',
+		'/cpu/cpxz',
+		'/cpu/cpxa',
+		'/cpu/cpyb',
+		'/cpu/cpyz',
+		'/cpu/cpya',
+		'/cpu/bitz',
+		'/cpu/bita',
+		'/cpu/brkn',
+		'/cpu/rtin',
+		'/cpu/jsrw',
+		'/cpu/rtsn',
+		'/cpu/jmpw',
+		'/cpu/jmpi',
+		'/cpu/beqr',
+		'/cpu/bner',
+		'/cpu/bmir',
+		'/cpu/bplr',
+		'/cpu/bcsr',
+		'/cpu/bccr',
+		'/cpu/bvsr',
+		'/cpu/bvcr',
+		'/cpu/nopn',
+		'/cpu/nopb',
+		'/cpu/nopz',
+		'/cpu/nopzx',
+		'/cpu/nopa',
+		'/cpu/nopax',
+		'/cpu/asoz',
+		'/cpu/asozx',
+		'/cpu/asoa',
+		'/cpu/asoax',
+		'/cpu/asoay',
+		'/cpu/asoix',
+		'/cpu/asoiy',
+		'/cpu/rlaz',
+		'/cpu/rlazx',
+		'/cpu/rlaa',
+		'/cpu/rlaax',
+		'/cpu/rlaay',
+		'/cpu/rlaix',
+		'/cpu/rlaiy',
+		'/cpu/lsez',
+		'/cpu/lsezx',
+		'/cpu/lsea',
+		'/cpu/lseax',
+		'/cpu/lseay',
+		'/cpu/lseix',
+		'/cpu/lseiy',
+		'/cpu/rraz',
+		'/cpu/rrazx',
+		'/cpu/rraa',
+		'/cpu/rraax',
+		'/cpu/rraay',
+		'/cpu/rraix',
+		'/cpu/rraiy',
+		'/cpu/dcmz',
+		'/cpu/dcmzx',
+		'/cpu/dcma',
+		'/cpu/dcmax',
+		'/cpu/dcmay',
+		'/cpu/dcmix',
+		'/cpu/dcmiy',
+		'/cpu/insz',
+		'/cpu/inszx',
+		'/cpu/insa',
+		'/cpu/insax',
+		'/cpu/insay',
+		'/cpu/insix',
+		'/cpu/insiy',
+		'/cpu/laxz',
+		'/cpu/laxzy',
+		'/cpu/laxa',
+		'/cpu/laxay',
+		'/cpu/laxix',
+		'/cpu/laxiy',
+		'/cpu/axsz',
+		'/cpu/axszy',
+		'/cpu/axsa',
+		'/cpu/axsix',
+		'/cpu/alrb',
+		'/cpu/arrb',	// the DEC mode logic in below arr test is being disabled 
+//ignore		'/cpu/aneb',		// absolutely pointless.. highly machine dependent
+//ignore		'/cpu/lxab',		// absolutely pointless.. highly machine dependent
+		'/cpu/sbxb',
+		'/cpu/shaay',	// slow test
+		'/cpu/shaiy',		// pointless but works as designed	
+		'/cpu/shxay',		// pointless but works as designed
+		'/cpu/shyax',		// pointless but works as designed
+		'/cpu/shsay',
+		'/cpu/ancb',
+		'/cpu/lasay',
+		'/cpu/sbcb(eb)',
+//ignore		'/cpu/trap1',	// no idea what exact scenarios those trap tests are supposed to test
+//ignore		'/cpu/trap2',	// and unfortunately there is no meaningful doc whatsoever..
+//ignore		'/cpu/trap3',	// probably irrelevant in the WebSid context
+//ignore		'/cpu/trap4',
+//ignore		'/cpu/trap5',
+//ignore		'/cpu/trap6',
+//ignore		'/cpu/trap7',
+//ignore		'/cpu/trap8',
+//ignore		'/cpu/trap9',
+//ignore		'/cpu/trap10',
+//ignore		'/cpu/trap11',
+//ignore		'/cpu/trap12',
+//ignore		'/cpu/trap13',
+//ignore		'/cpu/trap14',
+//ignore		'/cpu/trap15',
+//ignore		'/cpu/trap16',
+//ignore		'/cpu/trap17',
+		'/cpu/branchwrap',	
+	];
+	
+	
+	var songs = [
+		// system / CIAs
+		'/cpu/mmufetch',
+		'/cpu/cputiming',
+		'/cpu/irq',
+		'/cpu/nmi',
+		'/cpu/cia1tb123',
+		'/cpu/cia2tb123',
+		'/cpu/icr01',		
+		'/cpu/imr',
+		'/cpu/oneshot',
+				
+//ignore	'/cpu/mmu',			// processor port is not implemented:
+//ignore	'/cpu/cpuport',
+//ignore	'/cpu/cia1pb6',
+//ignore	'/cpu/cia1pb7',
+//ignore	'/cpu/cia2pb6',
+//ignore	'/cpu/cia2pb7',
+//ignore	'/cpu/cia1tab',		// test uses chaining but also unimplemented PB functionality
+//ignore	'/cpu/loadth',		// fails only since CNT is not implemented "WRITING TH WHILE STARTED MAY NOT LOAD" error is OK
+//ignore	'/cpu/cntdef',		// CNT not implemented - testing a default therefor makes no sense
+//ignore	'/cpu/cnto2',		// CNT not implemented
+//ignore	'/cpu/flipos',		// relies on CNT for setup
+//ignore	'/cpu/cia1ta',		// under construction? useless without FLAG-pin interrupt impl
+//ignore	'/cpu/cia1tb',		// under construction? useless without FLAG-pin interrupt impl
+//ignore	'/cpu/cia2ta',		// under construction? useless without FLAG-pin interrupt impl
+//ignore	'/cpu/cia2tb',		// under construction? useless without FLAG-pin interrupt impl
+	];
+	
+	playerControls= new BasicPlayerControls(songs, false, true,
+				(function(someSong) {
+			
+					resetScreen();
+					
+					// ********* CAUTION: the respective backend_tinyrsid.js is in htdocs_test!!!!
+					// (NOT the regular htdocs folder)
+					
+					var url= '/websid_test/tests'+someSong;
+						
+					var options= {};
+					options.track= 0;
+					options.timeout= 0;
+					options.traceSID= false;	// enable additional output used by the SidTracer
+										
+					return [url, options];
+				}),
+				0, -1, 
+				{traceSID: false}
+			);
+
+
+	if (playerReady) playerControls.playNextSong();	// player was ready before it could trigger the playback
+}
+</script>
+<script type="text/javascript" src="stdlib/analytics.js"></script>
+</head>
+
+<body onload="init();">
+<div class="tooltip" id="tooltip" alt= "This is a hobby project, but it costs not only time to regularily maintain this site but also money to pay for the internet service provider (etc). If you want to keep this site up and running.. or if you just like my work (see https://jwothke.wordpress.com/) and you'd like to see more of it in the future, please make a contribution. Thank you!"></div>
+
+<details>
+  <summary>Test results</summary>
+  <div>
+  <div  id="log" style="overflow-y: scroll; height:400px;"></div>
+  <div  id="result" ></div>
+
+  
+  <p>Use controls to navigate between test cases:</p>
+  <span id="controls"></span>
+
+</div>
+
+ </div>
+</details>
+<aside></aside>
+<section>
+  <div id="drop" class="drop"><img src="c64.gif" /></div><!--see BasicPlayerControls-->
+</section>
+</body>
+</html>

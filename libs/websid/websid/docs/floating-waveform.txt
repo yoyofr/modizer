@@ -1,0 +1,80 @@
+0x0-waveform analysis
+---------------------
+
+The SID's waveform generation circuitry causes a peculiar effect when *all* waveform selector 
+bits are disabled (i.e. waveform 0x0): What happens is that the SID chip just keeps repeating
+the last output that was used before the selectors where reset to 0x0 - in addition there
+is some kind of decay-process that will eventually cause the output to drop to 0.
+
+The respective effect has been called "floating DAC" in resid - but lacking an electronics 
+background, I have no idea which exact part of the SID circuitry is actually causing 
+the effect (nor does it matter).
+
+In order to better understand the actual timing characteristics of the effect I did a bit of 
+investigation myself and Piero kindly ran the respective test-program on his C64C and C64G 
+(which both use a 8580 SID chip): The test-program creates a maximum 0xff level pulse-output 
+on voice #3 before switching to the 0x0-waveform. It then continuously reads the actual 
+waveform output of voice #3 via $d41b and outputs the result to the screen. The respective 
+screen output was recorded on video in 8x slow-motion for offline analysis.
+
+The timings observed on the two machines where significantly different and it seems save to
+presume that actual realworld music programs will never be able to exploit the details of 
+the later stages of the decay process (unless a program wants to be extremly fragile 
+and not run correctly on a wide range of actual C64 machines). 
+
+The C64G maintained the original signal for 6.3 secs before a noticable decay process made it 
+drop to 0 over the course of 1.7 secs. On the C64C the original signal was even maintained 
+for 12.5 secs before dropping to 0 over the course of 3.3 secs. (Apparently the timing 
+then even varies on the same machine - depending on its operating temperature.)
+
+
+While irrelevant for practical purposes, the observed decay behavior is still interesting. 
+It seems that the high-nibble bits decay before the low-nibble and individual bits evenually 
+*flicker* out of existence. The timing or respective bit-changes seems to be rather 
+unpredictable. The respective data for the C64C can be found below:
+
+secs	output
+-----   ------
+0		FF
+12.50	BF
+12.55	7F
+12.76	BF
+13.78	2F
+13.8	AF
+13.84	2F
+13.86	AF
+13.9	2F
+13.94	AF
+13.95	8F
+14		2F
+14.04	0E
+14.08	0F
+14.11	0E
+14.14	0C
+15.78	04
+15.8	00
+
+(The C64G created bit-patterns not observed on the C64C, e.g. 4F and 05.) With these
+large differences between machines that actually use the same SID model, it seems 
+plausible to presume that older 6581 SIDs would behave differently again.
+
+
+Conclusion:
+
+The only thing that some SID-song might actually depend on (as the lowest common 
+denominator) is that the original signal will "float" for several seconds when 
+switching to the 0x0-waveform. There is probably no point in trying to simulate 
+actual decay behavior though that might avoid some sporadic "click" much further 
+down the line.. to avoid such clicks it is probably much easier to just use
+a longer "float" TTL.
+
+
+Test cases:
+
+Synthesis.sid, /GAMES/S-Z/Scruples.sid#2, Grand_Prix_Circui.sid#2, Thomkat_with_Strange_End.sid
+("Grand_Prix_Circuit.sid required more than 16ms to play without pops and Scruples.sid even more)
+
+related findings have been discussed here: https://sourceforge.net/p/vice-emu/bugs/290/
+
+
+

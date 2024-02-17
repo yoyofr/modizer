@@ -1,0 +1,70 @@
+KNOWN LIMITATIONS
+-----------------
+
+SID related: 
+
+- Filter implementation based on Hermit's jssid.js may not be 100% acurate (this is probably
+  the prio 1 limitation with regard to sound output quality)
+- The combined-waveforms generated based on Hermit's approach may deviate from respective 
+  tables recorded on the real hardware
+- Audio output is calculated only once per sample (which typically covers a 20-22 system clock
+  cycle interval). The "random" value picked may differ from the average value that
+  would result when considering the output at every single cycle. One particular scenario
+  where this limitation is relevant is the emulation of "advanced" digi-sample techniques
+  (i.e. PWM /FM based): The digi here depends on how the voice exactly reacts to the register 
+  updates performed by the digi-player and the sample-duration view is too coarse grained 
+  to accurately follow those effects. Luckily most players here use a static voice
+  configuration and the effect intended by the player can be guessed with acceptable 
+  accuracy. However there are a few songs (e.g. Synthesis.sid) that dynamically change the
+  voice configuration as well and those effects are currently not handled.
+
+
+VIC related:
+
+- The timing delays caused by the use of sprites are NOT considered at all: songs that
+  heavily rely on respective effects for their correct timing will not work correctly
+  (examples: Vicious_SID_2-15638Hz.sid plays too fast, Comaland_tune_3.sid & Fantasmolytic_tune_2.sid
+  are badly out of sync, .. there will be others)
+
+
+ROM related: 
+  
+  The Commodore 64 ROM images are still copyrighted material and in order to use them a license 
+  is required from the current copyright owner. I am aware that other emulators just use them under
+  the assumption that since nobody has complained so far it might be OK to just use them. But given 
+  the fact that only a small fraction of songs would actually benefit from the ROM images I decided to 
+  completely do without them:
+
+  - The emulator does NOT contain any BASIC ROM nor CHAR ROM. This means that BASIC programs
+    will not work by default. Songs that actually try us use the character ROM by default 
+	will not work correctly either (I am aware of exactely one such song.).
+  
+  - By default the emulator uses a minimal set of KERNAL ROM function replacements but not a complete ROM image. 
+    Problems may occur if a song tries to use unusual functionalities that are not yet covered or if it has 
+    specific timing requirements that would only be met by the original ROM implementation.
+
+  However the emulator allows to use respective externally supplied ROM images! If you have the ROMs
+  then they can be input into the SIDBackendAdapter, e.g.:
+  
+    var BASIC_ROM=	"base64 encoded ROM data..";
+	var KERNAL_ROM=	"...";
+	var CHAR_ROM=	"...";
+    new SIDBackendAdapter(BASIC_ROM, CHAR_ROM, KERNAL_ROM)
+	
+	
+Compute! related:
+
+- The emulator only supports single-SID configurations for Compute! Sidplayer, i.e. when playing a .mus
+  file it does not check for the additional file that might be meant to provide "stereo" playback. This is 
+  the only case where the emulator would need asynchronous file loading and it just doesn't seem to be 
+  worth the complication.
+
+
+PlaySID related:
+
+- The emulator still supports playback of PlaySID specific digi-recordings - but only within reason: Some
+  of those files are just so completely inconsistent garbage that there is no point trying to emulate them 
+  with a correct C64 emulation. I.e. as long as the .sid files are reasonably consistent (e.g. acknowledging
+  the IRQs that they use, etc) then they will play.. but those that are utter garbage will not play and I 
+  will not try to change that, since the required garbage handling would just slow down the emulation for
+  everybody else.

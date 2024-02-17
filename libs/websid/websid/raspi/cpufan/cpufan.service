@@ -1,0 +1,12 @@
+[Unit]
+Description=PWM Fan Control
+After=mediacenter.service
+
+[Service]
+Type=simple
+User=pi
+ExecStart= /home/pi/cpufan
+Restart=always
+
+[Install]
+WantedBy=default.target

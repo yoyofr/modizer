@@ -571,6 +571,7 @@
 		CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD262B800AC600D8CAAE /* libvorbis-openmpt.a */; };
 		CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD382B800AF600D8CAAE /* libmpg123-openmpt.a */; };
 		CC0E2DBD2B80E47200CB58C7 /* getopt_long.c in Sources */ = {isa = PBXBuildFile; fileRef = 33114D1213430A8600C7CC19 /* getopt_long.c */; };
+		CC0E2F082B810B7300CB58C7 /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC0E2DD82B81073F00CB58C7 /* libwebsid.a */; };
 		CC16383B2B7CCC22003323FD /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1638392B7CCC22003323FD /* folder.png */; };
 		CC16383C2B7CCC22003323FD /* folder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC16383A2B7CCC22003323FD /* folder@2x.png */; };
 		CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1638572B7CDF92003323FD /* liblibnsfplay.a */; };
@@ -1144,6 +1145,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59FF994E263F3312004152B8;
 			remoteInfo = libkss;
+		};
+		CC0E2DD72B81073F00CB58C7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC0E2DD32B81073F00CB58C7 /* websid.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC0E2DC72B81073F00CB58C7;
+			remoteInfo = websid;
 		};
 		CC1638562B7CDF92003323FD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2138,6 +2146,7 @@
 		CC03F2D812160FE000F2AC65 /* buttonR.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonR.png; sourceTree = "<group>"; };
 		CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonY-highlight.png"; sourceTree = "<group>"; };
 		CC03F2DA12160FE000F2AC65 /* buttonY.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonY.png; sourceTree = "<group>"; };
+		CC0E2DD32B81073F00CB58C7 /* websid.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = websid.xcodeproj; path = websid/websid.xcodeproj; sourceTree = "<group>"; };
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC1638392B7CCC22003323FD /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
@@ -2839,6 +2848,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC0E2F082B810B7300CB58C7 /* libwebsid.a in Frameworks */,
 				CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */,
 				CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */,
 				CC0E2DBA2B80A04800CB58C7 /* libogg-openmpt.a in Frameworks */,
@@ -3350,6 +3360,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC0E2DD32B81073F00CB58C7 /* websid.xcodeproj */,
 				CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */,
 				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
 				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
@@ -4061,6 +4072,14 @@
 			isa = PBXGroup;
 			children = (
 				59FF9A4A263F34BE004152B8 /* liblibkss.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC0E2DD42B81073F00CB58C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC0E2DD82B81073F00CB58C7 /* libwebsid.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -5484,6 +5503,10 @@
 					ProjectRef = CC7BBD212B800AC600D8CAAE /* vorbis-openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CC0E2DD42B81073F00CB58C7 /* Products */;
+					ProjectRef = CC0E2DD32B81073F00CB58C7 /* websid.xcodeproj */;
+				},
+				{
 					ProductGroup = 59805445262F21CA00BB0309 /* Products */;
 					ProjectRef = 59805444262F21CA00BB0309 /* xmp.xcodeproj */;
 				},
@@ -5641,6 +5664,13 @@
 			fileType = archive.ar;
 			path = liblibkss.a;
 			remoteRef = 59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC0E2DD82B81073F00CB58C7 /* libwebsid.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebsid.a;
+			remoteRef = CC0E2DD72B81073F00CB58C7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC1638572B7CDF92003323FD /* liblibnsfplay.a */ = {
@@ -6638,6 +6668,7 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
+					libs/websid/websid/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6746,6 +6777,7 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
+					libs/websid/websid/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6852,6 +6884,7 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
+					libs/websid/websid/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

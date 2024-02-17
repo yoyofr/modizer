@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg xmlns="http://www.w3.org/2000/svg"
+><metadata
+></metadata
+><defs
+><font horiz-adv-x="512"
+><font-face font-family="Material Icons" units-per-em="512" ascent="512" descent="0"
+></font-face
+><missing-glyph horiz-adv-x="512" d=""
+></missing-glyph
+><glyph unicode="&#xe01f;" d="M277 384L459 256L277 128V384ZM85 128V384L267 256L85 128Z"
+></glyph
+><glyph unicode="&#xe020;" d="M245 256L427 384V128L245 256ZM235 128L53 256L235 384V128Z"
+></glyph
+><glyph unicode="&#xe034;" d="M299 405h85V107H299V405ZM128 107V405h85V107H128Z"
+></glyph
+><glyph unicode="&#xe037;" d="M171 405L405 256L171 107V405Z"
+></glyph
+><glyph unicode="&#xe044;" d="M341 384h43V128H341V384ZM128 128V384L309 256L128 128Z"
+></glyph
+><glyph unicode="&#xe045;" d="M203 256L384 384V128L203 256ZM128 384h43V128H128V384Z"
+></glyph
+><glyph unicode="&#xe04d;" d="M107 320h85L299 427V85L192 192H107V320ZM395 256q0 -59 -54 -86V342q22 -11 38 -36.5T395 256Z"
+></glyph
+><glyph unicode="&#xe04e;" d="M149 320h86L341 427V85L235 192H149V320Z"
+></glyph
+><glyph unicode="&#xe04f;" d="M256 427V337l-45 45l45 45ZM91 448L448 91L421 64l-44 44Q344 80 299 69v44q25 7 48 25l-91 91V85L149 192H64V320H165L64 421l27 27ZM405 256q0 51 -29.5 90T299 399v44q65 -14 107 -66.5T448 256q0 -47 -22 -89l-32 33q11 27 11 56ZM352 256q0 -9 -1 -13l-52 52v47q22 -11 37.5 -36T352 256Z"
+></glyph
+><glyph unicode="&#xe050;" d="M299 443q65 -14 107 -66.5T448 256T406 135.5T299 69v44q47 14 76.5 53T405 256t-29.5 90T299 399v44ZM352 256q0 -60 -53 -86V342q22 -11 37.5 -36T352 256ZM64 320h85L256 427V85L149 192H64V320Z"
+></glyph
+><glyph unicode="&#xe640;" d=""
+></glyph
+><glyph unicode="&#xe79c;" d="M299 342q23 -12 38 -35t15 -51q0 -28 -15 -51T299 170V342ZM64 320h85L256 427V85L149 192H64V320Z"
+></glyph
+><glyph unicode="&#xe8b6;" d="M163 213t40 0t68 28t28 68t-28 68t-68 28T135 377T107 309t28 -68ZM331 213L437 107L405 75L299 181v17l-6 6Q255 171 203 171q-58 0 -98.5 40T64 309t40.5 98.5T203 448t98 -40.5T341 309q0 -21 -10 -47.5T308 219l6 -6h17Z"
+></glyph
+><glyph unicode="&#xe8ff;" d="M256 299H213V256H192v43H149v21h43v43h21V320h43V299ZM163 213t40 0t68 28t28 68t-28 68t-68 28T135 377T107 309t28 -68ZM331 213L437 107L405 75L299 181v17l-6 6Q255 171 203 171q-58 0 -98.5 40T64 309t40.5 98.5T203 448t98 -40.5T341 309q0 -21 -10 -47.5T308 219l6 -6h17Z"
+></glyph
+><glyph unicode="&#xe900;" d="M149 320H256V299H149v21ZM163 213t40 0t68 28t28 68t-28 68t-68 28T135 377T107 309t28 -68ZM331 213L437 107L405 75L299 181v17l-6 6Q255 171 203 171q-58 0 -98.5 40T64 309t40.5 98.5T203 448t98 -40.5T341 309q0 -21 -10 -47.5T308 219l6 -6h17Z"
+></glyph
+><glyph unicode="&#xe9e4;" d="M256 171q-17 0 -30 12.5T213 213q0 18 13 31L407 364L286 183Q274 171 256 171ZM435 329q14 -22 24 -56t10 -60q0 -59 -28 -106Q428 85 404 85H108Q84 85 71 107Q43 154 43 213q0 88 62.5 150.5T257 426q26 0 59.5 -10T372 392L332 366q-36 18 -76 18q-70 0 -120.5 -50T85 213q0 -46 23 -85H404q23 39 23 85q0 41 -18 77l26 39Z"
+></glyph
+></font
+></defs
+><g style="font-family: &quot;Material Icons&quot;; font-size:50;fill:black"
+><text x="20" y="50"
+>!&quot;#$%&amp;&#39;()*+,-./0123456789:;&#229;&lt;&gt;?</text
+><text x="20" y="100"
+>@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_</text
+><text x="20" y="150"
+>` abcdefghijklmnopqrstuvwxyz|{}~</text
+></g
+></svg
+>
