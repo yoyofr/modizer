@@ -143,6 +143,15 @@ void optGSFChangedC(id param) {
     [param optGSFChanged];
 }
 
+//NSFPLAY
+-(void) optNSFPLAYChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_NSFPLAY];
+}
+void optNSFPLAYChangedC(id param) {
+    [param optNSFPLAYChanged];
+}
+
+
 #pragma mark - Load/Init default settings
 
 + (void) restoreSettings {
@@ -393,6 +402,13 @@ void optGSFChangedC(id param) {
     settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value=1;
     settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value=1;
     settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
+    
+    /////////////////////////////////////
+    //NSFPLAY
+    /////////////////////////////////////
+    settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
     //SID
@@ -1285,7 +1301,40 @@ void optGSFChangedC(id param) {
     settings[GSF_ECHO].callback=&optGSFChangedC;
     settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
     
+    /////////////////////////////////////
+    //NSFPLAY
+    /////////////////////////////////////
     
+    settings[MDZ_SETTINGS_FAMILY_NSFPLAY].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_NSFPLAY].label=(char*)"NSFPLAY";
+    settings[MDZ_SETTINGS_FAMILY_NSFPLAY].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_NSFPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_NSFPLAY].sub_family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    
+    settings[NSFPLAY_N163_OPTION0].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_N163_OPTION0].label=(char*)"N163 Serial Multiplex mixing";
+    settings[NSFPLAY_N163_OPTION0].description=NULL;
+    settings[NSFPLAY_N163_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_N163_OPTION0].sub_family=0;
+    settings[NSFPLAY_N163_OPTION0].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[NSFPLAY_N163_OPTION1].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_N163_OPTION1].label=(char*)"N163 Write Protect Phase";
+    settings[NSFPLAY_N163_OPTION1].description=NULL;
+    settings[NSFPLAY_N163_OPTION1].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_N163_OPTION1].sub_family=0;
+    settings[NSFPLAY_N163_OPTION1].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[NSFPLAY_N163_OPTION2].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_N163_OPTION2].label=(char*)"N163 Limit Wavelength";
+    settings[NSFPLAY_N163_OPTION2].description=NULL;
+    settings[NSFPLAY_N163_OPTION2].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_N163_OPTION2].sub_family=0;
+    settings[NSFPLAY_N163_OPTION2].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
+        
     /////////////////////////////////////
     //TIMIDITY
     /////////////////////////////////////

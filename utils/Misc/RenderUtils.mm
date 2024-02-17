@@ -112,11 +112,11 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 
 static signed char *prev_snd_data;
 static signed char *prev_snd_dataStereo;
-int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
-signed char cur_snd_data[SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX];
+static int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
+static signed char cur_snd_data[SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX];
 
-CFont *mOscilloFont=NULL;
-CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
+static CFont *mOscilloFont=NULL;
+static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
 
 #define FX_OSCILLO_MAXROWS 8
 #include "ModizerVoicesData.h"
@@ -138,6 +138,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     static char first_call=1;
         
+    //looking at 2 buffers -> 2 x SOUND_BUFFER_SIZE SAMPLE
+    //max shift is 1/3, so 1/6 on the left and 1/6 on the right
     int max_ofs=(SOUND_BUFFER_SIZE_SAMPLE*2*2/6);
     int min_ofs=0;
     int max_len_oscillo_buffer=SOUND_BUFFER_SIZE_SAMPLE*2*4/6;
@@ -151,6 +153,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     if (first_call) {
         prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX);
+        if (!prev_snd_data) {
+            printf("%s: cannot allocate prev_snd_data\n",__func__);
+            return;
+        }
         memcpy(prev_snd_data,cur_snd_data,SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX);
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++)
@@ -180,10 +186,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         if (!mVoicesName[i]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont,mScaleFactor);
     }
     
-        
-    
-    
-    
     int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
@@ -193,7 +195,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
     mulfactor=hh/(max_voices_by_row+1);
     
+    int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
+    if (!pts) {
+        printf("%s: cannot allocate LineVertex buffer\n",__func__);
+        return;
+    }
     count=0;
     
     //determine min smplincr / width of oscillo on screen, help reduce processing time
@@ -226,7 +233,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    //tmp_gap=tmp_gap+absint(((int)(snd_data[snd_data_idx][(((ofs1+smplindex)))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[(((old_ofs+smplindex)))*SOUND_MAXVOICES_BUFFER_FX+j])));
                     val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
                     if (val>0) tmp_gap+=val;
                     else if (val<0) tmp_gap-=val;
@@ -256,9 +262,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    //tmp_gap=tmp_gap+absint(((int)(snd_data[snd_data_idx][(((ofs2+smplindex)))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[(((old_ofs+smplindex)))*SOUND_MAXVOICES_BUFFER_FX+j])));
-                    //if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
-                    
                     val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
                     if (val>0) tmp_gap+=val;
                     else if (val<0) tmp_gap-=val;
@@ -289,7 +292,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             prev_snd_data[i*SOUND_MAXVOICES_BUFFER_FX+j]=cur_snd_data[(i+(snd_data_ofs[j]))*SOUND_MAXVOICES_BUFFER_FX+j];
         }
     }
-    //memcpy(prev_snd_data,snd_data[snd_data_idx],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
     
     for (int i=0;i<num_voices;i++) {
         val[i]=(signed int)(cur_snd_data[((snd_data_ofs[i]))*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>8;
@@ -320,7 +322,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             //draw label if specified
             if (voices_label&&mVoicesName[cur_voices]) {
                 glPushMatrix();
-                glTranslatef(xpos,ypos-mulfactor/4-(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
+                glTranslatef(xpos,ypos-mulfactor*0.5f+(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
                 mVoicesName[cur_voices]->Render(255);
                 glPopMatrix();
             }
@@ -337,10 +339,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
                                 
+                if (count>=max_count-1) break;
                 pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
-                
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
-                
                 
                 smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
@@ -357,7 +358,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    glDrawArrays(GL_LINES, 0, count);
+    
+    if (count>=max_count) {
+        printf("%s: count too high: %d / %d\n",__func__,count,max_count);
+    } else glDrawArrays(GL_LINES, 0, count);
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -365,7 +369,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     free(pts);
 }
 
-void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint color_mode,float mScaleFactor) {
+void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor) {
     LineVertex *pts;
     int mulfactor;
     int val[2];
@@ -379,32 +383,38 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     
     static char first_call=1;
         
-    int max_ofs=(SOUND_BUFFER_SIZE_SAMPLE*2/6);
+    int max_ofs=(SOUND_BUFFER_SIZE_SAMPLE*2*2/6);
     int min_ofs=0;
-    int max_len_oscillo_buffer=SOUND_BUFFER_SIZE_SAMPLE*4/6;
-    
+    int max_len_oscillo_buffer=SOUND_BUFFER_SIZE_SAMPLE*2*4/6;
     int num_voices=2;
     
-    if (first_call) {
-        prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2);
-        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-            prev_snd_data[i*2+0]=(snd_data[i*2+0]>>8);
-            prev_snd_data[i*2+1]=(snd_data[i*2+1]>>8);
+    int snd_data_idx_next=(snd_data_idx+1)%SOUND_BUFFER_NB;
+    for (int i=0;i<num_voices;i++)
+        for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
+            cur_snd_data[j*2+i]=snd_data[snd_data_idx][j*2+i]>>8;
+            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE)*2+i]=snd_data[snd_data_idx_next][j*2+i]>>8;
         }
+    
+    if (first_call) {
+        prev_snd_dataStereo=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        if (!prev_snd_dataStereo) {
+            printf("%s: cannot allocate prev_snd_dataStereo\n",__func__);
+            return;
+        }
+        memcpy(prev_snd_dataStereo,cur_snd_data,SOUND_BUFFER_SIZE_SAMPLE*2*2);
         
-        for (int i=0;i<2;i++)
-            snd_data_ofs[i]=max_ofs/2;
+        for (int i=0;i<2;i++) snd_data_ofs[i]=max_ofs/2;
+        
         first_call=0;
     }
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    
+    if (!mOscilloFont) {
+        NSString *fontPath;
+        if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking12" ofType: @"fnt"];
+        mOscilloFont = new CFont([fontPath cStringUsingEncoding:1]);
+    }
+            
     int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
@@ -414,11 +424,16 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
     mulfactor=hh/(max_voices_by_row+1);
     
+    int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
+    if (!pts) {
+        printf("%s: cannot allocate LineVertex buffer\n",__func__);
+        return;
+    }
     count=0;
     
     //determine min smplincr / width of oscillo on screen, help reduce processing time
-    int smplincr=SOUND_BUFFER_SIZE_SAMPLE/rows_width;
+    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*2/rows_width;
     if (smplincr<1) smplincr=1;
     int bufflen=max_len_oscillo_buffer/smplincr;
         
@@ -441,18 +456,18 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
             //check on right side, ofs1
             if ((ofs1<max_ofs)&& !right_done) {
                 tmp_gap=0;
-                short int *snd_data_ptr=snd_data+ofs1*2+j;
-                signed char *prev_snd_data_ptr=prev_snd_data+j;
+                signed char *snd_data_ptr=cur_snd_data+ofs1*2+j;
+                signed char *prev_snd_dataStereo_ptr=prev_snd_dataStereo+j;
                 int val;
                 int incr=smplincr*2;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=((int)(*snd_data_ptr)>>8)-(int)(*prev_snd_data_ptr);
+                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_dataStereo_ptr);
                     if (val>0) tmp_gap+=val;
                     else if (val<0) tmp_gap-=val;
                     if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
                     snd_data_ptr+=incr;
-                    prev_snd_data_ptr+=incr;
+                    prev_snd_dataStereo_ptr+=incr;
                 }
                 
                 if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
@@ -470,18 +485,18 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
             //check on left side, ofs2
             if ((ofs2>0)&& !left_done) {
                 tmp_gap=0;
-                short int *snd_data_ptr=snd_data+ofs2*2+j;
-                signed char *prev_snd_data_ptr=prev_snd_data+j;
+                signed char *snd_data_ptr=cur_snd_data+ofs2*2+j;
+                signed char *prev_snd_dataStereo_ptr=prev_snd_dataStereo+j;
                 int val;
                 int incr=smplincr*2;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=((int)(*snd_data_ptr)>>8)-(int)(*prev_snd_data_ptr);
+                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_dataStereo_ptr);
                     if (val>0) tmp_gap+=val;
                     else if (val<0) tmp_gap-=val;
                     if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
                     snd_data_ptr+=incr;
-                    prev_snd_data_ptr+=incr;
+                    prev_snd_dataStereo_ptr+=incr;
                 }
                 
                 if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
@@ -503,12 +518,12 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     
     for (int i=0;i<max_len_oscillo_buffer;i++){
         for (int j=0;j<num_voices;j++) {
-            prev_snd_data[i*2+j]=snd_data[(i+(snd_data_ofs[j]))*2+j]>>8;
+            prev_snd_dataStereo[i*2+j]=cur_snd_data[(i+(snd_data_ofs[j]))*2+j];
         }
     }
     
     for (int i=0;i<num_voices;i++) {
-        val[i]=(signed int)(snd_data[((snd_data_ofs[i]))*2+i]>>8)*mulfactor>>8;
+        val[i]=(signed int)(cur_snd_data[((snd_data_ofs[i]))*2+i])*mulfactor>>8;
         sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
     }
     
@@ -532,9 +547,10 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
                 colG*=1.2f;
                 colB*=1.2f;
             }
+            
             for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*2+cur_voices]>>8;
+                val[cur_voices]=cur_snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*2+cur_voices];
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*mulfactor>>8; if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
                                 
@@ -544,19 +560,29 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
                 if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
                                 
+                if (count>=max_count-1) break;
                 pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
-                
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
-                
                 
                 smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
         }
     }
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
     glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    glDrawArrays(GL_LINES, 0, count);
+    
+    if (count>=max_count) {
+        printf("%s: count too high: %d / %d\n",__func__,count,max_count);
+    } else glDrawArrays(GL_LINES, 0, count);
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);

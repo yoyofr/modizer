@@ -27,7 +27,7 @@ private:
     float scaleFactor;
 	GLfloat *mVertices;
 	GLfloat *mUVs;
-	GLshort *mIndices;
+	GLushort *mIndices;
 	colorData *mColors;
 	int mNumberOfQuads;
 	

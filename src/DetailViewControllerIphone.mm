@@ -121,6 +121,7 @@ static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
 static int txtSubMenuHandle[39];
+static char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
 
 //int texturePiano;
 
@@ -810,6 +811,15 @@ static float movePinchScale,movePinchScaleOld;
         mplayer.optGSFsoundLowPass =settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value;
         mplayer.optGSFsoundEcho=settings[GSF_ECHO].detail.mdz_boolswitch.switch_value;
         [mplayer optGSF_UpdateParam];
+    }
+    
+    /////////////////////
+    //NSFPLAY
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_NSFPLAY)) {
+        [mplayer optNSFPLAY_UpdateParam:settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value
+                              n163_opt1:settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value
+                              n163_opt2:settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value];
     }
     
     /////////////////////
@@ -5049,7 +5059,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 }
 
 - (void)updateVisibleChan {
-    int size_chan;
+    int size_chan=11*(mFontWidth/mScaleFactor);
     switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
@@ -5292,10 +5302,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         return;
     }
 	
-    //	self.navigationController.navigationBar.hidden = YES;
-    m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
-    m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
-	[m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 	
 	[self updateBarPos];
 	//Hack to allow UIToolbar to be set up correctly
@@ -5313,6 +5319,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
     [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
+    
+    //    self.navigationController.navigationBar.hidden = YES;
+    m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
+    m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
+    [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+
 }
 
 
@@ -5581,6 +5593,7 @@ static int mOglView1Tap=0;
 extern "C" int current_sample;
 
 - (void)doFrame {
+    static int no_reentrant=0;
     static int framecpt=0;
 	uint ww,hh;
 	int nb_spectrum_bands;
@@ -5601,6 +5614,9 @@ extern "C" int current_sample;
     static float piano_roty=0;
     float fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     
+    if (no_reentrant) return;
+    no_reentrant=1;
+    
 	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
@@ -5619,14 +5635,23 @@ extern "C" int current_sample;
     framecpt++;  //TODO: check dependency / FPS (30, 60)
     
 	
-	if (self.mainView.hidden) return;
-	if (m_oglView.hidden) return;
-    if (coverflow.hidden==FALSE) return;
+    if (self.mainView.hidden) {
+        no_reentrant=0;
+        return;
+    }
+	if (m_oglView.hidden) {
+        no_reentrant=0;
+        return;
+    }
+    if (coverflow.hidden==FALSE) {
+        no_reentrant=0;
+        return;
+    }
     
     if (oglViewFullscreen) fxalpha=1.0;
     
     if (!mFont) {
-        //NSLog(@"mFont NULL!!");
+        no_reentrant=0;
         return;
     }
 	
@@ -6100,11 +6125,13 @@ extern "C" int current_sample;
     
     if (mOglViewIsHidden) {
         m_oglView.hidden=YES;
+        no_reentrant=0;
         return;
     }
 	//check if current mod is ended or not
 	/*if (mplayer.bGlobalAudioPause==2) {
      //mod ended => do nothing
+     no_reentrant=0;
      return;
      }
      */
@@ -6647,8 +6674,6 @@ extern "C" int current_sample;
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
-                    char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
-                    
                     if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<mplayer.numVoicesChannels;i++) {
@@ -6656,7 +6681,7 @@ extern "C" int current_sample;
                         }
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
                     } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
-                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
@@ -6670,10 +6695,10 @@ extern "C" int current_sample;
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);
                     } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,NULL);
-                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1,mScaleFactor);
+                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
                 break;
         }
 	}
@@ -6935,6 +6960,7 @@ extern "C" int current_sample;
     // render buffer contents whenever is possible
     
     FrameBufferUtils::SwapBuffer(m_oglView->m_frameBuffer,m_oglContext);
+    no_reentrant=0;
 }
 
 

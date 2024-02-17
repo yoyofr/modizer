@@ -1897,6 +1897,10 @@ static int tim_acntl(int request, void *arg) {
 xgm::NSFPlayer *nsfPlayer;
 xgm::NSFPlayerConfig *nsfPlayerConfig;
 xgm::NSF *nsfData;
+//NSFPLAY
+static char nsfplay_opt_n163_option0;
+static char nsfplay_opt_n163_option1;
+static char nsfplay_opt_n163_option2;
 
 #define NES_MAX_CHIPS 8
 enum {
@@ -1930,10 +1934,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
              md5[0], md5[1], md5[2], md5[3], md5[4], md5[5], md5[6],
              md5[7], md5[8], md5[9], md5[10], md5[11], md5[12], md5[13],
              md5[14], md5[15]);
-    if (ret >= destlen || ret != 32) {
-        fprintf(stderr, "md5 buffer error (%d/%zd)\n", ret, destlen);
-        exit(1);
-    }
+    song_md5[destlen-1]=0;
 }
 
 static void writeLEword(unsigned char ptr[2], int someWord)
@@ -6406,6 +6407,26 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     return 0;
 }
 
+typedef struct {
+    const char md5[33];
+    const char *option_id;
+    int val_option;
+} nsfplay_fixes_t;
+
+/*nsfplay_fixes_t nsfplay_fixes_list[]={
+    {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION1",1}, //dracula x - bloodlines.nsf | N163 OPT_PHASE_READ_ONLY
+    {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION2",1}, //dracula x - bloodlines.nsf | N163 OPT_LIMIT_WAVELENGTH
+    {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION1",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_PHASE_READ_ONLY
+    {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION2",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_LIMIT_WAVELENGTH
+    {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION1",1}, //digan no maseki - euress (n106).nsf | N163 OPT_PHASE_READ_ONLY
+    {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION2",1}, //digan no maseki - euress (n106).nsf | N163 OPT_LIMIT_WAVELENGTH
+    {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION1",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_PHASE_READ_ONLY
+    {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION2",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_LIMIT_WAVELENGTH
+    {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION1",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_PHASE_READ_ONLY
+    {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION2",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_LIMIT_WAVELENGTH
+    {"","",0} //END of list
+};*/
+
 -(int) mmp_nsfplayLoad:(NSString*)filePath {  //NSFPLAY
     mPlayType=MMP_NSFPLAY;
     
@@ -6420,11 +6441,41 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
+    
+    /* compute md5 on file to trigger some fixes/options*/
+    /*int tmp_md5_data_size=mp_datasize;
+    char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
+    
+    f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"SID Cannot open file %@",filePath);
+        mPlayType=0;
+        free(tmp_md5_data);
+        return -1;
+    }
+    fread(tmp_md5_data,1,tmp_md5_data_size,f);
+    fclose(f);
+    
+    md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
+    free(tmp_md5_data);*/
+    
     nsfPlayer=new xgm::NSFPlayer();
       
     nsfPlayerConfig=new xgm::NSFPlayerConfig();
     (*nsfPlayerConfig)["RATE"]=44100;
     (*nsfPlayerConfig)["MASTER_VOLUME"]=256;
+    (*nsfPlayerConfig)["N163_OPTION0"]=nsfplay_opt_n163_option0; //N163 hardware accurate serial multiplexing
+    (*nsfPlayerConfig)["N163_OPTION1"]=nsfplay_opt_n163_option1; //N163 OPT_PHASE_READ_ONLY
+    (*nsfPlayerConfig)["N163_OPTION2"]=nsfplay_opt_n163_option2; //N163 OPT_LIMIT_WAVELENGTH
+    
+#ifdef DEBUG_MODIZER
+    //NSLog(@"%s: MD5 %s / loading %s",__func__,song_md5,[[filePath lastPathComponent] UTF8String]);
+#endif
+    /*for (int i=0;nsfplay_fixes_list[i].md5[0];i++)
+        if (strcmp(song_md5,nsfplay_fixes_list[i].md5)==0) {
+            (*nsfPlayerConfig)[nsfplay_fixes_list[i].option_id]=nsfplay_fixes_list[i].val_option;
+        }
+    */
     nsfPlayer->SetConfig(nsfPlayerConfig);
         
     nsfData=new xgm::NSF();
@@ -6469,7 +6520,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     nsfChipsetType[nsfChipsetCount]=NES_APU;
     nsfChipsetStartVoice[nsfChipsetCount]=0;
     nsfChipsetVoicesCount[nsfChipsetCount]=5;
-    snprintf(nsfChipsetName[nsfChipsetCount],16,"APU");
+    
+    snprintf(nsfChipsetName[nsfChipsetCount],16,"RP2A03");
     for (int i=numChannels;i<numChannels+5;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
     }
@@ -6502,7 +6554,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_FME7;
         nsfChipsetVoicesCount[nsfChipsetCount]=3;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"FME7");
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"5B");
         for (int i=numChannels;i<numChannels+3;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
         }
@@ -6526,7 +6578,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
         nsfChipsetType[nsfChipsetCount]=NES_N106;
         nsfChipsetVoicesCount[nsfChipsetCount]=8;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"N106");
+        snprintf(nsfChipsetName[nsfChipsetCount],16,"N163");
         for (int i=numChannels;i<numChannels+8;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
         }
@@ -6563,9 +6615,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         strcat(mod_message,nsfData->text);
         strcat(mod_message,"\n");
     }
-    
-    
-    
     
     m_voicesDataAvail=1;
     numVoicesChannels=numChannels;
@@ -6999,7 +7048,6 @@ char* loadRom(const char* path, size_t romSize)
     fclose(f);
     
     md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
-    song_md5[32]=0;
     free(tmp_md5_data);
     
     
@@ -7484,7 +7532,6 @@ char* loadRom(const char* path, size_t romSize)
     char *tmp_md5_data=(char*)malloc(mp_datasize);
     fread(tmp_md5_data, 1, mp_datasize, f);
     md5_from_buffer(song_md5,33,tmp_md5_data,mp_datasize);
-    song_md5[32]=0;
     free(tmp_md5_data);
     fclose(f);
     
@@ -9147,7 +9194,6 @@ int vgmGetFileLength()
     }
     
     md5_from_buffer(song_md5,33,(char*)ASAP_module,ASAP_module_len);
-    song_md5[32]=0;
     
     mod_minsub=0;
     mod_maxsub=ASAPInfo_GetSongs(ASAP_GetInfo(asap))-1;
@@ -11398,6 +11444,22 @@ extern bool icloud_available;
     soundEcho = optGSFsoundEcho;
 }
 
+///////////////////////////
+//NSFPlay
+///////////////////////////
+-(void) optNSFPLAY_UpdateParam:(int)n163_opt0 n163_opt1:(int)n163_opt1 n163_opt2:(int)n163_opt2 {
+    nsfplay_opt_n163_option0=n163_opt0;
+    nsfplay_opt_n163_option1=n163_opt1;
+    nsfplay_opt_n163_option2=n163_opt2;
+    
+    if (nsfPlayerConfig) {
+        (*nsfPlayerConfig)["N163_OPTION0"]=nsfplay_opt_n163_option0; //N163 hardware accurate serial multiplexing
+        (*nsfPlayerConfig)["N163_OPTION1"]=nsfplay_opt_n163_option1; //N163 OPT_PHASE_READ_ONLY
+        (*nsfPlayerConfig)["N163_OPTION2"]=nsfplay_opt_n163_option2; //N163 OPT_LIMIT_WAVELENGTH
+        nsfPlayer->Notify(-1);
+    }
+}
+
 
 ///////////////////////////
 // ADPLUG
@@ -12167,6 +12229,7 @@ extern "C" void adjust_amplification(void);
             int chipIdx=[self getSystemForVoice:channel];
             int voiceIdx=channel-nsfChipsetStartVoice[chipIdx];
             int current_mask=(*nsfPlayerConfig)["MASK"];
+            //NSLog(@"chip %d voice %d mask %08X",chipIdx,voiceIdx,current_mask);
             switch (nsfChipsetType[chipIdx]) {
                 case NES_APU:
                     if (active) current_mask&=0xFFFFFFFF^(1<<voiceIdx);

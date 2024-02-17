@@ -349,7 +349,8 @@
 					"m68k_set_reset_instr_callback=as_m68k_set_reset_instr_callback\n-D",
 					"m68k_write_memory_16=as_m68k_write_memory_16\n-D",
 					"m68k_write_memory_32=as_m68k_write_memory_32\n-D",
-					"m68k_write_memory_8=as_m68k_write_memory_8\n",
+					"m68k_write_memory_8=as_m68k_write_memory_8\n-D",
+					"m68ki_instruction_jump_table=as_m68ki_instruction_jump_table",
 				);
 				SDKROOT = iphoneos;
 			};
@@ -486,7 +487,8 @@
 					"m68k_set_reset_instr_callback=as_m68k_set_reset_instr_callback\n-D",
 					"m68k_write_memory_16=as_m68k_write_memory_16\n-D",
 					"m68k_write_memory_32=as_m68k_write_memory_32\n-D",
-					"m68k_write_memory_8=as_m68k_write_memory_8\n",
+					"m68k_write_memory_8=as_m68k_write_memory_8\n-D",
+					"m68ki_instruction_jump_table=as_m68ki_instruction_jump_table",
 				);
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

@@ -228,7 +228,7 @@ bool pxtnService::_moo_PXTONE_SAMPLE( void *p_data )
                 int ofs_start=m_voice_current_ptr[u];
                 int ofs_end=(m_voice_current_ptr[u]+smplIncr);
                 for (;;) {
-                    m_voice_buff[u][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((_units [ u ]->last_smpl>>8));
+                    m_voice_buff[u][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((_units [ u ]->last_smpl>>7));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }

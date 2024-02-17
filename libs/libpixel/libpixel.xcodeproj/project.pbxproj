@@ -155,7 +155,6 @@
 		CCB817362B7196C800364D64 /* Snare01Beta.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Snare01Beta.inc; sourceTree = "<group>"; };
 		CCB817372B7196C800364D64 /* Bass03.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Bass03.inc; sourceTree = "<group>"; };
 		CCB817382B7196C800364D64 /* Tom02.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Tom02.inc; sourceTree = "<group>"; };
-		CCB817392B7196C800364D64 /* in_org.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = in_org.h; sourceTree = "<group>"; };
 		CCB8173A2B7196C800364D64 /* Tom03.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Tom03.inc; sourceTree = "<group>"; };
 		CCB8173B2B7196C800364D64 /* Tom01.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Tom01.inc; sourceTree = "<group>"; };
 		CCB8173C2B7196C800364D64 /* Bass04.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Bass04.inc; sourceTree = "<group>"; };
@@ -176,7 +175,6 @@
 		CCB8174B2B7196C800364D64 /* HiCloseBeta.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = HiCloseBeta.inc; sourceTree = "<group>"; };
 		CCB8174C2B7196C800364D64 /* Per01.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Per01.inc; sourceTree = "<group>"; };
 		CCB8174D2B7196C800364D64 /* Crash02.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Crash02.inc; sourceTree = "<group>"; };
-		CCB8174E2B7196C800364D64 /* in_org.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = in_org.c; sourceTree = "<group>"; };
 		CCB8174F2B7196C800364D64 /* Cat.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = Cat.inc; sourceTree = "<group>"; };
 		CCB817502B7196C800364D64 /* HiClos2.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = HiClos2.inc; sourceTree = "<group>"; };
 		CCB817512B7196C800364D64 /* HiClose.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = HiClose.inc; sourceTree = "<group>"; };
@@ -382,8 +380,6 @@
 				CCB8172E2B7196C800364D64 /* HiOpen2.inc */,
 				CCB817302B7196C800364D64 /* HiOpen3.inc */,
 				CCB817472B7196C800364D64 /* HiOpenBeta.inc */,
-				CCB8174E2B7196C800364D64 /* in_org.c */,
-				CCB817392B7196C800364D64 /* in_org.h */,
 				CCB817482B7196C800364D64 /* Orcdrm.inc */,
 				CCB8174C2B7196C800364D64 /* Per01.inc */,
 				CCB817492B7196C800364D64 /* Per02.inc */,

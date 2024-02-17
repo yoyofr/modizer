@@ -60,7 +60,7 @@ extern uint64_t organya_mute_mask;
 
 #define MAX_PATH 1024
 char lastfn[MAX_PATH];
-int decode_pos_ms; // current decoding position, in milliseconds
+static int decode_pos_ms; // current decoding position, in milliseconds
 
 // post this to the main window at end of file (after playback as stopped)
 #define WM_WA_MPEG_EOF WM_USER+2

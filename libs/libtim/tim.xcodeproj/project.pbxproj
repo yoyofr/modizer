@@ -111,7 +111,6 @@
 		333B16FC13955AF400F2F613 /* fft4g.c in Sources */ = {isa = PBXBuildFile; fileRef = 333B15DC13955AF300F2F613 /* fft4g.c */; };
 		333B16FD13955AF400F2F613 /* fft4g.h in Headers */ = {isa = PBXBuildFile; fileRef = 333B15DD13955AF300F2F613 /* fft4g.h */; };
 		333B16FE13955AF400F2F613 /* getaddrinfo.c in Sources */ = {isa = PBXBuildFile; fileRef = 333B15DE13955AF300F2F613 /* getaddrinfo.c */; };
-		333B16FF13955AF400F2F613 /* getopt.c in Sources */ = {isa = PBXBuildFile; fileRef = 333B15DF13955AF300F2F613 /* getopt.c */; };
 		333B170513955AF400F2F613 /* mblock.c in Sources */ = {isa = PBXBuildFile; fileRef = 333B15E713955AF300F2F613 /* mblock.c */; };
 		333B170613955AF400F2F613 /* mblock.h in Headers */ = {isa = PBXBuildFile; fileRef = 333B15E813955AF300F2F613 /* mblock.h */; };
 		333B170713955AF400F2F613 /* memb.c in Sources */ = {isa = PBXBuildFile; fileRef = 333B15E913955AF300F2F613 /* memb.c */; };
@@ -631,7 +630,6 @@
 				333B16FA13955AF400F2F613 /* fft.c in Sources */,
 				333B16FC13955AF400F2F613 /* fft4g.c in Sources */,
 				333B16FE13955AF400F2F613 /* getaddrinfo.c in Sources */,
-				333B16FF13955AF400F2F613 /* getopt.c in Sources */,
 				333B170513955AF400F2F613 /* mblock.c in Sources */,
 				333B170713955AF400F2F613 /* memb.c in Sources */,
 				333B170913955AF400F2F613 /* net.c in Sources */,

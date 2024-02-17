@@ -193,6 +193,7 @@ enum MMP_PLAYER_TYPE {
     char optGSFsoundEcho;
     char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
     char optGSFsoundInterpolation;
+    
 	//Openmpt
     int mPatternDataAvail;
     openmpt_module_ext *ompt_mod;
@@ -415,6 +416,8 @@ enum MMP_PLAYER_TYPE {
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
 
 -(void) optGSF_UpdateParam;
+
+-(void) optNSFPLAY_UpdateParam:(int)n163_opt0 n163_opt1:(int)n163_opt1 n163_opt2:(int)n163_opt2;
 
 -(void) optXMP_SetInterpolation:(int) mode;
 -(void) optXMP_SetStereoSeparation:(int) value;

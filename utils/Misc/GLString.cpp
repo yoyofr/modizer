@@ -66,6 +66,7 @@ void CGLString::Render(int msg_type)
 	// The first time we render this text, build the set of textured quads
 	if (!mVertices) {
 		BuildString(msg_type);
+        if (!mVertices) return;
 	} else if (msg_type&128) {
 		unsigned char valr,valg,valb,vala;
 		valr=valg=valb=0xFF;
@@ -110,12 +111,21 @@ void CGLString::BuildString(int msg_type)
 {
 	mVertices = new GLfloat[8 * mNumberOfQuads];
 	mUVs = new GLfloat[8 * mNumberOfQuads];
-	
-	// Using bytes for indices limits us to 256 / 4 = 64 characters
-	// If more are needed, we could use unsigned shorts instead
-	mIndices = new GLshort[6 * mNumberOfQuads];
-	
+	mIndices = new GLushort[6 * mNumberOfQuads];
 	mColors = new colorData[8 * mNumberOfQuads];
+    
+    if ((!mVertices)||(!mUVs)||(!mIndices)||(!mColors)) {
+        if (mVertices) delete mVertices;
+        if (mUVs) delete mUVs;
+        if (mIndices) delete mIndices;
+        if (mColors) delete mColors;
+        mVertices=NULL;
+        mUVs=NULL;
+        mIndices=NULL;
+        mColors=NULL;
+        printf("%s: cannot allocate memory\n",__func__);
+        return;
+    }
 	
 	float baseX = 0.0f;
 	float baseY = 0.0f;
@@ -308,13 +318,13 @@ void CGLString::BuildString(int msg_type)
 		mColors[i*4 + 0].a=mColors[i*4 + 1].a=mColors[i*4 + 2].a=mColors[i*4 + 3].a=vala;
 		
 		
-		mIndices[indIndex + 0] = (GLshort)(4 * i + 0);
-		mIndices[indIndex + 1] = (GLshort)(4 * i + 1);
-		mIndices[indIndex + 2] = (GLshort)(4 * i + 2);
+		mIndices[indIndex + 0] = (GLushort)(4 * i + 0);
+		mIndices[indIndex + 1] = (GLushort)(4 * i + 1);
+		mIndices[indIndex + 2] = (GLushort)(4 * i + 2);
 		
-		mIndices[indIndex + 3] = (GLshort)(4 * i + 2);
-		mIndices[indIndex + 4] = (GLshort)(4 * i + 1);
-		mIndices[indIndex + 5] = (GLshort)(4 * i + 3);
+		mIndices[indIndex + 3] = (GLushort)(4 * i + 2);
+		mIndices[indIndex + 4] = (GLushort)(4 * i + 1);
+		mIndices[indIndex + 5] = (GLushort)(4 * i + 3);
 		
 		indIndex += 6;
 	}

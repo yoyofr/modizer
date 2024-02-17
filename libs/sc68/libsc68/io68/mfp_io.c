@@ -31,7 +31,7 @@
 #include "mfpemul.h"
 #include <assert.h>
 
-#ifdef DEBUG
+#ifdef DEBUG_YOYOFR
 # include <sc68/file68_msg.h>
 
 static const char * const regnames[] = {

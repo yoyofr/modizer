@@ -65,7 +65,7 @@ static ym2612_state YM2612Data[MAX_CHIPS];
 static UINT8 ChipFlags = 0x00;
 
 
-stream_sample_t* DUMMYBUF[0x02] = {NULL, NULL};
+stream_sample_t* eupDUMMYBUF[0x02] = {NULL, NULL};
 
 /* update request from fm.c */
 
@@ -73,7 +73,7 @@ void ym2612_update_request(void *param)
 {
 #ifndef USE_NUKED_OPL2
 	ym2612_state *info = (ym2612_state *)param;
-	ym2612_update_one(info->chip, 0, DUMMYBUF);
+	ym2612_update_one(info->chip, 0, eupDUMMYBUF);
 #else
 #endif
 }

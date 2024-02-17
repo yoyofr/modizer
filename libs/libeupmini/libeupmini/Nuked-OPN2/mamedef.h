@@ -59,7 +59,7 @@ typedef INT32 stream_sample_t;
 #define logerror
 #endif
 
-extern stream_sample_t* DUMMYBUF[];
+extern stream_sample_t* eupDUMMYBUF[];
 
 typedef void (*SRATE_CALLBACK)(void*, UINT32);
 

@@ -186,7 +186,7 @@ UINT32 NES_N106::Render (INT32 b[2])
                 b[0] += fout[c] * sm[0][c];
                 b[1] += fout[c] * sm[1][c];
                 //YOYOFR
-                outOscillo[c]=fout[c]*(sm[0][c]+sm[1][c]);
+                outOscillo[render_channel]=fout[c]*(sm[0][c]+sm[1][c]);
                 //YOYOFR
             }
             
@@ -223,7 +223,7 @@ UINT32 NES_N106::Render (INT32 b[2])
                 b[1] += fout[i] * sm[1][i];
                 
                 //YOYOFR
-                outOscillo[i]=fout[i]*(sm[0][i]+sm[1][i]);
+                outOscillo[7-i]=fout[i]*(sm[0][i]+sm[1][i]);
                 //YOYOFR
             }
         }
