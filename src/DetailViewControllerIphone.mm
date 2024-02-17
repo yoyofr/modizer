@@ -525,9 +525,6 @@ static int display_length_mode=0;
     [self checkGLViewCanDisplay];
 }
 
--(IBAction) optTIM_Polyphony {
-    
-}
 
 - (void)showRating:(int)rating {
     if (rating) {
@@ -6655,7 +6652,7 @@ extern "C" int current_sample;
                     if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<mplayer.numVoicesChannels;i++) {
-                            snprintf(voicesName+i*32,32,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
                     } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
@@ -6668,7 +6665,7 @@ extern "C" int current_sample;
                     if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<mplayer.numVoicesChannels;i++) {
-                            snprintf(voicesName+i*32,32,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);

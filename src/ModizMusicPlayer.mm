@@ -11775,13 +11775,16 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-V2",channel+1];
         case MMP_PIXEL: {
             if (pixel_organya_mode) {
-                return [NSString stringWithFormat:@"#%d",channel+1];
+                return [NSString stringWithFormat:@"#%d-Organya",channel+1];
             } else {
                 const char *name=pixel_pxtn->Unit_Get(channel)->get_name_buf(NULL);
                 if (name) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
                 else return [NSString stringWithFormat:@"#%d",channel+1];
             }
         }
+        case MMP_ATARISOUND:
+            if (channel<3) return [NSString stringWithFormat:@"#%d-YM2149F",channel+1];
+            else return [NSString stringWithFormat:@"#%d-DMA",channel+1];
         case MMP_HC:
             if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];

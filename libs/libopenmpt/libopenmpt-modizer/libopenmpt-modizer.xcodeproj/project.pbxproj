@@ -141,30 +141,6 @@
 		CC4881B12B7970F900BCFFCC /* InstrumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4881412B7970F900BCFFCC /* InstrumentExtensions.cpp */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		CC4883082B797CC900BCFFCC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC4883042B797CC800BCFFCC /* mpg123-openmpt.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC4882F82B797CC800BCFFCC;
-			remoteInfo = "mpg123-openmpt";
-		};
-		CC4884172B79804C00BCFFCC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC4884132B79804B00BCFFCC /* ogg-openmpt.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC4884072B79804B00BCFFCC;
-			remoteInfo = "ogg-openmpt";
-		};
-		CC48843C2B79813F00BCFFCC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC4884382B79813F00BCFFCC /* vorbis-openmpt.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC48842C2B79813F00BCFFCC;
-			remoteInfo = "vorbis-openmpt";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		CCE352922B79704200E06DE1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -586,9 +562,6 @@
 		CC48828B2B79710900BCFFCC /* preprocessor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = preprocessor.hpp; sourceTree = "<group>"; };
 		CC48828C2B79710900BCFFCC /* detect_os.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = detect_os.hpp; sourceTree = "<group>"; };
 		CC48828D2B79710900BCFFCC /* semantic_version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = semantic_version.hpp; sourceTree = "<group>"; };
-		CC4883042B797CC800BCFFCC /* mpg123-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "mpg123-openmpt.xcodeproj"; path = "../../mpg123-openmpt/mpg123-openmpt.xcodeproj"; sourceTree = "<group>"; };
-		CC4884132B79804B00BCFFCC /* ogg-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "ogg-openmpt.xcodeproj"; path = "../../ogg-openmpt/ogg-openmpt.xcodeproj"; sourceTree = "<group>"; };
-		CC4884382B79813F00BCFFCC /* vorbis-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "vorbis-openmpt.xcodeproj"; path = "../../vorbis-openmpt/vorbis-openmpt.xcodeproj"; sourceTree = "<group>"; };
 		CCE352942B79704200E06DE1 /* liblibopenmpt-modizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblibopenmpt-modizer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -1414,35 +1387,8 @@
 		CC4882D32B797B7B00BCFFCC /* Projects */ = {
 			isa = PBXGroup;
 			children = (
-				CC4884382B79813F00BCFFCC /* vorbis-openmpt.xcodeproj */,
-				CC4884132B79804B00BCFFCC /* ogg-openmpt.xcodeproj */,
-				CC4883042B797CC800BCFFCC /* mpg123-openmpt.xcodeproj */,
 			);
 			path = Projects;
-			sourceTree = "<group>";
-		};
-		CC4883052B797CC800BCFFCC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC4883092B797CC900BCFFCC /* libmpg123-openmpt.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		CC4884142B79804B00BCFFCC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC4884182B79804C00BCFFCC /* libogg-openmpt.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		CC4884392B79813F00BCFFCC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC48843D2B79813F00BCFFCC /* libvorbis-openmpt.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		CCE3528B2B79704200E06DE1 = {
@@ -1511,50 +1457,12 @@
 			mainGroup = CCE3528B2B79704200E06DE1;
 			productRefGroup = CCE352952B79704200E06DE1 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = CC4883052B797CC800BCFFCC /* Products */;
-					ProjectRef = CC4883042B797CC800BCFFCC /* mpg123-openmpt.xcodeproj */;
-				},
-				{
-					ProductGroup = CC4884142B79804B00BCFFCC /* Products */;
-					ProjectRef = CC4884132B79804B00BCFFCC /* ogg-openmpt.xcodeproj */;
-				},
-				{
-					ProductGroup = CC4884392B79813F00BCFFCC /* Products */;
-					ProjectRef = CC4884382B79813F00BCFFCC /* vorbis-openmpt.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				CCE352932B79704200E06DE1 /* libopenmpt-modizer */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		CC4883092B797CC900BCFFCC /* libmpg123-openmpt.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmpg123-openmpt.a";
-			remoteRef = CC4883082B797CC900BCFFCC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		CC4884182B79804C00BCFFCC /* libogg-openmpt.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libogg-openmpt.a";
-			remoteRef = CC4884172B79804C00BCFFCC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		CC48843D2B79813F00BCFFCC /* libvorbis-openmpt.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libvorbis-openmpt.a";
-			remoteRef = CC48843C2B79813F00BCFFCC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CCE352902B79704200E06DE1 /* Sources */ = {

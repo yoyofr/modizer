@@ -56,7 +56,6 @@
 /* Begin PBXFileReference section */
 		CC1638462B7CDF91003323FD /* liblibnsfplay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibnsfplay.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC1638582B7CE0D2003323FD /* fileutil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fileutil.cpp; path = "nsfplay-master/xgm/fileutil.cpp"; sourceTree = "<group>"; };
-		CC1638592B7CE0D2003323FD /* xgm.vcproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xgm.vcproj; path = "nsfplay-master/xgm/xgm.vcproj"; sourceTree = "<group>"; };
 		CC16385A2B7CE0D2003323FD /* fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fileutil.h; path = "nsfplay-master/xgm/fileutil.h"; sourceTree = "<group>"; };
 		CC16385D2B7CE0D2003323FD /* tagctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagctrl.h; sourceTree = "<group>"; };
 		CC1638602B7CE0D2003323FD /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = version.h; path = "nsfplay-master/xgm/version.h"; sourceTree = "<group>"; };
@@ -77,7 +76,6 @@
 		CC1638732B7CE0D2003323FD /* midi_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = midi_interface.h; sourceTree = "<group>"; };
 		CC1638742B7CE0D2003323FD /* soundData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = soundData.h; sourceTree = "<group>"; };
 		CC1638752B7CE0D2003323FD /* debugout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debugout.h; path = "nsfplay-master/xgm/debugout.h"; sourceTree = "<group>"; };
-		CC1638762B7CE0D2003323FD /* xgm.vcxproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xgm.vcxproj; path = "nsfplay-master/xgm/xgm.vcxproj"; sourceTree = "<group>"; };
 		CC1638792B7CE0D2003323FD /* detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = detect.h; sourceTree = "<group>"; };
 		CC16387A2B7CE0D2003323FD /* detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = detect.cpp; sourceTree = "<group>"; };
 		CC16387B2B7CE0D2003323FD /* log_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_cpu.h; sourceTree = "<group>"; };
@@ -184,8 +182,6 @@
 				CC1638602B7CE0D2003323FD /* version.h */,
 				CC1638632B7CE0D2003323FD /* xgm.h */,
 				CC1638CE2B7CE0D2003323FD /* xtypes.h */,
-				CC1638592B7CE0D2003323FD /* xgm.vcproj */,
-				CC1638762B7CE0D2003323FD /* xgm.vcxproj */,
 				CC1638612B7CE0D2003323FD /* browser */,
 				CC1638772B7CE0D2003323FD /* devices */,
 				CC1638642B7CE0D2003323FD /* player */,
