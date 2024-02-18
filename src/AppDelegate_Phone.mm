@@ -196,7 +196,11 @@ extern "C" void updateMainLoopC(void) {
         
         if (url) {
             icloudURL=[url URLByAppendingPathComponent:@"Documents"];
+            
+            [mFileMngr createFileAtPath:[[icloudURL path] stringByAppendingPathComponent:@"put_files_here.modizer"] contents:NULL attributes:NULL];
         } else icloudURL=nil;
+        
+        
     }
     
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
