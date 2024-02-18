@@ -476,7 +476,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=5;
-    settings[VGMSTREAM_ResampleQuality].detail.mdz_slider.slider_value=1;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
     
     
     /////////////////////////////////////
@@ -1508,12 +1508,13 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_min_value=0;
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=30;
     
-    settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
+    
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
     settings[VGMSTREAM_ResampleQuality].description=NULL;
     settings[VGMSTREAM_ResampleQuality].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
     settings[VGMSTREAM_ResampleQuality].sub_family=0;
     settings[VGMSTREAM_ResampleQuality].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
