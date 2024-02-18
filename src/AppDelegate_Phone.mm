@@ -181,8 +181,7 @@ extern "C" void updateMainLoopC(void) {
 	//
 #ifdef GEN_EXT_LIST
     [self getSupportedExtensionList];
-#endif
-    
+#endif            
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     
     //check iCloud availability

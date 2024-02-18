@@ -581,7 +581,7 @@ void memRsidMain(uint16_t free_space, uint16_t *init_addr) {
 		return;	// no free space anywhere.. that shit better not RTS!
 	} else {
 		uint16_t loopAddr = free_space + 3;
-
+        
 		_memory[free_space] = 0x20;	// JSR
 		_memory[free_space + 1] = (*init_addr) & 0xff;
 		_memory[free_space + 2] = (*init_addr) >> 8;
@@ -590,6 +590,7 @@ void memRsidMain(uint16_t free_space, uint16_t *init_addr) {
 		_memory[free_space + 5] = loopAddr >> 8;
 
 		(*init_addr) = free_space;
+        
 	}
 }
 

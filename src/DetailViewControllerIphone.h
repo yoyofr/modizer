@@ -230,7 +230,7 @@ class CGLString;
 -(void)updateFlagOnExit;
 -(int)checkFlagOnStartup;
 
--(BOOL)play_curEntry;
+-(BOOL)play_curEntry:(int)subsong;
 -(void)play_nextEntry;
 -(void)play_prevEntry;
 
@@ -239,7 +239,7 @@ class CGLString;
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 -(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;
 
--(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName;
+-(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName subsong:(int)subsong;
 
 -(void) updateInfos: (NSTimer *) theTimer;
 -(int) add_to_playlist:(NSString*)filePath fileName:(NSString*)fileName forcenoplay:(int)forcenoplay;

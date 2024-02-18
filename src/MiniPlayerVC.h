@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
     UIView *gestureAreaView;
     
     UIView *songInfoView;
-    CBAutoScrollLabel *labelMain,*labelSub;
+    CBAutoScrollLabel *labelMain,*labelSub,*labelArtist;
     UILabel *labelPrev,*labelNext;
     UILabel *labelPrevEntry,*labelNextEntry;
     UILabel *labelPlaylist;

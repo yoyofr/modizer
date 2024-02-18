@@ -25,7 +25,9 @@
 #endif
 
 extern "C" {
-#include "md5.h"
+//YOYOFR
+//#include "md5.h"
+//YOYOFR
 
 #include "core.h"
 #include "memory.h"
@@ -38,8 +40,9 @@ extern "C" {
 
 #define MULTI_SID_TYPE 0x4E
 
-
-static MD5_CTX		_md5;
+//YOYOFR
+//static MD5_CTX		_md5;
+//YOYOFR
 static char			_md5_hex_string[32 + 1];
 
 
@@ -98,6 +101,10 @@ static uint8_t 	_basic_prog;
 static uint16_t _free_space;
 
 static uint16_t	_load_addr, _init_addr, _play_addr, _load_end_addr;
+//YOYOFR
+static uint16_t _save_init_addr;
+//YOYOFR
+
 static uint8_t 	_selected_track, _max_track;
 static uint32_t	_play_speed;
 
@@ -203,11 +210,15 @@ void FileLoader::setNTSCMode(uint8_t is_ntsc) {
 	_ntsc_mode = is_ntsc;
 }
 
+
 void FileLoader::initTune(uint32_t sample_rate, uint8_t selected_track) {
 	_selected_track = getValidatedTrack(selected_track);
 
 	uint8_t timerDrivenPSID = (!_is_rsid && (FileLoader::getCurrentSongSpeed() == 1));
 
+    //YOYOFR
+    _init_addr=_save_init_addr;
+    //YOYOFR
 	Core::startupTune(sample_rate, _selected_track,
 					_is_rsid, timerDrivenPSID, _ntsc_mode, _compatibility, _basic_prog,
 					_free_space, &_init_addr, _load_end_addr, _play_addr);
@@ -535,6 +546,8 @@ uint16_t MusFileLoader::loadComputeSidplayerData(uint8_t *mus_song_file, uint32_
 	}
 
  	musMapInfoTexts(mus_song_file, mus_song_file_len, track_data_len);
+    
+    _save_init_addr=_init_addr;
 
 	return 1;
 }
@@ -782,5 +795,7 @@ uint32_t SidFileLoader::load(uint8_t* input_file_buffer, uint32_t in_buf_size, c
 	}*/
 
 	storeFileInfo();
+    
+    _save_init_addr=_init_addr;
 	return 0;
 }

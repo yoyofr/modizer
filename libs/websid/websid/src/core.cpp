@@ -244,8 +244,8 @@ void Core::startupTune(uint32_t sample_rate, uint8_t selected_track,
 
 	} else {
 		memRsidInit(free_space, init_addr, selected_track, basic_mode);
-
-		sysReset();
+        
+		sysReset();        
 		cpuSetProgramCounter((*init_addr), selected_track);
 	}
 }

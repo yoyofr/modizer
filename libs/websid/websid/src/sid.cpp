@@ -329,7 +329,9 @@ uint8_t SID::setSID6581(bool set_6581) {
 	// this minimal update should allow to toggle the
 	// used filter without disrupting playback in progress
 
-	_sid_is_6581[0] = _sid_is_6581[1] = _sid_is_6581[2] = set_6581;
+    //YOYOFR
+    for (int i=0;i<MAX_SIDS;i++) _sid_is_6581[i]  = set_6581;
+    //YOYOFR
 	SID::setModels(_sid_is_6581);
 	return 0;
 }
@@ -602,7 +604,7 @@ void SID::synthSample(int16_t** synth_trace_bufs, uint32_t offset, int32_t *s_l,
 			// note: the _wf_zero ofset *always* creates some wave-output that will be modulated via the
 			// envelope (even when 0-waveform is set it will cause audible clicks and distortions in
 			// the scope views)
-
+            
 			int32_t o = _vol_scale * ( env_out * (outv + _wf_zero) + _dac_offset);
 			vout[voice_idx]= _filter->getVoiceOutput(voice_idx, &o);
 

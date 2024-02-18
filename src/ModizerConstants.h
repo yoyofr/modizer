@@ -88,8 +88,10 @@
 #define DEFAULT_PLAYBACK_FREQ 44100
 
 #define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_BUFFER_NB 32 //64
-#define MIDIFX_OFS 16 //32
+#define SOUND_BUFFER_NB 32 //
+//TODO / IMPROVE: Hardcoding -> computed on the fly
+#define MIDIFX_OFS_60FPS 44 //44 frames at 60fps to match duration of 32 buffers of 1024 samples at 44.1Khz
+#define MIDIFX_OFS_30FPS 22 //22 frames at 30fps to match duration of 32 buffers of 1024 samples at 44.1Khz
 
 #define SOUND_MAXVOICES_BUFFER_FX 64
 

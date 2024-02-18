@@ -173,6 +173,7 @@
             }
         }
         [self updateSystemVoicesBtn];
+        [self updateVoicesBtn];
     } else {
         [self resetVoicesButtons];
         [self recomputeFrames];
@@ -187,6 +188,7 @@
                 [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
                 [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeUp,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
                 [detailViewController.mplayer setm_voicesStatus:1 index:i];
+                
             } else {
                 [voices[i] setType:BButtonTypeInverse];
                 [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeOff,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
@@ -194,6 +196,7 @@
             }
         }
         [self updateSystemVoicesBtn];
+        [self updateVoicesBtn];
     } else {
         [self resetVoicesButtons];
         [self recomputeFrames];

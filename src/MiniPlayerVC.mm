@@ -63,6 +63,7 @@ int gesture_move_file_min_trans;
         labelNextEntry.textColor = [UIColor whiteColor];
         labelMain.textColor = [UIColor whiteColor];
         labelSub.textColor = [UIColor whiteColor];
+        labelArtist.textColor = [UIColor whiteColor];
         labelTime.textColor = [UIColor whiteColor];
         labelPlaylist.textColor = [UIColor whiteColor];
         //btnPlay
@@ -76,6 +77,7 @@ int gesture_move_file_min_trans;
         labelNextEntry.textColor = [UIColor blackColor];
         labelMain.textColor = [UIColor blackColor];
         labelSub.textColor = [UIColor blackColor];
+        labelArtist.textColor = [UIColor blackColor];
         labelTime.textColor = [UIColor blackColor];
         labelPlaylist.textColor = [UIColor blackColor];
         [btnPlay setColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
@@ -153,6 +155,7 @@ int gesture_move_file_min_trans;
             
             labelMain.center = CGPointMake(labelMain.center.x + translation.x, labelMain.center.y);
             labelSub.center = CGPointMake(labelSub.center.x + translation.x, labelSub.center.y);
+            labelArtist.center = CGPointMake(labelArtist.center.x + translation.x, labelArtist.center.y);
             labelPrev.center= CGPointMake(labelPrev.center.x + translation.x, labelPrev.center.y);
             labelNext.center= CGPointMake(labelNext.center.x + translation.x, labelNext.center.y);
             labelPrevEntry.center= CGPointMake(labelPrevEntry.center.x + translation.x, labelPrevEntry.center.y);
@@ -175,6 +178,7 @@ int gesture_move_file_min_trans;
             labelNextEntry.alpha=(0.25f+alpha)*alpha2;
             labelMain.alpha=(1-alpha);
             labelSub.alpha=(1-alpha);
+            labelArtist.alpha=(1-alpha);
                         
             //NSLog(@"current trans X: %d / %d",translationX,gesture_move_file_min_trans);
             break;
@@ -200,12 +204,14 @@ int gesture_move_file_min_trans;
             [UIView setAnimationDuration:0.2f];
             labelMain.center=CGPointMake(org_centerx,labelMain.center.y);
             labelSub.center=CGPointMake(org_centerx,labelSub.center.y);
+            labelArtist.center=CGPointMake(org_centerx,labelArtist.center.y);
             labelPrev.alpha=0;
             labelNext.alpha=0;
             labelPrevEntry.alpha=0;
             labelNextEntry.alpha=0;
             labelMain.alpha=1;
             labelSub.alpha=1;
+            labelArtist.alpha=1;
             labelPrev.center=CGPointMake(orgPrev_centerx,labelPrev.center.y);
             labelNext.center=CGPointMake(orgNext_centerx,labelNext.center.y);
             labelPrevEntry.center=CGPointMake(orgPrev_centerx,labelPrevEntry.center.y);
@@ -269,6 +275,7 @@ int gesture_move_file_min_trans;
             btnPause.hidden=false;
         }
         labelMain.text=[detailVC.mplayer getModFileTitle];
+        labelArtist.text=[detailVC.mplayer artist];
         if ([detailVC.mplayer isArchive]&&([detailVC.mplayer getArcEntriesCnt]>1)) {
             //archive with multiple files
             if (detailVC.mplayer.mod_subsongs>1) {
@@ -293,6 +300,7 @@ int gesture_move_file_min_trans;
     } else {
         labelMain.text=@"Initializing";
         labelSub.text=@"...";
+        labelArtist.text=@"";
         labelTime.text=@"-:--";
                 
         if (detailVC.mPlaylist_size) labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
@@ -316,7 +324,8 @@ int gesture_move_file_min_trans;
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     songInfoView.frame=CGRectMake(50,0,(size.width-50-150),48);
     labelMain.frame=CGRectMake(0,0,(size.width-50-150),24);
-    labelSub.frame=CGRectMake(0,24,(size.width-50-150),24);
+    labelSub.frame=CGRectMake(0,24,(size.width-50-150),12);
+    labelArtist.frame=CGRectMake(0,24+12,(size.width-50-150),12);
         
     labelPrev.frame=CGRectMake(-[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,0,[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,48);
     labelPrevEntry.frame=CGRectMake(-[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,0,[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,48);
@@ -428,7 +437,7 @@ int gesture_move_file_min_trans;
     labelMain.userInteractionEnabled=false;
     
     labelSub=[[CBAutoScrollLabel alloc] init];
-    labelSub.frame=CGRectMake(0,24,(ww-50-150),24);
+    labelSub.frame=CGRectMake(0,24,(ww-50-150),12);
     [labelSub setFont:[UIFont systemFontOfSize:10]];
     if (darkMode) labelSub.textColor = [UIColor whiteColor];
     else labelSub.textColor = [UIColor blackColor];
@@ -437,6 +446,17 @@ int gesture_move_file_min_trans;
     labelSub.scrollSpeed = 30; // pixels per second
     labelSub.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
     labelSub.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
+    labelArtist=[[CBAutoScrollLabel alloc] init];
+    labelArtist.frame=CGRectMake(0,24+12,(ww-50-150),12);
+    [labelArtist setFont:[UIFont systemFontOfSize:10]];
+    if (darkMode) labelArtist.textColor = [UIColor whiteColor];
+    else labelArtist.textColor = [UIColor blackColor];
+    labelArtist.labelSpacing = 35; // distance between start and end labels
+    labelArtist.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+    labelArtist.scrollSpeed = 30; // pixels per second
+    labelArtist.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
+    labelArtist.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
     
     labelTime=[[UILabel alloc] init];
     labelTime.frame=CGRectMake(ww-100,0,50,48);
@@ -460,6 +480,7 @@ int gesture_move_file_min_trans;
     
     [songInfoView addSubview:labelMain];
     [songInfoView addSubview:labelSub];
+    [songInfoView addSubview:labelArtist];
     [mpview addSubview:labelTime];
     [mpview addSubview:labelPlaylist];
     

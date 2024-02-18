@@ -357,7 +357,11 @@ uint16_t WaveGenerator::noiseOutput() {
 
 	_noiseout_sum += (SYS_CYCLES() - _ref1_ts) * (uint32_t)_noiseout; // fill remainder of the sample interval
 
-	uint16_t result = _noiseout_sum / (SYS_CYCLES() - _ref0_ts);
+    uint16_t result;
+    //YOYOFR
+    if (SYS_CYCLES() - _ref0_ts) result = _noiseout_sum / (SYS_CYCLES() - _ref0_ts);
+    else result=0;
+    //YOYOFR
 	SAMPLE_END();
 	return result;
 }
