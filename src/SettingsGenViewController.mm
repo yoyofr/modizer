@@ -6,6 +6,8 @@
 //
 //
 
+#define WEBSID
+
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
 
@@ -179,18 +181,26 @@ void optNSFPLAYChangedC(id param) {
                 case MDZ_SWITCH:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_switch.switch_value=[valNb intValue];
+                    if (settings[i].detail.mdz_switch.switch_value<0) settings[i].detail.mdz_switch.switch_value=0;
+                    if (settings[i].detail.mdz_switch.switch_value>settings[i].detail.mdz_switch.switch_value_nb) settings[i].detail.mdz_switch.switch_value=settings[i].detail.mdz_switch.switch_value_nb-1;
                     break;
                 case MDZ_SLIDER_DISCRETE:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
+                    if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
+                    if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
+                    if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
+                    if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
+                    if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_TEXTBOX:
                     str=[prefs objectForKey:str];
@@ -413,15 +423,12 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //SID
     /////////////////////////////////////
+#ifndef WEBSID
     settings[SID_Engine].detail.mdz_boolswitch.switch_value=1;
     settings[SID_Interpolation].detail.mdz_switch.switch_value=2;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
-    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
-    settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
-    settings[SID_MODEL].detail.mdz_switch.switch_value=0;
     settings[SID_SecondSIDOn].detail.mdz_switch.switch_value=0;
     settings[SID_ThirdSIDOn].detail.mdz_switch.switch_value=0;
-    
     //0xD420-0xD7FF  or  0xDE00-0xDFFF
     if (settings[SID_SecondSIDAddress].detail.mdz_msgbox.text) free(settings[SID_SecondSIDAddress].detail.mdz_msgbox.text);
     settings[SID_SecondSIDAddress].detail.mdz_msgbox.text=(char*)malloc(strlen("0xd420")+1);
@@ -429,6 +436,13 @@ void optNSFPLAYChangedC(id param) {
     if (settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text) free(settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text);
     settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text=(char*)malloc(strlen("0xd440")+1);
     strcpy(settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text,"0xd440");
+    
+#endif
+    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
+    settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
+    settings[SID_MODEL].detail.mdz_switch.switch_value=0;
+    
+    
     
     /////////////////////////////////////
     //UADE
@@ -1548,6 +1562,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_FAMILY_SID;
     
+#ifndef WEBSID
     settings[SID_Engine].type=MDZ_SWITCH;
     settings[SID_Engine].label=(char*)"Engine";
     settings[SID_Engine].description=NULL;
@@ -1581,13 +1596,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_Filter].callback=&optSIDChangedC;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     
-    settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
-    settings[SID_ForceLoop].label=(char*)"Force Loop";
-    settings[SID_ForceLoop].description=NULL;
-    settings[SID_ForceLoop].family=MDZ_SETTINGS_FAMILY_SID;
-    settings[SID_ForceLoop].sub_family=0;
-    settings[SID_ForceLoop].callback=&optSIDChangedC;
-    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     
     settings[SID_SecondSIDOn].type=MDZ_BOOLSWITCH;
     settings[SID_SecondSIDOn].label=(char*)"Force 2nd SID";
@@ -1622,7 +1630,15 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.text=(char*)malloc(strlen("0xD440")+1);
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.max_width_char=6;
     strcpy(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text,"0xD440");
-    
+#endif
+    settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
+    settings[SID_ForceLoop].label=(char*)"Force Loop";
+    settings[SID_ForceLoop].description=NULL;
+    settings[SID_ForceLoop].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_ForceLoop].sub_family=0;
+    settings[SID_ForceLoop].callback=&optSIDChangedC;
+    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
+
         
     settings[SID_CLOCK].type=MDZ_SWITCH;
     settings[SID_CLOCK].label=(char*)"CLOCK";

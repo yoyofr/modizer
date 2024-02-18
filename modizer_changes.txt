@@ -9,7 +9,6 @@ one liner example:
 Todo/Requested:
 ���������
 
-- Todo: [UI] Ipad => when accessing player screen from landscape view, UI is wrong, not centered + issue with FX menu
 - Todo: keep download queue when exit program and restore at next launch
 - Todo: add PDX/MDX to keyboard visualizer
 - Bug/playlist:
@@ -19,7 +18,6 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 
 
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
-- [PLAYER] pxtone integration
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - TODO: replace vgmplay by libvgm
 - TODO: add description for Settings when relevant
@@ -30,21 +28,26 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
-- TODO: have step/loop/random settings for archive (for example vgz)
+
+
 
 3.4
 ---
 - [PLAYER] libopenmpt updated (01/02/2024)
 - [PLAYER] New player: Eupmini to cover Euphony (FM-Towns)
+- [PLAYER] New NSF player allowing oscilloscope view (NSFPlay)
 - [PLAYER] New player: PxTone/Organya
+- [PLAYER] New SID player allowing correct oscilloscope view (WebSID)
 - [PLAYER] Fixed issue with SSF playback introduced in v3.3
 - [GLOBAL] Basic iCloud support (Modizer folder visible in Files app and in iCloud folder in Modizer)
-- [DB] Modland 2024/02/10
-- [DB] Asma 2024/02/10
+- [DB] Modland 2024/02/18
+- [DB] Asma 2024/02/18
 - [DB] Fixed issues with SMSPower browser
 - [UI] Improved patterns display
 - [UI] Better management when running in macos
 - [FX] Improved oscilloscope FX
+- [FX] Improved Midi & Piano FX
+- [FX] Now Oscilloscope view can display channels names
 
 
 3.3
