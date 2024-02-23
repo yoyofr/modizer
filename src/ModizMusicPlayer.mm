@@ -99,8 +99,8 @@ typedef struct {
     char    trk_key_bias[32]; // オフセット/offset 3B4h
     char    trk_transpose[32]; // オフセット/offset 3D4h
     char    trk_play_filter[32][7]; // オフセット/offset 3F4h 224 = 32 * 7
-                                    // ＦＩＬＴＥＲ：形式１ ベロシティフィルター/Format 1 velocity filter ＦＩＬＴＥＲ：形式２ ボリュームフィルター/FILTER: Format 2 volume filter ＦＩＬＴＥＲ：形式３ パンポットフィルター/FILTER: Format 3 panpot filter have 7 typed parameters 1 byte sized each parameter
-                                    // ＦＩＬＴＥＲ：形式４ ピッチベンドフィルター/Format 4 pitch bend filter has 7 typed parameters some parameters are 2 bytes sized
+    // ＦＩＬＴＥＲ：形式１ ベロシティフィルター/Format 1 velocity filter ＦＩＬＴＥＲ：形式２ ボリュームフィルター/FILTER: Format 2 volume filter ＦＩＬＴＥＲ：形式３ パンポットフィルター/FILTER: Format 3 panpot filter have 7 typed parameters 1 byte sized each parameter
+    // ＦＩＬＴＥＲ：形式４ ピッチベンドフィルター/Format 4 pitch bend filter has 7 typed parameters some parameters are 2 bytes sized
     char    instruments_name[128][4]; // オフセット/offset 4D4h 512 = 128 * 4
     char    fm_midi_ch[6]; // オフセット/offset 6D4h
     char    pcm_midi_ch[8]; // オフセット/offset 6DAh
@@ -164,7 +164,7 @@ static FILE *openFile_inPath(std::string const &filename, std::string const &pat
     fn2.push_back(filename);
     fn2.push_back(downcase(filename));
     fn2.push_back(upcase(filename));
-
+    
     std::string::const_iterator i = path.begin();
     while (i != path.end()) {
         std::string dir{};
@@ -188,44 +188,44 @@ static FILE *openFile_inPath(std::string const &filename, std::string const &pat
         fprintf(stderr, "error finding %s\n", filename.c_str());
         std::fflush(stderr);
     }
-
+    
     return f;
 }
 
 uint8_t *EUPPlayer_readFile(EUPPlayer *player,
-        TownsAudioDevice *device,
-        std::string const &nameOfEupFile,EUPHEAD *eup_headerptr) {
+                            TownsAudioDevice *device,
+                            std::string const &nameOfEupFile,EUPHEAD *eup_headerptr) {
     // ヘッダ読み込み用バッファ
     EUPHEAD eupHeader;
     // EUP情報領域
     EUPINFO eupInfo;
-
+    
     // とりあえず, TOWNS emu のみに対応.
-
+    
     uint8_t *eupbuf = nullptr;
     player->stopPlaying();
-
+    
     {
         FILE *f = fopen(nameOfEupFile.c_str(), "rb");
         if (f == nullptr) {
             perror(nameOfEupFile.c_str());
             return nullptr;
         }
-
+        
         struct stat statbufEupFile;
         if (fstat(fileno(f), &statbufEupFile) != 0) {
             perror(nameOfEupFile.c_str());
             fclose(f);
             return nullptr;
         }
-
+        
         if (statbufEupFile.st_size < 2048 + 6 + 6) {
             fprintf(stderr, "%s: too short file.\n", nameOfEupFile.c_str());
             std::fflush(stderr);
             fclose(f);
             return nullptr;
         }
-
+        
         size_t eupRead = fread(&eupHeader, 1, sizeof(EUPHEAD), f);
         if (eupRead != sizeof(EUPHEAD)) {
             fprintf(stderr, "EUP file does not follow specification.\n");
@@ -235,17 +235,17 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
         }
         else {
             int trk;
-
+            
             // データー領域の確保
             eupInfo.eupData = nullptr/*new uint8_t[eupHeader.size]*/;
             //if (eupInfo.eupData == nullptr break;
-
+            
             eupInfo.first_tempo = eupHeader.first_tempo;
             //player->tempo(eupInfo.first_tempo + 30);
             //fprintf(stderr, "(eupInfo.first_tempo + 30) is %u.\n", static_cast<unsigned char>(eupInfo.first_tempo + 30u));
             
             player->tempo(eupInfo.first_tempo + 30);
-
+            
             // ヘッダ情報のコピー
             for (trk = 0; trk < 32; trk++) {
                 eupInfo.trk_mute[trk] = eupHeader.trk_mute[trk];
@@ -253,7 +253,7 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
                 eupInfo.trk_midi_ch[trk] = eupHeader.trk_midi_ch[trk];
                 eupInfo.trk_key_bias[trk] = eupHeader.trk_key_bias[trk];
                 eupInfo.trk_transpose[trk] = eupHeader.trk_transpose[trk];
-
+                
                 player->mapTrack_toChannel(trk, eupInfo.trk_midi_ch[trk]);
                 //fprintf(stderr, "eupInfo.trk_midi_ch[%d] is %d.\n", trk, eupInfo.trk_midi_ch[trk]);
             }
@@ -268,12 +268,12 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
                 eupInfo.pcm_midi_ch[n] = eupHeader.pcm_midi_ch[n];
                 device->assignPcmDeviceToChannel(eupInfo.pcm_midi_ch[n]);
             }
-                        
+            
             eupInfo.signature = eupHeader.signature;
             //eupInfo.first_tempo = eupHeader.first_tempo;
             eupInfo.size = eupHeader.size;
         }
-
+        
         eupbuf = new uint8_t[statbufEupFile.st_size];
         fseek(f, 0, SEEK_SET); // seek to start
         eupRead = fread(eupbuf, 1, statbufEupFile.st_size, f);
@@ -285,7 +285,7 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
         }
         fclose(f);
     }
-
+    
     //player->tempo(eupInfo.first_tempo + 30);
     
     char nameBuf[1024];
@@ -306,7 +306,7 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
     //std::cerr << "fmbPath is " << fmbPath << std::endl;
     pmbPath = eupDir + PATH_DELIMITER + pmbPath;
     //std::cerr << "pmbPath is " << pmbPath << std::endl;
-
+    
     {
         uint8_t instrument[] = {
             ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // name
@@ -375,7 +375,7 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
             }
         }
     }
-
+    
     if (eup_headerptr) memcpy((char*)eup_headerptr,(char*)(&eupHeader),sizeof(EUPHEAD));
     
     return eupbuf;
@@ -507,7 +507,7 @@ static V2MPlayer *v2m_player;
 
 
 extern "C" {
-    //PT3
+//PT3
 #include "ayumi.h"
 #include "pt3player.h"
 #include "load_text.h"
@@ -545,7 +545,7 @@ void pt3_update_ayumi_state(struct ayumi* ay, uint8_t* r, int ch) {
     if (r[13] != 255) {
         ayumi_set_envelope_shape(ay, r[13]);
     }
-
+    
     for (int i=0; i<9; i++) {
         if (i % 3 == 0 && pt3_mute[i] && ch == i / 3) {
             ayumi_set_volume(ay, 0, 0);
@@ -586,12 +586,12 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
                 if (t->dc_filter_on) {
                     ayumi_remove_dc(ay);
                 }
-            
+                
                 buf[i] = (short) (ay->left * pt3_volume);
                 buf[i+1] = (short) (ay->right * pt3_volume);
             }
         }
-
+        
         pt3_sample[ch]++;
         leng-=4;
         i+=2;
@@ -600,23 +600,23 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
     return ret;
 }
 
-    //KSS
+//KSS
 #include "kssplay.h"
 KSSPLAY *kssplay;
 KSS *kss;
 
-    //VGMPPLAY
-    extern CHIPS_OPTION ChipOpts[0x02];
-    extern bool EndPlay;
-    extern char* AppPaths[8];
+//VGMPPLAY
+extern CHIPS_OPTION ChipOpts[0x02];
+extern bool EndPlay;
+extern char* AppPaths[8];
 
 /*
-"SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
-"YM2610", "YM3812", "YM3526", "Y8950", "YMF262", "YMF278B", "YMF271", "YMZ280B",
-"RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "YMW258", "uPD7759", "OKIM6258",
-"OKIM6295", "K051649", "K054539", "HuC6280", "C140", "K053260", "Pokey", "QSound",
-"SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
-"GA20"*/
+ "SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
+ "YM2610", "YM3812", "YM3526", "Y8950", "YMF262", "YMF278B", "YMF271", "YMZ280B",
+ "RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "YMW258", "uPD7759", "OKIM6258",
+ "OKIM6295", "K051649", "K054539", "HuC6280", "C140", "K053260", "Pokey", "QSound",
+ "SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
+ "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x0E, 0x09+5, 0x09+5, 0x09, 0x17, 0x2F, 0x0C, 0x08,
@@ -698,25 +698,25 @@ UINT8 vgmGetVoicesChannelsUsedNb(UINT8 chipId) {
     if ((chipId==8)&&(vgm2610b)) return 16;
     return vgmREALCHN_COUNT[chipId];
 }
-    
-    //VGMSTREAM
-#import "../libs/libvgmstream/vgmstream.h"
-#import "../libs/libvgmstream/base/plugins.h"
-    
-    static VGMSTREAM* vgmStream = NULL;
-    static STREAMFILE* vgmFile = NULL;
-    bool optVGMSTREAM_loopmode = false;
-    int optVGMSTREAM_loop_count = 2.0f;
-    int optVGMSTREAM_fadeouttime=5;
-    int optVGMSTREAM_resampleQuality=1;
-    
-    static bool mVGMSTREAM_force_loop;
-    static volatile int64_t mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples,mVGMSTREAM_totalinternal_samples;
-    
-    //xmp
+
+//VGMSTREAM
+#import "../libs/libvgmstream/src/vgmstream.h"
+#import "../libs/libvgmstream/src/base/plugins.h"
+
+static VGMSTREAM* vgmStream = NULL;
+static STREAMFILE* vgmFile = NULL;
+bool optVGMSTREAM_loopmode = false;
+int optVGMSTREAM_loop_count = 2.0f;
+int optVGMSTREAM_fadeouttime=5;
+int optVGMSTREAM_resampleQuality=1;
+
+static bool mVGMSTREAM_force_loop;
+static volatile int64_t mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples,mVGMSTREAM_totalinternal_samples;
+
+//xmp
 #include "xmp.h"
-    static xmp_context xmp_ctx;
-    static struct xmp_module_info *xmp_mi;
+static xmp_context xmp_ctx;
+static struct xmp_module_info *xmp_mi;
 }
 
 
@@ -747,7 +747,7 @@ int getNumberTraceStreams() {
 short **getScopeBuffers() {
     return NULL;
 }
-    
+
 }
 
 //SID
@@ -828,17 +828,17 @@ static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const w
 
 extern "C" int lha_main(int argc, char *argv[]);
 extern "C" {
-    //GSF
+//GSF
 #include "gsf.h"
 #include "psftag.h"
-    //ASAP
+//ASAP
 #include "asap.h"
-    
+
 #include "timidity.h"
 #include "common.h"
 #include "instrum.h"
 #include "playmidi.h"
-    //#include "readmidi.h"
+//#include "readmidi.h"
 #include "resample.h"
 #include "output.h"
 #include "controls.h"
@@ -847,45 +847,45 @@ extern "C" {
 #include "arc.h"
 #include "aq.h"
 #include "wrd.h"
-    extern volatile int intr;
-    
-    
-    static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
-    
-    static char tim_filepath[1024];
-    static volatile int tim_finished;
-    static int tim_max_voices=DEFAULT_VOICES;
-    static int tim_reverb=0;
-    static int tim_resampler=RESAMPLE_LINEAR;
-    extern int tim_init(char *path);
-    extern int tim_main(int argc,char **argv);
-    extern int tim_close();
-    
-    static int tim_open_output(void); /* 0=success, 1=warning, -1=fatal error */
-    static void tim_close_output(void);
-    static int tim_output_data(char *buf, int32 nbytes);
-    static int tim_acntl(int request, void *arg);
-    
-    extern int tim_midilength,tim_pending_seek,tim_current_voices,tim_lyrics_started;
-    int tim_notes[SOUND_BUFFER_NB][DEFAULT_VOICES];
-    int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
-    unsigned char tim_voicenb[SOUND_BUFFER_NB];
-    unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
-    
-    PlayMode ios_play_mode = {
-        //  DEFAULT_RATE, PE_16BIT|PE_SIGNED, PF_PCM_STREAM|PF_CAN_TRACE,
-        44100, PE_16BIT|PE_SIGNED, PF_PCM_STREAM,
-        -1,
-        {0}, /* default: get all the buffer fragments you can */
-        "iOS pcm device", 'd',
-        "",
-        tim_open_output,
-        tim_close_output,
-        tim_output_data,
-        tim_acntl
-    };
-    extern PlayMode *play_mode;
-    
+extern volatile int intr;
+
+
+static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
+
+static char tim_filepath[1024];
+static volatile int tim_finished;
+static int tim_max_voices=DEFAULT_VOICES;
+static int tim_reverb=0;
+static int tim_resampler=RESAMPLE_LINEAR;
+extern int tim_init(char *path);
+extern int tim_main(int argc,char **argv);
+extern int tim_close();
+
+static int tim_open_output(void); /* 0=success, 1=warning, -1=fatal error */
+static void tim_close_output(void);
+static int tim_output_data(char *buf, int32 nbytes);
+static int tim_acntl(int request, void *arg);
+
+extern int tim_midilength,tim_pending_seek,tim_current_voices,tim_lyrics_started;
+int tim_notes[SOUND_BUFFER_NB][DEFAULT_VOICES];
+int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
+unsigned char tim_voicenb[SOUND_BUFFER_NB];
+unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
+
+PlayMode ios_play_mode = {
+    //  DEFAULT_RATE, PE_16BIT|PE_SIGNED, PF_PCM_STREAM|PF_CAN_TRACE,
+    44100, PE_16BIT|PE_SIGNED, PF_PCM_STREAM,
+    -1,
+    {0}, /* default: get all the buffer fragments you can */
+    "iOS pcm device", 'd',
+    "",
+    tim_open_output,
+    tim_close_output,
+    tim_output_data,
+    tim_acntl
+};
+extern PlayMode *play_mode;
+
 }
 
 //ASAP
@@ -895,17 +895,17 @@ static struct ASAP *asap;
 
 
 extern "C" {
-    //GSF
-    int defvolume=1000;
-    int relvolume=1000;
-    int TrackLength=0;
-    int FadeLength=0;
-    int IgnoreTrackLength, DefaultLength=150000;
-    int playforever=0;
-    int fileoutput=0;
-    int TrailingSilence=1000;
-    int DetectSilence=0, silencedetected=0, silencelength=5;
-    
+//GSF
+int defvolume=1000;
+int relvolume=1000;
+int TrackLength=0;
+int FadeLength=0;
+int IgnoreTrackLength, DefaultLength=150000;
+int playforever=0;
+int fileoutput=0;
+int TrailingSilence=1000;
+int DetectSilence=0, silencedetected=0, silencelength=5;
+
 }
 int cpupercent=0, sndNumChannels;
 int sndBitsPerSample=16;
@@ -943,7 +943,7 @@ extern "C" void writeSound(void) {
     if (g_playing==0) return;
     
     gsf_update(pSound,lBytes);
-        
+    
     decode_pos_ms += (lBytes/(2*sndNumChannels) * 1000)/(float)GSFsndSamplesPerSec;
     if (seek_needed!=-1) {
         if (seek_needed<decode_pos_ms) {
@@ -984,23 +984,23 @@ static char mmp_fileext[8];
 inline unsigned get_be16( void const* p )
 {
     return  (unsigned) ((unsigned char const*) p) [0] << 8 |
-            (unsigned) ((unsigned char const*) p) [1];
+    (unsigned) ((unsigned char const*) p) [1];
 }
 
 inline unsigned get_le32( void const* p )
 {
     return  (unsigned) ((unsigned char const*) p) [3] << 24 |
-            (unsigned) ((unsigned char const*) p) [2] << 16 |
-            (unsigned) ((unsigned char const*) p) [1] <<  8 |
-            (unsigned) ((unsigned char const*) p) [0];
+    (unsigned) ((unsigned char const*) p) [2] << 16 |
+    (unsigned) ((unsigned char const*) p) [1] <<  8 |
+    (unsigned) ((unsigned char const*) p) [0];
 }
 
 inline unsigned get_be32( void const* p )
 {
     return  (unsigned) ((unsigned char const*) p) [0] << 24 |
-            (unsigned) ((unsigned char const*) p) [1] << 16 |
-            (unsigned) ((unsigned char const*) p) [2] <<  8 |
-            (unsigned) ((unsigned char const*) p) [3];
+    (unsigned) ((unsigned char const*) p) [1] << 16 |
+    (unsigned) ((unsigned char const*) p) [2] <<  8 |
+    (unsigned) ((unsigned char const*) p) [3];
 }
 
 inline void set_le32( void* p, unsigned n )
@@ -1157,7 +1157,7 @@ static int parse_time_crap(NSString * value)
 {
     NSArray *crapFix = [value componentsSeparatedByString:@"\n"];
     NSArray *components = [[crapFix objectAtIndex:0] componentsSeparatedByString:@":"];
-
+    
     float totalSeconds = 0;
     float multiplier = 1000;
     bool first = YES;
@@ -1170,7 +1170,7 @@ static int parse_time_crap(NSString * value)
         }
         multiplier *= 60;
     }
-                
+    
     return totalSeconds;
 }
 
@@ -1396,7 +1396,7 @@ struct qsf_loader_state
 };
 
 static int upload_qsf_section( struct qsf_loader_state * state, const char * section, uint32_t start,
-                          const uint8_t * data, uint32_t size )
+                              const uint8_t * data, uint32_t size )
 {
     uint8_t ** array = NULL;
     uint32_t * array_size = NULL;
@@ -1466,12 +1466,12 @@ snsf_loader_state *snsf_rom;
 
 
 int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
-                                  const uint8_t * reserved, size_t reserved_size)
+                const uint8_t * reserved, size_t reserved_size)
 {
     if ( exe_size < 8 ) return -1;
-
+    
     struct snsf_loader_state * state = (struct snsf_loader_state *) context;
-
+    
     unsigned char *iptr;
     unsigned isize;
     unsigned char *xptr;
@@ -1537,13 +1537,13 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
         state->data = iptr;
         state->data_size = isize;
     }
-
+    
     // reserved section
     if (reserved_size >= 8)
     {
         unsigned rsvtype = get_le32(reserved + 0);
         unsigned rsvsize = get_le32(reserved + 4);
-
+        
         if (rsvtype == 0)
         {
             // SRAM block
@@ -1552,7 +1552,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
                 printf("Reserve section (SRAM) is too short\n");
                 return -1;
             }
-
+            
             // check offset and size
             unsigned sram_offset = get_le32(reserved + 8);
             unsigned sram_patch_size = rsvsize - 4;
@@ -1561,7 +1561,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
                 printf("SRAM size error\n");
                 return -1;
             }
-
+            
             if (!state->sram)
             {
                 state->sram = (unsigned char *) malloc(0x20000);
@@ -1569,10 +1569,10 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
                     return -1;
                 memset(state->sram, 0, 0x20000);
             }
-
+            
             // load SRAM data
             memcpy(state->sram + sram_offset, reserved + 12, sram_patch_size);
-
+            
             // update SRAM size
             if (state->sram_size < sram_offset + sram_patch_size)
             {
@@ -1585,7 +1585,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
             return -1;
         }
     }
-
+    
     return 0;
 }
 
@@ -1674,31 +1674,31 @@ int64_t src_callback_vgmstream(void *cb_data, float **data);
 ////////////////////
 
 extern "C" {
-    void mdx_update(unsigned char *data,int len,int end_reached);
-    
-    // redirect stubs to interface the Z80 core to the QSF engine
-    /*	uint8 memory_read(uint16 addr)	{
-     return qsf_memory_read(addr);
-     }
-     uint8 memory_readop(uint16 addr) {
-     return memory_read(addr);
-     }
-     uint8 memory_readport(uint16 addr) {
-     return qsf_memory_readport(addr);
-     }
-     void memory_write(uint16 addr, uint8 byte) {
-     qsf_memory_write(addr, byte);
-     }
-     void memory_writeport(uint16 addr, uint8 byte) {
-     qsf_memory_writeport(addr, byte);
-     }
-     // stub for MAME stuff
-     int change_pc(int foo){
-     return 0;
-     }
-     */
-    
-    //UADE
+void mdx_update(unsigned char *data,int len,int end_reached);
+
+// redirect stubs to interface the Z80 core to the QSF engine
+/*	uint8 memory_read(uint16 addr)	{
+ return qsf_memory_read(addr);
+ }
+ uint8 memory_readop(uint16 addr) {
+ return memory_read(addr);
+ }
+ uint8 memory_readport(uint16 addr) {
+ return qsf_memory_readport(addr);
+ }
+ void memory_write(uint16 addr, uint8 byte) {
+ qsf_memory_write(addr, byte);
+ }
+ void memory_writeport(uint16 addr, uint8 byte) {
+ qsf_memory_writeport(addr, byte);
+ }
+ // stub for MAME stuff
+ int change_pc(int foo){
+ return 0;
+ }
+ */
+
+//UADE
 #include "uadecontrol.h"
 #include "ossupport.h"
 #include "uadeconfig.h"
@@ -1709,15 +1709,15 @@ extern "C" {
 #include "uadeipc.h"
 #include "uadeconstants.h"
 #include "common/md5.h"
-    
-    void uade_dummy_wait() {
-        [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
-    }
-    int uade_main (int argc, char **argv);
-    struct uade_state UADEstate,UADEstatebase;
-    char UADEconfigname[PATH_MAX];
-    char UADEplayername[PATH_MAX];
-    char UADEscorename[PATH_MAX];
+
+void uade_dummy_wait() {
+    [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
+}
+int uade_main (int argc, char **argv);
+struct uade_state UADEstate,UADEstatebase;
+char UADEconfigname[PATH_MAX];
+char UADEplayername[PATH_MAX];
+char UADEscorename[PATH_MAX];
 }
 
 static char my_data [] = "Our cleanup function was called";
@@ -3837,8 +3837,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         break;
                                     }
                                 }
-                                    
-                                    
+                                
+                                
                                 mSidEmuEngine->fastForward( 100 );
                                 while (mCurrentSamples<mSeekSamples) {
                                     nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
@@ -3857,9 +3857,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         break;
                                     }
                                 }
-                                    
+                                
                                 mSIDSeekInProgress=0;
-
+                                
                             }
                             if (mPlayType==MMP_GME) {   //GME
                                 bGlobalSeekProgress=-1;
@@ -4498,27 +4498,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
                                 
-                                mod_name[0]=0;
-                                if (sidtune_name) {
-                                    if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                if (info.title[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.title);
+                                else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+                                                                
+                                if (info.artist[0]) {
+                                    artist=[NSString stringWithUTF8String:info.artist];
                                 }
-                                if (sidtune_title) {
-                                    if (sidtune_title[mod_currentsub]) {
-                                        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-                                        else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
-                                    }
-                                }
-                                if (sidtune_artist) {
-                                    if (sidtune_artist[mod_currentsub]) {
-                                        artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
-                                    }
-                                }
-                                if (mod_name[0]==0) {
-                                    const SidTuneInfo *sidtune_info;
-                                    sidtune_info=mSidTune->getInfo();
-                                    if (sidtune_info->infoString(0)[0]) sprintf(mod_name," %s",sidtune_info->infoString(0));
-                                    else sprintf(mod_name," %s",mod_filename);
-                                }
+                                
                                 
                                 while (mod_message_updated) {
                                     //wait
@@ -4574,7 +4560,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
                                 const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
                                 if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-                                    
+                                
                                 if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
                                 else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
                                 
@@ -5133,14 +5119,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                                 m_voice_current_ptr[j]=0;
                             }
-                        
+                            
                             
                             nbBytes=nsfPlayer->Render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes*=4;
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
-                                 //end reached
+                                //end reached
                                 if (iModuleLength<0) {
                                     if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
                                         //loop
@@ -6493,18 +6479,18 @@ typedef struct {
 } nsfplay_fixes_t;
 
 /*nsfplay_fixes_t nsfplay_fixes_list[]={
-    {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION1",1}, //dracula x - bloodlines.nsf | N163 OPT_PHASE_READ_ONLY
-    {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION2",1}, //dracula x - bloodlines.nsf | N163 OPT_LIMIT_WAVELENGTH
-    {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION1",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_PHASE_READ_ONLY
-    {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION2",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_LIMIT_WAVELENGTH
-    {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION1",1}, //digan no maseki - euress (n106).nsf | N163 OPT_PHASE_READ_ONLY
-    {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION2",1}, //digan no maseki - euress (n106).nsf | N163 OPT_LIMIT_WAVELENGTH
-    {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION1",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_PHASE_READ_ONLY
-    {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION2",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_LIMIT_WAVELENGTH
-    {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION1",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_PHASE_READ_ONLY
-    {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION2",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_LIMIT_WAVELENGTH
-    {"","",0} //END of list
-};*/
+ {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION1",1}, //dracula x - bloodlines.nsf | N163 OPT_PHASE_READ_ONLY
+ {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION2",1}, //dracula x - bloodlines.nsf | N163 OPT_LIMIT_WAVELENGTH
+ {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION1",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_PHASE_READ_ONLY
+ {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION2",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_LIMIT_WAVELENGTH
+ {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION1",1}, //digan no maseki - euress (n106).nsf | N163 OPT_PHASE_READ_ONLY
+ {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION2",1}, //digan no maseki - euress (n106).nsf | N163 OPT_LIMIT_WAVELENGTH
+ {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION1",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_PHASE_READ_ONLY
+ {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION2",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_LIMIT_WAVELENGTH
+ {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION1",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_PHASE_READ_ONLY
+ {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION2",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_LIMIT_WAVELENGTH
+ {"","",0} //END of list
+ };*/
 
 -(int) mmp_nsfplayLoad:(NSString*)filePath {  //NSFPLAY
     mPlayType=MMP_NSFPLAY;
@@ -6523,23 +6509,23 @@ typedef struct {
     
     /* compute md5 on file to trigger some fixes/options*/
     /*int tmp_md5_data_size=mp_datasize;
-    char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-    
-    f=fopen([filePath UTF8String],"rb");
-    if (f==NULL) {
-        NSLog(@"SID Cannot open file %@",filePath);
-        mPlayType=0;
-        free(tmp_md5_data);
-        return -1;
-    }
-    fread(tmp_md5_data,1,tmp_md5_data_size,f);
-    fclose(f);
-    
-    md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
-    free(tmp_md5_data);*/
+     char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
+     
+     f=fopen([filePath UTF8String],"rb");
+     if (f==NULL) {
+     NSLog(@"SID Cannot open file %@",filePath);
+     mPlayType=0;
+     free(tmp_md5_data);
+     return -1;
+     }
+     fread(tmp_md5_data,1,tmp_md5_data_size,f);
+     fclose(f);
+     
+     md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
+     free(tmp_md5_data);*/
     
     nsfPlayer=new xgm::NSFPlayer();
-      
+    
     nsfPlayerConfig=new xgm::NSFPlayerConfig();
     (*nsfPlayerConfig)["RATE"]=44100;
     (*nsfPlayerConfig)["MASTER_VOLUME"]=256;
@@ -6551,14 +6537,14 @@ typedef struct {
     //NSLog(@"%s: MD5 %s / loading %s",__func__,song_md5,[[filePath lastPathComponent] UTF8String]);
 #endif
     /*for (int i=0;nsfplay_fixes_list[i].md5[0];i++)
-        if (strcmp(song_md5,nsfplay_fixes_list[i].md5)==0) {
-            (*nsfPlayerConfig)[nsfplay_fixes_list[i].option_id]=nsfplay_fixes_list[i].val_option;
-        }
-    */
+     if (strcmp(song_md5,nsfplay_fixes_list[i].md5)==0) {
+     (*nsfPlayerConfig)[nsfplay_fixes_list[i].option_id]=nsfplay_fixes_list[i].val_option;
+     }
+     */
     nsfPlayer->SetConfig(nsfPlayerConfig);
-        
+    
     nsfData=new xgm::NSF();
-            
+    
     nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
     nsfData->LoadFile([filePath UTF8String]);
     nsfPlayer->Load(nsfData);
@@ -6568,7 +6554,7 @@ typedef struct {
     nsfPlayer->SetSong(0);
     nsfPlayer->Reset();
     
-            
+    
     mod_subsongs=nsfData->GetSongNum();
     mod_minsub=0;
     mod_maxsub=mod_subsongs-1;
@@ -6585,14 +6571,14 @@ typedef struct {
     const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
     const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
     if (nsf_title[0]==0) nsf_title=[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String];
-        
+    
     if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
     else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
     mod_title=[NSString stringWithUTF8String:nsf_title];
     
     artist=[NSString stringWithUTF8String:nsfData->artist];
     
-
+    
     
     numChannels=0;
     memset(nsfChipsetType,0,sizeof(nsfChipsetType));
@@ -6729,14 +6715,14 @@ typedef struct {
     pt3_t.frame_rate = 50;
     pt3_t.note_table = -1;
     
-        
+    
     
     for (int i=0;i<10;i++)
         pt3_mute[i]=0;
     
     load_text_file("playpt3.txt", &pt3_t);
     forced_notetable=pt3_t.note_table;
-
+    
     pt3_numofchips=0;
     
     pt3_music_size=mp_datasize;
@@ -6763,7 +6749,7 @@ typedef struct {
     artist=[NSString stringWithFormat:@"%s",""];
     
     int num = func_setup_music((uint8_t*)pt3_music_buf, pt3_music_size, pt3_numofchips, 1);
-
+    
     pt3_numofchips+=num;
     printf("Number of chips: %i\n",num);
     
@@ -6780,9 +6766,9 @@ typedef struct {
         pt3_sample[ch]=0;
         printf("Ayumi #%i configured\n",ch);
     }
-
-//    ayumi_play(pt3_ay, &pt3_t);
-
+    
+    //    ayumi_play(pt3_ay, &pt3_t);
+    
     
     mod_subsongs=1;
     mod_minsub=1;
@@ -6864,12 +6850,12 @@ typedef struct {
             if (pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ)) {
                 if (pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen) && (pixel_pxtn->read(pixel_desc) == pxtnOK) && (pixel_pxtn->tones_ready() == pxtnOK)) {
                     success = true;
-
+                    
                     pxtnVOMITPREPARATION prep = {0};
                     //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
                     prep.start_pos_float = 0;
                     prep.master_volume = 1; //(volume / 100.0f);
-
+                    
                     if (!pixel_pxtn->moo_preparation(&prep)) {
                         success = false;
                     }
@@ -7132,7 +7118,7 @@ char* loadRom(const char* path, size_t romSize)
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     fclose(f);
-            
+    
     sid_v4=0;
     memset(m_sid_chipId,0,sizeof(m_sid_chipId));
     /* new format: md5 on all file data*/
@@ -7155,7 +7141,7 @@ char* loadRom(const char* path, size_t romSize)
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
     
-                    
+    
     // Set config
     SidConfig cfg = mSidEmuEngine->config();
     cfg.frequency= PLAYBACK_FREQ;
@@ -7169,7 +7155,7 @@ char* loadRom(const char* path, size_t romSize)
         cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
         cfg.fastSampling = false;
     }
-
+    
     cfg.playback = SidConfig::STEREO;
     cfg.digiBoost = true;
     
@@ -7230,7 +7216,7 @@ char* loadRom(const char* path, size_t romSize)
     
     unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
     mBuilder->create(maxsids);
-        
+    
     // Check if builder is ok
     if (!mBuilder->getStatus()) {
         NSLog(@"issue in creating sid builder");
@@ -7248,9 +7234,9 @@ char* loadRom(const char* path, size_t romSize)
     char *kernal = loadRom([[c64_path stringByAppendingString:@"/kernal.c64"] UTF8String], 8192);
     char *basic = loadRom([[c64_path stringByAppendingString:@"/basic.c64"] UTF8String], 8192);
     char *chargen = loadRom([[c64_path stringByAppendingString:@"/chargen.c64"] UTF8String], 4096);
-
+    
     mSidEmuEngine->setRoms((const uint8_t*)kernal, (const uint8_t*)basic, (const uint8_t*)chargen);
-
+    
     delete [] kernal;
     delete [] basic;
     delete [] chargen;
@@ -7302,13 +7288,13 @@ char* loadRom(const char* path, size_t romSize)
             iCurrentTime=0;
             mCurrentSamples=0;
             numChannels=4*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
-                        
+            
             //if (sid_engine==1){
-                m_voicesDataAvail=1;
-                numVoicesChannels=numChannels;
-                for (int i=0;i<numVoicesChannels;i++) {
-                    m_voice_voiceColor[i]=m_voice_systemColor[i/4];
-                }
+            m_voicesDataAvail=1;
+            numVoicesChannels=numChannels;
+            for (int i=0;i<numVoicesChannels;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[i/4];
+            }
             //} else m_voicesDataAvail=0;
             
             stil_info[0]=0;
@@ -7320,7 +7306,7 @@ char* loadRom(const char* path, size_t romSize)
                     artist=[NSString stringWithFormat:@"%s",sidtune_info->infoString(1)];
                 }
             }
-                                                
+            
             sprintf(mod_message,"");
             
             if (cfg.forceSidModel) {
@@ -7484,7 +7470,7 @@ char* loadRom(const char* path, size_t romSize)
     
     if (m3uReader.info().artist)
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
-
+    
     if (m3uReader.size()) {
         KSSPLAY_reset(kssplay, m3uReader[mod_currentsub].track, 0);
         iModuleLength=m3uReader[mod_currentsub].length;
@@ -7525,7 +7511,7 @@ char* loadRom(const char* path, size_t romSize)
     
     numChannels=2;
     
-    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);                
+    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);
     
     if (mLoopMode) iModuleLength=-1;
     iCurrentTime=0;
@@ -7533,7 +7519,7 @@ char* loadRom(const char* path, size_t romSize)
     
     if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
     else mFadeSamplesStart=1<<30;
-            
+    
     return 0;
 }
 
@@ -7783,7 +7769,7 @@ char* loadRom(const char* path, size_t romSize)
     HC_voicesMuteMask1=0xFF;
     for (int i=0;i<numVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
-    }    
+    }
     
     iCurrentTime=0;
     
@@ -7817,7 +7803,7 @@ char* loadRom(const char* path, size_t romSize)
         NSLog(@"XMP: Cannot create context");
         return 1;
     }
-                        
+    
     if (xmp_load_module(xmp_ctx, (char*)[filePath UTF8String]) < 0) {
         NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
         xmp_free_context(xmp_ctx);
@@ -7841,7 +7827,7 @@ char* loadRom(const char* path, size_t romSize)
     
     xmp_set_player(xmp_ctx,XMP_PLAYER_DSP,optXMP_DSP);
     xmp_set_player(xmp_ctx,XMP_PLAYER_CFLAGS,optXMP_Flags);
-
+    
     /* Show module data */
     
     xmp_mi=(struct xmp_module_info*)calloc(1,sizeof(struct xmp_module_info));
@@ -8002,7 +7988,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     int mod_err = OPENMPT_ERROR_OK;
     const char * mod_err_str = NULL;
     ompt_mod_interactive=(openmpt_module_ext_interface_interactive*)malloc(sizeof(openmpt_module_ext_interface_interactive));
-            
+    
     ompt_mod=openmpt_module_ext_create_from_memory(mp_data, mp_datasize, &libopenmpt_example_logfunc, NULL, &libopenmpt_example_errfunc, NULL, &mod_err, &mod_err_str, NULL );
     if (!ompt_mod) {
         printf("openmpt error initializing ompt\n");
@@ -8141,7 +8127,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT,optOMPT_StereoSeparationVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
-
+    
     return 0;
 }
 
@@ -8160,7 +8146,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     //compute rows number
     numr = xmp_mi->mod->xxp[pattern]->rows;
-        
+    
     if(numrows){
         *numrows = numr;
     }
@@ -8291,7 +8277,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         mVGMSTREAM_totalinternal_samples = 0;
         mVGMSTREAM_seek_needed_samples=-1;
         mVGMSTREAM_decode_pos_samples=0;
-    
+        
         numChannels=0;
         mod_message[0]=0;
         describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
@@ -8371,7 +8357,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         mVGMSTREAM_force_loop = true;
         //NSLog(@"VGMStreamPlugin Force Loop");
     }
-        
+    
     vgmFile = open_stdio_streamfile([filePath UTF8String]);
     if (!vgmFile) {
         NSLog(@"Error open_stdio_streamfile %@",filePath);
@@ -8416,7 +8402,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (vgmStream->channels <= 0) {
         NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
         close_vgmstream(vgmStream);
-        vgmStream = NULL;        
+        vgmStream = NULL;
         src_delete(src_state);
         close_streamfile(vgmFile);
         vgmFile=NULL;
@@ -8448,7 +8434,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
     vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
-        
+    
     mod_subsongs=vgmStream->num_streams;
     if (mod_subsongs>1) {
         mod_maxsub=vgmStream->num_streams;
@@ -8505,8 +8491,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vgmFile->stream_index=mod_currentsub;
     return 0;
 }
-    
-    
+
+
 -(int) mmp_2sfLoad:(NSString*)filePath extension:(NSString*)extension {  //2SF
     mPlayType=MMP_2SF;
     FILE *f;
@@ -8538,7 +8524,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     if (([extension caseInsensitiveCompare:@"2SF"]==NSOrderedSame)||
         ([extension caseInsensitiveCompare:@"MINI2SF"]==NSOrderedSame)) xSFPlayer=new XSFPlayer_2SF([filePath UTF8String]);
-        
+    
     if (!xSFPlayer) {
         NSLog(@"2SF Cannot initiate player");
         delete xSFConfig;
@@ -8600,7 +8586,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
 static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* length)
 {
     sdInit();
-
+    
     if (tune[2] != 0 || tune[3] != 0)
     {
         printf("No valid input file\n");
@@ -8612,13 +8598,13 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         printf("Failed to Check Version on input file\n");
         return NULL;
     }
-
+    
     uint8_t* converted;
     int converted_length;
     ConvertV2M(tune, *length, &converted, &converted_length);
     *length = converted_length;
     free(tune);
-
+    
     return converted;
 }
 
@@ -8648,7 +8634,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         return -2;
     }
     
-    //Create player    
+    //Create player
     v2m_player=new V2MPlayer;
     v2m_player->Init(1000);
     //Load tune
@@ -8708,7 +8694,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     fclose(f);
-
+    
     
     struct psf_info_meta_state info;
     info.info = [NSMutableDictionary dictionary];
@@ -8730,7 +8716,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         info.tag_length_ms = ( 2 * 60 + 30 ) * 1000;
         info.tag_fade_ms = 8000;
     }
-            
+    
     //Initi SRC samplerate converter
     int error;
     src_state=src_callback_new(src_callback_hc,optHC_ResampleQuality,2,&error,NULL);
@@ -8832,7 +8818,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         sega_upload_program( HC_emulatorCore, state.data, (uint32_t)length );
         
         free( state.data );
-                        
+        
         if (HC_type==0x11) {
             numChannels=32;
             numVoicesChannels=32;
@@ -8888,9 +8874,9 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
             snsf_rom=NULL;
             return -1;
         }
-                        
+        
         snsf_start(snsf_rom->data, snsf_rom->data_size, snsf_rom->sram, snsf_rom->sram_size );
-                
+        
         numChannels=8;
         numVoicesChannels=8;
         m_voicesDataAvail=1;
@@ -8929,7 +8915,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         }
         qsound_set_z80_rom( HC_emulatorCore, state->z80_rom, state->z80_size );
         qsound_set_sample_rom( HC_emulatorCore, state->sample_rom, state->sample_size );
-                
+        
         m_voicesDataAvail=1;
         numChannels=19;
         numVoicesChannels=numChannels;
@@ -8939,7 +8925,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         
     }
     src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
-            
+    
     iModuleLength=-1;
     if (info.tag_length_ms) {
         iModuleLength=info.tag_length_ms+info.tag_fade_ms;
@@ -8965,7 +8951,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
                 (usf_info_data->inf_track?usf_info_data->inf_track:""),
                 hc_sample_rate,
                 iModuleLength/1000);
-                        
+        
         if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithFormat:@"%s",usf_info_data->inf_game];
         
         if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
@@ -9106,7 +9092,7 @@ int vgmGetFileLength()
                 vgmplay_activeChips[vgmplay_activeChipsNb]=CurChip;
                 vgmplay_activeChipsID[vgmplay_activeChipsNb]=i;
                 m_voice_ChipID[numChannels]=CurChip|(i<<8);
-                                                
+                
                 vgmplay_activeChipsName[vgmplay_activeChipsNb]=strdup(strChip);
                 numChannels+=vgmGetVoicesNb(CurChip);
                 
@@ -9117,7 +9103,7 @@ int vgmGetFileLength()
                 numVoicesChannels+=vgmGetVoicesChannelsUsedNb(CurChip);
                 vgmplay_activeChipsNb++;
             }
-                                    
+            
             if (firstChip) {
                 sprintf(mod_message+strlen(mod_message),"Chipsets....: %dx%s",chipNumber,strChip);
                 firstChip=0;
@@ -9194,17 +9180,17 @@ int vgmGetFileLength()
             }
         }
     }
-        
+    
     //if (!m_voicesDataAvail) numChannels=2;
-                
+    
     sprintf(mod_message+strlen(mod_message),"\nAuthor......: %s\nGame........: %s\nSystem......: %s\nTitle.......: %s\nRelease Date: %s\nCreator.....: %s\nNotes.......: %s\n",
-                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
-                [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
-                [[self wcharToNS:VGMTag.strCreator] UTF8String],
-                [[self wcharToNS:VGMTag.strNotes] UTF8String]);
+            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
+            [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
+            [[self wcharToNS:VGMTag.strCreator] UTF8String],
+            [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
     artist=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
     album=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
@@ -9389,7 +9375,7 @@ int vgmGetFileLength()
     ASAP_PlaySong(asap, mod_currentsub, duration);
     ASAP_MutePokeyChannels(asap,0); //all channels active by default
     
-//    ASAPInfo_GetExtDescription
+    //    ASAPInfo_GetExtDescription
     
     sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",ASAPInfo_GetAuthor(ASAP_GetInfo(asap)),ASAPInfo_GetTitle(ASAP_GetInfo(asap)),ASAPInfo_GetSongs(ASAP_GetInfo(asap)),ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
     
@@ -9397,7 +9383,7 @@ int vgmGetFileLength()
     
     iModuleLength=(duration>=1000?duration:1000);
     iCurrentTime=0;
-        
+    
     numChannels=(ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
     
     
@@ -9558,7 +9544,7 @@ int vgmGetFileLength()
         
         /**/
         gme_ignore_silence(gme_emu,optGMEIgnoreSilence);
-                
+        
         mod_subsongs=gme_track_count( gme_emu );
         mod_minsub=0;
         mod_maxsub=mod_subsongs-1;
@@ -9578,53 +9564,53 @@ int vgmGetFileLength()
         //update DB with songlength
         //////////////////////////////////
         if (mod_subsongs<256)
-        for (int i=0;i<mod_subsongs; i++) {
-            if (gme_track_info( gme_emu, &gme_info, i )==0) {
-                short int playcount;
-                signed char rating;
-                int song_length;
-                char channels_nb;
-                int songs;
-                NSString *filePathGME;
-                NSString *fileName;
-                NSMutableArray *tmp_path;
-                int gme_subsong_length=gme_info->play_length;
-                if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
-                mod_total_length+=gme_info->play_length;
-                
-                channels_nb=gme_voice_count( gme_emu );
-                
-                gme_free_info(gme_info);
-                
-                fileName=[self getSubTitle:i];
-                
-                tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-                for (;;) {
-                    if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                        break;
+            for (int i=0;i<mod_subsongs; i++) {
+                if (gme_track_info( gme_emu, &gme_info, i )==0) {
+                    short int playcount;
+                    signed char rating;
+                    int song_length;
+                    char channels_nb;
+                    int songs;
+                    NSString *filePathGME;
+                    NSString *fileName;
+                    NSMutableArray *tmp_path;
+                    int gme_subsong_length=gme_info->play_length;
+                    if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
+                    mod_total_length+=gme_info->play_length;
+                    
+                    channels_nb=gme_voice_count( gme_emu );
+                    
+                    gme_free_info(gme_info);
+                    
+                    fileName=[self getSubTitle:i];
+                    
+                    tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+                    for (;;) {
+                        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                            break;
+                        }
+                        [tmp_path removeObjectAtIndex:0];
+                        if ([tmp_path count]==0) break;
                     }
-                    [tmp_path removeObjectAtIndex:0];
-                    if ([tmp_path count]==0) break;
-                }
-                filePathGME=[tmp_path componentsJoinedByString:@"/"];
-                
-                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
-                
-                DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
-                //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,gme_subsong_length,rating);
-                
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
-                
-                if (i==mod_subsongs-1) {// Global file stats update
-                    fileName=[filePath lastPathComponent];
-                    DBHelper::getFileStatsDBmod(fileName,filePathGME,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    filePathGME=[tmp_path componentsJoinedByString:@"/"];
                     
-                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathGME,mod_total_length,rating);
+                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
                     
-                    DBHelper::updateFileStatsDBmod(fileName,filePathGME,playcount,rating,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
+                    DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,gme_subsong_length,rating);
+                    
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
+                    
+                    if (i==mod_subsongs-1) {// Global file stats update
+                        fileName=[filePath lastPathComponent];
+                        DBHelper::getFileStatsDBmod(fileName,filePathGME,&playcount,&rating,&song_length,&channels_nb,&songs);
+                        
+                        //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathGME,mod_total_length,rating);
+                        
+                        DBHelper::updateFileStatsDBmod(fileName,filePathGME,playcount,rating,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
+                    }
                 }
             }
-        }
         
         
         sprintf(mod_name," %s",mod_filename);
@@ -9636,7 +9622,7 @@ int vgmGetFileLength()
                 //check length in database
                 //iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             }
-                        
+            
             if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
                 m_voicesDataAvail=1;
             }
@@ -9719,20 +9705,20 @@ extern bool icloud_available;
     return fullFilePath;
 }
 
-    
+
 
 - (UIViewController *)visibleViewController:(UIViewController *)rootViewController
 {
     if ([rootViewController isKindOfClass:[UITabBarController class]])
     {
         UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
-
+        
         return [self visibleViewController:selectedViewController];
     }
     if ([rootViewController isKindOfClass:[UINavigationController class]])
     {
         UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
-
+        
         return [self visibleViewController:lastViewController];
     }
     
@@ -9744,19 +9730,19 @@ extern bool icloud_available;
     {
         UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
         UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
-
+        
         return [self visibleViewController:lastViewController];
     }
     if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
     {
         UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
         UIViewController *selectedViewController = tabBarController.selectedViewController;
-
+        
         return [self visibleViewController:selectedViewController];
     }
-
+    
     UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
-
+    
     return [self visibleViewController:presentedViewController];
 }
 
@@ -9905,7 +9891,7 @@ extern bool icloud_available;
                     fseek(f,0L,SEEK_END);
                     mp_datasize=ftell(f);
                     fclose(f);
-                                        
+                    
                     //remove tmp dir
                     NSError *err;
                     NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
@@ -9926,7 +9912,7 @@ extern bool icloud_available;
                             NSString *tmpstr=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
                             //NSLog(@"yo:%@",tmpstr);
                         }
-                                                
+                        
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         
                         mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
@@ -9952,7 +9938,7 @@ extern bool icloud_available;
                     
                     //sort the file list
                     if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
-
+                    
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     else if (mdz_ShufflePlayMode) mdz_currentArchiveIndex=arc4random()%mdz_ArchiveFilesCnt;
                     
@@ -10021,7 +10007,7 @@ extern bool icloud_available;
                     argv[6]=0;
                     lha_main(argc,argv);
                 }
-                                    
+                
                 //now check how many files we can play
                 [self scanForPlayableFile:tmpArchivePath];
                 
@@ -10030,7 +10016,7 @@ extern bool icloud_available;
                     
                     //sort the file list
                     if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
-
+                    
                     
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     else if (mdz_ShufflePlayMode) mdz_currentArchiveIndex=arc4random()%mdz_ArchiveFilesCnt;
@@ -10075,7 +10061,7 @@ extern bool icloud_available;
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
             mdz_currentArchiveIndex=archiveIndex;
         }
-                
+        
     }
     
     if (mdz_IsArchive) {
@@ -10092,7 +10078,7 @@ extern bool icloud_available;
             if (max_idx<mdz_ArchiveEntryPlayed[j]) max_idx=mdz_ArchiveEntryPlayed[j];
         }
         mdz_ArchiveEntryPlayed[mdz_currentArchiveIndex]=max_idx+1;
-            
+        
         //init file references
         _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -10180,8 +10166,8 @@ extern bool icloud_available;
                 }
             
             if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
-                 (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
-                 (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
+                (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
+                (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
             break;
         }
@@ -10415,7 +10401,7 @@ extern bool icloud_available;
             break;
         }
     }
-            
+    
     for (int i=0;i<[filetype_extADPLUG count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
             [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
@@ -10437,7 +10423,7 @@ extern bool icloud_available;
             break;
         }
     }
-
+    
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
@@ -10470,10 +10456,10 @@ extern bool icloud_available;
     
     
     /*if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
-        printf("current play stat:\n");
-        for (int i=0;i<mdz_ArchiveFilesCnt;i++) printf("%d ",mdz_ArchiveEntryPlayed[i]);
-        printf("\n");
-    }*/
+     printf("current play stat:\n");
+     for (int i=0;i<mdz_ArchiveFilesCnt;i++) printf("%d ",mdz_ArchiveEntryPlayed[i]);
+     printf("\n");
+     }*/
     
     int retval=1;
     
@@ -10603,7 +10589,7 @@ extern bool icloud_available;
                 mdz_ArchiveEntryPlayed[mdz_currentArchiveIndex]--;
             } else return -1;
         }
-            
+        
     }
     return mdz_currentArchiveIndex;
 }
@@ -10947,7 +10933,7 @@ extern bool icloud_available;
             if (mLoopMode) iModuleLength=-1;
             
             if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
-                    info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                            info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
             else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
                          info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
             
@@ -10977,7 +10963,7 @@ extern bool icloud_available;
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-
+            
             sc68_play( sc68, mod_currentsub, (mLoopMode?SC68_INF_LOOP:0));
             sc68_music_info_t info;
             sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
@@ -11086,7 +11072,7 @@ extern bool icloud_available;
         free( state );
         HC_emulatorExtra = nil;
     }
-
+    
     mdz_safe_free(hc_sample_data);
     mdz_safe_free(hc_sample_data_float);
     mdz_safe_free(hc_sample_converted_data_float);
@@ -11109,7 +11095,7 @@ extern bool icloud_available;
     }
     
     /*bGlobalIsPlaying=0;
-    [self iPhoneDrv_PlayStop];*/
+     [self iPhoneDrv_PlayStop];*/
     
     //wait for sound generation thread to end
     while (bGlobalSoundGenInProgress) {
@@ -11149,7 +11135,7 @@ extern bool icloud_available;
         
         if (ompt_mod) openmpt_module_ext_destroy(ompt_mod);
         ompt_mod=NULL;
-        mdz_safe_free(mp_data);        
+        mdz_safe_free(mp_data);
         mdz_safe_free(ompt_mod_interactive)
     }
     if (mPlayType==MMP_ADPLUG) {
@@ -11175,7 +11161,7 @@ extern bool icloud_available;
         
         if (pixel_organya_mode) unload_org();
         if (pixel_pxtn) pixel_pxtn->clear();
-                        
+        
         free(pixel_fileBuffer);
         pixel_fileBuffer=NULL;
         if (pixel_pxtn) delete pixel_pxtn;
@@ -11336,7 +11322,7 @@ extern bool icloud_available;
     //else [self iPhoneDrv_PlayStart];
     if (paused) AudioQueuePause(mAudioQueue);// [self iPhoneDrv_PlayStop];
     else AudioQueueStart(mAudioQueue,NULL);//[self iPhoneDrv_PlayStart];
-        
+    
     mod_message_updated=1;
 }
 //*****************************************
@@ -11461,7 +11447,7 @@ extern bool icloud_available;
         sidtune_info=mSidTune->getInfo();
         if (sidtune_info->infoString(0)[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
-
+        
     } else if (mPlayType==MMP_KSS) {
         if (m3uReader.size()-1>=subsong) {
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
@@ -11536,7 +11522,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_SC68) {
         sc68_music_info_t info;
         sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
-                
+        
         return [NSString stringWithFormat:@"%s",info.format];
     }
     if (mPlayType==MMP_MDXPDX) {
@@ -11831,7 +11817,7 @@ extern "C" void adjust_amplification(void);
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val {
     optVGMSTREAM_resampleQuality=val;
 }
-    
+
 ///////////////////////////
 //HC
 ///////////////////////////
@@ -11885,7 +11871,7 @@ extern "C" void adjust_amplification(void);
 //Openmpt
 ///////////////////////////
 -(void) optOMPT_Sampling:(int) mode {
-    int val;    
+    int val;
     switch(mode) {
         case 0: //internal default
             val=0;break;
@@ -12604,8 +12590,8 @@ extern "C" void adjust_amplification(void);
                             break;
                         }
                         case 7:{ //YM2608: 16voices:
-                                 // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
-                                 // chnmute3, 3bits -> yyy y:ay 3ch
+                            // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
+                            // chnmute3, 3bits -> yyy y:ay 3ch
                             int voice=channel-idx;
                             if (voice<6) {
                                 if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=0xFFFFFFFF^(1<<voice);
@@ -12616,12 +12602,12 @@ extern "C" void adjust_amplification(void);
                             } else {
                                 if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
-                            }                            
+                            }
                             break;
                         }
                         case 8:{ //YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
-                                 // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
-                                 // chnmute3, 3bits -> yyy y:ay 3ch
+                            // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
+                            // chnmute3, 3bits -> yyy y:ay 3ch
                             int voice=channel-idx;
                             if (vgm2610b==0) {
                                 if (voice<4) {
@@ -12663,8 +12649,8 @@ extern "C" void adjust_amplification(void);
                             else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0D: //YMF278B:47voices:23(ymf262)+24pcm(wave table) fm: 18 channels + 5 drums pcm: 24 channels
-                                    //  mute1: dddddffffffffffffffffff
-                                    //  mute2: pppppppppppppppppppppppp
+                            //  mute1: dddddffffffffffffffffff
+                            //  mute2: pppppppppppppppppppppppp
                             if (channel-idx<23) {
                                 if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1|=(1<<(channel-idx));
