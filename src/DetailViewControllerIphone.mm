@@ -6324,20 +6324,31 @@ extern "C" int current_sample;
 	
     int detail_lvl=settings[GLOB_FXLOD].detail.mdz_switch.switch_value;
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) detail_lvl=0; //force low for fx4
-    
+    int decrease_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?3:2);
+    int increase_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?2:1);
+    int tgtL,tgtR;
 	switch (detail_lvl) {
 		case 2:
 			nb_spectrum_bands=SPECTRUM_BANDS;
+            
 			for (int i=0;i<SPECTRUM_BANDS;i++) {
-				real_spectrumL[i]=oreal_spectrumL[i];
-				real_spectrumR[i]=oreal_spectrumR[i];
+				if (real_spectrumL[i]<oreal_spectrumL[i]) real_spectrumL[i]+=((oreal_spectrumL[i]-real_spectrumL[i])>>increase_factor)+1;
+                else if (real_spectrumL[i]>oreal_spectrumL[i]) real_spectrumL[i]+=((oreal_spectrumL[i]-real_spectrumL[i])>>decrease_factor)-1;
+				if (real_spectrumR[i]<oreal_spectrumR[i]) real_spectrumR[i]+=((oreal_spectrumR[i]-real_spectrumR[i])>>increase_factor)+1;
+                else if (real_spectrumR[i]>oreal_spectrumR[i]) real_spectrumR[i]+=((oreal_spectrumR[i]-real_spectrumR[i])>>decrease_factor)-1;
             }
             break;
 		case 1:
 			nb_spectrum_bands=SPECTRUM_BANDS/2;
             for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-				real_spectrumL[i]=max2(oreal_spectrumL[i*2],oreal_spectrumL[i*2+1]);
-				real_spectrumR[i]=max2(oreal_spectrumR[i*2],oreal_spectrumR[i*2+1]);
+				tgtL=max2(oreal_spectrumL[i*2],oreal_spectrumL[i*2+1]);
+                tgtR=max2(oreal_spectrumR[i*2],oreal_spectrumR[i*2+1]);
+                
+                if (real_spectrumL[i]<tgtL) real_spectrumL[i]+=((tgtL-real_spectrumL[i])>>increase_factor)+1;
+                else if (real_spectrumL[i]>tgtL) real_spectrumL[i]+=((tgtL-real_spectrumL[i])>>decrease_factor)-1;
+                if (real_spectrumR[i]<tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>increase_factor)+1;
+                else if (real_spectrumR[i]>tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>decrease_factor)-1;
+                
                 real_beatDetectedL[i]=max2(real_beatDetectedL[i*2],real_beatDetectedL[i*2+1]);
 				real_beatDetectedR[i]=max2(real_beatDetectedR[i*2],real_beatDetectedR[i*2+1]);
 			}
@@ -6346,8 +6357,14 @@ extern "C" int current_sample;
 		case 0:
 			nb_spectrum_bands=SPECTRUM_BANDS/4;
             for (int i=0;i<SPECTRUM_BANDS/4;i++) {
-                real_spectrumL[i]=max4(oreal_spectrumL[i*4],oreal_spectrumL[i*4+1],oreal_spectrumL[i*4+2],oreal_spectrumL[i*4+3]);
-                real_spectrumR[i]=max4(oreal_spectrumR[i*4],oreal_spectrumR[i*4+1],oreal_spectrumR[i*4+2],oreal_spectrumR[i*4+3]);
+                tgtL=max4(oreal_spectrumL[i*4],oreal_spectrumL[i*4+1],oreal_spectrumL[i*4+2],oreal_spectrumL[i*4+3]);
+                tgtR=max4(oreal_spectrumR[i*4],oreal_spectrumR[i*4+1],oreal_spectrumR[i*4+2],oreal_spectrumR[i*4+3]);
+                
+                if (real_spectrumL[i]<tgtL) real_spectrumL[i]+=((tgtL-real_spectrumL[i])>>increase_factor)+1;
+                else if (real_spectrumL[i]>tgtL) real_spectrumL[i]+=((tgtL-real_spectrumL[i])>>decrease_factor)-1;
+                if (real_spectrumR[i]<tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>increase_factor)+1;
+                else if (real_spectrumR[i]>tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>decrease_factor)-1;
+                
 				real_beatDetectedL[i]=max4(real_beatDetectedL[i*4],real_beatDetectedL[i*4+1],real_beatDetectedL[i*4+2],real_beatDetectedL[i*4+3]);
 				real_beatDetectedR[i]=max4(real_beatDetectedR[i*4],real_beatDetectedR[i*4+1],real_beatDetectedR[i*4+2],real_beatDetectedR[i*4+3]);
 			}

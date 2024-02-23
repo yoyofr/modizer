@@ -195,7 +195,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
-    mulfactor=hh/(max_voices_by_row+1);
+    mulfactor=hh/(max_voices_by_row)/2;
     
     int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
@@ -303,9 +303,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     for (int r=0;r<rows_nb;r++) {
         int xpos=xofs+r*rows_width;
         int max_voices=num_voices*(r+1)/rows_nb;
-        int ypos=hh-mulfactor*0.75f-1;
+        int ypos=hh-mulfactor;
         
-        for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
+        for (;cur_voices<max_voices;cur_voices++,ypos-=2*mulfactor) {
             int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
             
             if (color_mode==1) {
@@ -324,7 +324,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             //draw label if specified
             if (voices_label&&mVoicesName[cur_voices]) {
                 glPushMatrix();
-                glTranslatef(xpos,ypos-mulfactor*0.5f+(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
+                glTranslatef(xpos,ypos-mulfactor+(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
                 mVoicesName[cur_voices]->Render(255);
                 glPopMatrix();
             }
@@ -424,7 +424,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
-    mulfactor=hh/(max_voices_by_row+1);
+    mulfactor=hh/(max_voices_by_row)/2;
     
     int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
@@ -532,9 +532,9 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     for (int r=0;r<rows_nb;r++) {
         int xpos=xofs+r*rows_width;
         int max_voices=num_voices*(r+1)/rows_nb;
-        int ypos=hh-mulfactor*0.75f-1;
+        int ypos=hh-mulfactor;
         
-        for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
+        for (;cur_voices<max_voices;cur_voices++,ypos-=2*mulfactor) {
             int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
             
             if (color_mode==1) {
@@ -1747,58 +1747,30 @@ float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
 void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands) {
+    LineVertex *pts;
+    int index=0;
     GLfloat spL,spR;
     GLfloat crt,cgt,cbt;
-    GLfloat x,y,z,sx,sy,sz;
+    GLfloat x,y,sx,sy;
     
     for (int i=0;i<nb_spectrum_bands;i++) {
         barSpectrumDataL[i]=(float)1.f*spectrumDataL[i]/512.0f;
         barSpectrumDataR[i]=(float)1.f*spectrumDataR[i]/512.0f;
     }
     
-    //Ortho view
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    
-    float aspectRatio = (float)ww/(float)hh;
-    float _hw;// = 16*1.0/2;//0.2f;
-    float _hh;// = _hw/aspectRatio;
-    
-    
-    _hw = (float)(nb_spectrum_bands)*1.4f/2;
-    _hh = _hw/aspectRatio*SPECTRUM_BANDS/nb_spectrum_bands;
-    
-    glOrthof(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    //
-    
-    glPushMatrix();                     /* Push The Modelview Matrix */
-    
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(4, GL_FLOAT, 0, vertColor);
+    pts=(LineVertex*)malloc(sizeof(LineVertex)*6*nb_spectrum_bands*2);
     
+    glDisable(GL_BLEND);
     
-    glTranslatef(0.0, 0.0, -120.0);
+    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     
-    glRotatef(-90,0,0,1);
-    
-    
-    glRotatef(-90, 0, 1, 0);
-    
-    
-    
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1;
     crt=0;
     cgt=0;
     cbt=0;
-    
-    x=-0.5;y=0;z=0;
-    sx=sy=24.0/(float)nb_spectrum_bands;
     
     for (int i=0; i<nb_spectrum_bands; i++) {
         /////////////////
@@ -1828,18 +1800,32 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
         cbt*=0.5f+(1*spL);
         if (cbt>1) cbt=1;
         
-        sx=1;
-        sy=1;
-        sz=spL*2+0.1f;
-        x=0-sx/2;
-        y=(i-nb_spectrum_bands/2)*sy*1.2;
-        
         if (mode==1) {
-            z=8+0.1f;//+spL/2;
-            drawbar3(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            x=ww*(i+4)/(nb_spectrum_bands+8);
+            sx=ww/(nb_spectrum_bands+8)-1;
+            y=hh/2+hh/8;
+            sy=spL*hh/32;
+            
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
         } else if (mode==2) {
-            z=0.1f;
-            drawbar3(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            x=ww*(i+4)/(nb_spectrum_bands+8);
+            sx=ww/(nb_spectrum_bands+8)-1;
+            y=hh/2;
+            sy=spL*hh/32;
+            
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
         }
         
         /////////////////
@@ -1869,35 +1855,47 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
         cbt*=0.5+(spR);
         if (cbt>1) cbt=1;
         
-        
-        sx=1;
-        sy=1;
-        sz=spR*2+0.1f;
-        x=0-sx/2;
-        y=(i-nb_spectrum_bands/2)*sy*1.2;
-        
+                        
         if (mode==1) {
-            z=-16+0.1f;
-            drawbar3(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            x=ww*(i+4)/(nb_spectrum_bands+8);
+            sx=ww/(nb_spectrum_bands+8)-1;
+            y=0*hh/2+hh/4;
+            sy=spR*hh/32;
+            
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
         } else if (mode==2) {
-            z=0.1f;
-            glRotatef(180, 0, 1, 0);
-            drawbar3(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(180, 0, 1, 0);
+            x=ww*(i+4)/(nb_spectrum_bands+8);
+            sx=ww/(nb_spectrum_bands+8)-1;
+            y=hh/2;
+            sy=-spR*hh/32;
+            
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            
+            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
         }
     }
-    
+    glDrawArrays(GL_TRIANGLES, 0, index);
     
     /* Disable Vertex Pointer */
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     
-    
+    free(pts);
     
     //    glDisable(GL_BLEND);
     
     /* Pop The Matrix */
-    glPopMatrix();
+    //glPopMatrix();
 }
 
 
@@ -1979,87 +1977,87 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     switch (mode) {
         case 1:
             glTranslatef(0.0, 0.0, -150.0+
-                         15*(0.8f*sin((float)frameCpt*3.14159f/991)+
-                             1.7f*sin((float)frameCpt*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*3.14159f/5009)));
+                         15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
+                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
+                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
-                                 0.7f*sin((float)frameCpt*3.14159f/3113)-
-                                 0.3f*sin((float)frameCpt*3.14159f/7409)),0,0,1);
-            
-            
-            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                                0.7f*sin((float)frameCpt*3.14159f/1211)-
-                                0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
             
-            glRotatef(10.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
+            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+            
+            
+            glRotatef(10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             break;
         case 2:
             glTranslatef(0.0, 0.0, -190.0+
-                         15*(0.8f*sin((float)frameCpt*3.14159f/991)+
-                             1.7f*sin((float)frameCpt*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*3.14159f/5009)));
+                         15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
+                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
+                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
             
             
-            glRotatef(20+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
-                                0.7f*sin((float)frameCpt*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*3.14159f/7409)),1,0,0);
+            glRotatef(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),1,0,0);
             
-            glRotatef(20.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
+            glRotatef(20.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             
-            glRotatef(360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                              0.7f*sin((float)frameCpt*3.14159f/1211)-
-                              0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+            glRotatef(360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                              0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                              0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
             
             break;
         case 3:
             glTranslatef(0.0, 0.0, -150.0+
-                         15*(0.8f*sin((float)frameCpt*3.14159f/991)+
-                             1.7f*sin((float)frameCpt*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*3.14159f/5009)));
+                         15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
+                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
+                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
-                                 0.7f*sin((float)frameCpt*3.14159f/3113)-
-                                 0.3f*sin((float)frameCpt*3.14159f/7409)),0,0,1);
-            
-            
-            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                                0.7f*sin((float)frameCpt*3.14159f/1211)-
-                                0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
             
-            glRotatef(10.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
+            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+            
+            
+            glRotatef(10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             break;
         case 4:
             glTranslatef(0.0, 0.0, -150.0+
-                         0*(0.8f*sin((float)frameCpt*3.14159f/991)+
-                            1.7f*sin((float)frameCpt*3.14159f/3065)-
-                            0.3f*sin((float)frameCpt*3.14159f/5009)));
+                         0*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
+                            1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
+                            0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+0.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
-                                0.7f*sin((float)frameCpt*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*3.14159f/7409)),0,0,1);
-            
-            
-            glRotatef(90+0*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                                   0.7f*sin((float)frameCpt*3.14159f/1211)-
-                                   0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+            glRotatef(-90+0.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
             
-            glRotatef(0.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
-                            0.2f*sin((float)frameCpt*3.14159f/211)-
-                            0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
+            glRotatef(90+0*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                                   0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                                   0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+            
+            
+            glRotatef(0.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                            0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             break;
     }
@@ -2370,16 +2368,16 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glRotatef(180-90, 0, 1, 0);
         }
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                             0.7f*sin((float)frameCpt*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                             0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
         
         //glRotatef(180,0,0,1);
         glTranslatef(12,0,0);
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                             0.7f*sin((float)frameCpt*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                             0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
         
         ang=0;
         if (mirror)
@@ -2531,18 +2529,18 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glRotatef(180, 0, 1, 0);
         }
         
-        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-         0.7f*sin((float)frameCpt*3.14159f/1211)-
-         0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+         0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+         0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
          */
         //glRotatef(180,0,0,1);
         glTranslatef(0,0,12);
         
         glRotatef(-45,0,1,0);
         
-        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-         0.7f*sin((float)frameCpt*3.14159f/1211)-
-         0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+         0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+         0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
          */
         ang=0;
         if (mirror*0)
@@ -2700,16 +2698,16 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
         }
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                             0.7f*sin((float)frameCpt*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                             0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
         
         //glRotatef(180,0,0,1);
         glTranslatef(15,0,0);
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
-                             0.7f*sin((float)frameCpt*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+                             0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
         
         ang=0;
         if (mirror)

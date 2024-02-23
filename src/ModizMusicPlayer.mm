@@ -5140,7 +5140,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
-                                //nbBytes=0; //end reached
+                                 //end reached
+                                if (iModuleLength<0) {
+                                    if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
+                                        //loop
+                                        //reset NSF
+                                        nsfPlayer->Reset();
+                                        mCurrentSamples=0;
+                                        m_voice_current_sample=0;
+                                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    }
+                                } else nbBytes=0;
                             }
                             
                             //copy voice data for oscillo view
@@ -5159,16 +5169,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             } else {
-                                if (iModuleLength<0) {
-                                    if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
-                                        //loop
-                                        //reset NSF
-                                        nsfPlayer->Reset();
-                                        mCurrentSamples=0;
-                                        m_voice_current_sample=0;
-                                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                    }
-                                }
+                                
                             }
                         }
                         if (mPlayType==MMP_PT3) { //PT3
