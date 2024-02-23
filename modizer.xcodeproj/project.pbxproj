@@ -6422,7 +6422,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.4.0;
+				CURRENT_PROJECT_VERSION = 3.5.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6443,7 +6443,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos";
-				MARKETING_VERSION = 3.4;
+				MARKETING_VERSION = 3.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -6465,7 +6465,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.4.0;
+				CURRENT_PROJECT_VERSION = 3.5.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6485,7 +6485,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos";
-				MARKETING_VERSION = 3.4;
+				MARKETING_VERSION = 3.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -6831,7 +6831,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 3.4.0;
+				CURRENT_PROJECT_VERSION = 3.5.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6850,7 +6850,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos";
-				MARKETING_VERSION = 3.4;
+				MARKETING_VERSION = 3.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";

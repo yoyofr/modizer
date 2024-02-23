@@ -29,6 +29,13 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
 
+3.5
+---
+- [PLAYER] SID player changed back for libsidplayfp and upgraded to latest version (2.6). WebSID removed (quality/compatibiltiy issue)
+- [PLAYER] FFMPEG update to latest version (6)
+- [FX] Improved oscilloscope FX, better compatibiltiy with SID
+- [DB] Modland 2024/02/23
+- [DB] Asma 2024/02/23
 
 
 3.4

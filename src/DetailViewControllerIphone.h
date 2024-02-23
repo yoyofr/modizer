@@ -101,7 +101,8 @@ class CGLString;
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
 
-    CBAutoScrollLabel *labelModuleName;
+    UIView *labelTopView;
+    CBAutoScrollLabel *labelModuleName,*labelSub,*labelArtist;
 
     //Subsongs and Archive entries picker
 	IBOutlet UIButton *btnChangeTime;
