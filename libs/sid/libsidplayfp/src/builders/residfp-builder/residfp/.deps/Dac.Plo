@@ -1,8 +1,0 @@
-src/builders/residfp-builder/residfp/Dac.lo: \
-  src/builders/residfp-builder/residfp/Dac.cpp \
-  src/builders/residfp-builder/residfp/Dac.h \
-  src/builders/residfp-builder/residfp/siddefs-fp.h
-
-src/builders/residfp-builder/residfp/Dac.h:
-
-src/builders/residfp-builder/residfp/siddefs-fp.h:

@@ -1,5 +1,0 @@
-src/builders/residfp-builder/residfp/Filter.lo: \
-  src/builders/residfp-builder/residfp/Filter.cpp \
-  src/builders/residfp-builder/residfp/Filter.h
-
-src/builders/residfp-builder/residfp/Filter.h:

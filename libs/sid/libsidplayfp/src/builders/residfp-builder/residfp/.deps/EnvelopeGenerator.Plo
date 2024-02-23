@@ -1,8 +1,0 @@
-src/builders/residfp-builder/residfp/EnvelopeGenerator.lo: \
-  src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp \
-  src/builders/residfp-builder/residfp/EnvelopeGenerator.h \
-  src/builders/residfp-builder/residfp/siddefs-fp.h
-
-src/builders/residfp-builder/residfp/EnvelopeGenerator.h:
-
-src/builders/residfp-builder/residfp/siddefs-fp.h:

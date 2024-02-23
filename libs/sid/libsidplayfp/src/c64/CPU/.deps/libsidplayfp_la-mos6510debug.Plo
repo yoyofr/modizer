@@ -1,6 +1,0 @@
-src/c64/CPU/libsidplayfp_la-mos6510debug.lo: src/c64/CPU/mos6510debug.cpp \
-  src/c64/CPU/mos6510debug.h src/config.h
-
-src/c64/CPU/mos6510debug.h:
-
-src/config.h:

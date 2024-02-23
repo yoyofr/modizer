@@ -1,5 +1,0 @@
-src/builders/residfp-builder/residfp/version.lo: \
-  src/builders/residfp-builder/residfp/version.cc \
-  src/builders/residfp-builder/residfp/siddefs-fp.h
-
-src/builders/residfp-builder/residfp/siddefs-fp.h:
