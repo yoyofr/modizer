@@ -30,12 +30,21 @@
 
 #include "siddefs-fp.h"
 
+#include "sidcxx11.h"
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
-#ifdef HAVE_MMINTRIN_H
+#ifdef HAVE_EMMINTRIN_H
+#  include <emmintrin.h>
+#elif defined HAVE_MMINTRIN_H
 #  include <mmintrin.h>
+#elif defined(HAVE_ARM_NEON_H)
+#  include <arm_neon.h>
+#endif
+#ifdef HAVE_CXX11
+#  include <mutex>
 #endif
 
 namespace reSIDfp
@@ -45,6 +54,9 @@ typedef std::map<std::string, matrix_t> fir_cache_t;
 
 /// Cache for the expensive FIR table computation results.
 fir_cache_t FIR_CACHE;
+#ifdef HAVE_CXX11
+std::mutex FIR_CACHE_Lock;
+#endif
 
 /// Maximum error acceptable in I0 is 1e-6, or ~96 dB.
 const double I0E = 1e-6;
@@ -88,7 +100,45 @@ double I0(double x)
  */
 int convolve(const short* a, const short* b, int bLength)
 {
-#ifdef HAVE_MMINTRIN_H
+#ifdef HAVE_EMMINTRIN_H
+    int out = 0;
+
+    const uintptr_t offset = (uintptr_t)(a) & 0x0f;
+
+    // check for aligned accesses
+    if (offset == ((uintptr_t)(b) & 0x0f))
+    {
+        if (offset)
+        {
+            const int l = (0x10 - offset)/2;
+
+            for (int i = 0; i < l; i++)
+            {
+                out += *a++ * *b++;
+            }
+
+            bLength -= offset;
+        }
+
+        __m128i acc = _mm_setzero_si128();
+
+        const int n = bLength / 8;
+
+        for (int i = 0; i < n; i++)
+        {
+            const __m128i tmp = _mm_madd_epi16(*(__m128i*)a, *(__m128i*)b);
+            acc = _mm_add_epi32(acc, tmp);
+            a += 8;
+            b += 8;
+        }
+
+        __m128i vsum = _mm_add_epi32(acc, _mm_srli_si128(acc, 8));
+        vsum = _mm_add_epi32(vsum, _mm_srli_si128(vsum, 4));
+        out += _mm_cvtsi128_si32(vsum);
+
+        bLength &= 7;
+    }
+#elif defined HAVE_MMINTRIN_H
     __m64 acc = _mm_setzero_si64();
 
     const int n = bLength / 4;
@@ -105,6 +155,86 @@ int convolve(const short* a, const short* b, int bLength)
     _mm_empty();
 
     bLength &= 3;
+#elif defined(HAVE_ARM_NEON_H)
+#if (defined(__arm64__) && defined(__APPLE__)) || defined(__aarch64__)
+    int32x4_t acc1Low = vdupq_n_s32(0);
+    int32x4_t acc1High = vdupq_n_s32(0);
+    int32x4_t acc2Low = vdupq_n_s32(0);
+    int32x4_t acc2High = vdupq_n_s32(0);
+
+    const int n = bLength / 16;
+
+    for (int i = 0; i < n; i++)
+    {
+        int16x8_t v11 = vld1q_s16(a);
+        int16x8_t v12 = vld1q_s16(a + 8);
+        int16x8_t v21 = vld1q_s16(b);
+        int16x8_t v22 = vld1q_s16(b + 8);
+
+        acc1Low  = vmlal_s16(acc1Low, vget_low_s16(v11), vget_low_s16(v21));
+        acc1High = vmlal_high_s16(acc1High, v11, v21);
+        acc2Low  = vmlal_s16(acc2Low, vget_low_s16(v12), vget_low_s16(v22));
+        acc2High = vmlal_high_s16(acc2High, v12, v22);
+
+        a += 16;
+        b += 16;
+    }
+
+    bLength &= 15;
+
+    if (bLength >= 8)
+    {
+        int16x8_t v1 = vld1q_s16(a);
+        int16x8_t v2 = vld1q_s16(b);
+
+        acc1Low  = vmlal_s16(acc1Low, vget_low_s16(v1), vget_low_s16(v2));
+        acc1High = vmlal_high_s16(acc1High, v1, v2);
+
+        a += 8;
+        b += 8;
+    }
+
+    bLength &= 7;
+
+    if (bLength >= 4)
+    {
+        int16x4_t v1 = vld1_s16(a);
+        int16x4_t v2 = vld1_s16(b);
+
+        acc1Low  = vmlal_s16(acc1Low, v1, v2);
+
+        a += 4;
+        b += 4;
+    }
+
+    int32x4_t accSumsNeon = vaddq_s32(acc1Low, acc1High);
+    accSumsNeon = vaddq_s32(accSumsNeon, acc2Low);
+    accSumsNeon = vaddq_s32(accSumsNeon, acc2High);
+
+    int out = vaddvq_s32(accSumsNeon);
+
+    bLength &= 3;
+#else
+    int32x4_t acc = vdupq_n_s32(0);
+    
+    const int n = bLength / 4;
+    
+    for (int i = 0; i < n; i++)
+    {
+        const int16x4_t h_vec = vld1_s16(a);
+        const int16x4_t x_vec = vld1_s16(b);
+        acc = vmlal_s16(acc, h_vec, x_vec);
+        a += 4;
+        b += 4;
+    }
+    
+    int out = vgetq_lane_s32(acc, 0) +
+              vgetq_lane_s32(acc, 1) +
+              vgetq_lane_s32(acc, 2) +
+              vgetq_lane_s32(acc, 3);
+    
+    bLength &= 3;
+#endif
 #else
     int out = 0;
 #endif
@@ -191,6 +321,11 @@ SincResampler::SincResampler(double clockFrequency, double samplingFrequency, do
     std::ostringstream o;
     o << firN << "," << firRES << "," << cyclesPerSampleD;
     const std::string firKey = o.str();
+
+#ifdef HAVE_CXX11
+    std::lock_guard<std::mutex> lock(FIR_CACHE_Lock);
+#endif
+
     fir_cache_t::iterator lb = FIR_CACHE.lower_bound(firKey);
 
     // The FIR computation is expensive and we set sampling parameters often, but
@@ -203,7 +338,11 @@ SincResampler::SincResampler(double clockFrequency, double samplingFrequency, do
     {
         // Allocate memory for FIR tables.
         matrix_t tempTable(firRES, firN);
+#ifdef HAVE_CXX11
+        firTable = &(FIR_CACHE.emplace_hint(lb, fir_cache_t::value_type(firKey, tempTable))->second);
+#else
         firTable = &(FIR_CACHE.insert(lb, fir_cache_t::value_type(firKey, tempTable))->second);
+#endif
 
         // The cutoff frequency is midway through the transition band, in effect the same as nyquist.
         const double wc = M_PI;
@@ -211,15 +350,20 @@ SincResampler::SincResampler(double clockFrequency, double samplingFrequency, do
         // Calculate the sinc tables.
         const double scale = 32768.0 * wc / cyclesPerSampleD / M_PI;
 
+        // we're not interested in the fractional part
+        // so use int division before converting to double
+        const int tmp = firN / 2;
+        const double firN_2 = static_cast<double>(tmp);
+
         for (int i = 0; i < firRES; i++)
         {
-            const double jPhase = (double) i / firRES + firN / 2;
+            const double jPhase = (double) i / firRES + firN_2;
 
             for (int j = 0; j < firN; j++)
             {
                 const double x = j - jPhase;
 
-                const double xt = x / (firN / 2);
+                const double xt = x / firN_2;
                 const double kaiserXt = fabs(xt) < 1. ? I0(beta * sqrt(1. - xt * xt)) / I0beta : 0.;
 
                 const double wt = wc * x / cyclesPerSampleD;

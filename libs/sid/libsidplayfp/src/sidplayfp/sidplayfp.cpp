@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -73,7 +73,7 @@ const SidInfo &sidplayfp::info() const
 
 uint_least32_t sidplayfp::time() const
 {
-    return sidplayer.time();
+    return sidplayer.timeMs() / 1000;
 }
 
 uint_least32_t sidplayfp::timeMs() const
@@ -106,12 +106,23 @@ bool sidplayfp::isPlaying() const
     return sidplayer.isPlaying();
 }
 
+void sidplayfp::setKernal(const uint8_t* rom) { sidplayer.setKernal(rom); }
+void sidplayfp::setBasic(const uint8_t* rom) { sidplayer.setBasic(rom); }
+void sidplayfp::setChargen(const uint8_t* rom) { sidplayer.setChargen(rom); }
+
 void sidplayfp::setRoms(const uint8_t* kernal, const uint8_t* basic, const uint8_t* character)
 {
-    sidplayer.setRoms(kernal, basic, character);
+    setKernal(kernal);
+    setBasic(basic);
+    setChargen(character);
 }
 
 uint_least16_t sidplayfp::getCia1TimerA() const
 {
     return sidplayer.getCia1TimerA();
+}
+
+bool sidplayfp::getSidStatus(unsigned int sidNum, uint8_t regs[32])
+{
+    return sidplayer.getSidStatus(sidNum, regs);
 }

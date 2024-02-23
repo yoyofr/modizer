@@ -124,17 +124,20 @@ enum MDZ_SETTINGS {
             
             
         MDZ_SETTINGS_FAMILY_SID,
-        //SID_Engine,
-        //SID_Interpolation,
-        //SID_Filter,
+#ifndef WEBSID
+        SID_Engine,
+        SID_Interpolation,
+        SID_Filter,
+#endif
         SID_ForceLoop,
         SID_CLOCK,
         SID_MODEL,
-        //SID_SecondSIDOn,
-    //SID_SecondSIDAddress,
-    //SID_ThirdSIDOn,
-    //SID_ThirdSIDAddress,
-    
+#ifndef WEBSID
+        SID_SecondSIDOn,
+        SID_SecondSIDAddress,
+        SID_ThirdSIDOn,
+        SID_ThirdSIDAddress,
+#endif
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
         TIM_Polyphony,

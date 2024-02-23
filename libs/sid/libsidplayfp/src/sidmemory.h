@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2012-2013 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2012-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,6 +101,17 @@ public:
      * @param tune the tune number
      */
     virtual void setBasicSubtune(uint8_t tune) =0;
+
+    /**
+     * Set the ROM banks.
+     *
+     * @param rom the ROM data
+     */
+    //@{
+    virtual void setKernal(const uint8_t* rom) =0;
+    virtual void setBasic(const uint8_t* rom) =0;
+    virtual void setChargen(const uint8_t* rom) =0;
+    //@}
 
 protected:
     ~sidmemory() {}

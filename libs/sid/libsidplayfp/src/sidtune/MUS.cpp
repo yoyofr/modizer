@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -215,7 +215,7 @@ void MUS::tryLoad(buffer_t& musBuf,
 
     {
         // All subtunes should be CIA
-        for (uint_least16_t i = 0; i < info->m_songs; i++)
+        for (unsigned int i = 0; i < info->m_songs; i++)
         {
             if (songSpeed[i] != SidTuneInfo::SPEED_CIA_1A)
             {

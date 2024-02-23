@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2015 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -32,7 +32,7 @@
 #    define SID_EXTERN __declspec(dllimport)
 #  endif
 #  ifndef SID_EXTERN     /* static linking or !_WIN32 */
-#    if defined(__GNUC__) && (__GNUC__ >= 4)
+#    if (defined(__GNUC__) && (__GNUC__ >= 4)) || defined(__clang__)
 #      define SID_EXTERN __attribute__ ((visibility("default")))
 #    else
 #      define SID_EXTERN
@@ -41,16 +41,20 @@
 #endif
 
 /* Deprecated attributes */
-#if defined(_MSCVER)
+#if __cplusplus >= 201402L
+# define SID_DEPRECATED [[deprecated]]
+#elif defined(_MSCVER)
 #  define SID_DEPRECATED __declspec(deprecated)
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #  define SID_DEPRECATED __attribute__ ((deprecated))
 #else
 #  define SID_DEPRECATED
 #endif
 
 /* Unused attributes */
-#if defined(__GNUC__)
+#if __cplusplus >= 201703L
+# define SID_UNUSED [[maybe_unused]]
+#elif defined(__GNUC__) || defined(__clang__)
 #  define SID_UNUSED __attribute__ ((unused))
 #else
 #  define SID_UNUSED

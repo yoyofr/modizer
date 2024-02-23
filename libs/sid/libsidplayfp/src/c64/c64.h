@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -80,6 +80,13 @@ public:
         ,PAL_N        ///< C64 Drean
         ,PAL_M        ///< C64 Brasil
     } model_t;
+
+    typedef enum
+    {
+        OLD = 0     ///< Old CIA
+        ,NEW        ///< New CIA
+        ,OLD_4485   ///< Old CIA, special batch labeled 4485
+    } cia_model_t;
 
 private:
     typedef std::map<int, ExtraSidBank*> sidBankMap_t;
@@ -186,6 +193,7 @@ private:
 
 public:
     c64();
+    ~c64();
 
     /**
      * Get C64's event scheduler
@@ -194,9 +202,10 @@ public:
      */
     EventScheduler *getEventScheduler() { return &eventScheduler; }
 
-    uint_least32_t getTime() const { return getTimeMs() / 1000; }
-
-    uint_least32_t getTimeMs() const { return static_cast<uint_least32_t>((eventScheduler.getTime(EVENT_CLOCK_PHI1) * 1000) / cpuFrequency); }
+    uint_least32_t getTimeMs() const
+    {
+        return static_cast<uint_least32_t>((eventScheduler.getTime(EVENT_CLOCK_PHI1) * 1000) / cpuFrequency);
+    }
 
     /**
      * Clock the emulation.
@@ -218,12 +227,7 @@ public:
     /**
      * Set the cia model.
      */
-    void setCiaModel(bool newModel);
-
-    void setRoms(const uint8_t* kernal, const uint8_t* basic, const uint8_t* character)
-    {
-        mmu.setRoms(kernal, basic, character);
-    }
+    void setCiaModel(cia_model_t model);
 
     /**
      * Get the CPU clock speed.

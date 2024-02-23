@@ -6,8 +6,6 @@
 //
 //
 
-#define WEBSID
-
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
 
@@ -545,7 +543,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
     settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=0;
     
-    settings[GLOB_Panning].label=(char*)"Panning";
+    settings[GLOB_Panning].label=(char*)"Panning (Stereo separation)";
     settings[GLOB_Panning].description=NULL;
     settings[GLOB_Panning].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_Panning].sub_family=0;

@@ -51,8 +51,7 @@ private:
 
 public:
     /**
-     * Events are used for delayed execution. Name is
-     * not used by code, but is useful for debugging.
+     * Events are used for delayed execution.
      *
      * @param name Descriptive string of the event.
      */
@@ -65,6 +64,12 @@ public:
      * invocations.
      */
     virtual void event() = 0;
+
+    /**
+     * Get the event name.
+     * Only for debugging purposes.
+     */
+    const char* name() const { return m_name; }
 
 protected:
     ~Event() {}

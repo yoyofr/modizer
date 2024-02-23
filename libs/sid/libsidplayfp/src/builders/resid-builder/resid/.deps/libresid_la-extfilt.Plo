@@ -1,0 +1,11 @@
+src/builders/resid-builder/resid/libresid_la-extfilt.lo: \
+  src/builders/resid-builder/resid/extfilt.cc \
+  src/builders/resid-builder/resid/extfilt.h \
+  src/builders/resid-builder/resid/resid-config.h \
+  src/builders/resid-builder/resid/siddefs.h
+
+src/builders/resid-builder/resid/extfilt.h:
+
+src/builders/resid-builder/resid/resid-config.h:
+
+src/builders/resid-builder/resid/siddefs.h:

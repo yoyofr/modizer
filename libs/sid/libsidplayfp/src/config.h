@@ -7,89 +7,23 @@
 /* Define for threaded driver */
 /* #undef EXSID_THREADED */
 
-/* Algorithm AES in gcrypt library */
-/* #undef GCRYPT_WITH_AES */
-
-/* Algorithm ARCFOUR in gcrypt library */
-/* #undef GCRYPT_WITH_ARCFOUR */
-
-/* Algorithm BLOWFISH in gcrypt library */
-/* #undef GCRYPT_WITH_BLOWFISH */
-
-/* Algorithm CAST5 in gcrypt library */
-/* #undef GCRYPT_WITH_CAST5 */
-
-/* Algorithm CRC in gcrypt library */
-/* #undef GCRYPT_WITH_CRC */
-
-/* Algorithm DES in gcrypt library */
-/* #undef GCRYPT_WITH_DES */
-
-/* Algorithm DSA in gcrypt library */
-/* #undef GCRYPT_WITH_DSA */
-
-/* Algorithm ELGAMAL in gcrypt library */
-/* #undef GCRYPT_WITH_ELGAMAL */
-
-/* Algorithm HAVAL in gcrypt library */
-/* #undef GCRYPT_WITH_HAVAL */
-
-/* Algorithm IDEA in gcrypt library */
-/* #undef GCRYPT_WITH_IDEA */
-
-/* Algorithm MD2 in gcrypt library */
-/* #undef GCRYPT_WITH_MD2 */
-
-/* Algorithm MD4 in gcrypt library */
-/* #undef GCRYPT_WITH_MD4 */
-
-/* Algorithm MD5 in gcrypt library */
-/* #undef GCRYPT_WITH_MD5 */
-
-/* Algorithm RFC2268 in gcrypt library */
-/* #undef GCRYPT_WITH_RFC2268 */
-
-/* Algorithm RMD160 in gcrypt library */
-/* #undef GCRYPT_WITH_RMD160 */
-
-/* Algorithm RSA in gcrypt library */
-/* #undef GCRYPT_WITH_RSA */
-
-/* Algorithm SERPENT in gcrypt library */
-/* #undef GCRYPT_WITH_SERPENT */
-
-/* Algorithm SHA0 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA0 */
-
-/* Algorithm SHA1 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA1 */
-
-/* Algorithm SHA224 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA224 */
-
-/* Algorithm SHA256 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA256 */
-
-/* Algorithm SHA384 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA384 */
-
-/* Algorithm SHA512 in gcrypt library */
-/* #undef GCRYPT_WITH_SHA512 */
-
-/* Algorithm TIGER in gcrypt library */
-/* #undef GCRYPT_WITH_TIGER */
-
-/* Algorithm TWOFISH in gcrypt library */
-/* #undef GCRYPT_WITH_TWOFISH */
-
-/* Algorithm WHIRLPOOL in gcrypt library */
-/* #undef GCRYPT_WITH_WHIRLPOOL */
+/* Define to 1 if you have the <arm_neon.h> header file. */
+/* #undef HAVE_ARM_NEON_H */
 
 /* define if the compiler supports basic C++11 syntax */
-#define HAVE_CXX11 1
+/* #undef HAVE_CXX11 */
+
+/* define if the compiler supports basic C++14 syntax */
+/* #undef HAVE_CXX14 */
+
+/* define if the compiler supports basic C++17 syntax */
+#define HAVE_CXX17 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
+
+/* Define to 1 if you have the <emmintrin.h> header file. */
+/* #undef HAVE_EMMINTRIN_H */
 
 /* Define to 1 if you have libexsid (-lexsid). */
 /* #undef HAVE_EXSID */
@@ -103,14 +37,11 @@
 /* Define to 1 if you have ftdi.h */
 /* #undef HAVE_FTDI */
 
-/* Gcrypt library is available */
-/* #undef HAVE_GCRYPT */
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 1
+/* Define to 1 if you have libgcrypt (-lgcrypt). */
+/* #undef HAVE_LIBGCRYPT */
 
 /* Define to 1 if you have the <mmintrin.h> header file. */
 /* #undef HAVE_MMINTRIN_H */
@@ -124,14 +55,14 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#define HAVE_STDIO_H 1
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strcasecmp' function. */
 #define HAVE_STRCASECMP 1
-
-/* Define to 1 if you have the `stricmp' function. */
-/* #undef HAVE_STRICMP */
 
 /* Define to 1 if you have the <strings.h> header file. */
 #define HAVE_STRINGS_H 1
@@ -142,9 +73,6 @@
 /* Define to 1 if you have the `strncasecmp' function. */
 #define HAVE_STRNCASECMP 1
 
-/* Define to 1 if you have the `strnicmp' function. */
-/* #undef HAVE_STRNICMP */
-
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
 
@@ -153,9 +81,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
-
-/* Define to 1 if you have the <UnitTest++/UnitTest++.h> header file. */
-/* #undef HAVE_UNITTEST___UNITTEST___H */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -170,7 +95,7 @@
 #define PACKAGE_NAME "libsidplayfp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libsidplayfp 2.1.1"
+#define PACKAGE_STRING "libsidplayfp 2.6.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libsidplayfp"
@@ -179,7 +104,7 @@
 #define PACKAGE_URL "https://github.com/libsidplayfp/libsidplayfp/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.1.1"
+#define PACKAGE_VERSION "2.6.0"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -194,11 +119,13 @@
 /* The size of `short', as computed by sizeof. */
 #define SIZEOF_SHORT 2
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "2.1.1"
+#define VERSION "2.6.0"
 
 /* Path to VICE testsuite. */
 /* #undef VICE_TESTSUITE */

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2015 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -91,7 +91,23 @@ public:  // ----------------------------------------------------------------
      * @return the sid tune
      * @throw loadError
      */
-    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash, LoaderFunc loader);
+    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash);
+
+    /**
+     * Load a sidtune from a file, using a file access callback.
+     *
+     * Uses the same call methodology as the above function, only
+     * a callback is supplied, which will be used to read every
+     * file this function accesses.
+     *
+     * @param loader
+     * @param fileName
+     * @param fileNameExt
+     * @param separatorIsSlash
+     * @return the sid tune
+     * @throw loadError
+     */
+    static SidTuneBase* load(LoaderFunc loader, const char* fileName, const char **fileNameExt, bool separatorIsSlash);
 
     /**
      * Load a single-file sidtune from a memory buffer.
@@ -237,7 +253,8 @@ private:  // ---------------------------------------------------------------
 #if !defined(SIDTUNE_NO_STDIN_LOADER)
     static SidTuneBase* getFromStdIn();
 #endif
-    static SidTuneBase* getFromFiles(const char* name, const char **fileNameExtensions, bool separatorIsSlash, LoaderFunc loader);
+    static SidTuneBase* getFromFiles(const char* name, const char **fileNameExtensions, bool separatorIsSlash);
+    static SidTuneBase* getFromFiles(LoaderFunc loader, const char* name, const char **fileNameExtensions, bool separatorIsSlash);
 
     /**
      * Try to retrieve single-file sidtune from specified buffer.

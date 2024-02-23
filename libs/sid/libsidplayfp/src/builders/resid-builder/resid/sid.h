@@ -22,6 +22,17 @@
 #ifndef RESID_SID_H
 #define RESID_SID_H
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" int sid_v4;
+
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+extern char mSIDSeekInProgress;
+extern int m_voice_current_sample;
+extern void* m_sid_chipId[MAXSID_CHIPS];
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #include "resid-config.h"
 #include "voice.h"
@@ -35,6 +46,12 @@
 
 namespace reSID
 {
+
+//TODO:  MODIZER changes start / YOYOFR
+static int sid_v1;
+static int sid_v2;
+static int sid_v3;
+//YOYOFR
 
 class SID
 {
@@ -51,6 +68,7 @@ public:
   double sample_freq, double pass_freq = -1,
   double filter_scale = 0.97);
   void adjust_sampling_frequency(double sample_freq);
+  void enable_raw_debug_output(bool enable);
 
   void clock();
   void clock(cycle_count delta_t);
@@ -100,6 +118,8 @@ public:
 
   // 16-bit output (AUDIO OUT).
   int output();
+
+  void debugoutput(void);
 
  protected:
   static double I0(double x);
@@ -166,6 +186,8 @@ public:
 
   // FIR_RES filter tables (FIR_N*FIR_RES).
   short* fir;
+
+  bool raw_debug_output; // FIXME: should be private?
 };
 
 
@@ -194,8 +216,7 @@ RESID_INLINE
 void SID::clock()
 {
   int i;
-    
-    
+
   // Clock amplitude modulators.
   for (i = 0; i < 3; i++) {
     voice[i].envelope.clock();
@@ -216,12 +237,20 @@ void SID::clock()
     voice[i].wave.set_waveform_output();
   }
 
-  // Clock filter.
-  filter.clock(voice[0].output(), voice[1].output(), voice[2].output());
+  
+    //YOYOFR
+        sid_v1=voice[0].output();
+        sid_v2=voice[1].output();
+        sid_v3=voice[2].output();
+    // Clock filter.
+    //filter.clock(voice[0].output(), voice[1].output(), voice[2].output());
+      filter.clock(sid_v1,sid_v2,sid_v3);
+    //YOYOFR
+
 
   // Clock external filter.
   extfilt.clock(filter.output());
-    
+
   // Pipelined writes on the MOS8580.
   if (unlikely(write_pipeline)) {
     write();
@@ -230,6 +259,10 @@ void SID::clock()
   // Age bus value.
   if (unlikely(!--bus_value_ttl)) {
     bus_value = 0;
+  }
+
+  if (unlikely(raw_debug_output)) {
+    debugoutput();
   }
 }
 

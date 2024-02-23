@@ -1,0 +1,14 @@
+src/builders/resid-builder/resid/libresid_la-envelope.lo: \
+  src/builders/resid-builder/resid/envelope.cc \
+  src/builders/resid-builder/resid/envelope.h \
+  src/builders/resid-builder/resid/resid-config.h \
+  src/builders/resid-builder/resid/siddefs.h \
+  src/builders/resid-builder/resid/dac.h
+
+src/builders/resid-builder/resid/envelope.h:
+
+src/builders/resid-builder/resid/resid-config.h:
+
+src/builders/resid-builder/resid/siddefs.h:
+
+src/builders/resid-builder/resid/dac.h:

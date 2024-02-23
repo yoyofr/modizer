@@ -31,7 +31,7 @@
 namespace libsidplayfp
 {
 
-class MOS6526;
+class MOS652X;
 
 /**
  * TOD implementation taken from Vice.
@@ -52,7 +52,7 @@ private:
     EventScheduler &eventScheduler;
 
     /// Pointer to the MOS6526 which this Timer belongs to.
-    MOS6526 &parent;
+    MOS652X &parent;
 
     const uint8_t &cra;
     const uint8_t &crb;
@@ -77,7 +77,7 @@ private:
     void event();
 
 public:
-    Tod(EventScheduler &scheduler, MOS6526 &parent, uint8_t regs[0x10]) :
+    Tod(EventScheduler &scheduler, MOS652X &parent, uint8_t regs[0x10]) :
         Event("CIA Time of Day"),
         eventScheduler(scheduler),
         parent(parent),

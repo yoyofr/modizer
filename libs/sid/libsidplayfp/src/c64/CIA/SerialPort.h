@@ -31,13 +31,13 @@
 namespace libsidplayfp
 {
 
-class MOS6526;
+class MOS652X;
 
 class SerialPort : private Event
 {
 private:
     /// Pointer to the MOS6526 which this Serial Port belongs to.
-    MOS6526 &parent;
+    MOS652X &parent;
 
     /// Event context.
     EventScheduler &eventScheduler;
@@ -71,7 +71,7 @@ private:
     void syncCntHistory();
 
 public:
-    explicit SerialPort(EventScheduler &scheduler, MOS6526 &parent) :
+    explicit SerialPort(EventScheduler &scheduler, MOS652X &parent) :
         Event("Serial Port interrupt"),
         parent(parent),
         eventScheduler(scheduler),

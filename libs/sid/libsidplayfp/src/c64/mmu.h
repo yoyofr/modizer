@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -29,6 +29,7 @@
 #include "sidmemory.h"
 #include "EventScheduler.h"
 
+#include "Banks/pla.h"
 #include "Banks/SystemRAMBank.h"
 #include "Banks/SystemROMBanks.h"
 #include "Banks/ZeroRAMBank.h"
@@ -78,9 +79,12 @@ private:
     /// RAM bank 0
     ZeroRAMBank zeroRAMBank;
 
+    /// random seed
+    mutable unsigned int seed;
+
 private:
     void setCpuPort(uint8_t state) override;
-    uint8_t getLastReadByte() const override { return 0; }
+    uint8_t getLastReadByte() const override;
     event_clock_t getPhi2Time() const override { return eventScheduler.getTime(EVENT_CLOCK_PHI2); }
 
     void updateMappingPHI2();
@@ -90,12 +94,10 @@ public:
 
     void reset();
 
-    void setRoms(const uint8_t* kernal, const uint8_t* basic, const uint8_t* character)
-    {
-        kernalRomBank.set(kernal);
-        basicRomBank.set(basic);
-        characterRomBank.set(character);
-    }
+    // ROM banks methods
+    void setKernal(const uint8_t* rom) override { kernalRomBank.set(rom); }
+    void setBasic(const uint8_t* rom) override { basicRomBank.set(rom); }
+    void setChargen(const uint8_t* rom) override { characterRomBank.set(rom); }
 
     // RAM access methods
     uint8_t readMemByte(uint_least16_t addr) override { return ramBank.peek(addr); }

@@ -55,18 +55,9 @@ unsigned int HardSID::sid = 0;
 
 const char* HardSID::getCredits()
 {
-    static std::string credits;
-
-    if (credits.empty())
-    {
-        // Setup credits
-        std::ostringstream ss;
-        ss << "HardSID V" << VERSION << " Engine:\n";
-        ss << "\t(C) 2001-2002 Jarno Paanenen\n";
-        credits = ss.str();
-    }
-
-    return credits.c_str();
+    return
+        "HardSID V" VERSION " Engine:\n"
+        "\t(C) 2001-2002 Jarno Paanenen\n";
 }
 
 HardSID::HardSID (sidbuilder *builder) :

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- *  Copyright 2013-2014 Leandro Nini
+ *  Copyright 2013-2023 Leandro Nini
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,12 +25,10 @@
 #  include "config.h"
 #endif
 
-#if defined(HAVE_STRCASECMP) || defined (HAVE_STRNCASECMP)
-#  include <strings.h>
-#endif
-
-#if defined(HAVE_STRICMP) || defined (HAVE_STRNICMP)
+#if defined(_WIN32)
 #  include <string.h>
+#elif defined(HAVE_STRCASECMP) || defined (HAVE_STRNCASECMP)
+#  include <strings.h>
 #endif
 
 #include <cctype>
@@ -63,10 +61,10 @@ namespace stringutils
      */
     inline bool equal(const char* s1, const char* s2)
     {
-#if defined(HAVE_STRCASECMP)
+#if defined(_WIN32)
+        return _stricmp(s1, s2) == 0;
+#elif defined(HAVE_STRCASECMP)
         return strcasecmp(s1, s2) == 0;
-#elif defined(HAVE_STRICMP)
-        return stricmp(s1, s2) == 0;
 #else
         if (s1 == s2)
             return true;
@@ -93,10 +91,10 @@ namespace stringutils
      */
     inline bool equal(const char* s1, const char* s2, size_t n)
     {
-#if defined(HAVE_STRNCASECMP)
+#if defined(_WIN32)
+        return _strnicmp(s1, s2, n) == 0;
+#elif defined(HAVE_STRNCASECMP)
         return strncasecmp(s1, s2, n) == 0;
-#elif defined(HAVE_STRNICMP)
-        return strnicmp(s1, s2, n) == 0;
 #else
         if (s1 == s2 || n == 0)
             return true;

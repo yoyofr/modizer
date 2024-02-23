@@ -35,8 +35,6 @@ namespace libsidplayfp
  * IO region handler. 4k region, 16 chips, 256b banks.
  *
  * Located at $D000-$DFFF
- *
- * @author Antti Lankila
  */
 class IOBank final : public Bank
 {

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2017 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2009-2014 VICE Project
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2001 Simon White
@@ -59,7 +59,7 @@ const char *MOS656X::credits()
             "\tCopyright (C) 2001 Simon White\n"
             "\tCopyright (C) 2007-2010 Antti Lankila\n"
             "\tCopyright (C) 2009-2014 VICE Project\n"
-            "\tCopyright (C) 2011-2017 Leandro Nini\n";
+            "\tCopyright (C) 2011-2021 Leandro Nini\n";
 }
 
 
@@ -68,7 +68,8 @@ MOS656X::MOS656X(EventScheduler &scheduler) :
     eventScheduler(scheduler),
     sprites(regs),
     badLineStateChangeEvent("Update AEC signal", *this, &MOS656X::badLineStateChange),
-    rasterYIRQEdgeDetectorEvent("RasterY changed", *this, &MOS656X::rasterYIRQEdgeDetector)
+    rasterYIRQEdgeDetectorEvent("RasterY changed", *this, &MOS656X::rasterYIRQEdgeDetector),
+    lightpenTriggerEvent("Trigger lightpen", *this, &MOS656X::lightpenTrigger)
 {
     chip(MOS6569);
 }
@@ -121,7 +122,7 @@ uint8_t MOS656X::read(uint_least8_t addr)
         return (regs[addr] & 0x7f) | ((rasterY & 0x100) >> 1);
     case 0x12:
         // Raster counter
-        return rasterY & 0xFF;
+        return rasterY & 0xff;
     case 0x13:
         return lp.getX();
     case 0x14:
@@ -315,7 +316,7 @@ event_clock_t MOS656X::clockPAL()
     case 6:
         endDma<5>();
 
-        delay = sprites.isDma(0xc0) ? 2 : 4;
+        delay = sprites.isDma(0xc0) ? 2 : 5;
         break;
 
     case 7:
@@ -423,7 +424,7 @@ event_clock_t MOS656X::clockNTSC()
         endDma<3>();
 
         // No sprites before next compulsory cycle
-        if (!sprites.isDma(0xf8))
+        if (!sprites.isDma(0xf0))
             delay = 10;
         break;
 
@@ -442,7 +443,7 @@ event_clock_t MOS656X::clockNTSC()
     case 5:
         endDma<5>();
 
-        delay = sprites.isDma(0xc0) ? 2 : 4;
+        delay = sprites.isDma(0xc0) ? 2 : 6;
         break;
 
     case 6:
@@ -486,7 +487,11 @@ event_clock_t MOS656X::clockNTSC()
     case 15:
         sprites.updateMcBase();
 
-        delay = 40;
+        delay = 39;
+        break;
+
+    case 54:
+        setBA(true);
         break;
 
     case 55:
@@ -537,7 +542,7 @@ event_clock_t MOS656X::clockNTSC()
         break;
 
     default:
-        delay = 55 - lineCycle;
+        delay = 54 - lineCycle;
     }
 
     return delay;
@@ -582,7 +587,7 @@ event_clock_t MOS656X::clockOldNTSC()
     case 6:
         endDma<5>();
 
-        delay = sprites.isDma(0xc0) ? 2 : 4;
+        delay = sprites.isDma(0xc0) ? 2 : 5;
         break;
 
     case 7:
@@ -621,7 +626,11 @@ event_clock_t MOS656X::clockOldNTSC()
     case 15:
         sprites.updateMcBase();
 
-        delay = 40;
+        delay = 39;
+        break;
+
+    case 54:
+        setBA(true);
         break;
 
     case 55:
@@ -640,7 +649,7 @@ event_clock_t MOS656X::clockOldNTSC()
         startDma<1>();
 
         // No sprites before next compulsory cycle
-        delay = (!sprites.isDma(0x1f)) ? 7 : 2;
+        delay = sprites.isDma(0x1f) ? 2 : 7;
         break;
 
     case 58:
@@ -667,7 +676,7 @@ event_clock_t MOS656X::clockOldNTSC()
         break;
 
     default:
-        delay = 55 - lineCycle;
+        delay = 54 - lineCycle;
     }
 
     return delay;
@@ -675,15 +684,9 @@ event_clock_t MOS656X::clockOldNTSC()
 
 void MOS656X::triggerLightpen()
 {
-    // Synchronise simulation
-    sync();
-
     lpAsserted = true;
 
-    if (lp.trigger(lineCycle, rasterY))
-    {
-        activateIRQFlag(IRQ_LIGHTPEN);
-    }
+    eventScheduler.schedule(lightpenTriggerEvent, 1);
 }
 
 void MOS656X::clearLightpen()

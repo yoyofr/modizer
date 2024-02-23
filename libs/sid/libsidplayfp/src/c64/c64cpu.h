@@ -21,6 +21,10 @@
 #ifndef C64CPU_H
 #define C64CPU_H
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include "c64/c64env.h"
 #include "CPU/mos6510.h"
 
@@ -32,10 +36,6 @@
 //#define PRINTSCREENCODES
 
 #include "sidcxx11.h"
-
-#ifdef HAVE_CONFIG_H
-#  include "config.h"
-#endif
 
 namespace libsidplayfp
 {

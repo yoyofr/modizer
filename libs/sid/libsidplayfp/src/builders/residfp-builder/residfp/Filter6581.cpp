@@ -24,7 +24,7 @@
 
 #include "Filter6581.h"
 
-#include "Integrator.h"
+#include "Integrator6581.h"
 
 namespace reSIDfp
 {
@@ -43,7 +43,7 @@ void Filter6581::updatedCenterFrequency()
 
 void Filter6581::updatedMixing()
 {
-    currentGain = gain[vol];
+    currentGain = gain_vol[vol];
 
     unsigned int ni = 0;
     unsigned int no = 0;
@@ -68,7 +68,7 @@ void Filter6581::updatedMixing()
 void Filter6581::setFilterCurve(double curvePosition)
 {
     delete [] f0_dac;
-    f0_dac = FilterModelConfig::getInstance()->getDAC(curvePosition);
+    f0_dac = FilterModelConfig6581::getInstance()->getDAC(curvePosition);
     updatedCenterFrequency();
 }
 

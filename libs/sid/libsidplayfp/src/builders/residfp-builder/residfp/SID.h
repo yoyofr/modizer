@@ -47,10 +47,10 @@ class SIDError
 {
 private:
     const char* message;
-
+    
 public:
     SIDError(const char* msg) :
-        message(msg) {}
+    message(msg) {}
     const char* getMessage() const { return message; }
 };
 
@@ -62,49 +62,66 @@ class SID
 private:
     /// Currently active filter
     Filter* filter;
-
+    
     /// Filter used, if model is set to 6581
     std::unique_ptr<Filter6581> const filter6581;
-
+    
     /// Filter used, if model is set to 8580
     std::unique_ptr<Filter8580> const filter8580;
-
+    
     /**
      * External filter that provides high-pass and low-pass filtering
      * to adjust sound tone slightly.
      */
     std::unique_ptr<ExternalFilter> const externalFilter;
-
+    
     /// Resampler used by audio generation code.
     std::unique_ptr<Resampler> resampler;
-
+    
     /// Paddle X register support
     std::unique_ptr<Potentiometer> const potX;
-
+    
     /// Paddle Y register support
     std::unique_ptr<Potentiometer> const potY;
-
+    
     /// SID voices
     std::unique_ptr<Voice> voice[3];
-
+    
+    /// Used to amplify the output by x/2 to get an adequate playback volume
+    int scaleFactor;
+    
     /// Time to live for the last written value
     int busValueTtl;
-
+    
     /// Current chip model's bus value TTL
     int modelTTL;
-
+    
     /// Time until #voiceSync must be run.
     unsigned int nextVoiceSync;
-
+    
     /// Currently active chip model.
     ChipModel model;
-
+    
     /// Last written value
     unsigned char busValue;
-
+    
     /// Flags for muted channels
     bool muted[3];
-
+    
+    /**
+     * Emulated nonlinearity of the envelope DAC.
+     *
+     * @See Dac
+     */
+    float envDAC[256];
+    
+    /**
+     * Emulated nonlinearity of the oscillator DAC.
+     *
+     * @See Dac
+     */
+    float oscDAC[4096];
+    
 private:
     /**
      * Age the bus value and zero it if it's TTL has expired.
@@ -112,14 +129,14 @@ private:
      * @param n the number of cycles
      */
     void ageBusValue(unsigned int n);
-
+    
     /**
      * Get output sample.
      *
      * @return the output sample
      */
     int output() const;
-
+    
     /**
      * Calculate the numebr of cycles according to current parameters
      * that it takes to reach sync.
@@ -127,11 +144,11 @@ private:
      * @param sync whether to do the actual voice synchronization
      */
     void voiceSync(bool sync);
-
+    
 public:
     SID();
     ~SID();
-
+    
     /**
      * Set chip model.
      *
@@ -139,17 +156,17 @@ public:
      * @throw SIDError
      */
     void setChipModel(ChipModel model);
-
+    
     /**
      * Get currently emulated chip model.
      */
     ChipModel getChipModel() const { return model; }
-
+    
     /**
      * SID reset.
      */
     void reset();
-
+    
     /**
      * 16-bit input (EXT IN). Write 16-bit sample to audio input. NB! The caller
      * is responsible for keeping the value within 16 bits. Note that to mix in
@@ -159,7 +176,7 @@ public:
      * @param value input level to set
      */
     void input(int value);
-
+    
     /**
      * Read registers.
      *
@@ -181,7 +198,7 @@ public:
      * @return value read from chip
      */
     unsigned char read(int offset);
-
+    
     /**
      * Write registers.
      *
@@ -189,7 +206,7 @@ public:
      * @param value value to write
      */
     void write(int offset, unsigned char value);
-
+    
     /**
      * SID voice muting.
      *
@@ -197,7 +214,7 @@ public:
      * @param enable is muted?
      */
     void mute(int channel, bool enable) { muted[channel] = enable; }
-
+    
     /**
      * Setting of SID sampling parameters.
      *
@@ -224,7 +241,7 @@ public:
      * @throw SIDError
      */
     void setSamplingParameters(double clockFrequency, SamplingMethod method, double samplingFrequency, double highestAccurateFrequency);
-
+    
     /**
      * Clock SID forward using chosen output sampling algorithm.
      *
@@ -233,7 +250,7 @@ public:
      * @return number of samples produced
      */
     int clock(unsigned int cycles, short* buf);
-
+    
     /**
      * Clock SID forward with no audio production.
      *
@@ -245,21 +262,21 @@ public:
      * @param cycles c64 clocks to clock.
      */
     void clockSilent(unsigned int cycles);
-
+    
     /**
      * Set filter curve parameter for 6581 model.
      *
      * @see Filter6581::setFilterCurve(double)
      */
     void setFilter6581Curve(double filterCurve);
-
+    
     /**
      * Set filter curve parameter for 8580 model.
      *
      * @see Filter8580::setFilterCurve(double)
      */
     void setFilter8580Curve(double filterCurve);
-
+    
     /**
      * Enable filter emulation.
      *
@@ -269,8 +286,6 @@ public:
 };
 
 } // namespace reSIDfp
-
-
 
 #if RESID_INLINING || defined(SID_CPP)
 
@@ -290,7 +305,7 @@ void SID::ageBusValue(unsigned int n)
     if (likely(busValueTtl != 0))
     {
         busValueTtl -= n;
-
+        
         if (unlikely(busValueTtl <= 0))
         {
             busValue = 0;
@@ -299,27 +314,36 @@ void SID::ageBusValue(unsigned int n)
     }
 }
 
-static int v1;
-static int v2;
-static int v3;
+//TODO:  MODIZER changes start / YOYOFR
+static int sid_v1;
+static int sid_v2;
+static int sid_v3;
+extern "C" int sid_v4;
+
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+extern char mSIDSeekInProgress;
+extern int m_voice_current_sample;
+extern void* m_sid_chipId[MAXSID_CHIPS];
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 
 RESID_INLINE
 int SID::output() const
 {
-    /*const int*/ v1 = voice[0]->output(voice[2]->wave());
-    /*const int*/ v2 = voice[1]->output(voice[0]->wave());
-    /*const int*/ v3 = voice[2]->output(voice[1]->wave());
-
-    return externalFilter->clock(filter->clock(v1, v2, v3));
+    //TODO:  MODIZER changes start / YOYOFR
+    /*const int*/ sid_v1 = voice[0]->output(voice[2]->wave());
+    /*const int*/ sid_v2 = voice[1]->output(voice[0]->wave());
+    /*const int*/ sid_v3 = voice[2]->output(voice[1]->wave());
+    
+    //const int input = (scaleFactor * static_cast<unsigned int>(filter->clock(v1, v2, v3))) / 2;
+    const int input = (scaleFactor * static_cast<unsigned int>(filter->clock(sid_v1, sid_v2, sid_v3))) / 2;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    return externalFilter->clock(input);
 }
 
-
-//TODO:  MODIZER changes start / YOYOFR
-extern "C" {
-#include "../../../../src/ModizerVoicesData.h"
-extern char mSIDSeekInProgress;
-}
-//TODO:  MODIZER changes end / YOYOFR
 
 RESID_INLINE
 int SID::clock(unsigned int cycles, short* buf)
@@ -327,19 +351,25 @@ int SID::clock(unsigned int cycles, short* buf)
     ageBusValue(cycles);
     int s = 0;
     
-    //printf("cycles: %d\n",cycles);
-    
     //TODO:  MODIZER changes start / YOYOFR
-    //check current active sid
-    int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
+    int sid_idx=0;//chipId*4;
+    while (sid_idx<MAXSID_CHIPS) {
+        if (m_sid_chipId[sid_idx]==NULL) {
+            m_sid_chipId[sid_idx]=(void*)this;
+            break;
+        }
+        if (m_sid_chipId[sid_idx]==(void*)this) break;
+        sid_idx++;
+    }
     int smplIncr=1024;//44100*1024/985248.6111f+1;
     bool all_muted=muted[0]&muted[1]&muted[2];
+    sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
     while (cycles != 0)
     {
         unsigned int delta_t = std::min(nextVoiceSync, cycles);
-
+        
         if (likely(delta_t > 0))
         {
             for (unsigned int i = 0; i < delta_t; i++)
@@ -348,57 +378,63 @@ int SID::clock(unsigned int cycles, short* buf)
                 voice[0]->wave()->clock();
                 voice[1]->wave()->clock();
                 voice[2]->wave()->clock();
-
+                
                 // clock envelope generators
                 voice[0]->envelope()->clock();
                 voice[1]->envelope()->clock();
                 voice[2]->envelope()->clock();
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                /*if (unlikely(resampler->input(output())))
+                 {
+                 buf[s++] = resampler->getOutput();
+                 }*/
                 if (!mSIDSeekInProgress) {
                     if (!all_muted && (unlikely(resampler->input(output()))))
                     {
-                        //if (m_voice_current_sample<44100/10) buf[s++]=0;
-                        //else
                         buf[s++] = resampler->getOutput();
                         
-                        //TODO:  MODIZER changes start / YOYOFR
-                        int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
+                        m_voice_current_sample++;
                         
-                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>10]=LIMIT8((v1>>14));
-                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>10]=LIMIT8((v2>>14));
-                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>10]=LIMIT8((v3>>14));
+                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>10]=LIMIT8((sid_v1>>13));
+                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>10]=LIMIT8((sid_v2>>13));
+                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>10]=LIMIT8((sid_v3>>13));
+                        m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>10]=LIMIT8((sid_v4>>7));
                         
-                        //TODO:  MODIZER changes end / YOYOFR
-                        //TODO:  MODIZER changes start / YOYOFR
-                        m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
-                        if ((m_voice_current_ptr[sid_idx+0]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
-                        if ((m_voice_current_ptr[sid_idx+1]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
-                        if ((m_voice_current_ptr[sid_idx+2]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        for (int j=0;j<4;j++) {
+                            m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                            if ((m_voice_current_ptr[sid_idx+j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;
+                        }
                         //TODO:  MODIZER changes end / YOYOFR
                     }
                 } else {
                     if (unlikely(resampler->input(0))) {
                         //s++;
                         buf[s++]=0;
+                        
                         //TODO:  MODIZER changes start / YOYOFR
-                        int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
-                        m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
-                        if ((m_voice_current_ptr[sid_idx+0]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
-                        if ((m_voice_current_ptr[sid_idx+1]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
-                        if ((m_voice_current_ptr[sid_idx+2]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
-                        //TODO:  MODIZER changes end / YOYOFR
+                        m_voice_current_sample++;
+                        for (int j=0;j<4;j++) {
+                            m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>10]=0;
+                            
+                            m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                            if ((m_voice_current_ptr[sid_idx+j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;
+                        }
                     }
                 }
             }
+            //TODO:  MODIZER changes end / YOYOFR
+            
             cycles -= delta_t;
             nextVoiceSync -= delta_t;
         }
-
+        
         if (unlikely(nextVoiceSync == 0))
         {
             voiceSync(true);
         }
     }
-
+    
     return s;
 }
 

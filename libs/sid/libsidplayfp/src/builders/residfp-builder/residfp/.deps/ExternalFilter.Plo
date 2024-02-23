@@ -1,1 +1,8 @@
-# dummy
+src/builders/residfp-builder/residfp/ExternalFilter.lo: \
+  src/builders/residfp-builder/residfp/ExternalFilter.cpp \
+  src/builders/residfp-builder/residfp/ExternalFilter.h \
+  src/builders/residfp-builder/residfp/siddefs-fp.h
+
+src/builders/residfp-builder/residfp/ExternalFilter.h:
+
+src/builders/residfp-builder/residfp/siddefs-fp.h:

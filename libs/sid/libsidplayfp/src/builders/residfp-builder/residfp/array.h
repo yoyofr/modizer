@@ -21,13 +21,26 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
+#ifdef HAVE_CXX11
+#  include <atomic>
+#endif
+
 /**
  * Counter.
  */
 class counter
 {
 private:
-    unsigned int c;
+#ifndef HAVE_CXX11
+    volatile unsigned int c;
+#else
+    std::atomic<unsigned int> c;
+#endif
 
 public:
     counter() : c(1) {}

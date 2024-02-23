@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2018 VICE Project
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004,2010 Dag Lem <resid@nimrod.no>
@@ -60,7 +60,7 @@ private:
     unsigned int rate;
 
     /**
-     * During release mode, the SID arpproximates envelope decay via piecewise
+     * During release mode, the SID approximates envelope decay via piecewise
      * linear decay rate.
      */
     unsigned int exponential_counter;
@@ -110,13 +110,6 @@ private:
     /// The ENV3 value, sampled at the first phase of the clock
     unsigned char env3;
 
-    /**
-     * Emulated nonlinearity of the envelope DAC.
-     *
-     * @See Dac
-     */
-    float dac[256];
-
 private:
     static const unsigned int adsrtable[16];
 
@@ -127,25 +120,14 @@ private:
 
 public:
     /**
-     * Set chip model.
-     * This determines the type of the analog DAC emulation:
-     * 8580 is perfectly linear while 6581 is nonlinear.
-     *
-     * @param chipModel
-     */
-    void setChipModel(ChipModel chipModel);
-
-    /**
      * SID clocking.
      */
     void clock();
 
     /**
-     * Get the Envelope Generator output.
-     * DAC imperfections are emulated by using envelope_counter as an index
-     * into a DAC lookup table. readENV() uses envelope_counter directly.
+     * Get the Envelope Generator digital output.
      */
-    float output() const { return dac[envelope_counter]; }
+    unsigned int output() const { return envelope_counter; }
 
     /**
      * Constructor.
@@ -181,7 +163,7 @@ public:
      * Write control register.
      *
      * @param control
-     *            control register
+     *            control register value
      */
     void writeCONTROL_REG(unsigned char control);
 
@@ -204,7 +186,7 @@ public:
     /**
      * Return the envelope current value.
      *
-     * @return envelope counter
+     * @return envelope counter value
      */
     unsigned char readENV() const { return env3; }
 };
@@ -404,6 +386,7 @@ void EnvelopeGenerator::set_exponential_counter()
     switch (envelope_counter)
     {
     case 0xff:
+    case 0x00:
         new_exponential_counter_period = 1;
         break;
 
@@ -425,10 +408,6 @@ void EnvelopeGenerator::set_exponential_counter()
 
     case 0x06:
         new_exponential_counter_period = 30;
-        break;
-
-    case 0x00:
-        new_exponential_counter_period = 1;
         break;
     }
 }

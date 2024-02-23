@@ -9,7 +9,7 @@
 
 //#define LOAD_PROFILE
 
-#define WEBSID
+//#define WEBSID
 
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
@@ -94,6 +94,8 @@
 //TODO / IMPROVE: Hardcoding -> computed on the fly
 #define MIDIFX_OFS_60FPS 44 //44 frames at 60fps to match duration of 32 buffers of 1024 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 22 //22 frames at 30fps to match duration of 32 buffers of 1024 samples at 44.1Khz
+
+#define MAXSID_CHIPS 16
 
 #define SOUND_MAXVOICES_BUFFER_FX 64
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2015 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -36,7 +36,8 @@ MMU::MMU(EventScheduler &scheduler, IOBank* ioBank) :
     hiram(false),
     charen(false),
     ioBank(ioBank),
-    zeroRAMBank(*this, ramBank)
+    zeroRAMBank(*this, ramBank),
+    seed(3686734)
 {
     cpuReadMap[0] = &zeroRAMBank;
     cpuWriteMap[0] = &zeroRAMBank;
@@ -89,4 +90,21 @@ void MMU::reset()
     updateMappingPHI2();
 }
 
+// LCG
+unsigned int random(unsigned int val)
+{
+    return val * 1664525 + 1013904223;
+}
+
+/*
+ * This should actually return last byte read from VIC
+ * but since the VIC emulation currently does not fetch
+ * any value from memory we return a pseudo random value.
+ */
+uint8_t MMU::getLastReadByte() const
+{
+    seed = random(seed);
+    return seed;
+}
+    
 }

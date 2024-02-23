@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004,2010 Dag Lem <resid@nimrod.no>
  *
@@ -22,6 +22,11 @@
 
 #ifndef FILTER8580_H
 #define FILTER8580_H
+
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" int sid_v4;
+//TODO:  MODIZER changes start / YOYOFR
+
 
 #include "siddefs-fp.h"
 
@@ -285,55 +290,55 @@ private:
     unsigned short** summer;
     unsigned short** gain_res;
     unsigned short** gain_vol;
-
+    
     const int voiceScaleS11;
     const int voiceDC;
-
+    
     double cp;
-
+    
     /// VCR + associated capacitor connected to highpass output.
     std::unique_ptr<Integrator8580> const hpIntegrator;
-
+    
     /// VCR + associated capacitor connected to bandpass output.
     std::unique_ptr<Integrator8580> const bpIntegrator;
-
+    
 protected:
     /**
      * Set filter cutoff frequency.
      */
     void updatedCenterFrequency() override;
-
+    
     /**
      * Set filter resonance.
-	 *
+     *
      * @param res the new resonance value
      */
     void updateResonance(unsigned char res) override { currentResonance = gain_res[res]; }
-
+    
     void updatedMixing() override;
-
+    
 public:
     Filter8580() :
-        mixer(FilterModelConfig8580::getInstance()->getMixer()),
-        summer(FilterModelConfig8580::getInstance()->getSummer()),
-        gain_res(FilterModelConfig8580::getInstance()->getGainRes()),
-        gain_vol(FilterModelConfig8580::getInstance()->getGainVol()),
-        voiceScaleS11(FilterModelConfig8580::getInstance()->getVoiceScaleS11()),
-        voiceDC(FilterModelConfig8580::getInstance()->getVoiceDC()),
-        cp(0.5),
-        hpIntegrator(FilterModelConfig8580::getInstance()->buildIntegrator()),
-        bpIntegrator(FilterModelConfig8580::getInstance()->buildIntegrator())
+    mixer(FilterModelConfig8580::getInstance()->getMixer()),
+    summer(FilterModelConfig8580::getInstance()->getSummer()),
+    gain_res(FilterModelConfig8580::getInstance()->getGainRes()),
+    gain_vol(FilterModelConfig8580::getInstance()->getGainVol()),
+    voiceScaleS11(FilterModelConfig8580::getInstance()->getVoiceScaleS11()),
+    voiceDC(FilterModelConfig8580::getInstance()->getNormalizedVoiceDC()),
+    cp(0.5),
+    hpIntegrator(FilterModelConfig8580::getInstance()->buildIntegrator()),
+    bpIntegrator(FilterModelConfig8580::getInstance()->buildIntegrator())
     {
         setFilterCurve(cp);
         input(0);
     }
-
+    
     ~Filter8580();
-
+    
     unsigned short clock(int voice1, int voice2, int voice3) override;
-
+    
     void input(int sample) override { ve = (sample * voiceScaleS11 * 3 >> 11) + mixer[0][0]; }
-
+    
     /**
      * Set filter curve type based on single parameter.
      *
@@ -356,24 +361,43 @@ unsigned short Filter8580::clock(int voice1, int voice2, int voice3)
     voice2 = (voice2 * voiceScaleS11 >> 15) + voiceDC;
     // Voice 3 is silenced by voice3off if it is not routed through the filter.
     voice3 = (filt3 || !voice3off) ? (voice3 * voiceScaleS11 >> 15) + voiceDC : 0;
-
+    
     int Vi = 0;
     int Vo = 0;
-
+    
     (filt1 ? Vi : Vo) += voice1;
     (filt2 ? Vi : Vo) += voice2;
     (filt3 ? Vi : Vo) += voice3;
     (filtE ? Vi : Vo) += ve;
-
+    
     Vhp = currentSummer[currentResonance[Vbp] + Vlp + Vi];
     Vbp = hpIntegrator->solve(Vhp);
     Vlp = bpIntegrator->solve(Vbp);
-
+    
     if (lp) Vo += Vlp;
     if (bp) Vo += Vbp;
     if (hp) Vo += Vhp;
-
-    return currentGain[currentMixer[Vo]];
+    
+    //YOYOFR
+    //return currentGain[currentMixer[Vo]];
+    unsigned short ret=currentGain[currentMixer[Vo]];
+    
+    Vi = 0;
+    Vo = 0;
+    
+    (filtE ? Vi : Vo) += ve;
+    
+    /*Vhp2 = currentSummer[currentResonance[Vbp2] + Vlp2 + Vi];
+    Vbp2 = hpIntegrator->solve(Vhp2);
+    Vlp2 = bpIntegrator->solve(Vbp2);
+    
+    if (lp) Vo += Vlp2;
+    if (bp) Vo += Vbp2;
+    if (hp) Vo += Vhp2;*/
+    
+    sid_v4=currentGain[currentMixer[Vo]];
+    return ret;
+    //YOYOFR
 }
 
 } // namespace reSIDfp

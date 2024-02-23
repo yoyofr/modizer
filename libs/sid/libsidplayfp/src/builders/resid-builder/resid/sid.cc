@@ -25,7 +25,11 @@
 #endif
 
 #include "sid.h"
-#include <math.h>
+#include <cmath>
+
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 #ifndef round
 #define round(x) (x>=0.0?floor(x+0.5):ceil(x-0.5))
@@ -72,6 +76,8 @@ SID::SID()
   write_pipeline = 0;
 
   databus_ttl = 0;
+
+  raw_debug_output = false;
 }
 
 
@@ -403,10 +409,18 @@ SID::State SID::read_state()
 void SID::write_state(const State& state)
 {
   int i;
+  sampling_method tmp;
 
+  /* HACK: remember sampling mode and set it to resampling incase it was fast,
+           else the write() call will not work correctly */
+  tmp = sampling;
+  if (unlikely(sampling == SAMPLE_FAST) && (sid_model == MOS8580)) {
+    sampling = SAMPLE_RESAMPLE;
+  }
   for (i = 0; i <= 0x18; i++) {
     write(i, state.sid_register[i]);
   }
+  sampling = tmp;   /* restore original mode */
 
   bus_value = state.bus_value;
   bus_value_ttl = state.bus_value_ttl;
@@ -473,6 +487,43 @@ void SID::enable_external_filter(bool enable)
   extfilt.enable_filter(enable);
 }
 
+// ----------------------------------------------------------------------------
+// write raw output to a file
+// ----------------------------------------------------------------------------
+void SID::debugoutput(void)
+{
+    static int recording = -1;
+    static ofstream myFile;
+    static int lastn;
+    int n = filter.output();
+    if (recording == -1) {
+        /* the first call opens the file */
+        recording = 0;
+        myFile.open ("resid.raw", ios::out | ios::binary);
+        lastn = n;
+        std::cout << "reSID: waiting for output to change..." << std::endl;
+    } else if ((recording == 0) && (lastn != n)) {
+        /* start recording when the reSID output changes */
+        recording = 1;
+        std::cout << "reSID: starting recording..." << std::endl;
+    }
+    /* write 16bit little endian signed data */
+    if (recording) {
+        myFile.put(n & 0xff);
+        myFile.put((n >> 8) & 0xff);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Enable raw debug output
+// ----------------------------------------------------------------------------
+void SID::enable_raw_debug_output(bool enable)
+{
+    raw_debug_output = enable;
+    if (enable) {
+        std::cout << "reSID: raw output enabled." << std::endl;
+    }
+}
 
 // ----------------------------------------------------------------------------
 // I0() computes the 0th order modified Bessel function of the first kind.
@@ -513,7 +564,7 @@ double SID::I0(double x)
 // E.g. provided a clock frequency of ~ 1MHz, the sample frequency can not
 // be set lower than ~ 8kHz. A lower sample frequency would make the
 // resampling code overfill its 16k sample ring buffer.
-// 
+//
 // The end of passband frequency is also limited:
 //   pass_freq <= 0.9*sample_freq/2
 
@@ -674,7 +725,6 @@ void SID::adjust_sampling_frequency(double sample_freq)
     cycle_count(clock_frequency/sample_freq*(1 << FIXP_SHIFT) + 0.5);
 }
 
-
 // ----------------------------------------------------------------------------
 // SID clocking - delta_t cycles.
 // ----------------------------------------------------------------------------
@@ -706,7 +756,7 @@ void SID::clock(cycle_count delta_t)
   for (i = 0; i < 3; i++) {
     voice[i].envelope.clock(delta_t);
   }
-        
+
   // Clock and synchronize oscillators.
   // Loop until we reach the current cycle.
   cycle_count delta_t_osc = delta_t;
@@ -751,6 +801,7 @@ void SID::clock(cycle_count delta_t)
     for (i = 0; i < 3; i++) {
       voice[i].wave.synchronize();
     }
+
     delta_t_osc -= delta_t_min;
   }
 
@@ -758,9 +809,13 @@ void SID::clock(cycle_count delta_t)
   for (i = 0; i < 3; i++) {
     voice[i].wave.set_waveform_output(delta_t);
   }
-
+//YOYOFR
+    sid_v1=voice[0].output();
+    sid_v2=voice[1].output();
+    sid_v3=voice[2].output();
   // Clock filter.
-  filter.clock(delta_t, voice[0].output(), voice[1].output(), voice[2].output());
+  filter.clock(delta_t, sid_v1,sid_v2,sid_v3);
+//YOYOFR
 
   // Clock external filter.
   extfilt.clock(delta_t, filter.output());
@@ -779,7 +834,7 @@ void SID::clock(cycle_count delta_t)
 //   write(dsp, buf, bufindex*2);
 //   bufindex = 0;
 // }
-// 
+//
 // ----------------------------------------------------------------------------
 int SID::clock(cycle_count& delta_t, short* buf, int n, int interleave)
 {
@@ -839,6 +894,23 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
 int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interleave)
 {
   int s;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int sid_idx=0;//chipId*4;
+    while (sid_idx<MAXSID_CHIPS) {
+        if (m_sid_chipId[sid_idx]==NULL) {
+            m_sid_chipId[sid_idx]=(void*)this;
+            break;
+        }
+        if (m_sid_chipId[sid_idx]==(void*)this) break;
+        sid_idx++;
+    }
+    int smplIncr=1024;//44100*1024/985248.6111f+1;
+    
+    bool all_muted=false;//=muted[0]&muted[1]&muted[2];
+    if ((filter.voice_mask&0x7)==0)  all_muted=true;
+    sid_idx=sid_idx*4;
+    //TODO:  MODIZER changes end / YOYOFR
 
   for (s = 0; s < n; s++) {
     cycle_count next_sample_offset = sample_offset + cycles_per_sample;
@@ -865,6 +937,33 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
 
     buf[s*interleave] =
       sample_prev + (sample_offset*(sample_now - sample_prev) >> FIXP_SHIFT);
+      
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      if (!mSIDSeekInProgress) {
+          if (!all_muted) {
+              m_voice_current_sample++;
+              
+              m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>10]=LIMIT8((sid_v1>>13));
+              m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>10]=LIMIT8((sid_v2>>13));
+              m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>10]=LIMIT8((sid_v3>>13));
+              m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>10]=LIMIT8((sid_v4>>7));
+              
+              for (int j=0;j<4;j++) {
+                  m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                  if ((m_voice_current_ptr[sid_idx+j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;
+              }
+          }
+      } else {
+              m_voice_current_sample++;
+              for (int j=0;j<4;j++) {
+                  m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>10]=0;
+                  
+                  m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                  if ((m_voice_current_ptr[sid_idx+j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;
+              }
+      }
+      //TODO:  MODIZER changes end / YOYOFR
   }
 
   return s;

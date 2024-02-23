@@ -23,6 +23,12 @@
 #ifndef EXTERNALFILTER_H
 #define EXTERNALFILTER_H
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" int sid_v4;
+//TODO:  MODIZER changes end / YOYOFR
+
+
+
 #include "siddefs-fp.h"
 
 namespace reSIDfp
@@ -30,10 +36,12 @@ namespace reSIDfp
 
 /**
  * The audio output stage in a Commodore 64 consists of two STC networks, a
- * low-pass filter with 3 dB frequency 16kHz followed by a DC-blocker which
+ * low-pass RC filter with 3 dB frequency 16kHz followed by a DC-blocker which
  * acts as a high-pass filter with a cutoff dependent on the attached audio
  * equipment impedance. Here we suppose an impedance of 10kOhm resulting
  * in a 3 dB attenuation at 1.6Hz.
+ * To operate properly the 6581 audio output needs a pull-down resistor
+ * (1KOhm recommended, not needed on 8580)
  *
  * ~~~
  *                                 9/12V
@@ -45,7 +53,7 @@ namespace reSIDfp
  *          |        |  pF    +-C----o-----C-----+ 10k
  *                             470   |           |
  *         GND      GND         pF   R 1K        | amp
- *                              *    |           +-----
+ *          *                   *    |           +-----
  *
  *                                  GND
  * ~~~
@@ -64,34 +72,38 @@ class ExternalFilter
 private:
     /// Lowpass filter voltage
     int Vlp;
-
+    
     /// Highpass filter voltage
     int Vhp;
-
+    //YOYOFR
+    int Vlp2,Vhp2;
+    //YOYOFR
+    
+    
     int w0lp_1_s7;
-
+    
     int w0hp_1_s17;
-
+    
 public:
     /**
      * SID clocking.
      *
      * @param input
      */
-    int clock(unsigned short input);
-
+    int clock(int input);
+    
     /**
      * Constructor.
      */
     ExternalFilter();
-
+    
     /**
      * Setup of the external filter sampling parameters.
      *
-     * @param frequency
+     * @param frequency the main system clock frequency
      */
     void setClockFrequency(double frequency);
-
+    
     /**
      * SID reset.
      */
@@ -106,14 +118,35 @@ namespace reSIDfp
 {
 
 RESID_INLINE
-int ExternalFilter::clock(unsigned short input)
+int ExternalFilter::clock(int input)
 {
-    const int Vi = (static_cast<unsigned int>(input)<<11) - (1 << (11+15));
-    const int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
-    const int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
+    //TODO:  MODIZER changes start / YOYOFR
+    /*const int Vi = (input<<11) - (1 << (11+15));
+     const int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
+     const int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
+     Vlp += dVlp;
+     Vhp += dVhp;
+     return (Vlp - Vhp) >> 11;*/
+    
+    int Vi = (input<<11) - (1 << (11+15));
+    int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
+    int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
     Vlp += dVlp;
     Vhp += dVhp;
-    return (Vlp - Vhp) >> 11;
+    
+    
+    int ret=(Vlp - Vhp) >> 11;
+    
+    Vi = (sid_v4<<11) - (1 << (11+15));
+    dVlp = (w0lp_1_s7 * (Vi - Vlp2) >> 7);
+    dVhp = (w0hp_1_s17 * (Vlp2 - Vhp2) >> 17);
+    Vlp2 += dVlp;
+    Vhp2 += dVhp;
+    
+    sid_v4=(Vlp2 - Vhp2) >> 11;
+    
+    return ret;
+    //TODO:  MODIZER changes end / YOYOFR
 }
 
 } // namespace reSIDfp

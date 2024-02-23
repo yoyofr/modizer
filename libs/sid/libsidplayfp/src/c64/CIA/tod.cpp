@@ -1,8 +1,8 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2018 Leandro Nini <drfiemost@users.sourceforge.net>
- * Copyright 2009-2014 VICE Project
+ * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2009-2023 VICE Project
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -25,7 +25,7 @@
 
 #include <cstring>
 
-#include "mos6526.h"
+#include "mos652x.h"
 
 namespace libsidplayfp
 {
@@ -71,17 +71,11 @@ void Tod::write(uint_least8_t reg, uint8_t data)
         data &= 0x0f;
         break;
     case SECONDS: // Time Of Day clock sec
-        // deliberate run on
     case MINUTES: // Time Of Day clock min
         data &= 0x7f;
         break;
     case HOURS:  // Time Of Day clock hour
-        // force bits 6-5 = 0
-        data &= 0x9f;
-        // Flip AM/PM on hour 12
-        // Flip AM/PM only when writing time, not when writing alarm
-        if ((data & 0x1f) == 0x12 && !(crb & 0x80))
-            data ^= 0x80;
+        data &= 0x9f; // force bits 6-5 = 0
         break;
     }
 
@@ -100,7 +94,7 @@ void Tod::write(uint_least8_t reg, uint8_t data)
         // set time
         if (reg == TENTHS)
         {
-            // apparently the tickcounter is reset to 0 when the clock
+            // the tickcounter is kept clear while the clock
             // is not running and then restarted by writing to the 10th
             // seconds register.
             if (isStopped)
@@ -116,6 +110,10 @@ void Tod::write(uint_least8_t reg, uint8_t data)
 
         if (clock[reg] != data)
         {
+            // Flip AM/PM on hour 12 on the rising edge of the comparator
+            if ((reg == HOURS) && ((data & 0x1f) == 0x12))
+                data ^= 0x80;
+
             changed = true;
             clock[reg] = data;
         }
@@ -138,18 +136,28 @@ void Tod::event()
 
     if (!isStopped)
     {
-        // count 50/60 hz ticks
-        todtickcounter++;
-        // wild assumption: counter is 3 bits and is not reset elsewhere
-        // FIXME: this doesnt seem to be 100% correct - apparently it is reset
-        //        in some cases
-        todtickcounter &= 7;
-        // if the counter matches the TOD frequency ...
-        if (todtickcounter == ((cra & 0x80) ? 5 : 6))
+        /*
+         * The divider which divides the 50 or 60 Hz power supply ticks into
+         * 10 Hz uses a 3-bit ring counter, which goes 000, 001, 011, 111, 110,
+         * 100.
+         * For 50 Hz: matches at 110 (like "4")
+         * For 60 Hz: matches at 100 (like "5")
+         * (the middle bit of the match value is CRA7)
+         * After a match there is a 1 tick delay (until the next power supply
+         * tick) and then the 1/10 seconds counter increases, and the ring
+         * resets to 000.
+         */
+        // todtickcounter bits are mirrored to save an ANDing
+        if (todtickcounter == (0x1 | ((cra & 0x80) >> 6)))
         {
             // reset the counter and update the timer
             todtickcounter = 0;
             updateCounters();
+        }
+        else
+        {
+            // Count 50/60 Hz power supply ticks
+            todtickcounter = (todtickcounter >> 1) | ((~todtickcounter << 2) & 0x4);
         }
     }
 }
@@ -157,61 +165,56 @@ void Tod::event()
 void Tod::updateCounters()
 {
     // advance the counters.
-    // - individual counters are all 4 bit
-    uint8_t t0 = clock[TENTHS] & 0x0f;
-    uint8_t t1 = clock[SECONDS] & 0x0f;
-    uint8_t t2 = (clock[SECONDS] >> 4) & 0x0f;
-    uint8_t t3 = clock[MINUTES] & 0x0f;
-    uint8_t t4 = (clock[MINUTES] >> 4) & 0x0f;
-    uint8_t t5 = clock[HOURS] & 0x0f;
-    uint8_t t6 = (clock[HOURS] >> 4) & 0x01;
+    // - individual counters are 4 bit
+    //   except for sh and mh which are 3 bits
+    uint8_t ts = clock[TENTHS] & 0x0f;
+    uint8_t sl = clock[SECONDS] & 0x0f;
+    uint8_t sh = (clock[SECONDS] >> 4) & 0x07;
+    uint8_t ml = clock[MINUTES] & 0x0f;
+    uint8_t mh = (clock[MINUTES] >> 4) & 0x07;
+    uint8_t hl = clock[HOURS] & 0x0f;
+    uint8_t hh = (clock[HOURS] >> 4) & 0x01;
     uint8_t pm = clock[HOURS] & 0x80;
 
     // tenth seconds (0-9)
-    t0 = (t0 + 1) & 0x0f;
-    if (t0 == 10)
+    ts = (ts + 1) & 0x0f;
+    if (ts == 10)
     {
-        t0 = 0;
+        ts = 0;
         // seconds (0-59)
-        t1 = (t1 + 1) & 0x0f; // x0...x9
-        if (t1 == 10)
+        sl = (sl + 1) & 0x0f; // x0...x9
+        if (sl == 10)
         {
-            t1 = 0;
-            t2 = (t2 + 1) & 0x07; // 0x...5x
-            if (t2 == 6)
+            sl = 0;
+            sh = (sh + 1) & 0x07; // 0x...5x
+            if (sh == 6)
             {
-                t2 = 0;
+                sh = 0;
                 // minutes (0-59)
-                t3 = (t3 + 1) & 0x0f; // x0...x9
-                if (t3 == 10)
+                ml = (ml + 1) & 0x0f; // x0...x9
+                if (ml == 10)
                 {
-                    t3 = 0;
-                    t4 = (t4 + 1) & 0x07; // 0x...5x
-                    if (t4 == 6)
+                    ml = 0;
+                    mh = (mh + 1) & 0x07; // 0x...5x
+                    if (mh == 6)
                     {
-                        t4 = 0;
+                        mh = 0;
                         // hours (1-12)
-                        t5 = (t5 + 1) & 0x0f;
-                        if (t6)
+                        // flip from 09:59:59 to 10:00:00
+                        // or from 12:59:59 to 01:00:00
+                        if (((hl == 2) && (hh == 1))
+                            || ((hl == 9) && (hh == 0)))
                         {
-                            // toggle the am/pm flag when going from 11 to 12 (!)
-                            if (t5 == 2)
-                            {
-                                pm ^= 0x80;
-                            }
-                            // wrap 12h -> 1h (FIXME: when hour became x3 ?)
-                            else if (t5 == 3)
-                            {
-                                t5 = 1;
-                                t6 = 0;
-                            }
+                            hl = hh;
+                            hh ^= 1;
                         }
                         else
                         {
-                            if (t5 == 10)
+                            hl = (hl + 1) & 0x0f;
+                            // toggle the am/pm flag when reaching 12
+                            if ((hl == 2) && (hh == 1))
                             {
-                                t5 = 0;
-                                t6 = 1;
+                                pm ^= 0x80;
                             }
                         }
                     }
@@ -220,10 +223,10 @@ void Tod::updateCounters()
         }
     }
 
-    clock[TENTHS]  = t0;
-    clock[SECONDS] = t1 | (t2 << 4);
-    clock[MINUTES] = t3 | (t4 << 4);
-    clock[HOURS]   = t5 | (t6 << 4) | pm;
+    clock[TENTHS]  = ts;
+    clock[SECONDS] = sl | (sh << 4);
+    clock[MINUTES] = ml | (mh << 4);
+    clock[HOURS]   = hl | (hh << 4) | pm;
 
     checkAlarm();
 }

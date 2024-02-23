@@ -1,0 +1,17 @@
+src/builders/resid-builder/resid/libresid_la-voice.lo: \
+  src/builders/resid-builder/resid/voice.cc \
+  src/builders/resid-builder/resid/voice.h \
+  src/builders/resid-builder/resid/resid-config.h \
+  src/builders/resid-builder/resid/siddefs.h \
+  src/builders/resid-builder/resid/wave.h \
+  src/builders/resid-builder/resid/envelope.h
+
+src/builders/resid-builder/resid/voice.h:
+
+src/builders/resid-builder/resid/resid-config.h:
+
+src/builders/resid-builder/resid/siddefs.h:
+
+src/builders/resid-builder/resid/wave.h:
+
+src/builders/resid-builder/resid/envelope.h:

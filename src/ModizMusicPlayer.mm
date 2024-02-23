@@ -6,8 +6,6 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
-#define WEBSID
-
 #import <AVFAudio/AVAudioSession.h>
 
 #include <pthread.h>
@@ -83,6 +81,7 @@ char org_filename[1024];
 #include "builders/residfp-builder/residfp.h"
 #include "builders/resid-builder/resid.h"
 
+void* m_sid_chipId[MAXSID_CHIPS];
 #ifdef WEBSID
 
 extern "C" {
@@ -447,6 +446,10 @@ char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
 int m_voice_current_sample;
+
+//SID
+int sid_v4;
+//
 
 
 // GME M3U reader
@@ -2369,7 +2372,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
         
         mPanning=0;
-        mPanningValue=64; //75%
+        mPanningValue=0; //0% full stereo
         
         mdz_SubsongPlayed=NULL;
         mdz_ArchiveEntryPlayed=NULL;
@@ -4589,7 +4592,37 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
-                                mod_message_updated=1;
+                                
+                                mod_name[0]=0;
+                                if (sidtune_name) {
+                                    if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                }
+                                if (sidtune_title) {
+                                    if (sidtune_title[mod_currentsub]) {
+                                        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                        else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
+                                    }
+                                }
+                                if (sidtune_artist) {
+                                    if (sidtune_artist[mod_currentsub]) {
+                                        artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+                                    }
+                                }
+                                
+                                if (mod_name[0]==0) {
+                                    const SidTuneInfo *sidtune_info;
+                                    sidtune_info=mSidTune->getInfo();
+                                    
+                                    if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                    else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+                                }
+                                
+                                while (mod_message_updated) {
+                                    //wait
+                                    usleep(1);
+                                }
+                                
+                                mod_message_updated=2;
 #endif
                             } else if (mPlayType==MMP_SC68) {//SC68
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
@@ -4603,7 +4636,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode) iModuleLength=-1;
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
-                                mod_message_updated=1;
+                                
+                                mod_name[0]=0;
+                                if (sidtune_name) {
+                                    if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                }
+                                if (sidtune_title) {
+                                    if (sidtune_title[mod_currentsub]) {
+                                        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                        else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
+                                    }
+                                }
+                                if (sidtune_artist) {
+                                    if (sidtune_artist[mod_currentsub]) {
+                                        artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+                                    }
+                                }
+                                if (mod_name[0]==0) {
+                                    const SidTuneInfo *sidtune_info;
+                                    sidtune_info=mSidTune->getInfo();
+                                    if (sidtune_info->infoString(0)[0]) sprintf(mod_name," %s",sidtune_info->infoString(0));
+                                    else sprintf(mod_name," %s",mod_filename);
+                                }
+                                
+                                while (mod_message_updated) {
+                                    //wait
+                                    usleep(1);
+                                }
+                                
+                                mod_message_updated=2;
                             } else if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
                                 atariSndh.InitSubSong(mod_currentsub);
                                 SndhFile::SubSongInfo info;
@@ -5106,12 +5167,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
 #else
+                            m_voice_current_sample=0;
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                             mCurrentSamples+=nbBytes/4;
-                            m_voice_current_sample+=nbBytes/4;
+                            //m_voice_current_sample+=nbBytes/4;
                             //copy voice data for oscillo view
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10 - SOUND_BUFFER_SIZE_SAMPLE))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
                                 }
                             }
                             
@@ -7250,6 +7312,8 @@ char* loadRom(const char* path, size_t romSize)
     mp_datasize=ftell(f);
     fclose(f);
             
+    sid_v4=0;
+    memset(m_sid_chipId,0,sizeof(m_sid_chipId));
 #ifdef WEBSID
 
     
@@ -7491,23 +7555,7 @@ char* loadRom(const char* path, size_t romSize)
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
     
-            
-    // Init ReSID
-    if (sid_engine==0) mBuilder = new ReSIDBuilder("resid");
-    else mBuilder = new ReSIDfpBuilder("residfp");
-    unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-    mBuilder->create(maxsids);
-        
-    // Check if builder is ok
-    if (!mBuilder->getStatus()) {
-        NSLog(@"issue in creating sid builder");
-        return -1;
-    }
-    
-    // setup resid
-    if (mSIDFilterON) mBuilder->filter(true);
-    else mBuilder->filter(false);
-    
+                    
     // Set config
     SidConfig cfg = mSidEmuEngine->config();
     cfg.frequency= PLAYBACK_FREQ;
@@ -7521,15 +7569,20 @@ char* loadRom(const char* path, size_t romSize)
         cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
         cfg.fastSampling = false;
     }
+
     cfg.playback = SidConfig::STEREO;
-    cfg.sidEmulation  = mBuilder;
     cfg.digiBoost = true;
+    
+    cfg.defaultSidModel=SidConfig::MOS6581;
+    cfg.defaultC64Model=SidConfig::PAL;
+    cfg.ciaModel=SidConfig::MOS6526;
+    cfg.powerOnDelay=0;
+    
     cfg.secondSidAddress = mSIDSecondSIDAddress;
     cfg.thirdSidAddress = mSIDThirdSIDAddress;
     
     switch (sid_forceClock) {
         case 0:
-            //cfg.clockForced=FALSE;
             cfg.forceC64Model=false;
             break;
         case 1:
@@ -7555,6 +7608,39 @@ char* loadRom(const char* path, size_t romSize)
             cfg.forceSidModel=true;
             break;
     }
+    
+    
+    // Init ReSID
+    if (sid_engine==0) {
+        mBuilder = new ReSIDBuilder("resid");
+        ((ReSIDBuilder*)mBuilder)->bias(0.5f);
+    } else {
+        mBuilder = new ReSIDfpBuilder("residfp");
+        ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(0.5f);
+        ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
+        //((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
+    }
+    cfg.sidEmulation  = mBuilder;
+    
+    // Check if builder is ok
+    if (!mBuilder->getStatus()) {
+        NSLog(@"issue in creating sid builder");
+        return -1;
+    }
+    
+    unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+    mBuilder->create(maxsids);
+        
+    // Check if builder is ok
+    if (!mBuilder->getStatus()) {
+        NSLog(@"issue in creating sid builder");
+        return -1;
+    }
+    
+    // setup resid
+    if (mSIDFilterON) mBuilder->filter(true);
+    else mBuilder->filter(false);
+    
     mSidEmuEngine->config(cfg);
     
     NSString *c64_path = [[NSBundle mainBundle] resourcePath];
@@ -7592,8 +7678,8 @@ char* loadRom(const char* path, size_t romSize)
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
         
-        if (sidtune_info->infoString(0)[0]) sprintf(mod_name," %s",sidtune_info->infoString(0));
-        else sprintf(mod_name," %s",mod_filename);
+        
+        
         mod_subsongs=sidtune_info->songs();
         mod_minsub=0;//sidtune_info.startSong;
         mod_maxsub=sidtune_info->songs()-1;
@@ -7615,15 +7701,15 @@ char* loadRom(const char* path, size_t romSize)
             
             iCurrentTime=0;
             mCurrentSamples=0;
-            numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
+            numChannels=4*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
                         
-            if (sid_engine==1) {
+            //if (sid_engine==1){
                 m_voicesDataAvail=1;
                 numVoicesChannels=numChannels;
                 for (int i=0;i<numVoicesChannels;i++) {
-                    m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+                    m_voice_voiceColor[i]=m_voice_systemColor[i/4];
                 }
-            } else m_voicesDataAvail=0;
+            //} else m_voicesDataAvail=0;
             
             stil_info[0]=0;
             [self getStilInfo:(char*)[filePath UTF8String]];
@@ -7639,15 +7725,15 @@ char* loadRom(const char* path, size_t romSize)
             
             if (cfg.forceSidModel) {
                 if (cfg.defaultSidModel==SidConfig::MOS8580) {
-                    cfg.leftVolume*=3;
-                    cfg.rightVolume*=3;
+                    //cfg.leftVolume*=3;
+                    //cfg.rightVolume*=3;
                     mSidEmuEngine->config(cfg);
                 }
             } else {
                 //boost volume for 8580
                 if (sidtune_info->sidModel(0)==SidTuneInfo::SIDMODEL_8580) {
-                    cfg.leftVolume*=3;
-                    cfg.rightVolume*=3;
+                    //cfg.leftVolume*=3;
+                    //cfg.rightVolume*=3;
                     mSidEmuEngine->config(cfg);
                 }
             }
@@ -7667,6 +7753,22 @@ char* loadRom(const char* path, size_t romSize)
             
             //Parse STIL INFO for subsongs info
             [self sid_parseStilInfo];
+            
+            mod_name[0]=0;
+            if (sidtune_name) {
+                if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+            if (sidtune_title) {
+                if (sidtune_title[mod_currentsub]) {
+                    if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                    else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
+                }
+            }
+            if (mod_name[0]==0) {
+                if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+            }
+            
             
             
             //////////////////////////////////
@@ -11210,7 +11312,31 @@ extern bool icloud_available;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
-            mod_message_updated=1;
+            
+            mod_name[0]=0;
+            if (sidtune_name) {
+                if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+            if (sidtune_title) {
+                if (sidtune_title[mod_currentsub]) {
+                    if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                    else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
+                }
+            }
+            if (sidtune_artist) {
+                if (sidtune_artist[mod_currentsub]) {
+                    artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+                }
+            }
+            
+            if (mod_name[0]==0) {
+                const SidTuneInfo *sidtune_info;
+                sidtune_info=mSidTune->getInfo();
+                if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+            
+            
+            mod_message_updated=2;
 #endif
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
@@ -11563,13 +11689,10 @@ extern bool icloud_available;
         }
         
 #else
-        if (mSidTune) {
-            delete mSidTune;
-            mSidTune = NULL;
-        }
         if (mSidEmuEngine) {
+            mSidEmuEngine->stop();
+            mSidEmuEngine->load(NULL);
             //sid2_config_t cfg = mSidEmuEngine->config();
-            
             //cfg.sidEmulation = NULL;
             //mSidEmuEngine->config(cfg);
             delete mBuilder;
@@ -11577,7 +11700,14 @@ extern bool icloud_available;
             
             delete mSidEmuEngine;
             mSidEmuEngine = NULL;
+            
+            if (mSidTune) {
+                delete mSidTune;
+                mSidTune = NULL;
+            }
         }
+        
+        
         
         if (sidtune_title) {
             for (int i=0;i<mod_subsongs;i++)
@@ -11809,12 +11939,17 @@ extern bool icloud_available;
         
         if (websid_info[4][0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
 #else
+        NSString *subtitle=NULL;
         if (sidtune_name) {
-            if (sidtune_name[subsong]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+            if (sidtune_name[subsong]) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         if (sidtune_title) {
-            if (sidtune_title[subsong]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+            if (sidtune_title[subsong]) {
+                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+            }
         }
+        if (subtitle) return subtitle;
         
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
@@ -11977,7 +12112,7 @@ extern bool icloud_available;
     mPanning=onoff;
 }
 -(void) optGLOB_PanningValue:(float)value {
-    mPanningValue=(int)(value*128.0f);
+    mPanningValue=128-(int)(value*128.0f);
 }
 
 ///////////////////////////
@@ -12428,7 +12563,7 @@ extern "C" void adjust_amplification(void);
 #ifdef WEBSID
             return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
 #else
-            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
+            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
 #endif
         case MMP_VGMPLAY:{
             int idx=0;
@@ -12482,7 +12617,7 @@ extern "C" void adjust_amplification(void);
 #ifdef WEBSID
             return numChannels/4; //number of sidchip active: voices/4, (4ch each)
 #else
-            return numChannels/3; //number of sidchip active: voices/3, (3ch each)
+            return numChannels/4; //number of sidchip active: voices/3, (3ch each)
 #endif
         default:
             return 0;
@@ -12583,7 +12718,7 @@ extern "C" void adjust_amplification(void);
 #ifdef WEBSID
             return voiceIdx/4;
 #else
-            return voiceIdx/3;
+            return voiceIdx/4;
 #endif
         default:
             return 0;
@@ -12707,10 +12842,10 @@ extern "C" void adjust_amplification(void);
             return 0; //all off
 #else
             tmp=0;
-            for (int i=systemIdx*3;i<systemIdx*3+3;i++) {
+            for (int i=systemIdx*4;i<systemIdx*4+4;i++) {
                 tmp+=(m_voicesStatus[i]?1:0);
             }
-            if (tmp==3) return 2; //all active
+            if (tmp==4) return 2; //all active
             else if (tmp>0) return 1; //partially active
             return 0; //all off
 #endif
@@ -12777,7 +12912,7 @@ extern "C" void adjust_amplification(void);
                 [self setm_voicesStatus:active index:i];
             }
 #else
-            for (int i=systemIdx*3;i<systemIdx*3+3;i++) {
+            for (int i=systemIdx*4;i<systemIdx*4+4;i++) {
                 [self setm_voicesStatus:active index:i];
             }
 #endif
@@ -12932,7 +13067,7 @@ extern "C" void adjust_amplification(void);
             SID::setMute(system_idx, 3, (m_voicesStatus[system_idx*4+3]?0:1));
         }
 #else
-            mSidEmuEngine->mute(channel/3,channel%3,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
+            if ((channel%4)<3) mSidEmuEngine->mute(channel/4,channel%4,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
 #endif
             break;
         case MMP_PT3: {

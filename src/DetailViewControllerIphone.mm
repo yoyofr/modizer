@@ -1710,7 +1710,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     }
                 } else [self playNext]; //not an archive, next entry
             }
-        }
+        } else [self playNext];
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }

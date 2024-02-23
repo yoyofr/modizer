@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2016 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -95,7 +95,13 @@ const uint_least32_t MAX_FILELEN = MAX_MEMORY + 2 + 0x7C;
 const uint_least16_t SIDTUNE_R64_MIN_LOAD_ADDR = 0x07e8;
 
 SidTuneBase* SidTuneBase::load(const char* fileName, const char **fileNameExt,
-                 bool separatorIsSlash, LoaderFunc loader)
+                 bool separatorIsSlash)
+{
+    return load(nullptr, fileName, fileNameExt, separatorIsSlash);
+}
+
+SidTuneBase* SidTuneBase::load(LoaderFunc loader, const char* fileName,
+                 const char **fileNameExt, bool separatorIsSlash)
 {
     if (fileName == nullptr)
         return nullptr;
@@ -105,7 +111,7 @@ SidTuneBase* SidTuneBase::load(const char* fileName, const char **fileNameExt,
     if (strcmp(fileName, "-") == 0)
         return getFromStdIn();
 #endif
-    return getFromFiles(fileName, fileNameExt, separatorIsSlash, loader);
+    return getFromFiles(loader, fileName, fileNameExt, separatorIsSlash);
 }
 
 SidTuneBase* SidTuneBase::read(const uint_least8_t* sourceBuffer, uint_least32_t bufferLen)
@@ -356,11 +362,16 @@ void SidTuneBase::createNewFileName(std::string& destString,
 
 // Initializing the object based upon what we find in the specified file.
 
-SidTuneBase* SidTuneBase::getFromFiles(const char* fileName, const char **fileNameExtensions, bool separatorIsSlash, LoaderFunc loader)
+SidTuneBase* SidTuneBase::getFromFiles(const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
+{
+    return getFromFiles(nullptr, fileName, fileNameExtensions, separatorIsSlash);
+}
+
+SidTuneBase* SidTuneBase::getFromFiles(LoaderFunc loader, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
 {
     buffer_t fileBuf1;
 
-    if (!loader)
+    if (loader == nullptr)
         loader = (LoaderFunc) loadFile;
 
     loader(fileName, fileBuf1);

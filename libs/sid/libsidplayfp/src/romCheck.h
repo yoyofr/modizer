@@ -121,6 +121,9 @@ public:
         add("479553fd53346ec84054f0b1c6237397", "C64 KERNAL second revision (Japanese)");
         add("39065497630802346bce17963f13c092", "C64 KERNAL third revision");
         add("27e26dbb267c8ebf1cd47105a6ca71e7", "C64 KERNAL third revision (Swedish)");
+        add("27e26dbb267c8ebf1cd47105a6ca71e7", "C64 KERNAL third revision (Swedish C2G007)");
+        add("e4aa56240fe13d8ad8d7d1dc8fec2395", "C64 KERNAL third revision (Danish)");
+        add("174546cf655e874546af4eac5f5bf61b", "C64 KERNAL third revision (Turkish)");
         add("187b8c713b51931e070872bd390b472a", "Commodore SX-64 KERNAL");
         add("b7b1a42e11ff8efab4e49afc4faedeee", "Commodore SX-64 KERNAL (Swedish)");
         add("3abc938cac3d622e1a7041c15b928707", "Cockroach Turbo-ROM");
@@ -169,6 +172,11 @@ public:
     {
         add("12a4202f5331d45af846af6c58fba946", "C64 character generator");
         add("cf32a93c0a693ed359a4f483ef6db53d", "C64 character generator (Japanese)");
+        add("7a1906cd3993ad17a0a0b2b68da9c114", "C64 character generator (Swedish)");
+        add("5973267e85b7b2b574e780874843180b", "C64 character generator (Swedish C2G007)");
+        add("81a1a8e6e334caeadd1b8468bb7728d3", "C64 character generator (Spanish)");
+        add("b3ad62b41b5f919fc56c3a40e636ec29", "C64 character generator (Danish)");
+        add("7d82b1f8f750665b5879c16b03c617d9", "C64 character generator (Turkish)");
     }
 };
 

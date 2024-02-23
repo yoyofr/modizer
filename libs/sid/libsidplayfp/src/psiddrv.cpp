@@ -195,7 +195,7 @@ bool psiddrv::drvReloc()
         return false;
     }
 
-    // Adjust size to not included initialisation data.
+    // Adjust size to not include initialisation data.
     reloc_size -= 10;
 
     m_driverAddr   = relocAddr;

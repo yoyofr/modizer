@@ -1,0 +1,11 @@
+src/builders/resid-builder/resid/libresid_la-pot.lo: \
+  src/builders/resid-builder/resid/pot.cc \
+  src/builders/resid-builder/resid/pot.h \
+  src/builders/resid-builder/resid/resid-config.h \
+  src/builders/resid-builder/resid/siddefs.h
+
+src/builders/resid-builder/resid/pot.h:
+
+src/builders/resid-builder/resid/resid-config.h:
+
+src/builders/resid-builder/resid/siddefs.h:

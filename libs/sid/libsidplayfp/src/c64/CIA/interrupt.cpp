@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -22,38 +22,104 @@
 
 #include "interrupt.h"
 
-#include "mos6526.h"
-
+#include "mos652x.h"
 
 namespace libsidplayfp
 {
 
-void InterruptSource::event()
+void InterruptSource::interrupt()
 {
-    triggerInterrupt();
-    parent.interrupt(true);
+    if (!interruptTriggered())
+    {
+        triggerInterrupt();
+        setIrq();
+    }
 
     scheduled = false;
 }
 
-void InterruptSource::interrupt(bool state)
+void InterruptSource::updateIdr()
 {
-    parent.interrupt(state);
+    idr = idrTemp;
+
+    if (ack0())
+    {
+        eventScheduler.schedule(updateIdrEvent, 1, EVENT_CLOCK_PHI1);
+        idrTemp = 0;
+    }
+}
+
+void InterruptSource::setIrq()
+{
+    if (!ack0())
+    {
+        if (!asserted)
+        {
+            parent.interrupt(true);
+            asserted = true;
+        }
+    }
+}
+
+void InterruptSource::clearIrq()
+{
+    if (asserted)
+    {
+        parent.interrupt(false);
+        asserted = false;
+    }
+}
+
+bool InterruptSource::isTriggered(uint8_t interruptMask)
+{
+    idr |= interruptMask;
+    idrTemp |= interruptMask;
+
+    if (interruptMasked(interruptMask))
+        return true;
+
+    if ((interruptMask == INTERRUPT_NONE) && write0())
+    {
+        // cancel pending interrupts
+        if (scheduled)
+        {
+            eventScheduler.cancel(interruptEvent);
+            scheduled = false;
+        }
+    }
+    return false;
+}
+
+void InterruptSource::set(uint8_t interruptMask)
+{
+    if (interruptMask & INTERRUPT_REQUEST)
+    {
+        icr |= interruptMask & ~INTERRUPT_REQUEST;
+    }
+    else
+    {
+        icr &= ~interruptMask;
+    }
+
+    if (!ack0())
+        trigger(INTERRUPT_NONE);
+
+    last_set = eventScheduler.getTime(EVENT_CLOCK_PHI2);
 }
 
 uint8_t InterruptSource::clear()
 {
     last_clear = eventScheduler.getTime(EVENT_CLOCK_PHI2);
 
-    if (scheduled)
+    eventScheduler.schedule(clearIrqEvent, 0, EVENT_CLOCK_PHI1);
+
+    if (!eventScheduler.isPending(updateIdrEvent))
     {
-        eventScheduler.cancel(*this);
-        scheduled = false;
+        eventScheduler.schedule(updateIdrEvent, 1, EVENT_CLOCK_PHI1);
+        idrTemp = 0;
     }
 
-    uint8_t const old = idr;
-    idr = 0;
-    return old;
+    return idr;
 }
 
 }

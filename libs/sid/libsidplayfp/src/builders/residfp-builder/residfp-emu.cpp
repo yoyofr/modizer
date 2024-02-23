@@ -33,36 +33,25 @@
 #  include "config.h"
 #endif
 
-
-
 namespace libsidplayfp
 {
 
 const char* ReSIDfp::getCredits()
 {
-    static std::string credits;
-
-    if (credits.empty())
-    {
-        // Setup credits
-        std::ostringstream ss;
-        ss << "ReSIDfp V" << VERSION << " Engine:\n";
-        ss << "\t(C) 1999-2002 Simon White\n";
-        ss << "MOS6581 (SID) Emulation (ReSIDfp V" << residfp_version_string << "):\n";
-        ss << "\t(C) 1999-2002 Dag Lem\n";
-        ss << "\t(C) 2005-2011 Antti S. Lankila\n";
-        ss << "\t(C) 2010-2015 Leandro Nini\n";
-        credits = ss.str();
-    }
-
-    return credits.c_str();
+    return
+        "ReSIDfp V" VERSION " Engine:\n"
+        "\t(C) 1999-2002 Simon White\n"
+        "MOS6581/CSG8580 (SID) Emulation:\n"
+        "\t(C) 1999-2002 Dag Lem\n"
+        "\t(C) 2005-2011 Antti S. Lankila\n"
+        "\t(C) 2010-2023 Leandro Nini\n";
 }
 
 ReSIDfp::ReSIDfp(sidbuilder *builder) :
     sidemu(builder),
     m_sid(*(new reSIDfp::SID))
 {
-    m_buffer = new short[OUTPUTBUFFERSIZE];    
+    m_buffer = new short[OUTPUTBUFFERSIZE];
     reset(0);
 }
 
@@ -101,7 +90,6 @@ void ReSIDfp::write(uint_least8_t addr, uint8_t data)
     clock();
     m_sid.write(addr, data);
 }
-
 
 void ReSIDfp::clock()
 {
@@ -156,11 +144,11 @@ void ReSIDfp::model(SidConfig::sid_model_t model, bool digiboost)
     {
         case SidConfig::MOS6581:
             chipModel = reSIDfp::MOS6581;
+            m_sid.input(0);
             break;
         case SidConfig::MOS8580:
             chipModel = reSIDfp::MOS8580;
-            if (digiboost)
-                m_sid.input(-32768);
+            m_sid.input(digiboost ? -32768 : 0);
             break;
         default:
             m_status = false;

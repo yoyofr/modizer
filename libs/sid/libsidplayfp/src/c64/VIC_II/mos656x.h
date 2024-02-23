@@ -138,6 +138,8 @@ private:
 
     EventCallback<MOS656X> rasterYIRQEdgeDetectorEvent;
 
+    EventCallback<MOS656X> lightpenTriggerEvent;
+
 private:
     event_clock_t clockPAL();
     event_clock_t clockNTSC();
@@ -162,6 +164,17 @@ private:
         rasterYIRQCondition = rasterY == readRasterLineIRQ();
         if (!oldRasterYIRQCondition && rasterYIRQCondition)
             activateIRQFlag(IRQ_RASTER);
+    }
+
+    void lightpenTrigger()
+    {
+        // Synchronise simulation
+        sync();
+
+        if (lp.trigger(lineCycle, rasterY))
+        {
+            activateIRQFlag(IRQ_LIGHTPEN);
+        }
     }
 
     /**
@@ -244,6 +257,8 @@ private:
         {
             rasterY++;
             rasterYIRQEdgeDetector();
+            if ((rasterY == FIRST_DMA_LINE) && !areBadLinesEnabled)
+                areBadLinesEnabled = readDEN();
         }
 
         if (evaluateIsBadLine())
@@ -261,7 +276,7 @@ private:
             rasterY = 0;
             rasterYIRQEdgeDetector();
             lp.untrigger();
-            if (lpAsserted && lp.retrigger(lineCycle, rasterY))
+            if (lpAsserted && lp.retrigger())
             {
                 activateIRQFlag(IRQ_LIGHTPEN);
             }

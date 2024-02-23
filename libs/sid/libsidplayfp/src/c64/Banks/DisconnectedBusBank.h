@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2012-2013 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2012-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2010 Antti Lankila
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 #define DISCONNECTEDBUSBANK_H
 
 #include "Bank.h"
+#include "pla.h"
 
 #include "sidcxx11.h"
 
@@ -40,17 +41,23 @@ namespace libsidplayfp
  */
 class DisconnectedBusBank final : public Bank
 {
+private:
+    const PLA &pla;
+
+public:
+    DisconnectedBusBank(PLA &pla) :
+        pla(pla)
+    {}
+
     /**
      * No device is connected so this is a no-op.
      */
     void poke(uint_least16_t, uint8_t) override {}
 
     /**
-     * This should actually return last byte read from VIC
-     * but since the VIC emulation currently does not fetch
-     * any value from memory we return zero.
+     * No device is connected so this should return the value left on the bus.
      */
-    uint8_t peek(uint_least16_t) override { return 0; }
+    uint8_t peek(uint_least16_t) override { return pla.getLastReadByte(); }
 };
 
 }

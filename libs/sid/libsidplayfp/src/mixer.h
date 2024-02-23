@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2015 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright (C) 2000 Simon White
  *
@@ -27,7 +27,6 @@
 #include "sidcxx11.h"
 
 #include <stdint.h>
-#include <cstdlib>
 
 #include <vector>
 
@@ -41,21 +40,49 @@ class sidemu;
  */
 class Mixer
 {
+private:
+    // random number generator for dithering
+    template <int MAX_VAL>
+    class randomLCG
+    {
+#ifdef HAVE_CXX11
+    static_assert((MAX_VAL != 0) && ((MAX_VAL & (MAX_VAL - 1)) == 0), "MAX_VAL must be a power of two");
+#endif
+    private:
+        uint32_t rand_seed;
+
+    public:
+        randomLCG(uint32_t seed) :
+            rand_seed(seed)
+        {}
+
+        int get()
+        {
+            rand_seed = (214013 * rand_seed + 2531011);
+            return static_cast<int>((rand_seed >> 16) & (MAX_VAL-1));
+        }
+    };
+
+public:
+    class badBufferSize {};
+
 public:
     /// Maximum number of supported SIDs
     static const unsigned int MAX_SIDS = 3;
 
-    static const int_least32_t SCALE_FACTOR = 1 << 14;
+    static const int_least32_t SCALE_FACTOR = 1 << 16;
 #ifdef HAVE_CXX11
     static constexpr double SQRT_0_5 = 0.70710678118654746;
 #else
 #  define SQRT_0_5 0.70710678118654746
 #endif
-    static const int_least32_t C1 = static_cast<int_least32_t>(1.0* SCALE_FACTOR / (1.0 + SQRT_0_5) );
-    static const int_least32_t C2 = static_cast<int_least32_t>(SQRT_0_5* SCALE_FACTOR / (1.0 + SQRT_0_5) );
+    static const int_least32_t C1 = static_cast<int_least32_t>(1.0 / (1.0 + SQRT_0_5) * SCALE_FACTOR);
+    static const int_least32_t C2 = static_cast<int_least32_t>(SQRT_0_5 / (1.0 + SQRT_0_5) * SCALE_FACTOR);
 
 private:
     typedef int_least32_t (Mixer::*mixer_func_t)() const;
+
+    typedef int (Mixer::*scale_func_t)(unsigned int);
 
 public:
     /// Maximum allowed volume, must be a power of 2.
@@ -69,8 +96,9 @@ private:
     std::vector<int_least32_t> m_volume;
 
     std::vector<mixer_func_t> m_mix;
+    std::vector<scale_func_t> m_scale;
 
-    int oldRandomValue;
+    int m_oldRandomValue;
     int m_fastForwardFactor;
 
     // Mixer settings
@@ -78,16 +106,31 @@ private:
     uint_least32_t m_sampleCount;
     uint_least32_t m_sampleIndex;
 
+    uint_least32_t m_sampleRate;
+
     bool m_stereo;
+
+    randomLCG<VOLUME_MAX> m_rand;
 
 private:
     void updateParams();
 
     int triangularDithering()
     {
-        const int prevValue = oldRandomValue;
-        oldRandomValue = rand() & (VOLUME_MAX-1);
-        return oldRandomValue - prevValue;
+        const int prevValue = m_oldRandomValue;
+        m_oldRandomValue = m_rand.get();
+        return m_oldRandomValue - prevValue;
+    }
+
+    int scale(unsigned int ch)
+    {
+        const int_least32_t sample = (this->*(m_mix[ch]))();
+        return (sample * m_volume[ch] + triangularDithering()) / VOLUME_MAX;
+    }
+
+    int noScale(unsigned int ch)
+    {
+        return (this->*(m_mix[ch]))();
     }
 
     /*
@@ -104,7 +147,7 @@ private:
      *   C1       C2           C3
      * L 1/1.707  0.707/1.707  0.0
      * R 0.0      0.707/1.707  1/1.707
-     * 
+     *
      * FIXME
      * it seems that scaling down the summed signals is not the correct way of mixing, see:
      * http://dsp.stackexchange.com/questions/3581/algorithms-to-mix-audio-signals-without-clipping
@@ -123,24 +166,23 @@ private:
 
     // Stereo mixing
     int_least32_t stereo_OneChip() const { return m_iSamples[0]; }
-    //TODO:  MODIZER changes start / YOYOFR
-    //Force  gain for 2 chips and 3 chips mode
-    int_least32_t stereo_ch1_TwoChips() const { return m_iSamples[0]*2; }
-    int_least32_t stereo_ch2_TwoChips() const { return m_iSamples[1]*2; }
 
-    int_least32_t stereo_ch1_ThreeChips() const { return (C1*m_iSamples[0] + C2*m_iSamples[1])*3 / SCALE_FACTOR; }
-    int_least32_t stereo_ch2_ThreeChips() const { return (C2*m_iSamples[1] + C1*m_iSamples[2])*3 / SCALE_FACTOR; }
-    //TODO:  MODIZER changes end / YOYOFR
+    int_least32_t stereo_ch1_TwoChips() const { return m_iSamples[0]; }
+    int_least32_t stereo_ch2_TwoChips() const { return m_iSamples[1]; }
 
+    int_least32_t stereo_ch1_ThreeChips() const { return (C1*m_iSamples[0] + C2*m_iSamples[1]) / SCALE_FACTOR; }
+    int_least32_t stereo_ch2_ThreeChips() const { return (C2*m_iSamples[1] + C1*m_iSamples[2]) / SCALE_FACTOR; }
 public:
     /**
      * Create a new mixer.
      */
     Mixer() :
-        oldRandomValue(0),
+        m_oldRandomValue(0),
         m_fastForwardFactor(1),
         m_sampleCount(0),
-        m_stereo(false)
+        m_sampleRate(0),
+        m_stereo(false),
+        m_rand(257254)
     {
         m_mix.push_back(&Mixer::mono<1>);
     }
@@ -165,6 +207,8 @@ public:
      *
      * @param buffer output buffer
      * @param count size of the buffer in samples
+     *
+     * @throws badBufferSize
      */
     void begin(short *buffer, uint_least32_t count);
 
@@ -210,6 +254,13 @@ public:
      * @param stereo true for stereo mode, false for mono
      */
     void setStereo(bool stereo);
+
+    /**
+     * Set sample rate.
+     *
+     * @param rate sample rate in Hertz
+     */
+    void setSamplerate(uint_least32_t rate);
 
     /**
      * Check if the buffer have been filled.

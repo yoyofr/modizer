@@ -26,6 +26,8 @@
 #  include "driver/exSID.h"
 #endif
 
+#include "sidcxx11.h"
+
 namespace libsidplayfp
 {
 
@@ -33,18 +35,9 @@ unsigned int exSID::sid = 0;
 
 const char* exSID::getCredits()
 {
-    static std::string credits;
-
-    if (credits.empty())
-    {
-        // Setup credits
-        std::ostringstream ss;
-        ss << "exSID V" << VERSION << " Engine:\n";
-        ss << "\t(C) 2015-2017,2021 Thibaut VARENE\n";
-        credits = ss.str();
-    }
-
-	return credits.c_str();
+    return
+        "exSID V" VERSION " Engine:\n"
+        "\t(C) 2015-2017,2021 Thibaut VARENE\n";
 }
 
 exSID::exSID(sidbuilder *builder) :
@@ -157,7 +150,7 @@ void exSID::voice(unsigned int num, bool mute)
     muted[num] = mute;
 }
 
-void exSID::model(SidConfig::sid_model_t model, bool digiboost)
+void exSID::model(SidConfig::sid_model_t model, MAYBE_UNUSED bool digiboost)
 {
     runmodel = model;
     // currently no support for stereo mode: output the selected SID to both L and R channels
@@ -178,8 +171,8 @@ void exSID::unlock()
     sidemu::unlock();
 }
 
-void exSID::sampling(float systemclock, float freq,
-        SidConfig::sampling_method_t method, bool)
+void exSID::sampling(float systemclock, MAYBE_UNUSED float freq,
+        MAYBE_UNUSED SidConfig::sampling_method_t method, bool)
 {
     exSID_audio_op(exsid, XS_AU_MUTE);
     if (systemclock < 1000000.0F)
