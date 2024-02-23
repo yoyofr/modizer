@@ -1478,7 +1478,7 @@
 		CCC53BFD2B8933BE00E97EC1 /* Copy Files-Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Frameworks;
+			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
 				CCC53BFE2B8933E900E97EC1 /* ffmpegkit.xcframework in Copy Files-Frameworks */,
@@ -6439,7 +6439,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.5.0;
+				CURRENT_PROJECT_VERSION = 3.5.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6482,7 +6482,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.5.0;
+				CURRENT_PROJECT_VERSION = 3.5.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6851,7 +6851,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 3.5.0;
+				CURRENT_PROJECT_VERSION = 3.5.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
