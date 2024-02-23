@@ -20,6 +20,12 @@
 #ifndef RESID_EXTFILT_H
 #define RESID_EXTFILT_H
 
+
+//YOYOFR
+extern "C" int sid_v4;
+//YOYOFR
+
+
 #include "resid-config.h"
 
 namespace reSID
@@ -73,6 +79,10 @@ protected:
   // State of filters (27 bits).
   int Vlp; // lowpass
   int Vhp; // highpass
+    //YOYOFR
+    int Vlp2; // lowpass
+    int Vhp2; // highpass
+    //YOYOFR
 
   // Cutoff frequencies.
   int w0lp_1_s7;
@@ -113,6 +123,15 @@ void ExternalFilter::clock(short Vi)
   int dVhp = w0hp_1_s17*(Vlp - Vhp) >> 17;
   Vlp += dVlp;
   Vhp += dVhp;
+    
+    //YOYOFR
+    dVlp = w0lp_1_s7*int((unsigned(sid_v4) << 11) - unsigned(Vlp2)) >> 7;
+    dVhp = w0hp_1_s17*(Vlp2 - Vhp2) >> 17;
+    Vlp2 += dVlp;
+    Vhp2 += dVhp;
+    
+    sid_v4=(Vlp2 - Vhp2) >> 11;
+    //YOYOFR
 }
 
 // ----------------------------------------------------------------------------
@@ -147,6 +166,15 @@ void ExternalFilter::clock(cycle_count delta_t, short Vi)
     int dVhp = (w0hp_1_s17*delta_t_flt >> 3)*(Vlp - Vhp) >> 14;
     Vlp += dVlp;
     Vhp += dVhp;
+      
+      //YOYOFR
+      dVlp = (w0lp_1_s7*delta_t_flt >> 3)*((sid_v4 << 11) - Vlp2) >> 4;
+      dVhp = (w0hp_1_s17*delta_t_flt >> 3)*(Vlp2 - Vhp2) >> 14;
+      Vlp2 += dVlp;
+      Vhp2 += dVhp;
+      
+      sid_v4=(Vlp2 - Vhp2) >> 11;
+      //YOYOFR
 
     delta_t -= delta_t_flt;
   }

@@ -792,7 +792,7 @@ void NSFPlayer::SetPlayFreq (double r)
     CheckTerminal ();
     DetectLoop ();
     DetectSilent ();
-
+          
     return length;
   }
 

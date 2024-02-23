@@ -390,9 +390,12 @@ int SID::clock(unsigned int cycles, short* buf)
                  buf[s++] = resampler->getOutput();
                  }*/
                 if (!mSIDSeekInProgress) {
-                    if (!all_muted && (unlikely(resampler->input(output()))))
+                    if (/*!all_muted &&*/ (unlikely(resampler->input(output()))))
                     {
-                        buf[s++] = resampler->getOutput();
+                        if (all_muted) {
+                            buf[s++]=0;
+                            sid_v4=0;
+                        } else buf[s++] = resampler->getOutput();
                         
                         m_voice_current_sample++;
                         
