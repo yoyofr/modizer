@@ -4981,7 +4981,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //m_voice_current_sample+=nbBytes/4;
                             //copy voice data for oscillo view
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10 - SOUND_BUFFER_SIZE_SAMPLE))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][((i+(m_voice_current_ptr[j]>>10) - SOUND_BUFFER_SIZE_SAMPLE))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
                                 }
                             }
                             

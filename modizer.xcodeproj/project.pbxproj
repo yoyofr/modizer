@@ -873,11 +873,6 @@
 		CC8369642B57CCC80035A4DA /* getea68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369392B57CCC80035A4DA /* getea68.c */; };
 		CC8369672B581DDA0035A4DA /* error68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83693B2B57CCC80035A4DA /* error68.c */; };
 		CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC8369922B5DD5510035A4DA /* playpt3.txt */; };
-		CC83699B2B6199410035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */; };
-		CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */; };
-		CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
-		CC83699E2B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
-		CC83699F2B6199410035A4DA /* Sauron - OOOPS!.pt3 in Resources */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
 		CC8369A02B623D740035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369962B6199400035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 */; };
 		CC8369A12B623D740035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369972B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 */; };
 		CC8369A22B623D740035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
@@ -937,6 +932,14 @@
 		CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100B1221788200E8DE4E /* Ymload.cpp */; };
 		CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100D1221788200E8DE4E /* YmMusic.cpp */; };
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
+		CCC53BFE2B8933E900E97EC1 /* ffmpegkit.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CC2B867A7500BBBC8C /* ffmpegkit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53BFF2B8933EA00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CB2B867A7500BBBC8C /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C002B8933EA00E97EC1 /* libavdevice.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CF2B867A7500BBBC8C /* libavdevice.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C012B8933EA00E97EC1 /* libavfilter.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CD2B867A7500BBBC8C /* libavfilter.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C022B8933EA00E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CA2B867A7500BBBC8C /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C032B8933EA00E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978D02B867A7500BBBC8C /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C042B8933EA00E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CE2B867A7500BBBC8C /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC53C052B8933EA00E97EC1 /* libswscale.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978C92B867A7500BBBC8C /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; };
@@ -1470,6 +1473,24 @@
 				5966D1EC25CFF10C00520777 /* Live_And_Let_Die.mid in Copy Files-Samples Various */,
 			);
 			name = "Copy Files-Samples Various";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC53BFD2B8933BE00E97EC1 /* Copy Files-Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Frameworks;
+			dstSubfolderSpec = 10;
+			files = (
+				CCC53BFE2B8933E900E97EC1 /* ffmpegkit.xcframework in Copy Files-Frameworks */,
+				CCC53BFF2B8933EA00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */,
+				CCC53C002B8933EA00E97EC1 /* libavdevice.xcframework in Copy Files-Frameworks */,
+				CCC53C012B8933EA00E97EC1 /* libavfilter.xcframework in Copy Files-Frameworks */,
+				CCC53C022B8933EA00E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */,
+				CCC53C032B8933EA00E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */,
+				CCC53C042B8933EA00E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */,
+				CCC53C052B8933EA00E97EC1 /* libswscale.xcframework in Copy Files-Frameworks */,
+			);
+			name = "Copy Files-Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -5288,6 +5309,7 @@
 				CC9167F717F00CD90012E2C1 /* Copy Files-Samples Games */,
 				CC9167F817F00D210012E2C1 /* Copy Files-Samples Classical */,
 				CC767DBE1AB627A300689B58 /* Embed Foundation Extensions */,
+				CCC53BFD2B8933BE00E97EC1 /* Copy Files-Frameworks */,
 			);
 			buildRules = (
 			);
@@ -5715,7 +5737,6 @@
 				CC1E5F12120154A8000A8A4E /* Icon@2x.png in Resources */,
 				CC1E5F14120154F9000A8A4E /* Icon-Small-50.png in Resources */,
 				CC1E6310120423DF000A8A4E /* eagleplayer.conf in Resources */,
-				CC83699E2B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Resources */,
 				CC1E6311120423DF000A8A4E /* AbyssHighestExperience in Resources */,
 				59909B5C1E3E786700C629AA /* tabview_gradient40Red.png in Resources */,
 				59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */,
@@ -5883,7 +5904,6 @@
 				CC1E6386120423DF000A8A4E /* RobHubbardOld in Resources */,
 				CC1E6387120423DF000A8A4E /* dummy_file in Resources */,
 				CC1E6388120423DF000A8A4E /* ScottJohnston in Resources */,
-				CC83699D2B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Resources */,
 				CC1E6389120423DF000A8A4E /* SCUMM in Resources */,
 				CC1E638A120423E0000A8A4E /* SeanConnolly in Resources */,
 				CC1E638B120423E0000A8A4E /* SeanConran in Resources */,
@@ -5907,7 +5927,6 @@
 				CC1E6399120423E0000A8A4E /* SoundMon2.2 in Resources */,
 				CC1E639A120423E0000A8A4E /* SoundPlayer in Resources */,
 				CC1E639B120423E0000A8A4E /* SoundProgrammingLanguage in Resources */,
-				CC83699C2B6199410035A4DA /* Cj Splinter, MmcM - Stellar one (2011) (DiHalt 2011, 1).pt3 in Resources */,
 				CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */,
 				59909B581E3E6B9A00C629AA /* tabview_gradient40Pink.png in Resources */,
 				CC1E639C120423E0000A8A4E /* Soundtracker-IV in Resources */,
@@ -6050,7 +6069,6 @@
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
-				CC83699B2B6199410035A4DA /* Cj Splinter - World of Dizzy (Ring of Zaks) (2013).pt3 in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
 				336D451A15FC9E1400F0DC00 /* video_previous_h@2x.png in Resources */,
 				33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */,
@@ -6058,7 +6076,6 @@
 				33C722D41691F877001D77A5 /* 03-loopback.png in Resources */,
 				33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */,
 				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
-				CC83699F2B6199410035A4DA /* Sauron - OOOPS!.pt3 in Resources */,
 				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
 				CC4F49D72B6FB728002A9309 /* tracking24.fnt in Resources */,
@@ -6549,6 +6566,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DVGM_USE_VORBIS=1",
@@ -6654,6 +6672,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DVGM_USE_VORBIS=1",
@@ -6761,6 +6780,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				OTHER_CFLAGS = (
 					"-DVGM_USE_VORBIS=1",
 					"-DVGM_USE_MPEG=1",
