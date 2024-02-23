@@ -193,8 +193,8 @@
 		CC2978E52B8682DE00BBBC8C /* Integrator6581.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC2978E12B8682DD00BBBC8C /* Integrator6581.cpp */; };
 		CC2978E62B8682DE00BBBC8C /* FilterModelConfig6581.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC2978E22B8682DD00BBBC8C /* FilterModelConfig6581.cpp */; };
 		CC2978E72B8682DE00BBBC8C /* FilterModelConfig6581.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */; };
-		CC29792E2B88009200BBBC8C /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = CC29792D2B88009200BBBC8C /* filter.h */; };
-		CC2979302B88009E00BBBC8C /* filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = CC29792F2B88009E00BBBC8C /* filter.cc */; };
+		CCC5419F2B895DDE00E97EC1 /* filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCC5419D2B895DDE00E97EC1 /* filter.cc */; };
+		CCC541A02B895DDE00E97EC1 /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = CCC5419E2B895DDE00E97EC1 /* filter.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -396,8 +396,8 @@
 		CC2978E12B8682DD00BBBC8C /* Integrator6581.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Integrator6581.cpp; sourceTree = "<group>"; };
 		CC2978E22B8682DD00BBBC8C /* FilterModelConfig6581.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FilterModelConfig6581.cpp; sourceTree = "<group>"; };
 		CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterModelConfig6581.h; sourceTree = "<group>"; };
-		CC29792D2B88009200BBBC8C /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
-		CC29792F2B88009E00BBBC8C /* filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cc; sourceTree = "<group>"; };
+		CCC5419D2B895DDE00E97EC1 /* filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cc; sourceTree = "<group>"; };
+		CCC5419E2B895DDE00E97EC1 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -580,14 +580,14 @@
 		59BE8B2A26000D8000414A42 /* resid */ = {
 			isa = PBXGroup;
 			children = (
+				CCC5419D2B895DDE00E97EC1 /* filter.cc */,
+				CCC5419E2B895DDE00E97EC1 /* filter.h */,
 				59BE8B4426000D8000414A42 /* dac.cc */,
 				59BE8B2D26000D8000414A42 /* dac.h */,
 				59BE8B2F26000D8000414A42 /* envelope.cc */,
 				59BE8B4D26000D8000414A42 /* envelope.h */,
 				59BE8B6126000D8000414A42 /* extfilt.cc */,
 				59BE8B2E26000D8000414A42 /* extfilt.h */,
-				CC29792F2B88009E00BBBC8C /* filter.cc */,
-				CC29792D2B88009200BBBC8C /* filter.h */,
 				59BE8B3026000D8000414A42 /* pot.cc */,
 				59BE8B4726000D8000414A42 /* pot.h */,
 				59BE8B3626000D8000414A42 /* resid-config.h */,
@@ -832,7 +832,7 @@
 				59BE8C2726000D8000414A42 /* c64cpu.h in Headers */,
 				59BE8C9E26000D8000414A42 /* Voice.h in Headers */,
 				59BE8C2626000D8000414A42 /* sprites.h in Headers */,
-				CC29792E2B88009200BBBC8C /* filter.h in Headers */,
+				CCC541A02B895DDE00E97EC1 /* filter.h in Headers */,
 				59BE8CA726000D8000414A42 /* residfp.h in Headers */,
 				59BE8C3326000D8000414A42 /* c64cia.h in Headers */,
 				59BE8CDA26000D8000414A42 /* sidversion.h in Headers */,
@@ -1016,7 +1016,7 @@
 				59BE8C9D26000D8000414A42 /* WaveformCalculator.cpp in Sources */,
 				59BE8C7D26000D8000414A42 /* residfp-builder.cpp in Sources */,
 				59BE8CCC26000D8000414A42 /* SidDatabase.cpp in Sources */,
-				CC2979302B88009E00BBBC8C /* filter.cc in Sources */,
+				CCC5419F2B895DDE00E97EC1 /* filter.cc in Sources */,
 				59BE8CD226000D8000414A42 /* SidConfig.cpp in Sources */,
 				59BE8C8E26000D8000414A42 /* FilterModelConfig.cpp in Sources */,
 				59BE8C9026000D8000414A42 /* Filter.cpp in Sources */,
