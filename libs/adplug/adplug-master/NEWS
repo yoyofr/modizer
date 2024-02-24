@@ -1,0 +1,184 @@
+This is a brief overview of user-visible changes in AdPlug.
+
+Changes for version 2.3.3:
+--------------------------
+- New RAD player replacing the old one
+- Bug fixes: (huge thanks to Alexander Miller for these)
+  - CVE-2019-14690 - buffer overflow in .bmf
+  - CVE-2019-14691 - buffer overflow in .dtm
+  - CVE-2019-14692 - buffer overflow in .mkj
+  - CVE-2019-14732 - buffer overflow in .a2m
+  - CVE-2019-14733 - buffer overflow in .rad
+  - CVE-2019-14734 - buffer overflow in .mtk
+  - CVE-2019-15151 - double free and OOB reads in .u6m
+  - OOB reads in .xad
+  - OOB reads in .rix
+
+Changes for version 2.3.2:
+--------------------------
+- Bug fixes:
+  - FMOPL: Fix global variable pointer double-free (CVE-2018-17825)
+  - HERAD: Fix compilation on GCC 4.2.1
+  - ADL: Calling rewind() before update() causes access violation
+  - Move OPL reset/init code to rewind() for some players
+
+Changes for version 2.3.1:
+--------------------------
+- Fixed unconditional inclusion of "sys/io.h" on Linux
+- Autotools improvement
+  - Non-recursive Automake, improved parallelizability
+  - Compatibility fixes for FreeBSD's pmake and OpenBSD's make
+  - Out-of-source building
+
+Changes for version 2.3:
+-------------------------
+- Bug fixes:
+  - CMF: Fix uninitialised variable use (thanks binarymaster)
+  - CMF: Handle invalid offsets without crashing
+  - ROL: Prevent access beyond end of vector
+  - MSC: Fix use of uninitialised variable
+  - HSC: Handle out of range patterns more gracefully
+  - MID: Fix for issue #2 - out of range array read
+  - LDS: Use the tempo stored inside the Loudness-File instead of simply returning 70Hz
+  - RIX: Fix several replay bugs (thanks to Palxex)
+  - RIX: Big-endian fix by Wei Mingzhi
+  - XAD: Tempo fix
+  - Various other out of bounds array fixes, timing fixes, etc.
+- New formats:
+  - BMF: Easy AdLib 1.0
+  - CMF: SoundFX Macs Opera
+  - GOT: God of Thunder
+  - HSQ/SQX/SDB/AGD/HA2: Herbulot AdLib System (HERAD)
+  - MUS/IMS/MDI: AdLib Visual Composer ROL derivatives
+  - SOP: sopepos' Note Player
+  - VGM: Video Game Music
+- Allow compilation on platforms that don't support real OPL hardware access
+- Add support for compiling on Appveyor and publishing a NuGet package
+- Add Visual Studio 2015 projects
+- Add support for Travis CI builds
+- Add new CRC16 and CRC32 tests
+- Addition of WoodyOPL from DOSBox SVN (thanks to NY00123)
+- Addition of NukedOPL (thanks to loki666 and nukeykt)
+- Move from SourceForge to GitHub
+- DRO player refactored (thanks to Laurence Myers and William Yates)
+- Add (mono) OPL3 support to the surround/harmonic-effect OPL
+- Fix occasional random noise in right channel when using surround OPL and Satoh synth
+- Add display for ROL comment and instrument names
+- Improve support for different Westwood ADL format versions
+- Improve CMF transpose support (per-channel now)
+- Autotools build environment updated
+
+Changes for version 2.2.1:
+--------------------------
+- Bug fixes:
+  - CMF: Fix crash on v1.0 files
+  - DRO: Correct playback of early v0.1 files
+
+Changes for version 2.2:
+------------------------
+- New format support:
+  - JBM: JBM Adlib Music Format
+  - CMF: New player (more accurate) for Creative Music Format
+  - DRO: DOSBox Raw OPL v2.0 support
+- Fixed current subsong rewind in D00 player.
+- Added test case for ADL file format.
+- Fixed replay bug in DRO player (thanks to Adam Nielsen).
+- New surround/harmonic synth effect (sounds really nice!)
+
+Changes for version 2.1:
+------------------------
+- New format support:
+  - ADL: Westwood ADL File Format
+- Added OPL3 support:
+  - A2M: AdLib Tracker 2 versions 5-8
+- All players are endian-clean now.
+- Lots of security fixes (thanks to Luigi Auriemma).
+- Fixed volume handling in AMD player.
+- Fixed a buffer overflow in ROL player (thanks to HIGUCHI Daisuke).
+- Fixed vibrato & volume slides in D00 player (thanks to Dennis
+  Lindroos).
+- Removed superfluous exit() call in RIX player (thanks to Martin
+  Michlmayr).
+- Enhanced generic Protracker player features:
+  - Supports up to 32 channels
+  - OPL3 output support
+  - New behavior flags and commands
+
+Changes for version 2.0:
+------------------------
+- New format support:
+  - MSC: AdLib MSCplay
+  - RIX: Softstar RIX OPL Music Format
+- Added OPL3 support:
+  - RAW: RdosPlay RAW
+- Dual OPL2 and OPL3 support (OPL3 only in non-free version).
+- This version is not binary-compatible with older versions!
+  All linked applications need to be recompiled.
+- License change: Ken Silverman permitted to relicense his
+  emulator under the LGPL. It is included in the free distribution
+  now.
+- Changes to IMF player:
+  - Supporting Adam Nielsen's tag format now.
+  - Files ending in .IMF now have a default timer refresh rate of
+    560Hz. All other files have a rate of 700Hz. Please rename your
+    files accordingly or use the AdPlug database.
+- CMF player supports rhythm mode now.
+- S3M player handles repeating commands correctly now.
+- MS Visual C++ and OpenWatcom build systems not actively supported
+  anymore. They are still available in the contrib directory though.
+
+Changes for version 1.5:
+------------------------
+- New format support:
+  - XSM: eXtra Simple Music
+  - DRO: DOSBox Raw OPL
+  - LDS: LOUDNESS Sound System
+- Added support for .adlib files to IMF player.
+- Reverted fmopl OPL2 emulator to old LGPL'd version, so
+  AdPlug is now completely free (LGPL) again. Please read the
+  README file for details.
+- Added Ken Silverman's YM3812 emulator again. The portability
+  issues have been fixed.
+- Added a test-suite.
+
+Changes for version 1.4:
+------------------------
+- Documentation changed into Texinfo format.
+- New, modularized file loading framework.
+- Now using 'libbinio' for platform-independent binary I/O.
+- Added database framework for storing music file information.
+- Uses newest fmopl OPL2 emulator version 0.60 from MAME 0.66.
+
+Changes for version 1.3:
+------------------------
+- Completely new build system for DOS and Windows.
+- Centralized debug management.
+- Added a whole bunch of new developer documentation.
+- Developer documentation is now using troff formatting language.
+- Much more flexible Protracker player.
+- New or corrected IMF timer rates for the following games:
+  - Duke Nukem 2
+- New format support:
+  - SNG: Adlib Tracker 1.0
+  - CFF: BoomTracker 4.0
+  - DTM: Defy Adlib Tracker
+  - DMO: Twin TrackPlayer
+
+Changes for version 1.2:
+------------------------
+- Added a whole bunch of new players:
+  - SAT, ROL, SNG, XAD, XMS, MAD
+- SA2 player now handles version 7 files.
+- GCC 3.x compatibility.
+- Compiles on FreeBSD (and maybe many more flavors).
+- Now using GNU autotools for UNIX builds.
+- New OPL disk writer that creates RdosPlay RAW files.
+- Reordered source directory structure (removed players directory).
+
+Changes for version 1.1:
+------------------------
+- Added MKJ, DFM and BAM players.
+- Removed Ken Silverman's YM3812 emulator due to portability issues.
+- Fixed memory leak in SNG player.
+- Made AdPlug a real library.
+- Added lots of documentation.

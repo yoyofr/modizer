@@ -1,0 +1,3 @@
+If ../../src/binio.h.in is changed, you must run the configure script to
+produce an updated binio.h.  You must then copy that file to
+./libbinio/binio.h, otherwise the VS2015 build will use the older binio.h.

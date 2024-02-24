@@ -1,0 +1,245 @@
+2019-08-07 15:58  malvineous
+	* Fix off-by-one error in memory stream.
+	* Move from SourceForge to GitHub.
+	* Documentation updates and support for more build environments.
+
+2005-09-18 12:00  dynamite
+
+	* INSTALL.unix, Makefile.am, NEWS, README, binio.spec,
+	binio_mdk.spec, configure.in, libbinio.pc.in, libbinio.qpg,
+	src/Makefile.am, src/Makefile.bt, src/libbinio.dsp: Added
+	pkg-config script. Default install path for headers is now
+	$(pkgincludedir).
+
+2004-08-19 14:08  dynamite
+
+	* ChangeLog: Release 1.3
+
+2004-08-18 21:55  dynamite
+
+	* INSTALL.unix, NEWS, README, doc/libbinio.texi: Updated to latest
+	autotools.
+
+2004-08-18 21:44  dynamite
+
+	* src/binio.cpp: Fixed variable type mismatch (underflow) on 64-bit
+	systems.
+
+2004-08-01 18:55  dynamite
+
+	* Makefile.am: Added depcomp to EXTRA_DIST
+
+2004-05-13 16:48  dynamite
+
+	* NEWS: Updated NEWS.
+
+2003-10-15 19:43  dynamite
+
+	* doc/libbinio.texi, src/binio.cpp, src/binio.h.in: Fixed bug
+	#822863.
+
+2003-03-08 17:02  dynamite
+
+	* Makefile.bt, NEWS, binio.spec, binio_mdk.spec, configure.in,
+	libbinio.qpg, doc/libbinio.texi, src/binfile.cpp, src/binfile.h,
+	src/binio.cpp, src/binio.h.in, src/binwrap.cpp, src/binwrap.h:
+	Bumped version number.
+
+2003-03-08 00:33  dynamite
+
+	* ChangeLog, Makefile.am: Release.
+
+2003-03-04 13:46  dynamite
+
+	* binio.spec: Fixed groups in redhat spec file.
+
+2003-03-03 21:38  dynamite
+
+	* doc/libbinio.texi: Added info directory entry in Software
+	Libraries group.
+
+2003-03-03 18:48  dynamite
+
+	* AUTHORS, ChangeLog, INSTALL, NEWS, binio.spec, binio_mdk.spec:
+	Added Red Hat & Mandrake .spec files. Thanks to Goetz Waschk!
+
+2003-03-03 13:24  dynamite
+
+	* TODO, doc/libbinio.texi: Updated documentation.
+
+2003-02-24 11:42  dynamite
+
+	* ChangeLog, libbinio.qpg: Fixed placement of files in QNX
+	packaging file.
+
+2003-02-20 16:43  dynamite
+
+	* AUTHORS, NEWS: Updated auxiliary files.
+
+2003-02-20 15:17  dynamite
+
+	* libbinio.qpg, src/binio.cpp: QNX patches.
+
+2003-02-04 11:46  dynamite
+
+	* ChangeLog, Makefile.bt, NEWS, TODO, configure.in: Bumped version
+	number.
+
+2003-02-03 15:11  dynamite
+
+	* ChangeLog, src/binio.cpp: GCC 3.2 fixes. RC1.
+
+2003-02-03 14:48  dynamite
+
+	* ChangeLog: Updated ChangeLog.
+
+2003-02-02 18:37  dynamite
+
+	* INSTALL.dos, Makefile.bt, Makefile.wat: DOS build fixes.
+
+2003-01-30 18:54  dynamite
+
+	* NEWS, doc/libbinio.texi: Updated documentation.
+
+2003-01-23 17:25  dynamite
+
+	* NEWS, doc/libbinio.texi, src/binfile.cpp, src/binio.cpp,
+	src/binio.h.in, src/binstr.cpp, src/binwrap.cpp: Changed behaviour
+	of error() and eof(). Added peekInt(), peekFloat() and ateof()
+	methods to binistream class. Updated documentation.
+
+2003-01-19 00:45  dynamite
+
+	* NEWS, src/Makefile.am, src/binio.cpp, src/binio.h.in: Modified
+	readString() and writeString() behaviour. Removed the delimiter
+	default. writeString() does now report number of characters
+	written.
+
+2003-01-18 18:40  dynamite
+
+	* NEWS, configure.in: Removed bogus config header.
+
+2003-01-18 14:46  dynamite
+
+	* ChangeLog: RELEASE: Version 1.0
+
+2003-01-18 14:36  dynamite
+
+	* ChangeLog, doc/Makefile.am: Final UNIX build fixes. RC1.
+
+2003-01-18 14:35  dynamite
+
+	* .cvsignore: Polished .cvsignore file. RC1.
+
+2003-01-18 14:34  dynamite
+
+	* Makefile.bt: Final DOS build fixes. RC1.
+
+2003-01-18 13:11  dynamite
+
+	* doc/: .cvsignore, libbinio.texi: Documentation updates. RC1.
+
+2003-01-17 22:29  dynamite
+
+	* ChangeLog, Makefile.am, Makefile.bt, NEWS, README, TODO,
+	doc/Makefile.am, doc/libbinio.texi, src/Makefile.am: Final fixes.
+	RC1.
+
+2003-01-16 22:04  dynamite
+
+	* src/: binfile.cpp, binfile.h, binio.cpp, binio.h.in, binstr.cpp,
+	binwrap.cpp, libbinio.dsp: Windows build fixes.
+
+2003-01-16 19:16  dynamite
+
+	* src/: .cvsignore, Makefile.bt: Synced DOS build.
+
+2003-01-16 18:44  dynamite
+
+	* AUTHORS, TODO, configure.in, doc/libbinio.texi, src/binio.cpp,
+	src/binio.h.in, src/binwrap.cpp, src/binwrap.h: Implemented all
+	remaining IEEE-754 conversion routines.
+
+2003-01-12 17:27  dynamite
+
+	* doc/.cvsignore: Added some more files to cvsignore.
+
+2003-01-11 19:27  dynamite
+
+	* TODO, doc/libbinio.texi, src/Makefile.am, src/binfile.cpp,
+	src/binfile.h, src/binio.cpp, src/binio.h.in, src/binstr.cpp,
+	src/binstr.h, src/binwrap.cpp, src/binwrap.h: Added preliminary
+	binsstream classes. Wrote documentation.
+
+2003-01-07 16:47  dynamite
+
+	* src/: .cvsignore, binfile.h, binio.cpp, libbinio.dsp: Windows
+	fixes.
+
+2003-01-07 11:34  dynamite
+
+	* INSTALL, configure.in, src/binio.h.in, src/binwrap.cpp,
+	src/binwrap.h: Fixed iostream wrappers.
+
+2003-01-04 17:39  dynamite
+
+	* src/config.bat: Removed config.bat from CVS, which was there by
+	mistake.
+
+2003-01-04 17:37  dynamite
+
+	* src/: binfile.cpp, binfile.h, binio.cpp, binio.h.in, binwrap.cpp,
+	binwrap.h: Finalized binfstream and made the iostream wrappers.
+
+2003-01-03 23:39  dynamite
+
+	* .cvsignore, INSTALL.dos, Makefile.bt, Makefile.wat,
+	src/.cvsignore, src/Makefile.bt: Added DOS build target.
+
+2003-01-03 23:16  dynamite
+
+	* src/: binio.cpp, libbinio.dsp, vc6inst.bat: Windows build fixes.
+
+2003-01-03 18:48  dynamite
+
+	* configure.in, src/binfile.cpp, src/binio.cpp, src/binio.h.in,
+	src/binwrap.cpp, src/binwrap.h: Implemented IEEE float reading and
+	writing.
+
+2003-01-01 22:48  dynamite
+
+	* INSTALL, INSTALL.dos, INSTALL.unix, INSTALL.win32, README,
+	src/.cvsignore, src/binfile.cpp, src/config.bat, src/libbinio.dsp:
+	Added preliminary windows build.
+
+2002-12-28 22:52  dynamite
+
+	* configure.in, doc/.cvsignore, src/.cvsignore, src/Makefile.am,
+	src/binio.cpp, src/binio.h.in, src/binwrap.cpp, src/binwrap.h:
+	Implemented type size check.
+
+2002-12-25 22:36  dynamite
+
+	* ChangeLog, README, TODO, doc/libbinio.texi: Documentation fixes.
+
+2002-12-21 13:51  dynamite
+
+	* .cvsignore, doc/.cvsignore, src/.cvsignore: Added .cvsignore
+	files.
+
+2002-12-21 13:44  dynamite
+
+	* AUTHORS, COPYING, ChangeLog, INSTALL, Makefile.am, NEWS, README,
+	TODO, configure.in, src/Makefile.am, src/binfile.cpp,
+	src/binfile.h, src/binio.cpp, src/binwrap.cpp, src/binwrap.h,
+	doc/Makefile.am, doc/fdl.texi, doc/libbinio.texi, src/binio.h.in:
+	Initial revision
+
+2002-12-21 13:44  dynamite
+
+	* AUTHORS, COPYING, ChangeLog, INSTALL, Makefile.am, NEWS, README,
+	TODO, configure.in, src/Makefile.am, src/binfile.cpp,
+	src/binfile.h, src/binio.cpp, src/binwrap.cpp, src/binwrap.h,
+	doc/Makefile.am, doc/fdl.texi, doc/libbinio.texi, src/binio.h.in:
+	Initial import.
+

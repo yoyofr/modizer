@@ -1,0 +1,38 @@
+This is a brief overview of user-visible changes in libbinio.
+
+Changes for version 1.5:
+------------------------
+- Fix off-by-one error in memory streams.
+
+Changes for version 1.4:
+------------------------
+- Support for pkg-config on UNIX systems.
+- Moved default header installation directory to $pkgincludedir
+  (aka $includedir/libbinio) to prevent filename clashes with other
+  libraries.
+
+Changes for version 1.3:
+------------------------
+- Fixed a small interface bug.
+- Fixed data type mismatch on non-32-bit systems in peekInt().
+
+Changes for version 1.2:
+------------------------
+- Ported to QNX.
+- Red Hat & Mandrake .spec files.
+
+Changes for version 1.1:
+------------------------
+- Removed unused config header file.
+- writeString() methods now return number of characters written.
+- Changed behaviour of readString(): The delimiter doesn't default to '\0'
+  anymore. If no delimiter is given, always up to 'amount' characters are read.
+- error() now returns a bit field of error flags instead of just one error
+  value. Multiple errors can now occur at once.
+- Added 'NotFound' error flag, indicating a file not found error.
+- The 'Eof' error code is now set only when reading _past_ the end of a stream,
+  not on the last byte.
+- Added peekInt() and peekFloat() methods to peek an integer or a floating-point
+  number in a stream, without extracting it.
+- Added ateof() method to binistream class that returns true when the stream is
+  at the last byte.

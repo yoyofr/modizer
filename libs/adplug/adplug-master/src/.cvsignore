@@ -1,0 +1,15 @@
+.deps
+.libs
+Makefile
+Makefile.in
+*.lo
+*.la
+*.opt
+*.ncb
+*.dsw
+*.lib
+*.err
+*.plg
+Debug
+Release
+config.bat

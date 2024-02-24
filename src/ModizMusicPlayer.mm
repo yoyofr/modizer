@@ -468,7 +468,7 @@ static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
-static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER;
+static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultMIDIPLAYER;
 
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -2071,7 +2071,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize adPlugPlayer,adplugDB;
 @synthesize opl;
 @synthesize opl_towrite;
-@synthesize mADPLUGopltype;
+@synthesize mADPLUGopltype,mADPLUGstereosurround,mADPLUGPriorityOverMod;
 //GME stuff
 @synthesize gme_emu;
 //SID
@@ -2398,6 +2398,8 @@ void propertyListenerCallback (void                   *inUserData,              
         //
         // ADPLUG specific
         mADPLUGopltype=0;
+        mADPLUGstereosurround=1;
+        mADPLUGPriorityOverMod=0;
         //
         //UADE specific
         mUADE_OptLED=0;
@@ -4359,6 +4361,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
                                 
                                 iModuleLength=hvl_GetPlayTime(hvl_song);
+                                iCurrentTime=0;
+                                
+                                [self iPhoneDrv_PlayRestart];
+                                
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            } else if (mPlayType==MMP_ADPLUG) {
+                                adPlugPlayer->rewind(mod_currentsub);
+                                
+                                iModuleLength=adPlugPlayer->songlength();
                                 iCurrentTime=0;
                                 
                                 [self iPhoneDrv_PlayRestart];
@@ -9417,16 +9430,47 @@ int vgmGetFileLength()
     fclose(f);
     // Allocate an OPL emu according to user choice : AUTO/Specified one
     // TODO
-    if (mADPLUGopltype>2) mADPLUGopltype=0;
+    if (mADPLUGopltype>3) mADPLUGopltype=0;
     switch (mADPLUGopltype) {
-        case 0:opl=new CEmuopl(PLAYBACK_FREQ,TRUE,TRUE);  //Generic OPL
-            opl->settype(Copl::TYPE_OPL2);
+        case 0:
+        if (mADPLUGstereosurround==1) { //surround
+            COPLprops a, b;
+            a.use16bit = b.use16bit = true;
+            a.stereo = b.stereo = false;
+            a.opl = new CWemuopl(PLAYBACK_FREQ, a.use16bit, a.stereo);
+            b.opl = new CWemuopl(PLAYBACK_FREQ, b.use16bit, b.stereo);
+            opl = new CSurroundopl(&a, &b, true);
+        } else opl = new CWemuopl(PLAYBACK_FREQ, true, true);
             break;
-        case 1:
-            opl=(CEmuopl*)(new CKemuopl(PLAYBACK_FREQ,TRUE,TRUE)); //Adlib OPL2/3
+        case 1: //Satoh
+            if (mADPLUGstereosurround==1) { //surround
+                COPLprops a, b;
+                a.use16bit = b.use16bit = true;
+                a.stereo = b.stereo = false;
+                a.opl = new CEmuopl(PLAYBACK_FREQ, a.use16bit, a.stereo);
+                b.opl = new CEmuopl(PLAYBACK_FREQ, b.use16bit, b.stereo);
+                opl = new CSurroundopl(&a, &b, true);
+            } else opl = new CEmuopl(PLAYBACK_FREQ, true, true);
             break;
-        case 2:
-            opl=(CEmuopl*)(new CTemuopl(PLAYBACK_FREQ,TRUE,TRUE));  //Tatsuyuki
+        case 2:  //Ken
+            if (mADPLUGstereosurround==1) { //surround
+                COPLprops a, b;
+                a.use16bit = b.use16bit = true;
+                a.stereo = b.stereo = false;
+                a.opl = new CKemuopl(PLAYBACK_FREQ, a.use16bit, a.stereo);
+                b.opl = new CKemuopl(PLAYBACK_FREQ, b.use16bit, b.stereo);
+                opl = new CSurroundopl(&a, &b, true);
+            } else opl = new CKemuopl(PLAYBACK_FREQ, true, true);
+            break;
+        case 3: //Nuked
+            if (mADPLUGstereosurround==1) { //surround
+                COPLprops a, b;
+                a.use16bit = b.use16bit = true;
+                a.stereo = b.stereo = true; //Nuked works only in stereo
+                a.opl = new CNemuopl(PLAYBACK_FREQ);
+                b.opl = new CNemuopl(PLAYBACK_FREQ);
+                opl = new CSurroundopl(&a, &b, true);
+            } else opl = new CNemuopl(PLAYBACK_FREQ);
             break;
     }
     
@@ -9436,6 +9480,8 @@ int vgmGetFileLength()
     
     adplugDB->load ([[NSString stringWithFormat:@"%@/adplug.db",db_path] UTF8String]);    // load user's database
     CAdPlug::set_database (adplugDB);
+    
+    //CAdPlug::printAllExtensionSupported();
     
     adPlugPlayer = CAdPlug::factory([filePath UTF8String], opl);
     
@@ -9479,6 +9525,11 @@ int vgmGetFileLength()
         if (mLoopMode==1) iModuleLength=-1;
         
         numChannels=9;
+        
+        mod_subsongs=adPlugPlayer->getsubsongs();
+        mod_minsub=0;
+        mod_maxsub=mod_subsongs-1;
+        mod_currentsub=adPlugPlayer->getsubsong();
         
         return 0;
     }
@@ -9771,7 +9822,7 @@ extern bool icloud_available;
     }
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -9841,6 +9892,7 @@ extern bool icloud_available;
         mdz_defaultSAPPLAYER=defaultSAPPLAYER;
         mdz_defaultVGMPLAYER=defaultVGMPLAYER;
         mdz_defaultNSFPLAYER=defaultNSFPLAYER;
+        mdz_defaultMIDIPLAYER=defaultMIDIPLAYER;
         mNeedSeek=0;
         mod_message_updated=0;
         mod_subsongs=1;
@@ -10403,13 +10455,35 @@ extern bool icloud_available;
     }
     
     for (int i=0;i<[filetype_extADPLUG count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
-            break;
+        bool is_mid=false;
+        if ([@"MID" caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+            is_mid=true;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
-            break;
+        
+        if (is_mid) {
+            if (mdz_defaultMIDIPLAYER==1) { //Priority over Timidity
+                if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+                    [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+                    break;
+                }
+                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+                    [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+                    break;
+                }
+            } else {
+                //let Timidity plays
+            }
+        } else {
+            if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+                if (mADPLUGPriorityOverMod) [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+                else [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
+                break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+                if (mADPLUGPriorityOverMod) [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+                else [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
+                break;
+            }
         }
     }
     
@@ -10778,6 +10852,10 @@ extern bool icloud_available;
             iCurrentTime=startPos;
             break;
         case MMP_ADPLUG:  //ADPLUG
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            adPlugPlayer->rewind(mod_currentsub-mod_minsub);
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -11634,8 +11712,10 @@ extern bool icloud_available;
 ///////////////////////////
 // ADPLUG
 ///////////////////////////
--(void) optADPLUG:(int)opltype {
+-(void) optADPLUG:(int)opltype stereosurround:(int)stereosurround priorityOverMod:(int)priorityOverMod{
     mADPLUGopltype=opltype;
+    mADPLUGstereosurround=stereosurround;
+    mADPLUGPriorityOverMod=priorityOverMod;
 }
 
 ///////////////////////////

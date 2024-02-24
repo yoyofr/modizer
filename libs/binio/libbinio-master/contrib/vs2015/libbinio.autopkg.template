@@ -1,0 +1,55 @@
+#define {
+	// Must match the PlatformToolset options in appveyor.yml
+	toolsets: "v141,v140,v120_xp";
+}
+
+configurations {
+	UserPlatformToolset {
+		// Needed for VS2015 support
+		key = "PlatformToolset";
+		choices: ${toolsets};
+	};
+}
+
+nuget {
+	nuspec {
+		id = libbinio;
+		// "@version" is replaced by the current Appveyor build number in the
+		// pre-deployment script.
+		version: @version;
+		title: libbinio;
+		authors: {Simon Peter};
+		owners: {Malvineous};
+		licenseUrl: "http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html";
+		projectUrl: "https://github.com/adplug/libbinio";
+		iconUrl: "https://avatars2.githubusercontent.com/u/12982922?v=3&s=200";
+		copyright: "Copyright 2002-2016 Simon Peter";
+		requireLicenseAcceptance: false;
+		description: "Binary I/O stream class library providing platform-independent binary data streams in C++";
+		releaseNotes: "Package upstream git version.";
+		tags: {coapp, native, nativepackage, static};
+	}
+	files {
+		#defines {
+			SDK_ROOT = "../../";
+			SolutionDir = "./";
+		}
+		include: {
+			"${SDK_ROOT}src/*.h",
+			"${SolutionDir}libbinio/binio.h"
+		};
+		docs: {
+			"${SDK_ROOT}README",
+			"${SDK_ROOT}COPYING"
+		};
+		(${toolsets}, "Win32,x64", "release,debug") => {
+			[${0},${1},${2}] {
+				lib: ${SolutionDir}${0}\${1}\${2}\${pkgname}.lib;
+				symbols: ${SolutionDir}${0}\${1}\${2}\${pkgname}.pdb;
+			}
+		}
+	}
+	targets {
+		Defines += HAS_LIBBINIO;
+	}
+}

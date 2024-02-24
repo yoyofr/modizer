@@ -1,0 +1,114 @@
+Note
+----
+These are generic installation instructions.
+
+These instructions assume that Watcom is the default compiler of this software
+package. If this software supports additional compilers, aside from Watcom, it
+is very likely that this build system is not the default. In this case, it may
+well be possible that some files have different names than assumed in these
+instructions. Please consult the software ditribution's documentation for more
+information on this topic.
+
+Configuration
+-------------
+Before you can compile anything, create a file called CONFIG.MIF in the
+distribution's base directory. It is best to copy the template below out of
+this file and modify it to fit your setup.
+
+In most cases, you just want to change the installation target directories
+"bindir", "includedir" and "libdir" to your standard binary, header and
+library directories. If you want to install the software manually and don't
+want to set any other options, you can just leave the whole file blank.
+
+There are numerous possibilities to configure other aspects of the
+distribution using the CONFIG.MIF file. You can redefine any variable of the
+distribution's original Makefile, any standard wmake variable (CFLAGS, LDFLAGS
+and the like) or specify another system type using the SYSTEM variable.
+
+Installation
+------------
+After configuration, run "wmake" to build the software.
+
+If you like to automatically install the software, run "wmake install".
+
+For manual installation, you have to consult the software distribution's
+documentation for information.
+
+After the installation, you can run "wmake clean" to delete any files created
+during compilation.
+
+If you must, you can even run "wmake distclean" to clean up any additionally
+created files and bring back your source directory into the same state it was
+after unpacking the distribution archive.
+
+Uninstallation
+--------------
+You can automatically delete all installed files by running "wmake uninstall".
+Note that any files created after installation are being left on the device.
+
+Debugging
+---------
+To enable debugging using the Watcom debugger, add the following line to your
+CONFIG.MIF file:
+
+debug = yes
+
+This will recompile all source files with source-level debugging enabled and
+instructs the linker to include debugging information. Be careful with the
+SYSTEM setting in your CONFIG.MIF file, though. Only some extenders are
+supported by the Watcom debugger. Some distributions may have defined a
+non-compatible extender by default, which you must override by specifying
+your own.
+
+CONFIG.MIF Template
+-------------------
+# Makefile configuration file
+# Lines starting with a '#' are comments.
+# Variables in capital letters are distribution-specific. Be careful when
+# changing any of these!
+
+# If debug is set to "yes", the compiler and linker are instructed to
+# include debug information with the compiled objects and executables.
+# Default: no
+# This example enables debugging.
+#debug = yes
+
+# "bindir" is the target directory for binary (.exe) files.
+# Default: current directory
+#bindir = c:\bin
+
+# "includedir" is the target directory for header (.h) files.
+# Default: current directory
+#includedir = c:\include
+
+# "libdir" is the target directory for library (.lib) files.
+# Default: current directory
+#libdir = c:\lib
+
+# SYSTEM defines the target system.
+# Default: (distribution specified)
+#SYSTEM =
+
+# CFLAGS defines any parameters that should be passed to the C compiler.
+# Default: (distribution specified)
+#CFLAGS +=
+
+# CXXFLAGS defines any parameters that should be passed to the C++ compiler.
+# Default: (distribution specified)
+#CXXFLAGS +=
+
+# CPPFLAGS defines preprocessing directives passed to the C/C++ compilers.
+# Default: (distribution specified)
+#CPPFLAGS +=
+
+# LDFLAGS defines any parameters passed to the linker.
+# Default: (distribution specified)
+#LDFLAGS +=
+
+# LIBFLAGS defines any parameters passed to the library manager.
+# Default: (distribution specified)
+#LIBFLAGS +=
+
+# ZIPFLAGS defines any parameters passed to the archive manager.
+# Default: (distribution specified)
+#ZIPFLAGS =

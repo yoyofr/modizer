@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @PACKAGE@
+Description: Binary I/O stream class library
+URL: http://adplug.github.io/libbinio
+Version: @VERSION@
+Libs: -L${libdir} -lbinio
+Libs.private: -lm
+CFlags: -I${includedir}/@PACKAGE@

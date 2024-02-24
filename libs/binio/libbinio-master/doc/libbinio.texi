@@ -1,0 +1,1357 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename libbinio.info
+@include version.texi
+@settitle Binary I/O stream class library @value{VERSION}
+@c %**end of header
+
+@copying
+This manual documents the binary I/O stream class library, version
+@value{VERSION}. It was last updated on @value{UPDATED}.
+
+Copyright @copyright{} 2002 - 2005, 2008 Simon Peter
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the license is
+included in the section entitled ``GNU Free Documentation License.''
+
+(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
+this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development.''
+@end quotation
+@end copying
+
+@dircategory Software Libraries
+@direntry
+* libbinio: (libbinio).          Binary I/O stream class library @value{VERSION}
+@end direntry
+
+@titlepage
+@title Binary I/O stream class library
+@subtitle Version @value{VERSION}
+@subtitle Last updated on @value{UPDATED}
+@author Simon Peter
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Binary I/O stream class library
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::                Introduction to the library.
+* Usage::                       A tutorial to libbinio.
+* Reference::                   The complete reference.
+* FAQ::                         Frequently asked questions.
+* Copying This Manual::         Your rights and freedoms.
+
+* Concept Index::
+* Class Index::
+* Method Index::
+* Type Variable and Macro Index::
+@end menu
+
+@node Introduction
+@chapter Introduction
+@cindex Introduction
+
+The binary I/O stream class library (libbinio) presents a
+platform-independent way to access binary data streams in C++.
+
+The library is hardware independent in the form that it transparently
+converts between the different forms of machine-internal binary data
+representation.
+
+It further employs no special I/O protocol or file format and can be
+used on arbitrary binary data sources.
+
+@menu
+* Features::
+@end menu
+
+@node Features
+@section Features
+@cindex Features
+
+libbinio implements a generalized binary stream class framework, with
+the following features:
+
+@itemize @bullet
+@item The ability to read arbitrary-sized integers, as long as the
+underlying system can hold the final value.
+@item Conversion between Big- and Little-Endian storage.
+@item Reading and writing of @acronym{IEEE-754} single and double
+precision floating-point numbers and the conversion to/from any
+system-internal floating-point representation.
+@end itemize
+
+libbinio provides classes for streaming access to normal files,
+arbitrary data strings in memory and a wrapper around standard
+iostreams from either the @acronym{ISO} standard C++ library, or a
+``traditional'' iostream implementation.
+
+In addition, convenience methods for the @acronym{STL} @code{string}
+class can be enabled that support reading and writing of arbitrary
+length strings with dynamic memory allocation.
+
+libbinio should compile and run on as many systems as possible. If it
+does not work with your system/compiler combination, please tell me!
+
+@node Usage
+@chapter Usage
+@cindex Usage
+
+This chapter covers common usage of libbinio and mostly everything you
+need to know to interface with the library. For very advanced usage,
+refer to @ref{Reference}.
+
+Since libbinio's class framework is modelled somewhat after the
+traditional iostream library, it is good if you already have used the
+C++ iostream facility before.
+
+@menu
+* Basics::
+* Files::
+* Reading and Writing::
+* Peeking::
+* Seeking::
+* Alien architectures::
+* Wrapping around iostream::
+* Errors::
+* Creating architecture-independent file formats::
+* Examples::
+@end menu
+
+@node Basics
+@section Basics
+@cindex Basics
+
+The binary stream class framework divides streams into
+@cindex input-only
+@dfn{input-only},
+@cindex output-only
+@dfn{output-only} and
+@cindex input/output
+@dfn{input/output} supporting
+streams. All derived classes also inherit this partition.
+
+All derived classes that come with the library follow a uniform naming
+scheme. You can identify what I/O facilities a stream provides, by
+looking at the class name. All class names of libbinio start with
+@samp{bin} and end with a descriptive name of what they are meant
+for. In between is at most one character that describes what I/O
+functionality is provided. If this character is an @samp{i}, the class
+provides input-only streams, @samp{o} means output-only and no
+character indicates both input and output facilities.
+
+For example, @code{binifstream} is an input-only binary stream for
+standard file access. @code{binstream} is the general input and output
+supporting stream.
+
+@node Files
+@section Files
+@cindex Files
+
+For the most part, you will want to use libbinio to access normal
+binary files on your filesystem.
+
+This is what the @code{binfstream} related classes are for. To use
+them, you first have to include the file @file{binfile.h} within your
+code.
+
+This file contains four class declarations -- @code{binfbase},
+@code{binifstream}, @code{binofstream} and
+@code{binfstream}. @code{binfbase} is a base class for the others and
+normally not used by an ordinary libbinio user. This leaves us with
+three usable classes.
+
+To create a binary stream on a file, just instantiate one of the three
+classes, according to what I/O facilities the stream should provide
+(see @ref{Basics} for information on the class naming conventions).
+
+@cindex Opening files
+@cindex File open mode
+@cindex Appending to files
+To open a file, you use the @code{open(@var{filename}, [@var{mode}])}
+method of one of the classes. @var{filename} is a string (both C style
+@acronym{ASCIIZ} strings and @acronym{STL} @code{string} objects can
+be passed, if supported by your compiler) containing the name of the
+file to open. Additionally, you can pass a @var{mode} argument to
+specify a special way to open the file -- this is described
+later. There's also a special constructor, provided for convenience,
+that opens up a file automatically when the object is created. It has
+exactly the same syntax as @code{open()}.
+
+@cindex Closing files
+After usage, you can explicitly close the file with the @code{close()}
+method. It is always a good idea to do this explicitly, though not
+needed because the file automatically will be closed on object
+deconstruction.
+
+@node Reading and Writing
+@section Reading and Writing
+
+Every binary stream class offers the same set of binary I/O methods,
+inherited from one of the general stream base classes
+@code{binistream}, @code{binostream} or both of them. These, in turn,
+inherit from the @code{binio} class, which provides additional general
+methods, as well as some important type declarations.
+
+The binary I/O methods differenciate between integers, floating-point
+numbers and character strings.
+
+@cindex Reading
+To read an integer from a binary stream, you would use
+@code{readInt(@var{size})}. The @var{size} argument specifies the size
+of the integer in bytes. The method returns the integer, that has just
+been read.
+
+@code{readFloat(@var{type})} reads a floating-point number of type
+@var{type} from the stream. As all floating-point formats are well
+defined, you just have to specify the right floating-point type to
+this method and it will figure out the correct size by itself. Refer
+to @ref{Reference} for information of what floating-point formats are
+supported and how to specify them. The method returns the
+floating-point number, that has just been read.
+
+A character string can be read by using the @code{readString()}
+method. To read a character string into a pre-allocated C style
+@acronym{ASCIIZ} string buffer, you would use
+@code{readString(@var{string}, @var{max-length}, [@var{delimiter}])}
+and give a pointer to the string buffer with @var{string}, the maximum
+length of the string (@emph{not} including the final @samp{\0}) in
+@var{max-length} and optionally a delimiter character @var{delimiter},
+at which libbinio would stop reading the string, even if it could read
+more characters. The delimiter is extracted from the stream and then
+discarded. It will not appear in the final string. If you do not
+supply a @var{delimiter}, always up to @var{max-length} characters are
+read from the stream. The method returns the number of characters
+actually read from the stream.
+
+You can also read an @acronym{STL} @code{string} object from the
+stream, using an overloaded version of @code{readString()}. The syntax
+is @code{readString([@var{delimiter}])}. You also do not need to
+supply a @var{delimiter}, as it is set to @samp{\0} by default (to
+prevent you from reading a virtually unlimited number of characters
+and flood your memory, since you can't supply a @var{max-length}
+argument  this time). The method returns a @code{string} object,
+containing all characters up to, but not including, @var{delimiter} or
+the end of the stream, whichever was encountered first.
+
+@cindex Writing
+All the above mentioned ``read'' methods have a ``write'' equivalent,
+with the same options and features. All ``write'' methods take the
+data to be written as first argument, as in (for example)
+@code{writeInt(@var{value}, @var{size})}, @var{value} is the actual
+value to be written to the stream.
+
+@node Peeking
+@section Peeking
+
+Analogous to the @code{readInt()} and @code{readFloat()} methods are
+the @code{peekInt(@var{size})} and @code{peekFloat(@var{type})}
+methods, that take the same arguments and also read an integer or a
+floating-point number from the stream. Unlike their ``@code{read}''
+counterparts, they don't modify the stream position. The next ``real''
+access (i.e. with one of the @code{read} methods) to the stream will
+continue as if the @code{peek} methods have never been called.
+
+@node Seeking
+@section Seeking
+@cindex Seeking
+@cindex Positioning
+
+Sometimes, you need to reposition within your stream. To do this, you
+use the @code{seek(@var{position}, [@var{offset}])}
+method. @var{position} is the new position in the stream, counted
+byte-wise and starting at @samp{0}. The optional argument @var{offset}
+specifies from where the method should seek. If it is @samp{Set},
+counting is started at the beginning of the stream. @samp{Add}
+indicates to seek from the current stream position and @samp{End}
+means seeking from the end of the stream. Note that @var{position} is
+a signed integer value and you can also seek backwards by inserting a
+negative number.
+
+You can use the @code{pos()} method to determine your current position
+within the stream, which is returned by the method.
+
+@node Alien architectures
+@section Alien architectures
+@cindex Alien architectures
+
+All the above mentioned procedures expect the data to be in the format
+of your machine's own idea of how the data has to be stored. However,
+there are situations where you have to read and even write binary data
+for some other, incompatible architecture.
+
+@cindex Other Architectures
+All architectures that are incompatible with the architecture,
+libbinio is currently running on, are called @dfn{alien}
+architectures.
+
+@cindex Data conversion
+@cindex Converting from other architectures
+libbinio makes the process of converting between your architecture's
+and the alien architecture's idea of binary storage completely
+transparent to you. All you have to do is to specify some
+characteristics about the stream's binary format, after you have
+opened it. All newly created streams are initialized with the current
+system's binary characteristics, so you don't have to do anything if
+you just want to access data of your own architecture.
+
+@cindex Setting flags
+@cindex Reading flags
+@cindex Flags
+You use the @code{setFlag(@var{flag}, [@var{set}])} and
+@code{getFlag(@var{flag})} methods to set and read a stream's
+characteristics. @var{flag} specifies the flag to be set or read
+(refer to @ref{Reference} for information on what flags are available
+and their meaning). The optional argument @var{set} specifies whether
+the flag should be set (the default) or erased.
+
+After you have set up all flags to sufficiently specify the alien
+architecture, you can proceed to do binary I/O, just as described in
+the previous chapters and libbinio will do all the necessary
+conversion between your own and the alien architecture for you.
+
+If you ever happen to have binary data of multiple, incompatbile,
+alien architectures in a single stream (very unlikely), you can re-set
+any of the flags to any other value, in between any of the other
+stream access method calls. The stream will adhere to the new flag
+values instantly with the next data access.
+
+@node Wrapping around iostream
+@section Wrapping around iostream
+@cindex Wrapping around iostream
+@cindex iostream wrappers
+
+libbinio provides a set of classes, called @code{binwstream},
+@code{biniwstream} and @code{binowstream}, that can be wrapped around
+an already existing stream from the standard or traditional C++
+iostream library.
+
+To do this, you just have to pass a pointer to the original stream
+object from the iostream library to the constructor of the appropriate
+@code{binwstream} class. Of course, you have to match an input stream
+from the iostream library to an input stream from libbinio and
+analogous for the output-only streams. The class framework will
+prevent you from mismatching them. You can, however, wrap an
+unidirectional binary stream around a bidirectional stream from the
+iostream library.
+
+There is one important thing you have to remember: If you plan to wrap
+a binary stream around an iostream stream, always open the iostream
+stream with the @code{ios::bin} mode flag set! This will prevent some
+operating systems (namely, MS-DOS and Windows) from doing nasty
+implicit interpretation on the streams. This definitly will impose
+problems when you try to read or write the binary stream.
+
+All other flags, you set when opening the original iostream stream,
+can indirectly have effect on the operations you do on the wrapped
+binary stream.
+
+@node Errors
+@section Errors
+@cindex Errors
+
+When doing stream I/O, some unpredictable, erroneus situations can
+occur at runtime. Binary streams are no exception to this
+phenomenon. To provide some sort of protection against this, all
+libbinio stream classes inherit an error reporting method called
+@code{error()}.
+
+It is a good idea to check the error status of a stream once in a
+while to see if everything is still in place. @code{error()} returns a
+variable of type @code{Error}, which is an integer that holds a bit
+field of error values for that stream. Refer to @ref{Reference} for
+information about the possible values of this variable and their
+meaning.
+
+@cindex Simple error checking
+A status of no error is always reported with a value of @samp{0}, so
+you can easily check if everything is still okay in a simple @code{if}
+construct, like this:
+
+@example
+if(mystream.error())
+  // an error occured, do something to cure it...
+else
+  // everything is still okay!
+@end example
+
+Two convenience error reporting methods are also included:
+
+@cindex End of file error checking
+@code{eof()} only checks for the @code{Eof} error status, indicating
+whether the end of the stream has just been passed. It returns a
+boolean value, indicating the past the end of the stream.
+
+@code{ateof()} is like @code{eof()} but returns true already when the
+stream pointer is at the last byte of the stream, not past it. This is
+useful when you want to read an entire file into memory in a
+@code{while(!ateof())} loop. This method is only defined on streams
+that support reading. On write-only streams, it is not defined and not
+useful.
+
+Whenever you call @code{error()}, the internal error variable is reset
+to the @code{NoError} state, indicating no error at all, and a
+subsequent call to any of the error reporting methods will return
+@samp{NoError} again. @code{eof()} and @code{ateof()} do not reset the
+internal error variable. The last error status of the stream is
+retained.
+
+@node Creating architecture-independent file formats
+@section Creating architecture-independent file formats
+@cindex Creating architecture-independent file formats
+
+libbinio does not inherently support any specific file format. This is
+considered a feature, as it also does not impose any file format upon
+the user.
+
+It is, however, very easy to create your own architecture-independent
+file format or enhance a file format to make it architecture-independent
+on top of libbinio, by creating wrapper classes that you use to access
+your streams.
+
+Here is an example that inserts a two byte header in front of your file
+format to make it architecture-independent:
+
+@example
+class myifstream: public binifstream
+@{
+public:
+  void open(const char *filename, const Mode mode = NoCreate)
+  @{
+    binifstream::open(filename, mode);
+
+    setFlag(binio::BigEndian, getByte());
+    setFlag(binio::FloatIEEE, getByte());
+  @}
+@};
+
+class myofstream: public binofstream
+@{
+public:
+  void open(const char *filename, const Mode mode = NoCreate)
+  @{
+    binofstream::open(filename, mode);
+
+    putByte(getFlag(binio::BigEndian));
+    putByte(getFlag(binio::FloatIEEE));
+  @}
+@};
+@end example
+
+You can use these new classes as usual.
+
+@node Examples
+@section Examples
+@cindex Examples
+
+To read some data (namely integers, floats and strings) from an
+ordinary binary file on your filesystem, which was also created on
+your architecture:
+
+@example
+#include <binfile.h>
+
+binifstream     file("test.dat");
+int             i;
+float           f;
+char            string[256];
+
+// Read a 32-bit integer
+i = file.readInt(4);
+
+// Read an IEEE-754 single (32 bits)
+f = file.readFloat(binio::Single);
+
+// Read a string until newline or max. number of chars exceeded
+file.readString(string, 256, '\n');
+@end example
+
+To do I/O on a file that was created on an x86 machine (i.e. Little
+Endian, @acronym{IEEE-754} floats), while your own architecture is
+something different:
+
+@example
+#include <binfile.h>
+
+binfstream     file;
+int            i = 1234567;
+long           pos;
+
+// open the file "x86.dat" for reading and writing, but do not create
+// it if it's not there.
+file.open("x86.dat", binfbase::NoCreate);
+
+// Check if we could cleanly open the file and bail out, if we
+// couldn't.
+if(file.error())
+  return ERROR;
+
+// Set Little Endian mode, with IEEE-754 floats.
+file.setFlag(binio::BigEndian, false);   // remove flag
+file.setFlag(binio::FloatIEEE);          // set flag
+
+// as we just want a demonstration, we discard all read data right away.
+
+// Read a 16-bit integer
+file.readInt(2);
+
+// Read an IEEE-754 double (64 bits)
+file.readFloat(binio::Double);
+
+// Remember our current position in the stream
+pos = file.pos();
+
+// Seek to the end of the file
+file.seek(0, binio::End);
+
+// Write our variable i, determining its size using sizeof()
+file.writeInt(i, sizeof(i));
+
+// Seek back to our former position
+file.seek(pos);
+
+// Read a byte from here
+file.readInt(1);
+
+// close the file again
+file.close();
+
+// and we're finished
+return SUCCESS;
+@end example
+
+To wrap around a stream from the iostream library, reading data until
+the end of the stream:
+
+@example
+#include <fstream>
+#include <binwrap.h>
+
+// Open the iostream stream for reading and writing in binary mode.
+fstream file("test.dat", ios::in | ios::out | ios::bin);
+
+// Wrap a binary input-only stream around it.
+biniwstream bfile(&file);
+
+// Read (and immediately discard) 24-bit integers until the end
+// of the stream.
+while(!bfile.eof())
+  bfile.readInt(3);
+@end example
+
+@node Reference
+@chapter Reference
+@cindex Reference
+
+This chapter comprises a complete reference of all classes, methods,
+types and variables inside libbinio.
+
+@menu
+* Concepts::
+* Configuration::
+* Base classes::
+* File streams::
+* String streams::
+* iostream wrappers::
+@end menu
+
+@node Concepts
+@section Concepts
+@cindex Concepts
+
+The libbinio stream classes can be divided into two layers of
+functionality:
+
+@enumerate
+@cindex Conversion layer
+@item The @dfn{conversion layer} provides methods for transparently
+converting the data, that has just been read from or is to be written
+to a stream, between the current and the alien architecture. The
+@code{binistream}, @code{binostream} and @code{binstream} classes
+belong to this layer.
+@cindex Stream layer
+@item The @dfn{stream layer} faciliates functionality on the stream
+level. It provides methods for byte-by-byte access to the data,
+seeking, opening and closing a stream and anything else related to the
+maintenance of a stream. The @code{binfstream}, @code{binwstream} and
+@code{binsstream} related classes belong to this layer.
+@end enumerate
+
+@cindex Administrative classes
+Additionally, there are some administrative and auxiliary classes
+provided, which do not belong to any of the above defined layers. The
+@code{binio} base class belongs here, for example.
+
+@node Configuration
+@section Configuration
+@cindex Configuration
+@cindex Compile-time configuration
+
+libbinio can be configured in various ways at compile time and some
+parts of the library can be disabled to save disk space and/or
+processing speed.
+
+In some cases, these configuration options directly change parts of
+the interface and must thus also be known by the library user.
+
+To make these options available to the library user, libbinio defines
+some C preprocessor macros in @file{binio.h}. These are:
+
+@vtable @code
+@item BINIO_ENABLE_STRING
+If this macro expands to @samp{1}, @acronym{STL} @code{string} object
+support is enabled and can be used instead of traditional C
+@acronym{ASCIIZ} pointers with all functions that expect a string
+somewhere. It expands to @samp{0} otherwise.
+@item BINIO_ENABLE_IOSTREAM
+If this macro expands to @samp{1}, the iostream wrapper classes are
+enabled and can be used by the library user. It expands to @samp{0}
+otherwise and no iostream wrapper classes are present in this case.
+@item BINIO_ISO_STDLIB
+If this macro expands to @samp{1}, libbinio's iostream wrapper classes
+are taylored for the @acronym{ISO} standard C++ library, instead of a
+``traditional'' iostream implementation. It expands to @samp{0}
+otherwise. This macro is merely for libbinio's internal use and should
+not be used by an application programmer.
+@item BINIO_WITH_MATH
+This macro is for libbinio's internal use and should not be used by an
+application programmer.
+@end vtable
+
+All macros are @emph{always} defined. The decision whether a feature
+is enabled in the library has to be based on the value of these
+macros, not whether they are defined or not.
+
+@node Base classes
+@section Base classes
+@cindex Base classes
+
+The base classes provide a common base for all derived libbinio stream
+classes. They define important methods, types and variables.
+
+One general and three stream base classes are defined in the file
+@file{binio.h}, which make up the libbinio base classes.
+
+@menu
+* binio::
+* binistream::
+* binostream::
+* binstream::
+@end menu
+
+@node binio
+@subsection binio
+@tindex binio
+
+@code{binio} is the general base class, containing important method,
+type and variable declarations. As a user, you normally do not need it
+directly, except for scoping types and variables to it.
+
+@subheading Header file: @file{binio.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binio()
+The constructor.
+
+@item ~binio()
+The destructor.
+
+@item void setFlag(Flag f, bool set = true)
+Is used to set or erase flags to change the behaviour of the
+stream. Available flags and their meaning are listed in the types
+table for this class, below. The optional argument @code{set} is used
+to set or erase the specified flag. If it is not specified, it
+defaults to @code{true}, setting (activating) the specified flag.
+
+@item bool getFlag(Flag f)
+Returns whether the specified flag is set (active) or not. Refer to
+@code{setFlag}, above, for more information.
+
+@item Error error()
+Returns the current error status of the stream. A status of no error
+is always indicated with a value of @samp{0}, as to allow easy error
+checks with a simple @code{if} construct.
+
+@item bool eof()
+Returns @samp{true} if the last access to the stream was unsuccessful
+because the stream pointer was already past the end of the
+stream. @samp{false} is returned otherwise. Synonymous to checking if
+the return value of a call to @code{error()} sets the @code{Eof} error
+code flag.
+
+@item virtual void seek(long, Offset = Set)
+Abstract virtual method for seeking into streams. Implemented by the
+stream layer. The first argument specifies the relative position to
+seek to. Use a negative value to seek backwards. The optional second
+argument specifies from where to start seeking. @code{Set} specifies
+the beginning of a stream, @code{Add} specifies the current position
+and @code{End} specifies the end of the stream. If it is omitted, it
+defaults to @code{Set}, seeking from the beginning of the stream.
+
+@item virtual long pos()
+Abstract virtual method that returns the current position inside the
+stream. Implemented by the stream layer.
+@end ftable
+
+@subheading Protected methods:
+
+@ftable @code
+@item Float pow(Float base, signed int exp)
+Is a stripped-down version of the @code{pow()} function from the
+@file{math.h} standard C math library include file. It is used during
+conversion between floating-point formats and can calculate powers of
+a floating-point base argument, using a signed integer exponent.
+@end ftable
+
+@subheading Public data types and variables:
+
+@vtable @code
+@item enum Flag
+Enumeration of all defined stream flags that can be set using the
+@code{setFlag()} and @code{getFlag()} methods. This type defines the
+following values:
+
+@vtable @code
+@item BigEndian
+If set, sets the stream's byte-ordering to big endian
+notation. Otherwise, little endian notation is used.
+
+@item FloatIEEE
+If set, all floating-point access to the stream will assume
+@acronym{IEEE-754} standardized floating-point numbers. Only this type
+of data is expected from and written to the stream.
+
+If your architecture does not support @acronym{IEEE-754}
+floating-point numbers, the value will be converted. Various
+conversion errors can occur and sometimes the conversion is not
+possible at all. In this case, the @code{Unsupported} error is issued
+and a specific value is returned. The following table summarizes all
+possible return codes for certain problematic values:
+
+@multitable {@samp{Not a Number (NaN)}} {Return value}
+@item Real value @tab Return value
+@item @samp{Infinity} @tab @samp{1.0}
+@item @samp{-Infinity} @tab @samp{-1.0}
+@item @samp{Not a Number (NaN)} @tab @samp{0.0}
+@end multitable
+
+Both positive and negative zero (@samp{0}) are mapped to the same zero
+value, if your architecture does not support both positive and
+negative zeroes. There is no way to distinguish between the two values
+in this case.
+
+@end vtable
+
+@item enum ErrorCode
+Enumeration of all possible error values. This type defines the
+following values:
+
+@vtable @code
+@item NoError
+No error at all. This is always mapped to an integer value of
+@samp{0}.
+
+@item Fatal
+An unspecified, fatal error occured. This error is issued only if
+something really strange happened (i.e. on internal logic errors in
+the library, or if something else, undefined happens, etc.). It is
+advised to immediately terminate any binary stream I/O activity and
+fail with an error message to the application user, maybe even
+terminate the application completely.
+
+@item Unsupported
+You tried to access stream data in an unsupported way. This error is
+issued whenever an (explicit or implicit) conversion between two types
+of data storage is requested, that isn't supported by libbinio yet.
+
+@item NotOpen
+The stream you tried to access is not open yet.
+
+@item Denied
+Access to this stream is denied. This error is normally issued when
+you try to open a file on a filesystem, but you have insufficient
+rights to access it.
+
+@item NotFound
+The stream you tried to access was not found. This is mostly issued
+on a file not found error, when accessing normal files on a
+filesystem.
+
+@item Eof
+The end of the stream has been passed. Issued when you tried to read
+past the last byte of a stream.
+@end vtable
+
+@item enum Offset
+Specifies the position inside a stream, from where a seek is started
+with the @code{seek()} method. This type defines the following values:
+
+@vtable @code
+@item Set
+Start seeking at the beginning of the stream.
+
+@item Add
+Start seeking from the current position in the stream.
+
+@item End
+Start seeking from the end of the stream.
+@end vtable
+
+@item enum FType
+Specifies what type of floating-point number is to be accessed next,
+using the @code{readFloat()} or @code{writeFloat()} methods. Most
+floating-point formats specify multiple data types to support a
+broader range of precision. libbinio generalizes the idea by
+categorizing them only into single and double precision numbers. This
+type defines the following values:
+
+@vtable @code
+@item Single
+Access a single precision floating-point number.
+
+@item Double
+Access a double precision floating-point number.
+@end vtable
+
+@item int Error
+This integer holds a bit field of all error values for a
+stream. Returned by @code{error()}. A status of ``no error'' is always
+indicated when the whole field is set to @samp{0} (zero), i.e. the
+integer is @samp{0}. Test for an error by binary or'ing this integer
+with one of the error values from @code{ErrorCode}.
+@end vtable
+
+@subheading Protected data types and variables:
+
+@vtable @code
+@item Int
+The largest integer type supported by the architecture.
+
+@item Float
+The largest floating-point type supported by the architecture.
+
+@item Byte
+This type is always one byte (8 bits) wide.
+
+@item Flags
+Type to hold a flag variable, containing the status of all flags of a
+stream.
+
+@item Flags my_flags
+This variable holds the current status of all flags for the stream.
+
+@item static const Flags system_flags
+This variable holds the status of the flags, defining the standard
+behaviour of the system. This is determined once at runtime, at
+startup of the library.
+
+@item Error err
+This variable holds the error status of a stream.
+@end vtable
+
+@node binistream
+@subsection binistream
+@tindex binistream
+
+@code{binistream} provides an input-only binary stream.
+
+@subheading Header file: @file{binio.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binistream()
+The constructor.
+
+@item ~binistream()
+The destructor.
+
+@item Int readInt(unsigned int size)
+Reads an integer of size @code{size} (in bytes) from the stream and
+returns it. The return value is undefined if an error occured. The
+maximum number of bytes that can be read at once equals the size (in
+bytes) of the largest integer type, supported by the system.
+
+@item Float readFloat(FType ft)
+Reads a floating-point number from the stream and returns it. Takes
+the floating-point format to read as the argument @code{ft}. Refer to
+the list of public types of the @code{binio} class for information
+about what floating-point formats are supported. The return value is
+undefined if an error occured. The value from the stream is always
+rendered to the biggest floating-point type, supported by the system.
+
+If your architecture is incompatible with the floating-point number
+that has just been read, @code{readFloat()} tries to convert it. This
+is sometimes not possible or not as accurate as the original value and
+an error will be issued in these cases. Refer to the list of public
+types of the @code{binio} class for information about what errors
+could be issued.
+
+@item unsigned long readString(char *str, unsigned long maxlen, const char delim)
+@itemx std::string readString(const char delim = '\0')
+Reads a character string from the stream. Both pre-allocated standard
+C @acronym{ASCIIZ} strings and @acronym{STL} @code{string} objects are
+supported.
+
+The @acronym{ASCIIZ} version takes a pointer to the pre-allocated
+string buffer as the @code{str} argument. @code{maxlen} specifies the
+maximum number of characters to be read from the stream (@emph{not}
+including the trailing @samp{\0} that is always appended to the string
+buffer). The optional argument @code{delim} is a delimiter
+character. If this character is encountered in the stream, no more
+characters will be read. The delimiter character itself is
+discarded. It will not appear in the final string. If the @code{delim}
+argument is omitted, always up to @code{maxlen} characters are read.
+
+The @code{string} object version just takes one optional argument, the
+delimiter character, explained above. Characters are always read until
+the delimiter character or the end of the stream is encountered. If
+@code{delim} is omitted, it defaults to @samp{\0}. It returns a
+@code{string} object, containing the final string.
+
+@item Int peekInt(unsigned int size)
+Like @code{readInt()}, but doesn't modify the stream position, so any
+later access to the stream will appear as if @code{peekInt()} has
+never been called.
+
+@item Float peekFloat(FType ft)
+Like @code{readFloat()}, but doesn't modify the stream position, so
+any later access to the stream will appear as if @code{peekFloat()}
+has never been called.
+
+@item bool ateof()
+Returns @samp{true} if the current stream position is at the last byte
+of the stream. @samp{false} is returned otherwise.
+
+@item void ignore(unsigned long amount = 1)
+Reads and then immediately discards the specified amount of bytes from
+the stream. If the optional argument @code{amount} is omitted, it
+defaults to @samp{1}, ignoring exactly 1 byte from the stream.
+@end ftable
+
+@subheading Protected methods:
+
+@ftable @code
+@item virtual Byte getByte()
+Abstract virtual method to extract exactly one byte (8 bits) from the
+stream and advance stream pointer accordingly. The byte is
+returned. Implemented by the stream layer.
+@end ftable
+
+@node binostream
+@subsection binostream
+@tindex binostream
+
+@code{binostream} provides an output-only binary stream.
+
+@subheading Header file: @file{binio.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binostream()
+The constructor.
+
+@item ~binostream()
+The destructor.
+
+@item void writeInt(Int val, unsigned int size);
+Writes the integer value @code{val} of size @code{size} (in bytes) to
+the stream.
+
+@item void writeFloat(Float f, FType ft);
+Writes the floating-point value @code{f} of type @code{ft} to the
+stream. Refer to the list of public types of the @code{binio} class
+for information about what floating-point formats are supported.
+
+If the requested floating-point type is not supported by your
+architecture, @code{writeFloat()} tries to convert it. This is not
+always possible and an @code{Unsupported} error is issued if the
+conversion fails and nothing is written to the stream in this case.
+
+@item unsigned long writeString(const char *str, unsigned long amount = 0);
+@itemx unsigned long writeString(const std::string &str);
+Writes a character string to the stream. Both standard C
+@acronym{ASCIIZ} strings and @acronym{STL} @code{string} objects are
+supported.
+
+The standard C version takes a pointer @code{str} to the
+@acronym{ASCIIZ} string to write as first argument and an optional
+second argument @code{amount}, which specifies the number of
+characters to write from that string. If it is omitted, the whole
+string is written to the stream.
+
+For the @code{string} object version, the only argument is the
+@code{string} object, containing the string to write.
+
+Both methods return the number of characters actually written to the
+stream (which should only differ from the value you wanted to write
+when an error occured).
+@end ftable
+
+@subheading Protected methods:
+
+@ftable @code
+@item virtual void putByte(Byte)
+Abstract virtual method to insert exactly one byte (8 bits) into the
+stream and advance the stream pointer accordingly. The byte to be
+written is passed as the only argument. Implemented by the stream
+layer.
+@end ftable
+
+@node binstream
+@subsection binstream
+@tindex binstream
+
+@code{binstream} provides a both input and output supporting binary
+stream. It inherits the interface from both @code{binistream} and
+@code{binostream} and defines no additional methods. Refer to the
+documentation of these two classes for more information instead.
+
+@node File streams
+@section File streams
+@cindex File streams
+
+File streams provide access to ordinary files on a filesystem. They
+consist of the classes @code{binifstream}, @code{binofstream} and
+@code{binfstream}, which are all derived from the common base class
+@code{binfbase}.
+
+@menu
+* binfbase::
+* File stream classes::
+@end menu
+
+@node binfbase
+@subsection binfbase
+@tindex binfbase
+
+@code{binfbase} provides the common base class for all file I/O binary
+streams. It defines important data types, variables and methods.
+
+@subheading Header file: @file{binfile.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binfbase()
+The constructor.
+
+@item ~binfbase()
+The destructor. Automatically closes an eventually open stream.
+
+@item virtual void open(const char *filename, const Mode mode)
+@itemx virtual void open(const std::string &filename, const Mode mode)
+Two versions of an abstract virtual method to open a binary file
+stream. @code{filename} is the filename of the file to open and
+@code{mode} specifies in which mode to do so. Refer to the list of
+data types for this class for more information on this argument. You
+can combine multiple mode flags together, using the @samp{|}
+operator.
+
+@item void close()
+Method to explicitly close the stream.
+
+@item void seek(long pos, Offset offs = Set)
+@itemx long pos()
+Implementation of the abstract virtual methods, inherited from
+@code{binio}. Look there for reference.
+@end ftable
+
+@subheading Public data types and variables:
+
+@vtable @code
+@item enum ModeFlags
+Enumeration of all defined file stream open mode flags, defining how a
+file should be opened when the @code{open()} method is called. This
+type defines the following flags:
+
+@vtable @code
+@item Append
+Open the stream for appending. The stream pointer is positioned at the
+end of the stream. Also, do not truncate a file to zero length, if it
+already exists.
+@item NoCreate
+Do not automatically create a nonexistant file on first access and
+fail instead. Also, do not truncate a file to zero length, if it
+already exists.
+@end vtable
+
+@item Mode
+Type of the variable to hold the mode specification flags that are
+passed to one of the @code{open()} methods to open a file
+stream. Refer to @code{enum ModeFlags} above for information on what
+flags are defined.
+@end vtable
+
+@subheading Protected data types and variables:
+
+@vtable @code
+@item FILE *f
+Pointer to the currently opened file of this stream.
+@end vtable
+
+@node File stream classes
+@subsection File stream classes
+@cindex File stream classes
+@tindex binfbase
+
+The binary file streams consist of the classes @code{binifstream},
+@code{binofstream} and @code{binfstream}. They all inherit the
+interface from both @code{binfbase} and @code{binistream} and/or
+@code{binostream}. Refer to the class reference of these classes for
+more information on the interface instead.
+
+@tindex binifstream
+@code{binifstream} provides an input-only binary file stream. It is
+inherited from @code{binistream}. The @code{open()} method of this
+class ignores all passed @code{mode} arguments, the open mode is
+always @code{NoCreate}. The stream pointer is always positioned at the
+beginning of the stream and no files will ever be created, if they
+don't exist.
+
+@tindex binofstream
+@code{binofstream} provides an output-only binary file stream. It is
+inherited from @code{binostream}. The default open mode is
+@samp{0}. A file is truncated to zero length or created if it did not
+exist previously. The stream is positioned at the beginning of the
+file. The @code{NoCreate} mode flag has no effect with the
+@code{open()} method of this class. Only @code{Append} is honored,
+positioning the stream at the end of the file and not truncating
+it. The file is still created, if it did not exist.
+
+@tindex binfstream
+@code{binfstream} provides an input and output supporting binary file
+stream. It is inherited from both @code{binifstream} and
+@code{binofstream}. The default open mode is @samp{0}. A file is
+truncated to zero length or created if it did not exist
+previously. The stream is positioned at the beginning of the file. All
+@code{mode} arguments are valid with the @code{open()} method of this
+class. Refer to the list of public data types and variables of the
+@code{binfbase} class for more information on their meaning.
+
+All three classes define an extra convenience constructor that has the
+same syntax as the @code{open()} method and automatically open the
+specified file on object construction.
+
+For your information, here is a list of some important redefined
+methods of these classes, as explained above:
+
+@subheading Header file: @file{binfile.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binifstream()
+@itemx binofstream()
+@itemx binfstream()
+All standard constructors.
+
+@item ~binifstream()
+@itemx ~binofstream()
+@itemx ~binfstream()
+All standard destructors. They all automatically close an eventually
+open stream, on object deconstruction.
+
+@item binifstream(const char *filename, const Mode mode = NoCreate)
+@itemx binifstream(const std::string &filename, const Mode mode = NoCreate)
+Convenience constructors of the input-only stream class. Refer to the
+description of the @code{open()} method in the list of public methods
+of the @code{binfbase} class for syntax information.
+
+@item binofstream(const char *filename, const Mode mode = 0)
+@itemx binofstream(const std::string &filename, const Mode mode = 0)
+Convenience constructors of the output-only stream class. Refer to the
+description of the @code{open()} method in the list of public methods
+of the @code{binfbase} class for syntax information.
+
+@item binfstream(const char *filename, const Mode mode = 0)
+@itemx binfstream(const std::string &filename, const Mode mode = 0)
+Convenience constructors of the input and output supporting stream
+class. Refer to the description of the @code{open()} method in the
+list of public methods of the @code{binfbase} class for syntax
+information.
+
+@end ftable
+
+@node String streams
+@section String streams
+@cindex String streams
+@tindex binisstream
+@tindex binosstream
+@tindex binsstream
+@tindex binsbase
+
+The string stream classes provide a means of turning arbitrary strings
+(or ``blocks'') in memory into a binary stream, similary to what
+@code{strstream} does in the iostream library.
+
+Unlike @code{strstream} from the iostream library, these streams
+@emph{do not} support automatic enlarging of the memory area. If the
+user tries to write beyond the end of the stream, nothing is actually
+written and an @code{Eof} error is issued.
+
+@subheading Header file: @file{binstr.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item binsbase(void *str, unsigned long len)
+@item binisstream(void *str, unsigned long len)
+@item binosstream(void *str, unsigned long len)
+@item binsstream(void *str, unsigned long len)
+All constructors take two arguments. @code{str} is a pointer to a
+previously initialized data string in memory. @code{len} specifies the
+length in bytes of the string.
+
+@item ~binsbase()
+@item ~binisstream()
+@item ~binosstream()
+@item ~binsstream()
+All deconstructors.
+
+@item virtual void seek(long pos, Offset offs = Set)
+@itemx virtual long pos()
+Implementation of the abstract virtual methods, inherited from
+@code{binio}. Refer to the reference of that class for more
+information.
+@end ftable
+
+@subheading Protected data types and variables in @code{binsbase}:
+
+@vtable @code
+@item Byte *data
+This pointer is always pointing to the beginning of the initialized
+data string in memory, passed to the constructor.
+@item Byte *spos
+This pointer points to the current position in the string stream.
+@item long length
+Holds the length in bytes for the whole data string in memory, as
+passed to the constructor.
+@end vtable
+
+@node iostream wrappers
+@section iostream wrappers
+@cindex iostream wrappers
+@tindex biniwstream
+@tindex binowstream
+@tindex binwstream
+
+The iostream wrapper classes provide a way to @dfn{wrap} around an
+already existing stream of the standard or traditional C++ iostream
+library, thus providing binary access to such a stream. The wrapper
+classes consist of @code{biniwstream}, @code{binowstream} and
+@code{binwstream}.
+
+The iostream wrapper classes do not provide any extra methods by
+themselves. They just inherit the interface of the general binary
+stream classes. Look there for reference. @code{biniwstream} inherits
+from @code{binistream}, @code{binowstream} inherits from
+@code{binostream} and @code{binwstream} inherits from both of them.
+
+Remember to @emph{always} open the iostream stream with the
+@code{ios::bin} flag set, before you wrap it with a binary stream, or
+else you will get strange errors on some operating systems.
+
+All other flags you set on the iostream stream will also indirectly
+affect the wrapped binary stream, so be careful.
+
+@subheading Header file: @file{binwrap.h}
+
+@subheading Public methods:
+
+@ftable @code
+@item biniwstream(istream *istr)
+@itemx binowstream(ostream *ostr)
+@itemx binwstream(iostream *str)
+The constructor. @code{istr}, @code{ostr} and @code{str} are pointers
+to an appropriate, already existing and open stream from the iostream
+library.
+
+@item ~biniwstream()
+@itemx ~binowstream()
+@itemx ~binwstream()
+The destructor.
+
+@item virtual void seek(long pos, Offset offs = Set)
+@itemx virtual long pos()
+Implementation of the abstract virtual methods, inherited from
+@code{binio}. Refer to the reference of that class for more
+information.
+@end ftable
+
+@node FAQ
+@appendix FAQ
+@cindex FAQ
+
+@itemize @bullet
+@item Q: Why don't you supply general data block I/O methods, taking
+@code{void} pointers as arguments, so i can read all my data into a
+@code{struct} at once?
+@item A: This, in general, is a broken idea. It only makes sense if
+you plan to write your program for only one architecture and want a
+fast way to read your whole data into memory. This is not what
+libbinio was meant for, so such methods will never be
+implemented. libbinio cannot know what data types your @code{struct}
+is made of and thus cannot do any transparent data conversion. And
+there's even more: Most compilers align their @code{struct}s to a
+special multiple of bytes (mostly the current architecture's data word
+size). libbinio doesn't (and cannot) know about all this and would
+just read the data byte by byte, completely ignoring the alignment and
+causing you to be unable to read any of your data.
+
+@item Q: Why haven't you implemented error reporting using exceptions,
+instead of this darn @code{error()} method polling?
+@item A: Because exceptions aren't supported on all compiler
+platforms.
+@end itemize
+
+@node Copying This Manual
+@appendix Copying This Manual
+@cindex Copying this manual
+
+@menu
+* GNU Free Documentation License::  License for copying this manual.
+@end menu
+
+@include fdl.texi
+
+@node Concept Index
+@unnumbered Concept Index
+
+@printindex cp
+
+@node Class Index
+@unnumbered Class Index
+
+@printindex tp
+
+@node Method Index
+@unnumbered Method Index
+
+@printindex fn
+
+@node Type Variable and Macro Index
+@unnumbered Type, Variable and Macro Index
+
+@printindex vr
+
+@bye

@@ -1,0 +1,8 @@
+.libs
+.deps
+Makefile.in
+Makefile
+playertest
+playertest.plg
+Debug
+Release

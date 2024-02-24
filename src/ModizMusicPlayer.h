@@ -77,11 +77,14 @@ typedef struct _ModPlug_Settings
 #import "gme.h"
 
 //ADPLUG
-#import "adplug.h"
-#import "opl.h"
-#import "emuopl.h"
-#import "kemuopl.h"
-#import "temuopl.h"
+#include "adplug/adplug-master/src/adplug.h"
+#include "adplug/adplug-master/src/emuopl.h"
+#include "adplug/adplug-master/src/kemuopl.h"
+#include "adplug/adplug-master/src/wemuopl.h"
+#include "adplug/adplug-master/src/nemuopl.h"
+#include "adplug/adplug-master/src/surroundopl.h"
+#include "adplug/adplug-master/src/players.h"
+
 //ATARISOUND
 #import "AtariAudio.h"
 //STSOUND
@@ -213,12 +216,14 @@ enum MMP_PLAYER_TYPE {
 
 	//adplug
     int mADPLUGopltype;
-	//SID    
+    int mADPLUGstereosurround;
+    int mADPLUGPriorityOverMod;
+	//SID
 	
 	//Adplug stuff
 	CPlayer	*adPlugPlayer;
     CAdPlugDatabase *adplugDB;
-	CEmuopl *opl;
+	Copl *opl;
 	int opl_towrite;
 	//
 	//GME stuff
@@ -251,8 +256,8 @@ enum MMP_PLAYER_TYPE {
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;
 @property CAdPlugDatabase *adplugDB;
-@property CEmuopl *opl;
-@property int opl_towrite,mADPLUGopltype;
+@property Copl *opl;
+@property int opl_towrite,mADPLUGopltype,mADPLUGstereosurround,mADPLUGPriorityOverMod;
 //GME stuff
 @property Music_Emu* gme_emu;
 //SID
@@ -339,7 +344,7 @@ enum MMP_PLAYER_TYPE {
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;
@@ -395,7 +400,7 @@ enum MMP_PLAYER_TYPE {
 -(void) optSIDEngine:(char)engine;
 -(void) optSIDInterpolation:(char)mode;
 
--(void) optADPLUG:(int)opltype;
+-(void) optADPLUG:(int)opltype stereosurround:(int)stereosurround priorityOverMod:(int)priorityOverMod;
 
 -(void) optGLOB_Panning:(int)onoff;
 -(void) optGLOB_PanningValue:(float)value;

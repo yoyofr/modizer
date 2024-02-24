@@ -48,10 +48,7 @@ enum MDZ_SETTINGS_SCOPE {
 enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_ROOT=1,
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER,
-    GLOB_DefaultMODPlayer,
-    GLOB_DefaultSAPPlayer,
-    GLOB_DefaultVGMPlayer,
-    GLOB_DefaultNSFPlayer,
+    
     //GLOB_PlaybackFrequency,
     GLOB_ResumeOnStart,
     GLOB_ForceMono,
@@ -66,6 +63,14 @@ enum MDZ_SETTINGS {
     GLOB_TitleFilename,
     GLOB_RecreateSamplesFolder,
     GLOB_StatsUpload,
+    
+    MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY,
+    GLOB_DefaultMODPlayer,
+    GLOB_DefaultSAPPlayer,
+    GLOB_DefaultVGMPlayer,
+    GLOB_DefaultNSFPlayer,
+    GLOB_DefaultMIDIPlayer,
+    ADPLUG_PriorityOMPT,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_FTP,
     FTP_STATUS,
@@ -90,6 +95,7 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_ADPLUG,
         ADPLUG_OplType,
+        ADPLUG_StereoSurround,
     
         MDZ_SETTINGS_FAMILY_GME,
         GME_FADEOUT,

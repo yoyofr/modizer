@@ -1,0 +1,56 @@
+Installation:
+-------------
+Refer to the appropriate generic INSTALL files for your build system:
+
+INSTALL.unix    All UNIX builds, including cygwin
+INSTALL.win32   Microsoft Visual C++ builds
+INSTALL.dos     WATCOM C/C++ builds
+
+Appendix to 'INSTALL.dos':
+--------------------------
+The build instructions of the WATCOM build are generic and generated
+automatically. They assume that the main Makefile would be called
+'Makefile'.  This isn't the case for AdPlug's WATCOM build! AdPlug's
+WATCOM Makefile is called 'Makefile.wat'. Thus, you have to give the
+commandline option '/f Makefile.wat' every time you run a 'wmake'
+command. For example, to install AdPlug, call wmake like this:
+
+wmake /f Makefile.wat install
+
+Do this similary with any other 'wmake' target.
+
+Appendix to 'INSTALL.unix':
+---------------------------
+
+This project depends on GNU Autotools (autoconf, automake, libtool,
+and gettext), texinfo, and pkg-config.
+
+Steps to build:
+
+autoreconf --install
+./configure
+make
+make install
+
+Notes:
+
+./configure automatically implies `--enable-maintainer-mode` which
+generates some missing files, and is currently recommended by the dev
+team.
+
+Extra setup for DOS and Windows builds:
+---------------------------------------
+After you've done all steps from 'INSTALL.dos' or 'INSTALL.win32', you
+have to copy the file 'binio.h.in' to 'binio.h' (maybe overwriting it)
+in the 'src' subdirectory and then open it ('binio.h'). Set all
+#define's in the configuration section of the file to your preferred
+settings. All items are documented.
+
+Next, substitute the biggest (in size of bytes, as returned by the
+sizeof() operator) standard integer and floating-point types for
+@TYPE_INT@ and @TYPE_FLOAT@, respectively. Most of the time, you would
+just substitute 'long' for @TYPE_INT@ and 'double' for @TYPE_FLOAT@,
+but some compilers have even longer types, like 'long long' and 'long
+double'. If your compiler supports one of those, you can substitute
+them instead to be able to access even longer sections within your
+binary streams.

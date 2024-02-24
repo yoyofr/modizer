@@ -1,0 +1,90 @@
+version: 2.3.4-beta{build}
+image: Visual Studio 2017
+
+install:
+- ps: >-
+    # Download nuget.exe >= 3.4.4 as earlier versions produce corrupted native .nupkg files
+
+    $nugetPath = "$($env:USERPROFILE)\nuget.exe"
+
+    (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/latest/nuget.exe', $nugetPath)
+
+
+    # Make the nuget.exe folder come first in the path, so it gets picked up before anything else
+
+    $env:Path = $env:USERPROFILE + ";" + $env:Path
+
+
+    # Download the CoApp tools.
+
+    $msiPath = "$($env:USERPROFILE)\CoApp.Tools.Powershell.msi"
+
+    (New-Object Net.WebClient).DownloadFile('https://coapp.github.io/files/CoApp.Tools.Powershell.msi', $msiPath)
+
+
+    # Install the CoApp tools from the downloaded .msi.
+
+    Start-Process -FilePath msiexec -ArgumentList /i, $msiPath, /quiet -Wait
+
+
+    # Make the tools available for later PS scripts to use.
+
+    $env:PSModulePath = $env:PSModulePath + ';C:\Program Files (x86)\Outercurve Foundation\Modules'
+
+    Import-Module CoApp
+
+nuget:
+  disable_publish_on_pr: true
+
+before_build:
+- ps: >-
+    # This is the version header to create.
+
+    $file = "src\version.h"
+
+
+    # Get the ".in" version of the file, replace "@VERSION@" with the Appveyor version number, then save to the target file.
+
+    cat ($file + ".in") | % { $_ -replace "@VERSION@", $env:appveyor_build_version } > $file
+
+
+build_script:
+- cmd: >-
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
+
+    "%VS150COMNTOOLS%\VsMSBuildCmd.bat"
+
+    appveyor-retry nuget restore contrib\vs2015\vs2015.sln
+
+    appveyor-retry nuget update contrib\vs2015\vs2015.sln
+
+    FOR %%T IN (v141,v140,v120_xp) DO ( FOR %%P IN (x86,x64) DO ( FOR %%C IN (Debug,Release) DO ( FOR %%F IN (adplug,emutest,crctest,playertest) DO ( echo *** Building %%F as %%T/%%P/%%C *** && msbuild contrib\vs2015\%%F\%%F.vcxproj /p:Configuration=%%C /p:Platform=%%P /p:PlatformToolset=%%T /p:SolutionDir=..\ /v:minimal /nologo || EXIT 1 ) ) ) )
+
+before_deploy:
+- ps: >-
+    # This is the CoApp .autopkg file to create.
+
+    $autopkgFile = "contrib\vs2015\adplug.autopkg"
+
+
+    # Get the ".autopkg.template" file, replace "@version" with the Appveyor version number, then save to the ".autopkg" file.
+
+    cat ($autopkgFile + ".template") | % { $_ -replace "@version", $env:appveyor_build_version } > $autopkgFile
+
+
+    # Use the CoApp tools to create NuGet native packages from the .autopkg.
+
+    Write-NuGetPackage $autopkgFile
+
+
+    # Push all newly created .nupkg files as Appveyor artifacts for later deployment.
+
+    Get-ChildItem .\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+
+deploy:
+- provider: NuGet
+  api_key:
+    secure: xMUy2DqBlx3IDrdx0nB7yBJ2gO8ZKpHYWw54+IURvRTzF/pk5SITXOFcxiatxkcD
+  artifact: /.*\.nupkg/
+  on:
+    branch: master

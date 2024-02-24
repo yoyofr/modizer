@@ -1,0 +1,9 @@
+.deps
+.libs
+Makefile
+Makefile.in
+adplugdb
+Debug
+Release
+*.plg
+config.bat

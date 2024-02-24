@@ -1,0 +1,17 @@
+# libbinio Makefile for WATCOM C/C++
+# Copyright (c) 2003, 2005 Simon Peter <dn.tlp@gmx.net>
+
+# This flag is set to work around a bug in the Watcom 11.0c compiler in
+# conjunction with the STLport library. Without it, the compiler will crash
+# during compilation of some files and create very fragile code for others.
+CXXFLAGS = -oi+
+
+OUTPUT = binio.lib
+
+OBJS = binio.obj binfile.obj binwrap.obj binstr.obj
+
+include_INST = binio.h binfile.h binwrap.h binstr.h
+
+lib_INST = binio.lib
+
+includesubdir = libbinio

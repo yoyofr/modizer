@@ -280,6 +280,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
@@ -459,6 +460,8 @@ void optNSFPLAYChangedC(id param) {
     //ADPLUG
     /////////////////////////////////////
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //VGMPLAY
@@ -505,6 +508,12 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].family=MDZ_SETTINGS_FAMILY_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY].label=(char*)"Default Players";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].label=(char*)"Visualizers";
@@ -573,54 +582,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=600;
     
     
-    settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
-    settings[GLOB_DefaultMODPlayer].description=NULL;
-    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_DefaultMODPlayer].sub_family=0;
-    settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"UADE";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"XMP";
     
-    settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
-    settings[GLOB_DefaultSAPPlayer].description=NULL;
-    settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_DefaultSAPPlayer].sub_family=0;
-    settings[GLOB_DefaultSAPPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb=2;
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
-    settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";
-    settings[GLOB_DefaultVGMPlayer].description=NULL;
-    settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_DefaultVGMPlayer].sub_family=0;
-    settings[GLOB_DefaultVGMPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb=2;
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
-    
-    settings[GLOB_DefaultNSFPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultNSFPlayer].label=(char*)"Default NSF player";
-    settings[GLOB_DefaultNSFPlayer].description=NULL;
-    settings[GLOB_DefaultNSFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_DefaultNSFPlayer].sub_family=0;
-    settings[GLOB_DefaultNSFPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb=2;
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"NSFPLAY";
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
     settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";
@@ -725,6 +688,85 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_RecreateSamplesFolder].callback=&optGLOBALChangedC;
     settings[GLOB_RecreateSamplesFolder].type=MDZ_BOOLSWITCH;
     settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value=1;
+    
+    
+    /////////////////////////////////////
+    //GLOBAL PLAYER PRIORITY
+    /////////////////////////////////////
+    
+    settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
+    settings[GLOB_DefaultMODPlayer].description=NULL;
+    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultMODPlayer].sub_family=0;
+    settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"UADE";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"XMP";
+    
+    settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
+    settings[GLOB_DefaultSAPPlayer].description=NULL;
+    settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultSAPPlayer].sub_family=0;
+    settings[GLOB_DefaultSAPPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";
+    settings[GLOB_DefaultVGMPlayer].description=NULL;
+    settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultVGMPlayer].sub_family=0;
+    settings[GLOB_DefaultVGMPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultNSFPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultNSFPlayer].label=(char*)"Default NSF player";
+    settings[GLOB_DefaultNSFPlayer].description=NULL;
+    settings[GLOB_DefaultNSFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultNSFPlayer].sub_family=0;
+    settings[GLOB_DefaultNSFPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"NSFPLAY";
+    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultMIDIPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultMIDIPlayer].label=(char*)"Default MIDI player";
+    settings[GLOB_DefaultMIDIPlayer].description=NULL;
+    settings[GLOB_DefaultMIDIPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultMIDIPlayer].sub_family=0;
+    settings[GLOB_DefaultMIDIPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_labels[0]=(char*)"Timidity";
+    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_labels[1]=(char*)"AdPlug";
+    
+    settings[ADPLUG_PriorityOMPT].type=MDZ_SWITCH;
+    settings[ADPLUG_PriorityOMPT].label=(char*)"Adplug priority for module";
+    settings[ADPLUG_PriorityOMPT].description=NULL;
+    settings[ADPLUG_PriorityOMPT].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[ADPLUG_PriorityOMPT].sub_family=0;
+    settings[ADPLUG_PriorityOMPT].callback=&optADPLUGChangedC;
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value_nb=2;
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
+    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels[1]=(char*)"ADPlug";
+    
     
     /////////////////////////////////////
     //GLOBAL FTP
@@ -1768,11 +1810,26 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_OplType].sub_family=0;
     settings[ADPLUG_OplType].callback=&optADPLUGChangedC;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=3;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=4;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[0]=(char*)"Std";
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[1]=(char*)"Adl";
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[2]=(char*)"Tat";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[0]=(char*)"Woody";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[1]=(char*)"Satoh";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[2]=(char*)"Ken";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[3]=(char*)"Nuked";
+    
+    settings[ADPLUG_StereoSurround].type=MDZ_SWITCH;
+    settings[ADPLUG_StereoSurround].label=(char*)"Harmonic";
+    settings[ADPLUG_StereoSurround].description=NULL;
+    settings[ADPLUG_StereoSurround].family=MDZ_SETTINGS_FAMILY_ADPLUG;
+    settings[ADPLUG_StereoSurround].sub_family=0;
+    settings[ADPLUG_StereoSurround].callback=&optADPLUGChangedC;
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value_nb=2;
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels[0]=(char*)"Stereo";
+    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels[1]=(char*)"Surround";
+    
+    
     
     
     /////////////////////////////////////

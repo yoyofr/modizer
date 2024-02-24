@@ -1,0 +1,22 @@
+$Id$
+
+To AdPlug SourceForge developers:
+---------------------------------
+If anyone happens to take over a task listed here, please mark that you're
+doing so. Your SourceForge login name is a good way to identify yourself.
+
+Unfinished items for version 2.3:
+---------------------------------
+- Add ALSA direct-FM interface support.
+
+- When only one OPL2 is active, it needs to be output to the center channel.
+
+General to do items:
+--------------------
+- Add new Protracker loaders:
+  - MTR: Arkham Master Tracker [riven-mage]
+
+- New players:
+  - Palladix file format, used in LOGICAL game [dynamite]
+
+- Add possibility to mute/solo AdLib channels.

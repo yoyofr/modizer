@@ -1,0 +1,6 @@
+# We keep this .gitignore inside the m4 directory to ensure that m4 directory exists
+libtool.m4
+lt~obsolete.m4
+ltoptions.m4 
+ltsugar.m4 
+ltversion.m4
