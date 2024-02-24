@@ -195,7 +195,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
-    mulfactor=hh/(max_voices_by_row)/2;
+    mulfactor=(hh-8)/(max_voices_by_row)/2;
     
     int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);
@@ -424,7 +424,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
-    mulfactor=hh/(max_voices_by_row)/2;
+    mulfactor=(hh-8)/(max_voices_by_row)/2;
     
     int max_count=2*rows_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*rows_width*num_voices);

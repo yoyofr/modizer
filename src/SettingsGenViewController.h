@@ -167,8 +167,9 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_VGMPLAY,
         VGMPLAY_Maxloop,
         VGMPLAY_PreferJTAG,
-        VGMPLAY_YM2612Emulator,
         VGMPLAY_YMF262Emulator,
+        VGMPLAY_YM2612Emulator,
+        VGMPLAY_NUKEDOPN2_Option,
     
         MDZ_SETTINGS_FAMILY_VGMSTREAM,
         VGMSTREAM_ResampleQuality,

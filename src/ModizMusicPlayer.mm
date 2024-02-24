@@ -2479,6 +2479,7 @@ void propertyListenerCallback (void                   *inUserData,              
         optVGMPLAY_maxloop = 2;
         optVGMPLAY_ym2612emulator=0;
         optVGMPLAY_ymf262emulator=0;
+        optVGMPLAY_NukedOPNoption=0;
         optVGMPLAY_preferJapTag=false;
         
         //
@@ -9075,6 +9076,27 @@ int vgmGetFileLength()
     ChipOpts[0].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
     ChipOpts[1].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
     
+    ChipOpts[0].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
+    ChipOpts[1].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
+    //ym2612_set_options((UINT8)ChipOpts[0x00].YM2612.SpecialFlags);
+    //NukedOPN2
+    /*switch ((flags >> 3) & 0x03)
+    {
+    case 0x00: // YM2612
+    default:
+        OPN2_SetChipType(ym3438_type_ym2612);
+        break;
+    case 0x01: // ASIC YM3438
+        OPN2_SetChipType(ym3438_type_asic);
+        break;
+    case 0x02: // Discrete YM3438
+        OPN2_SetChipType(ym3438_type_discrete);
+        break;
+    case 0x03: // YM2612 without filter emulation
+        OPN2_SetChipType(ym3438_type_ym2612_u);
+        break;
+    }*/
+    
     VGMMaxLoop=optVGMPLAY_maxloop;
     if (mLoopMode==1) VGMMaxLoop=-1;
     
@@ -11896,6 +11918,9 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val {
     optVGMPLAY_maxloop=val;
+}
+-(void) optVGMPLAY_NUKEDOPNoption:(unsigned char)val{
+    optVGMPLAY_NukedOPNoption=val;
 }
 -(void) optVGMPLAY_YM2612emulator:(unsigned char)val {
     optVGMPLAY_ym2612emulator=val;

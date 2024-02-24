@@ -26,6 +26,11 @@
 // version: 1.0.7
 //
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include <string.h>
 #include "ym3438.h"
 
@@ -1471,6 +1476,23 @@ void OPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
     Bit32s buffer[2];
     Bit32u mute;
     
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
+    
     while (chip->samplecnt >= chip->rateratio)
     {
         chip->oldsamples[0] = chip->samples[0];
@@ -1539,6 +1561,20 @@ void OPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
     buf[1] = (Bit32s)((chip->oldsamples[1] * (chip->rateratio - chip->samplecnt)
                      + chip->samples[1] * chip->samplecnt) / chip->rateratio);
     chip->samplecnt += 1 << RSM_FRAC;
+    
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            for (;;) {
+                for (int jj=0;jj<6;jj++) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chip->ch_out[jj]>>0));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            for (int jj=0;jj<6;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 }
 
 void OPN2_GenerateStream(ym3438_t *chip, Bit32s **sndptr, Bit32u numsamples)
@@ -1548,7 +1584,7 @@ void OPN2_GenerateStream(ym3438_t *chip, Bit32s **sndptr, Bit32u numsamples)
     Bit32s buffer[2];
     smpl = sndptr[0];
     smpr = sndptr[1];
-
+        
     for (i = 0; i < numsamples; i++)
     {
         OPN2_GenerateResampled(chip, buffer);

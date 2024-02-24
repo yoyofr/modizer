@@ -749,6 +749,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optVGMPLAY_MaxLoop:(unsigned int)settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value];
         [mplayer optVGMPLAY_PreferedJTag:(bool)settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value];
         [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value];
+        [mplayer optVGMPLAY_NUKEDOPNoption:(unsigned char)settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value];
         [mplayer optVGMPLAY_YMF262emulator:(unsigned char)settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value];
     }
     
@@ -756,7 +757,6 @@ static float movePinchScale,movePinchScaleOld;
     //SID
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_SID)) {
-#ifndef WEBSID
         [mplayer optSIDFilter:settings[SID_Filter].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDEngine:(char)(settings[SID_Engine].detail.mdz_switch.switch_value)];
         [mplayer optSIDInterpolation:(char)(settings[SID_Interpolation].detail.mdz_switch.switch_value)];
@@ -769,7 +769,7 @@ static float movePinchScale,movePinchScaleOld;
             long x = strtol(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text, 0, 0);
             [mplayer optSIDThirdSIDAddress:x];
         } else [mplayer optSIDThirdSIDAddress:0];
-#endif
+
         [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];

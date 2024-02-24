@@ -209,9 +209,6 @@ public:
 	Bitu adlib_reg_read(Bitu port);
 	void adlib_write_index(Bitu port, Bit8u val);
     
-    //YOYOFR
-    void updateModizerVoicesData(int voice_channel,int voice_op,int mul,int smplIncr);
-    //YOYOFR
 };
 
 static Bit32u generator_add;	// should be a chip parameter

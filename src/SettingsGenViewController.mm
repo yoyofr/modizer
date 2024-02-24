@@ -468,8 +468,10 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
-    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
+    
     
     /////////////////////////////////////
     //VGMSTREAM
@@ -1497,6 +1499,21 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
+    
+    settings[VGMPLAY_NUKEDOPN2_Option].type=MDZ_SWITCH;
+    settings[VGMPLAY_NUKEDOPN2_Option].label=(char*)"Nuked OPN2 Type";
+    settings[VGMPLAY_NUKEDOPN2_Option].description=NULL;
+    settings[VGMPLAY_NUKEDOPN2_Option].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_NUKEDOPN2_Option].sub_family=0;
+    settings[VGMPLAY_NUKEDOPN2_Option].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb=4;
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[0]=(char*)"2612 Filt.";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[1]=(char*)"3438 ASIC";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[2]=(char*)"3438 Disc.";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[3]=(char*)"2612 NoFilt.";
+    
     
     settings[VGMPLAY_YMF262Emulator].type=MDZ_SWITCH;
     settings[VGMPLAY_YMF262Emulator].label=(char*)"YMF262 Type";

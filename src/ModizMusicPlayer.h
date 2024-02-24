@@ -232,6 +232,7 @@ enum MMP_PLAYER_TYPE {
     //VGMPLAY stuff
     unsigned int optVGMPLAY_maxloop;
     unsigned char optVGMPLAY_ym2612emulator;
+    unsigned char optVGMPLAY_NukedOPNoption;
     unsigned char optVGMPLAY_ymf262emulator;
     bool optVGMPLAY_preferJapTag;
     //
@@ -378,6 +379,7 @@ enum MMP_PLAYER_TYPE {
 
 
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
+-(void) optVGMPLAY_NUKEDOPNoption:(unsigned char)val;
 -(void) optVGMPLAY_YM2612emulator:(unsigned char)val;
 -(void) optVGMPLAY_YMF262emulator:(unsigned char)val;
 -(void) optVGMPLAY_PreferedJTag:(bool)val;
