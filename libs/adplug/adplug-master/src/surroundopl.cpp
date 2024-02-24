@@ -23,6 +23,11 @@
  * Please give credit if you use this algorithm elsewhere :-)
  */
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include <math.h> // for pow()
 #include "surroundopl.h"
 #include "debug.h"
@@ -68,8 +73,15 @@ void CSurroundopl::update(short *buf, int samples)
 		this->rbuf = new short[this->bufsize];
 	}
 
-	this->oplA.opl->update(this->lbuf, samples);
+    this->oplA.opl->update(this->lbuf, samples);
+    //YOYOFR
+    m_voice_current_system=0;
+    //YOYOFR to skip the second update / oscilloscope view
 	this->oplB.opl->update(this->rbuf, samples);
+    //YOYOFR
+    m_voice_current_system=1;
+    //YOYOFR
+    
 
 	// Copy the two mono OPL buffers into the stereo buffer
 	for (int i = 0; i < samples; i++) {
