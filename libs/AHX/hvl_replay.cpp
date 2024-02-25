@@ -8,6 +8,11 @@
 ** ... as are those for 1.6
 */
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern int generic_mute_mask;
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #include <stdio.h>
 #include <string.h>
@@ -1988,10 +1993,19 @@ void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, 
         }
         
 //        if( abs( j ) > vu[i] ) vu[i] = abs( j );
-
-        a += (j * panl[i]) >> 7;
-        b += (j * panr[i]) >> 7;
-        pos[i] += delta[i];
+                  
+          //TODO:  MODIZER changes start / YOYOFR
+          if (!(generic_mute_mask&(1<<i))) a += (j * panl[i]) >> 7;
+          if (!(generic_mute_mask&(1<<i))) b += (j * panr[i]) >> 7;
+          pos[i] += delta[i];
+          
+          int64_t val=((j * (panl[i]+panr[i]))>>8)*6>>3;
+          //val = (val*ht->ht_mixgain)>>8;
+          if (!(generic_mute_mask&(1<<i))) m_voice_buff[i][(m_voice_current_ptr[i]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(val >> 6);
+          
+          m_voice_current_ptr[i]+=1024;
+          if ((m_voice_current_ptr[i]>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+          //TODO:  MODIZER changes end / YOYOFR
       }
       
       a = (a*ht->ht_mixgain)>>8;

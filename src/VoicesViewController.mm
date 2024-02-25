@@ -147,7 +147,7 @@
 -(void)pushedSystemVoicesChanged:(id)sender {
     for (int i=0;i<systemsNb;i++) {
         if (sender==voicesChip[i]) {
-            if ([detailViewController.mplayer getSystemm_voicesStatus:i]) [detailViewController.mplayer setSystemm_voicesStatus:i active:false];
+            if ([detailViewController.mplayer getSystemm_voicesStatus:i]==2) [detailViewController.mplayer setSystemm_voicesStatus:i active:false];
             else [detailViewController.mplayer setSystemm_voicesStatus:i active:true];
             break;
         }

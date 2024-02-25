@@ -31,7 +31,7 @@
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
 #include <stdio.h>
-extern int adplug_mute_mask;
+extern int generic_mute_mask;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -977,7 +977,7 @@ static void OPL_INLINE clipit8(Bit32s ival, Bit8s* outval) {
 
     //YOYOFR
 #define YOYOFR_CHANNELDATA_STORE(channel,voice_op,mulfact) voicesData[channel][i]+=op[voice_op].cval*(mulfact+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0));
-#define YOYOFR_MUTE_VOICE(a) if (adplug_mute_mask&(1<<((a)%18))) chanval=0;    
+#define YOYOFR_MUTE_VOICE(a) if (generic_mute_mask&(1<<((a)%18))) chanval=0;
     //YOYOFR
 
 void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
@@ -1654,7 +1654,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     int ofs_start=m_voice_current_ptr[uu];
                     int ofs_end=(m_voice_current_ptr[uu]+smplIncr);
                     for (;;) {
-                        if (adplug_mute_mask&(1<<uu)) m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+                        if (generic_mute_mask&(1<<uu)) m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
                         else m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(voicesData[uu][i]>>6);
                         ofs_start+=1024;
                         if (ofs_start>=ofs_end) break;

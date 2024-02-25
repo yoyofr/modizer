@@ -417,7 +417,7 @@ char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
 int m_voice_current_sample;
-int adplug_mute_mask;
+int generic_mute_mask;
 
 //SID
 int sid_v4;
@@ -4907,13 +4907,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
                                         }
                                     }
-                                    //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                                 }
 
                                 
                             } else nbBytes=0;
                         }
                         if (mPlayType==MMP_HVL) {  //HVL
+                            memcpy(m_voice_prev_current_ptr,m_voice_current_ptr,sizeof(m_voice_prev_current_ptr));
+                            
                             if (hvl_sample_to_write) {
                                 int written=0;
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -4959,6 +4960,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                             } else nbBytes=0;
+                            
+                            if (numVoicesChannels) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
+                                        m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+                                    }
+                                }
+                            }
                             
                         }
                         
@@ -5027,6 +5036,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             } else {
                                 nbBytes=0;
+                            }
+                            
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<numVoicesChannels;j++) { 
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
+                                    m_voice_buff[j][i]=0;
+                                }
                             }
                         }
                         if (mPlayType==MMP_PIXEL) {
@@ -6997,14 +7014,19 @@ typedef struct {
         iModuleLength=info.musicTimeInMs;
         iCurrentTime=0;
         
-        numChannels=2;
+        generic_mute_mask=0;
+        numChannels=3;
+        m_voicesDataAvail=1;
+        numVoicesChannels=numChannels;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         sprintf(mod_message,"Name.....: %s\nAuthor...: %s\nType.....: %s\nPlayer...: %s\nComment..: %s\n",info.pSongName,info.pSongAuthor,info.pSongType,info.pSongPlayer,info.pSongComment);
         artist=[NSString stringWithUTF8String:info.pSongAuthor];
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
-        
-        
+                
         return 0;
     }
     return 1;
@@ -7648,6 +7670,13 @@ char* loadRom(const char* path, size_t romSize)
         iCurrentTime=0;
         
         numChannels=hvl_song->ht_Channels;
+        
+        numVoicesChannels=numChannels;
+        m_voicesDataAvail=1;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+        
         
         if (hvl_song->ht_InstrumentNr==0) sprintf(mod_message,"N/A\n");
         else {
@@ -9078,24 +9107,6 @@ int vgmGetFileLength()
     
     ChipOpts[0].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
     ChipOpts[1].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
-    //ym2612_set_options((UINT8)ChipOpts[0x00].YM2612.SpecialFlags);
-    //NukedOPN2
-    /*switch ((flags >> 3) & 0x03)
-    {
-    case 0x00: // YM2612
-    default:
-        OPN2_SetChipType(ym3438_type_ym2612);
-        break;
-    case 0x01: // ASIC YM3438
-        OPN2_SetChipType(ym3438_type_asic);
-        break;
-    case 0x02: // Discrete YM3438
-        OPN2_SetChipType(ym3438_type_discrete);
-        break;
-    case 0x03: // YM2612 without filter emulation
-        OPN2_SetChipType(ym3438_type_ym2612_u);
-        break;
-    }*/
     
     VGMMaxLoop=optVGMPLAY_maxloop;
     if (mLoopMode==1) VGMMaxLoop=-1;
@@ -9576,7 +9587,7 @@ int vgmGetFileLength()
         mod_maxsub=mod_subsongs-1;
         mod_currentsub=adPlugPlayer->getsubsong();
         
-        adplug_mute_mask=0;
+        generic_mute_mask=0;
         
         return 0;
     }
@@ -12117,6 +12128,8 @@ extern "C" void adjust_amplification(void);
         case MMP_XMP:
         case MMP_GME:
         case MMP_ADPLUG:
+        case MMP_HVL:
+        case MMP_STSOUND:
         case MMP_SIDPLAY:
         case MMP_ASAP:
         case MMP_VGMPLAY:
@@ -12175,8 +12188,13 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-PAULA",channel+1];
         case MMP_XMP:
             return [NSString stringWithFormat:@"#%d-XMP",channel+1];
+        case MMP_HVL:
+            if (hvl_song->ht_ModType) return [NSString stringWithFormat:@"#%d-HVL",channel+1];
+            return [NSString stringWithFormat:@"#%d-AHX",channel+1];
         case MMP_ADPLUG:
             return [NSString stringWithFormat:@"#%d-OPL3",channel+1];
+        case MMP_STSOUND:
+            return [NSString stringWithFormat:@"#%d-YM2149",channel+1];
         case MMP_PT3:
             return [NSString stringWithFormat:@"AY#%d %c",channel/3,(channel%3)+'A'];
         case MMP_ASAP:
@@ -12222,6 +12240,8 @@ extern "C" void adjust_amplification(void);
         case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_ADPLUG:
+        case MMP_HVL:
+        case MMP_STSOUND:
         case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -12270,8 +12290,13 @@ extern "C" void adjust_amplification(void);
             return @"PAULA";
         case MMP_OPENMPT:
             return @"OMPT";
+        case MMP_HVL:
+            if (hvl_song->ht_ModType) return @"HVL";
+            else return @"AHX";
         case MMP_ADPLUG:
             return @"OPL3";
+        case MMP_STSOUND:
+            return @"YM2149";
         case MMP_XMP:
             return @"XMP";
         case MMP_ASAP:
@@ -12321,6 +12346,8 @@ extern "C" void adjust_amplification(void);
         case MMP_XMP:
         case MMP_GME:
         case MMP_ADPLUG:
+        case MMP_HVL:
+        case MMP_STSOUND:
             return 0;
         case MMP_ASAP:
             return voiceIdx/4;
@@ -12410,6 +12437,8 @@ extern "C" void adjust_amplification(void);
         case MMP_XMP:
         case MMP_GME:
         case MMP_ADPLUG:
+        case MMP_HVL:
+        case MMP_STSOUND:
             tmp=0;
             for (int i=0;i<numChannels;i++) {
                 tmp+=(m_voicesStatus[i]?1:0);
@@ -12490,6 +12519,8 @@ extern "C" void adjust_amplification(void);
         case MMP_XMP:
         case MMP_GME:
         case MMP_ADPLUG:
+        case MMP_HVL:
+        case MMP_STSOUND:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_ASAP:
@@ -12574,8 +12605,10 @@ extern "C" void adjust_amplification(void);
         }
             break;
         case MMP_ADPLUG:
-            if (active) adplug_mute_mask&=~(1<<channel);
-            else adplug_mute_mask|=(1<<channel);
+        case MMP_HVL:
+        case MMP_STSOUND:
+            if (active) generic_mute_mask&=~(1<<channel);
+            else generic_mute_mask|=(1<<channel);
             break;
         case MMP_2SF:
             xSFPlayer->MuteChannels(channel,active);

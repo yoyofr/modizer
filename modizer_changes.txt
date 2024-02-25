@@ -32,8 +32,13 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 3.6
 ---
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
+- [PLAYER] VGMPlay: NukedOPN2 options supported
 - [UI] Settings updated, new section for default players / main category
-
+- [PLAYER] STSOUND now support voices muting
+- [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)
+- [FX] STSOUND now generates detailed oscilloscope output
+- [FX] HVL/AHX now generates detailed oscilloscope output
+- [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
 
 
 3.5

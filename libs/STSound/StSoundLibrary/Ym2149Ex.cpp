@@ -29,6 +29,12 @@
 
 -----------------------------------------------------------------------------*/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern int generic_mute_mask;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "YmTypes.h"
 #include <stdlib.h>
 #include <string.h>
@@ -319,9 +325,12 @@ int CYm2149Ex::LowPassFilter(int in)
 ymsample CYm2149Ex::nextSample(void)
 {
 ymint vol;
-ymint bt,bn;
-
-		if (noisePos&0xffff0000)
+    //YOYOFR
+//ymint bt,bn;
+    ymint bt1,bt2,bt3,bn;
+    //YOYOFR
+    
+    	if (noisePos&0xffff0000)
 		{
 			currentNoise ^= rndCompute();
 			noisePos &= 0xffff;
@@ -337,12 +346,33 @@ ymint bt,bn;
 	//---------------------------------------------------
 	// Tone+noise+env+DAC for three voices !
 	//---------------------------------------------------
-		bt = ((((yms32)posA)>>31) | mixerTA) & (bn | mixerNA);
+    
+    //TODO:  MODIZER changes start / YOYOFR
+		/*bt = ((((yms32)posA)>>31) | mixerTA) & (bn | mixerNA);
 		vol  = (*pVolA)&bt;
 		bt = ((((yms32)posB)>>31) | mixerTB) & (bn | mixerNB);
 		vol += (*pVolB)&bt;
 		bt = ((((yms32)posC)>>31) | mixerTC) & (bn | mixerNC);
-		vol += (*pVolC)&bt;
+		vol += (*pVolC)&bt;*/
+    bt1 = ((((yms32)posA)>>31) | mixerTA) & (bn | mixerNA);
+    if (generic_mute_mask&(1<<0)) vol=0;
+    else vol = (*pVolA)&bt1;
+    
+    bt2 = ((((yms32)posB)>>31) | mixerTB) & (bn | mixerNB);
+    if (!(generic_mute_mask&(1<<1))) vol += (*pVolB)&bt2;
+    bt3 = ((((yms32)posC)>>31) | mixerTC) & (bn | mixerNC);
+    if (!(generic_mute_mask&(1<<2))) vol += (*pVolC)&bt3;
+    
+    
+    if (!(generic_mute_mask&(1<<0))) m_voice_buff[0][(m_voice_current_ptr[0]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolA)&bt1)>>5);
+    if (!(generic_mute_mask&(1<<1))) m_voice_buff[1][(m_voice_current_ptr[1]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolB)&bt2)>>5);
+    if (!(generic_mute_mask&(1<<2))) m_voice_buff[2][(m_voice_current_ptr[2]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolC)&bt3)>>5);
+    
+        for (int jj=0;jj<3;jj++) {
+            m_voice_current_ptr[jj]+=1024;
+            if ((m_voice_current_ptr[jj]>>10)>SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 	//---------------------------------------------------
 	// Inc
