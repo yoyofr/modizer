@@ -771,13 +771,13 @@ size_t fsb_opus_get_encoder_delay(off_t offset, STREAMFILE* sf) {
 static ffmpeg_codec_data* init_ffmpeg_custom_opus_config(STREAMFILE* sf, off_t start_offset, size_t data_size, opus_config *cfg, opus_type_t type) {
     ffmpeg_codec_data* ffmpeg_data = NULL;
     STREAMFILE* temp_sf = NULL;
-
+    printf("to1\n");
     temp_sf = setup_opus_streamfile(sf, cfg, start_offset, data_size, type);
     if (!temp_sf) goto fail;
-
+    printf("to2\n");
     ffmpeg_data = init_ffmpeg_offset(temp_sf, 0x00, get_streamfile_size(temp_sf));
     if (!ffmpeg_data) goto fail;
-
+    printf("to3\n");
     /* FFmpeg + libopus: skips samples, notifies skip in codecCtx->delay/initial_padding (not in stream->skip_samples)
      * FFmpeg + opus: skip samples but loses them on reset/seek to 0, also notifies skip in codecCtx->delay/initial_padding */
     {
@@ -787,6 +787,7 @@ static ffmpeg_codec_data* init_ffmpeg_custom_opus_config(STREAMFILE* sf, off_t s
             //ffmpeg_set_skip_samples(ffmpeg_data, cfg->skip); /* can't overwrite internal decoder skip */
             ffmpeg_set_force_seek(ffmpeg_data);
         }
+        printf("to4\n");
     }
 
     close_streamfile(temp_sf);

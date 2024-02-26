@@ -293,7 +293,7 @@
 "Add to a playlist"="Ajouter à une liste";
 "Choose a playlist"="Choisissez une liste";
 
-"Thousends of entries"="Des milliers d'entrées";
+"Thousands of entries"="Des milliers d'entrées";
 
 "Clear images cache"="Vider le cache d'images";
 "Cache cleaned"="Cache vidé";
@@ -302,3 +302,8 @@
 "Remove from favorites"="Supprimer des favoris";
 
 "Now playing(%d)"="Lecture en cours(%d)";
+
+/*Settings*/
+"Search: simplified regexp ('.'->'\\.', '*'->'.*')"="Recherche: regexp simplifiées ('.'->'\\.', '*'->'.*')";
+"Resume position on launch"="Reprise position de lecture au démarrage";
+

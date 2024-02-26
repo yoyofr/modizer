@@ -159,7 +159,6 @@ include(dependencies/atrac9)
 include(dependencies/celt)
 include(dependencies/speex)
 include(dependencies/jansson)
-include(dependencies/audacious)
 
 if(USE_G7221)
 	set(G7221_SOURCE "(built-in)")

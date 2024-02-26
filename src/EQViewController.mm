@@ -57,6 +57,7 @@ extern BOOL nvdsp_EQ;
         if (nvdsp_PEQ[i].G<-12) nvdsp_PEQ[i].G=-12;
         slider=(UISlider*)[self.view viewWithTag:i+1];
         slider.value=nvdsp_PEQ[i].G;
+        eqLabelValue[i].text=[NSString stringWithFormat:@"%.1fdB",nvdsp_PEQ[i].G];
     }
 }
 
@@ -196,7 +197,7 @@ extern BOOL nvdsp_EQ;
     [self.view addSubview:plus12DB];
     //[plus12DB release];
     
-    zeroDB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/4+32-10,28,20)];
+    zeroDB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/8+32-10,28,20)];
     zeroDB.font=[UIFont boldSystemFontOfSize:8];
     zeroDB.text=@"+0dB";
     zeroDB.backgroundColor=[UIColor clearColor];
@@ -240,9 +241,9 @@ extern BOOL nvdsp_EQ;
         eqLabelFreq[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16);
         eqLabelValue[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/2+32,32,16);
     }
-    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/2+32-23,28,20);
-    plus12DB.frame=CGRectMake(4,32+1,28,20);
-    zeroDB.frame=CGRectMake(4,self.view.frame.size.height/2+32-11,28,20);
+    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/2+32-10,28,20);
+    plus12DB.frame=CGRectMake(4,32-10,28,20);
+    zeroDB.frame=CGRectMake(4,self.view.frame.size.height/4+32-10,28,20);
     
     globalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/2+32,32,16);
     eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/2);

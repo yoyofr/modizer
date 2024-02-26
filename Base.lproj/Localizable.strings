@@ -224,3 +224,8 @@
 "Shuffle"="Shuffle";
 
 "Now playing(%d)"="Now playing(%d)";
+
+/*Settings*/
+"Search: simplified regexp ('.'->'\\.', '*'->'.*')"="Search: simplified regexp ('.'->'\\.', '*'->'.*')";
+"Resume position on launch"="Resume position on launch";
+

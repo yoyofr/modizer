@@ -462,6 +462,15 @@ static int display_length_mode=0;
     //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
 }
 
+-(void)stopLoopInfOnError {
+    mLoopMode=0;
+    [mplayer setLoopInf:0];
+    [btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.0f] forState:UIControlStateNormal];
+    buttonLoopList.hidden=NO;
+    buttonLoopListSel.hidden=YES;
+    buttonLoopTitleSel.hidden=YES;
+}
+
 -(IBAction)pushedLoopInf {
 	if (mplayer.mLoopMode==0) {
 		[mplayer setLoopInf:1];

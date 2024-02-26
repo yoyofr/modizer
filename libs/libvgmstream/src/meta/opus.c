@@ -79,7 +79,6 @@ static VGMSTREAM* init_vgmstream_opus(STREAMFILE* sf, meta_t meta_type, off_t of
     vgmstream->loop_start_sample = loop_start;
     vgmstream->loop_end_sample = loop_end;
     vgmstream->stream_size = data_size; /* to avoid inflated sizes from fake OggS IO */
-
 #ifdef VGM_USE_FFMPEG
     {
         opus_config cfg = {0};

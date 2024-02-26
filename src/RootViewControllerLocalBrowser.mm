@@ -59,6 +59,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize popTipView;
 @synthesize alertRename;
 
+#pragma mark -
+#pragma mark Search functiçns
+#import "SearchCommonFunctions.h"
+
+
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/xattr.h>
@@ -77,6 +82,7 @@ static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
 static char **browser_sidtune_title,**browser_sidtune_name;
 
 #include "MiniPlayerImplementTableView.h"
+
 
 -(NSString*) getFullPathForFilePath:(NSString*)filePath {
     NSString *fullFilePath;
@@ -909,9 +915,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             search_local_entries_count[i]=0;
             if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
             for (int j=0;j<local_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [local_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                //r.location=NSNotFound;
+                //if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if  ([self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label] ||([mSearchText length]==0)) {
                     search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
                     search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
                     search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
@@ -1083,8 +1089,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 int filtered=0;
                 if ((mSearch)&&([mSearchText length]>0)) {
                     filtered=1;
-                    NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                    if (r.location != NSNotFound) {
+                    //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    //if (r.location != NSNotFound) {
+                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
                         /*if(r.location== 0)*/ filtered=0;
                     }
                 }
@@ -1153,11 +1160,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            if (r.location != NSNotFound) {
+                            //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            //if (r.location != NSNotFound) {
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
                         }
+                        
                         if (!filtered) {
                             
                             const char *str;
@@ -1256,8 +1265,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+                        //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1345,8 +1355,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+                                //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                //if (r.location != NSNotFound) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1431,8 +1442,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+                        //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1518,8 +1530,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            if (r.location != NSNotFound) {
+                            //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            //if (r.location != NSNotFound) {
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
                         }
@@ -1629,8 +1642,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         if (!filtered) {
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+                                //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                //if (r.location != NSNotFound) {
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1660,8 +1674,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+                        //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1744,8 +1759,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 if (!filtered) {
                                     if ((mSearch)&&([mSearchText length]>0)) {
                                         filtered=1;
-                                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                        if (r.location != NSNotFound) {
+                                        //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                        //if (r.location != NSNotFound) {
+                                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                             /*if(r.location== 0)*/ filtered=0;
                                         }
                                     }
@@ -1784,8 +1800,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+                                //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                //if (r.location != NSNotFound) {
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -3119,6 +3136,7 @@ static int shouldRestart=1;
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #import "FileTypeCommonFunctions.h"
+
 
 -(int) getLocalFilesCount {
     int pl_entries=0;

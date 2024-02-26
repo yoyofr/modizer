@@ -59,10 +59,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize currentPlayedEntry;
 
 #pragma mark -
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
 
+#pragma mark -
+#pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
+
+#pragma mark -
+#pragma mark Alerts popup functions
 #include "AlertsCommonFunctions.h"
+
+#pragma mark -
+#pragma mark Playlist functions
 #include "PlaylistCommonFunctions.h"
+
+#pragma mark -
+#pragma mark Waiting view functions
 #include "WaitingViewCommonMethods.h"
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
@@ -693,7 +706,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				[entries addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+				[entries addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
 				[list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
                 if (sqlite3_column_int(stmt, 2)==1) [details addObject:@"1 entry"];
                 else [details addObject:[NSString stringWithFormat:@"%d entries",sqlite3_column_int(stmt, 2)]];
@@ -725,7 +738,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				_playlist->playlist_id=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+				_playlist->playlist_id=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 _playlist->playlist_name=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 			}
 			sqlite3_finalize(stmt);
@@ -738,7 +751,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
 				_playlist->entries[_playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-				_playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+				_playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 				signed char tmpsc=(signed char)sqlite3_column_int(stmt, 2);
 				if (tmpsc<0) tmpsc=0;
 				if (tmpsc>5) tmpsc=5;
@@ -797,7 +810,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				listName=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+				listName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
@@ -1093,9 +1106,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 			search_local_entries_count[i]=0;
 			if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
 			for (int j=0;j<local_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [local_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [local_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label]) {
 					search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
 					search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
 					search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
@@ -1213,8 +1227,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 int filtered=0;
                 if ((mSearch)&&([mSearchText length]>0)) {
                     filtered=1;
-                    NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                    if (r.location != NSNotFound) {
+                    //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    //if (r.location != NSNotFound) {
+                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
                         /*if(r.location== 0)*/ filtered=0;
                     }
                 }
@@ -1278,8 +1293,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            if (r.location != NSNotFound) {
+//                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                            if (r.location != NSNotFound) {
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
                         }
@@ -1365,8 +1381,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+//                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                        if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1451,8 +1468,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+//                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                                if (r.location != NSNotFound) {
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1518,7 +1536,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 NSLog(@"cannot fex open : %s",path);
             } else {
                 while ( !fex_done( fex ) ) {
-                    file=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                    file=[NSString stringWithUTF8String:(const char*)fex_name(fex)];
                     NSString *extension = [[file pathExtension] uppercaseString];
                     
                     NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
@@ -1526,8 +1544,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+//                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                        if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1598,15 +1617,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 } else {
                     int arc_counter=0;
                     while ( !fex_done( fex ) ) {
-                        file=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        file=[NSString stringWithUTF8String:(const char*)fex_name(fex)];
                         NSString *extension = [[file pathExtension] uppercaseString];
                         NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            if (r.location != NSNotFound) {
+//                            NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                            if (r.location != NSNotFound) {
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
                         }
@@ -1706,8 +1726,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         if (!filtered) {
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+//                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                                if (r.location != NSNotFound) {
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1732,8 +1753,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
+//                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                        if (r.location != NSNotFound) {
+                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
@@ -1813,8 +1835,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 if (!filtered) {
                                     if ((mSearch)&&([mSearchText length]>0)) {
                                         filtered=1;
-                                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                        if (r.location != NSNotFound) {
+//                                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                                        if (r.location != NSNotFound) {
+                                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                             /*if(r.location== 0)*/ filtered=0;
                                         }
                                     }
@@ -1846,8 +1869,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                if (r.location != NSNotFound) {
+//                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                                if (r.location != NSNotFound) {
+                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1951,8 +1975,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                     playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
                     
                     playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
@@ -1987,8 +2011,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                     playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
 
                     playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);

@@ -55,8 +55,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize popTipView;
 
 #pragma mark -
-#pragma mark View lifecycle
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
 
+#pragma mark -
+#pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
 
 
@@ -349,9 +352,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -436,8 +440,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
 					
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].downloaded=-1;
@@ -492,9 +496,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -579,9 +584,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].downloaded=-1;
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].rating=-1;
@@ -632,9 +637,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -731,16 +737,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
 					
 					if (sqlite3_column_int(stmt, 4)==0) {
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir3=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir3=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 						dbHVSC_entries[index][dbHVSC_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
 					} else {
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 						dbHVSC_hasFiles++;
 					}
 					
@@ -795,9 +801,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -894,17 +901,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
 					if (sqlite3_column_int(stmt, 4)==0) {
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir4=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir4=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 						dbHVSC_entries[index][dbHVSC_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
 					} else {
 						dbHVSC_hasFiles++;
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 					}
 					
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].downloaded=-1;					
@@ -957,9 +964,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -1057,17 +1065,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir4=[[NSString alloc] initWithString:dir4];
 					if (sqlite3_column_int(stmt, 4)==0) {
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].dir5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 						dbHVSC_entries[index][dbHVSC_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
 					} else {
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+						dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 						dbHVSC_hasFiles++;
 					}
 					
@@ -1121,9 +1129,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_entries_count[i]=0;
 			if (dbHVSC_entries_count[i]) search_dbHVSC_entries[i]=&(search_dbHVSC_entries_data[search_dbHVSC_nb_entries]);
 			for (int j=0;j<dbHVSC_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [dbHVSC_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbHVSC_entries[i][j].label]) {
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].label=dbHVSC_entries[i][j].label;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].downloaded=dbHVSC_entries[i][j].downloaded;
 					search_dbHVSC_entries[i][search_dbHVSC_entries_count[i]].rating=dbHVSC_entries[i][j].rating;
@@ -1216,15 +1225,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir4=[[NSString alloc] initWithString:dir4];
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].dir5=[[NSString alloc] initWithString:dir5];
 					
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-					dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+					dbHVSC_entries[index][dbHVSC_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 					dbHVSC_hasFiles++;
 					
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].downloaded=-1;					

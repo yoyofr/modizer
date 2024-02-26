@@ -49,7 +49,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     //MIDIs
     {@"http://www.lvbeethoven.fr/Midi/index_En.html",@"Beethoven Midis"},
     {@"http://www.kunstderfuge.com/",@"Classical music Midis"}
-
+    
 };
 
 #import "OnlineViewController.h"
@@ -125,11 +125,11 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     mNbHVSCFileEntries=NB_HVSC_ENTRIES;
     mNbASMAFileEntries=NB_ASMA_ENTRIES;
 #endif
-
-
+    
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
- 
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
@@ -141,8 +141,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     self.navigationItem.rightBarButtonItem = item;
     
     
-//    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
-	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
+    //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -212,10 +212,10 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
-
+    
 }
 
 #pragma mark - Table view data source
@@ -238,7 +238,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
     
     if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
-                       (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
+                                     (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
     else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
                             (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
     
@@ -280,7 +280,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
             lbl= nil;
             break;
     }
-
+    
     [buttonLabel setTitle:lbl forState:UIControlStateNormal];
     
     [customView addSubview: buttonLabel];
@@ -289,22 +289,22 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 }
 
 /*
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    switch (section) {
-        case 0:
-            return NSLocalizedString(@"Collections", @"");
-        case 1:
-            return NSLocalizedString(@"Browse Internet", @"");
-        case 2:
-            return NSLocalizedString(@"Games Music", @"");
-        case 3:
-            return NSLocalizedString(@"Mods & chiptunes", @"");
-        case 4:
-            return NSLocalizedString(@"Other", @"");
-        default:
-            return nil;
-    }
-}*/
+ - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+ switch (section) {
+ case 0:
+ return NSLocalizedString(@"Collections", @"");
+ case 1:
+ return NSLocalizedString(@"Browse Internet", @"");
+ case 2:
+ return NSLocalizedString(@"Games Music", @"");
+ case 3:
+ return NSLocalizedString(@"Mods & chiptunes", @"");
+ case 4:
+ return NSLocalizedString(@"Other", @"");
+ default:
+ return nil;
+ }
+ }*/
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -432,7 +432,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbASMAFileEntries];
                     break;
                 case ONLINE_COLLECTIONS_JOSHW:topLabel.text=NSLocalizedString(@"JOSHW collection",@"");
-                    bottomLabel.text=NSLocalizedString(@"Thousends of entries",@"");
+                    bottomLabel.text=NSLocalizedString(@"Thousands of entries",@"");
                     break;
                 case ONLINE_COLLECTIONS_VGMRips:topLabel.text=NSLocalizedString(@"VGMRips collection",@"");
                     bottomLabel.text=NSLocalizedString(@"2K+ packs / 40K+ songs",@"");
@@ -479,43 +479,43 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 }
 
 /*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
 
 /*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+ }
+ else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }
+ }
+ */
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+ {
+ }
+ */
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 #pragma mark - Table view delegate
 
@@ -637,17 +637,17 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         }
             break;
         case 1:{//internet
-                switch (indexPath.row) {
-                    case 0: //World Charts
-                        [webBrowser loadWorldCharts];
-                        [self.navigationController pushViewController:webBrowser animated:YES];
-                        break;
-                    case 1: //Internet
-                        [webBrowser loadLastURL];
-                        [self.navigationController pushViewController:webBrowser animated:YES];
-                        break;
-                }
+            switch (indexPath.row) {
+                case 0: //World Charts
+                    [webBrowser loadWorldCharts];
+                    [self.navigationController pushViewController:webBrowser animated:YES];
+                    break;
+                case 1: //Internet
+                    [webBrowser loadLastURL];
+                    [self.navigationController pushViewController:webBrowser animated:YES];
+                    break;
             }
+        }
             break;
         case 2: //VGM
             [webBrowser goToURLwithLoad:weblinks_VGM[indexPath.row][0]];

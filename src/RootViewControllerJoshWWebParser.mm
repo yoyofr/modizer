@@ -48,8 +48,11 @@ extern pthread_mutex_t db_mutex;
 
 #pragma mark -
 #pragma mark Alert functions
-
 #import "AlertsCommonFunctions.h"
+
+#pragma mark -
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
 
 #pragma mark -
 #pragma mark Miniplayer
@@ -134,7 +137,7 @@ extern pthread_mutex_t db_mutex;
     childController=NULL;
     
     self.navigationController.delegate = self;
-            
+    
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -152,7 +155,7 @@ extern pthread_mutex_t db_mutex;
             [mFileMngr createDirectoryAtPath:rootDir withIntermediateDirectories:TRUE attributes:NULL error:NULL];
         }
     }
- 
+    
     ratingImg[0] = @"heart-empty.png";
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
@@ -190,7 +193,7 @@ extern pthread_mutex_t db_mutex;
     
     mSearchText=nil;
     mClickedPrimAction=0;
-        
+    
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
@@ -227,7 +230,7 @@ extern pthread_mutex_t db_mutex;
     [indexTitles addObject:@"X"];
     [indexTitles addObject:@"Y"];
     [indexTitles addObject:@"Z"];
-        
+    
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
@@ -257,7 +260,7 @@ extern pthread_mutex_t db_mutex;
         if (browse_depth==0) [self fillKeysWithRepoCateg];
         else if (browse_depth==1) [self fillKeysWithRepoList];
         else [self fillKeysWithWEBSource];
-       
+        
     } else { //reset downloaded, rating & playcount flags
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].downloaded=-1;
@@ -303,9 +306,10 @@ extern pthread_mutex_t db_mutex;
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                //                r.location=NSNotFound;
+                //                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                //                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[i][j].label]) {
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
@@ -344,7 +348,7 @@ extern pthread_mutex_t db_mutex;
         {@"Portables",@"3DS,GBA,GB,Mobile,NDS,PSP,PSVita,SGG"}
         
     };
-        
+    
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
     
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
@@ -352,10 +356,10 @@ extern pthread_mutex_t db_mutex;
         NSString *str2=[((t_categ_entry*)[obj2 pointerValue])->category lastPathComponent];
         return [str1 caseInsensitiveCompare:str2];
     }];
-
+    
     
     ////
-
+    
     dbWEB_nb_entries=[sortedArray count];
     
     //2nd initialize array to receive entries
@@ -385,13 +389,13 @@ extern pthread_mutex_t db_mutex;
         }
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",str];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithString:wentry->category];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->detail];
-                                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
-                
+        
         dbWEB_entries_count[index]++;
         dbWEB_entries_index++;
     }
@@ -429,9 +433,10 @@ extern pthread_mutex_t db_mutex;
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                //                r.location=NSNotFound;
+                //                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                //                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[i][j].label]) {
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
@@ -508,7 +513,7 @@ extern pthread_mutex_t db_mutex;
         {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables"},
         {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables"}
     };
-        
+    
     //NSLog(@"categ: %@",mWebBaseDir);
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) {
         if ([mWebBaseDir isEqualToString:webs_entry[i].category]) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -520,7 +525,7 @@ extern pthread_mutex_t db_mutex;
         return [str1 caseInsensitiveCompare:str2];
     }];
     ////
-
+    
     dbWEB_nb_entries=[sortedArray count];
     
     //2nd initialize array to receive entries
@@ -556,16 +561,16 @@ extern pthread_mutex_t db_mutex;
         }
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",str];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithString:wentry->webSite_baseDir];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->webSite_URL];
-                                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
         
-/*        dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
-        dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
-        dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;*/
+        /*        dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
+         dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
+         dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;*/
         
         dbWEB_entries_count[index]++;
         dbWEB_entries_index++;
@@ -654,7 +659,7 @@ extern pthread_mutex_t db_mutex;
         if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",mWebBaseURL]];
         else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",mWebBaseURL,'a'+i-1]];
         urlData = [NSData dataWithContentsOfURL:url];
-
+        
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"];
@@ -673,15 +678,15 @@ extern pthread_mutex_t db_mutex;
             }
         } else we[i]=NULL;
     }
-
+    
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
         NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_URL lastPathComponent];
         NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_URL lastPathComponent];
         return [str1 caseInsensitiveCompare:str2];
     }];
-
+    
     dbWEB_nb_entries=[sortedArray count];
-
+    
     //2nd initialize array to receive entries
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
@@ -690,7 +695,7 @@ extern pthread_mutex_t db_mutex;
         dbWEB_entries_count[i]=0;
         dbWEB_entries[i]=NULL;
     }
-
+    
     char str[1024];
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
@@ -716,7 +721,7 @@ extern pthread_mutex_t db_mutex;
         }
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",str];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithFormat:@"Documents/%@/%@",mWebBaseDir,dbWEB_entries[index][dbWEB_entries_count[index]].label];
         
         
@@ -799,7 +804,7 @@ extern pthread_mutex_t db_mutex;
         }
     }
     /////////////
-        
+    
     [super viewWillAppear:animated];
     
 }
@@ -844,8 +849,8 @@ extern pthread_mutex_t db_mutex;
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
     /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
+     [childController viewDidDisappear:FALSE];
+     }*/
     [super viewDidDisappear:animated];
 }
 
@@ -937,7 +942,7 @@ extern pthread_mutex_t db_mutex;
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
-                
+        
         NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
         UIImage *image = [UIImage imageNamed:imgFile];
         
@@ -1027,11 +1032,11 @@ extern pthread_mutex_t db_mutex;
     bottomImageView.image=nil;
     
     cell.accessoryType = UITableViewCellAccessoryNone;
-        
+    
     t_WEB_browse_entry **cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     int section = indexPath.section-1;
-            
+    
     cellValue=cur_db_entries[section][indexPath.row].label;
     int colFactor;
     //update downloaded if needed
@@ -1255,7 +1260,7 @@ extern pthread_mutex_t db_mutex;
     
     [self showWaiting];
     [self flushMainLoop];
-        
+    
     {
         t_WEB_browse_entry **cur_db_entries;
         cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
@@ -1277,9 +1282,9 @@ extern pthread_mutex_t db_mutex;
                 [tableView reloadData];
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+                
                 [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
-                                
+                
             }
         }
         
@@ -1315,7 +1320,7 @@ extern pthread_mutex_t db_mutex;
             [tableView reloadData];
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+            
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
         }
     }
@@ -1364,7 +1369,7 @@ extern pthread_mutex_t db_mutex;
             }
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+            
             
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             

@@ -37,6 +37,11 @@ static NSFileManager *mFileMngr;
 @synthesize downloadViewController,rootViewControllerIphone;
 @synthesize popTipView;
 
+#pragma mark -
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
+#pragma mark -
+#pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
 
 -(IBAction)goPlayer {
@@ -412,15 +417,18 @@ static NSFileManager *mFileMngr;
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8, NULL, &sqlite_regexp, NULL,NULL);
 		
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
+		snprintf(sqlStatement,1024,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 				WHERE pe.id_playlist=p.id \
-				AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[[mSearchText stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+				AND pe.name REGEXP '%s' ORDER BY pe.name COLLATE NOCASE",[[self convSearchRegExp:mSearchText] UTF8String]);
+		
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {	
 				playlist_entries_count++;
@@ -435,15 +443,15 @@ static NSFileManager *mFileMngr;
 		
 		if (playlist_entries_count) {
 			playlist_entries=(t_playlist_entryS*)calloc(playlist_entries_count,sizeof(t_playlist_entryS));
-			sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
+			snprintf(sqlStatement,1024,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 					WHERE pe.id_playlist=p.id \
-					AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[[mSearchText stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+					AND pe.name REGEXP '%s' ORDER BY pe.name COLLATE NOCASE",[[self convSearchRegExp:mSearchText] UTF8String]);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
-					playlist_entries[playlist_entries_idx].playlist_name=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					playlist_entries[playlist_entries_idx].playlist_id=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+					playlist_entries[playlist_entries_idx].playlist_name=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					playlist_entries[playlist_entries_idx].playlist_id=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 					playlist_entries[playlist_entries_idx].filename=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
 					playlist_entries[playlist_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 3)];
 															
@@ -462,12 +470,11 @@ static NSFileManager *mFileMngr;
 	return 0;
 }
 
+
 -(int) searchModland {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
 	int db_entries_idx;
-	NSArray *mSearchTextArray=[mSearchText componentsSeparatedByString:@" "];
-	
 	
 	if (db_entries_count) {
 		for (int j=0;j<db_entries_count;j++) {
@@ -484,6 +491,8 @@ static NSFileManager *mFileMngr;
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8, NULL, &sqlite_regexp, NULL,NULL);
 				
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
@@ -496,13 +505,12 @@ static NSFileManager *mFileMngr;
 				db_entries[j].id_mod=-1;
 			}
 			
-			sprintf(sqlStatement,"SELECT filename,filesize,id,fullpath FROM mod_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[(NSString*)[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
+            snprintf(sqlStatement,1024,"SELECT filename,filesize,id,fullpath FROM mod_file \
+					WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+			
+            snprintf(sqlStatement,1024,"%s ORDER BY filename COLLATE NOCASE LIMIT %d;",sqlStatement,MAX_SEARCH_RESULT);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			
-			
+						
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
 					db_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -523,9 +531,9 @@ static NSFileManager *mFileMngr;
 				free(db_entries);
 			}
 			if (db_entries_count==MAX_SEARCH_RESULT) {
-				sprintf(sqlStatement,"SELECT count(1) FROM mod_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[(NSString*)[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+                snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file \
+      WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+                
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
@@ -554,7 +562,6 @@ static NSFileManager *mFileMngr;
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
 	int db_entries_idx;
-	NSArray *mSearchTextArray=[mSearchText componentsSeparatedByString:@" "];
 	
 	if (dbASMA_entries_count) {
 		for (int i=0;i<dbASMA_entries_count;i++) {
@@ -577,6 +584,8 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
         
+        sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8, NULL, &sqlite_regexp, NULL,NULL);
+        
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
@@ -586,16 +595,16 @@ static NSFileManager *mFileMngr;
 			dbASMA_entries=(t_dbASMA_browse_entryS*)calloc(dbASMA_entries_count,sizeof(t_dbASMA_browse_entryS));
 			memset(dbASMA_entries,0,dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
 			
-			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM asma_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
+            snprintf(sqlStatement,1024,"SELECT filename,id_md5,fullpath FROM asma_file \
+                         WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+			
+            snprintf(sqlStatement,1024,"%s ORDER BY filename COLLATE NOCASE LIMIT %d",sqlStatement,MAX_SEARCH_RESULT);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
 					dbASMA_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[db_entries_idx].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+					dbASMA_entries[db_entries_idx].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 					dbASMA_entries[db_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
 					dbASMA_entries[db_entries_idx].downloaded=-1;
 					
@@ -610,9 +619,9 @@ static NSFileManager *mFileMngr;
 				free(dbASMA_entries);
 			}
 			if (dbASMA_entries_count==MAX_SEARCH_RESULT) {
-				sprintf(sqlStatement,"SELECT count(1) FROM asma_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+                snprintf(sqlStatement,1024,"SELECT count(1) FROM asma_file \
+                          WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+                
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
@@ -639,7 +648,6 @@ static NSFileManager *mFileMngr;
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
 	int db_entries_idx;
-	NSArray *mSearchTextArray=[mSearchText componentsSeparatedByString:@" "];
 	
 	if (dbHVSC_entries_count) {
 		for (int i=0;i<dbHVSC_entries_count;i++) {
@@ -662,6 +670,8 @@ static NSFileManager *mFileMngr;
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8, NULL, &sqlite_regexp, NULL,NULL);
 		
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
@@ -672,16 +682,16 @@ static NSFileManager *mFileMngr;
 			dbHVSC_entries=(t_dbHVSC_browse_entryS*)calloc(dbHVSC_entries_count,sizeof(t_dbHVSC_browse_entryS));
 			memset(dbHVSC_entries,0,dbHVSC_entries_count*sizeof(t_dbHVSC_browse_entryS));
 			
-			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM hvsc_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
+            snprintf(sqlStatement,1024,"SELECT filename,id_md5,fullpath FROM hvsc_file \
+                         WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+			
+            snprintf(sqlStatement,1024,"%s ORDER BY filename COLLATE NOCASE LIMIT %d",sqlStatement,MAX_SEARCH_RESULT);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					dbHVSC_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					dbHVSC_entries[db_entries_idx].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+					dbHVSC_entries[db_entries_idx].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 					dbHVSC_entries[db_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
 					dbHVSC_entries[db_entries_idx].downloaded=-1;
 					
@@ -696,9 +706,9 @@ static NSFileManager *mFileMngr;
 				free(dbHVSC_entries);
 			}
 			if (dbHVSC_entries_count==MAX_SEARCH_RESULT) {
-				sprintf(sqlStatement,"SELECT count(1) FROM hvsc_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+                snprintf(sqlStatement,1024,"SELECT count(1) FROM hvsc_file \
+                          WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+                
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
@@ -727,12 +737,14 @@ static NSFileManager *mFileMngr;
 	NSDirectoryEnumerator *dirEnum;
 	NSDictionary *fileAttributes;
 	NSMutableArray *dirToSearch;
+    NSUInteger index;
+    NSString *cpathFixed;
+    
 	int prefix_length;
 	int local_entries_idx;
 	int dirMatched;
 	NSRange r1,r2;
 	int fileMatched;
-	NSArray *mSearchTextArray=[mSearchText componentsSeparatedByString:@" "];
 	
 	if (local_entries_count) {
 		for (int j=0;j<local_entries_count;j++) {
@@ -751,6 +763,7 @@ static NSFileManager *mFileMngr;
 	local_entries=(t_local_browse_entryS*)calloc(local_entries_count,sizeof(t_local_browse_entryS));
 	
 	cpath=[NSHomeDirectory() stringByAppendingPathComponent: @"Documents"];
+    index=[cpath length];
 	prefix_length=[cpath length]+1;
 	[dirToSearch addObject:cpath];
 	while ([dirToSearch count]) {
@@ -758,12 +771,13 @@ static NSFileManager *mFileMngr;
 		[dirToSearch removeObjectAtIndex:0];
 		
 		dirMatched=0;
-		for (int i=0;i<[mSearchTextArray count];i++) {
-			r1.location=NSNotFound;
-			r1 = [[cpath lastPathComponent] rangeOfString:[mSearchTextArray objectAtIndex:i] options:NSCaseInsensitiveSearch];
-			if (r1.location != NSNotFound) dirMatched++;
-		}
-		if (dirMatched<[mSearchTextArray count]) dirMatched=0;
+		
+        if ([cpath length]>index) {
+            cpathFixed = [cpath substringFromIndex:index+1];
+            if ([self searchStringRegExp:mSearchText sourceString:cpathFixed]) dirMatched++;
+        }
+		
+		//if (dirMatched<[mSearchTextArray count]) dirMatched=0;
 		
 		dirEnum = [mFileMngr enumeratorAtPath:cpath];
 		while (file = [dirEnum nextObject]) {
@@ -775,26 +789,19 @@ static NSFileManager *mFileMngr;
 				[dirEnum skipDescendents];
 			}
 			if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
-				//NSString *extension = [file pathExtension];
-				NSString *file_no_ext = [file lastPathComponent];
 				fileMatched=0;
-				for (int i=0;i<[mSearchTextArray count];i++) {
-					r2.location=NSNotFound;
-					r2 = [file_no_ext rangeOfString:[mSearchTextArray objectAtIndex:i] options:NSCaseInsensitiveSearch];
-					if (r2.location != NSNotFound) fileMatched++;
-					else {
-						r2 = [cpath rangeOfString:[mSearchTextArray objectAtIndex:i] options:NSCaseInsensitiveSearch];
-						if (r2.location != NSNotFound) fileMatched++;
-					}
-				}
-				if (fileMatched<[mSearchTextArray count]) fileMatched=0;
+				
+                if ([self searchStringRegExp:mSearchText sourceString:file]) fileMatched++;
+                else if ([self searchStringRegExp:mSearchText sourceString:[NSString stringWithFormat:@"%@/%@",cpathFixed,file]]) fileMatched++;
+                
+				//if (fileMatched<[mSearchTextArray count]) fileMatched=0;
+                
 				if ((dirMatched||fileMatched))  {
 					//found
 					if (local_entries_idx<local_entries_count) {
 						local_entries[local_entries_idx].label=[[NSString alloc] initWithString:file];
 						if ([cpath length]==prefix_length-1) local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithString:file];
 						else local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",[cpath substringFromIndex:prefix_length],file];
-						//if (local_entries_idx==local_entries_count) break;
 					}					
 					local_entries_idx++;					
 				}
@@ -1121,13 +1128,13 @@ static NSFileManager *mFileMngr;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
-		int err;		
-		
+		int err;
+        
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1162,7 +1169,7 @@ static NSFileManager *mFileMngr;
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
+        snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			
@@ -1450,24 +1457,24 @@ static NSFileManager *mFileMngr;
         } else NSLog(@"ErrSQL : %d",err);
         
 		//Get playlist name
-		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				_playlist->playlist_id=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-				_playlist->playlist_name=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+				_playlist->playlist_id=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+				_playlist->playlist_name=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
 		//Get playlist entries
 		_playlist->nb_entries=0;
-		sprintf(sqlStatement,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%s",[_id_playlist UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				_playlist->label[_playlist->nb_entries]=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-				_playlist->fullpath[_playlist->nb_entries]=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+				_playlist->label[_playlist->nb_entries]=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+				_playlist->fullpath[_playlist->nb_entries]=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
 				_playlist->nb_entries++;
 				//TODO : add check / max size (1024)
 			}

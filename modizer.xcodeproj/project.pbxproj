@@ -852,16 +852,20 @@
 		CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100B1221788200E8DE4E /* Ymload.cpp */; };
 		CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100D1221788200E8DE4E /* YmMusic.cpp */; };
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
-		CCC53C0A2B893B3700E97EC1 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978D02B867A7500BBBC8C /* libavutil.xcframework */; };
-		CCC53C0B2B893B4200E97EC1 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CA2B867A7500BBBC8C /* libavformat.xcframework */; };
-		CCC53C0C2B893B5700E97EC1 /* libavcodec.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CB2B867A7500BBBC8C /* libavcodec.xcframework */; };
-		CCC53C0D2B893BEC00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CB2B867A7500BBBC8C /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CCC53C0E2B893BEC00E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978CA2B867A7500BBBC8C /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CCC53C0F2B893BEC00E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC2978D02B867A7500BBBC8C /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CCC53C112B893C5700E97EC1 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC53C102B893C5700E97EC1 /* libswresample.xcframework */; };
-		CCC53C122B893C6500E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC53C102B893C5700E97EC1 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC541BB2B89DD1800E97EC1 /* libadplug.a */; };
 		CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC543DB2B89E83400E97EC1 /* libbinio.a */; };
+		CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */; };
+		CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */; };
+		CCC544422B8BFCDD00E97EC1 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442F2B8BFC9900E97EC1 /* libavutil.xcframework */; };
+		CCC544432B8BFCDD00E97EC1 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544312B8BFC9900E97EC1 /* libswresample.xcframework */; };
+		CCC544462B8BFD0700E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC544472B8BFD0700E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442F2B8BFC9900E97EC1 /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC544492B8BFD0700E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544312B8BFC9900E97EC1 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC5444B2B8BFD0700E97EC1 /* libavfilter.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC5488E2B8C8FCD00E97EC1 /* libavcodec.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5488D2B8C8FCD00E97EC1 /* libavcodec.xcframework */; };
+		CCC5488F2B8C8FEB00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5488D2B8C8FCD00E97EC1 /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC548912B8C901F00E97EC1 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC548902B8C901F00E97EC1 /* libswscale.xcframework */; };
+		CCC548922B8C902B00E97EC1 /* libswscale.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC548902B8C901F00E97EC1 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; };
@@ -1417,10 +1421,12 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CCC53C122B893C6500E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */,
-				CCC53C0D2B893BEC00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */,
-				CCC53C0E2B893BEC00E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */,
-				CCC53C0F2B893BEC00E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */,
+				CCC548922B8C902B00E97EC1 /* libswscale.xcframework in Copy Files-Frameworks */,
+				CCC5488F2B8C8FEB00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */,
+				CCC544462B8BFD0700E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */,
+				CCC544472B8BFD0700E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */,
+				CCC544492B8BFD0700E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */,
+				CCC5444B2B8BFD0700E97EC1 /* libavfilter.xcframework in Copy Files-Frameworks */,
 			);
 			name = "Copy Files-Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2166,9 +2172,6 @@
 		CC1E630D120423DF000A8A4E /* score */ = {isa = PBXFileReference; lastKnownFileType = text; path = score; sourceTree = "<group>"; };
 		CC1E630E120423DF000A8A4E /* uade.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uade.conf; sourceTree = "<group>"; };
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
-		CC2978CA2B867A7500BBBC8C /* libavformat.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavformat.xcframework; sourceTree = "<group>"; };
-		CC2978CB2B867A7500BBBC8C /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
-		CC2978D02B867A7500BBBC8C /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavutil.xcframework; sourceTree = "<group>"; };
 		CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerWin.h; sourceTree = "<group>"; };
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
@@ -2537,9 +2540,15 @@
 		CCBF100E1221788200E8DE4E /* YmMusic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmMusic.h; sourceTree = "<group>"; };
 		CCBF100F1221788200E8DE4E /* YmTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmTypes.h; sourceTree = "<group>"; };
 		CCBF10101221788200E8DE4E /* YmUserInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YmUserInterface.cpp; sourceTree = "<group>"; };
-		CCC53C102B893C5700E97EC1 /* libswresample.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswresample.xcframework; sourceTree = "<group>"; };
 		CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = adplug.xcodeproj; path = adplug/adplug.xcodeproj; sourceTree = "<group>"; };
 		CCC543D62B89E83400E97EC1 /* binio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = binio.xcodeproj; path = binio/binio.xcodeproj; sourceTree = "<group>"; };
+		CCC543F92B8B66F700E97EC1 /* SearchCommonFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchCommonFunctions.h; sourceTree = "<group>"; };
+		CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavformat.xcframework; sourceTree = "<group>"; };
+		CCC5442F2B8BFC9900E97EC1 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavutil.xcframework; sourceTree = "<group>"; };
+		CCC544312B8BFC9900E97EC1 /* libswresample.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswresample.xcframework; sourceTree = "<group>"; };
+		CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavfilter.xcframework; sourceTree = "<group>"; };
+		CCC5488D2B8C8FCD00E97EC1 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
+		CCC548902B8C901F00E97EC1 /* libswscale.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswscale.xcframework; sourceTree = "<group>"; };
 		CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7b_2x.png; sourceTree = "<group>"; };
 		CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7e_2x.png; sourceTree = "<group>"; };
 		CCC6776F17F6B92500F16A54 /* CMPopTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPopTipView.h; sourceTree = "<group>"; };
@@ -2614,15 +2623,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */,
+				CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */,
+				CCC544422B8BFCDD00E97EC1 /* libavutil.xcframework in Frameworks */,
+				CCC544432B8BFCDD00E97EC1 /* libswresample.xcframework in Frameworks */,
 				CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */,
 				CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */,
 				CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */,
-				CCC53C112B893C5700E97EC1 /* libswresample.xcframework in Frameworks */,
-				CCC53C0C2B893B5700E97EC1 /* libavcodec.xcframework in Frameworks */,
 				CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */,
 				CC0E2DBA2B80A04800CB58C7 /* libogg-openmpt.a in Frameworks */,
 				CCB818302B7278BF00364D64 /* liblibpixel.a in Frameworks */,
 				CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */,
+				CCC5488E2B8C8FCD00E97EC1 /* libavcodec.xcframework in Frameworks */,
+				CCC548912B8C901F00E97EC1 /* libswscale.xcframework in Frameworks */,
 				CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */,
 				CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */,
 				59BE9380260010BD00414A42 /* libsidplayfp.a in Frameworks */,
@@ -2631,13 +2644,11 @@
 				5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */,
 				5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */,
 				59BDE96E260FE5AB00FB0C69 /* libhighlytheoritical.a in Frameworks */,
-				CCC53C0B2B893B4200E97EC1 /* libavformat.xcframework in Frameworks */,
 				5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */,
 				5966D0FF25CFEFED00520777 /* libsqlite3.tbd in Frameworks */,
 				5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */,
 				59B9998D25CFE6160071E144 /* libTapkuLibrary.a in Frameworks */,
 				5905362125DBDB0500AA548E /* CoreVideo.framework in Frameworks */,
-				CCC53C0A2B893B3700E97EC1 /* libavutil.xcframework in Frameworks */,
 				5966D0BB25CFEDFC00520777 /* libgsf.a in Frameworks */,
 				59392A1A25CF610C009281DC /* libuade.a in Frameworks */,
 				5905362425DBDB1600AA548E /* VideoToolbox.framework in Frameworks */,
@@ -3084,9 +3095,9 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
 				CCC543D62B89E83400E97EC1 /* binio.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
-				CC2978B42B86776600BBBC8C /* ffmpeg-kit */,
 				CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */,
 				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
 				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
@@ -3526,6 +3537,7 @@
 				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
 				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
 				CC1638EE2B7CE5CF003323FD /* FileTypeCommonFunctions.h */,
+				CCC543F92B8B66F700E97EC1 /* SearchCommonFunctions.h */,
 			);
 			name = CommonFunctions;
 			sourceTree = "<group>";
@@ -4285,17 +4297,6 @@
 			path = S;
 			sourceTree = "<group>";
 		};
-		CC2978B42B86776600BBBC8C /* ffmpeg-kit */ = {
-			isa = PBXGroup;
-			children = (
-				CCC53C102B893C5700E97EC1 /* libswresample.xcframework */,
-				CC2978CB2B867A7500BBBC8C /* libavcodec.xcframework */,
-				CC2978CA2B867A7500BBBC8C /* libavformat.xcframework */,
-				CC2978D02B867A7500BBBC8C /* libavutil.xcframework */,
-			);
-			path = "ffmpeg-kit";
-			sourceTree = "<group>";
-		};
 		CC33B25F1AB81688009608E8 /* libopenmpt */ = {
 			isa = PBXGroup;
 			children = (
@@ -4810,6 +4811,19 @@
 				CCC543DB2B89E83400E97EC1 /* libbinio.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */ = {
+			isa = PBXGroup;
+			children = (
+				CCC548902B8C901F00E97EC1 /* libswscale.xcframework */,
+				CCC5488D2B8C8FCD00E97EC1 /* libavcodec.xcframework */,
+				CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */,
+				CCC5442F2B8BFC9900E97EC1 /* libavutil.xcframework */,
+				CCC544312B8BFC9900E97EC1 /* libswresample.xcframework */,
+				CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */,
+			);
+			path = "ffmpeg-kit";
 			sourceTree = "<group>";
 		};
 		CCC6776E17F6B92500F16A54 /* CMPopTipView */ = {
@@ -6137,8 +6151,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DVGM_USE_VORBIS=1",
-					"-DVGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
 					"-D",
 					"VGM_USE_FFMPEG=1",
 					"-D",
@@ -6243,8 +6259,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DVGM_USE_VORBIS=1",
-					"-DVGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
 					"-D",
 					"VGM_USE_FFMPEG=1",
 					"-D",
@@ -6350,8 +6368,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				OTHER_CFLAGS = (
-					"-DVGM_USE_VORBIS=1",
-					"-DVGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
 					"-D",
 					"VGM_USE_FFMPEG=1",
 					"-D",

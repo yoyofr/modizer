@@ -56,7 +56,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize popTipView;
 
 #pragma mark -
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
 
+#pragma mark -
+#pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
 
 
@@ -140,7 +144,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     childController=NULL;
     
     self.navigationController.delegate = self;
-            
+    
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -324,7 +328,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 search_dbASMA_entries[i][j].id_md5=nil;
                 search_dbASMA_entries[i][j].dir1=nil;
                 search_dbASMA_entries[i][j].dir2=nil;
-                search_dbASMA_entries[i][j].dir3=nil;                
+                search_dbASMA_entries[i][j].dir3=nil;
             }
             search_dbASMA_entries[i]=NULL;
         }
@@ -344,9 +348,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_entries_count[i]=0;
             if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
             for (int j=0;j<dbASMA_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//                r.location=NSNotFound;
+//                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbASMA_entries[i][j].label]) {
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
@@ -427,8 +432,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             NSLog(@"********* %s",str);
                         } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
                     }
-                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
                     
                     dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
@@ -479,9 +484,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_entries_count[i]=0;
             if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
             for (int j=0;j<dbASMA_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//                r.location=NSNotFound;
+//                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbASMA_entries[i][j].label]) {
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
@@ -573,15 +579,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             NSLog(@"********* %s",str);
                         } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
                     }
-                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
                     
                     if (sqlite3_column_int(stmt, 4)==0) {
-                        dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                         dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
                     } else {
-                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                         dbASMA_hasFiles++;
                     }
                     
@@ -632,9 +638,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_entries_count[i]=0;
             if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
             for (int j=0;j<dbASMA_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//                r.location=NSNotFound;
+//                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbASMA_entries[i][j].label]) {
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
@@ -727,16 +734,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             NSLog(@"********* %s",str);
                         } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
                     }
-                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
                     
                     if (sqlite3_column_int(stmt, 4)==0) {
-                        dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                         dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
                     } else {
-                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                         dbASMA_hasFiles++;
                     }
                     
@@ -788,9 +795,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_entries_count[i]=0;
             if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
             for (int j=0;j<dbASMA_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//                r.location=NSNotFound;
+//                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbASMA_entries[i][j].label]) {
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
                     search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
@@ -879,13 +887,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             NSLog(@"********* %s",str);
                         } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
                     }
-                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
                     dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
                     
-                    dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-                    dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                     dbASMA_hasFiles++;
                     
                     dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
@@ -1094,7 +1102,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [self fillKeys];
         [tableView reloadData];
     }
-
+    
     [super viewWillAppear:animated];
     
 }
@@ -1124,8 +1132,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
     /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
+     [childController viewDidDisappear:FALSE];
+     }*/
     [super viewDidDisappear:animated];
 }
 
@@ -1291,7 +1299,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
          [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
          */
         NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];        
+        UIImage *image = [UIImage imageNamed:imgFile];
         
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
@@ -1626,7 +1634,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -1965,8 +1973,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     infoMsgView.frame=frame;
     infoMsgView.hidden=NO;
     infoMsgLbl.text=[NSString stringWithString:msg];
-    [UIView beginAnimations:nil context:nil];				
-    [UIView setAnimationDelay:0];				
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDelay:0];
     [UIView setAnimationDuration:0.5];
     [UIView setAnimationDelegate:self];
     frame=infoMsgView.frame;
@@ -1978,9 +1986,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) closePopup {
     CGRect frame;
     [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDelay:1.0];				
+    [UIView setAnimationDelay:1.0];
     [UIView setAnimationDuration:0.5];
-    [UIView setAnimationDelegate:self];	
+    [UIView setAnimationDelegate:self];
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -2019,7 +2027,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (list) {
         //[list release];
         list=nil;
-    }	
+    }
     
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {

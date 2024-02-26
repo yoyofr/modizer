@@ -68,6 +68,10 @@ enum {
 #pragma mark Miniplayer
 #include "MiniPlayerImplementTableView.h"
 
+#pragma mark -
+#pragma mark Search functions
+#import "SearchCommonFunctions.h"
+
 -(void) refreshMiniplayer {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
@@ -204,7 +208,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     }
     
     self.navigationController.delegate = self;
-            
+    
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -215,7 +219,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     mFileMngr=[[NSFileManager alloc] init];
     
     imagesCache = [[ImagesCache alloc] init];
-        
+    
     navbarTitle=[[UILabel alloc] init];
     navbarTitle.userInteractionEnabled=TRUE;
     
@@ -227,7 +231,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
     }
     
- 
+    
     ratingImg[0] = @"heart-empty.png";
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
@@ -265,14 +269,14 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     
     mSearchText=nil;
     mClickedPrimAction=0;
-        
+    
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
-        
+    
     indexTitles = [[NSMutableArray alloc] init];
     [indexTitles addObject:@"{search}"];
     if (indexTitleMode) {
@@ -304,7 +308,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         [indexTitles addObject:@"Y"];
         [indexTitles addObject:@"Z"];
     }
-        
+    
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
@@ -333,7 +337,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         shouldFillKeys=0;
         if (browse_depth==0) [self fillKeysWithRepoCateg];
         else [self fillKeysWithWEBSource];
-       
+        
     } else { //reset downloaded, rating & playcount flags
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].downloaded=-1;
@@ -378,9 +382,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                //r.location=NSNotFound;
+                //r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                //if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[i][j].label]) {
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
@@ -419,7 +424,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         {@"All",@"https://www.smspower.org/Music/VGMs"},
         {@"Systems",@"https://www.smspower.org/Music/VGMs"}
     };
-
+    
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
     
     if (indexTitleMode) {
@@ -431,10 +436,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     } else {
         sortedArray=tmpArray;
     }
-
+    
     
     ////
-
+    
     dbWEB_nb_entries=[sortedArray count];
     
     //2nd initialize array to receive entries
@@ -466,13 +471,13 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         }
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@",wentry->category];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wentry->category];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->url];
-                                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
-                
+        
         dbWEB_entries_count[index]++;
         dbWEB_entries_index++;
     }
@@ -510,9 +515,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
-                r.location=NSNotFound;
-                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                //r.location=NSNotFound;
+                //r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                //if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[i][j].label]) {
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
@@ -563,7 +569,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
     int we_index=0;
-          
+    
     if (browse_mode==BROWSE_SYSTEMS) {
         ///////////////////////////////////////////////////////////////////////:
         // SMSP All
@@ -571,12 +577,12 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-                    
+        
         NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];  ///
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_system count]);
         int we_index=0;
-                
+        
         if (arr_system&&[arr_system count]) {
             
             for (int j=0;j<[arr_system count];j++) {
@@ -623,13 +629,13 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            ///html/body/div[1]/div[2]/div[4]/div
+        ///html/body/div[1]/div[2]/div[4]/div
         NSString *cur_system=self.title;
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
-                
+        
         if (arr_url&&[arr_url count]) {
             
             for (int j=0;j<[arr_url count];j++) {
@@ -645,9 +651,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                         TFHppleElement *elchild2=[el firstChildWithTagName:@"a"];
                         
                         if (elchild2) {
-                        
-                        we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
-                        
+                            
+                            we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
+                            
                             
                             we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
                             
@@ -672,7 +678,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            
+        
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"];  ///
         //NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body/div[1]/div[2]/div[4]/div/div[2]/p"]; //""  and remove first part before \n
         //NSArray *arr_filesize=[doc searchWithXPathQuery:@"/html/body//tr[position()>1]/td[3]/div[1]/text()"];
@@ -680,7 +686,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
-                
+        
         if (arr_url&&[arr_url count]) {
             
             for (int j=0;j<[arr_url count];j++) {
@@ -718,7 +724,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             }
         }
     }
-        
+    
     if (indexTitleMode) {
         sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
             NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
@@ -733,9 +739,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             return [str1 caseInsensitiveCompare:str2];
         }];
     }
-
+    
     dbWEB_nb_entries=[sortedArray count];
-
+    
     //2nd initialize array to receive entries
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
@@ -744,7 +750,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         dbWEB_entries_count[i]=0;
         dbWEB_entries[i]=NULL;
     }
-
+    
     char chr;
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
@@ -775,14 +781,14 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         if (wef->file_type==1) dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@.zip",wef->file_name];
         else dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
-                
+        
         if (wef->file_type==1) dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithFormat:@"Documents/SMSP/%@/%@.zip",wef->file_systems,wef->file_name];
         else dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
         if (wef->file_URL) dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wef->file_URL];
         
         if (wef->file_img_URL && ([wef->file_img_URL characterAtIndex:[wef->file_img_URL length]-1]!='/') ) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[NSString stringWithString:wef->file_img_URL];
-                
+        
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=wef->file_type;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
         if (wef->file_type) {
@@ -867,7 +873,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         }
     }
     /////////////
-        
+    
     [super viewWillAppear:animated];
     
 }
@@ -912,8 +918,8 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
     /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
+     [childController viewDidDisappear:FALSE];
+     }*/
     [super viewDidDisappear:animated];
 }
 
@@ -1000,17 +1006,17 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     
     t_WEB_browse_entry **cur_db_entries;
     long section = indexPath.section-1;
-                
+    
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     bool has_mini_img=(cur_db_entries[section][indexPath.row].img_URL?TRUE:FALSE);
-            
+    
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
-                
+        
         NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
         UIImage *image = [UIImage imageNamed:imgFile];
         
@@ -1120,7 +1126,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     coverImgView.image=nil;
     
     cell.accessoryType = UITableViewCellAccessoryNone;
-        
+    
     cellValue=cur_db_entries[section][indexPath.row].label;
     int colFactor;
     //update downloaded if needed
@@ -1166,10 +1172,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 bottomStr=[NSString stringWithFormat:@"%@・%02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
             else bottomStr=[NSString stringWithFormat:@"%@・--ch",bottomStr];
             /*if (cur_db_entries[section][indexPath.row].songs) {
-                if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];
-                else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
-            }
-            else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];*/
+             if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];
+             else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
+             }
+             else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];*/
             bottomStr=[NSString stringWithFormat:@"%@・Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
             
             bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[section][indexPath.row].info,bottomStr];
@@ -1201,9 +1207,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
             coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
-                                                           prefix:@"SMSP_mini"
-                                                             size:CGSizeMake(34.0f, 34.0f)
-                                                   forUIImageView:coverImgView];
+                                                       prefix:@"SMSP_mini"
+                                                         size:CGSizeMake(34.0f, 34.0f)
+                                               forUIImageView:coverImgView];
             //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         }
     } else { // DIR
@@ -1225,9 +1231,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
             coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
-                                                           prefix:@"SMSP_mini"
-                                                             size:CGSizeMake(34.0f, 34.0f)
-                                                   forUIImageView:coverImgView];
+                                                       prefix:@"SMSP_mini"
+                                                         size:CGSizeMake(34.0f, 34.0f)
+                                               forUIImageView:coverImgView];
             coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         }
         
@@ -1361,7 +1367,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     
     [self showWaiting];
     [self flushMainLoop];
-        
+    
     {
         t_WEB_browse_entry **cur_db_entries;
         cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
@@ -1383,9 +1389,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 [tableView reloadData];
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+                
                 [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
-                                
+                
             }
         }
         
@@ -1421,7 +1427,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             [tableView reloadData];
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+            
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
         }
     }
@@ -1470,7 +1476,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             }
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
+            
             
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             

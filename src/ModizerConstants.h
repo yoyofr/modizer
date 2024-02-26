@@ -9,8 +9,6 @@
 
 //#define LOAD_PROFILE
 
-//#define WEBSID
-
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
 #define mdz_safe_execute_sel(cont,sel,arg) if ([cont respondsToSelector:sel]) [cont performSelectorOnMainThread:sel withObject:arg waitUntilDone:NO];
@@ -176,7 +174,9 @@
 #define SUPPORTED_FILETYPE_EUP_EXT @"EUP,FMB,PMB"
 
 
+#define SUPPORTED_FILETYPE_MDX_WITHEXTFILE @"MDX"
 #define SUPPORTED_FILETYPE_MDX @"MDX"
+#define SUPPORTED_FILETYPE_EUP_EXT @"MDX,PDX"
 
 #define SUPPORTED_FILETYPE_PMD @"M,M2,MZ"
 

@@ -85,19 +85,11 @@
                 found=MMP_GME;break;
             }
         }
+    
     if (!found)
         for (int i=0;i<[filetype_extSID count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
-        }
-    if (!found)
-        for (int i=0;i<[filetype_extMDX count];i++) { //PDX might be required
-            if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
-                found=MMP_MDXPDX;break;
-            }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
-                found=MMP_MDXPDX;break;
-            }
         }
     if (!found)
         for (int i=0;i<[filetype_extPMD count];i++) {
@@ -185,6 +177,36 @@
                         break;
                     }
                 found=MMP_HC;break;
+            }
+        }
+    /*if (!found)
+        for (int i=0;i<[filetype_extMDX count];i++) { //PDX might be required
+            if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                found=MMP_MDXPDX;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                found=MMP_MDXPDX;break;
+            }
+        }*/
+    if (!found)
+        for (int i=0;i<[filetype_extMDX count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                //check if file or ressource
+                NSArray *singlefile=[SUPPORTED_FILETYPE_MDX_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_MDXPDX;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                //check if file or ressource
+                NSArray *singlefile=[SUPPORTED_FILETYPE_MDX_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_MDXPDX;break;
             }
         }
     if (!found)

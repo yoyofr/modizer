@@ -255,7 +255,7 @@ void optNSFPLAYChangedC(id param) {
                     [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_TEXTBOX:
-                    if (settings[i].detail.mdz_textbox.text) [prefs setObject:[NSString stringWithFormat:@"%s",settings[i].detail.mdz_textbox.text] forKey:str];
+                    if (settings[i].detail.mdz_textbox.text) [prefs setObject:[NSString stringWithUTF8String:settings[i].detail.mdz_textbox.text] forKey:str];
                     else [prefs setObject:@"" forKey:str];
                     break;
                     //
@@ -282,6 +282,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
+    settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
@@ -303,10 +304,10 @@ void optNSFPLAYChangedC(id param) {
     settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=1;
     
     if (settings[FTP_USER].detail.mdz_textbox.text) free(settings[FTP_USER].detail.mdz_textbox.text);
-    settings[FTP_USER].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    settings[FTP_USER].detail.mdz_textbox.text=NULL;
     
     if (settings[FTP_PASSWORD].detail.mdz_textbox.text) free(settings[FTP_PASSWORD].detail.mdz_textbox.text);
-    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;
     
     if (settings[FTP_PORT].detail.mdz_textbox.text) free(settings[FTP_PORT].detail.mdz_textbox.text);
     settings[FTP_PORT].detail.mdz_textbox.text=(char*)malloc(strlen("21")+1);
@@ -422,7 +423,6 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //SID
     /////////////////////////////////////
-#ifndef WEBSID
     settings[SID_Engine].detail.mdz_boolswitch.switch_value=1;
     settings[SID_Interpolation].detail.mdz_switch.switch_value=2;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
@@ -436,7 +436,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text=(char*)malloc(strlen("0xd440")+1);
     strcpy(settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text,"0xd440");
     
-#endif
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_value=0;
@@ -606,6 +605,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ResumeOnStart].callback=&optGLOBALChangedC;
     settings[GLOB_ResumeOnStart].type=MDZ_BOOLSWITCH;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_SearchRegExp].label=(char*)"Search: simplified regexp ('.'->'\\.', '*'->'.*')";
+    settings[GLOB_SearchRegExp].description=NULL;
+    settings[GLOB_SearchRegExp].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_SearchRegExp].sub_family=0;
+    settings[GLOB_SearchRegExp].callback=&optGLOBALChangedC;
+    settings[GLOB_SearchRegExp].type=MDZ_BOOLSWITCH;
+    settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
@@ -792,7 +799,7 @@ void optNSFPLAYChangedC(id param) {
     settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb=2;
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Stop";
-    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[1]=(char*)"Run";    
+    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[1]=(char*)"Run";
     
     settings[FTP_ANONYMOUS].label=(char*)"Authorize anonymous";
     settings[FTP_ANONYMOUS].description=NULL;
@@ -806,14 +813,14 @@ void optNSFPLAYChangedC(id param) {
     settings[FTP_USER].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_USER].sub_family=0;
     settings[FTP_USER].type=MDZ_TEXTBOX;
-    settings[FTP_USER].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    settings[FTP_USER].detail.mdz_textbox.text=NULL;
     
     settings[FTP_PASSWORD].label=(char*)"Password";
     settings[FTP_PASSWORD].description=NULL;
     settings[FTP_PASSWORD].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_PASSWORD].sub_family=0;
     settings[FTP_PASSWORD].type=MDZ_TEXTBOX;
-    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;
     
     settings[FTP_PORT].label=(char*)"Port";
     settings[FTP_PORT].description=NULL;
@@ -1620,7 +1627,6 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_FAMILY_SID;
     
-#ifndef WEBSID
     settings[SID_Engine].type=MDZ_SWITCH;
     settings[SID_Engine].label=(char*)"Engine";
     settings[SID_Engine].description=NULL;
@@ -1672,7 +1678,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ThirdSIDOn].detail.mdz_boolswitch.switch_value=0;
     
     settings[SID_SecondSIDAddress].label=(char*)"Address 2nd";
-    settings[SID_SecondSIDAddress].description="0xD420-0xD7FF or 0xDE00-0xDFFF";
+    settings[SID_SecondSIDAddress].description=(char*)"0xD420-0xD7FF or 0xDE00-0xDFFF";
     settings[SID_SecondSIDAddress].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_SecondSIDAddress].sub_family=0;
     settings[SID_SecondSIDAddress].type=MDZ_TEXTBOX;
@@ -1681,14 +1687,14 @@ void optNSFPLAYChangedC(id param) {
     strcpy(settings[SID_SecondSIDAddress].detail.mdz_textbox.text,"0xD420");
     
     settings[SID_ThirdSIDAddress].label=(char*)"Address 3rd";
-    settings[SID_ThirdSIDAddress].description="0xD420-0xD7FF or 0xDE00-0xDFFF";
+    settings[SID_ThirdSIDAddress].description=(char*)"0xD420-0xD7FF or 0xDE00-0xDFFF";
     settings[SID_ThirdSIDAddress].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_ThirdSIDAddress].sub_family=0;
     settings[SID_ThirdSIDAddress].type=MDZ_TEXTBOX;
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.text=(char*)malloc(strlen("0xD440")+1);
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.max_width_char=6;
     strcpy(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text,"0xD440");
-#endif
+
     settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
     settings[SID_ForceLoop].label=(char*)"Force Loop";
     settings[SID_ForceLoop].description=NULL;
@@ -2247,8 +2253,8 @@ void optNSFPLAYChangedC(id param) {
                                    tabView.bounds.size.width/**4/10*/,
                                    12);
         
-        topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
-        bottomLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].description]),@"");
+        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
+        bottomLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
     } else {
         topLabel.frame= CGRectMake(4,
                                    0,
@@ -2259,7 +2265,7 @@ void optNSFPLAYChangedC(id param) {
                                    tabView.bounds.size.width*4/10,
                                    0);
         
-        topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
+        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
         bottomLabel.text=@"";
     }
     
@@ -2279,7 +2285,7 @@ void optNSFPLAYChangedC(id param) {
         case MDZ_SWITCH:{
             tmpArray=[[NSMutableArray alloc] init];
             for (int i=0;i<settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value_nb;i++) {
-                [tmpArray addObject:[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
+                [tmpArray addObject:[NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
             segconview.frame=CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30);
@@ -2346,7 +2352,7 @@ void optNSFPLAYChangedC(id param) {
             txtfield.delegate = self;
             txtfield.tag=indexPath.section;
             
-            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text) txtfield.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
+            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text) txtfield.text=[NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else txtfield.text=@"";
             
             UIFont *font = [UIFont systemFontOfSize:15];
@@ -2383,7 +2389,7 @@ void optNSFPLAYChangedC(id param) {
             msgLabel.enabled=FALSE;
             msgLabel.tag=indexPath.section;
             
-            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
+            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else msgLabel.text=@"";
             cell.accessoryView = msgLabel;
             //[msgLabel release];
@@ -2441,7 +2447,7 @@ void optNSFPLAYChangedC(id param) {
     if (settings[cur_settings_idx[indexPath.section]].type==MDZ_FAMILY) {
         settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
         settingsVC->detailViewController=detailViewController;
-        settingsVC.title=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
+        settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
         settingsVC->current_family=settings[cur_settings_idx[indexPath.section]].sub_family;
         settingsVC.view.frame=self.view.frame;
         [self.navigationController pushViewController:settingsVC animated:YES];

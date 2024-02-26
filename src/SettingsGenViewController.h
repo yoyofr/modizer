@@ -50,6 +50,7 @@ enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER,
     
     //GLOB_PlaybackFrequency,
+    GLOB_SearchRegExp,
     GLOB_ResumeOnStart,
     GLOB_ForceMono,
     GLOB_Panning,
@@ -130,20 +131,16 @@ enum MDZ_SETTINGS {
             
             
         MDZ_SETTINGS_FAMILY_SID,
-#ifndef WEBSID
         SID_Engine,
         SID_Interpolation,
         SID_Filter,
-#endif
         SID_ForceLoop,
         SID_CLOCK,
         SID_MODEL,
-#ifndef WEBSID
         SID_SecondSIDOn,
         SID_SecondSIDAddress,
         SID_ThirdSIDOn,
         SID_ThirdSIDAddress,
-#endif
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
         TIM_Polyphony,

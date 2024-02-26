@@ -4034,7 +4034,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
                                 mNeedSeek=0;
                             }
-                            if (mPlayType==MMP_NSFPLAY) { //TODO
+                            if (mPlayType==MMP_NSFPLAY) { //NSFPlay
                                 int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
                                 if (mCurrentSamples >seekSample) {
@@ -4364,12 +4364,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
                                 
                                 iModuleLength=hvl_GetPlayTime(hvl_song);
+                                if (mLoopMode) iModuleLength=-1;
                                 iCurrentTime=0;
                                 
                                 [self iPhoneDrv_PlayRestart];
-                                
-                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
-                                if (mLoopMode) iModuleLength=-1;
+                                                                                                
                                 mod_message_updated=1;
                             } else if (mPlayType==MMP_ADPLUG) {
                                 adPlugPlayer->rewind(mod_currentsub);
@@ -6591,7 +6590,10 @@ typedef struct {
     
     nsfData=new xgm::NSF();
     
-    nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
+    if (mLoopMode) nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,0,1<<16);
+    else nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
+    
+    
     nsfData->LoadFile([filePath UTF8String]);
     nsfPlayer->Load(nsfData);
     
@@ -6599,7 +6601,6 @@ typedef struct {
     nsfPlayer->SetChannels(2);
     nsfPlayer->SetSong(0);
     nsfPlayer->Reset();
-    
     
     mod_subsongs=nsfData->GetSongNum();
     mod_minsub=0;
@@ -6623,8 +6624,6 @@ typedef struct {
     mod_title=[NSString stringWithUTF8String:nsf_title];
     
     artist=[NSString stringWithUTF8String:nsfData->artist];
-    
-    
     
     numChannels=0;
     memset(nsfChipsetType,0,sizeof(nsfChipsetType));
@@ -7668,6 +7667,8 @@ char* loadRom(const char* path, size_t romSize)
         }
         iModuleLength=hvl_GetPlayTime(hvl_song);
         iCurrentTime=0;
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
         
         numChannels=hvl_song->ht_Channels;
         
@@ -7687,11 +7688,7 @@ char* loadRom(const char* path, size_t romSize)
         }
         
         hvl_sample_to_write=hvl_song->ht_Frequency/50/hvl_song->ht_SpeedMultiplier;
-        
-        //Loop
-        if (mLoopMode==1) iModuleLength=-1;
-        
-        
+                                
         return 0;
     }
 }
@@ -8424,7 +8421,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         return -1;
     }
     
-    vgmFile->stream_index=0;
+    vgmFile->stream_index=-1;
     
     vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
     
@@ -9460,7 +9457,9 @@ int vgmGetFileLength()
     sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
     
     //Loop
-    if (mLoopMode==1) iModuleLength=-1;
+    if (mLoopMode==1) {        
+        iModuleLength=-1;
+    }
     
     return 0;
 }
@@ -10977,6 +10976,8 @@ extern bool icloud_available;
             }
             hvl_InitSubsong( hvl_song,mod_currentsub );
             iModuleLength=hvl_GetPlayTime(hvl_song);
+            if (mLoopMode==1) iModuleLength=-1;
+            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -11042,6 +11043,7 @@ extern bool icloud_available;
             
             iModuleLength=nsfPlayer->GetLength();
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+            if (mLoopMode) iModuleLength=-1;
             
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
@@ -11135,6 +11137,7 @@ extern bool icloud_available;
             if (iModuleLength<1000) iModuleLength=1000;
             ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
             
+            if (mLoopMode) iModuleLength=-1;
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];

@@ -754,7 +754,7 @@ static NSFileManager *mFileMngr;
                 if (r.location != NSNotFound) {  //trying to download
                     char *tmp_str_ptr;
                     char tmp_str[1024];
-                    NSMutableArray *libsList=DBHelper::getMissingLibsNameFromFilePath(filePath);
+                    NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"lib");
                     for (int i=0;i<[libsList count]/2;i++) {
                         NSString *fullP=(NSString *)[libsList objectAtIndex:i*2];
                         NSString *localP=(NSString *)[libsList objectAtIndex:i*2+1];
@@ -777,6 +777,85 @@ static NSFileManager *mFileMngr;
                         mFTPDownloadQueueDepth++;
                     }
                     
+                }
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".mdx" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {  //trying to download
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"pdx");
+                    for (int i=0;i<[libsList count]/2;i++) {
+                        NSString *fullP=(NSString *)[libsList objectAtIndex:i*2];
+                        NSString *localP=(NSString *)[libsList objectAtIndex:i*2+1];
+                        
+                        NSString *filePath=fullP;
+                        NSString *modFilename=[fullP lastPathComponent];
+                        NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                        NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
+                        
+                        
+                        mFilePath[mFTPDownloadQueueDepth]=localPath;
+                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
+                }
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".eup" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {  //trying to download
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"fmb");
+                    for (int i=0;i<[libsList count]/2;i++) {
+                        NSString *fullP=(NSString *)[libsList objectAtIndex:i*2];
+                        NSString *localP=(NSString *)[libsList objectAtIndex:i*2+1];
+                        
+                        NSString *filePath=fullP;
+                        NSString *modFilename=[fullP lastPathComponent];
+                        NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                        NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
+                        
+                        
+                        mFilePath[mFTPDownloadQueueDepth]=localPath;
+                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
+                    
+                    libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"pmb");
+                    for (int i=0;i<[libsList count]/2;i++) {
+                        NSString *fullP=(NSString *)[libsList objectAtIndex:i*2];
+                        NSString *localP=(NSString *)[libsList objectAtIndex:i*2+1];
+                        
+                        NSString *filePath=fullP;
+                        NSString *modFilename=[fullP lastPathComponent];
+                        NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                        NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
+                        
+                        
+                        mFilePath[mFTPDownloadQueueDepth]=localPath;
+                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
                 }
 			}
 			

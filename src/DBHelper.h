@@ -31,7 +31,7 @@ namespace DBHelper
     void updateFileStatsAvgRatingDBmod(NSString *fullpath);
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating);
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,char channels_nb,int songs);
-    NSMutableArray *getMissingLibsNameFromFilePath(NSString *localPath);
+    NSMutableArray *getMissingPartsNameFromFilePath(NSString *localPath,NSString *ext);
 	
 	int getNbFormatEntries();
 	int getNbAuthorEntries();

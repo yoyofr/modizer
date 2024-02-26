@@ -316,7 +316,6 @@ ffmpeg_codec_data* init_ffmpeg_header_offset_subsong(STREAMFILE* sf, uint8_t* he
     ffmpeg_codec_data* data = NULL;
     int errcode;
 
-
     /* check values */
     if ((header && !header_size) || (!header && header_size))
         goto fail;
@@ -462,10 +461,8 @@ static int init_ffmpeg_config(ffmpeg_codec_data* data, int target_subsong, int r
         stream_count = 0;
         if (reset)
             stream_index = data->stream_index;
-
         for (i = 0; i < data->formatCtx->nb_streams; ++i) {
             AVStream* stream = data->formatCtx->streams[i];
-
             if (stream->codecpar && stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 stream_count++;
 

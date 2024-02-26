@@ -139,8 +139,8 @@
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
-                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    [labels addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);
@@ -170,8 +170,8 @@
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
-                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    [labels addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);
@@ -201,8 +201,8 @@
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
-                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    [labels addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);

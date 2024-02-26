@@ -23,7 +23,7 @@
 #import "WaitingView.h"
 
 @interface OnlineViewController : UITableViewController <UINavigationControllerDelegate>{
-
+    
     IBOutlet DownloadViewController *downloadViewController;
     IBOutlet WebBrowser *webBrowser;
     IBOutlet DetailViewControllerIphone *detailViewController;
@@ -35,7 +35,7 @@
     bool wasMiniPlayerOn;
     
     int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
-	
+    
     bool darkMode;
     bool forceReloadCells;
     

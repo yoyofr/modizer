@@ -20,64 +20,64 @@
 
 
 @interface RootViewControllerASMA : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
-	NSString *ratingImg[3];
-	UIView *infoMsgView;
-	UILabel *infoMsgLbl;
+    NSString *ratingImg[3];
+    UIView *infoMsgView;
+    UILabel *infoMsgLbl;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
-	
+    
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
-	
-	WaitingView *waitingView;
+    
+    WaitingView *waitingView;
     IBOutlet UITableView *tableView;
-
-	IBOutlet UISearchBar *sBar;
-	
+    
+    IBOutlet UISearchBar *sBar;
+    
     NSFileManager *mFileMngr;
     
     NSMutableArray *list;
     NSMutableArray *keys;
-	NSMutableArray *indexTitles,*indexTitlesDownload;
-	
-	int mNbASMAFileEntries;
-	
-	int shouldFillKeys;
+    NSMutableArray *indexTitles,*indexTitlesDownload;
+    
+    int mNbASMAFileEntries;
+    
+    int shouldFillKeys;
     
     int mAccessoryButton;
-
-	t_dbHVSC_browse_entry *dbASMA_entries_data;
-	int dbASMA_entries_count[27];
-	t_dbHVSC_browse_entry *dbASMA_entries[27];
-	int dbASMA_nb_entries,dbASMA_hasFiles;
-	t_dbHVSC_browse_entry *search_dbASMA_entries_data;
-	int search_dbASMA_entries_count[27];
-	t_dbHVSC_browse_entry *search_dbASMA_entries[27];
-	int search_dbASMA;
-	int search_dbASMA_nb_entries,search_dbASMA_hasFiles;
-		
-	NSString *mDir1,*mDir2,*mDir3;
-	
-	NSString *currentPath;
-	int mSearch;
-	NSString *mSearchText;
-	
-	UIViewController *childController;
-	
-	NSString *FTPlocalPath,*FTPftpPath,*FTPfilename,*FTPfilePath;
-	int FTPfilesize;
+    
+    t_dbHVSC_browse_entry *dbASMA_entries_data;
+    int dbASMA_entries_count[27];
+    t_dbHVSC_browse_entry *dbASMA_entries[27];
+    int dbASMA_nb_entries,dbASMA_hasFiles;
+    t_dbHVSC_browse_entry *search_dbASMA_entries_data;
+    int search_dbASMA_entries_count[27];
+    t_dbHVSC_browse_entry *search_dbASMA_entries[27];
+    int search_dbASMA;
+    int search_dbASMA_nb_entries,search_dbASMA_hasFiles;
+    
+    NSString *mDir1,*mDir2,*mDir3;
+    
+    NSString *currentPath;
+    int mSearch;
+    NSString *mSearchText;
+    
+    UIViewController *childController;
+    
+    NSString *FTPlocalPath,*FTPftpPath,*FTPfilename,*FTPfilePath;
+    int FTPfilesize;
     
     bool darkMode;
     bool forceReloadCells;
-	
-	int mClickedPrimAction;
-	int mCurrentWinAskedDownload;
+    
+    int mClickedPrimAction;
+    int mCurrentWinAskedDownload;
 @public    
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
     IBOutlet DownloadViewController *downloadViewController;
-
+    
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;

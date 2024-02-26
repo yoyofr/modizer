@@ -48,8 +48,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize popTipView;
 
 #pragma mark -
-#pragma mark View lifecycle
+#pragma mark Search functions
+#include "SearchCommonFunctions.h"
 
+#pragma mark -
+#pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
 
 - (NSString *)machine {
@@ -66,7 +69,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
+	NSString *machine = [[NSString alloc] initWithUTF8String:(const char*)name];
 	
 	// Done with this
 	free(name);
@@ -376,9 +379,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
 					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
@@ -506,9 +510,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
 					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
@@ -632,9 +637,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].id_author=db_entries[i][j].id_author;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
@@ -715,7 +721,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 					//if (sqlite3_column_int(stmt, 1)==37) NSLog(@"%s",(const char*)sqlite3_column_text(stmt, 0));
 					
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					if (db_entries[index][db_entries_count[index]].label==nil) db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",(const char*)sqlite3_column_text(stmt, 0)];
+					if (db_entries[index][db_entries_count[index]].label==nil) db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
 					db_entries[index][db_entries_count[index]].id_author=sqlite3_column_int(stmt, 2);
 					db_entries[index][db_entries_count[index]].id_type=db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
@@ -761,9 +767,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					
 					search_db_entries[i][search_db_entries_count[i]].id_author=db_entries[i][j].id_author;
@@ -891,9 +898,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
@@ -1045,9 +1053,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
@@ -1204,9 +1213,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
@@ -1334,9 +1344,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_db_entries_count[i]=0;
 			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
 			for (int j=0;j<db_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+//				r.location=NSNotFound;
+//				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                if ([self searchStringRegExp:mSearchText sourceString:db_entries[i][j].label]) {
 					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
 					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
 					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
@@ -1757,7 +1768,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1795,7 +1806,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1804,7 +1815,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1842,7 +1853,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1851,7 +1862,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1860,7 +1871,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAlbum=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAlbum=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1898,7 +1909,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
             
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1907,7 +1918,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType]];
                 success = [fileManager fileExistsAtPath:checkPath];
                 if (success) break;
@@ -1946,7 +1957,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1954,7 +1965,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAlbum=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAlbum=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -1964,7 +1975,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType,strAlbum]];
                 success = [fileManager fileExistsAtPath:checkPath];
                 if (success) break;

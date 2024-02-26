@@ -32,7 +32,7 @@
     
     WaitingView *waitingView;
     IBOutlet UITableView *tableView;
-
+    
     IBOutlet UISearchBar *sBar;
     
     NSFileManager *mFileMngr;
@@ -42,7 +42,7 @@
     int shouldFillKeys;
     
     int mAccessoryButton;
-
+    
     t_WEB_browse_entry *dbWEB_entries_data;
     int dbWEB_entries_count[27];
     t_WEB_browse_entry *dbWEB_entries[27];
@@ -52,7 +52,7 @@
     t_WEB_browse_entry *search_dbWEB_entries[27];
     int search_dbWEB;
     int search_dbWEB_nb_entries,search_dbWEB_hasFiles;
-        
+    
     NSString *rootDir;
     int mSearch;
     NSString *mSearchText;
@@ -73,7 +73,7 @@
     NSString *mWebBaseURL;
     NSString *mWebBaseDir;
     char category;
-
+    
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;

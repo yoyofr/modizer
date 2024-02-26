@@ -171,7 +171,7 @@ extern pthread_mutex_t db_mutex;
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"UPDATE user_stats SET rating=NULL");
+		snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE user_stats SET rating=NULL");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
@@ -198,7 +198,7 @@ extern pthread_mutex_t db_mutex;
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"UPDATE user_stats SET play_count=0");
+        snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE user_stats SET play_count=0");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
@@ -240,11 +240,11 @@ extern pthread_mutex_t db_mutex;
         } else NSLog(@"ErrSQL : %d",err);
         
 		//First check that user_stats entries still exist
-		sprintf(sqlStatement,"SELECT fullpath FROM user_stats");
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM user_stats");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]]];
+				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]]];
 				if (!success) {//file does not exist
 					//NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
 					
@@ -259,11 +259,11 @@ extern pthread_mutex_t db_mutex;
 		} else NSLog(@"ErrSQL : %d",err);
 		
 		//Second check that playlist entries still exist
-		sprintf(sqlStatement,"SELECT fullpath FROM playlists_entries");
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM playlists_entries");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]]];
+				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]]];
 				if (!success) {//file does not exist
 					NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
 					

@@ -29,10 +29,33 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
 
+- libs not generating oscilloscope output:
+  - ASAP: waiting feedback from Piotr
+  - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer (1/voice)
+  - vgmstream: not sure it'ss worth doing it as it is mostly streaming from stereo sourcecode
+  - LibKSS
+  - Timidity: not sure it is worth 
+  - MDX/PDX
+  - PMDMini
+  - SC68
+
+missing seek support:
+  - PMDMini
+  - UADE
+  - MDX/PDX
+
+=> to fix: when a file is failing in UADE, can trigger infinite loop if loop mode active (loop or infinite play)
+=> to fix: when in full random mode, playing a specific subsong can lead to have another subsong choosen randomly
+
+=> add launch popup with last changes (ex: regexp for Searches)
+
 3.6
 ---
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
 - [PLAYER] VGMPlay: NukedOPN2 options supported
+- [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
+- [UI] Searches are now regular expression based
+- [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category
 - [PLAYER] STSOUND now support voices muting
 - [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)
