@@ -19,7 +19,6 @@ config.mif
 libbinio.pc
 .deps
 .libs
-src/binio.h
 src/config.h
 src/config.h.in
 src/*.o
