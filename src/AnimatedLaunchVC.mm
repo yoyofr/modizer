@@ -47,8 +47,8 @@
     [UIView setAnimationDuration:2.0];
     [self.view setAlpha:0];
     self.view.transform=CGAffineTransformMakeScale(2.0,2.0);
-    self.view.hidden=TRUE;
-    [UIView commitAnimations];    
+    //self.view.hidden=TRUE;
+    [UIView commitAnimations];
 }
 
 -(void)viewDidDisappear:(BOOL)animated {

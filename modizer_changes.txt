@@ -58,7 +58,7 @@ missing seek support:
 
 3.6
 ---
-- [Player] Issue with shuffle modes fixed 
+- [PLAYER] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
@@ -70,6 +70,7 @@ missing seek support:
 - [FX] STSOUND now generates detailed oscilloscope output
 - [FX] HVL/AHX now generates detailed oscilloscope output
 - [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
+- [FX] Several oscilloscope improvements
 
 
 3.5

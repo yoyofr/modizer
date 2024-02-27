@@ -456,7 +456,7 @@ void CSoundFile::CreateStereoMix(int count)
                 int chn_idx=m_PlayState.ChnMix[nChn];
                 if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
                     for (int ii=0;ii<nSmpCount;ii++)
-                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>10) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]-=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>20 );
+                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>10) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]-=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>19 );
                     
                 }
                 //TODO:  MODIZER changes end / YOYOFR
@@ -472,7 +472,7 @@ void CSoundFile::CreateStereoMix(int count)
                 //TODO:  MODIZER changes start / YOYOFR
                 if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
                     for (int ii=0;ii<nSmpCount;ii++)
-                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>10) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>20 );
+                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>10) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>19 );
                     
                 }
                 //TODO:  MODIZER changes end / YOYOFR
