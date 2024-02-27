@@ -896,6 +896,8 @@
 		CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */; };
 		CCDE83E32B6EC38F00DC9F63 /* gb10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */; };
 		CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */; };
+		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
+		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -2579,6 +2581,9 @@
 		CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb10.fnt; sourceTree = "<group>"; };
 		CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b24.fnt; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
+		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
+		CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimatedLaunchVC.mm; sourceTree = "<group>"; };
+		CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedLaunchVC.h; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -3182,6 +3187,7 @@
 				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
+				CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */,
 				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
@@ -3674,8 +3680,13 @@
 			children = (
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
+				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
+				CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */,
 				CC1E621E12041177000A8A4E /* AppDelegate_Phone.h */,
 				CC1E621F12041177000A8A4E /* AppDelegate_Phone.mm */,
+				59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */,
+				59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */,
+				59BF54EF2628C9F50064EF5E /* CommonFunctions */,
 				33525D7B1222567600E6E517 /* DBHelper.h */,
 				33525D7C1222567600E6E517 /* DBHelper.mm */,
 				CC1E622012041177000A8A4E /* DetailViewControllerIphone.h */,
@@ -3701,15 +3712,12 @@
 				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
 				CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */,
-				59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */,
-				59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */,
 				CC1E622812041177000A8A4E /* ModizMusicPlayer.h */,
 				CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */,
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
-				59BF54EF2628C9F50064EF5E /* CommonFunctions */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
 				CC1E623512041177000A8A4E /* SearchViewController.h */,
 				CC1E623612041177000A8A4E /* SearchViewController.mm */,
@@ -5454,6 +5462,7 @@
 				CC1E6330120423DF000A8A4E /* DynamicSynthesizer in Resources */,
 				CC1E6331120423DF000A8A4E /* EarAche in Resources */,
 				CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */,
+				CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
 				337FE6A824A8D20800CEE44D /* Launch Screen.storyboard in Resources */,
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
@@ -5985,6 +5994,7 @@
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
 				59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */,
+				CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */,
 				59B9999625CFE6890071E144 /* SESlideTableViewCell.m in Sources */,
 				CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */,
 				CC8368EA2B57CA9B0035A4DA /* gzip68.c in Sources */,

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "ModizerConstants.h"
+#import "AnimatedLaunchVC.h"
 
 @class ModizerWin;
 @class RootViewControllerLocalBrowser;
@@ -16,8 +17,11 @@
 @class RootViewControllerPlaylist;
 @class myTabBarController;
 @class CarPlayAndRemoteManagement;
+@class AnimatedLaunchVC;
 
 @interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
+    AnimatedLaunchVC *animatedLaunchVC;
+    
 	IBOutlet ModizerWin *modizerWin;
 //    IBOutlet UIWindow *window;
 	IBOutlet myTabBarController *tabBarController;

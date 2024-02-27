@@ -20,13 +20,18 @@
 
 #import "WaitingView.h"
 
+#import "AnimatedLaunchVC.h"
+
 @class DetailViewControllerIphone;
+@class AnimatedLaunchVC;
 
 @interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
+    
+    AnimatedLaunchVC *animatedLaunchVC;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

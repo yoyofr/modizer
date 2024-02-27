@@ -91,6 +91,8 @@
     self.navigationController.delegate = self;
     
     [self setNeedsStatusBarAppearanceUpdate];
+    
+    
 }
 
 - (void)viewDidLoad {
@@ -100,6 +102,8 @@
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;
+    
+    
 }
 
 @end

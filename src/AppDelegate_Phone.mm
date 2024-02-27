@@ -184,6 +184,7 @@ extern "C" void updateMainLoopC(void) {
 #endif            
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     
+    
     //check iCloud availability
     if (![mFileMngr ubiquityIdentityToken]) {
         icloud_available=false;
@@ -321,6 +322,13 @@ extern "C" void updateMainLoopC(void) {
     cpMngt.detailViewController=detailViewControlleriPhone;
     cpMngt.rootVCLocalB=rootViewControlleriPhone;
     [cpMngt initCarPlayAndRemote];
+    
+    CGRect frame = [modizerWin frame];
+    animatedLaunchVC=[[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
+    animatedLaunchVC.view.frame=/*self.view.*/frame;
+    
+    [modizerWin addSubview:[animatedLaunchVC view]];
+    //[self pushViewController:animatedLaunchVC animated:YES];
         
 	return YES;
 }

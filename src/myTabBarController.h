@@ -16,12 +16,15 @@
 @class DetailViewControllerIphone;
 @class RootViewControllerLocalBrowser;
 //@class AboutViewController;
+@class AnimatedLaunchVC;
 
 @interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 	//IBOutlet AboutViewController *aboutViewController;
 	IBOutlet WebBrowser *webBrowser;
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
+    
+    AnimatedLaunchVC *animatedLaunchVC;
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
