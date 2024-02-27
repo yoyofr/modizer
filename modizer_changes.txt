@@ -46,6 +46,8 @@ missing seek support:
 
 => to fix: when a file is failing in UADE, can trigger infinite loop if loop mode active (loop or infinite play)
 => to fix: when in full random mode, playing a specific subsong can lead to have another subsong choosen randomly
+=> midi viewer: adapt color or bar size / volume of the played note? 
+=> miniplayerVC : when no subsong/arc entry, have 'next' move to next entry(file) 
 
 => add launch popup with last changes (ex: regexp for Searches)
 
