@@ -45,14 +45,20 @@ missing seek support:
   - MDX/PDX
 
 => to fix: when a file is failing in UADE, can trigger infinite loop if loop mode active (loop or infinite play)
-=> to fix: when in full random mode, playing a specific subsong can lead to have another subsong choosen randomly
+
 => midi viewer: adapt color or bar size / volume of the played note? 
+
 => miniplayerVC : when no subsong/arc entry, have 'next' move to next entry(file) 
 
 => add launch popup with last changes (ex: regexp for Searches)
 
+=> check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
+
+=> add a small progress bar in cells in modland/asma/hvsc... When downloading
+
 3.6
 ---
+- [Player] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
