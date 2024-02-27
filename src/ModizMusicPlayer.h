@@ -386,6 +386,8 @@ enum MMP_PLAYER_TYPE {
 
 -(void) optGEN_DefaultLength:(float_t)val;
 
+-(void) optNSFPLAY_DefaultLength:(float_t)val;
+
 -(void) optTIM_Poly:(int)val;
 -(void) optTIM_Reverb:(int)val;
 -(void) optTIM_Chorus:(int)val;

@@ -416,6 +416,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //NSFPLAY
     /////////////////////////////////////
+    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
     settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
     settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
@@ -571,8 +572,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
     
-    
-    settings[GLOB_DefaultLength].label=(char*)"Default Length(s)";
+    settings[GLOB_DefaultLength].label=(char*)"Default Length";
     settings[GLOB_DefaultLength].description=NULL;
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
@@ -580,11 +580,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
-    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=600;
-    
-    
-    
-    
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
     /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
     settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";
@@ -1367,12 +1363,23 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //NSFPLAY
     /////////////////////////////////////
-    
+            
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].label=(char*)"NSFPLAY";
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].sub_family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    
+    settings[NSFPLAY_DefaultLength].label=(char*)"NSFPLAY default Length";
+    settings[NSFPLAY_DefaultLength].description=NULL;
+    settings[NSFPLAY_DefaultLength].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DefaultLength].sub_family=0;
+    settings[NSFPLAY_DefaultLength].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
+    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
+    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
+    
     
     settings[NSFPLAY_N163_OPTION0].type=MDZ_BOOLSWITCH;
     settings[NSFPLAY_N163_OPTION0].label=(char*)"N163 Serial Multiplex mixing";

@@ -18,6 +18,12 @@
         - Percussion mode
 
 */
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+extern int m_genNumVoicesChannels;
+}
+//TODO:  MODIZER changes end / YOYOFR
 
 
 
@@ -598,7 +604,24 @@ void Opal::Output(int16_t &left, int16_t &right) {
 
         leftmix += chanleft;
         rightmix += chanright;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        int chn_idx=i%m_genNumVoicesChannels;//m_PlayState.ChnMix[nChn];
+        if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
+            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]+=LIMIT8( (chanleft+chanright)>>6 );
+            
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    for (int chn_idx=0;chn_idx<m_genNumVoicesChannels;chn_idx++) {
+        if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
+            m_voice_current_ptr[chn_idx]+=1024;
+            if (m_voice_current_ptr[chn_idx]>(SOUND_BUFFER_SIZE_SAMPLE*2<<10)) m_voice_current_ptr[chn_idx]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
     // Clamp
     if (leftmix < -0x8000)

@@ -120,6 +120,7 @@ enum MDZ_SETTINGS {
         HC_ResampleQuality,
     
         MDZ_SETTINGS_FAMILY_NSFPLAY,
+        NSFPLAY_DefaultLength,
         NSFPLAY_N163_OPTION0,
         NSFPLAY_N163_OPTION1,
         NSFPLAY_N163_OPTION2,

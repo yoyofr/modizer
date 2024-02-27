@@ -228,4 +228,5 @@
 /*Settings*/
 "Search: simplified regexp ('.'->'\\.', '*'->'.*')"="Search: simplified regexp ('.'->'\\.', '*'->'.*')";
 "Resume position on launch"="Resume position on launch";
-
+"Default length"="Default length";
+"NSFPLAY default length"="NSFPLAY default length";

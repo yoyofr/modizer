@@ -313,7 +313,7 @@ struct MixLoopState
 void CSoundFile::CreateStereoMix(int count)
 {
 	mixsample_t *pOfsL, *pOfsR;
-
+    
 	if(!count)
 		return;
 

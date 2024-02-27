@@ -417,6 +417,7 @@ char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
 int m_voice_current_sample;
+int m_genNumVoicesChannels;
 int generic_mute_mask;
 
 //SID
@@ -702,8 +703,8 @@ UINT8 vgmGetVoicesChannelsUsedNb(UINT8 chipId) {
 }
 
 //VGMSTREAM
-#import "../libs/libvgmstream/src/vgmstream.h"
-#import "../libs/libvgmstream/src/base/plugins.h"
+#import "../libs/libvgmstream/vgmstream-master/src/vgmstream.h"
+#import "../libs/libvgmstream/vgmstream-master/src/base/plugins.h"
 
 static VGMSTREAM* vgmStream = NULL;
 static STREAMFILE* vgmFile = NULL;
@@ -853,6 +854,8 @@ extern volatile int intr;
 
 
 static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
+
+static int optNSFPLAYDefaultLength=SONG_DEFAULT_LENGTH;
 
 static char tim_filepath[1024];
 static volatile int tim_finished;
@@ -4567,18 +4570,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 
                                 iModuleLength=nsfPlayer->GetLength();
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
                                 if (mLoopMode) iModuleLength=-1;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-                                const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-                                if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-                                
                                 if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-                                else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+                                else {
+                                    const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+                                    if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
+                                    snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+                                }
                                 
+                                while (mod_message_updated) {
+                                    usleep(1);
+                                }
                                 
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_ASAP) {//ASAP
@@ -6590,8 +6597,8 @@ typedef struct {
     
     nsfData=new xgm::NSF();
     
-    if (mLoopMode) nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,0,1<<16);
-    else nsfData->SetDefaults(/*nsfData->default_playtime*/optGENDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
+    if (mLoopMode) nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,0,1<<16);
+    else nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
     
     
     nsfData->LoadFile([filePath UTF8String]);
@@ -6616,12 +6623,13 @@ typedef struct {
     
     // song info
     const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-    const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-    if (nsf_title[0]==0) nsf_title=[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String];
-    
     if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-    else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
-    mod_title=[NSString stringWithUTF8String:nsf_title];
+    else {
+        const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+        if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
+        snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+    }
+    mod_title=[NSString stringWithUTF8String:nsfData->GetTitleString("%T",mod_currentsub)];
     
     artist=[NSString stringWithUTF8String:nsfData->artist];
     
@@ -8172,6 +8180,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     }
     
     numVoicesChannels=numChannels;
+    m_genNumVoicesChannels=numChannels;
     m_voicesDataAvail=1;
     for (int i=0;i<numVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
@@ -8421,7 +8430,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         return -1;
     }
     
-    vgmFile->stream_index=-1;
+    vgmFile->stream_index=0;
     
     vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
     
@@ -9007,7 +9016,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
                 hc_sample_rate,
                 iModuleLength/1000);
         
-        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithFormat:@"%s",usf_info_data->inf_game];
+        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
         
         if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
         if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
@@ -9447,7 +9456,7 @@ int vgmGetFileLength()
     
     if (ASAPInfo_GetTitle(ASAP_GetInfo(asap))[0]) {
         sprintf(mod_name," %s",ASAPInfo_GetTitle(ASAP_GetInfo(asap)));
-        mod_title=[NSString stringWithFormat:@"%s",ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
+        mod_title=[NSString stringWithUTF8String:(const char*)ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
     }
     else sprintf(mod_name," %s",mod_filename);
     
@@ -11036,13 +11045,15 @@ extern bool icloud_available;
             nsfPlayer->Reset();
             
             const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-            const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-            if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
             if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-            else snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+            else {
+                const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
+                if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
+                snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
+            }
             
             iModuleLength=nsfPlayer->GetLength();
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+            if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
             if (mLoopMode) iModuleLength=-1;
             
             if (startPos) [self Seek:startPos];
@@ -11756,6 +11767,10 @@ extern bool icloud_available;
 ///////////////////////////
 //NSFPlay
 ///////////////////////////
+-(void) optNSFPLAY_DefaultLength:(float_t)val {
+    optNSFPLAYDefaultLength=(int)(val*1000);
+}
+
 -(void) optNSFPLAY_UpdateParam:(int)n163_opt0 n163_opt1:(int)n163_opt1 n163_opt2:(int)n163_opt2 {
     nsfplay_opt_n163_option0=n163_opt0;
     nsfplay_opt_n163_option1=n163_opt1;

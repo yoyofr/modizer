@@ -561,6 +561,17 @@ static int display_length_mode=0;
         //Archive
         /////////////////////////////////////////////////////////////////////////////:
         if (mOnlyCurrentEntry) { //Only one entry
+            
+            if (!(mOnlyCurrentEntry&1)) {
+                NSLog(@"file missing end %d: %@",[mplayer getArcIndex],filePath);
+                filePath=[filePath stringByAppendingFormat:@"@%d",[mplayer getArcIndex]];
+            } else NSLog(@"file complete %d: %@",[mplayer getArcIndex],filePath);
+            
+            if (!(mOnlyCurrentSubEntry&1)) {
+                NSLog(@"file missing end %d: %@",mplayer.mod_currentsub,filePath);
+                filePath=[filePath stringByAppendingFormat:@"?%d",mplayer.mod_currentsub];
+            } else NSLog(@"file complete %d: %@",mplayer.mod_currentsub,filePath);
+            
             //Update archive entry stats
             DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
@@ -585,6 +596,12 @@ static int display_length_mode=0;
         //No archive but Multisubsongs
         /////////////////////////////////////////////////////////////////////////////:
         if (mOnlyCurrentSubEntry) { // only one subsong
+            
+            if (!(mOnlyCurrentSubEntry&1)) {
+                NSLog(@"file missing end %d: %@",mplayer.mod_currentsub,filePath);
+                filePath=[filePath stringByAppendingFormat:@"?%d",[mplayer getArcIndex]];
+            } else NSLog(@"file complete %d: %@",mplayer.mod_currentsub,filePath);
+            
             //Update subsong stats
             DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
@@ -669,9 +686,9 @@ static float movePinchScale,movePinchScaleOld;
         if ((mPlaylist_pos>=0)&&(mPlaylist_pos<mPlaylist_size)) {
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
             if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
-                labelModuleName.text=[NSString stringWithString:fileName];
+                labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
             } else {
-                labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+                labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
             }
             lblCurrentSongCFlow.text=labelModuleName.text;
         }
@@ -833,6 +850,8 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optNSFPLAY_UpdateParam:settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value
                               n163_opt1:settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value
                               n163_opt2:settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value];
+        
+        [mplayer optNSFPLAY_DefaultLength:settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value];
     }
     
     /////////////////////
@@ -926,19 +945,19 @@ static float movePinchScale,movePinchScaleOld;
 - (IBAction)shuffle {
     mShuffle=(mShuffle+1)%3;
     switch (mShuffle) {
-        case 0:
+        case 0: //sequential mode
             [mplayer setArchiveSubShuffle:NO];
             buttonShuffle.hidden=NO;
             buttonShuffleSel.hidden=YES;
             buttonShuffleOneSel.hidden=YES;
             break;
-        case 1:
+        case 1: //random mode playing whole sub entries
             [mplayer setArchiveSubShuffle:TRUE];
             buttonShuffle.hidden=YES;
             buttonShuffleSel.hidden=YES;
             buttonShuffleOneSel.hidden=NO;
             break;
-        case 2:
+        case 2: //full random mode, only picking 1 entry / file
             [mplayer setArchiveSubShuffle:TRUE];
             buttonShuffle.hidden=YES;
             buttonShuffleSel.hidden=NO;
@@ -1050,7 +1069,7 @@ static float movePinchScale,movePinchScaleOld;
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
-        NSString *title=[mplayer getModName];
+        NSString *title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         
          infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                   title,
@@ -1209,7 +1228,7 @@ static float movePinchScale,movePinchScaleOld;
 		if (mpl_upd>=2) {
 			if (mpl_upd==2) {
                 if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value==0) {
-                    labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+                    labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
                     lblCurrentSongCFlow.text=labelModuleName.text;
                 }
             }
@@ -2273,8 +2292,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self settingsChanged:(int)SETTINGS_ALL];
     
     if (mShuffle==1) {
-        mOnlyCurrentSubEntry=1;
-        mOnlyCurrentEntry=1;
+        mOnlyCurrentSubEntry|=2;
+        mOnlyCurrentEntry|=2;
     }
 	// load module
 
@@ -2389,9 +2408,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	//Update song info if required
 	labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
-        labelModuleName.text=[NSString stringWithString:fileName];
+        labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
     } else {
-        labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+        labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
 	
@@ -2618,27 +2637,28 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     int i=0;
     mOnlyCurrentEntry=0;
     mOnlyCurrentSubEntry=0;
+    filePathTmp=NULL;
     while (tmp_str[i]) {
         if (found_arc) {
             arc_index=arc_index*10+tmp_str[i]-'0';
-            mOnlyCurrentEntry=1;
+            mOnlyCurrentEntry|=1;
         }
         if (found_sub) {
             sub_index=sub_index*10+tmp_str[i]-'0';
-            mOnlyCurrentSubEntry=1;
+            mOnlyCurrentSubEntry|=1;
         }
         if (tmp_str[i]=='@') {
             found_arc=1;
             arc_index=0;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
-            filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
+            if (!filePathTmp) filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
         }
         if (tmp_str[i]=='?') {
             found_sub=1;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
-            filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
+            if (!filePathTmp) filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
         }
         i++;
     }
@@ -2657,8 +2677,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self settingsChanged:(int)SETTINGS_ALL];
     
     if (mShuffle==1) {
-        mOnlyCurrentSubEntry=1;
-        mOnlyCurrentEntry=1;
+        mOnlyCurrentSubEntry|=2;
+        mOnlyCurrentEntry|=2;
     }
 
 	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
@@ -2692,7 +2712,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (mShuffle==1) {
         if ([mplayer isArchive]) {
             [mplayer Stop]; //deallocate relevant items
-            mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
+            
+            if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
 
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
@@ -2780,11 +2801,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
              mOnlyCurrentSubEntry=1;
              }*/
             if ([mplayer isMultiSongs]) {
-                mOnlyCurrentSubEntry=1;
+                mOnlyCurrentSubEntry|=2;
                 mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
             }
         } else if (mShuffle==2) {
-            if ([mplayer isMultiSongs]) mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+            if (!(mOnlyCurrentSubEntry&1))
+                if ([mplayer isMultiSongs]) mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
         }
         self.pauseBarSub.hidden=YES;
         self.playBarSub.hidden=YES;
@@ -2815,7 +2837,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	//Update song info if required
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
-    else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+    else labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
 	lblCurrentSongCFlow.text=labelModuleName.text;
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
