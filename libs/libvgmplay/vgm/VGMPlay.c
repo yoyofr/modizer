@@ -25,6 +25,12 @@
 //#define VGM_LITTLE_ENDIAN	// enable optimizations for Little Endian systems
 //#define VGM_BIG_ENDIAN	// enable optimizations for Big Endian systems
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+extern int m_genNumVoicesChannels;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6241,6 +6247,7 @@ UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 	
 	for (CurSmpl = 0x00; CurSmpl < BufferSize; CurSmpl ++)
 	{
+        
 		InterpretFile(1);
 		
 		// Sample Structures
@@ -6331,6 +6338,17 @@ UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 		}
 	}
 	
+    
+    
+    for (CurSmpl = 0x00; CurSmpl < BufferSize; CurSmpl ++) {
+        //YOYOFR
+        for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+            m_voice_buff[j][CurSmpl]=LIMIT8(((int)(m_voice_buff[j][CurSmpl])* CurMstVol) >> 8);
+        }
+        
+        //YOYOFR
+    }
+    
 	return CurSmpl;
 }
 

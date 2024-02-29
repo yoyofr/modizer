@@ -418,6 +418,7 @@ int m_voicesForceOfs;
 int m_voice_current_samplerate;
 int m_voice_current_sample;
 int m_genNumVoicesChannels;
+int m_genMasterVol;
 int generic_mute_mask;
 
 //SID
@@ -9252,7 +9253,8 @@ int vgmGetFileLength()
         }
     }
     
-    //if (!m_voicesDataAvail) numChannels=2;
+    if (m_voicesDataAvail) m_genNumVoicesChannels=numChannels;
+    else m_genNumVoicesChannels=0;
     
     sprintf(mod_message+strlen(mod_message),"\nAuthor......: %s\nGame........: %s\nSystem......: %s\nTitle.......: %s\nRelease Date: %s\nCreator.....: %s\nNotes.......: %s\n",
             [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],

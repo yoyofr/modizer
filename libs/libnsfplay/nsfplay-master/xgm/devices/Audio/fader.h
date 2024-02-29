@@ -3,6 +3,12 @@
 #include "../device.h"
 #include <vector>
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../../src/ModizerVoicesData.h"
+extern int m_genMasterVol;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 namespace xgm
 {
   class Fader : virtual public IRenderable
@@ -88,10 +94,14 @@ namespace xgm
         double fade_amount = double(fade_end - fade_pos) / double(fade_end);
         b[0] = INT32(fade_amount * b[0]);
         b[1] = INT32(fade_amount * b[1]);
+          
+          //YOYOFR
+          m_genMasterVol=(int)(fade_amount*256);
+          //YOYOFR
 
         if (fade_pos < fade_end) ++fade_pos;
         else fade_pos = fade_end;
-      }
+      } else m_genMasterVol=256; //YOYOFR
       return 2;
     }
   };
