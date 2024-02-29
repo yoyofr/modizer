@@ -2087,6 +2087,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize ompt_mod;
 @synthesize mp_data;
 @synthesize mVolume;
+@synthesize mLoadModuleStatus;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail,numVoicesChannels;
 @synthesize m_voicesDataAvail;
 @synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern,nextPattern,prevPattern;//,playOffset;
@@ -2336,6 +2337,7 @@ void propertyListenerCallback (void                   *inUserData,              
         bGlobalAudioPause=0;
         bGlobalIsPlaying=0;
         mVolume=1.0f;
+        mLoadModuleStatus=0;
         mLoopMode=0;
         mCurrentSamples=0;
         m_voice_current_sample=0;
@@ -3455,6 +3457,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         exit(-1);
                     }
                     printf("UADE: Song end (%s)\n", reason);
+                    if (strcmp(reason,"module check failed")==0) mLoadModuleStatus=-1;
                     break;
                     
                 case UADE_REPLY_SUBSONG_INFO:
@@ -3831,6 +3834,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                     nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                     mCurrentSamples+=(nbBytes/4)*32;
+                                    
                                     mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
@@ -10694,6 +10698,7 @@ extern bool icloud_available;
     }
     [self initSubSongPlayed];
     no_reentrant=false;
+    mLoadModuleStatus=retval;
     return retval;
 }
 //*****************************************

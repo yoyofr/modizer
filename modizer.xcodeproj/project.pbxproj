@@ -898,6 +898,7 @@
 		CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */; };
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
+		CCE8D74E2B8F11340076D8C0 /* SONFillAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -2584,6 +2585,8 @@
 		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
 		CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimatedLaunchVC.mm; sourceTree = "<group>"; };
 		CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedLaunchVC.h; sourceTree = "<group>"; };
+		CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SONFillAnimation.m; sourceTree = "<group>"; };
+		CCE8D74D2B8F11340076D8C0 /* SONFillAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SONFillAnimation.h; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -3396,6 +3399,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CCE8D74B2B8F11340076D8C0 /* Animation */,
 				591CA879264850D300168C7E /* AsyncImageView */,
 				5937EEDF26453B0800270715 /* Hpple */,
 				59C22A0325B992D9003FEDBF /* AFNetworking */,
@@ -4861,6 +4865,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCE8D74B2B8F11340076D8C0 /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */,
+				CCE8D74D2B8F11340076D8C0 /* SONFillAnimation.h */,
+			);
+			path = Animation;
+			sourceTree = "<group>";
+		};
 		CCFA9ADC1AC75830007C658A /* WebTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -5895,6 +5908,7 @@
 				591CA87726483DB600168C7E /* RootViewControllerVGMRWebParser.mm in Sources */,
 				CCFDC52C17DB105500C6692C /* Novocaine.m in Sources */,
 				CC8368F42B57CA9B0035A4DA /* vfs68_file.c in Sources */,
+				CCE8D74E2B8F11340076D8C0 /* SONFillAnimation.m in Sources */,
 				CCFDC54417DB105500C6692C /* NVSoundLevelMeter.m in Sources */,
 				CCFDC53817DB105500C6692C /* NVBandpassQPeakGainFilter.m in Sources */,
 				59F726B82657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm in Sources */,

@@ -228,10 +228,6 @@ extern "C" void updateMainLoopC(void) {
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
     sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
-    char allmods_filepath[1024];
-    sprintf(allmods_filepath,"%s/allmods.txt",bundledirectory);
-    
-    //parseModland(allmods_filepath);
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;
@@ -326,6 +322,7 @@ extern "C" void updateMainLoopC(void) {
     CGRect frame = [modizerWin frame];
     animatedLaunchVC=[[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
     animatedLaunchVC.view.frame=/*self.view.*/frame;
+    animatedLaunchVC.localBrowserVC=rootViewControlleriPhone;
     
     [modizerWin addSubview:[animatedLaunchVC view]];
     //[self pushViewController:animatedLaunchVC animated:YES];

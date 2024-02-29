@@ -48,8 +48,6 @@ missing seek support:
 
 => midi viewer: adapt color or bar size / volume of the played note? 
 
-=> miniplayerVC : when no subsong/arc entry, have 'next' move to next entry(file) 
-
 => add launch popup with last changes (ex: regexp for Searches)
 
 => check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
@@ -71,6 +69,7 @@ missing seek support:
 - [FX] HVL/AHX now generates detailed oscilloscope output
 - [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
 - [FX] Several oscilloscope improvements
+- [All] Bug fixes & stability improvements
 
 
 3.5

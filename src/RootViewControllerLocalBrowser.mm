@@ -2042,18 +2042,7 @@ static int shouldRestart=1;
     //}
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [self hideWaiting];
-    /*[tableView setNeedsLayout];
-     [tableView layoutSubviews];
-     [tableView layoutIfNeeded];
-     [tableView reloadData];*/
-    forceReloadCells=false;
-    
-    [super viewDidAppear:animated];
-    //[tableView reloadData];
-    //[[self navigationController] setNavigationBarHidden:NO animated:NO];
-    
+-(void)modizerIsLaunched {
     if (shouldRestart) {
         
         self.view.userInteractionEnabled = NO;
@@ -2075,6 +2064,42 @@ static int shouldRestart=1;
         [self hideWaiting];
         self.view.userInteractionEnabled = YES;
     }
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [self hideWaiting];
+    /*[tableView setNeedsLayout];
+     [tableView layoutSubviews];
+     [tableView layoutIfNeeded];
+     [tableView reloadData];*/
+    forceReloadCells=false;
+    
+    [super viewDidAppear:animated];
+    //[tableView reloadData];
+    //[[self navigationController] setNavigationBarHidden:NO animated:NO];
+    
+//    if (shouldRestart) {
+//        
+//        self.view.userInteractionEnabled = NO;
+//        //self.view.alpha=0.5f;
+//        
+//        [self hideWaitingCancel];
+//        [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
+//        [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
+//        [self showWaiting];
+//        [self flushMainLoop];
+//        [self flushMainLoop];
+//        shouldRestart=0;
+//        
+//        [detailViewController play_restart];
+//        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
+//        
+//        //self.view.alpha=1.0f;
+//        
+//        [self hideWaiting];
+//        self.view.userInteractionEnabled = YES;
+//    }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];

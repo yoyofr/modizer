@@ -165,6 +165,7 @@ enum MMP_PLAYER_TYPE {
 	//Player status
 	int bGlobalAudioPause;
 	float mVolume;
+    int mLoadModuleStatus;
 	//
 	//for spectrum analyzer
 	short int **buffer_ana_cpy;
@@ -272,6 +273,7 @@ enum MMP_PLAYER_TYPE {
 @property int *genRow,*genPattern,*playRow,*playPattern,*nextPattern,*prevPattern;//,*playOffset,*genOffset;
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
+@property int mLoadModuleStatus;
 @property int numChannels,numPatterns,numSamples,numInstr,numVoicesChannels;
 @property char m_voicesDataAvail;
 //GSF stuff

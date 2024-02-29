@@ -563,14 +563,11 @@ static int display_length_mode=0;
         if (mOnlyCurrentEntry) { //Only one entry
             
             if (!(mOnlyCurrentEntry&1)) {
-                NSLog(@"file missing end %d: %@",[mplayer getArcIndex],filePath);
                 filePath=[filePath stringByAppendingFormat:@"@%d",[mplayer getArcIndex]];
-            } else NSLog(@"file complete %d: %@",[mplayer getArcIndex],filePath);
-            
+            }
             if (!(mOnlyCurrentSubEntry&1)) {
-                NSLog(@"file missing end %d: %@",mplayer.mod_currentsub,filePath);
                 filePath=[filePath stringByAppendingFormat:@"?%d",mplayer.mod_currentsub];
-            } else NSLog(@"file complete %d: %@",mplayer.mod_currentsub,filePath);
+            }
             
             //Update archive entry stats
             DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
@@ -598,9 +595,8 @@ static int display_length_mode=0;
         if (mOnlyCurrentSubEntry) { // only one subsong
             
             if (!(mOnlyCurrentSubEntry&1)) {
-                NSLog(@"file missing end %d: %@",mplayer.mod_currentsub,filePath);
                 filePath=[filePath stringByAppendingFormat:@"?%d",[mplayer getArcIndex]];
-            } else NSLog(@"file complete %d: %@",mplayer.mod_currentsub,filePath);
+            }
             
             //Update subsong stats
             DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,&playcount,&tmp_rating);
@@ -1143,8 +1139,44 @@ static float movePinchScale,movePinchScaleOld;
 
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
+    static bool noReEntrant=false;
     static int updMPNowCnt=0;
+    
+    if (noReEntrant) return;
+    noReEntrant=true;
+    
 	int itime=[mplayer getCurrentTime];
+    
+    if (mplayer.mLoadModuleStatus<0) {
+        //remove playlist entry when issue detected after loading, i.e. UADE failing
+        mLoadIssueMessage=3;
+        mplayer.mLoadModuleStatus=0;
+        
+        if (mplayer_error_msg[0]==0) snprintf(mplayer_error_msg,sizeof(mplayer_error_msg),"%s",[mPlaylist[mPlaylist_pos].mPlaylistFilepath UTF8String]);
+        
+        [self remove_from_playlist:mPlaylist_pos];
+        
+        [self refreshCurrentVC];
+        ///////////////////////////////////////////////////
+        // Update miniplayer
+        ///////////////////////////////////////////////////
+        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+        mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
+        
+        if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
+            NSString *alertMsg;
+            alertCannotPlay_displayed=1;
+            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
+            
+            [self play_curEntry:-1];
+            
+        } else {
+            
+            [self play_curEntry:-1];
+        }
+        noReEntrant=false;
+        return;
+    }
 	
 	if (mSendStatTimer) {
 		mSendStatTimer--;
@@ -1346,7 +1378,7 @@ static float movePinchScale,movePinchScaleOld;
                 }
             } else [self play_nextEntry];
         }
-		
+        noReEntrant=false;
 		return;
 	} else {
         //		NSLog(@"waiting : %d %d",mplayer.bGlobalAudioPause,[mplayer isEndReached]);
@@ -1459,6 +1491,7 @@ static float movePinchScale,movePinchScaleOld;
         [self updMediaCenterProgress];
         updMPNowCnt=5;
     } else updMPNowCnt--;
+    noReEntrant=false;
 	return;
 }
 
@@ -1738,7 +1771,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     }
                 } else [self playNext]; //not an archive, next entry
             }
-        }
+        } else [self playNext]; //not an archive, next entry
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }
@@ -2681,6 +2714,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentEntry|=2;
     }
 
+    
 	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
 		
         //error while loading
