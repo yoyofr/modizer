@@ -9801,7 +9801,10 @@ int vgmGetFileLength()
         
         iCurrentTime=0;
         numChannels=gme_voice_count( gme_emu );
-        if (m_voicesDataAvail) numVoicesChannels=numChannels;
+        if (m_voicesDataAvail) {
+            numVoicesChannels=numChannels;
+            m_genNumVoicesChannels=numVoicesChannels;
+        }
         
         for (int i=0;i<numVoicesChannels;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[0];

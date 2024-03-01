@@ -1,5 +1,11 @@
 // Game_Music_Emu $vers. http://www.slack.net/~ant/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+extern int m_genNumVoicesChannels;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "Track_Filter.h"
 
 /* Copyright (C) 2003-2008 Shay Green. This module is free software; you
@@ -168,6 +174,15 @@ void Track_Filter::handle_fade( sample_t out [], int out_count )
 			*io = sample_t ((*io * gain) >> shift);
 			++io;
 		}
+        
+        //YOYOFR
+        if (m_genNumVoicesChannels)
+            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                    m_voice_buff[j][i]=((int)(m_voice_buff[j][i])*gain)>>shift;
+                }
+            }
+        //YOYOFR
 	}
 }
 
