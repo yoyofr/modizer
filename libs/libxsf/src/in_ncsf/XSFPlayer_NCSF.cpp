@@ -216,4 +216,3 @@ void XSFPlayer_NCSF::MuteChannels(int channel,bool active) {
     else newMutes&=0xFFFFFFFF^(1<<channel);
     this->mutes = newMutes;
 }
-

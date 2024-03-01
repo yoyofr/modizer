@@ -6,6 +6,11 @@
  * Partially based on the vio*sf framework
  */
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern int m_genNumVoicesChannels;
+//TODO:  MODIZER changes end / YOYOFR
+
 #include <cstring>
 #include "XSFPlayer.h"
 #include "XSFConfig.h"
@@ -207,6 +212,17 @@ bool XSFPlayer::FillBuffer(std::vector<uint8_t> &buf, unsigned &samplesWritten)
 			else if (this->currentSample + ofs >= this->lengthSample + this->fadeSample)
 				bufShort[2 * ofs] = bufShort[2 * ofs + 1] = 0;
 		}
+        //YOYOFR        
+        for (unsigned ofs = 0; ofs < bufsize; ++ofs) {
+            //YOYOFR
+            int scale = static_cast<uint64_t>(this->lengthSample + this->fadeSample - (this->currentSample + ofs)) * 0x10000 / this->fadeSample;
+            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                m_voice_buff[j][ofs]=LIMIT8(((int)(m_voice_buff[j][ofs])* scale) >> 16);
+            }
+            
+            //YOYOFR
+        }
+        //YOYOFR
 	}
 
 	this->currentSample += bufsize;

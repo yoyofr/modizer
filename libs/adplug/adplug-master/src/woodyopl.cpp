@@ -1655,7 +1655,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     int ofs_end=(m_voice_current_ptr[uu]+smplIncr);
                     for (;;) {
                         if (generic_mute_mask&(1<<uu)) m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
-                        else m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(voicesData[uu][i]>>6);
+                        else m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(voicesData[uu][i]>>7);
                         ofs_start+=1024;
                         if (ofs_start>=ofs_end) break;
                     }
