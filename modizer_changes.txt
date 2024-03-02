@@ -44,8 +44,6 @@ missing seek support:
   - UADE
   - MDX/PDX
 
-=> to fix: when a file is failing in UADE, can trigger infinite loop if loop mode active (loop or infinite play)
-
 => midi viewer: adapt color or bar size / volume of the played note? 
 
 => add launch popup with last changes (ex: regexp for Searches)
@@ -56,6 +54,7 @@ missing seek support:
 
 3.6
 ---
+- [PLAYER] WebSID re-added following request. Now possible to choose default SID player between sidplayfp & WebSID
 - [PLAYER] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
 - [PLAYER] VGMPlay: NukedOPN2 options supported

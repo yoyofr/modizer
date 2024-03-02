@@ -4135,7 +4135,45 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 ASAP_Seek(asap, mNeedSeekTime);
                             }
                             if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
-                                mNeedSeek=0;
+                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                bGlobalSeekProgress=-1;
+                                if (mCurrentSamples >seekSample) {
+                                    pmd_stop();
+                                    // doesn't actually play, just loads file into RAM & extracts data
+                                    char *arg[4];
+                                    arg[0]=NULL;
+                                    arg[1]=(char*)[mod_currentfile UTF8String];
+                                    arg[2]=NULL;
+                                    arg[3]=NULL;
+                                    pmd_play(arg, (char*)[[mod_currentfile stringByDeletingLastPathComponent] UTF8String]);
+                                    
+                                    iCurrentTime=0;
+                                    mCurrentSamples=0;
+                                }
+                                
+                                while (seekSample - mCurrentSamples > 0) {
+                                    int64_t sample_to_skip=seekSample - mCurrentSamples;
+                                    if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
+                                    
+                                    pmd_renderer(buffer_ana[buffer_ana_gen_ofs], sample_to_skip);
+                                                                        
+                                    mCurrentSamples+=sample_to_skip;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                    [invo start];
+                                    bool result=false;
+                                    [invo.result getValue:&result];
+                                    if (result) {
+                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                        seekSample=mCurrentSamples;
+                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                        mNeedSeekTime=iCurrentTime;
+                                        break;
+                                    }
+                                }
+                                
                             }
                             if (mPlayType==MMP_NSFPLAY) { //NSFPlay
                                 int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
@@ -12602,7 +12640,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
