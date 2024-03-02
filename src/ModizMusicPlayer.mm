@@ -71,6 +71,34 @@ uint64_t organya_mute_mask;
 char org_filename[1024];
 #define PIXEL_BUF_SIZE 1024
 
+//WEBSID
+extern "C" {
+#include "../libs/websid/websid/src/system.h"
+#include "../libs/websid/websid/src/vic.h"
+#include "../libs/websid/websid/src/core.h"
+#include "../libs/websid/websid/src/memory.h"
+}
+#include "../libs/websid/websid/src/filter6581.h"
+#include "../libs/websid/websid/src/sid.h"
+extern "C" void     sidWriteMem(uint16_t addr, uint8_t value);
+
+#include "../libs/websid/websid/src/Postprocess.h"
+using websid::Postprocess;
+
+#include "../libs/websid/websid/src/SidSnapshot.h"
+using websid::SidSnapshot;
+
+#include "../libs/websid/websid/src/loaders.h"
+
+static char*            websid_fileBuffer;
+static uint32_t        websid_fileBufferLen;
+static FileLoader*    websid_loader;
+static char websid_skip_silence_loop = 10;
+static char websid_sound_started;
+static int16_t** websid_scope_buffers;
+static const char **websid_info;
+
+
 //SID2
 #include "sidplayfp/sidplayfp.h"
 #include "sidplayfp/SidTune.h"
@@ -472,7 +500,7 @@ static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
-static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultMIDIPLAYER;
+static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER;
 
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -2450,6 +2478,10 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //HVL specific
         mHVLinit=0;
+        
+        //WEBSID
+        websid_scope_buffers=NULL;
+        
         //
         // SIDPLAY
         
@@ -3825,6 +3857,64 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 v2m_player->Play(mNeedSeekTime);
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                             }
+                            if (mPlayType==MMP_WEBSID) { //WEBSID
+                                int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                bGlobalSeekProgress=-1;
+
+                                uint8_t is_simple_sid_mode = !FileLoader::isExtendedSidFile();
+                                uint8_t speed =    FileLoader::getCurrentSongSpeed();
+                                
+                                if (mSeekSamples<mCurrentSamples) {
+                                    //reset
+                                    websid_loader->initTune(PLAYBACK_FREQ,mod_currentsub);
+                                    Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
+                                    SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
+                                    mCurrentSamples=0;
+                                    m_voice_current_sample=0;
+                                }
+                                mSIDSeekInProgress=1;
+                                while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE<=mSeekSamples) {
+                                    Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
+                                                      websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE);
+                                    mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                    Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                                    SidSnapshot::record();
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                    [invo start];
+                                    bool cancelSeek=false;
+                                    [invo.result getValue:&cancelSeek];
+                                    if (cancelSeek) {
+                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                        mSeekSamples=mCurrentSamples;
+                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
+                                        mNeedSeekTime=iCurrentTime;
+                                        //printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
+                                        break;
+                                    }
+                                }
+                                while (mCurrentSamples<mSeekSamples) {
+                                    Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
+                                                      websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE/*mSeekSamples*/);
+                                    mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE/*mSeekSamples*/;
+                                    Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                                    SidSnapshot::record();
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    
+                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                    [invo start];
+                                    bool result=false;
+                                    [invo.result getValue:&result];
+                                    if (result) {
+                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                        mSeekSamples=mCurrentSamples;
+                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
+                                        mNeedSeekTime=iCurrentTime;
+                                        break;
+                                    }
+                                }
+                                mSIDSeekInProgress=0;
+                            }
                             if (mPlayType==MMP_SIDPLAY) { //SID
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 bGlobalSeekProgress=-1;
@@ -4467,6 +4557,51 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut );
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
+                            } else if (mPlayType==MMP_WEBSID) { //WEBSID
+                                websid_loader->initTune(PLAYBACK_FREQ, mod_currentsub);
+                                Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
+                                SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
+                                // testcase: Baroque_Music_64_BASIC (takes 100sec before playing - without this speedup)
+                                websid_skip_silence_loop = 10;
+                                websid_sound_started=0;
+                                                                
+                                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+                                if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                else if (iModuleLength==0) iModuleLength=1000;
+                                mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+                                
+                                if (mLoopMode) iModuleLength=-1;
+                                                                
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
+                                iCurrentTime=0;
+                                mCurrentSamples=0;
+                                
+                                mod_name[0]=0;
+                                if (sidtune_name) {
+                                    if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                }
+                                if (sidtune_title) {
+                                    if (sidtune_title[mod_currentsub]) {
+                                        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                        else strcat(mod_name, [[[NSString stringWithFormat:@" / %s",sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                    }
+                                }
+                                if (sidtune_artist) {
+                                    if (sidtune_artist[mod_currentsub]) {
+                                        artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+                                    }
+                                }
+                                if (mod_name[0]==0) {
+                                    if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                                }
+                                
+                                while (mod_message_updated) {
+                                    //wait
+                                    usleep(1);
+                                }
+                                
+                                mod_message_updated=2;
                             } else if (mPlayType==MMP_SIDPLAY) { //SID
                                 mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
@@ -5014,6 +5149,61 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             }
                         }
+                        
+                        if (mPlayType==MMP_WEBSID) {
+                            uint8_t is_simple_sid_mode = !FileLoader::isExtendedSidFile();
+                            uint8_t speed =    FileLoader::getCurrentSongSpeed();
+
+                            // limit "skipping" so as not to make the browser unresponsive
+                            for (uint16_t i = 0; i < websid_skip_silence_loop; i++)
+                            {
+                                Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
+                                                  websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE);
+                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+
+                                if (websid_sound_started || SID::isAudible())
+                                {
+                                    websid_sound_started = 1;
+                                    break;
+                                }
+                            }
+                            Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                            SidSnapshot::record();
+                            
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*4;
+                                                        
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=websid_scope_buffers[j][i]>>8;
+                                }
+                            }
+     
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(mCurrentSamples>mTgtSamples)) ) {
+                                if (mSingleSubMode==0) {
+                                    if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                    else {
+                                        nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                        donotstop=1;
+                                        moveToSubSong=2;
+                                    }
+                                } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                
+                                nbBytes=0;
+                                memset(m_voice_buff_ana[buffer_ana_gen_ofs],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+                                
+                            } else if (iModuleLength<0) {
+                                if (mSIDForceLoop&&(mCurrentSamples>=mTgtSamples)) {
+                                    //loop
+                                    websid_loader->initTune(PLAYBACK_FREQ,mod_currentsub);
+                                    Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
+                                    SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
+                                    mCurrentSamples=0;
+                                    m_voice_current_sample=0;
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                }
+                            }
+                        }
+
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             m_voice_current_sample=0;
@@ -7171,6 +7361,239 @@ char* loadRom(const char* path, size_t romSize)
     
     fclose(f);
     return buffer;
+}
+
+-(int) mmp_websidLoad:(NSString*)filePath {  //SID
+    mPlayType=MMP_WEBSID;
+    
+    //First check that the file is available and get size
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"SID Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+            
+    /* new format: md5 on all file data*/
+    websid_fileBufferLen=mp_datasize;
+    websid_fileBuffer=(char*)malloc(websid_fileBufferLen);
+    
+    f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"SID Cannot open file %@",filePath);
+        mPlayType=0;
+        free(websid_fileBuffer);
+        return -1;
+    }
+    fread(websid_fileBuffer,1,websid_fileBufferLen,f);
+    fclose(f);
+    
+    md5_from_buffer(song_md5,33,websid_fileBuffer,websid_fileBufferLen);
+    
+    // Compute! Sidplayer file (stereo files not supported)
+    uint32_t is_mus=0;
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"mus"]) is_mus=1;
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"str"]) is_mus=1;
+    
+    websid_loader = FileLoader::getInstance(is_mus, (void*)websid_fileBuffer, websid_fileBufferLen);
+    
+    if (!websid_loader) return -2;    // error
+    
+    NSString *c64_path = [[NSBundle mainBundle] resourcePath];
+    
+    char *kernal = loadRom([[c64_path stringByAppendingString:@"/kernal.c64"] UTF8String], 8192);
+    char *basic = loadRom([[c64_path stringByAppendingString:@"/basic.c64"] UTF8String], 8192);
+    char *chargen = loadRom([[c64_path stringByAppendingString:@"/chargen.c64"] UTF8String], 4096);
+
+    uint32_t result = websid_loader->load((uint8_t*)websid_fileBuffer, websid_fileBufferLen, [[filePath lastPathComponent] UTF8String], (uint8_t*)basic, (uint8_t*)chargen, (uint8_t*)kernal, 0);
+    
+    delete kernal;
+    delete basic;
+    delete chargen;
+
+    if (!result) {
+        if (!websid_scope_buffers) {
+            websid_scope_buffers = (int16_t**)calloc(sizeof(int16_t*), MAX_SIDS*4);
+            for (int i= 0; i<MAX_SIDS*4; i++) {
+                websid_scope_buffers[i] = (int16_t*)calloc(sizeof(int16_t), SOUND_BUFFER_SIZE_SAMPLE + 1);
+            }
+        }
+        
+        switch (sid_forceModel) {
+            case 0:
+                //cfg.forceSidModel=false;
+                break;
+            case 1:
+                SID::setSID6581(true);
+                //cfg.defaultSidModel=SidConfig::MOS6581;
+                //cfg.forceSidModel=true;
+                break;
+            case 2:
+                SID::setSID6581(false);
+                //cfg.defaultSidModel=SidConfig::MOS8580;
+                //cfg.forceSidModel=true;
+                break;
+        }
+        
+        
+        //PLAYBACK_FREQ / vicFramesPerSecond();
+        uint8_t is_ntsc=FileLoader::getNTSCMode();
+        switch (sid_forceClock) {
+            case 0:
+                //cfg.forceC64Model=false;
+                break;
+            case 1:
+                //cfg.forceC64Model=true;
+                //cfg.defaultC64Model=SidConfig::PAL;
+                is_ntsc=0;
+                break;
+            case 2:
+                //cfg.forceC64Model=true;
+                //cfg.defaultC64Model=SidConfig::NTSC;
+                is_ntsc=1;
+                break;
+        }
+
+        Core::resetTimings(PLAYBACK_FREQ, is_ntsc);
+        
+        websid_info=websid_loader->getInfoStrings();
+        // song specific infos
+            // 0: load_addr;
+            // 1: play_speed;
+            // 2: max_sub_song;
+            // 3: actual_sub_song;
+            // 4: song_name;
+            // 5: song_author;
+            // 6: song_copyright;
+            // 7: md5 of sid file (removed)
+
+        
+        mod_subsongs=*((uint8_t*)(websid_info[2]));
+        mod_minsub=0;//sidtune_info.startSong;
+        mod_maxsub=mod_subsongs-1;
+        mod_currentsub=*((uint8_t*)(websid_info[3]));
+        
+        
+        websid_loader->initTune(PLAYBACK_FREQ, mod_currentsub);
+        Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
+        SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
+        // testcase: Baroque_Music_64_BASIC (takes 100sec before playing - without this speedup)
+        websid_skip_silence_loop = 10;
+        websid_sound_started=0;
+        
+        
+        iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+        if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        else if (iModuleLength==0) iModuleLength=1000;
+        mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+        //Loop
+        if (mLoopMode) iModuleLength=-1;
+        
+        numChannels=SID::getNumberUsedChips() * 4;
+        numVoicesChannels=numChannels;
+        m_voicesDataAvail=1;
+                
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[i/4];
+        }
+        
+        
+        stil_info[0]=0;
+        [self getStilInfo:(char*)[filePath UTF8String]];
+
+        //Parse STIL INFO for subsongs info
+        [self sid_parseStilInfo];
+
+        //////////////////////////////////
+        //update DB with songlength
+        //////////////////////////////////
+        for (int i=0;i<mod_subsongs; i++) {
+            int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
+            if (sid_subsong_length<0) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            else if (sid_subsong_length==0) sid_subsong_length=1000;
+            mod_total_length+=sid_subsong_length;
+            
+            short int playcount;
+            signed char rating;
+            int song_length;
+            char channels_nb;
+            int songs;
+            NSString *filePathSid;
+            NSString *fileName=[self getSubTitle:i];
+            
+            
+            NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+            for (;;) {
+                if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                    break;
+                }
+                [tmp_path removeObjectAtIndex:0];
+                if ([tmp_path count]==0) break;
+            }
+            filePathSid=[tmp_path componentsJoinedByString:@"/"];
+            
+            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
+            
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
+            
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,numChannels,mod_subsongs);
+            
+            if (i==mod_subsongs-1) {// Global file stats update
+                fileName=[filePath lastPathComponent];
+                DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
+                
+                //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
+                
+                DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,numChannels,mod_subsongs);
+            }
+        }
+        
+        //if sid file, assuming 2nd infoString is artist
+        if (strcasecmp([[filePath pathExtension] UTF8String],"sid")==0) {
+            if (websid_info[5][0]) {
+                artist=[NSString stringWithUTF8String:websid_info[5]];
+            }
+        }
+        
+        if (sidtune_artist) {
+            if (sidtune_artist[mod_currentsub]) {
+                artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+            }
+        }
+        
+        sprintf(mod_message,"");
+        sprintf(mod_message,"Chip: %s\n",(SID::isSID6581()?"6581":"8580"));
+        
+        sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
+        
+        if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name)," %s",websid_info[4]);
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+        
+        mod_name[0]=0;
+        if (sidtune_name) {
+            if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+        }
+        if (sidtune_title) {
+            if (sidtune_title[mod_currentsub]) {
+                if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                else strcat(mod_name, [[[NSString stringWithFormat:@" / %s",sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+        }
+        if (mod_name[0]==0) {
+            if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+        }
+        
+        
+    } else {
+        free(websid_fileBuffer);
+        websid_fileBuffer=NULL;
+        return -3;
+    }
+    return 0;
 }
 
 
@@ -9905,7 +10328,7 @@ extern bool icloud_available;
     }
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -9976,6 +10399,7 @@ extern bool icloud_available;
         mdz_defaultVGMPLAYER=defaultVGMPLAYER;
         mdz_defaultNSFPLAYER=defaultNSFPLAYER;
         mdz_defaultMIDIPLAYER=defaultMIDIPLAYER;
+        mdz_defaultSIDPLAYER=defaultSIDPLAYER;
         mNeedSeek=0;
         mod_message_updated=0;
         mod_subsongs=1;
@@ -10528,11 +10952,11 @@ extern bool icloud_available;
     
     for (int i=0;i<[filetype_extSID count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_SIDPLAY] atIndex:0];
+            [available_player insertObject:[NSNumber numberWithInt:(mdz_defaultSIDPLAYER?MMP_WEBSID:MMP_SIDPLAY)] atIndex:0];
             break;
         }
         if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_SIDPLAY] atIndex:0];
+            [available_player insertObject:[NSNumber numberWithInt:(mdz_defaultSIDPLAYER?MMP_WEBSID:MMP_SIDPLAY)] atIndex:0];
             break;
         }
     }
@@ -10675,6 +11099,9 @@ extern bool icloud_available;
                 break;
             case MMP_SIDPLAY:
                 retval=[self mmp_sidplayLoad:filePath];
+                break;
+            case MMP_WEBSID:
+                retval=[self mmp_websidLoad:filePath];
                 break;
             case MMP_HVL:
                 retval=[self mmp_hvlLoad:filePath];
@@ -11008,6 +11435,52 @@ extern bool icloud_available;
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
+            break;
+        case MMP_WEBSID: //SID
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            websid_loader->initTune(PLAYBACK_FREQ,mod_currentsub);
+            Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
+            SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
+            websid_skip_silence_loop = 10;
+            websid_sound_started=0;
+            
+            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+            if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            else if (iModuleLength==0) iModuleLength=1000;
+            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+            if (mLoopMode) iModuleLength=-1;
+            
+            mod_name[0]=0;
+            if (sidtune_name) {
+                if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+            if (sidtune_title) {
+                if (sidtune_title[mod_currentsub]) {
+                    if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                    else strcat(mod_name, [[[NSString stringWithFormat:@" / %s",sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                }
+            }
+            if (sidtune_artist) {
+                if (sidtune_artist[mod_currentsub]) {
+                    artist=[NSString stringWithUTF8String:sidtune_artist[mod_currentsub]];
+                }
+            }
+            if (mod_name[0]==0) {
+                if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+            }
+            
+            /*while (mod_message_updated) {
+                //wait
+                usleep(1);
+            }*/
+            
+            mod_message_updated=2;
+            if (startPos) [self Seek:startPos];
+            [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
+            [self Play];
+            
             break;
         case MMP_SIDPLAY: //SID
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
@@ -11368,6 +11841,39 @@ extern bool icloud_available;
         hvl_FreeTune(hvl_song);
         hvl_song=NULL;
     }
+    if (mPlayType==MMP_WEBSID) { //SID
+        if (websid_scope_buffers) {
+            
+            for (int i= 0; i<MAX_SIDS*4; i++) {
+                free(websid_scope_buffers[i]);
+            }
+            free(websid_scope_buffers);
+            websid_scope_buffers=NULL;
+        }
+        
+        if (websid_fileBuffer) free(websid_fileBuffer);
+        websid_fileBuffer=NULL;
+        
+        if (sidtune_title) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_title[i]) free(sidtune_title[i]);
+            free(sidtune_title);
+            sidtune_title=NULL;
+        }
+        if (sidtune_name) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_name[i]) free(sidtune_name[i]);
+            free(sidtune_name);
+            sidtune_name=NULL;
+        }
+        if (sidtune_artist) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_artist[i]) free(sidtune_artist[i]);
+            free(sidtune_artist);
+            sidtune_artist=NULL;
+        }
+    }
+    
     if (mPlayType==MMP_SIDPLAY) { //SID
         if (mSidEmuEngine) {
             mSidEmuEngine->stop();
@@ -11531,6 +12037,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_EUP) return @"EUPMini";
     if (mPlayType==MMP_HVL) return @"HVL";
     if (mPlayType==MMP_KSS) return @"LIBKSS";
+    if (mPlayType==MMP_WEBSID) return @"WebSID";
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_ATARISOUND) return @"ATARISOUND";
@@ -11598,6 +12105,22 @@ extern bool icloud_available;
             gme_free_info(gme_info);
             return result;
         }
+    } else if (mPlayType==MMP_WEBSID) {
+        NSString *subtitle=NULL;
+        if (sidtune_name) {
+            if (sidtune_name[subsong]) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        }
+        if (sidtune_title) {
+            if (sidtune_title[subsong]) {
+                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+            }
+        }
+        if (subtitle) return subtitle;
+        
+        if (websid_info[4][0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
+
     } else if (mPlayType==MMP_SIDPLAY) {
         NSString *subtitle=NULL;
         if (sidtune_name) {
@@ -11675,6 +12198,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_UADE) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
     if (mPlayType==MMP_KSS) return @"KSS";
     if (mPlayType==MMP_HVL) return (hvl_song->ht_ModType?@"HVL":@"AHX");
+    if (mPlayType==MMP_WEBSID) return @"SID";
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
@@ -12166,6 +12690,7 @@ extern "C" void adjust_amplification(void);
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
         case MMP_ASAP:
         case MMP_VGMPLAY:
@@ -12237,6 +12762,8 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
         case MMP_GME:
             return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
+        case MMP_WEBSID:
+            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
         case MMP_SIDPLAY:
             return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
         case MMP_VGMPLAY:{
@@ -12290,6 +12817,7 @@ extern "C" void adjust_amplification(void);
             return numChannels/4;
         case MMP_VGMPLAY:
             return vgmplay_activeChipsNb;
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             return numChannels/4; //number of sidchip active: voices/3, (3ch each)
         default:
@@ -12347,6 +12875,7 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"%s",gmetype];
         case MMP_VGMPLAY:
             return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             return [NSString stringWithFormat:@"Sid#%d",systemIdx + 1]; //number of sidchip active
         default:
@@ -12397,6 +12926,7 @@ extern "C" void adjust_amplification(void);
             }
             return 0;
         }
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             return voiceIdx/4;
         default:
@@ -12513,6 +13043,7 @@ extern "C" void adjust_amplification(void);
             else if (tmp>0) return 1; //partially active
             return 0; //all off
         }
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             tmp=0;
             for (int i=systemIdx*4;i<systemIdx*4+4;i++) {
@@ -12581,6 +13112,7 @@ extern "C" void adjust_amplification(void);
             }
             break;
         }
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             for (int i=systemIdx*4;i<systemIdx*4+4;i++) {
                 [self setm_voicesStatus:active index:i];
@@ -12721,6 +13253,7 @@ extern "C" void adjust_amplification(void);
             gme_mute_voice(gme_emu,channel,(active?0:1));
             break;
         }
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
             //check consistency with channel 4
         {
@@ -12737,7 +13270,11 @@ extern "C" void adjust_amplification(void);
             if ((channel%4)==3) { //it is a 4th channel, override value
                 active=m_voicesStatus[channel];
             }
-            mSidEmuEngine->mute(system_idx,sid_channel,(active?0:1));   //(unsigned int sidNum,
+            if (mPlayType==MMP_SIDPLAY) mSidEmuEngine->mute(system_idx,sid_channel,(active?0:1));   //(unsigned int sidNum,
+            else if (mPlayType==MMP_WEBSID) {
+                SID::setMute(system_idx, sid_channel, (active?0:1));
+                SID::setMute(system_idx, 3, (m_voicesStatus[system_idx*4+3]?0:1));
+            }
             //SID::setMute(system_idx, 3, (m_voicesStatus[system_idx*4+3]?0:1));
         }
             if ((channel%4)<3) mSidEmuEngine->mute(channel/4,channel%4,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);

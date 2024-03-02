@@ -278,6 +278,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
@@ -723,6 +724,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    
+    settings[GLOB_DefaultSIDPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultSIDPlayer].label=(char*)"Default SID player";
+    settings[GLOB_DefaultSIDPlayer].description=NULL;
+    settings[GLOB_DefaultSIDPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultSIDPlayer].sub_family=0;
+    settings[GLOB_DefaultSIDPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_labels[0]=(char*)"sidplayfp";
+    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_labels[1]=(char*)"WebSID";
     
     settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";

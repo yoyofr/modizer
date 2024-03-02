@@ -68,6 +68,7 @@ enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY,
     GLOB_DefaultMODPlayer,
     GLOB_DefaultSAPPlayer,
+    GLOB_DefaultSIDPlayer,
     GLOB_DefaultVGMPlayer,
     GLOB_DefaultNSFPlayer,
     GLOB_DefaultMIDIPlayer,

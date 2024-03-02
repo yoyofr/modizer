@@ -899,6 +899,7 @@
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
 		CCE8D74E2B8F11340076D8C0 /* SONFillAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */; };
+		CCE8DBC42B931E1C0076D8C0 /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -1143,6 +1144,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCE352942B79704200E06DE1;
 			remoteInfo = "libopenmpt-modizer";
+		};
+		CCE8D9B92B929CE00076D8C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCE8D7502B929CDF0076D8C0 /* websid.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC0E2DC72B81073F00CB58C7;
+			remoteInfo = websid;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2587,6 +2595,7 @@
 		CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedLaunchVC.h; sourceTree = "<group>"; };
 		CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SONFillAnimation.m; sourceTree = "<group>"; };
 		CCE8D74D2B8F11340076D8C0 /* SONFillAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SONFillAnimation.h; sourceTree = "<group>"; };
+		CCE8D7502B929CDF0076D8C0 /* websid.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = websid.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -2631,6 +2640,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCE8DBC42B931E1C0076D8C0 /* libwebsid.a in Frameworks */,
 				CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */,
 				CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */,
 				CCC544422B8BFCDD00E97EC1 /* libavutil.xcframework in Frameworks */,
@@ -3103,6 +3113,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCE8D74F2B929CDF0076D8C0 /* websid */,
 				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
 				CCC543D62B89E83400E97EC1 /* binio.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
@@ -4874,6 +4885,22 @@
 			path = Animation;
 			sourceTree = "<group>";
 		};
+		CCE8D74F2B929CDF0076D8C0 /* websid */ = {
+			isa = PBXGroup;
+			children = (
+				CCE8D7502B929CDF0076D8C0 /* websid.xcodeproj */,
+			);
+			path = websid;
+			sourceTree = "<group>";
+		};
+		CCE8D7512B929CDF0076D8C0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCFA9ADC1AC75830007C658A /* WebTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -5131,6 +5158,10 @@
 					ProjectRef = CC7BBD212B800AC600D8CAAE /* vorbis-openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CCE8D7512B929CDF0076D8C0 /* Products */;
+					ProjectRef = CCE8D7502B929CDF0076D8C0 /* websid.xcodeproj */;
+				},
+				{
 					ProductGroup = 59805445262F21CA00BB0309 /* Products */;
 					ProjectRef = 59805444262F21CA00BB0309 /* xmp.xcodeproj */;
 				},
@@ -5365,6 +5396,13 @@
 			fileType = archive.ar;
 			path = "liblibopenmpt-modizer.a";
 			remoteRef = CCE352A42B79704200E06DE1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libwebsid.a;
+			remoteRef = CCE8D9B92B929CE00076D8C0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

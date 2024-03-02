@@ -121,6 +121,7 @@ enum MMP_PLAYER_TYPE {
     MMP_PMDMINI,
     MMP_ADPLUG,
     MMP_SIDPLAY,
+    MMP_WEBSID,
     MMP_XMP,
     MMP_OPENMPT,
     MMP_UADE,
@@ -347,7 +348,7 @@ enum MMP_PLAYER_TYPE {
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;
@@ -450,6 +451,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_eupLoad:(NSString*)filePath;
 -(int) mmp_stsoundLoad:(NSString*)filePath;
 -(int) mmp_AtariSoundLoad:(NSString*)filePath;
+-(int) mmp_websidLoad:(NSString*)filePath;
 -(int) mmp_sidplayLoad:(NSString*)filePath;
 -(int) mmp_hvlLoad:(NSString*)filePath;
 -(int) mmp_uadeLoad:(NSString*)filePath;
