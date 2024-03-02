@@ -1429,7 +1429,7 @@ extern "C" void gsfDisplayError (char * Message, ...);
 
 //int began_seek = 1;
 
-extern "C" t_double decode_pos_ms;
+extern "C" float decode_pos_ms;
 extern "C" int GSFsndSamplesPerSec;
 extern "C" int seek_needed;
 

@@ -188,6 +188,11 @@ static void pcm8_close_devs(void) {
 	//__GETSELF;
 }
 
+extern float decode_pos_ms;
+extern int seek_needed;
+extern int PLAYBACK_FREQ;
+
+
 static void
 pcm8_write_dev(unsigned char* data, int len,int end_reached)
 {
@@ -196,8 +201,17 @@ pcm8_write_dev(unsigned char* data, int len,int end_reached)
 	if (self->freeverb) {
 		process_freeverb(self->freeverb, data, len);
 	}
-	
-	mdx_update(data,len,end_reached);
+
+    if (seek_needed==-1) mdx_update(data,len,end_reached);
+    else {
+        decode_pos_ms += ((SOUND_BUFFER_SIZE_SAMPLE) * 1000)/(float)PLAYBACK_FREQ;
+        if (seek_needed!=-1) {
+            if (decode_pos_ms>=seek_needed) {
+                seek_needed=-1;
+            }
+        }
+    }
+
 }
 
 int pcm8_open( MDX_DATA *mdx )

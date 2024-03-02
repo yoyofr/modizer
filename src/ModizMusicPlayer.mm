@@ -17,8 +17,6 @@
 extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t play_mutex;
 
-
-
 int64_t iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
@@ -1708,6 +1706,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data);
 ////////////////////
 
 extern "C" {
+int MDXshoudlReset;
 void mdx_update(unsigned char *data,int len,int end_reached);
 
 // redirect stubs to interface the Z80 core to the QSF engine
@@ -2933,34 +2932,30 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
             return;
         }
     }
-    
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
-    
     if (len<to_fill) {
-        
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
-        
         buffer_ana_subofs+=len;
     } else {
-        
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
-        
         len-=to_fill;
         buffer_ana_subofs=0;
         
+        buffer_ana_flag[buffer_ana_gen_ofs]=1;
         
-        if (mNeedSeek==2) {
+        //copy voice data for oscillo view
+//        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+//            for (int j=0;j<6;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+//            }
+//        }
+        
+        if ((mNeedSeek==2)&&(seek_needed==-1)) {
             mNeedSeek=3;
-            buffer_ana_flag[buffer_ana_gen_ofs]=3;
-        } else buffer_ana_flag[buffer_ana_gen_ofs]=1;
+            buffer_ana_flag[buffer_ana_gen_ofs]|=2;
+        }
         
         if (end_reached) {
             buffer_ana_flag[buffer_ana_gen_ofs]|=4;
-        }
-        
-        if (mNeedSeek==1) { //ask for seeking
-            mNeedSeek=2;  //taken into account
-            len=0;
         }
         
         buffer_ana_gen_ofs++;
@@ -2982,6 +2977,25 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
             buffer_ana_subofs=len;
         }
     }
+    
+    if (mNeedSeek==1) {
+        seek_needed=mNeedSeekTime;
+        bGlobalSeekProgress=-1;
+        mNeedSeek=2;
+        
+        if (seek_needed<decode_pos_ms) {
+            MDXshoudlReset=1;            
+            decode_pos_ms=0;
+        }
+    }
+    
+    decode_pos_ms += ((SOUND_BUFFER_SIZE_SAMPLE) * 1000)/(float)PLAYBACK_FREQ;
+    if (seek_needed!=-1) {
+        if (decode_pos_ms>=seek_needed) {
+            seek_needed=-1;
+        }
+    }
+    
 }
 
 void gsf_update(unsigned char* pSound,int lBytes) {
@@ -3763,7 +3777,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //AudioQueueStop( mAudioQueue, TRUE );
                     } else if (mPlayType==MMP_MDXPDX) {  //Special case : MDX
                         int counter=0;
-                        mdx_play(mdx,pdx);
+                        while (1) {
+                            mdx_play(mdx,pdx);
+                            if (!MDXshoudlReset) break;
+                            MDXshoudlReset=0;
+                            decode_pos_ms=0;
+                        }
+                        
                         
                         //[self iPhoneDrv_PlayWaitStop];
                         while ([self isEndReached]==NO) {
@@ -6380,9 +6400,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         return -1;
     } else {
         char *tmp_mod_name=(char*)mdx_get_title(mdx);
-        if (tmp_mod_name) sprintf(mod_name," %s",tmp_mod_name);
-        else sprintf(mod_name," %s",mod_filename);
+        if (tmp_mod_name) snprintf(mod_name,sizeof(mod_name)," %s",tmp_mod_name);
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         
+        decode_pos_ms = 0;
+        seek_needed = -1;
+        MDXshoudlReset=0;
         
         mod_subsongs=1;
         mod_minsub=1;
@@ -12640,7 +12663,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE) ||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

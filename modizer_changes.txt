@@ -40,7 +40,7 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
   - SC68
 
 missing seek support:
-  - PMDMini
+  
   - UADE
   - MDX/PDX
 
@@ -59,6 +59,7 @@ missing seek support:
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
+- [PLAYER] PMDMini now support seek
 - [UI] Searches are now regular expression based
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category

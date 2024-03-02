@@ -152,6 +152,8 @@ void mdx_stop() {
 	all_track_finished=FLAG_TRUE;
 }
 
+extern int MDXshoudlReset;
+
 int mdx_parse_mml_ym2151( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
   int i;
   long count;
@@ -247,6 +249,12 @@ int mdx_parse_mml_ym2151( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
     }
 
     while( timercmp(&st,&et,>) ) {
+        
+        if (MDXshoudlReset) {
+            mdx_stop();
+            break;
+        }
+        
       do_pcm8(0);
 		et.tv_usec += 1000;//PCM8_SYSTEM_RATE*1000;
       while ( et.tv_usec >= 1000*1000 ) {
