@@ -18,6 +18,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+extern char tim_config_file_path[1024];
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
@@ -2529,7 +2531,8 @@ static int read_user_config_file(void)
 		  "Warning: HOME environment is not defined.");
 	return -1;
     }
-    sprintf(path, "%s" PATH_STRING "Documents/timidity.cfg", home);
+    //sprintf(path, "%s" PATH_STRING "Documents/timidity.cfg", home);
+    strcpy(path, tim_config_file_path );
 
     if((opencheck = open(path, 0)) < 0)
     {

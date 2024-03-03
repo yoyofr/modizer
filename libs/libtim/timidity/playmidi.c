@@ -5219,7 +5219,7 @@ static void play_midi_prescan(MidiEvent *ev) {
         ev++;
     }
     
-    printf("max ch: %d\n",ch_idx); //YOYOFR
+    //printf("max ch: %d\n",ch_idx); //YOYOFR
     m_genNumVoicesChannels=ch_idx;
 
     /* calculate compensation ratio */

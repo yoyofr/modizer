@@ -5643,7 +5643,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             ca=255;
             
             if (horiz_vert==0) { //horiz
-                int posNote=note*line_width/2-note_display_offset;
+                int posNote=note*line_width-note_display_offset;
                 int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
                 int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
                 if ((posNote>=0)&&(posNote<hh)&&(!played)) {
@@ -5656,7 +5656,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ptsB[index++] = LineVertex(posEnd, posNote+line_width,crt,cgt,cbt,ca);
                 }
             } else {
-                int posNote=note*line_width/2-note_display_offset;
+                int posNote=note*line_width-note_display_offset;
                 int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
                 int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
                 if ((posNote>=0)&&(posNote<ww)&&(!played)) {
@@ -5730,7 +5730,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             ca=255;
             
             if (horiz_vert==0) { //horiz
-                int posNote=note*line_width/2-note_display_offset;
+                int posNote=note*line_width-note_display_offset;
                 int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
                 int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
                 if ((posNote>=0)&&(posNote<hh)&&played) {
@@ -5743,7 +5743,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+line_width+line_width_extra,crt,cgt,cbt,ca);
                 }
             } else {  //vert
-                int posNote=note*line_width/2-note_display_offset;
+                int posNote=note*line_width-note_display_offset;
                 int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
                 int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
                 if ((posNote>=0)&&(posNote<ww)&&played) {

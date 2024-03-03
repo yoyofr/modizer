@@ -887,6 +887,10 @@ static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
 
 static int optNSFPLAYDefaultLength=SONG_DEFAULT_LENGTH;
 
+bool tim_force_soundfont;
+char tim_force_soundfont_path[1024];
+char tim_config_file_path[1024];
+
 static char tim_filepath[1024];
 static volatile int tim_finished;
 static int tim_max_voices=DEFAULT_VOICES;
@@ -1817,8 +1821,8 @@ static int tim_output_data(char *buf, int32 nbytes) {
             m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<10;//m_voice_current_ptr[j];
             if ((m_voice_prev_current_ptr[j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
             
-            memset(m_voice_buff_accumul_temp[j],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int));
-            memset(m_voice_buff_accumul_temp_cnt[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+            memset(m_voice_buff_accumul_temp[j],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
+            memset(m_voice_buff_accumul_temp_cnt[j],0,SOUND_BUFFER_SIZE_SAMPLE*2);
         }
                 
         int i,voices,vol;
@@ -2352,8 +2356,8 @@ void propertyListenerCallback (void                   *inUserData,              
             m_voice_prev_current_ptr[i]=0;
             m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*2*4);
             
-            m_voice_buff_accumul_temp[i]=(signed int*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int));
-            m_voice_buff_accumul_temp_cnt[i]=(unsigned char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE);
+            m_voice_buff_accumul_temp[i]=(signed int*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
+            m_voice_buff_accumul_temp_cnt[i]=(unsigned char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*2);
         }
         for (int j=0;j<SOUND_BUFFER_NB;j++) {
             m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
@@ -3094,11 +3098,19 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     char *argv[1];
     argv[0]=tim_filepath;
     
-    //timidity
-    tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
-    tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
-    
     //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+    
+    if (tim_force_soundfont) {
+        //NSLog(@"forcing with: %s",tim_force_soundfont_path);
+        tim_init(tim_force_soundfont_path);
+        snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
+    } else {
+        //timidity
+        tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+        tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
+        snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
+    }
+    
     tim_main(1, argv);
     //tim_close();
     //    [pool release];
@@ -8844,6 +8856,32 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mp_datasize=ftell(f);
     fclose(f);
     
+    //check if a soundfont exist in the same dir
+    NSError *error;
+    NSArray *dirContent;//
+    NSString *file,*cpath;
+    BOOL isDir;
+    
+    tim_force_soundfont=false;
+    
+    cpath=[filePath stringByDeletingLastPathComponent];
+    dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (!isDir) {
+            if ([[[file pathExtension] lowercaseString] isEqualToString:@"sf2"]) {
+                //sf2 soundfont found                
+                snprintf(tim_force_soundfont_path,sizeof(tim_force_soundfont_path)-1,"%s",[cpath UTF8String]);
+                f=fopen([[cpath stringByAppendingString:@"/timidity.cfg"] UTF8String],"wb");
+                if (f) {
+                    tim_force_soundfont=true;
+                    fprintf(f,"soundfont \"%s\"\n",[file UTF8String]);
+                    fclose(f);
+                }
+            }
+        }
+    }
+    
     
     mod_subsongs=1;
     mod_minsub=1;
@@ -10735,7 +10773,7 @@ extern bool icloud_available;
         
     }
     
-    if (mdz_IsArchive) {
+    if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {
         
         //check if specific entry is to select
         if (archiveIndex) {
@@ -10759,6 +10797,8 @@ extern bool icloud_available;
         filePath=[self getFullFilePath:_filePath];
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
+    
+    if (filePath==NULL) return -1;
     
     for (int i=0;i<[filetype_extNSFPLAY count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
@@ -12823,6 +12863,8 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_TIMIDITY:
+            return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(channel)];
         case MMP_NSFPLAY: {
             int chipIdx=[self getSystemForVoice:channel];
             return [NSString stringWithFormat:@"%d-%s",channel-nsfChipsetStartVoice[chipIdx]+1,nsfChipsetName[chipIdx]];

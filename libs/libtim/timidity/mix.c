@@ -123,6 +123,12 @@ void mix_voice(int32 *buf, int v, int32 c)
 {
 	Voice *vp = voice + v;
 	retim_sample_t *sp;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
+    m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    //TODO:  MODIZER changes end / YOYOFR
 
 	if (vp->status == VOICE_DIE) {
 		if (c >= MAX_DIE_TIME)
@@ -154,18 +160,7 @@ void mix_voice(int32 *buf, int v, int32 c)
 		if (do_voice_filter(v, sp, filter_buffer, c)) {sp = filter_buffer;}
         
         
-        //TODO:  MODIZER changes start / YOYOFR
-        int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
-        m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
-        m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
-//        for (int ii=0;ii<c;ii++) {
-//            //m_voice_buff[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(sp[ii]>>11);
-//            m_voice_buff_accumul_temp[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8(sp[ii]>>8);
-//            m_voice_buff_accumul_temp_cnt[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]++;
-//        }
-        //TODO:  MODIZER changes end / YOYOFR
         
-
 		if (play_mode->encoding & PE_MONO) {
 			/* Mono output. */
 			if (vp->envelope_increment || vp->tremolo_phase_increment)
