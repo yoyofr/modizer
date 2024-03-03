@@ -411,7 +411,7 @@ typedef float FLOAT_T;
 
 #define MAX_AMPLIFICATION 800
 //#define TIM_MAX_CHANNELS 32
-#define TIM_MAX_CHANNELS 256
+#define TIM_MAX_CHANNELS 64 //256
 #define MAXMIDIPORT 16
 
 /* Vibrato and tremolo Choices of the Day */

@@ -1190,6 +1190,12 @@ static float movePinchScale,movePinchScaleOld;
 	int mpl_upd=[mplayer shouldUpdateInfos];
 	if (mpl_upd||mShouldUpdateInfos) {
         
+        //can change after load, ex Timidity
+        if (mplayer.numChannels) {
+            if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
+            else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
+        } else labelNumChannels.text=[NSString stringWithFormat:@""];
+                
         ///////////////////////////////////////////////////
         // Update miniplayer
         ///////////////////////////////////////////////////
@@ -6785,11 +6791,11 @@ extern "C" int current_sample;
                 if ([mplayer m_voicesDataAvail]) {
                     if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
-                        for (int i=0;i<mplayer.numVoicesChannels;i++) {
+                        for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
                 } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
                 break;
             case 2:
@@ -6798,12 +6804,12 @@ extern "C" int current_sample;
                     
                     if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
-                        for (int i=0;i<mplayer.numVoicesChannels;i++) {
+                        for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,NULL);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,NULL);
                 } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
                 break;
             case 3:

@@ -156,7 +156,7 @@ enum MMP_PLAYER_TYPE {
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
 	unsigned int mPlayType;
-	int mp_datasize,numChannels,numVoicesChannels;
+	int mp_datasize,numChannels;
     int mLoopMode; //0:off, 1:infinite
     int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
     NSString *mod_currentfile;
@@ -275,7 +275,7 @@ enum MMP_PLAYER_TYPE {
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int mLoadModuleStatus;
-@property int numChannels,numPatterns,numSamples,numInstr,numVoicesChannels;
+@property int numChannels,numPatterns,numSamples,numInstr;
 @property char m_voicesDataAvail;
 //GSF stuff
 @property char optGSFsoundLowPass;
@@ -308,6 +308,8 @@ enum MMP_PLAYER_TYPE {
 -(bool) isArchiveFullyPlayed;
 -(int) getArcEntriesCnt;
 -(int) getArcIndex;
+
+-(int) getNumChannels;
 
 -(NSString*) getArcEntryTitle:(int)arc_index;
 

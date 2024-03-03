@@ -20,6 +20,13 @@
     mix.c
 */
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+static signed int *m_vb_acc_ptr;
+static unsigned char *m_vb_acc_cnt_ptr;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
@@ -66,6 +73,18 @@ typedef int32 mix_t;
 	if (++pan_delay_spt == PAN_DELAY_BUF_MAX) {pan_delay_spt = 0;}	\
 	pan_delay_buf[pan_delay_wpt] = (a) * s;	\
 	if (++pan_delay_wpt == PAN_DELAY_BUF_MAX) {pan_delay_wpt = 0;}
+
+//YOYOFR
+#define MIXATION_MODIZER(a) *m_vb_acc_ptr++ +=((a)*s)>>17; \
+                            *m_vb_acc_cnt_ptr++ +=1;
+
+#define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>17; \
+                                    *m_vb_acc_cnt_ptr++ +=1;
+
+#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>18; \
+                                       *m_vb_acc_cnt_ptr++ +=1;
+    
+//YOYOFR
 
 void mix_voice(int32 *, int, int32);
 static inline int do_voice_filter(int, retim_sample_t*, mix_t*, int32);
@@ -133,6 +152,19 @@ void mix_voice(int32 *buf, int v, int32 c)
 		}
 		sp = resample_voice(v, &c);
 		if (do_voice_filter(v, sp, filter_buffer, c)) {sp = filter_buffer;}
+        
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
+        m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+        m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+//        for (int ii=0;ii<c;ii++) {
+//            //m_voice_buff[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(sp[ii]>>11);
+//            m_voice_buff_accumul_temp[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8(sp[ii]>>8);
+//            m_voice_buff_accumul_temp_cnt[currentVoice][(ii+(m_voice_current_ptr[currentVoice]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]++;
+//        }
+        //TODO:  MODIZER changes end / YOYOFR
+        
 
 		if (play_mode->encoding & PE_MONO) {
 			/* Mono output. */
@@ -292,6 +324,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 					if (right < 0)
 						right = 0;
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MODIZER((left+right)>>1);
+                    //YOYOFR
+                    
 					MIXATION(left);
 					MIXATION(right);
 				}
@@ -304,6 +341,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 					if (right < 0)
 						right = 0;
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(left)
+                    //YOYOFR
+                                        
 					MIXATION(left);
 					DELAYED_MIXATION(right);
 				}
@@ -316,6 +358,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 					if (right < 0)
 						right = 0;
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(right)
+                    //YOYOFR
+                    
 					DELAYED_MIXATION(left);
 					MIXATION(right);
 				}
@@ -343,6 +390,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 				if (left < 0)
 					return;
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				MIXATION(left);
 			}
@@ -352,6 +404,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 				if (left < 0)
 					return;
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				lp++;
 			}
@@ -362,6 +419,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 					return;
 				s = *sp++;
 				lp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 			}
 	} else
@@ -371,6 +433,11 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 			if (left < 0)
 				return;
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MODIZER(left)
+            //YOYOFR
+            
 			MIXATION(left);
 		}
 }
@@ -416,6 +483,11 @@ static inline void mix_mono_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				vp->left_mix_offset += vp->left_mix_inc;
 				linear_left += vp->left_mix_inc;
@@ -430,6 +502,11 @@ static inline void mix_mono_signal(
 #endif
 			for (i = 0; i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 			}
 			cc = control_ratio;
@@ -454,8 +531,13 @@ static inline void mix_mono_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
-				vp->left_mix_offset += vp->left_mix_inc;
+                vp->left_mix_offset += vp->left_mix_inc;
 				linear_left += vp->left_mix_inc;
 				if (linear_left > MAX_AMP_VALUE) {
 					linear_left = MAX_AMP_VALUE;
@@ -468,6 +550,11 @@ static inline void mix_mono_signal(
 #endif
 			for (i = 0; i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 			}
 			return;
@@ -501,9 +588,14 @@ static inline void mix_mono(mix_t *sp, int32 *lp, int v, int count)
 	}
 	for (i = 0; vp->left_mix_offset && i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
 		MIXATION(left);
-		vp->left_mix_offset += vp->left_mix_inc;
+        vp->left_mix_offset += vp->left_mix_inc;
 		linear_left += vp->left_mix_inc;
 		if (linear_left > MAX_AMP_VALUE) {
 			linear_left = MAX_AMP_VALUE;
@@ -516,8 +608,14 @@ static inline void mix_mono(mix_t *sp, int32 *lp, int v, int count)
 #endif
 	for (i = 0; i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
-	}
+
+    }
 }
 
 #ifdef ENABLE_PAN_DELAY
@@ -576,6 +674,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MODIZER((left+right)>>1)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -601,6 +704,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(left)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					DELAYED_MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -626,6 +734,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(right)
+                    //YOYOFR
+                    
 					DELAYED_MIXATION(left);
 					MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -655,18 +768,33 @@ static inline void mix_mystery_signal(
 			if(vp->pan_delay_rpt == 0) {
 				for (i = 0; i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MODIZER((left+right)>>1)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					MIXATION(right);
 				}
 			} else if(vp->panning < 64) {
 				for (i = 0; i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(left)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					DELAYED_MIXATION(right);
 				}
 			} else {
 				for (i = 0; i < cc; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(right)
+                    //YOYOFR
+                    
 					DELAYED_MIXATION(left);
 					MIXATION(right);
 				}
@@ -706,6 +834,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MODIZER((left+right)>>1)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -731,6 +864,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(left)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					DELAYED_MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -756,6 +894,11 @@ static inline void mix_mystery_signal(
 				for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 						&& i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(right)
+                    //YOYOFR
+                    
 					DELAYED_MIXATION(left);
 					MIXATION(right);
 					if (vp->left_mix_offset) {
@@ -786,18 +929,33 @@ static inline void mix_mystery_signal(
 			if(vp->pan_delay_rpt == 0) {
 				for (i = 0; i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MODIZER((left+right)>>1)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					MIXATION(right);
 				}
 			} else if(vp->panning < 64) {
 				for (i = 0; i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(left)
+                    //YOYOFR
+                    
 					MIXATION(left);
 					DELAYED_MIXATION(right);
 				}
 			} else {
 				for (i = 0; i < count; i++) {
 					s = *sp++;
+                    
+                    //YOYOFR
+                    MIXATION_MIXDELAYED_MODIZER(right)
+                    //YOYOFR
+                    
 					DELAYED_MIXATION(left);
 					MIXATION(right);
 				}
@@ -994,6 +1152,11 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 		for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 				&& i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MODIZER((left+right)>>1)
+            //YOYOFR
+            
 			MIXATION(left);
 			MIXATION(right);
 			if (vp->left_mix_offset) {
@@ -1019,6 +1182,11 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 		for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 				&& i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MIXDELAYED_MODIZER(left)
+            //YOYOFR
+            
 			MIXATION(left);
 			DELAYED_MIXATION(right);
 			if (vp->left_mix_offset) {
@@ -1044,6 +1212,11 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 		for (i = 0; (vp->left_mix_offset | vp->right_mix_offset)
 				&& i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MIXDELAYED_MODIZER(right)
+            //YOYOFR
+            
 			DELAYED_MIXATION(left);
 			MIXATION(right);
 			if (vp->left_mix_offset) {
@@ -1074,18 +1247,33 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 	if(vp->pan_delay_rpt == 0) {
 		for (i = 0; i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MODIZER((left+right)>>1)
+            //YOYOFR
+            
 			MIXATION(left);
 			MIXATION(right);
 		}
 	} else if(vp->panning < 64) {
 		for (i = 0; i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MIXDELAYED_MODIZER(left)
+            //YOYOFR
+            
 			MIXATION(left);
 			DELAYED_MIXATION(right);
 		}
 	} else {
 		for (i = 0; i < count; i++) {
 			s = *sp++;
+            
+            //YOYOFR
+            MIXATION_MIXDELAYED_MODIZER(right)
+            //YOYOFR
+            
 			DELAYED_MIXATION(left);
 			MIXATION(right);
 		}
@@ -1202,6 +1390,11 @@ static inline void mix_center_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				MIXATION(left);
 				vp->left_mix_offset += vp->left_mix_inc;
@@ -1217,6 +1410,11 @@ static inline void mix_center_signal(
 #endif
 			for (i = 0; i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				MIXATION(left);
 			}
@@ -1242,6 +1440,11 @@ static inline void mix_center_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				MIXATION(left);
 				vp->left_mix_offset += vp->left_mix_inc;
@@ -1257,6 +1460,11 @@ static inline void mix_center_signal(
 #endif
 			for (i = 0; i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				MIXATION(left);
 			}
@@ -1291,6 +1499,11 @@ static inline void mix_center(mix_t *sp, int32 *lp, int v, int count)
 	}
 	for (i = 0; vp->left_mix_offset && i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
 		MIXATION(left);
 		vp->left_mix_offset += vp->left_mix_inc;
@@ -1306,6 +1519,11 @@ static inline void mix_center(mix_t *sp, int32 *lp, int v, int count)
 #endif
 	for (i = 0; i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
 		MIXATION(left);
 	}
@@ -1352,6 +1570,11 @@ static inline void mix_single_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				lp++;
 				vp->left_mix_offset += vp->left_mix_inc;
@@ -1367,6 +1590,11 @@ static inline void mix_single_signal(
 #endif
 			for (i = 0; i < cc; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				lp++;
 			}
@@ -1392,6 +1620,11 @@ static inline void mix_single_signal(
 			}
 			for (i = 0; vp->left_mix_offset && i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				lp++;
 				vp->left_mix_offset += vp->left_mix_inc;
@@ -1407,6 +1640,11 @@ static inline void mix_single_signal(
 #endif
 			for (i = 0; i < count; i++) {
 				s = *sp++;
+                
+                //YOYOFR
+                MIXATION_MODIZER(left)
+                //YOYOFR
+                
 				MIXATION(left);
 				lp++;
 			}
@@ -1456,6 +1694,11 @@ static inline void mix_single(mix_t *sp, int32 *lp, int v, int count)
 #endif
 	for (i = 0; i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
 		lp++;
 	}

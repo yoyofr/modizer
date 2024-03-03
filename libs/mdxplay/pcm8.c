@@ -590,12 +590,12 @@ static inline void pcm8( int flush_for_end )
             
             if ((ofs_end>>10)>(ofs_start>>10))
                 for (;;) {
-                    m_voice_buff[8][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((v>>8));
+                    m_voice_buff[8][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((v>>8));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) {
-                ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2)<<10);
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) {
+                ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<10);
             }
             m_voice_current_ptr[8]=ofs_end;
             

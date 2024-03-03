@@ -20,6 +20,11 @@
     playmidi.c -- random stuff in need of rearrangement
 */
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
@@ -5073,9 +5078,16 @@ static void process_sysex_event(int ev, int ch, int val, int b)
 	}
 }
 
-static void play_midi_prescan(MidiEvent *ev)
-{
+static void play_midi_prescan(MidiEvent *ev) {
+    
     int i, j, k, ch, orig_ch, port_ch, offset, layered;
+    
+    //YOYOFR
+    unsigned char ch_used[TIM_MAX_CHANNELS];
+    int ch_idx=0;
+    bool ch_found;
+    //YOYOFR
+    
     
     if(opt_amp_compensation) {mainvolume_max = 0;}
     else {mainvolume_max = 0x7f;}
@@ -5086,107 +5098,129 @@ static void play_midi_prescan(MidiEvent *ev)
     reset_midi(0);
     resamp_cache_reset();
 
-	while (ev->type != ME_EOT) {
+    while (ev->type != ME_EOT) {
 #ifndef SUPPRESS_CHANNEL_LAYER
-		orig_ch = ev->channel;
-		layered = ! IS_SYSEX_EVENT_TYPE(ev);
-		for (j = 0; j < TIM_MAX_CHANNELS; j += 16) {
-			port_ch = (orig_ch + j) % TIM_MAX_CHANNELS;
-			offset = port_ch & ~0xf;
-			for (k = offset; k < offset + 16; k++) {
-				if (! layered && (j || k != offset))
-					continue;
-				if (layered) {
-					if (! IS_SET_CHANNELMASK(
-							channel[k].channel_layer, port_ch)
-							|| channel[k].port_select != (orig_ch >> 4))
-						continue;
-					ev->channel = k;
-				}
+        orig_ch = ev->channel;
+        layered = ! IS_SYSEX_EVENT_TYPE(ev);
+        for (j = 0; j < TIM_MAX_CHANNELS; j += 16) {
+            port_ch = (orig_ch + j) % TIM_MAX_CHANNELS;
+            offset = port_ch & ~0xf;
+            for (k = offset; k < offset + 16; k++) {
+                if (! layered && (j || k != offset))
+                    continue;
+                if (layered) {
+                    if (! IS_SET_CHANNELMASK(
+                                             channel[k].channel_layer, port_ch)
+                        || channel[k].port_select != (orig_ch >> 4))
+                        continue;
+                    ev->channel = k;
+                }
 #endif
-	ch = ev->channel;
-
-	switch(ev->type)
-	{
-	  case ME_NOTEON:
-		note_on_prescan(ev);
-	    break;
-
-	  case ME_NOTEOFF:
-	    resamp_cache_refer_off(ch, MIDI_EVENT_NOTE(ev), ev->time);
-	    break;
-
-	  case ME_PORTAMENTO_TIME_MSB:
-	    channel[ch].portamento_time_msb = ev->a;
-	    break;
-
-	  case ME_PORTAMENTO_TIME_LSB:
-	    channel[ch].portamento_time_lsb = ev->a;
-	    break;
-
-	  case ME_PORTAMENTO:
-	    channel[ch].portamento = (ev->a >= 64);
-
-	  case ME_RESET_CONTROLLERS:
-	    reset_controllers(ch);
-	    resamp_cache_refer_alloff(ch, ev->time);
-	    break;
-
-	  case ME_PROGRAM:
-	    midi_program_change(ch, ev->a);
-	    break;
-
-	  case ME_TONE_BANK_MSB:
-	    channel[ch].bank_msb = ev->a;
-	    break;
-
-	  case ME_TONE_BANK_LSB:
-	    channel[ch].bank_lsb = ev->a;
-	    break;
-
-	  case ME_RESET:
-	    change_system_mode(ev->a);
-	    reset_midi(0);
-	    break;
-
-	  case ME_MASTER_TUNING:
-	  case ME_PITCHWHEEL:
-	  case ME_ALL_NOTES_OFF:
-	  case ME_ALL_SOUNDS_OFF:
-	  case ME_MONO:
-	  case ME_POLY:
-	    resamp_cache_refer_alloff(ch, ev->time);
-	    break;
-
-	  case ME_DRUMPART:
-	    if(midi_drumpart_change(ch, ev->a))
-		midi_program_change(ch, channel[ch].program);
-	    break;
-
-	  case ME_KEYSHIFT:
-	    resamp_cache_refer_alloff(ch, ev->time);
-	    channel[ch].key_shift = (int)ev->a - 0x40;
-	    break;
-
-	  case ME_SCALE_TUNING:
-		resamp_cache_refer_alloff(ch, ev->time);
-		channel[ch].scale_tuning[ev->a] = ev->b;
-		break;
-
-	  case ME_MAINVOLUME:
-	    if (ev->a > mainvolume_max) {
-	      mainvolume_max = ev->a;
-	      ctl->cmsg(CMSG_INFO,VERB_DEBUG,"ME_MAINVOLUME/max (CH:%d VAL:%#x)",ev->channel,ev->a);
-	    }
-	    break;
-	}
+                ch = ev->channel;
+                                                
+                switch(ev->type)
+                {
+                    case ME_NOTEON:
+                        note_on_prescan(ev);
+                        
+                        //YOYOFR  check used channel only if a note is played
+                        ch_found=false;
+                        for (int ii=0;ii<ch_idx;ii++) {
+                            if (ch_used[ii]==ch) {
+                                ch_found=true;
+                                break;
+                            }
+                        }
+                        if (!ch_found) {
+                            ch_used[ch_idx]=ch;
+                            ch_idx++;
+                            if (ch_idx>=TIM_MAX_CHANNELS) {
+                                printf("reaching channel limit\n");
+                                ch_idx--;
+                            }
+                        }
+                        //YOYOFR
+                        
+                        break;
+                        
+                    case ME_NOTEOFF:
+                        resamp_cache_refer_off(ch, MIDI_EVENT_NOTE(ev), ev->time);
+                        break;
+                        
+                    case ME_PORTAMENTO_TIME_MSB:
+                        channel[ch].portamento_time_msb = ev->a;
+                        break;
+                        
+                    case ME_PORTAMENTO_TIME_LSB:
+                        channel[ch].portamento_time_lsb = ev->a;
+                        break;
+                        
+                    case ME_PORTAMENTO:
+                        channel[ch].portamento = (ev->a >= 64);
+                        
+                    case ME_RESET_CONTROLLERS:
+                        reset_controllers(ch);
+                        resamp_cache_refer_alloff(ch, ev->time);
+                        break;
+                        
+                    case ME_PROGRAM:
+                        midi_program_change(ch, ev->a);
+                        break;
+                        
+                    case ME_TONE_BANK_MSB:
+                        channel[ch].bank_msb = ev->a;
+                        break;
+                        
+                    case ME_TONE_BANK_LSB:
+                        channel[ch].bank_lsb = ev->a;
+                        break;
+                        
+                    case ME_RESET:
+                        change_system_mode(ev->a);
+                        reset_midi(0);
+                        break;
+                        
+                    case ME_MASTER_TUNING:
+                    case ME_PITCHWHEEL:
+                    case ME_ALL_NOTES_OFF:
+                    case ME_ALL_SOUNDS_OFF:
+                    case ME_MONO:
+                    case ME_POLY:
+                        resamp_cache_refer_alloff(ch, ev->time);
+                        break;
+                        
+                    case ME_DRUMPART:
+                        if(midi_drumpart_change(ch, ev->a))
+                            midi_program_change(ch, channel[ch].program);
+                        break;
+                        
+                    case ME_KEYSHIFT:
+                        resamp_cache_refer_alloff(ch, ev->time);
+                        channel[ch].key_shift = (int)ev->a - 0x40;
+                        break;
+                        
+                    case ME_SCALE_TUNING:
+                        resamp_cache_refer_alloff(ch, ev->time);
+                        channel[ch].scale_tuning[ev->a] = ev->b;
+                        break;
+                        
+                    case ME_MAINVOLUME:
+                        if (ev->a > mainvolume_max) {
+                            mainvolume_max = ev->a;
+                            ctl->cmsg(CMSG_INFO,VERB_DEBUG,"ME_MAINVOLUME/max (CH:%d VAL:%#x)",ev->channel,ev->a);
+                        }
+                        break;
+                }
 #ifndef SUPPRESS_CHANNEL_LAYER
-			}
-		}
-		ev->channel = orig_ch;
+            }
+        }
+        ev->channel = orig_ch;
 #endif
-	ev++;
+        ev++;
     }
+    
+    printf("max ch: %d\n",ch_idx); //YOYOFR
+    m_genNumVoicesChannels=ch_idx;
 
     /* calculate compensation ratio */
     if (0 < mainvolume_max && mainvolume_max < 0x7f) {
@@ -6763,6 +6797,24 @@ static void do_compute_data_midi(int32 count)
 			}
 		}
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //printf("advance ptr by %d\n",count);
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
+        
+        for (int jj=0;jj<count;jj++) {
+            int val=m_voice_buff_accumul_temp[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            int cnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            if (cnt) {
+                m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/cnt);
+            }
+        }
+        
+        m_voice_current_ptr[ii]+=count<<10;
+        while (m_voice_current_ptr[ii]>=(SOUND_BUFFER_SIZE_SAMPLE<<10)) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
 	while(uv > 0 && voice[uv - 1].status == VOICE_FREE)	{uv--;}
 	upper_voices = uv;

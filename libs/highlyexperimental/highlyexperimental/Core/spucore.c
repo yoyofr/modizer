@@ -1712,7 +1712,7 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     int m_voice_ofs=m_voice_current_system*24;//-1;
     int m_total_channels=24;
         
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int smplIncr=44100*1024/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -1778,6 +1778,24 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     );
     if(!b) {
       memset(ibuffm, 0, 4 * samples);
+        
+        for(i = 0; i < r; i++) {
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                int valo=0;
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+                m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+        }
+        
       continue;
     }
     memcpy(ibuffm, ibuf, 4 * r);
@@ -1796,13 +1814,15 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
         if (m_voice_ofs>=0) {
             int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
             int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
-            
+            int valo=0;
+            if (main_l) valo += q_l;
+            if (main_r) valo += q_r;
             for (;;) {
-                m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((q_l+q_r)>>7);
+                m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(valo>>5);
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
             m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
