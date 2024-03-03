@@ -3067,7 +3067,10 @@ fclose(f);
     state->bufptr = bufptr_base + j;
 // is 11
       //TODO:  MODIZER changes start / YOYOFR
-      m_voice_currentChannel=i;
+      m_voice_currentChannel=j;//i;
+      if (m_voice_currentChannel>=nchannels) {
+          m_voice_currentChannel=m_voice_currentChannel%nchannels;
+      }
       //TODO:  MODIZER changes end / YOYOFR
       
     render_and_add_channel(state, chan, directout,

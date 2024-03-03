@@ -139,6 +139,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int min_gap,tmp_gap,ofs1,ofs2,old_ofs;
     
     static char first_call=1;
+    
+    //snd_data_idx--;
+    if (snd_data_idx<0) snd_data_idx=SOUND_BUFFER_NB-1;
+    if (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
         
     //looking at 2 buffers -> 2 x SOUND_BUFFER_SIZE SAMPLE
     //max shift is 1/3, so 1/6 on the left and 1/6 on the right
@@ -163,8 +167,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++)
             snd_data_ofs[i]=max_ofs/2;
-        
-        
         
         first_call=0;
     }

@@ -322,7 +322,7 @@ blargg_err_t Spc_Emu::set_sample_rate_( int sample_rate )
 	smp.power();
 	if ( sample_rate != native_sample_rate )
 	{
-		RETURN_ERR( resampler.resize_buffer( native_sample_rate / 20 * 2 ) );
+		RETURN_ERR( resampler.resize_buffer( native_sample_rate / (20*2) * 2 ) );
 		RETURN_ERR( resampler.set_rate( (double) native_sample_rate / sample_rate ) ); // 0.9965 rolloff
 	}
 	return blargg_ok;

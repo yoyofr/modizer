@@ -12,6 +12,7 @@
 
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_prev_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 extern int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];

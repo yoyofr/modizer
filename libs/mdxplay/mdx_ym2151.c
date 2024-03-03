@@ -4,6 +4,12 @@
 *
 ******************************************************************************/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern int generic_mute_mask;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2395,6 +2401,12 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
 		SAVE_SINGLE_CHANNEL(6)
 		chan7_calc();
 		SAVE_SINGLE_CHANNEL(7)
+        
+        //YOYOFR
+        for (int ii=0;ii<8;ii++) {
+            if (generic_mute_mask&(1<<ii)) chanout[ii]=0;
+        }
+        //YOYOFR
 
 		outl = chanout[0] & PSG->pan[0];
 		outr = chanout[0] & PSG->pan[1];
@@ -2412,6 +2424,24 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
 		outr += (chanout[6] & PSG->pan[13]);
 		outl += (chanout[7] & PSG->pan[14]);
 		outr += (chanout[7] & PSG->pan[15]);
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        {
+            int smplIncr=1024;
+            int ofs_start=m_voice_current_ptr[0];
+            int ofs_end=(m_voice_current_ptr[0]+smplIncr);
+            
+            if ((ofs_end>>10)>(ofs_start>>10))
+            for (;;) {
+                for (int ii=0;ii<8;ii++)
+                    m_voice_buff[ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((chanout[ii]>>6));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+            for (int ii=0;ii<8;ii++) m_voice_current_ptr[ii]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		outl >>= FINAL_SH;
 		outr >>= FINAL_SH;

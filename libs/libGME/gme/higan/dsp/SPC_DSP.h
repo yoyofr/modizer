@@ -119,6 +119,7 @@ public:
 		int env;                // current envelope level
 		int hidden_env;         // used by GAIN mode 7, very obscure quirk
 		uint8_t t_envx_out;
+        int voice_number;
 	};
 //private:
 	enum { brr_block_size = 9 };

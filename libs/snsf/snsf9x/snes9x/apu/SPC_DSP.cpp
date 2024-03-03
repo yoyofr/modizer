@@ -903,11 +903,12 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 	}
     
     //TODO:  MODIZER changes start / YOYOFR
+    int current_voice=v->voice_number;
     int new_val=(m.t_output*(vol+voln))>>7;
-    int start_ofs=m_voice_current_ptr[v->voice_number];
-    int end_ofs=m_voice_current_ptr[v->voice_number]+44100*1024/32000+1;
+    int start_ofs=m_voice_current_ptr[current_voice];
+    int end_ofs=m_voice_current_ptr[current_voice]+44100*1024/32000;
     for (;;) {
-        m_voice_buff[v->voice_number][(start_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(new_val>>7);
+        m_voice_buff[current_voice][(start_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>6);
         start_ofs+=1024;
         if (start_ofs>=end_ofs) break;
     }
@@ -1175,7 +1176,6 @@ V(V9_V6_V3,2) -> V(V9,2) V(V6,3) V(V3,4) */
 
 // Voice      0      1      2      3      4      5      6      7
 #define GEN_DSP_TIMING \
-for (int jj=0;jj<8;jj++) m_voice_buff[jj][m_voice_current_ptr[jj]>>10]=0;\
 PHASE( 0)  V(V5,0)V(V2,1)\
 PHASE( 1)  V(V6,0)V(V3,1)\
 PHASE( 2)  V(V7_V4_V1,0)\
@@ -1208,7 +1208,14 @@ PHASE(28) misc_28();                                                 echo_28();\
 PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
-for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=44100*1024/32000; if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;}\
+for (int jj=0;jj<8;jj++) {\
+    m_voice_current_ptr[jj]+=44100*1024/32000/*44100*256/32000*/;\
+    /*if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;*/\
+    m_voice_buff[jj][(m_voice_current_ptr[jj]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+    m_voice_buff[jj][((m_voice_current_ptr[jj]>>10)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+}\
+
+
 
 #if !SPC_DSP_CUSTOM_RUN
 
