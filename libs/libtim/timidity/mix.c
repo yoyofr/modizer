@@ -75,13 +75,13 @@ typedef int32 mix_t;
 	if (++pan_delay_wpt == PAN_DELAY_BUF_MAX) {pan_delay_wpt = 0;}
 
 //YOYOFR
-#define MIXATION_MODIZER(a) *m_vb_acc_ptr++ +=((a)*s)>>17; \
+#define MIXATION_MODIZER(a) *m_vb_acc_ptr++ +=((a)*s)>>18; \
                             *m_vb_acc_cnt_ptr++ +=1;
 
-#define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>17; \
+#define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>18; \
                                     *m_vb_acc_cnt_ptr++ +=1;
 
-#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>18; \
+#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>19; \
                                        *m_vb_acc_cnt_ptr++ +=1;
     
 //YOYOFR

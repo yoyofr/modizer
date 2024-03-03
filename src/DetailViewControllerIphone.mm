@@ -4115,7 +4115,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     /* Only open files that fex can handle */
     if ( type != NULL ) {
         if (fex_open_type( &fex, path, type )) {
-            NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
+            //NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
         } else{
             while ( !fex_done( fex ) ) {
                 NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
@@ -4178,7 +4178,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     /* Only open files that fex can handle */
     if ( type != NULL ) {
         if (fex_open_type( &fex, path, type )) {
-            NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
+            //NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
         } else{
             while ( !fex_done( fex ) ) {
                 NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];

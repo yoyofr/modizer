@@ -34,7 +34,7 @@
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=(no_aux_file?[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_WMIDI_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
     
     NSString *extension;

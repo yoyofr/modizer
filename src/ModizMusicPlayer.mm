@@ -8861,22 +8861,36 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     NSArray *dirContent;//
     NSString *file,*cpath;
     BOOL isDir;
+    BOOL fileExist;
     
     tim_force_soundfont=false;
-    
+            
     cpath=[filePath stringByDeletingLastPathComponent];
-    dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
-    for (file in dirContent) {
-        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
-        if (!isDir) {
-            if ([[[file pathExtension] lowercaseString] isEqualToString:@"sf2"]) {
-                //sf2 soundfont found                
-                snprintf(tim_force_soundfont_path,sizeof(tim_force_soundfont_path)-1,"%s",[cpath UTF8String]);
-                f=fopen([[cpath stringByAppendingString:@"/timidity.cfg"] UTF8String],"wb");
-                if (f) {
-                    tim_force_soundfont=true;
-                    fprintf(f,"soundfont \"%s\"\n",[file UTF8String]);
-                    fclose(f);
+    //test if a sf2 exist with same name
+    file=[[filePath stringByDeletingPathExtension] stringByAppendingString:@".sf2"];
+    fileExist=[mFileMngr fileExistsAtPath:file isDirectory:&isDir];
+    if (fileExist&&(!isDir)) {
+        snprintf(tim_force_soundfont_path,sizeof(tim_force_soundfont_path)-1,"%s",[cpath UTF8String]);
+        f=fopen([[cpath stringByAppendingString:@"/timidity.cfg"] UTF8String],"wb");
+        if (f) {
+            tim_force_soundfont=true;
+            fprintf(f,"soundfont \"%s\"\n",[file UTF8String]);
+            fclose(f);
+        }
+    } else {
+        dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
+        for (file in dirContent) {
+            [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            if (!isDir) {
+                if ([[[file pathExtension] lowercaseString] isEqualToString:@"sf2"]) {
+                    //sf2 soundfont found
+                    snprintf(tim_force_soundfont_path,sizeof(tim_force_soundfont_path)-1,"%s",[cpath UTF8String]);
+                    f=fopen([[cpath stringByAppendingString:@"/timidity.cfg"] UTF8String],"wb");
+                    if (f) {
+                        tim_force_soundfont=true;
+                        fprintf(f,"soundfont \"%s\"\n",[file UTF8String]);
+                        fclose(f);
+                    }
                 }
             }
         }
