@@ -582,12 +582,12 @@ void TownsPcmEmulator::nextTick(int *outbuf, int buflen)
             int ofs_start=m_voice_current_ptr[m_voice_ofs];
             int ofs_end=(m_voice_current_ptr[m_voice_ofs]+smplIncr);
             for (;;) {
-                m_voice_buff[m_voice_ofs][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8((((_volL+_volR) * output) >> 12));
+                m_voice_buff[m_voice_ofs][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((((_volL+_volR) * output) >> 12));
                 
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
             m_voice_current_ptr[m_voice_ofs]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

@@ -34,23 +34,18 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
   - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer (1/voice)
   - vgmstream: not sure it'ss worth doing it as it is mostly streaming from stereo sourcecode
   - LibKSS
-  - Timidity: not sure it is worth 
-  - MDX/PDX
-  - PMDMini
   - SC68
 
 missing seek support:
-  
   - UADE
-  - MDX/PDX
 
 => midi viewer: adapt color or bar size / volume of the played note? 
-
 => add launch popup with last changes (ex: regexp for Searches)
-
 => check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
-
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
+=> update playback libs to latest version
+=> ADPLUG oscillo data not generated with OPL is not Woody
+=> HC /PSF2 fadeout for oscillo
 
 3.6
 ---
@@ -60,7 +55,11 @@ missing seek support:
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
 - [PLAYER] PMDMini now support seek
+- [PLAYER] MDX/PDX now support seek
+- [PLAYER] Timidity custom soundfont support: will load sf2 files present in same directory/archive as the mid files (trying first same name as the mid file and if not found, will take first one in same dir/archive)
 - [UI] Searches are now regular expression based
+- [DB] MODLAND updated to latest version
+- [DB] ASMA updated to latest version
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category
 - [PLAYER] STSOUND now support voices muting
@@ -68,6 +67,8 @@ missing seek support:
 - [FX] STSOUND now generates detailed oscilloscope output
 - [FX] HVL/AHX now generates detailed oscilloscope output
 - [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
+- [FX] MDX/PDX now generates oscilloscope output
+- [FX] Timidity now generates oscilloscope output
 - [FX] Several oscilloscope improvements
 - [All] Bug fixes & stability improvements
 

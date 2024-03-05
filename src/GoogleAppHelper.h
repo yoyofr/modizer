@@ -15,6 +15,6 @@
 
 }
 
-+(void) SendStatistics:(NSString*)fileName path:(NSString*)filePath rating:(int)rating playcount:(int)playcount country:(NSString*)country city:(NSString*)city longitude:(double)lon latitude:(double)lat;
++(void) SendStatistics:(NSString*)fileName path:(NSString*)filePath rating:(int)rating playcount:(int)playcount;
 
 @end

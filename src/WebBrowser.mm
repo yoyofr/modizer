@@ -895,7 +895,23 @@ didFinishNavigation:(WKNavigation *)navigation {
         
         if (currentMode==WCHARTS_MODE) {
             loadStatus=LOADED;
-            NSString *urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,(detailViewController.mDeviceType==1?"iPad":"iPhone")];
+            NSString *urlString;
+            switch (detailViewController.mDeviceType) {
+                case DEVICE_IPHONE://iphone
+                    urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,"iPhone"];
+                    break;
+                case DEVICE_IPAD://ipad
+                    urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,"iPad"];
+                    break;
+                case DEVICE_IPHONE_RETINA://iphone retina
+                case DEVICE_IPAD_RETINA://ipad retina
+                    urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,"iPad"];
+                    break;
+                case DEVICE_MACOS://macos
+                    urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,"macos"];
+                    break;
+            }
+            
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
             addressTestField.text=urlString;
         } else if (currentMode==GUIDE_MODE) {

@@ -8,6 +8,8 @@
  */
 
 //#define LOAD_PROFILE
+#ifndef MODIZER_CONSTANTS_H
+#define MODIZER_CONSTANTS_H
 
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
@@ -65,8 +67,8 @@
 #define DEFAULT_WAIT_TIME_UADE_MS  0.001   //in s
 
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
-//#define STATISTICS_URL @"http://localhost:8081"
-#define STATISTICS_URL @"https://modizerdb.appspot.com"
+#define STATISTICS_URL @"http://localhost:8080"
+//#define STATISTICS_URL @"https://modizerdb.appspot.com"
 #define USERGUIDE_URL @"UserGuide"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
 
@@ -129,9 +131,8 @@
 
 #define VERSION_MAJOR 3
 #define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 5
-#define VERSION_MINOR_STR "5"
-
+#define VERSION_MINOR 6
+#define VERSION_MINOR_STR "6"
 
 #define MAX_PL_ENTRIES 65536
 
@@ -312,3 +313,14 @@ VSS,WB,ML,MOD15_ST-IV,AGI,TPU,QPA,SQT,QTS,INSTR,SMPL"
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+enum {
+    DEVICE_IPHONE=0,
+    DEVICE_IPAD,
+    DEVICE_IPHONE_RETINA,
+    DEVICE_IPAD_RETINA,
+    DEVICE_MACOS
+};
+
+#endif
+

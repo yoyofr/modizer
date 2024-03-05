@@ -557,7 +557,6 @@ short *pt3_tmpbuf[10];
 int pt3_frame[10];
 int pt3_sample[10];
 int pt3_fast=0;
-int64_t pt3_sample_count;
 int pt3_mute[10];
 char* pt3_music_buf;
 int pt3_music_size;
@@ -744,7 +743,7 @@ int optVGMSTREAM_fadeouttime=5;
 int optVGMSTREAM_resampleQuality=1;
 
 static bool mVGMSTREAM_force_loop;
-static volatile int64_t mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples,mVGMSTREAM_totalinternal_samples;
+static volatile int64_t mVGMSTREAM_total_samples,mVGMSTREAM_decode_pos_samples,mVGMSTREAM_totalinternal_samples;
 
 //xmp
 #include "xmp.h"
@@ -2813,7 +2812,7 @@ void propertyListenerCallback (void                   *inUserData,              
         if (buffer_ana_flag[buffer_ana_play_ofs]) {
             bGlobalSoundHasStarted++;
             if (buffer_ana_flag[buffer_ana_play_ofs]&2) { //changed currentTime
-                iCurrentTime=mNeedSeekTime;
+                //iCurrentTime=mNeedSeekTime;
                 mNeedSeek=0;
                 bGlobalSeekProgress=0;
             }
@@ -2958,18 +2957,36 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
     if (len<to_fill) {
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
         
+        for (int j=0;j<m_genNumVoicesChannels;j++) {
+            for (int i=buffer_ana_subofs/4;i<(buffer_ana_subofs+len)/4;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+            }
+            m_voice_prev_current_ptr[j]+=(len>>2)<<10;//m_voice_current_ptr[j];
+            if ((m_voice_prev_current_ptr[j]>>10)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<10;
+        }
+        
         buffer_ana_subofs+=len;
     } else {
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
         
         for (int j=0;j<m_genNumVoicesChannels;j++) {
-            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+            for (int i=buffer_ana_subofs/4;i<(buffer_ana_subofs+to_fill)/4;i++) {
                 m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
                 //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
             }
-            m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<10;//m_voice_current_ptr[j];
+            m_voice_prev_current_ptr[j]+=(to_fill>>2)<<10;//m_voice_current_ptr[j];
             if ((m_voice_prev_current_ptr[j]>>10)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<10;
         }
+        
+//        for (int j=0;j<m_genNumVoicesChannels;j++) {
+//            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+//                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+//                //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+//            }
+//            m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<10;//m_voice_current_ptr[j];
+//            if ((m_voice_prev_current_ptr[j]>>10)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<10;
+//        }
         
         len-=to_fill;
         buffer_ana_subofs=0;
@@ -3857,6 +3874,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mdz_safe_execute_sel(vc,@selector(flushMainLoop),nil)
                             
                             if (mPlayType==MMP_KSS) { //KSS
+                                int64_t mStartPosSamples;
                                 bGlobalSeekProgress=-1;
                                 
                                 mTgtSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
@@ -3879,14 +3897,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         if (iModuleLength<1000) iModuleLength=1000;
                                     }
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
                                 while ((mTgtSamples - mCurrentSamples) > SOUND_BUFFER_SIZE_SAMPLE) {
                                     KSSPLAY_calc_silent(kssplay, SOUND_BUFFER_SIZE_SAMPLE);
                                     //KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples/mTgtSamples]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mTgtSamples-mStartPosSamples)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
@@ -3894,8 +3914,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                         mTgtSamples=mCurrentSamples;
-                                        iCurrentTime=mTgtSamples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
                                         break;
                                     }
                                 }
@@ -3905,6 +3923,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], mTgtSamples - mCurrentSamples);
                                     
                                     mCurrentSamples=mTgtSamples;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
                                     mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",100]))
                                 }
                             }
@@ -3915,6 +3935,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                             }
                             if (mPlayType==MMP_WEBSID) { //WEBSID
+                                int64_t mStartPosSamples;
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 bGlobalSeekProgress=-1;
 
@@ -3929,14 +3950,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     m_voice_current_sample=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
+                                
                                 mSIDSeekInProgress=1;
                                 while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE<=mSeekSamples) {
                                     Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
                                                       websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE);
                                     mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool cancelSeek=false;
@@ -3944,9 +3969,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (cancelSeek) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                         mSeekSamples=mCurrentSamples;
-                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
-                                        //printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
                                         break;
                                     }
                                 }
@@ -3954,9 +3976,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
                                                       websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE/*mSeekSamples*/);
                                     mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE/*mSeekSamples*/;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
@@ -3965,14 +3989,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                         mSeekSamples=mCurrentSamples;
-                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
                                         break;
                                     }
                                 }
                                 mSIDSeekInProgress=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
+                                int64_t mStartPosSamples;
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 bGlobalSeekProgress=-1;
                                 if (mSeekSamples<mCurrentSamples) {
@@ -3982,13 +4005,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     m_voice_current_sample=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
+                                
                                 mSIDSeekInProgress=1;
                                 mSidEmuEngine->fastForward( 100 * 32 );
                                 while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                     nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                     mCurrentSamples+=(nbBytes/4)*32;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",
+                                                                                              (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool cancelSeek=false;
@@ -3996,9 +4023,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (cancelSeek) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                         mSeekSamples=mCurrentSamples;
-                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
-                                        //printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
                                         break;
                                     }
                                 }
@@ -4008,7 +4032,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 while (mCurrentSamples<mSeekSamples) {
                                     nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                     mCurrentSamples+=(nbBytes/4);
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ]))
                                     
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
@@ -4017,14 +4043,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                         mSeekSamples=mCurrentSamples;
-                                        iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
                                         break;
                                     }
                                 }
-                                
                                 mSIDSeekInProgress=0;
-                                
                             }
                             if (mPlayType==MMP_GME) {   //GME
                                 bGlobalSeekProgress=-1;
@@ -4055,134 +4077,131 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else mNeedSeek=0;
                             }
                             if (mPlayType==MMP_ATARISOUND) {//ATARISOUND
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples > mSeekSamples) {
                                     atariSndh.InitSubSong(mod_currentsub);
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
+                                while (mSeekSamples - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
                                     atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                if (seekSample - mCurrentSamples > 0)
+                                if (mSeekSamples - mCurrentSamples > 0)
                                 {
-                                    atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],seekSample-mCurrentSamples);
-                                    mCurrentSamples = seekSample;
+                                    atariSndh.AudioRender(buffer_ana[buffer_ana_gen_ofs],mSeekSamples-mCurrentSamples);
+                                    mCurrentSamples = mSeekSamples;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                
-                                //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_SC68) {//SC68
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples > mSeekSamples) {
                                     sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
+                                while (mSeekSamples - mCurrentSamples > SOUND_BUFFER_SIZE_SAMPLE) {
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
                                     int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
-                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     
-                                    mCurrentSamples += nbBytes/4;
+                                    mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                if (seekSample - mCurrentSamples > 0)
+                                if (mSeekSamples - mCurrentSamples > 0)
                                 {
-                                    nbBytes=(seekSample-mCurrentSamples)/4;
+                                    nbBytes=(mSeekSamples-mCurrentSamples)/4;
                                     int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
                                     
-                                    mCurrentSamples = seekSample;
+                                    mCurrentSamples = mSeekSamples;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                
-                                //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_PT3) {//PT3
-                                int64_t pt3_target_seek=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 bGlobalSeekProgress=-1;
                                 
-                                if (pt3_target_seek<pt3_sample_count) {
-                                    pt3_sample_count=0;
+                                if (mSeekSamples<mCurrentSamples) {
+                                    mCurrentSamples=0;
                                     for (int ch=0; ch<pt3_numofchips; ch++) {
                                         func_restart_music(ch);
                                         pt3_frame[ch] = 0;
                                         pt3_sample[ch] = 0;
                                     }
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
                                 while (1) {
+                                    int nbBytes=(mSeekSamples-mCurrentSamples)*4;
+                                    if (nbBytes>SOUND_BUFFER_SIZE_SAMPLE*4) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*4;
                                     for (int ch=0; ch<pt3_numofchips; ch++) {
-                                        pt3_renday(NULL, SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,0);
+                                        pt3_renday(NULL, nbBytes, &pt3_ay[ch], &pt3_t, ch,0);
                                     }
-                                    pt3_sample_count+=SOUND_BUFFER_SIZE_SAMPLE;
-                                    iCurrentTime=pt3_sample_count*1000/PLAYBACK_FREQ;
+                                    mCurrentSamples+=nbBytes>>2;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    if (pt3_sample_count>=pt3_target_seek) break;
+                                    if (mCurrentSamples>=mSeekSamples) break;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",pt3_sample_count*100/pt3_target_seek]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        pt3_target_seek=pt3_sample_count;
-                                        iCurrentTime=pt3_sample_count*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
@@ -4192,9 +4211,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 ASAP_Seek(asap, mNeedSeekTime);
                             }
                             if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples >mSeekSamples) {
                                     pmd_stop();
                                     // doesn't actually play, just loads file into RAM & extracts data
                                     char *arg[4];
@@ -4207,9 +4227,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     iCurrentTime=0;
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > 0) {
-                                    int64_t sample_to_skip=seekSample - mCurrentSamples;
+                                while (mSeekSamples - mCurrentSamples > 0) {
+                                    int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                     if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
                                     
                                     pmd_renderer(buffer_ana[buffer_ana_gen_ofs], sample_to_skip);
@@ -4217,50 +4238,48 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
                                 
                             }
                             if (mPlayType==MMP_NSFPLAY) { //NSFPlay
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples >mSeekSamples) {
                                     //nsfPlayer->SetSong(mod_currentsub);
                                     nsfPlayer->Reset();
                                     
                                     iCurrentTime=0;
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > 0) {
-                                    int64_t sample_to_skip=seekSample - mCurrentSamples;
+                                while (mCurrentSamples<mSeekSamples) {
+                                    int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                     if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
                                     nsfPlayer->Skip(sample_to_skip);
                                     
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
@@ -4272,9 +4291,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_PIXEL) {
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples >mSeekSamples) {
                                     
                                     if (!pixel_organya_mode) {
                                         pixel_pxtn->clear();
@@ -4297,9 +4317,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > 0) {
-                                    int64_t sample_to_skip=seekSample - mCurrentSamples;
+                                while (mSeekSamples - mCurrentSamples > 0) {
+                                    int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                     if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
                                     if (pixel_organya_mode) org_gensamples((char*)(buffer_ana[buffer_ana_gen_ofs]), sample_to_skip);
                                     else pixel_pxtn->Moo(NULL, sample_to_skip*2*2);
@@ -4307,30 +4328,30 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
                             }
                             if (mPlayType==MMP_EUP) { //EUP
-                                int seekSample=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >seekSample) {
+                                if (mCurrentSamples >mSeekSamples) {
                                     eup_player->stopPlaying();
                                     EUPPlayer_ResetReload();
                                     mCurrentSamples=0;
                                 }
+                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (seekSample - mCurrentSamples > 0) {
+                                while (mSeekSamples - mCurrentSamples > 0) {
                                     eup_player->nextTick(true);
                                     
                                     mCurrentSamples+=eup_pcm.write_pos/2;
@@ -4338,27 +4359,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     eup_pcm.write_pos=0;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=mCurrentSamples;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                
-                                
-                                //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_HC) { //HC
-                                int seekSample=(double)mNeedSeekTime*(double)(hc_sample_rate)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(hc_sample_rate)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (hc_currentSample >seekSample) {
+                                if (hc_currentSample>mSeekSamples) {
                                     //
                                     // RESTART required
                                     //
@@ -4369,11 +4386,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     hc_currentSample=0;
                                 }
+                                mStartPosSamples=hc_currentSample;
                                 
                                 //
                                 // progress
                                 //
-                                while (seekSample - hc_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
+                                while (mSeekSamples - hc_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
                                     uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
                                     switch (HC_type) {
                                         case 1:
@@ -4394,27 +4412,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                             break;
                                     }
-                                    hc_currentSample += howmany;
+                                    hc_currentSample += SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=hc_currentSample*1000/hc_sample_rate;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
+                                    
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=hc_currentSample;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=hc_currentSample;
                                         break;
                                     }
                                 }
                                 //
                                 // fine tune
                                 //
-                                if (seekSample - hc_currentSample > 0)
+                                if (mSeekSamples - hc_currentSample > 0)
                                 {
-                                    uint32_t howmany = seekSample - hc_currentSample;
+                                    uint32_t howmany = (mSeekSamples - hc_currentSample);
                                     switch (HC_type) {
                                         case 1:
                                         case 2:
@@ -4434,64 +4452,62 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                             break;
                                     }
-                                    hc_currentSample += howmany;
+                                    hc_currentSample = mSeekSamples;
+                                    iCurrentTime=hc_currentSample*1000/hc_sample_rate;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=hc_currentSample;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=hc_currentSample;
                                         break;
                                     }
                                 }
                             }
                             if (mPlayType==MMP_2SF) { //2SF
-                                
-                                int seekSample=(double)mNeedSeekTime*(double)(xSFPlayer->GetSampleRate())/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(xSFPlayer->GetSampleRate())/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (xSFPlayer->currentSample >seekSample) {
+                                if (xSFPlayer->currentSample >mSeekSamples) {
                                     xSFPlayer->Terminate();
                                     xSFPlayer->Load();
                                     xSFPlayer->SeekTop();
                                 }
+                                mStartPosSamples=xSFPlayer->currentSample;
                                 
-                                while (seekSample - xSFPlayer->currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
+                                while (mSeekSamples - xSFPlayer->currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
                                     xSFPlayer->GenerateSamples(xsfSampleBuffer, 0, SOUND_BUFFER_SIZE_SAMPLE);
                                     xSFPlayer->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
+                                    iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=xSFPlayer->currentSample;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=xSFPlayer->currentSample;
                                         break;
                                     }
                                 }
-                                if (seekSample - xSFPlayer->currentSample > 0)
+                                if (mSeekSamples - xSFPlayer->currentSample > 0)
                                 {
-                                    xSFPlayer->GenerateSamples(xsfSampleBuffer, 0, seekSample - xSFPlayer->currentSample);
-                                    xSFPlayer->currentSample = seekSample;
+                                    xSFPlayer->GenerateSamples(xsfSampleBuffer, 0, mSeekSamples - xSFPlayer->currentSample);
+                                    xSFPlayer->currentSample = mSeekSamples;
+                                    iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        seekSample=xSFPlayer->currentSample;
-                                        iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=xSFPlayer->currentSample;
                                         break;
                                     }
                                 }
@@ -4499,33 +4515,34 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
-                                mVGMSTREAM_seek_needed_samples=(double)mNeedSeekTime*(double)(vgmStream->sample_rate)/1000.0f;
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(vgmStream->sample_rate)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mVGMSTREAM_decode_pos_samples>mVGMSTREAM_seek_needed_samples) {
+                                if (mVGMSTREAM_decode_pos_samples>mSeekSamples) {
                                     reset_vgmstream(vgmStream);
                                     mVGMSTREAM_decode_pos_samples=0;
                                 }
-                                while (mVGMSTREAM_decode_pos_samples<mVGMSTREAM_seek_needed_samples) {
-                                    int nbSamplesToRender=mVGMSTREAM_seek_needed_samples-mVGMSTREAM_decode_pos_samples;
+                                mStartPosSamples=mVGMSTREAM_decode_pos_samples;
+                                
+                                while (mVGMSTREAM_decode_pos_samples<mSeekSamples) {
+                                    int nbSamplesToRender=mSeekSamples-mVGMSTREAM_decode_pos_samples;
                                     if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
                                     render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
-                                    mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mVGMSTREAM_decode_pos_samples*100/mVGMSTREAM_seek_needed_samples]))
+                                    mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
+                                    iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->sample_rate);
+                                    
+                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mVGMSTREAM_decode_pos_samples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
                                     NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                     [invo start];
                                     bool result=false;
                                     [invo.result getValue:&result];
                                     if (result) {
                                         mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        mVGMSTREAM_seek_needed_samples=mVGMSTREAM_decode_pos_samples;
-                                        iCurrentTime=mVGMSTREAM_seek_needed_samples*1000/PLAYBACK_FREQ;
-                                        mNeedSeekTime=iCurrentTime;
+                                        mSeekSamples=mVGMSTREAM_decode_pos_samples;
                                         break;
                                     }
                                 }
-                                
-                                //mNeedSeek=0;
                             }
                             
                             mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
@@ -5427,14 +5444,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 //copy voice data for oscillo view
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                    int voice_data_ofs=(m_voice_current_ptr[j]>>10)-smpl_available/2;
-                                    if (voice_data_ofs<0) voice_data_ofs+=SOUND_BUFFER_SIZE_SAMPLE*2;
-                                    
+                                    int voice_data_ofs=(m_voice_prev_current_ptr[j]>>10);
+                                                                        
                                     for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                        m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
-                                        m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+                                        m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                                        m_voice_buff[j][voice_data_ofs&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                                         voice_data_ofs++;
                                     }
+                                    m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<10;
+                                    if (m_voice_prev_current_ptr[j]>=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
                                 }
                                 
                                 
@@ -5539,7 +5557,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     else nbBytes=0;
                                 }
                             }
-                            pt3_sample_count+=SOUND_BUFFER_SIZE_SAMPLE;
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             for (int j=0; j<SOUND_BUFFER_SIZE_SAMPLE*2; j++) { //stereo = 16bit x 2
                                 int tv=0;
                                 for (int ch = 0; ch < pt3_numofchips; ch++) { //collecting
@@ -5561,6 +5579,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE;//*2*2;
                             int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if (code==SC68_ERROR) nbBytes=0;
                             if (code & SC68_END) nbBytes=0;
@@ -5866,29 +5886,34 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     }
     /* Only open files that fex can handle */
     if ( type != NULL ) {
-        if (fex_open_type( &fex, path, type )) {
-            NSLog(@"cannot fex open : %s / type : %d",path,type);
-        } else{
-            mdz_IsArchive=1;
-            mdz_ArchiveFilesCnt=0;
-            while ( !fex_done( fex ) ) {
-                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
-                if (tmp_filename==nil) {
-                    tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
-                    if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+        if (strcmp(fex_type_name(type),"file")!=0) {
+            if (fex_open_type( &fex, path, type )) {
+                NSLog(@"cannot fex open : %s / type : %d",path,type);
+            } else{
+                mdz_IsArchive=1;
+                mdz_ArchiveFilesCnt=0;
+                while ( !fex_done( fex ) ) {
+                    NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
+                    if (tmp_filename==nil) {
+                        tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
+                        if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                    }
+                    if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                        mdz_ArchiveFilesCnt++;
+                        //NSLog(@"file : %s",fex_name(fex));
+                    }
+                    if (fex_next( fex )) {
+                        NSLog(@"Error during fex scanning");
+                        break;
+                    }
                 }
-                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
-                    mdz_ArchiveFilesCnt++;
-                    //NSLog(@"file : %s",fex_name(fex));
-                }
-                if (fex_next( fex )) {
-                    NSLog(@"Error during fex scanning");
-                    break;
-                }
+                fex_close( fex );
             }
-            fex_close( fex );
+            fex = NULL;
+        } else {
+            //just standard file, no archive            
+            fex = NULL;
         }
-        fex = NULL;
     } else {
         //NSLog( @"Skipping unsupported archive: %s\n", path );
     }
@@ -7148,7 +7173,7 @@ typedef struct {
     mod_minsub=1;
     mod_maxsub=1;
     mod_currentsub=1;
-    pt3_sample_count=0;
+    mCurrentSamples=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
     
@@ -8937,7 +8962,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         
         mVGMSTREAM_total_samples = 0;
         mVGMSTREAM_totalinternal_samples = 0;
-        mVGMSTREAM_seek_needed_samples=-1;
         mVGMSTREAM_decode_pos_samples=0;
         
         numChannels=0;
@@ -8977,7 +9001,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (mLoopMode==1) iModuleLength=-1;
     else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
     
-    mVGMSTREAM_seek_needed_samples=-1;
     mVGMSTREAM_decode_pos_samples=0;
     
     numChannels=vgmStream->channels;
@@ -9084,7 +9107,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (mLoopMode==1) iModuleLength=-1;
     else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
     iCurrentTime=0;
-    mVGMSTREAM_seek_needed_samples=-1;
     mVGMSTREAM_decode_pos_samples=0;
     
     numChannels=vgmStream->channels;
@@ -10594,7 +10616,7 @@ extern bool icloud_available;
             if ([extension caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
         }
-        if (found) { //archived file
+        if (found) { //might be an archived file
             mdz_IsArchive=0;
             mdz_ArchiveFilesCnt=0;
             
@@ -10681,8 +10703,10 @@ extern bool icloud_available;
                     //NSLog(@"%@",_filePath);
                     
                 } else {
-                    no_reentrant=false;
-                    return -1;
+                    //no file found, try as regular file
+                    found=0;
+                    //no_reentrant=false;
+                    //return -1;
                 }
             } else { //LHA
                 int argc;

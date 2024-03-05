@@ -11,7 +11,7 @@
 
 @implementation GoogleAppHelper
 
-+(void) SendStatistics:(NSString*)fileName path:(NSString*)filePath rating:(int)rating playcount:(int)playcount country:(NSString*)country city:(NSString*)city longitude:(double)lon latitude:(double)lat {
++(void) SendStatistics:(NSString*)fileName path:(NSString*)filePath rating:(int)rating playcount:(int)playcount {
 	int collectionType=0;
 	NSRange r;
 	NSString *strPath=nil;
@@ -56,15 +56,14 @@
     } else {
         identifier=@"unknwown";//[[UIDevice currentDevice] uniqueIdentifier];
     }
-	NSString *urlString=[NSString stringWithFormat:@"%@/Stats?Name=%@&Path=%@&Rating=%d&Played=%d&UID=%@&Type=%d&Country=%@&City=%@&%@",
+	NSString *urlString=[NSString stringWithFormat:@"%@/Stats?Name=%@&Path=%@&Rating=%d&Played=%d&UID=%@&Type=%d&VersionMajor=%s&VersionMinor=%s",
 						 STATISTICS_URL,
 						 [[fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
 						 [[[strPath stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding] stringByReplacingOccurrencesOfString:@"%" withString:@"//"] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
 						 rating,playcount,identifier,
 						 collectionType,
-						 (country?country:@"Unknown"),
-						 (city?city:@"Unknown"),
-						 [[NSString stringWithFormat:@"Lat=%f&Lon=%f",lat,lon] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                         VERSION_MAJOR_STR,
+                         VERSION_MINOR_STR
 						  ];
 	NSURL *url=[NSURL URLWithString:urlString];
 	//NSLog(@"%@",[url absoluteString]);

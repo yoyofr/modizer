@@ -21,7 +21,6 @@ static char *fontName[MOD_PATTERN_FONT_NB]={"amiga","gb","c64","04b","tracking"}
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
-
 extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
@@ -111,7 +110,7 @@ static int coverflow_plsize,coverflow_pos,coverflow_needredraw;
 static BOOL mOglViewIsHidden;
 static volatile int mSendStatTimer;
 static NSDate *locationLastUpdate=nil;
-static double located_lat=999,located_lon=999;
+
 int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
 static int mRandomFXCpt,mRandomFXCptRev;
@@ -135,8 +134,6 @@ static int viewTapHelpShow=0;
 static int viewTapHelpShowMode=0;
 static int viewTapHelpShow_SubStart=0;
 static int viewTapHelpShow_SubNb=0;
-
-static NSString *located_country=nil,*located_city=nil;
 
 static 	UIImage *covers_default; // album covers images
 
@@ -623,7 +620,7 @@ static int display_length_mode=0;
     
 	if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
 		mSendStatTimer=0;
-		[GoogleAppHelper SendStatistics:fileName path:filePath rating:mRating playcount:playcount country:located_country city:located_city longitude:located_lon latitude:located_lat];
+		[GoogleAppHelper SendStatistics:fileName path:filePath rating:mRating playcount:playcount];
 	}
 	mPlaylist[mPlaylist_pos].mPlaylistRating=rating;
 	[self showRating:mRating];
@@ -1184,7 +1181,7 @@ static float movePinchScale,movePinchScaleOld;
 			short int playcount;
             signed char tmp_rating;
 			DBHelper::getFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,mPlaylist[mPlaylist_pos].mPlaylistFilepath,&playcount,&tmp_rating);
-			[GoogleAppHelper SendStatistics:mPlaylist[mPlaylist_pos].mPlaylistFilename path:mPlaylist[mPlaylist_pos].mPlaylistFilepath rating:tmp_rating playcount:playcount country:located_country city:located_city longitude:located_lon latitude:located_lat];
+			[GoogleAppHelper SendStatistics:mPlaylist[mPlaylist_pos].mPlaylistFilename path:mPlaylist[mPlaylist_pos].mPlaylistFilepath rating:tmp_rating playcount:playcount];
 		}
 	}
 	int mpl_upd=[mplayer shouldUpdateInfos];
@@ -3299,7 +3296,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             
             
-            if (mDeviceType==1) {
+            if (mDeviceType==DEVICE_IPHONE) {
                 lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-64-64,mDevice_hh,40);
                 lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-24-64,mDevice_hh-80,24);
                 
@@ -4071,34 +4068,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	return machine;
 }
 
-/*- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
- NSLog(@"Location manager error: %@", [error description]);
- }
- 
- - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFailWithError:(NSError *)error {
- NSLog(@"Reverse geocoder error: %@", [error description]);
- }
- 
- 
- - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
- MKReverseGeocoder *geocoder = [[MKReverseGeocoder alloc] initWithCoordinate:newLocation.coordinate];
- geocoder.delegate = self;
- //	NSLog(@"calling geocoder");
- [geocoder start];
- }
- 
- - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark {
- //	NSLog(@"%@",[placemark.addressDictionary description]);
- located_country=[NSString stringWithString:placemark.country];
- located_city=[NSString stringWithString:placemark.locality];
- located_lon=placemark.coordinate.longitude;
- located_lat=placemark.coordinate.latitude;
- if ([geocoder retainCount]) [geocoder release];
- [self.locManager stopUpdatingLocation];
- locManager_isOn=1;
- }
- */
-
 -(UIImage*) fexGetArchiveCover:(NSString *)filepath {
     UIImage *res_image=nil;
     
@@ -4337,10 +4306,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	start_time=clock();
     [super viewDidLoad];
     
+    //NSLocale* locale = [NSLocale autoupdatingCurrentLocale];
+    //located_country=[NSString stringWithString:locale.countryCode];
+    
     if (@available(iOS 14.0, *)) {
             if ([NSProcessInfo processInfo].isiOSAppOnMac) {
                 is_macOS=1;
-                mDeviceType=3;
+                mDeviceType=DEVICE_MACOS;
             }else{
                 is_macOS=0;
             }
@@ -4502,7 +4474,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //NSLog(@"saf bottom: %f\n",safe_bottom);
     
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-		if (!is_macOS) mDeviceType=1; //ipad
+		if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
+        else mDeviceType=DEVICE_MACOS;
         UIScreen* mainscr = [UIScreen mainScreen];
         
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
@@ -4519,9 +4492,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
                 
         mScaleFactor=mainscr.scale;
-        if (mScaleFactor>=2) mDeviceType=2;
+        if (mScaleFactor>=2) {
+            if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
+        }
 	} else {
-		mDeviceType=0; //iphone
+		mDeviceType=DEVICE_IPHONE; //iphone
 		mDevice_hh=480;
 		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
@@ -4538,7 +4513,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
         mScaleFactor=mainscr.scale;
         
-        if (mScaleFactor>=2) mDeviceType=2;
+        if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
         
 	}
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -4622,7 +4597,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     //[btnPrevSubCFlow setImage:[UIImage imageNamed:@"video_prevsub.png"] forState:UIControlStateNormal];
     //[btnPrevSubCFlow setImage:[UIImage imageNamed:@"video_prevsub_h.png"] forState:UIControlStateHighlighted];
-    [btnPrevSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==1?32:20)]];
+    [btnPrevSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==DEVICE_IPHONE?20:32)]];
     [btnPrevSubCFlow setTitle:@"<" forState:UIControlStateNormal];
     [btnPrevSubCFlow setTitleColor:[UIColor colorWithRed:0.72f green:0.72f blue:0.72f alpha:1.0f] forState:UIControlStateNormal];
     [btnPrevSubCFlow setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
@@ -4634,7 +4609,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     //[btnNextSubCFlow setImage:[UIImage imageNamed:@"video_nextsub.png"] forState:UIControlStateNormal];
     //[btnNextSubCFlow setImage:[UIImage imageNamed:@"video_nextsub_h.png"] forState:UIControlStateHighlighted];
-    [btnNextSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==1?32:20)]];
+    [btnNextSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==DEVICE_IPHONE?20:32)]];
     [btnNextSubCFlow setTitle:@">" forState:UIControlStateNormal];
     [btnNextSubCFlow setTitleColor:[UIColor colorWithRed:0.72f green:0.72f blue:0.72f alpha:1.0f] forState:UIControlStateNormal];
     [btnNextSubCFlow setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
@@ -4663,10 +4638,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
      btnPrevSubCFlow.titleEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
      btnNextSubCFlow.titleEdgeInsets =UIEdgeInsetsMake(16,8,0,8);
      */
-    lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==1?32:16)];
-    lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
-    lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
-    lblTimeFCflow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
+    lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==DEVICE_IPHONE?16:32)];
+    lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
+    lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
+    lblTimeFCflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
     
     lblMainCoverflow.backgroundColor=[UIColor clearColor];
     lblSecCoverflow.backgroundColor=[UIColor clearColor];
@@ -5124,7 +5099,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
-        if (!is_macOS) mDeviceType=1; //ipad
+        //if (!is_macOS) mDeviceType=1; //ipad
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (size.height>size.width) {
             mDevice_hh=size.height+68;
@@ -5230,7 +5205,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        if (!is_macOS) mDeviceType=1; //ipad
+        //if (!is_macOS) mDeviceType=1; //ipad
         UIScreen* mainscr = [UIScreen mainScreen];
         
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
@@ -5246,7 +5221,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
     } else {
-        mDeviceType=0; //iphone
+        //mDeviceType=0; //iphone
         mDevice_hh=480;
         mDevice_ww=320;
         UIScreen* mainscr = [UIScreen mainScreen];
@@ -5263,7 +5238,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
         mScaleFactor=mainscr.scale;
         
-        if (mScaleFactor>=2) mDeviceType=2;
+        //if (mScaleFactor>=2) mDeviceType=2;
     }
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;

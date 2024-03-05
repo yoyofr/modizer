@@ -2353,22 +2353,27 @@ static int shouldRestart=1;
     }
     /* Only open files that fex can handle */
     if ( type != NULL ) {
-        if (fex_open_type( &fex, path, type )) {
-            NSLog(@"cannot fex open : %s / type : %d",path,type);
-        } else{
-            while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
-                    //NSLog(@"file : %s",fex_name(fex));
-                    found++;
+        if (strcmp(fex_type_name(type),"file")!=0) {
+            if (fex_open_type( &fex, path, type )) {
+                NSLog(@"cannot fex open : %s / type : %d",path,type);
+            } else{
+                while ( !fex_done( fex ) ) {
+                    if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                        //NSLog(@"file : %s",fex_name(fex));
+                        found++;
+                    }
+                    if (fex_next( fex )) {
+                        NSLog(@"Error during fex scanning");
+                        break;
+                    }
                 }
-                if (fex_next( fex )) {
-                    NSLog(@"Error during fex scanning");
-                    break;
-                }
+                fex_close( fex );
             }
-            fex_close( fex );
+            fex = NULL;
+        } else {
+            //just standard file, no archive            
+            fex = NULL;
         }
-        fex = NULL;
     } else {
         NSLog( @"Skipping unsupported archive: %s\n", path );
     }
