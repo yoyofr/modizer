@@ -49,6 +49,7 @@ missing seek support:
 => file browser: crash if Sid entension and not true sid file when accessing subsong list
 => should check if real archive / file browser (ex: rsn.eup)
 => webapp: date / datetime should use smaller font (particularly for iPhone) 
+=> like button :open pop-up to select between subsong/arcentry/file (when relevant) 
 
 3.6
 ---
