@@ -46,6 +46,9 @@ missing seek support:
 => update playback libs to latest version
 => ADPLUG oscillo data not generated with OPL is not Woody
 => HC /PSF2 fadeout for oscillo
+=> file browser: crash if Sid entension and not true sid file when accessing subsong list
+=> should check if real archive / file browser (ex: rsn.eup)
+=> webapp: date / datetime should use smaller font (particularly for iPhone) 
 
 3.6
 ---
