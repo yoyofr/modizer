@@ -51,7 +51,8 @@ missing seek support:
 => webapp: date / datetime should use smaller font (particularly for iPhone) 
 => like button :open pop-up to select between subsong/arcentry/file (when relevant) 
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
-
+=> when in infinite mode, don't update song length in database
+=> adplug: verify stereo mode for satoh, Ken,...  Sounds like mono
 
 3.6
 ---
