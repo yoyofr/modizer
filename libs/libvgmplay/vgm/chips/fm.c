@@ -2215,11 +2215,11 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
                 int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
                 int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((OPN->out_fm[jj]>>6));
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2-1)]=LIMIT8((OPN->out_fm[jj]>>6));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2<<10);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }
@@ -3528,19 +3528,19 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
                 int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
                 for (;;) {
                     for (int jj=0;jj<6;jj++) {
-                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[jj]>>6));
+                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[jj]>>6));
                         
                         if( F2608->adpcm[jj].flag ) {
-                            m_voice_buff[m_voice_ofs+jj+6][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2608->adpcm[jj].adpcm_out>>4));
+                            m_voice_buff[m_voice_ofs+jj+6][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((F2608->adpcm[jj].adpcm_out>>4));
                         }
                     }
                     
-                    if( DELTAT->portstate&0x80 && ! F2608->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                    if( DELTAT->portstate&0x80 && ! F2608->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
                     
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 for (int jj=0;jj<13;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
@@ -4205,23 +4205,23 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
                 int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
                 for (;;) {
                     
-                    m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[1]>>6));
-                    m_voice_buff[m_voice_ofs+1][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[2]>>6));
-                    m_voice_buff[m_voice_ofs+2][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[4]>>6));
-                    m_voice_buff[m_voice_ofs+3][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[5]>>6));
+                    m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[1]>>6));
+                    m_voice_buff[m_voice_ofs+1][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[2]>>6));
+                    m_voice_buff[m_voice_ofs+2][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[4]>>6));
+                    m_voice_buff[m_voice_ofs+3][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[5]>>6));
                     
                     for (int jj=0;jj<6;jj++) {
                         if( F2610->adpcm[jj].flag ) {
-                            m_voice_buff[m_voice_ofs+jj+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
+                            m_voice_buff[m_voice_ofs+jj+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
                         }
                     }
                     
-                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+10][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->deltaT.adpcml)>>15);
+                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+10][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((F2610->deltaT.adpcml)>>15);
                     
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 for (int jj=0;jj<11;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
@@ -4408,19 +4408,19 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
                 for (;;) {
                     
                     for (int jj=0;jj<6;jj++) {
-                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[jj]>>6));
+                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[jj]>>6));
                         
                         if( F2610->adpcm[jj].flag ) {
-                            m_voice_buff[m_voice_ofs+jj+6][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
+                            m_voice_buff[m_voice_ofs+jj+6][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
                         }
                     }
                     
-                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (F2610->deltaT.adpcml)>>15 );
+                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (F2610->deltaT.adpcml)>>15 );
                     
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 for (int jj=0;jj<11;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR

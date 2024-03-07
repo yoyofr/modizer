@@ -1093,7 +1093,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
           
           for (;;) {
               
-              m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+              m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               
               /*if (opll->rhythm_mode==0) {
                   if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
@@ -1122,7 +1122,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
               ofs_start+=1024;
               if (ofs_start>=ofs_end) break;
           }
-          while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+          while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
           m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
           
       }

@@ -1659,7 +1659,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                         ofs_start+=1024;
                         if (ofs_start>=ofs_end) break;
                     }
-                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+                    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
                     m_voice_current_ptr[uu]=ofs_end;
                 }
             }

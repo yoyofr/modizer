@@ -21,6 +21,9 @@ NSString *cutpaste_filesrcpath=nil;
 
 #include "gme.h"
 
+//FileHelper
+#include "ModizFileHelper.h"
+
 //SID2
 #include "sidplayfp/SidTune.h"
 #include "sidplayfp/SidTuneInfo.h"
@@ -665,7 +668,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #ifdef LOAD_PROFILE
     NSLog(@"rootviewLB : %d",end_time-start_time);
 #endif
-        
+    
 }
 
 -(void) fillKeys {
@@ -841,46 +844,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 
 -(void)listLocalFiles {
     NSString *file,*cpath;
-    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
-    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
-    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
-    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
-    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
-    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
-    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
-    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
-    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
-    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
-    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
-    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
-    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
-    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
-                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
-                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
-    NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
-    NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
-    NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
-    NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
-    NSArray *filetype_extSID_MULTISONGSFILE=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-    NSMutableArray *sid_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extSID_MULTISONGSFILE count]];
-    
-    NSMutableArray *all_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]+[filetype_extSID_MULTISONGSFILE count]];
+    NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
+    NSMutableArray *filetype_extAMIGA=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AMIGA];
+    NSMutableArray *all_multisongstype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_SUBSONGS];
+    NSMutableArray *archivetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_BROWSABLEARCHIVE];
     
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -944,40 +911,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
     
-    [filetype_ext addObjectsFromArray:filetype_extMDX];
-    [filetype_ext addObjectsFromArray:filetype_extPMD];
-    [filetype_ext addObjectsFromArray:filetype_extSID];
-    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
-    [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
-    [filetype_ext addObjectsFromArray:filetype_extSC68];
-    [filetype_ext addObjectsFromArray:filetype_extPT3];
-    [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
-    [filetype_ext addObjectsFromArray:filetype_extPIXEL];
-    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
-    [filetype_ext addObjectsFromArray:filetype_extUADE];
-    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
-    [filetype_ext addObjectsFromArray:filetype_extXMP];
-    [filetype_ext addObjectsFromArray:filetype_extGME];
-    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
-    [filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extV2M];
-    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
-    [filetype_ext addObjectsFromArray:filetype_extHC];
-    [filetype_ext addObjectsFromArray:filetype_extEUP];
-    [filetype_ext addObjectsFromArray:filetype_extHVL];
-    [filetype_ext addObjectsFromArray:filetype_extS98];
-    [filetype_ext addObjectsFromArray:filetype_extKSS];
-    [filetype_ext addObjectsFromArray:filetype_extGSF];
-    [filetype_ext addObjectsFromArray:filetype_extASAP];
-    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
-    [filetype_ext addObjectsFromArray:filetype_extVGM];
-    
-    [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];
-    [gme_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
-    [sid_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
-    
-    [all_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
-    [all_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
     
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
@@ -1006,17 +939,25 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         if (!isDirectory) {
             //file:check if archive or multisongs
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-            if ([archivetype_ext indexOfObject:extension]!=NSNotFound) browseType=1;
+            if ([archivetype_ext indexOfObject:extension]!=NSNotFound) {
+                //check if really an archive
+                if ([ModizFileHelper isABrowsableArchive:cpath]) browseType=1;
+            }
             //check if Multisongs file
-            else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=2;
-            else if ([sid_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=3;
+            else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) {
+                //check if really a gme file
+                if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
+                else if ([ModizFileHelper isSidFileWithSubsongs:cpath]) browseType=3;
+            }
         }
     }
     
     if (browseType==3) {//SID
         SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
-        
-        if (mSidTune==NULL) {
+        bool sid_ok=true;
+        if (mSidTune==NULL) sid_ok=false;
+        else if (!(mSidTune->getStatus())) sid_ok=false;
+        if (!sid_ok) {
             NSLog(@"SID SidTune init error");
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         } else {
@@ -1027,44 +968,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             //Compute MD5
             memset(browser_song_md5,0,33);
-            /*int tmp_md5_data_size=sidtune_info->c64dataLen()+2*3+sizeof(sidtune_info->songSpeed())*sidtune_info->songs();
-             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-             memset(tmp_md5_data,0,tmp_md5_data_size);
-             int ofs_md5_data=0;
-             unsigned char tmp[2];
-             memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info->c64dataLen());
-             ofs_md5_data+=sidtune_info->c64dataLen();
-             // Include INIT and PLAY address.
-             writeLEword(tmp,sidtune_info->initAddr());
-             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-             ofs_md5_data+=2;
-             writeLEword(tmp,sidtune_info->playAddr());
-             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-             ofs_md5_data+=2;
-             // Include number of songs.
-             writeLEword(tmp,sidtune_info->songs());
-             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-             ofs_md5_data+=2;
-             
-             // Include song speed for each song.
-             for (unsigned int s = 1; s <= sidtune_info->songs(); s++)
-             {
-             mSidTune->selectSong(s);
-             memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-             //NSLog(@"sp : %d %d %d",s,mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-             ofs_md5_data+=sizeof(mSidTune->info.songSpeed);
-             }
-             // Deal with PSID v2NG clock speed flags: Let only NTSC
-             // clock speed change the MD5 fingerprint. That way the
-             // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
-             // PSID v2NG format is the same.
-             if ( mSidTune->info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
-             memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.clockSpeed,sizeof(mSidTune->info.clockSpeed));
-             ofs_md5_data+=sizeof(mSidTune->info.clockSpeed);
-             //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
-             }
-             md5_from_buffer(browser_song_md5,33,tmp_md5_data,tmp_md5_data_size);
-             free(tmp_md5_data);*/
+            
             mSidTune->createMD5New(browser_song_md5);
             browser_song_md5[32]=0;
             
@@ -1358,7 +1262,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 filtered=1;
                                 //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
                                 if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                //if (r.location != NSNotFound) {
+                                    //if (r.location != NSNotFound) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
                             }
@@ -1420,57 +1324,56 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         }
         /* Only open files that fex can handle */
         if ( ftype != NULL ) {
-            if (fex_open_type( &fex, path, ftype )) {
-                NSLog(@"cannot fex open : %s",path);
-            } else {
-                int is_rsn=0;
-                NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-                if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
-                
-                
-                while ( !fex_done( fex ) ) {
-                    file=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                    NSString *extension;// = [[file pathExtension] uppercaseString];
-                    NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            if (strcmp(fex_type_name(ftype),"file")!=0) {
+                if (fex_open_type( &fex, path, ftype )) {
+                    NSLog(@"cannot fex open : %s",path);
+                } else {
+                    int is_rsn=0;
+                    NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
+                    if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
                     
-                    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
-                    extension = (NSString *)[temparray_filepath lastObject];
-                    //[temparray_filepath removeLastObject];
-                    file_no_ext=[temparray_filepath firstObject];
-                    
-                    
-                    
-                    int filtered=0;
-                    if ((mSearch)&&([mSearchText length]>0)) {
-                        filtered=1;
-                        //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        //if (r.location != NSNotFound) {
-                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                            /*if(r.location== 0)*/ filtered=0;
+                    while ( !fex_done( fex ) ) {
+                        file=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        NSString *extension;// = [[file pathExtension] uppercaseString];
+                        NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                        
+                        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                        extension = (NSString *)[temparray_filepath lastObject];
+                        //[temparray_filepath removeLastObject];
+                        file_no_ext=[temparray_filepath firstObject];
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            //if (r.location != NSNotFound) {
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            int found=0;
+                            
+                            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+                            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                            
+                            if (found)  {
+                                const char *str=[[file lastPathComponent] UTF8String];
+                                int index=0;
+                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                                local_entries_count[index]++;
+                                local_nb_entries++;
+                            }
+                        }
+                        
+                        if (fex_next( fex )) {
+                            NSLog(@"Error during fex scanning");
+                            break;
                         }
                     }
-                    if (!filtered) {
-                        int found=0;
-                        
-                        if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                        else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
-                        
-                        if (found)  {
-                            const char *str=[[file lastPathComponent] UTF8String];
-                            int index=0;
-                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                            local_entries_count[index]++;
-                            local_nb_entries++;
-                        }
-                    }
-                    
-                    if (fex_next( fex )) {
-                        NSLog(@"Error during fex scanning");
-                        break;
-                    }
+                    fex_close( fex );
                 }
-                fex_close( fex );
             }
             fex = NULL;
         } else {
@@ -1557,10 +1460,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                                 if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
                                 local_entries[index][local_entries_count[index]].type=1;
-                                //check if Archive file
-                                if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                //check if Multisongs file
+                                //NOT Supported: archive or multisongs in an archive
+                                //                                //check if Archive file
+                                //                                if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
+                                //                                else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
+                                //                                //check if Multisongs file
+                                
+                                
                                 if (other_encoding) {
                                     local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                     //	free(tmp_convstr);
@@ -1683,9 +1589,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     }
                     if (!filtered) {
                         int found=0;
-                        
                         if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                         else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                        else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                         
                         if (found)  {
                             const char *str=[[file lastPathComponent] UTF8String];
@@ -1811,7 +1717,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 int found=0;
                                 
                                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                                else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                                else if ([filetype_extAMIGA indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                                else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                                 
                                 
                                 if (found)  {
@@ -1829,11 +1736,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
                                     local_entries[index][local_entries_count[index]].type=1;
                                     //check if Archive file
-                                    if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                    else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                    //check if Multisongs file
-                                    else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
-                                    else if ([all_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
+                                    if ([archivetype_ext indexOfObject:extension]!=NSNotFound) { //check if really an archive
+                                        if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=1;
+                                    } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
+                                        if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
+                                        else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
+                                    }
+                                    
                                     if (other_encoding) {
                                         local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                         //	free(tmp_convstr);
@@ -1914,21 +1823,21 @@ static int shouldRestart=1;
 
 -(void) viewWillAppear:(BOOL)animated {
     //static int firstcall=0;
-        
+    
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-     if (@available(iOS 14.0, *)) {
-         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-             
-             AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
-             ModizerWin *modizerWin=[main_delegate modizerWin];
-                                       
-             //CGRect frame = [modizerWin frame];
-             //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-             //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
-             //[modizerWin setFrame: frame];
-             //[modizerWin setBounds:frame];
-         }
-     }
+        if (@available(iOS 14.0, *)) {
+            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+                
+                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+                ModizerWin *modizerWin=[main_delegate modizerWin];
+                
+                //CGRect frame = [modizerWin frame];
+                //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+                //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+                //[modizerWin setFrame: frame];
+                //[modizerWin setBounds:frame];
+            }
+        }
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
@@ -2079,27 +1988,27 @@ static int shouldRestart=1;
     //[tableView reloadData];
     //[[self navigationController] setNavigationBarHidden:NO animated:NO];
     
-//    if (shouldRestart) {
-//        
-//        self.view.userInteractionEnabled = NO;
-//        //self.view.alpha=0.5f;
-//        
-//        [self hideWaitingCancel];
-//        [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
-//        [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
-//        [self showWaiting];
-//        [self flushMainLoop];
-//        [self flushMainLoop];
-//        shouldRestart=0;
-//        
-//        [detailViewController play_restart];
-//        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
-//        
-//        //self.view.alpha=1.0f;
-//        
-//        [self hideWaiting];
-//        self.view.userInteractionEnabled = YES;
-//    }
+    //    if (shouldRestart) {
+    //
+    //        self.view.userInteractionEnabled = NO;
+    //        //self.view.alpha=0.5f;
+    //
+    //        [self hideWaitingCancel];
+    //        [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
+    //        [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
+    //        [self showWaiting];
+    //        [self flushMainLoop];
+    //        [self flushMainLoop];
+    //        shouldRestart=0;
+    //
+    //        [detailViewController play_restart];
+    //        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
+    //
+    //        //self.view.alpha=1.0f;
+    //
+    //        [self hideWaiting];
+    //        self.view.userInteractionEnabled = YES;
+    //    }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
@@ -2119,7 +2028,7 @@ static int shouldRestart=1;
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-            
+    
     [tableView reloadData];
     [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
@@ -2160,56 +2069,56 @@ static int shouldRestart=1;
     else lbl=nil;
     
     if (lbl)
-        /*if ([lbl compare:@""]!=NSOrderedSame)*/{
-    UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
-    if (darkMode) customView.backgroundColor = [UIColor colorWithRed: 0.3f green: 0.3f blue: 0.3f alpha: 1.0f];
-    else customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
-    
-    CALayer *layerU = [CALayer layer];
-    layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
-    if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
-    else layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
-    [customView.layer insertSublayer:layerU atIndex:0];
-    
-    CAGradientLayer *gradient = [CAGradientLayer layer];
-    gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
-    if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
-               (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
-    else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-                            (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
-    [customView.layer insertSublayer:gradient atIndex:0];
-    
-    CALayer *layerD = [CALayer layer];
-    layerD.frame = CGRectMake(0.0, 23.0, tableView.bounds.size.width, 1.0);
-    if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
-    else layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
-    [customView.layer insertSublayer:layerD atIndex:0];
-    
-    UILabel *topLabel = [[UILabel alloc] init];
-            topLabel.frame=CGRectMake(10, 0.0, tableView.bounds.size.width-10*2, 24);
-    //
-    // Configure the properties for the text that are the same on every row
-    //
-    topLabel.backgroundColor = [UIColor clearColor];
-    topLabel.textColor = [UIColor whiteColor];
-    if (darkMode) topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
-    else topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-    topLabel.font = [UIFont boldSystemFontOfSize:20];
-    topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
-    topLabel.opaque=TRUE;
-    topLabel.text=lbl;
-            
-    [customView addSubview: topLabel];
-            
-    /*UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
-    buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
-    buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
-    buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
-    //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
-    buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 24);
+    /*if ([lbl compare:@""]!=NSOrderedSame)*/{
+        UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
+        if (darkMode) customView.backgroundColor = [UIColor colorWithRed: 0.3f green: 0.3f blue: 0.3f alpha: 1.0f];
+        else customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
         
-        [buttonLabel setTitle:lbl forState:UIControlStateNormal];
-        [customView addSubview: buttonLabel];*/
+        CALayer *layerU = [CALayer layer];
+        layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
+        if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
+        else layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
+        [customView.layer insertSublayer:layerU atIndex:0];
+        
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
+        if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
+                                         (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
+        else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
+                                (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
+        [customView.layer insertSublayer:gradient atIndex:0];
+        
+        CALayer *layerD = [CALayer layer];
+        layerD.frame = CGRectMake(0.0, 23.0, tableView.bounds.size.width, 1.0);
+        if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
+        else layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+        [customView.layer insertSublayer:layerD atIndex:0];
+        
+        UILabel *topLabel = [[UILabel alloc] init];
+        topLabel.frame=CGRectMake(10, 0.0, tableView.bounds.size.width-10*2, 24);
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        topLabel.backgroundColor = [UIColor clearColor];
+        topLabel.textColor = [UIColor whiteColor];
+        if (darkMode) topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+        else topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.opaque=TRUE;
+        topLabel.text=lbl;
+        
+        [customView addSubview: topLabel];
+        
+        /*UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
+         buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
+         buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
+         buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
+         //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
+         buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 24);
+         
+         [buttonLabel setTitle:lbl forState:UIControlStateNormal];
+         [customView addSubview: buttonLabel];*/
         
         return customView;
     }
@@ -2218,15 +2127,15 @@ static int shouldRestart=1;
 }
 
 /*- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if (mSearch) return nil;
-    
-    if (section==0) return nil;
-    if (section==1) return @"";
-    if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) {
-        return [indexTitlesSpace objectAtIndex:section];
-    } else return nil;
-    return nil;
-}*/
+ if (mSearch) return nil;
+ 
+ if (section==0) return nil;
+ if (section==1) return @"";
+ if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) {
+ return [indexTitlesSpace objectAtIndex:section];
+ } else return nil;
+ return nil;
+ }*/
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     local_flag=0;
     return 28+1;
@@ -2283,7 +2192,7 @@ static int shouldRestart=1;
             idx=0;
             while ( !fex_done( fex ) ) {
                 
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
+                if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
                     
                     fex_stat(fex);
                     arc_size=fex_size(fex);
@@ -2320,7 +2229,7 @@ static int shouldRestart=1;
                         
                         NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                         
-                        if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                        if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                             idx++;
                         }
                         if (fex_next( fex )) {
@@ -2343,6 +2252,7 @@ static int shouldRestart=1;
     }
 }
 
+
 -(int) fex_scanarchive:(const char *)path {
     fex_type_t type;
     fex_t* fex;
@@ -2358,7 +2268,7 @@ static int shouldRestart=1;
                 NSLog(@"cannot fex open : %s / type : %d",path,type);
             } else{
                 while ( !fex_done( fex ) ) {
-                    if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                    if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                         //NSLog(@"file : %s",fex_name(fex));
                         found++;
                     }
@@ -2371,7 +2281,7 @@ static int shouldRestart=1;
             }
             fex = NULL;
         } else {
-            //just standard file, no archive            
+            //just standard file, no archive
             fex = NULL;
         }
     } else {
@@ -2385,13 +2295,13 @@ static int shouldRestart=1;
     
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
         if (cutpaste_filesrcpath) {
-        //Paste file or dir
+            //Paste file or dir
             //NSLog(@"Pasting: %@",cutpaste_filesrcpath);
-        
+            
             NSString *sourcePath=[self getFullPathForFilePath:cutpaste_filesrcpath];
             NSString *destPath=[[self getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
             NSError *err;
-        
+            
             //NSLog(@"Pasting: %@ to %@",sourcePath,destPath);
             
             
@@ -2409,7 +2319,7 @@ static int shouldRestart=1;
                 }
                 [self listLocalFiles];
             }
-    } else {
+        } else {
             //Alert msg => nothing to Paste
             UIAlertView *pasteAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [pasteAlert show];
@@ -2422,21 +2332,21 @@ static int shouldRestart=1;
             case 0: {//rename
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
-                        //rename
-                        renameFile=1;
-                        renameSec=section;renameIdx=indexPath.row;
+                //rename
+                renameFile=1;
+                renameSec=section;renameIdx=indexPath.row;
                 
                 if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
                     //renaming file in cut/paste buffer -> cancel buffer
                     //[cutpaste_filesrcpath release];
                     cutpaste_filesrcpath=nil;
                 }
-                        
-                        alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
-                        [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
-                        UITextField *tf=[alertRename textFieldAtIndex:0];
-                        tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].label];
-                        [alertRename show];
+                
+                alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
+                [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
+                UITextField *tf=[alertRename textFieldAtIndex:0];
+                tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].label];
+                [alertRename show];
                 
                 break;
             }
@@ -2456,7 +2366,7 @@ static int shouldRestart=1;
                 [self flushMainLoop];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
-                                
+                
                 NSString *filePath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
                 NSString *tgtPath;
                 tgtPath=[self getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
@@ -2501,15 +2411,15 @@ static int shouldRestart=1;
         [alertRename show];
     } else {
         //File or Directory => Delete
-    
-            // Delete button was pressed
-            NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
         
-            //delete entry
-            t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-            int section=indexPath.section-2;
-            NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
-            NSError *err;
+        // Delete button was pressed
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+        
+        //delete entry
+        t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+        int section=indexPath.section-2;
+        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSError *err;
         
         if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
             //deleting file in cut/paste buffer -> cancel buffer
@@ -2517,29 +2427,29 @@ static int shouldRestart=1;
             cutpaste_filesrcpath=nil;
         }
         
-            if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
-                NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                [removeAlert show];
-            } else {
-                if (cur_local_entries[section][indexPath.row].type==0) { //Dir
-                    DBHelper::deleteStatsDirDB(fullpath);
-                }
-                if (cur_local_entries[section][indexPath.row].type&3) { //File
-                    DBHelper::deleteStatsFileDB(fullpath);
-                }
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles]; //force a refresh
-                    mSearch=1;
-                }
-                [self listLocalFiles];
-                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                [self.tableView reloadData];
+        if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
+            NSLog(@"Issue %d while removing: %@",err.code,fullpath);
+            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+            [removeAlert show];
+        } else {
+            if (cur_local_entries[section][indexPath.row].type==0) { //Dir
+                DBHelper::deleteStatsDirDB(fullpath);
             }
-            
-            //            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
-            //                                  withRowAnimation:UITableViewRowAnimationAutomatic];
+            if (cur_local_entries[section][indexPath.row].type&3) { //File
+                DBHelper::deleteStatsFileDB(fullpath);
+            }
+            if (mSearch) {
+                mSearch=0;
+                [self listLocalFiles]; //force a refresh
+                mSearch=1;
+            }
+            [self listLocalFiles];
+            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self.tableView reloadData];
+        }
+        
+        //            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
+        //                                  withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     [self.tableView reloadData];
 }
@@ -2600,25 +2510,25 @@ static int shouldRestart=1;
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if ((cell == nil)||(forceReloadCells)) {
-            if (indexPath.section>1) {
-                cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
-                cell.delegate = self;
-
-                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
-                }
-                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-            } else {
-                cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
-                cell.delegate = self;
-                
-                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
-                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-                
-                
+        if (indexPath.section>1) {
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
+            cell.delegate = self;
+            
+            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
+            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+        } else {
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
+            cell.delegate = self;
+            
+            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
+            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
+            
+            
+        }
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -2627,11 +2537,11 @@ static int shouldRestart=1;
         UIImage *image = [UIImage imageNamed:imgFile];
         
         /*NSURL* imageURL = [[NSBundle mainBundle] URLForResource:@"tabview_gradient40" withExtension:@"png"];
-        
-        CIImage *img=[CIImage imageWithContentsOfURL:imageURL];
-        CIFilter *filterImg=[CIFilter filterWithName:@"CIColorInvert"];
-        [filterImg setValue:img forKey:kCIInputImageKey];
-        UIImage *image = [UIImage imageWithCIImage:[filterImg outputImage]];*/
+         
+         CIImage *img=[CIImage imageWithContentsOfURL:imageURL];
+         CIFilter *filterImg=[CIFilter filterWithName:@"CIColorInvert"];
+         [filterImg setValue:img forKey:kCIInputImageKey];
+         UIImage *image = [UIImage imageWithCIImage:[filterImg outputImage]];*/
         
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
@@ -2715,7 +2625,7 @@ static int shouldRestart=1;
     }
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
-        
+    
     [cell layoutIfNeeded];
     
     if (darkMode) {
@@ -2802,21 +2712,21 @@ static int shouldRestart=1;
             secActionView.enabled=NO;
             secActionView.hidden=YES;
             /*[secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
-            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
-            [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            
-            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
-            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
-            [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            
-            int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
-            icon_posx-=32;
-            actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-            actionView.enabled=YES;
-            actionView.hidden=NO;
-            secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-            secActionView.enabled=YES;
-            secActionView.hidden=NO;*/
+             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
+             [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+             
+             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
+             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
+             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+             
+             int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
+             icon_posx-=32;
+             actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+             actionView.enabled=YES;
+             actionView.hidden=NO;
+             secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+             secActionView.enabled=YES;
+             secActionView.hidden=NO;*/
         }
     } else {
         int section=indexPath.section-2;
@@ -2902,7 +2812,7 @@ static int shouldRestart=1;
             NSString *bottomStr;
             int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
             if (cur_local_entries[section][indexPath.row].song_length>0)
-                    bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
+                bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
             else bottomStr=@"--:--";
             
             if (cur_local_entries[section][indexPath.row].channels_nb) bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
@@ -3082,7 +2992,7 @@ static int shouldRestart=1;
     }
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
     [self hideWaiting];
@@ -3130,7 +3040,7 @@ static int shouldRestart=1;
             [detailViewController play_listmodules:pl start_index:-1];
             
             if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                        
+            
             [tableView reloadData];
         }
         free(pl);
@@ -3166,79 +3076,17 @@ static int shouldRestart=1;
 #import "PlaylistCommonFunctions.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-#import "FileTypeCommonFunctions.h"
-
-
 -(int) getLocalFilesCount {
     int pl_entries=0;
     NSString *file,*cpath;
-    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
-    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
-    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
-    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
-    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
-    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
-    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
-    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
-    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
-    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
-    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
-    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
-    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
-    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
-                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
-                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
-    
-    [filetype_ext addObjectsFromArray:filetype_extMDX];
-    [filetype_ext addObjectsFromArray:filetype_extPMD];
-    [filetype_ext addObjectsFromArray:filetype_extSID];
-    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
-    [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
-    [filetype_ext addObjectsFromArray:filetype_extSC68];
-    [filetype_ext addObjectsFromArray:filetype_extPT3];
-    [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
-    [filetype_ext addObjectsFromArray:filetype_extPIXEL];
-    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
-    [filetype_ext addObjectsFromArray:filetype_extUADE];
-    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
-    [filetype_ext addObjectsFromArray:filetype_extXMP];
-    [filetype_ext addObjectsFromArray:filetype_extGME];
-    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
-    [filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extV2M];
-    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
-    [filetype_ext addObjectsFromArray:filetype_extHC];
-    [filetype_ext addObjectsFromArray:filetype_extEUP];
-    [filetype_ext addObjectsFromArray:filetype_extHVL];
-    [filetype_ext addObjectsFromArray:filetype_extS98];
-    [filetype_ext addObjectsFromArray:filetype_extKSS];
-    [filetype_ext addObjectsFromArray:filetype_extGSF];
-    [filetype_ext addObjectsFromArray:filetype_extASAP];
-    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
-    [filetype_ext addObjectsFromArray:filetype_extVGM];
+    NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];;
     
     // First check count for each section
     cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
     NSError *error;
     NSArray *dirContent;//
     BOOL isDir;
-        
+    
     dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
     
     NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
@@ -3259,7 +3107,7 @@ static int shouldRestart=1;
             extension = (NSString *)[temparray_filepath lastObject];
             //[temparray_filepath removeLastObject];
             file_no_ext=[temparray_filepath firstObject];
-                                                
+            
             int found=0;
             
             if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -3311,7 +3159,7 @@ static int shouldRestart=1;
         
         //add to playlist
         if (total_entries) [self addMultipleToPlaylistSelView:array_path label:array_label showNowListening:true];
-                
+        
     } else {
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             
@@ -3659,7 +3507,7 @@ static int shouldRestart=1;
     if (list) {
         //[list release];
         list=nil;
-    }	
+    }
     
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
@@ -3692,18 +3540,18 @@ static int shouldRestart=1;
     
     if (indexTitles) {
         //[indexTitles release];
-        indexTitles=nil;        
+        indexTitles=nil;
     }
     if (indexTitlesSpace) {
         //[indexTitlesSpace release];
-        indexTitlesSpace=nil;        
+        indexTitlesSpace=nil;
     }
     
     if (mFileMngr) {
         //[mFileMngr release];
         mFileMngr=nil;
     }
-        
+    
     //[super dealloc];
 }
 

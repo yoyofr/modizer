@@ -1236,7 +1236,7 @@ if (m_voice_ofs>=0) {     \
     int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((chanval*(cptr[chn].left_pan+cptr[chn].right_pan))>>shift));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((chanval*(cptr[chn].left_pan+cptr[chn].right_pan))>>shift));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
@@ -1251,7 +1251,7 @@ if (m_voice_ofs>=0) {     \
     int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanval>>shift));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chanval>>shift));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
@@ -1268,7 +1268,7 @@ if (m_voice_ofs>=0) {     \
     int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanval>>shift));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chanval>>shift));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
@@ -2083,7 +2083,7 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
         
     for (int i=0;i<max_channel+5;i++) {
         int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr*samples_to_process);
-        while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+        while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
         m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
     }
 }

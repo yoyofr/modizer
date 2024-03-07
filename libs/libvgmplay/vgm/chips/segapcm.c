@@ -223,11 +223,11 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
                     
                     if ((ofs_end>>10)>(ofs_start>>10))
                     for (;;) {
-                        m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((v*((regs[2]&0x7F)+(regs[3]&0x7F)))>>7));
+                        m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((v*((regs[2]&0x7F)+(regs[3]&0x7F)))>>7));
                         ofs_start+=1024;
                         if (ofs_start>=ofs_end) break;
                     }
-                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                     m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
                 }
                 //TODO:  MODIZER changes end / YOYOFR
@@ -244,7 +244,7 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             for (int i = 0; i < samples; i++)
                 if (m_voice_ofs>=0) {
                     int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
-                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                     m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
                 }
         }

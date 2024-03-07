@@ -108,7 +108,6 @@
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
-    NSLog(@"yo");
 }
 
 /*

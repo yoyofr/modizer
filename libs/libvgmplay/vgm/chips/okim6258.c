@@ -288,11 +288,11 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
                 if ((ofs_end>>10)>(ofs_start>>10))
                 for (;;) {
                     
-                    if ((!(chip->Muted))&&((chip->pan&3)!=3)) m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((sample>>8));
+                    if ((!(chip->Muted))&&((chip->pan&3)!=3)) m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((sample>>8));
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
             }
             //TODO:  MODIZER changes start / YOYOFR
@@ -314,7 +314,7 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             if (m_voice_ofs>=0) {
                 int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
                 
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
             }
             //TODO:  MODIZER changes start / YOYOFR

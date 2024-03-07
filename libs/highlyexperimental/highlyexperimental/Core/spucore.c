@@ -1790,7 +1790,7 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
                 m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
@@ -1822,7 +1822,7 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
             m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

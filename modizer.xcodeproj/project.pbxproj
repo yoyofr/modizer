@@ -738,6 +738,7 @@
 		CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */; };
 		CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */; };
 		CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF517DC615F006DCBC7 /* EQView.m */; };
+		CC78DBA72B9A045A00A37464 /* ModizFileHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC78DBA62B9A045A00A37464 /* ModizFileHelper.mm */; };
 		CC7E810212698C29006EF083 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
 		CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
@@ -2211,6 +2212,8 @@
 		CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EQViewController.mm; sourceTree = "<group>"; };
 		CC6CBDF417DC615F006DCBC7 /* EQView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EQView.h; sourceTree = "<group>"; };
 		CC6CBDF517DC615F006DCBC7 /* EQView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EQView.m; sourceTree = "<group>"; };
+		CC78DBA52B9A045A00A37464 /* ModizFileHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizFileHelper.h; sourceTree = "<group>"; };
+		CC78DBA62B9A045A00A37464 /* ModizFileHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizFileHelper.mm; sourceTree = "<group>"; };
 		CC7BBD212B800AC600D8CAAE /* vorbis-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "vorbis-openmpt.xcodeproj"; path = "libs/libopenmpt/vorbis-openmpt/vorbis-openmpt.xcodeproj"; sourceTree = "<group>"; };
 		CC7BBD332B800AF600D8CAAE /* mpg123-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "mpg123-openmpt.xcodeproj"; path = "libs/libopenmpt/mpg123-openmpt/mpg123-openmpt.xcodeproj"; sourceTree = "<group>"; };
 		CC7BBD392B800B0200D8CAAE /* ogg-openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "ogg-openmpt.xcodeproj"; path = "libs/libopenmpt/ogg-openmpt/ogg-openmpt.xcodeproj"; sourceTree = "<group>"; };
@@ -3733,6 +3736,8 @@
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
+				CC78DBA52B9A045A00A37464 /* ModizFileHelper.h */,
+				CC78DBA62B9A045A00A37464 /* ModizFileHelper.mm */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
 				CC1E623512041177000A8A4E /* SearchViewController.h */,
 				CC1E623612041177000A8A4E /* SearchViewController.mm */,
@@ -3848,22 +3853,22 @@
 				CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */,
 				CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */,
 				CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */,
-				CC5333582B7E938B009ED5D7 /* tracking12.fnt */,
-				CC5333592B7E938C009ED5D7 /* tracking14.fnt */,
 				CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */,
 				CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */,
+				CC4F49D82B7021A0002A9309 /* c6410.fnt */,
 				CC4F49C72B6FB728002A9309 /* c6416.fnt */,
 				CC4F49CD2B6FB728002A9309 /* c6424.fnt */,
 				CC4F49CA2B6FB728002A9309 /* c6432.fnt */,
-				CC4F49D82B7021A0002A9309 /* c6410.fnt */,
-				CC4F49D92B7021A0002A9309 /* tracking10.fnt */,
-				CC4F49C82B6FB728002A9309 /* tracking16.fnt */,
-				CC4F49CE2B6FB728002A9309 /* tracking24.fnt */,
-				CC4F49C92B6FB728002A9309 /* tracking32.fnt */,
 				CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */,
 				CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */,
 				CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */,
 				CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */,
+				CC4F49D92B7021A0002A9309 /* tracking10.fnt */,
+				CC5333582B7E938B009ED5D7 /* tracking12.fnt */,
+				CC5333592B7E938C009ED5D7 /* tracking14.fnt */,
+				CC4F49C82B6FB728002A9309 /* tracking16.fnt */,
+				CC4F49CE2B6FB728002A9309 /* tracking24.fnt */,
+				CC4F49C92B6FB728002A9309 /* tracking32.fnt */,
 				3356548517B51924003AE763 /* UpheavalPro.ttf */,
 			);
 			path = Fonts;
@@ -5962,6 +5967,7 @@
 				591D8E4825DC63620013E19F /* decoder.c in Sources */,
 				CC8368642B57CA9A0035A4DA /* ym_envel.c in Sources */,
 				CCFDC53B17DB105500C6692C /* NVLowpassFilter.m in Sources */,
+				CC78DBA72B9A045A00A37464 /* ModizFileHelper.mm in Sources */,
 				CCFDC53917DB105500C6692C /* NVHighpassFilter.m in Sources */,
 				337FA72A124288FA00DDD352 /* AboutViewController.mm in Sources */,
 				3370BC0D124A853F00691400 /* mdx2151.c in Sources */,

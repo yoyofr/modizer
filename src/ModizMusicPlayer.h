@@ -116,37 +116,6 @@ extern "C" {
     
 }
 
-enum MMP_PLAYER_TYPE {
-    MMP_NONE=0,
-    MMP_PMDMINI,
-    MMP_ADPLUG,
-    MMP_SIDPLAY,
-    MMP_WEBSID,
-    MMP_XMP,
-    MMP_OPENMPT,
-    MMP_UADE,
-    MMP_TIMIDITY,
-    MMP_VGMSTREAM,
-    MMP_VGMPLAY,
-    MMP_NSFPLAY,
-    MMP_GME,
-    MMP_ASAP,
-    MMP_GSF,
-    MMP_MDXPDX,
-    MMP_SC68,
-    MMP_STSOUND,
-    MMP_ATARISOUND,
-    MMP_HVL,
-    MMP_2SF,
-    MMP_SNSF,
-    MMP_HC,
-    MMP_EUP,
-    MMP_V2M,
-    MMP_S98,
-    MMP_KSS,
-    MMP_PT3,
-    MMP_PIXEL
-};
 
 @class DetailViewControllerIphone;
 
@@ -349,8 +318,8 @@ enum MMP_PLAYER_TYPE {
 -(int) getSongLengthfromMD5:(int)track_nb;
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
--(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
+//-(int) isAcceptedFile:(NSString*)_filePath;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultKSSPLAYER:(int)defaultKSSPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;

@@ -269,7 +269,6 @@ class CGLString;
 //@property (nonatomic,retain) NSMutableArray *mPlaylistFilenames,*mPlaylistFilepaths;
 @property (nonatomic,retain) UIView *mInWasView;
 
-
 //@property (retain) CLLocationManager *locManager;
 @property (nonatomic, retain) IBOutlet UIView *infoMsgView;
 @property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;

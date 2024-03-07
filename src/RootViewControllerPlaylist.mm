@@ -15,6 +15,7 @@
 #define LIMITED_LIST_SIZE 1024
 
 #import "MDZUIImageView.h"
+#import "ModizFileHelper.h"
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -1955,6 +1956,52 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     
     return;
+}
+
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    int pl_entries=0;
+    NSString *file,*cpath;
+    NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSError *error;
+    NSArray *dirContent;//
+    BOOL isDir;
+    
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+        
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    
+    NSArray *sortedDirContent = imp_RandomizeUsingMutableCopy(dirContent);
+    
+    for (int i=0;i<[sortedDirContent count];i++) {
+        NSString *file=[sortedDirContent objectAtIndex:i];
+        //check if dir
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (isDir) {
+        } else {
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            //[temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath firstObject];
+                                                
+            int found=0;
+            
+            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            
+            if (found)  {
+                [labels addObject:[NSString stringWithString:[file lastPathComponent]]];
+                [fullpaths addObject:[NSString stringWithFormat:@"Documents/%@",file]];
+                pl_entries++;
+                if (pl_entries>=MAX_CARPLAY_RANDOM_PL_SIZE) break;
+            }
+        }
+    }
+    
+    return pl_entries;
 }
 
 -(void) loadFavoritesList{

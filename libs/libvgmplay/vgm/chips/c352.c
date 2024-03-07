@@ -247,13 +247,13 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
                     if ((v->flags & C352_FLG_BUSY)&&(!c->v[j].mute)) {
                         int vol=v->curr_vol[0]+v->curr_vol[1];
                         if (!c->muteRear && !MuteAllRear) vol+=v->curr_vol[2]+v->curr_vol[3];
-                        m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((((int)(s))*(int)(vol))>>15);
-                    } else m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((((int)(s))*(int)(vol))>>15);
+                    } else m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
                     
                     ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
                 m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR

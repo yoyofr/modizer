@@ -1003,11 +1003,11 @@ if (m_voice_ofs>=0) { \
 \
     if ((ofs_end>>10)>(ofs_start>>10)) \
     for (;;) { \
-            m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((val)>>5);  \
+            m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
         ofs_start+=1024; \
         if (ofs_start>=ofs_end) break; \
     } \
-    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10); \
+    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10); \
     m_voice_current_ptr[m_voice_ofs+channel]=ofs_end; \
 }
 //TODO:  MODIZER changes end / YOYOFR

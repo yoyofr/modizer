@@ -18,6 +18,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include <sys/xattr.h>
 #import "DBHelper.h"
 
+#import "ModizFileHelper.h"
+
+
 int lCancelURL;
 extern pthread_mutex_t download_mutex;
 static volatile int mGetURLInProgress;
@@ -156,7 +159,6 @@ static NSFileManager *mFileMngr;
 
 #include "AlertsCommonFunctions.h"
 
-#include "FileTypeCommonFunctions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
@@ -376,7 +378,7 @@ static NSFileManager *mFileMngr;
         
 		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[NSHomeDirectory() stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
-			if ([self isAllowedFile:mCurrentFilename]) {
+			if ([ModizFileHelper isAllowedFile:mCurrentFilename]) {
                 if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
                     NSMutableArray *array_label = [[NSMutableArray alloc] init];
                     NSMutableArray *array_path = [[NSMutableArray alloc] init];
@@ -1015,7 +1017,7 @@ static NSFileManager *mFileMngr;
 			[dirEnum skipDescendents];
 		}
 		if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
-			if ([self isAllowedFile:file]) {
+			if ([ModizFileHelper isAllowedFile:file]) {
 				nb_added++;
 				//[self addDownloadedURLtoPlayer:file filepath:[NSString stringWithFormat:@"%@%@",_shortPath,file] forcenoplay:fnp];
 				[filePaths addObject:[NSString stringWithFormat:@"%@%@",_shortPath,file]];
@@ -1072,7 +1074,7 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName {
-    if ([self isAllowedFile:fileName]) {
+    if ([ModizFileHelper isAllowedFile:fileName]) {
         [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:1];
     }
 }
@@ -1102,7 +1104,7 @@ static NSFileManager *mFileMngr;
     [self addSkipBackupAttributeToItemAtPath:localPath];
 	
     if (mURLIsMODLAND[0]) {
-        if ([self isAllowedFile:mCurrentURLFilename]) {
+        if ([ModizFileHelper isAllowedFile:mCurrentURLFilename]) {
             if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
                 NSMutableArray *array_path = [[NSMutableArray alloc] init];

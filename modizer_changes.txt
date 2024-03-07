@@ -44,7 +44,7 @@ missing seek support:
 => check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => update playback libs to latest version
-=> ADPLUG oscillo data not generated with OPL is not Woody
+=> ADPLUG oscillo data not generated when OPL is not Woody
 => HC /PSF2 fadeout for oscillo
 => file browser: crash if Sid entension and not true sid file when accessing subsong list
 => should check if real archive / file browser (ex: rsn.eup)
@@ -52,7 +52,7 @@ missing seek support:
 => like button :open pop-up to select between subsong/arcentry/file (when relevant) 
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 => when in infinite mode, don't update song length in database
-=> adplug: verify stereo mode for satoh, Ken,...  Sounds like mono
+=> adplug: verify stereo mode for satoh, Ken,...  Sounds like mono -> confirmed limit of current adplug (DUAL_OPL2 for Satoh & Ken VS OPL3 for Woody & Nuked)
 
 3.6
 ---

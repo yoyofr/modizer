@@ -2438,7 +2438,7 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
             for (int ii=0;ii<8;ii++) m_voice_current_ptr[ii]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

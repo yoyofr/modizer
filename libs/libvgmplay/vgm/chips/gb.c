@@ -1164,11 +1164,11 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             for (;;) {
                 if (gb->snd_1.on && !gb->snd_1.Muted)
-                    m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                    m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
             m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
@@ -1190,11 +1190,11 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             for (;;) {
                 if (gb->snd_2.on && !gb->snd_2.Muted)
-                    m_voice_buff[m_voice_ofs+1][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                    m_voice_buff[m_voice_ofs+1][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
             m_voice_current_ptr[m_voice_ofs+1]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
@@ -1215,11 +1215,11 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             for (;;) {
                 if (gb->snd_3.on && !gb->snd_3.Muted)
-                    m_voice_buff[m_voice_ofs+2][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                    m_voice_buff[m_voice_ofs+2][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
             m_voice_current_ptr[m_voice_ofs+2]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
@@ -1241,11 +1241,11 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             for (;;) {
                 if (gb->snd_4.on && !gb->snd_4.Muted)
-                    m_voice_buff[m_voice_ofs+3][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                    m_voice_buff[m_voice_ofs+3][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
             m_voice_current_ptr[m_voice_ofs+3]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

@@ -26,6 +26,8 @@ int mod_total_length;
 
 #import "ModizMusicPlayer.h"
 
+#import "ModizFileHelper.h"
+
 int PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
 
 //NVDSP
@@ -497,11 +499,14 @@ static int mSingleSubMode;
 #define DEFAULT_NSFNSFPLAY 0
 #define DEFAULT_NSFGME 1
 
+#define DEFAULT_KSSLIBKSS 0
+#define DEFAULT_KSSGME 1
+
 static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
-static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER;
+static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultKSSPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER;
 
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -2148,8 +2153,6 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mAudioQueue;
 @synthesize mBuffers;
 @synthesize mQueueIsBeingStopped;
-
-#import "FileTypeCommonFunctions.h"
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -5007,21 +5010,24 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 nbBytes=0;
                             } else {
                                 
-                                if (m_genNumVoicesChannels) {
+                                /*if (m_genNumVoicesChannels) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                                         m_voice_current_ptr[j]=0;
                                     }
-                                }
+                                }*/
                                 
                                 nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                                 
                                 //copy voice data for oscillo view
-                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
+                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
+                                        m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
                                     }
+                                    m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<10;
+                                    if ((m_voice_prev_current_ptr[j]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]-=SOUND_BUFFER_SIZE_SAMPLE*4*2<<10;
                                 }
-                                //printf("vptr: %d\n",m_voice_current_ptr[0]>>10);
+                                
                             }
                         }
                         if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
@@ -5700,7 +5706,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
                     if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                 }
-                if ([self isAcceptedFile:tmp_filename no_aux_file:0]) {
+                if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:0]) {
                     fex_stat(fex);
                     arc_size=fex_size(fex);
                     extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
@@ -5749,7 +5755,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             free(archive_data);
                             fclose(f);
                             
-                            if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                                 mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                                 strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                                 
@@ -5763,7 +5769,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     } else {
                         //restarting, skip extract
                         
-                        if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                        if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                             
@@ -5815,7 +5821,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
                     if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                 }
-                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                     if (index==idx) {
                         fex_stat(fex);
                         arc_size=fex_size(fex);
@@ -5898,7 +5904,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
                         if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                     }
-                    if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                    if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                         mdz_ArchiveFilesCnt++;
                         //NSLog(@"file : %s",fex_name(fex));
                     }
@@ -5937,7 +5943,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
                     if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                 }
-                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
+                if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                     if (!idx) {
                         NSString *result=tmp_filename;
                         fex_close( fex );
@@ -6147,73 +6153,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSString *file;
     NSDirectoryEnumerator *dirEnum;
     NSDictionary *fileAttributes;
-    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
-    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
-    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
-    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
-    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
-    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
-    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
-    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
-    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
-    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
-    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
-    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
-    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
-    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
-                                  [filetype_extSTSOUND count]+[filetype_extATARISOUND count]+[filetype_extPMD count]+
-                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
-                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
+    NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
+    NSMutableArray *filetype_extAMIGA=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AMIGA];
     
     int err;
     int local_nb_entries=0;
     
     NSRange r;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
-    
-    [filetype_ext addObjectsFromArray:filetype_extMDX];
-    [filetype_ext addObjectsFromArray:filetype_extPMD];
-    [filetype_ext addObjectsFromArray:filetype_extSID];
-    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
-    [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
-    [filetype_ext addObjectsFromArray:filetype_extSC68];
-    [filetype_ext addObjectsFromArray:filetype_extPT3];
-    [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
-    [filetype_ext addObjectsFromArray:filetype_extPIXEL];
-    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
-    [filetype_ext addObjectsFromArray:filetype_extUADE];
-    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
-    [filetype_ext addObjectsFromArray:filetype_extXMP];
-    [filetype_ext addObjectsFromArray:filetype_extGME];
-    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
-    [filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extV2M];
-    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
-    [filetype_ext addObjectsFromArray:filetype_extHC];
-    [filetype_ext addObjectsFromArray:filetype_extEUP];
-    [filetype_ext addObjectsFromArray:filetype_extHVL];
-    [filetype_ext addObjectsFromArray:filetype_extS98];
-    [filetype_ext addObjectsFromArray:filetype_extKSS];
-    [filetype_ext addObjectsFromArray:filetype_extGSF];
-    [filetype_ext addObjectsFromArray:filetype_extASAP];
-    [filetype_ext addObjectsFromArray:filetype_extVGM];
-    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
     
     // First check count for each section
     dirEnum = [mFileMngr enumeratorAtPath:pathToScan];
@@ -6235,7 +6182,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             
             
             if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            else if ([filetype_extAMIGA indexOfObject:file_no_ext]!=NSNotFound) found=1;
             
             if (found)  {
                 local_nb_entries++;
@@ -6269,7 +6216,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                 
                 
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                else if ([filetype_extAMIGA indexOfObject:file_no_ext]!=NSNotFound) found=1;
                 
                 
                 if (found)  {
@@ -9292,22 +9239,66 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     return converted;
 }
 
--(int) mmp_v2mLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
+-(int) mmp_v2mLoad:(NSString*)filePath extension:(NSString*)extension {  //V2M
     mPlayType=MMP_V2M;
-    FILE *f;
+    //FILE *f;
     
-    f=fopen([filePath UTF8String],"rb");
-    if (f==NULL) {
-        NSLog(@"V2M Cannot open file %@",filePath);
+//    f=fopen([filePath UTF8String],"rb");
+//    if (f==NULL) {
+//        NSLog(@"V2M Cannot open file %@",filePath);
+//        mPlayType=0;
+//        return -1;
+//    }
+//    fseek(f,0L,SEEK_END);
+//    mp_datasize=ftell(f);
+//    mp_data=(char*)malloc(mp_datasize);
+//    fseek(f,0L,SEEK_SET);
+//    fread(mp_data, 1, mp_datasize, f);
+//    fclose(f);
+    
+    fex_t* fex;
+    fex_err_t err;
+    err=fex_open( &fex, [filePath UTF8String] );
+    if (err) {
+        NSLog(@"Error: %s",(const char*)err);
         mPlayType=0;
         return -1;
     }
-    fseek(f,0L,SEEK_END);
-    mp_datasize=ftell(f);
-    mp_data=(char*)malloc(mp_datasize);
-    fseek(f,0L,SEEK_SET);
-    fread(mp_data, 1, mp_datasize, f);
-    fclose(f);
+    
+    /* Scan archive headers */
+    if ( !fex_done( fex ) ) {
+        /* Must be called before using fex_size() */
+        err=fex_stat( fex );
+        if (err) {
+            NSLog(@"Error: %s",(const char*)err);
+            fex_close(fex);
+            mPlayType=0;
+            return -1;
+        }
+        
+        /* Get file size and allocate space for it */
+        mp_datasize = fex_size( fex );
+        mp_data = (char*) malloc( mp_datasize );
+        if ( mp_data == NULL ) {
+            //error( "Out of memory" );
+                NSLog(@"v2mLoad: out of memory, cannot allocated: %d",mp_datasize);
+                fex_close(fex);
+                mPlayType=0;
+                return -1;
+        }
+        
+        /* Read rest of data */
+        err=fex_read( fex, mp_data, mp_datasize );
+        if (err) {
+            NSLog(@"Error: %s",(const char*)err);
+            fex_close(fex);
+            mPlayType=0;
+            return -1;
+        }
+    }
+    
+    fex_close( fex );
+    fex = NULL;
     
     //prepare the tune
     mp_data=(char*)v2m_check_and_convert((unsigned char*)mp_data,(unsigned int*)&mp_datasize);
@@ -10249,7 +10240,7 @@ int vgmGetFileLength()
     } else {
         bool let_libkss_takeover=false;
         if (gme_track_info( gme_emu, &gme_info, 0 )==0) {
-            if ((strcmp(gme_info->system,"MSX")==0)||(strcmp(gme_info->system,"MSX + FM Sound")==0)) let_libkss_takeover=true;
+            //if ((strcmp(gme_info->system,"MSX")==0)||(strcmp(gme_info->system,"MSX + FM Sound")==0)) let_libkss_takeover=true;
             gme_free_info(gme_info);
             gme_info=NULL;
         }
@@ -10514,7 +10505,7 @@ extern bool icloud_available;
     }
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultKSSPLAYER:(int)defaultKSSPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -10584,6 +10575,7 @@ extern bool icloud_available;
         mdz_defaultSAPPLAYER=defaultSAPPLAYER;
         mdz_defaultVGMPLAYER=defaultVGMPLAYER;
         mdz_defaultNSFPLAYER=defaultNSFPLAYER;
+        mdz_defaultKSSPLAYER=defaultKSSPLAYER;
         mdz_defaultMIDIPLAYER=defaultMIDIPLAYER;
         mdz_defaultSIDPLAYER=defaultSIDPLAYER;
         mNeedSeek=0;
@@ -10610,11 +10602,11 @@ extern bool icloud_available;
         
         for (int i=0;i<[filetype_extARCHIVE count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+            //if ([file_no_ext caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
         for (int i=0;i<[filetype_extLHA_ARCHIVE count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+//            if ([file_no_ext caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
         }
         if (found) { //might be an archived file
             mdz_IsArchive=0;
@@ -10843,10 +10835,10 @@ extern bool icloud_available;
             if (mdz_defaultNSFPLAYER==DEFAULT_NSFNSFPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_NSFPLAY]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultNSFPLAYER==DEFAULT_NSFNSFPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_NSFPLAY]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
+//            if (mdz_defaultNSFPLAYER==DEFAULT_NSFNSFPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_NSFPLAY]];
+//            break;
+//        }
     }
     
     
@@ -10856,11 +10848,11 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_VGMPLAY]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultVGMPLAYER==DEFAULT_VGMVGM) [available_player insertObject:[NSNumber numberWithInt:MMP_VGMPLAY] atIndex:0];
-            else [available_player addObject:[NSNumber numberWithInt:MMP_VGMPLAY]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {
+//            if (mdz_defaultVGMPLAYER==DEFAULT_VGMVGM) [available_player insertObject:[NSNumber numberWithInt:MMP_VGMPLAY] atIndex:0];
+//            else [available_player addObject:[NSNumber numberWithInt:MMP_VGMPLAY]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extASAP count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {
@@ -10868,11 +10860,11 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_ASAP]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultSAPPLAYER==DEFAULT_SAPASAP) [available_player insertObject:[NSNumber numberWithInt:MMP_ASAP] atIndex:0];
-            else [available_player addObject:[NSNumber numberWithInt:MMP_ASAP]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {
+//            if (mdz_defaultSAPPLAYER==DEFAULT_SAPASAP) [available_player insertObject:[NSNumber numberWithInt:MMP_ASAP] atIndex:0];
+//            else [available_player addObject:[NSNumber numberWithInt:MMP_ASAP]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extGME count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
@@ -10888,38 +10880,53 @@ extern bool icloud_available;
                     is_sap=true;
                     break;
                 }
-            
-            if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
-                (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
-            else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
-            bool is_vgm=false;
-            for (int j=0;j<[filetype_extVGM count];j++)
-                if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:j]]==NSOrderedSame) {
-                    is_vgm=true;
-                    break;
-                }
-            bool is_sap=false;
-            for (int j=0;j<[filetype_extASAP count];j++)
-                if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:j]]==NSOrderedSame) {
-                    is_sap=true;
-                    break;
-                }
             bool is_nsf=false;
             for (int j=0;j<[filetype_extNSFPLAY count];j++)
-                if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:j]]==NSOrderedSame) {
+                if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:j]]==NSOrderedSame) {
                     is_nsf=true;
                     break;
                 }
-            
+            bool is_kss=false;
+            if ([extension caseInsensitiveCompare:@"KSS"]==NSOrderedSame) {
+                is_kss=true;
+            }
             if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
                 (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
+                (is_kss && (mdz_defaultKSSPLAYER==DEFAULT_KSSGME)) ||
                 (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
             break;
         }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
+//            bool is_vgm=false;
+//            for (int j=0;j<[filetype_extVGM count];j++)
+//                if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:j]]==NSOrderedSame) {
+//                    is_vgm=true;
+//                    break;
+//                }
+//            bool is_sap=false;
+//            for (int j=0;j<[filetype_extASAP count];j++)
+//                if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:j]]==NSOrderedSame) {
+//                    is_sap=true;
+//                    break;
+//                }
+//            bool is_nsf=false;
+//            for (int j=0;j<[filetype_extNSFPLAY count];j++)
+//                if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:j]]==NSOrderedSame) {
+//                    is_nsf=true;
+//                    break;
+//                }
+//            bool is_kss=false;
+//            if ([file_no_ext caseInsensitiveCompare:@"KSS"]==NSOrderedSame) {
+//                is_kss=true;
+//            }
+//            if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
+//                (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
+//                (is_kss && (mdz_defaultKSSPLAYER==DEFAULT_KSSGME)) ||
+//                (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
+//            else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
+//            break;
+//        }
     }
     
     for (int i=0;i<[filetype_extMDX count];i++) {
@@ -10927,10 +10934,10 @@ extern bool icloud_available;
             [available_player addObject:[NSNumber numberWithInt:MMP_MDXPDX]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_MDXPDX]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_MDXPDX]];
+//            break;
+//        }
     }
     
     for (int i=0;i<[filetype_extSTSOUND count];i++) {
@@ -10938,118 +10945,118 @@ extern bool icloud_available;
             [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extATARISOUND count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extATARISOUND objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_ATARISOUND]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extATARISOUND objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_ATARISOUND]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extATARISOUND objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_ATARISOUND]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extSC68 count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_SC68]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_SC68]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_SC68]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extPT3 count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extPIXEL count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_ext2SF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extV2M count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extHC count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extEUP count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_EUP]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_EUP]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_EUP]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extGSF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_GSF]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_GSF]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_GSF]];
+//            break;
+//        }
     }
     for (int i=0;i<[filetype_extWMIDI count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_TIMIDITY]];break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_TIMIDITY]];break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_TIMIDITY]];break;
+//        }
     }
     for (int i=0;i<[filetype_extXMP count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {
@@ -11071,10 +11078,10 @@ extern bool icloud_available;
             [available_player addObject:[NSNumber numberWithInt:MMP_HVL]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_HVL]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_HVL]];
+//            break;
+//        }
     }
     
     for (int i=0;i<[filetype_extS98 count];i++) {
@@ -11082,23 +11089,24 @@ extern bool icloud_available;
             [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
+//            break;
+//        }
     }
     
     for (int i=0;i<[filetype_extKSS count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
+            if ((mdz_defaultKSSPLAYER==DEFAULT_KSSLIBKSS)||([extension caseInsensitiveCompare:@"KSS"]!=NSOrderedSame)) [available_player insertObject:[NSNumber numberWithInt:MMP_KSS] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
+//            if ((mdz_defaultKSSPLAYER==DEFAULT_KSSLIBKSS)||([extension caseInsensitiveCompare:@"KSS"]!=NSOrderedSame)) [available_player insertObject:[NSNumber numberWithInt:MMP_KSS] atIndex:0];
+//            else [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
+//            break;
+//        }
     }
-    
     
     for (int i=0;i<[filetype_extUADE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
@@ -11145,10 +11153,10 @@ extern bool icloud_available;
             [available_player insertObject:[NSNumber numberWithInt:(mdz_defaultSIDPLAYER?MMP_WEBSID:MMP_SIDPLAY)] atIndex:0];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:(mdz_defaultSIDPLAYER?MMP_WEBSID:MMP_SIDPLAY)] atIndex:0];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player insertObject:[NSNumber numberWithInt:(mdz_defaultSIDPLAYER?MMP_WEBSID:MMP_SIDPLAY)] atIndex:0];
+//            break;
+//        }
     }
     
     for (int i=0;i<[filetype_extADPLUG count];i++) {
@@ -11163,10 +11171,10 @@ extern bool icloud_available;
                     [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
                     break;
                 }
-                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-                    [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
-                    break;
-                }
+//                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+//                    [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+//                    break;
+//                }
             } else {
                 //let Timidity plays
             }
@@ -11176,11 +11184,11 @@ extern bool icloud_available;
                 else [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
                 break;
             }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-                if (mADPLUGPriorityOverMod) [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
-                else [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
-                break;
-            }
+//            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+//                if (mADPLUGPriorityOverMod) [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+//                else [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
+//                break;
+//            }
         }
     }
     
@@ -11189,10 +11197,10 @@ extern bool icloud_available;
             [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
-            break;
-        }
+//        if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
+//            [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
+//            break;
+//        }
     }
     
     //NSLog(@"Loading file:%@ ",filePath);

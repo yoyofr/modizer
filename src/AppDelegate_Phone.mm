@@ -17,6 +17,8 @@
 #import "SettingsGenViewController.h"
 #import "CarPlayAndRemoteManagement.h"
 
+#import "ModizFileHelper.h"
+
 extern volatile t_settings settings[MAX_SETTINGS];
 
 //#import <AVFoundation/AVFoundation.h>
@@ -106,62 +108,7 @@ extern "C" void updateMainLoopC(void) {
 */
 
 -(void) getSupportedExtensionList {
-    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
-    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
-    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-    NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
-    NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
-    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
-    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
-    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
-    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
-    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
-    
-    NSMutableArray *supportedExtension=[[NSMutableArray alloc] init];
-    [supportedExtension addObjectsFromArray:filetype_extSID];
-    [supportedExtension addObjectsFromArray:filetype_extMDX];
-    [supportedExtension addObjectsFromArray:filetype_extSTSOUND];
-    [supportedExtension addObjectsFromArray:filetype_extATARISOUND];
-    [supportedExtension addObjectsFromArray:filetype_extSC68];
-    [supportedExtension addObjectsFromArray:filetype_extPT3];
-    [supportedExtension addObjectsFromArray:filetype_extNSFPLAY];
-    [supportedExtension addObjectsFromArray:filetype_extPIXEL];
-    [supportedExtension addObjectsFromArray:filetype_extUADE];
-    [supportedExtension addObjectsFromArray:filetype_extMODPLUG];
-    [supportedExtension addObjectsFromArray:filetype_extXMP];
-    [supportedExtension addObjectsFromArray:filetype_extGME];
-    [supportedExtension addObjectsFromArray:filetype_extADPLUG];
-    [supportedExtension addObjectsFromArray:filetype_extHC];
-    [supportedExtension addObjectsFromArray:filetype_extEUP];
-    [supportedExtension addObjectsFromArray:filetype_extHVL];
-    [supportedExtension addObjectsFromArray:filetype_extS98];
-    [supportedExtension addObjectsFromArray:filetype_extKSS];
-    [supportedExtension addObjectsFromArray:filetype_extGSF];
-    [supportedExtension addObjectsFromArray:filetype_extASAP];
-    [supportedExtension addObjectsFromArray:filetype_extVGM];
-    [supportedExtension addObjectsFromArray:filetype_extWMIDI];
-    [supportedExtension addObjectsFromArray:filetype_extARCHIVE];
-    [supportedExtension addObjectsFromArray:filetype_extPMD];
-    [supportedExtension addObjectsFromArray:filetype_ext2SF];
-    [supportedExtension addObjectsFromArray:filetype_extV2M];
-    [supportedExtension addObjectsFromArray:filetype_extVGMSTREAM];
+    NSMutableArray *supportedExtension=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AND_DATAFILE];
     
     NSOrderedSet *orderedSet = [NSOrderedSet orderedSetWithArray:supportedExtension];
     NSArray *arrayWithoutDuplicates = [orderedSet array];

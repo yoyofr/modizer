@@ -2333,8 +2333,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 	// load module
 
-	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-        defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                    defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                    defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                    defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value
+                         archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
 		//error while loading
         
         if ( [mplayer isArchive] &&
@@ -2345,7 +2351,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if ([mplayer selectNextArcEntry]<0) break;
                 
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                           defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                           defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                           defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                           defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                          defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                     defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
             } while (retcode);
         }
@@ -2364,7 +2375,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                 defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
@@ -2374,7 +2390,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     do {
                         if ([mplayer selectNextArcEntry]<0) break;
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                             defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     } while (retcode);
                     
@@ -2612,16 +2633,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [fileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
             if (!isDir) {
                 NSString *extension = [[file pathExtension] uppercaseString];
-                NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) {
                     cover_img=[UIImage imageWithContentsOfFile:[cpath stringByAppendingFormat:@"/%@",file]];
                     break;
                 }
-                else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) {
-                    cover_img=[UIImage imageWithContentsOfFile:[cpath stringByAppendingFormat:@"/%@",file]];
-                    break;
-                }
-                
             }
         }
         //[fileMngr release];
@@ -2722,7 +2738,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 
     
-	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                    defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                    defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                    defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
         defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
 		
         //error while loading
@@ -2734,7 +2755,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             do {
                 if ([mplayer selectNextArcEntry]<0) break;
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value 
+                           defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                           defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                           defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                           defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                          defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                     defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
@@ -2758,7 +2784,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                 defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 
@@ -2768,7 +2799,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                         break;
                     } else {
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                        retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                             defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     }
                 } while (retcode);
@@ -3379,7 +3415,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
                 
+                NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
+                
             } else {
+                NSLog(@"WS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 if (mHasFocus) {
                     statusbarHidden=NO;
                     [self setNeedsStatusBarAppearanceUpdate];
@@ -5097,16 +5136,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
+    //NSLog(@"transitionning to size: %f x %f\n",size.width,size.height);    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
         //if (!is_macOS) mDeviceType=1; //ipad
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (size.height>size.width) {
-            mDevice_hh=size.height+68;
+            mDevice_hh=size.height+(oglViewFullscreen?0:68);
             mDevice_ww=size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=size.height+68;
+            mDevice_ww=size.height+(oglViewFullscreen?0:68);
             mDevice_hh=size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
@@ -6769,9 +6809,9 @@ extern "C" int current_sample;
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,(char*)voicesName);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,NULL);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,NULL);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
@@ -6783,12 +6823,12 @@ extern "C" int current_sample;
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,(char*)voicesName);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,NULL);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,(char*)voicesName);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,NULL);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor);
+                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
         }
 	}

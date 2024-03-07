@@ -2393,16 +2393,16 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
             int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
             int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
             for (;;) {
-                for (int jj=0;jj<4;jj++) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[jj]>>6));
+                for (int jj=0;jj<4;jj++) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[jj]>>6));
                 
-                if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((dacout>>6));
-                else m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[4]>>6));
-                m_voice_buff[m_voice_ofs+5][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[5]>>6));
+                if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((dacout>>6));
+                else m_voice_buff[m_voice_ofs+4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[4]>>6));
+                m_voice_buff[m_voice_ofs+5][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((out_fm[5]>>6));
                 
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
             for (int jj=0;jj<6;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
