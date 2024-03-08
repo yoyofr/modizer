@@ -33,6 +33,8 @@ static int *fft_freqAvgCount;
 #import "AppDelegate_Phone.h"
 #import "ModizerWin.h"
 
+#import "ModizFileHelper.h"
+
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 //#define NOTES_DISPLAY_LEFTMARGIN 30
 int NOTES_DISPLAY_LEFTMARGIN=30;
@@ -88,9 +90,9 @@ extern "C" signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 
 
 /*extern "C" {
-    int fix_fftr(short int f[], int m, int inverse);
-    int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
-}*/
+ int fix_fftr(short int f[], int m, int inverse);
+ int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
+ }*/
 
 static RootViewControllerPlaylist *nowplayingPL;
 
@@ -217,7 +219,7 @@ static int display_length_mode=0;
         //set new title
         voicesVC.title = NSLocalizedString(@"Voices control",@"Voices control");
         voicesVC.detailViewController=self;
-                
+        
         voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
         // And push the window
         //[self.navigationController pushViewController:voicesVC animated:YES];
@@ -266,7 +268,7 @@ static int display_length_mode=0;
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
     //containerView.layer.shadowOpacity = 1.0;
     //containerView.layer.shadowRadius = 2;
-
+    
     alertTableView.layer.cornerRadius = 10;
     alertTableView.layer.masksToBounds = true;
     [containerView addSubview:alertTableView];
@@ -288,10 +290,10 @@ static int display_length_mode=0;
     [alertTableView setAllowsSelection:YES];
     
     BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
-                                                                    10,
-                                                                    200,
-                                                                    
-                                                                    30)];
+                                                                   10,
+                                                                   200,
+                                                                   
+                                                                   30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelSubSel) forControlEvents:UIControlEventTouchUpInside];
@@ -415,10 +417,10 @@ static int display_length_mode=0;
     
     
     BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
-                                                    10,
-                                                    200,
-                                                    
-                                                    30)];
+                                                                   10,
+                                                                   200,
+                                                                   
+                                                                   30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelArcSel) forControlEvents:UIControlEventTouchUpInside];
@@ -469,9 +471,9 @@ static int display_length_mode=0;
 }
 
 -(IBAction)pushedLoopInf {
-	if (mplayer.mLoopMode==0) {
-		[mplayer setLoopInf:1];
-		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.5f blue:1.0f alpha:1.0f] forState:UIControlStateNormal];
+    if (mplayer.mLoopMode==0) {
+        [mplayer setLoopInf:1];
+        [btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.5f blue:1.0f alpha:1.0f] forState:UIControlStateNormal];
         if ([mplayer isPlaying]) {
             int arcidx=[mplayer getArcIndex];
             if (arcidx) {
@@ -484,9 +486,9 @@ static int display_length_mode=0;
                 if (subIdx) [mplayer playGoToSub:subIdx];
             }
         }
-	} else  {
-		[mplayer setLoopInf:0];
-		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.0f] forState:UIControlStateNormal];
+    } else  {
+        [mplayer setLoopInf:0];
+        [btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.0f] forState:UIControlStateNormal];
         if ([mplayer isPlaying]) {
             int arcidx=[mplayer getArcIndex];
             if (arcidx) {
@@ -499,7 +501,7 @@ static int display_length_mode=0;
                 if (subIdx) [mplayer playGoToSub:subIdx];
             }
         }
-	}
+    }
 }
 
 -(int) computeActiveFX {
@@ -544,6 +546,193 @@ static int display_length_mode=0;
     }
 }
 
+- (void) pushedRatingMulti {
+    signed char tmp_rating;
+    short int playcount;
+    __block NSString *filePath,*fileName;
+    UIAlertController *msgAlert;
+    UIAlertAction* userAction;
+    
+    filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+    fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
+    
+    tmp_rating=mPlaylist[mPlaylist_pos].mPlaylistRating;
+    
+    NSLog(@"updating rating multi: %@\n%@",fileName,filePath);
+    
+    if (!tmp_rating) {
+        //add a rating
+        msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Add to favorites",@"")
+                                                                          message:[NSString stringWithFormat:NSLocalizedString(@"What do you want to add",@"")]
+                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
+        //Cancel action
+        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                                                             handler:^(UIAlertAction * action) {
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+        }];
+        [msgAlert addAction:cancelAction];
+        
+        //Add current file action
+        userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@:%@",NSLocalizedString(@"Current file:",@""),[fileName lastPathComponent]] style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction * action) {
+                        
+            //Update the rating at file level
+            filePath=[ModizFileHelper getFullCleanFilePath:filePath];
+            DBHelper::updateRatingDBmod(filePath,5);
+            mPlaylist[mPlaylist_pos].mPlaylistRating=5;
+            
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+        }];
+        [msgAlert addAction:userAction];
+                
+        //Add current archive entry
+        if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
+            userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@:%@",NSLocalizedString(@"Current archive entry",@""),[mplayer getArcEntryTitle:[mplayer getArcIndex]]] style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * action) {
+                //Update the rating at file level
+                filePath=[ModizFileHelper getFullCleanFilePath:filePath];
+                filePath=[NSString stringWithFormat:@"%@@%d",filePath,[self.mplayer getArcIndex]];
+                DBHelper::updateRatingDBmod(filePath,5);
+                mPlaylist[mPlaylist_pos].mPlaylistRating=5;
+                
+                if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            }];
+            [msgAlert addAction:userAction];
+        }
+        if (mplayer.mod_subsongs>1) {
+            userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@:%@",NSLocalizedString(@"Current sub song",@""),[mplayer getSubTitle:mplayer.mod_currentsub]] style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * action) {
+                //Update the rating at file level
+                filePath=[ModizFileHelper getFullCleanFilePath:filePath];
+                
+                if ([self.mplayer isArchive]) filePath=[NSString stringWithFormat:@"%@@%d?%d",filePath,[self.mplayer getArcIndex],mplayer.mod_currentsub];
+                else filePath=[NSString stringWithFormat:@"%@?%d",filePath,self.mplayer.mod_currentsub];
+                
+                DBHelper::updateRatingDBmod(filePath,5);
+                mPlaylist[mPlaylist_pos].mPlaylistRating=5;
+                
+                if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            }];
+            [msgAlert addAction:userAction];
+        }
+    } else {
+        //remove a rating
+        msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Remove from favorites",@"")
+                                                                          message:[NSString stringWithFormat:NSLocalizedString(@"What do you want to remove",@"")]
+                                                                   preferredStyle:UIAlertControllerStyleActionSheet];
+    }
+    
+    [self showAlert:msgAlert];
+}
+
+
+-(int) getCurrentRating {
+    NSString *filePath,*fileName;
+    filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+    fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
+    short int playcount;
+    signed char rating;
+        
+    if ([mplayer isArchive]) {
+        /////////////////////////////////////////////////////////////////////////////:
+        //Archive
+        /////////////////////////////////////////////////////////////////////////////:
+        
+        //1st try current entry
+        if (!(mOnlyCurrentEntry&1)) {
+            filePath=[filePath stringByAppendingFormat:@"@%d",[mplayer getArcIndex]];
+        }
+        if (!(mOnlyCurrentSubEntry&1)) {
+            filePath=[filePath stringByAppendingFormat:@"?%d",mplayer.mod_currentsub];
+        }
+        if (DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&rating)) {
+            //got stat
+            NSLog(@"Rating %d found for %@",rating,filePath);
+            return rating;
+        }
+        
+        //no stat, try at higher level
+        filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+        
+        if (!(mOnlyCurrentSubEntry&1)) {
+            //1st case, subsongs available, try without taking current subsong into account
+            //still take into account archive entry
+            if (!(mOnlyCurrentEntry&1)) {
+                filePath=[filePath stringByAppendingFormat:@"@%d",[mplayer getArcIndex]];
+            }
+            if (DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&rating)) {
+                NSLog(@"Rating %d found for %@",rating,filePath);
+                return rating;
+            }
+            //still no data, try at archive entry level
+            filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+            if (DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&rating)) {
+                NSLog(@"Rating %d found for %@",rating,filePath);
+                return rating;
+            }
+            //still no data,  try at file level
+            if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
+                NSLog(@"Rating %d found for %@",rating,filePath);
+                return rating;
+            }
+            NSLog(@"no rating for %@",filePath);
+            return 0;
+        }
+        //2nd case, no subsong available
+        //try global file
+        filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+        if (DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&rating)) {
+            NSLog(@"Rating %d found for %@",rating,filePath);
+            return rating;
+        }
+        //still no data,  try at file level
+        if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
+            NSLog(@"Rating %d found for %@",rating,filePath);
+            return rating;
+        }
+        NSLog(@"no rating for %@",filePath);
+        return 0;
+        
+    } else if ([mplayer isMultiSongs]) {
+        /////////////////////////////////////////////////////////////////////////////:
+        //No archive but Multisubsongs
+        /////////////////////////////////////////////////////////////////////////////:
+        // 1st, try  current entry
+        
+        if (!(mOnlyCurrentSubEntry&1)) {
+            filePath=[filePath stringByAppendingFormat:@"?%d",[mplayer getArcIndex]];
+        }
+        if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
+            NSLog(@"yo");
+            if (((int)rating)>0) {
+                NSLog(@"Rating %d found for %@ / %@",rating,fileName,filePath);
+                return rating;
+            }
+        }
+        // no data, try at file level
+        filePath=[ModizFileHelper getFilePathNoSubSong:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
+        //fileName=[filePath lastPathComponent];
+                        
+        if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
+            NSLog(@"yo");
+            if (((int)rating)>0) {
+                NSLog(@"Rating %d found for %@ / %@",rating,fileName,filePath);
+                return rating;
+            }
+        }
+        //still no data
+        NSLog(@"no rating for %@ / %@",fileName,filePath);
+        return 0;
+            
+    }
+    
+    if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
+        NSLog(@"Rating %d found for %@",rating,filePath);
+        return rating;
+    }
+    return 0;
+}
+
 -(void) pushedRatingCommon:(signed char)rating{
     signed char tmp_rating;
     short int playcount;
@@ -551,7 +740,17 @@ static int display_length_mode=0;
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
     
-    //NSLog(@"updating rating (%d): %@\n%@",rating,fileName,filePath);
+    bool single_music_file=true;
+    if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) single_music_file=false;
+    if (mplayer.mod_subsongs>1) single_music_file=false;
+    
+    if (single_music_file==false) {
+        [self pushedRatingMulti];
+        return;
+    }
+    
+    NSLog(@"updating rating simple: %@\n%@",fileName,filePath);
+    return;
     
     if ([mplayer isArchive]) {
         /////////////////////////////////////////////////////////////////////////////:
@@ -618,12 +817,12 @@ static int display_length_mode=0;
         DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,rating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
     }
     
-	if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
-		mSendStatTimer=0;
-		[GoogleAppHelper SendStatistics:fileName path:filePath rating:mRating playcount:playcount];
-	}
-	mPlaylist[mPlaylist_pos].mPlaylistRating=rating;
-	[self showRating:mRating];
+    if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
+        mSendStatTimer=0;
+        [GoogleAppHelper SendStatistics:fileName path:filePath rating:mRating playcount:playcount];
+    }
+    mPlaylist[mPlaylist_pos].mPlaylistRating=rating;
+    [self showRating:mRating];
 }
 
 #import "PlaylistCommonFunctions.h"
@@ -646,10 +845,10 @@ static int display_length_mode=0;
 
 
 -(IBAction)pushedRating5{
-	if (!mPlaylist_size) return;
+    if (!mPlaylist_size) return;
     if (mRating==5) mRating=0;
     else mRating=5;
-	[self pushedRatingCommon:mRating];
+    [self pushedRatingCommon:mRating];
 }
 
 static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
@@ -724,8 +923,8 @@ static float movePinchScale,movePinchScaleOld;
         
         [self checkGLViewCanDisplay];
     }
-	
-	
+    
+    
     
     /////////////////////
     //ADPLUG
@@ -788,13 +987,13 @@ static float movePinchScale,movePinchScaleOld;
             long x = strtol(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text, 0, 0);
             [mplayer optSIDThirdSIDAddress:x];
         } else [mplayer optSIDThirdSIDAddress:0];
-
+        
         [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
         
         
-            
+        
     }
     
     /////////////////////
@@ -857,8 +1056,8 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optTIM_Resample:(int)(settings[TIM_Resample].detail.mdz_switch.switch_value)];
         [mplayer optTIM_LPFilter:(int)(settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value)];
         [mplayer optTIM_Amplification:(int)(settings[TIM_Amplification].detail.mdz_slider.slider_value)];
-	}
-
+    }
+    
     /////////////////////
     //VGMSTREAM
     /////////////////////
@@ -868,7 +1067,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optVGMSTREAM_Fadeouttime:(int)(settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value)];
         [mplayer optVGMSTREAM_ResampleQuality:(int)(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value)];
     }
-
+    
     /////////////////////
     //HC
     /////////////////////
@@ -884,7 +1083,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optOMPT_StereoSeparation:settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value];
         [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
     }
-	
+    
     /////////////////////
     //XMP
     /////////////////////
@@ -900,39 +1099,39 @@ static float movePinchScale,movePinchScaleOld;
 
 -(void) checkGLViewCanDisplay{
     if (mOglViewIsHidden) {
-		m_oglView.hidden=YES;
-	} else {
-		if ((infoView.hidden==YES)) {
-			if (m_oglView.hidden) {
-				viewTapHelpInfo=0;//255;
+        m_oglView.hidden=YES;
+    } else {
+        if ((infoView.hidden==YES)) {
+            if (m_oglView.hidden) {
+                viewTapHelpInfo=0;//255;
                 if ([self computeActiveFX]==0) {viewTapHelpShow=1;viewTapHelpShowMode=1;}
                 else viewTapHelpShow=0;
-			}
-			m_oglView.hidden=NO;
-		}
-	}
+            }
+            m_oglView.hidden=NO;
+        }
+    }
 }
 
 - (IBAction)changeLoopMode {
-	mLoopMode++;
-	if (mLoopMode==3) mLoopMode=0;
-	switch (mLoopMode) {
-		case 0:
-			buttonLoopList.hidden=NO;
-			buttonLoopListSel.hidden=YES;
-			buttonLoopTitleSel.hidden=YES;
-			break;
-		case 1:
-			buttonLoopList.hidden=YES;
-			buttonLoopListSel.hidden=NO;
-			buttonLoopTitleSel.hidden=YES;
-			break;
-		case 2:
-			buttonLoopList.hidden=YES;
-			buttonLoopListSel.hidden=YES;
-			buttonLoopTitleSel.hidden=NO;
-			break;
-	}
+    mLoopMode++;
+    if (mLoopMode==3) mLoopMode=0;
+    switch (mLoopMode) {
+        case 0:
+            buttonLoopList.hidden=NO;
+            buttonLoopListSel.hidden=YES;
+            buttonLoopTitleSel.hidden=YES;
+            break;
+        case 1:
+            buttonLoopList.hidden=YES;
+            buttonLoopListSel.hidden=NO;
+            buttonLoopTitleSel.hidden=YES;
+            break;
+        case 2:
+            buttonLoopList.hidden=YES;
+            buttonLoopListSel.hidden=YES;
+            buttonLoopTitleSel.hidden=NO;
+            break;
+    }
 }
 
 - (IBAction)shuffle {
@@ -960,9 +1159,9 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 - (void)oglViewSwitchFS {
-	oglViewFullscreen^=1;
-	oglViewFullscreenChanged=1;
-	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    oglViewFullscreen^=1;
+    oglViewFullscreenChanged=1;
+    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 
 - (IBAction)backPushed:(id)sender {
@@ -971,65 +1170,65 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 - (IBAction)playPushed:(id)sender {
-	mPaused=0;
-	if (mIsPlaying) {
+    mPaused=0;
+    if (mIsPlaying) {
         if (btnPlayCFlow.hidden==NO) {
             btnPlayCFlow.hidden=YES;
             btnPauseCFlow.hidden=NO;
         }
         
-		self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
-			self.pauseBarSub.hidden=NO;
-		} else {
-			self.pauseBar.hidden=NO;
-		}
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+            self.pauseBarSub.hidden=NO;
+        } else {
+            self.pauseBar.hidden=NO;
+        }
         
-		[self updateBarPos];
-		[mplayer Pause:NO];
-	} else {
-		[self play_curEntry:-1];
-	}
-	return;
+        [self updateBarPos];
+        [mplayer Pause:NO];
+    } else {
+        [self play_curEntry:-1];
+    }
+    return;
 }
 - (IBAction)pausePushed:(id)sender {
-	mPaused=1;
-	if (mIsPlaying) {
+    mPaused=1;
+    if (mIsPlaying) {
         if (btnPauseCFlow.hidden==NO) {
             btnPauseCFlow.hidden=YES;
             btnPlayCFlow.hidden=NO;
         }
         
-		self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
-			self.playBarSub.hidden=NO;
-		} else {
-			self.playBar.hidden=NO;
-		}
-		[self updateBarPos];
-		[mplayer Pause:YES];
-	}
-	return;
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+            self.playBarSub.hidden=NO;
+        } else {
+            self.playBar.hidden=NO;
+        }
+        [self updateBarPos];
+        [mplayer Pause:YES];
+    }
+    return;
 }
 
 - (IBAction)sliderProgressModuleTest:(id)sender {
-	int slider_time;
-	sliderProgressModuleChanged=1;
-	sliderProgressModuleEdit=1;
-	if ([mplayer getSongLength]>0) slider_time=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
-	
+    int slider_time;
+    sliderProgressModuleChanged=1;
+    sliderProgressModuleEdit=1;
+    if ([mplayer getSongLength]>0) slider_time=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    
     if (display_length_mode&&([mplayer getSongLength]>0)) {
         labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-slider_time)/1000)/60,(([mplayer getSongLength]-slider_time)/1000)%60];
     } else {
         labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", (slider_time/1000)/60,(slider_time/1000)%60];
     }
-	return;
+    return;
 }
 
 -(void) seek:(NSNumber*)seekTime {
@@ -1037,7 +1236,7 @@ static float movePinchScale,movePinchScaleOld;
     if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
     
     [mplayer Seek:seekTime.intValue];
-        
+    
     if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
     //sliderProgressModuleChanged=0;
@@ -1058,58 +1257,58 @@ static float movePinchScale,movePinchScaleOld;
         if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
         else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     }
-        
+    
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
         NSString *title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         
-         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                  title,
-                                  MPMediaItemPropertyTitle,
-                                  artist,
-                                  MPMediaItemPropertyArtist,
-                                  artwork,
-                                  MPMediaItemPropertyArtwork,
-                                  artist,
-                                  MPMediaItemPropertyAlbumArtist,
-                                  album,
-                                  MPMediaItemPropertyAlbumTitle,
-                                  [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
-                                  MPNowPlayingInfoPropertyMediaType,
-                                  
-                                  [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                  MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                  [NSNumber numberWithUnsignedInteger:mPlaylist_size],
-                                  MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                                                       
-                                  [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                  MPMediaItemPropertyPlaybackDuration,
-                                  [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                  MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                  (mPaused?@0:@1),
-                                  MPNowPlayingInfoPropertyPlaybackRate,
-                                                                  
-                                  //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
-                                  //MPMediaItemPropertyPersistentID,
-                                  nil];
+        infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                     title,
+                                     MPMediaItemPropertyTitle,
+                                     artist,
+                                     MPMediaItemPropertyArtist,
+                                     artwork,
+                                     MPMediaItemPropertyArtwork,
+                                     artist,
+                                     MPMediaItemPropertyAlbumArtist,
+                                     album,
+                                     MPMediaItemPropertyAlbumTitle,
+                                     [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                     MPNowPlayingInfoPropertyMediaType,
+                                     
+                                     [NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                     MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                     [NSNumber numberWithUnsignedInteger:mPlaylist_size],
+                                     MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                     
+                                     [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                     MPMediaItemPropertyPlaybackDuration,
+                                     [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                     MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                     (mPaused?@0:@1),
+                                     MPNowPlayingInfoPropertyPlaybackRate,
+                                     
+                                     //[NSNumber numberWithUnsignedInteger:mPlaylist_pos],
+                                     //MPMediaItemPropertyPersistentID,
+                                     nil];
     } else {
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 artwork,
-                                 MPMediaItemPropertyArtwork,
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                                                      
-                                 @0,
-                                 MPMediaItemPropertyPlaybackDuration,
-                                 @0,
-                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                 @0,
-                                 MPNowPlayingInfoPropertyPlaybackRate,
-                                                                                                  
-                                 nil];
+                                     artwork,
+                                     MPMediaItemPropertyArtwork,
+                                     @0,
+                                     MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                     @0,
+                                     MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                     
+                                     @0,
+                                     MPMediaItemPropertyPlaybackDuration,
+                                     @0,
+                                     MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                     @0,
+                                     MPNowPlayingInfoPropertyPlaybackRate,
+                                     
+                                     nil];
     }
     
     no_reetrant=false;
@@ -1117,16 +1316,16 @@ static float movePinchScale,movePinchScaleOld;
 
 
 - (IBAction)sliderProgressModuleValueChanged:(id)sender {
-	int curTime;
-	if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
-	[mplayer Seek:curTime];
-	
-	
-	if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
-	else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-	sliderProgressModuleChanged=0;
-	sliderProgressModuleEdit=0;
-	return;
+    int curTime;
+    if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    [mplayer Seek:curTime];
+    
+    
+    if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
+    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+    sliderProgressModuleChanged=0;
+    sliderProgressModuleEdit=0;
+    return;
 }
 
 -(IBAction) changeTimeDisplay {
@@ -1142,7 +1341,7 @@ static float movePinchScale,movePinchScaleOld;
     if (noReEntrant) return;
     noReEntrant=true;
     
-	int itime=[mplayer getCurrentTime];
+    int itime=[mplayer getCurrentTime];
     
     if (mplayer.mLoadModuleStatus<0) {
         //remove playlist entry when issue detected after loading, i.e. UADE failing
@@ -1174,36 +1373,38 @@ static float movePinchScale,movePinchScaleOld;
         noReEntrant=false;
         return;
     }
-	
-	if (mSendStatTimer) {
-		mSendStatTimer--;
-		if (mSendStatTimer==0) {
-			short int playcount;
+    
+    if (mSendStatTimer) {
+        mSendStatTimer--;
+        if (mSendStatTimer==0) {
+            short int playcount;
             signed char tmp_rating;
-			DBHelper::getFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,mPlaylist[mPlaylist_pos].mPlaylistFilepath,&playcount,&tmp_rating);
-			[GoogleAppHelper SendStatistics:mPlaylist[mPlaylist_pos].mPlaylistFilename path:mPlaylist[mPlaylist_pos].mPlaylistFilepath rating:tmp_rating playcount:playcount];
-		}
-	}
-	int mpl_upd=[mplayer shouldUpdateInfos];
-	if (mpl_upd||mShouldUpdateInfos) {
+            DBHelper::getFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,mPlaylist[mPlaylist_pos].mPlaylistFilepath,&playcount,&tmp_rating);
+            [GoogleAppHelper SendStatistics:mPlaylist[mPlaylist_pos].mPlaylistFilename path:mPlaylist[mPlaylist_pos].mPlaylistFilepath rating:tmp_rating playcount:playcount];
+        }
+    }
+    int mpl_upd=[mplayer shouldUpdateInfos];
+    if (mpl_upd||mShouldUpdateInfos) {
         
         //can change after load, ex Timidity
         if (mplayer.numChannels) {
             if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
             else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
         } else labelNumChannels.text=[NSString stringWithFormat:@""];
-                
+        
         ///////////////////////////////////////////////////
         // Update miniplayer
         ///////////////////////////////////////////////////
         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
         mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
-        
-        
+            
+            
         /////////////////////////////////////////////////////////////////////////////
         //update rating
         /////////////////////////////////////////////////////////////////////////////
-        [self pushedRatingCommon:-1];
+        //[self pushedRatingCommon:-1];
+            mPlaylist[mPlaylist_pos].mPlaylistRating=[self getCurrentRating];
+        
         [self showRating:mPlaylist[mPlaylist_pos].mPlaylistRating];
         
         
@@ -1260,8 +1461,8 @@ static float movePinchScale,movePinchScaleOld;
             
             mShouldUpdateInfos=0;
         }
-		if (mpl_upd>=2) {
-			if (mpl_upd==2) {
+        if (mpl_upd>=2) {
+            if (mpl_upd==2) {
                 if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value==0) {
                     labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
                     lblCurrentSongCFlow.text=labelModuleName.text;
@@ -1274,9 +1475,9 @@ static float movePinchScale,movePinchScaleOld;
             if (mpl_upd==3) {
                 if (infoView.hidden==FALSE) [textMessage scrollRangeToVisible:NSMakeRange([textMessage.text length], 0)];
             }
-		}
-		[mplayer setInfosUpdated];
-		if ((mplayer.mod_subsongs>1)/*&&(mOnlyCurrentSubEntry==0)*/) {
+        }
+        [mplayer setInfosUpdated];
+        if ((mplayer.mod_subsongs>1)/*&&(mOnlyCurrentSubEntry==0)*/) {
             int mpl_arcCnt=[mplayer getArcEntriesCnt];
             if (mpl_arcCnt) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,
@@ -1285,93 +1486,93 @@ static float movePinchScale,movePinchScaleOld;
             } else {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub-mplayer.mod_minsub+1,1,mplayer.mod_subsongs];
             }
-			//[pvSubSongSel reloadAllComponents];
+            //[pvSubSongSel reloadAllComponents];
             
             current_selmode=ARCSUB_MODE_NONE;
             [self dismissViewControllerAnimated:YES completion:nil];
-			
-			if (btnShowSubSong.hidden==true) {
-				if (mOnlyCurrentSubEntry==0) btnShowSubSong.hidden=false;
-			}
-			
-			
-		} else {
+            
+            if (btnShowSubSong.hidden==true) {
+                if (mOnlyCurrentSubEntry==0) btnShowSubSong.hidden=false;
+            }
+            
+            
+        } else {
             int mpl_arcCnt=[mplayer getArcEntriesCnt];
             if (mpl_arcCnt) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d",mPlaylist_pos+1,mPlaylist_size,
                                   [mplayer getArcIndex]+1,mpl_arcCnt];
             } else playlistPos.text=[NSString stringWithFormat:@"%d of %d",mPlaylist_pos+1,mPlaylist_size];
-			btnShowSubSong.hidden=true;
-		}
+            btnShowSubSong.hidden=true;
+        }
         self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		if (mIsPlaying&& (mplayer.bGlobalAudioPause==0) ) {
-			if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
-			else self.pauseBar.hidden=NO;
-			mPaused=0;
-		} else {
-			if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
-			else self.playBar.hidden=NO;
-			mPaused=1;
-		}
-		[self updateBarPos];
-		
-		if ([mplayer getSongLength]<0) {
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if (mIsPlaying&& (mplayer.bGlobalAudioPause==0) ) {
+            if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
+            else self.pauseBar.hidden=NO;
+            mPaused=0;
+        } else {
+            if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
+            else self.playBar.hidden=NO;
+            mPaused=1;
+        }
+        [self updateBarPos];
+        
+        if ([mplayer getSongLength]<0) {
             if (display_length_mode) display_length_mode=0;
-			sliderProgressModule.enabled=FALSE;
+            sliderProgressModule.enabled=FALSE;
             labelModuleLength.text=@"--:--";
-		} else {
+        } else {
             sliderProgressModule.enabled=TRUE;
             labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
         }
-	}
-	
-	if (([mplayer getSongLength]>0)&&(itime>[mplayer getSongLength])) // if gone too far, limit
-		itime=[mplayer getSongLength];
-	
-	if (!sliderProgressModuleEdit) {
-		labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+    }
+    
+    if (([mplayer getSongLength]>0)&&(itime>[mplayer getSongLength])) // if gone too far, limit
+        itime=[mplayer getSongLength];
+    
+    if (!sliderProgressModuleEdit) {
+        labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         
         if ([mplayer getSongLength]>0) {
             lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
         } else {
             lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         }
-		if ([mplayer getSongLength]>0) {
-			if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
-			sliderProgressModule.value=(float)(itime)/(float)([mplayer getSongLength]);
-		}
-		if ((mMoveStartChanLeft)&&(startChan>0)) startChan--;
-		if ((mMoveStartChanRight)&&(startChan<(mplayer.numChannels-visibleChan))) startChan++;
-	}
-	
-	int seekinprogress=[mplayer isSeeking];
-	if (seekinprogress) {
-		labelSeeking.hidden=FALSE;		
+        if ([mplayer getSongLength]>0) {
+            if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
+            sliderProgressModule.value=(float)(itime)/(float)([mplayer getSongLength]);
+        }
+        if ((mMoveStartChanLeft)&&(startChan>0)) startChan--;
+        if ((mMoveStartChanRight)&&(startChan<(mplayer.numChannels-visibleChan))) startChan++;
+    }
+    
+    int seekinprogress=[mplayer isSeeking];
+    if (seekinprogress) {
+        labelSeeking.hidden=FALSE;
         labelSeeking.text=NSLocalizedString(@"Seeking",@"");
     } else {
         labelSeeking.hidden=TRUE;
         //[self hideWaiting];
     }
-	
-	if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
-		//have to update the pause button
-		mSendStatTimer=0;
-		mIsPlaying=FALSE;
-		mPaused=1;
+    
+    if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
+        //have to update the pause button
+        mSendStatTimer=0;
+        mIsPlaying=FALSE;
+        mPaused=1;
         self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
-		else self.playBar.hidden=NO;
-		
-		[self updateBarPos];
-		//and go to next entry if playlist
-		if ((mLoopMode==2)||(mplayer.mLoopMode==1))  [self play_curEntry:-1];
-		else {
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
+        else self.playBar.hidden=NO;
+        
+        [self updateBarPos];
+        //and go to next entry if playlist
+        if ((mLoopMode==2)||(mplayer.mLoopMode==1))  [self play_curEntry:-1];
+        else {
             if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) {
                 if ([mplayer selectNextArcEntry]<0) [self play_nextEntry];
                 else {
@@ -1382,142 +1583,142 @@ static float movePinchScale,movePinchScaleOld;
             } else [self play_nextEntry];
         }
         noReEntrant=false;
-		return;
-	} else {
+        return;
+    } else {
         //		NSLog(@"waiting : %d %d",mplayer.bGlobalAudioPause,[mplayer isEndReached]);
-	}
-	
-	if ( (mPaused==0)&&(mplayer.bGlobalAudioPause==0)&&(settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value) ) {
-		if (mRandomFXCpt) {
-			mRandomFXCpt--;
-			mRandomFXCptRev++;
-			if ((mRandomFXCptRev>ALLOW_CHANGE_ON_BEAT_TIME*5)&&((arc4random()&3)>1) ) {
-				for (int i=0;i<SPECTRUM_BANDS;i++) {
-					if (real_beatDetectedL[i]) {mRandomFXCpt=0;break;}
-					if (real_beatDetectedR[i]) {mRandomFXCpt=0;break;}
-				}
-			}
-		}
-		if (mRandomFXCpt==0) {
-			mRandomFXCpt=MIN_RANDFX_TIME*5+arc4random()%(5*MAX_RANDFX_TIME); //Min is 10 seconds Max is 60seconds
-			mRandomFXCptRev=0;
-			settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-			settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-			settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
-			settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-			settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+    }
+    
+    if ( (mPaused==0)&&(mplayer.bGlobalAudioPause==0)&&(settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value) ) {
+        if (mRandomFXCpt) {
+            mRandomFXCpt--;
+            mRandomFXCptRev++;
+            if ((mRandomFXCptRev>ALLOW_CHANGE_ON_BEAT_TIME*5)&&((arc4random()&3)>1) ) {
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    if (real_beatDetectedL[i]) {mRandomFXCpt=0;break;}
+                    if (real_beatDetectedR[i]) {mRandomFXCpt=0;break;}
+                }
+            }
+        }
+        if (mRandomFXCpt==0) {
+            mRandomFXCpt=MIN_RANDFX_TIME*5+arc4random()%(5*MAX_RANDFX_TIME); //Min is 10 seconds Max is 60seconds
+            mRandomFXCptRev=0;
+            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
             settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-			settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
-			switch (arc4random()%19) {
-				case 0:
-					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 1:
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 2:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					break;
-				case 3:
-					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
-					break;
-				case 4:
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-					break;
-				case 5:
-					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-					break;
-				case 6:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 7:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 8:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
-					break;
-				case 9:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-					break;
-				case 10:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-					break;
-				case 11:
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 12:
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-					break;
-				case 13:
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-					break;
-				case 14:
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
-					break;
-				case 15:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					break;
-				case 16:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
-					break;
-				case 17:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-					break;
-				case 18:
-					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-					break;
+            settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+            switch (arc4random()%19) {
+                case 0:
+                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 1:
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 2:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    break;
+                case 3:
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
+                    break;
+                case 4:
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    break;
+                case 5:
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    break;
+                case 6:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 7:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 8:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
+                    break;
+                case 9:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    break;
+                case 10:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    break;
+                case 11:
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 12:
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    break;
+                case 13:
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    break;
+                case 14:
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
+                    break;
+                case 15:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    break;
+                case 16:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
+                    break;
+                case 17:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    break;
+                case 18:
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    break;
                     
-			}
-		}
-		
-	}
-	
-	if (updMPNowCnt==0) {  // call 1/5 => 1/s
+            }
+        }
+        
+    }
+    
+    if (updMPNowCnt==0) {  // call 1/5 => 1/s
         [self updMediaCenterProgress];
         updMPNowCnt=5;
     } else updMPNowCnt--;
     noReEntrant=false;
-	return;
+    return;
 }
 
 int qsort_ComparePlEntries(const void *entryA, const void *entryB) {
-	NSString *strA,*strB;
-	NSComparisonResult res;
-	strA=((t_plPlaylist_entry*)entryA)->mPlaylistFilename;
-	strB=((t_plPlaylist_entry*)entryB)->mPlaylistFilename;
-	res=[strA localizedCaseInsensitiveCompare:strB];
-	if (res==NSOrderedAscending) return -1;
-	if (res==NSOrderedSame) return 0;
-	return 1; //NSOrderedDescending
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_plPlaylist_entry*)entryA)->mPlaylistFilename;
+    strB=((t_plPlaylist_entry*)entryB)->mPlaylistFilename;
+    res=[strA localizedCaseInsensitiveCompare:strB];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
 }
 
 int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
-	NSString *strA,*strB;
-	NSComparisonResult res;
-	strA=((t_plPlaylist_entry*)entryA)->mPlaylistFilename;
-	strB=((t_plPlaylist_entry*)entryB)->mPlaylistFilename;
-	res=[strB localizedCaseInsensitiveCompare:strA];
-	if (res==NSOrderedAscending) return -1;
-	if (res==NSOrderedSame) return 0;
-	return 1; //NSOrderedDescending
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_plPlaylist_entry*)entryA)->mPlaylistFilename;
+    strB=((t_plPlaylist_entry*)entryB)->mPlaylistFilename;
+    res=[strB localizedCaseInsensitiveCompare:strA];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
 }
 
 
@@ -1551,7 +1752,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=mPlaylist_pos+1;
         
         // And push the window
-        [self.navigationController pushViewController:nowplayingPL animated:YES];        
+        [self.navigationController pushViewController:nowplayingPL animated:YES];
     }
     
 }
@@ -1567,7 +1768,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //set new title
         eqVC.title = @"Equalizer";
         eqVC.detailViewController=self;
-                
+        
         eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
         
         [self addChildViewController:eqVC];
@@ -1577,109 +1778,109 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 - (IBAction)infoFullscreen {
-	infoIsFullscreen=1;
-	infoZoom.hidden=YES;
-	infoUnzoom.hidden=NO;
-	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    infoIsFullscreen=1;
+    infoZoom.hidden=YES;
+    infoUnzoom.hidden=NO;
+    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 - (IBAction)infoNormal {
-	infoIsFullscreen=0;
-	infoZoom.hidden=NO;
-	infoUnzoom.hidden=YES;
-	mainView.hidden=NO;
-	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    infoIsFullscreen=0;
+    infoZoom.hidden=NO;
+    infoUnzoom.hidden=YES;
+    mainView.hidden=NO;
+    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 
 - (void) adjustTextMessageFont {
     if (infoView.hidden==YES) return;
-        
+    
     /*textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:20];
-    while ((textMessage.contentSize.height > textMessage.frame.size.height)||(textMessage.contentSize.width > textMessage.frame.size.width))
-    {
-        textMessage.font = [textMessage.font fontWithSize:textMessage.font.pointSize -1];
-        [textMessage layoutSubviews];//force .contentSize to update
-    }*/
+     while ((textMessage.contentSize.height > textMessage.frame.size.height)||(textMessage.contentSize.width > textMessage.frame.size.width))
+     {
+     textMessage.font = [textMessage.font fontWithSize:textMessage.font.pointSize -1];
+     [textMessage layoutSubviews];//force .contentSize to update
+     }*/
 }
 
 - (IBAction)showInfo {
-	if (infoView.hidden==NO) {
-		[self hideInfo];
-		return;
-	}
+    if (infoView.hidden==NO) {
+        [self hideInfo];
+        return;
+    }
     textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
     [self adjustTextMessageFont];
     
     
     /*mInWasView=m_oglView;
-    mInWasViewHidden=m_oglView.hidden;
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.50];
-    //	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mInWasView cache:YES];
-	mInWasView.hidden=YES;
-	[UIView commitAnimations];
-	if (infoIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.50];
-        //		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];
-		mainView.hidden=YES;
-		[UIView commitAnimations];
-	}
-	*/
-	infoView.hidden=NO;
-	/*[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.50];
-    //	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
-	[UIView commitAnimations];*/
-	
+     mInWasViewHidden=m_oglView.hidden;
+     [UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //	[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mInWasView cache:YES];
+     mInWasView.hidden=YES;
+     [UIView commitAnimations];
+     if (infoIsFullscreen) {
+     [UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //		[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];
+     mainView.hidden=YES;
+     [UIView commitAnimations];
+     }
+     */
+    infoView.hidden=NO;
+    /*[UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //	[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
+     [UIView commitAnimations];*/
+    
 }
 
 - (IBAction)hideInfo {
     
-	/*[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.50];
-    //	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoView cache:YES];
-    infoView.hidden=YES;
-	[UIView commitAnimations];*/
+    /*[UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //	[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoView cache:YES];
+     infoView.hidden=YES;
+     [UIView commitAnimations];*/
     
     infoView.hidden=YES;
-        
-	
-	/*if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
-		
-        if (mOglViewIsHidden) mInWasViewHidden=YES;
-		else mInWasViewHidden=NO;
-	}
-	if (!mInWasViewHidden) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.50];
-        //		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mInWasView cache:YES];
-		mInWasView.hidden=NO;
-		if (infoIsFullscreen) {
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-			mainView.hidden=NO;
-		}
-		[UIView commitAnimations];
-	} else if (infoIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.50];
-        //		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-		mainView.hidden=NO;
-		[UIView commitAnimations];
-	}
     
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:1.00];
-	[UIView setAnimationDuration:0.70];
-    //	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];*/
+    
+    /*if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
+     
+     if (mOglViewIsHidden) mInWasViewHidden=YES;
+     else mInWasViewHidden=NO;
+     }
+     if (!mInWasViewHidden) {
+     [UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //		[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mInWasView cache:YES];
+     mInWasView.hidden=NO;
+     if (infoIsFullscreen) {
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
+     mainView.hidden=NO;
+     }
+     [UIView commitAnimations];
+     } else if (infoIsFullscreen) {
+     [UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDuration:0.50];
+     //		[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
+     mainView.hidden=NO;
+     [UIView commitAnimations];
+     }
+     
+     
+     [UIView beginAnimations:nil context:nil];
+     [UIView setAnimationDelay:1.00];
+     [UIView setAnimationDuration:0.70];
+     //	[UIView setAnimationDelegate:self];
+     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
+     [UIView commitAnimations];*/
 }
 
 
@@ -1819,7 +2020,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     repeatingTimer = nil;
     mPaused=TRUE;
     mIsPlaying=0;
-        
+    
     [self updMediaCenter];
 }
 
@@ -1835,7 +2036,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
-	[self play_nextEntry];
+    [self play_nextEntry];
     no_reentrant=false;
 }
 
@@ -1843,35 +2044,35 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
-	if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
-		[self play_curEntry:-1];
-	} else [self play_prevEntry];
+    if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
+        [self play_curEntry:-1];
+    } else [self play_prevEntry];
     no_reentrant=false;
 }
 -(BOOL)play_curEntry:(int)subsong {
-	NSString *fileName;
-	NSString *filePath;
-	mIsPlaying=FALSE;
+    NSString *fileName;
+    NSString *filePath;
+    mIsPlaying=FALSE;
     
-	if (mPlaylist_size==0) {
+    if (mPlaylist_size==0) {
         if (repeatingTimer) [repeatingTimer invalidate];
-		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-		[mplayer Stop];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
         return FALSE;
     }
-	
-	if (mPlaylist_pos>mPlaylist_size-1) mPlaylist_pos=0;
-	
-	fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
-	mPlaylist[mPlaylist_pos].mPlaylistCount++;
+    
+    if (mPlaylist_pos>mPlaylist_size-1) mPlaylist_pos=0;
+    
+    fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
+    filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+    mPlaylist[mPlaylist_pos].mPlaylistCount++;
     
     [self showWaitingLoading];
     
-	if ([self play_module:filePath fname:fileName subsong:subsong]==FALSE) {
-		[self remove_from_playlist:mPlaylist_pos];
+    if ([self play_module:filePath fname:fileName subsong:subsong]==FALSE) {
+        [self remove_from_playlist:mPlaylist_pos];
         
         [self hideWaiting];
         [self refreshCurrentVC];
@@ -1881,126 +2082,126 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
         mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
         
-		if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
+        if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
-			alertCannotPlay_displayed=1;
+            alertCannotPlay_displayed=1;
             [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
             
-			[self play_curEntry:-1];
+            [self play_curEntry:-1];
             
         } else {
             
             [self play_curEntry:-1];
         }
-		return FALSE;
-	}
+        return FALSE;
+    }
     
     [self hideWaiting];
     [self refreshCurrentVC];
     
-	return TRUE;
+    return TRUE;
 }
 
 -(void)play_prevEntry {
     if (mPlaylist_size==0) {
         if (repeatingTimer) [repeatingTimer invalidate];
-		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-		[mplayer Stop];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
         return;
     }
-	if (mShuffle) {
-		int i;
-		int minval;
-		minval=mPlaylist[0].mPlaylistCount;
-		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
-		
-		mPlaylist_pos=arc4random()%(mPlaylist_size);
-		i=0;
-		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
-			i++;
-			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}
-		[self play_curEntry:-1];
-	} else {
-		if (mPlaylist_pos>0) mPlaylist_pos--;
-		else if (mLoopMode==1) mPlaylist_pos=mPlaylist_size-1;
-		[self play_curEntry:-1];
-	}
+    if (mShuffle) {
+        int i;
+        int minval;
+        minval=mPlaylist[0].mPlaylistCount;
+        for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
+        
+        mPlaylist_pos=arc4random()%(mPlaylist_size);
+        i=0;
+        while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
+            i++;
+            mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
+        }
+        [self play_curEntry:-1];
+    } else {
+        if (mPlaylist_pos>0) mPlaylist_pos--;
+        else if (mLoopMode==1) mPlaylist_pos=mPlaylist_size-1;
+        [self play_curEntry:-1];
+    }
 }
 
 -(void)play_nextEntry {
     if (mPlaylist_size==0) {
         if (repeatingTimer) [repeatingTimer invalidate];
-		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-		[mplayer Stop];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
         return;
     }
-	if (mShuffle) {
-		int i;
-		int minval;
-		minval=mPlaylist[0].mPlaylistCount;
-		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
-		
-		mPlaylist_pos=arc4random()%(mPlaylist_size);
-		i=0;
-		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
-			i++;
-			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}
-		[self play_curEntry:-1];
-	} else if (mPlaylist_pos<mPlaylist_size-1) {
-		mPlaylist_pos++;
-		[self play_curEntry:-1];
-	} else if (mLoopMode==1) {
-		mPlaylist_pos=0;
-		[self play_curEntry:-1];
-	}
+    if (mShuffle) {
+        int i;
+        int minval;
+        minval=mPlaylist[0].mPlaylistCount;
+        for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
+        
+        mPlaylist_pos=arc4random()%(mPlaylist_size);
+        i=0;
+        while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
+            i++;
+            mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
+        }
+        [self play_curEntry:-1];
+    } else if (mPlaylist_pos<mPlaylist_size-1) {
+        mPlaylist_pos++;
+        [self play_curEntry:-1];
+    } else if (mLoopMode==1) {
+        mPlaylist_pos=0;
+        [self play_curEntry:-1];
+    }
 }
 
 -(void)play_randomEntry {
-	
+    
 }
 
 -(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths {
-	int limitPl=0;
-	mRestart=0;
-	mRestart_sub=0;
+    int limitPl=0;
+    mRestart=0;
+    mRestart_sub=0;
     mRestart_arc=0;
-	mPlayingPosRestart=0;
-	
-	if ([array count]>=MAX_PL_ENTRIES) {
-		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-		[alert show];
-		limitPl=1;
-		//		return;
-	}
-	
-	if (mPlaylist_size) {
-		for (int i=0;i<mPlaylist_size;i++) {
-			mPlaylist[i].mPlaylistFilename=nil;
-			mPlaylist[i].mPlaylistFilepath=nil;
-		}
-	}
-	
-	mPlaylist_size=(limitPl?MAX_PL_ENTRIES:[array count]);
-	for (int i=0;i<mPlaylist_size;i++) {
-		mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[array objectAtIndex:i]];
-		mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[arrayFilepaths objectAtIndex:i]];
-		
-		//DBHelper::getFileStatsDBmod(mPlaylist[i].mPlaylistFilename,mPlaylist[i].mPlaylistFilepath,&playcount,&rating);
-		mPlaylist[i].mPlaylistRating=-1;//rating;
-		mPlaylist[i].mPlaylistCount=0;
+    mPlayingPosRestart=0;
+    
+    if ([array count]>=MAX_PL_ENTRIES) {
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+        [alert show];
+        limitPl=1;
+        //		return;
+    }
+    
+    if (mPlaylist_size) {
+        for (int i=0;i<mPlaylist_size;i++) {
+            mPlaylist[i].mPlaylistFilename=nil;
+            mPlaylist[i].mPlaylistFilepath=nil;
+        }
+    }
+    
+    mPlaylist_size=(limitPl?MAX_PL_ENTRIES:[array count]);
+    for (int i=0;i<mPlaylist_size;i++) {
+        mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[array objectAtIndex:i]];
+        mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[arrayFilepaths objectAtIndex:i]];
+        
+        //DBHelper::getFileStatsDBmod(mPlaylist[i].mPlaylistFilename,mPlaylist[i].mPlaylistFilepath,&playcount,&rating);
+        mPlaylist[i].mPlaylistRating=-1;//rating;
+        mPlaylist[i].mPlaylistCount=0;
         //[self checkAvailableCovers:i];
         mPlaylist[i].cover_flag=-1;
-	}
+    }
     coverflow_needredraw=1;
-	
-	mPlaylist_pos=index;
+    
+    mPlaylist_pos=index;
     if (mShuffle) {
         int i;
         int minval;
@@ -2014,47 +2215,47 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
     }
-	
-	[self play_curEntry:-1];
+    
+    [self play_curEntry:-1];
     
     [self refreshCurrentVC];
 }
 
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index {
-	int limitPl=0;
-	mRestart=0;
-	mRestart_sub=0;
+    int limitPl=0;
+    mRestart=0;
+    mRestart_sub=0;
     mRestart_arc=0;
-	mPlayingPosRestart=0;
+    mPlayingPosRestart=0;
     
-	if (pl->nb_entries>=MAX_PL_ENTRIES) {
-		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-		[alert show];
-		limitPl=1;
+    if (pl->nb_entries>=MAX_PL_ENTRIES) {
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+        [alert show];
+        limitPl=1;
         //		return;
-	}
+    }
     
-	if (mPlaylist_size) {
-		for (int i=0;i<mPlaylist_size;i++) {
-			mPlaylist[i].mPlaylistFilename=nil;
-			mPlaylist[i].mPlaylistFilepath=nil;
-		}
-	}
-	
-	mPlaylist_size=(limitPl?MAX_PL_ENTRIES:pl->nb_entries);
-	for (int i=0;i<mPlaylist_size;i++) {
-		mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:pl->entries[i].label];
-		mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:pl->entries[i].fullpath];
-		
-		mPlaylist[i].mPlaylistRating=pl->entries[i].ratings;
-		mPlaylist[i].mPlaylistCount=0;
+    if (mPlaylist_size) {
+        for (int i=0;i<mPlaylist_size;i++) {
+            mPlaylist[i].mPlaylistFilename=nil;
+            mPlaylist[i].mPlaylistFilepath=nil;
+        }
+    }
+    
+    mPlaylist_size=(limitPl?MAX_PL_ENTRIES:pl->nb_entries);
+    for (int i=0;i<mPlaylist_size;i++) {
+        mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:pl->entries[i].label];
+        mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:pl->entries[i].fullpath];
+        
+        mPlaylist[i].mPlaylistRating=pl->entries[i].ratings;
+        mPlaylist[i].mPlaylistCount=0;
         //        [self checkAvailableCovers:i];
         mPlaylist[i].cover_flag=-1;
-	}
+    }
     coverflow_needredraw=1;
-	
-	mPlaylist_pos=(index>0?index:0);
+    
+    mPlaylist_pos=(index>0?index:0);
     
     if (mShuffle&&(index<0)) {
         int i;
@@ -2070,227 +2271,227 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-	[self play_curEntry:-1];
+    [self play_curEntry:-1];
     
     [self refreshCurrentVC];
 }
 
 -(void)play_restart {
-	for (int i=0;i<mPlaylist_size;i++) {
-		mPlaylist[i].mPlaylistCount=0;
-	}
+    for (int i=0;i<mPlaylist_size;i++) {
+        mPlaylist[i].mPlaylistCount=0;
+    }
     //	DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
-	//[playlistTabView reloadData];
+    //[playlistTabView reloadData];
     
-	//if (segcont_resumeLaunch.selectedSegmentIndex==0) return;
-	if (mPlaylist_size>0) mRestart=1;
+    //if (segcont_resumeLaunch.selectedSegmentIndex==0) return;
+    if (mPlaylist_size>0) mRestart=1;
     else mRestart=0;
     
-	if ([self play_curEntry:-1]) {
-		//	self.tabBarController.selectedViewController = self; //detailViewController;
-	}
+    if ([self play_curEntry:-1]) {
+        //	self.tabBarController.selectedViewController = self; //detailViewController;
+    }
 }
 
 -(int) add_to_playlist:(NSArray *)filePaths fileNames:(NSArray*)fileNames forcenoplay:(int)forcenoplay{
-	int added_pos;
-	int playLaunched=0;
-	int add_entries_nb=[fileNames count];
+    int added_pos;
+    int playLaunched=0;
+    int add_entries_nb=[fileNames count];
     
     coverflow_needredraw=1;
-        
-	if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
-		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-		[alert show];
-		return 0;
-	}
-	
-	if (mPlaylist_size) { //already in a playlist : append to it
-		if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
+    
+    if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+        [alert show];
+        return 0;
+    }
+    
+    if (mPlaylist_size) { //already in a playlist : append to it
+        if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
             
-			for (int i=mPlaylist_size-1;i>=0;i--) {
-				mPlaylist[i+add_entries_nb]=mPlaylist[i];
-			}
-			for (int i=0;i<add_entries_nb;i++) {
-				mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+            for (int i=mPlaylist_size-1;i>=0;i--) {
+                mPlaylist[i+add_entries_nb]=mPlaylist[i];
+            }
+            for (int i=0;i<add_entries_nb;i++) {
+                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i];
                 mPlaylist[i].cover_flag=-1;
-			}
-			added_pos=0;
-			mPlaylist_pos+=add_entries_nb;
-		} else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
-			
-			for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
-				mPlaylist[i+add_entries_nb]=mPlaylist[i];
-			}
-			
-			for (int i=0;i<add_entries_nb;i++) {
-				mPlaylist[i+mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-				mPlaylist[i+mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+            }
+            added_pos=0;
+            mPlaylist_pos+=add_entries_nb;
+        } else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
+            
+            for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
+                mPlaylist[i+add_entries_nb]=mPlaylist[i];
+            }
+            
+            for (int i=0;i<add_entries_nb;i++) {
+                mPlaylist[i+mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+                mPlaylist[i+mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_pos+1].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i+mPlaylist_pos+1];
                 mPlaylist[i+mPlaylist_pos+1].cover_flag=-1;
-			}
-			added_pos=mPlaylist_pos+1;
-		} else { //last
-			for (int i=0;i<add_entries_nb;i++) {
-				mPlaylist[i+mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-				mPlaylist[i+mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+            }
+            added_pos=mPlaylist_pos+1;
+        } else { //last
+            for (int i=0;i<add_entries_nb;i++) {
+                mPlaylist[i+mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+                mPlaylist[i+mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_size].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i+mPlaylist_size];
                 mPlaylist[i+mPlaylist_size].cover_flag=-1;
-			}
-			added_pos=mPlaylist_size;
-		}
-		mPlaylist_size+=add_entries_nb;
-		//TODO To optimize
-		for (int i=added_pos;i<add_entries_nb;i++) {
-			mPlaylist[i].mPlaylistCount=0; //new entry
-		}
-		//DBHelper::getFilesStatsDBmod(&(mPlaylist[added_pos]),add_entries_nb);
-		
-		
-		mShouldUpdateInfos=1;
-	} else { //create a new playlist with downloaded song
-		for (int i=0;i<add_entries_nb;i++) {
-			mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-			mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-			mPlaylist[i].mPlaylistCount=0;
+            }
+            added_pos=mPlaylist_size;
+        }
+        mPlaylist_size+=add_entries_nb;
+        //TODO To optimize
+        for (int i=added_pos;i<add_entries_nb;i++) {
+            mPlaylist[i].mPlaylistCount=0; //new entry
+        }
+        //DBHelper::getFilesStatsDBmod(&(mPlaylist[added_pos]),add_entries_nb);
+        
+        
+        mShouldUpdateInfos=1;
+    } else { //create a new playlist with downloaded song
+        for (int i=0;i<add_entries_nb;i++) {
+            mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+            mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+            mPlaylist[i].mPlaylistCount=0;
             mPlaylist[i].mPlaylistRating=-1;
             //[self checkAvailableCovers:i];
             mPlaylist[i].cover_flag=-1;
-		}
-		mPlaylist_size=add_entries_nb;
-		//DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
-		mPlaylist_pos=0;
-		added_pos=0;
-		[self play_curEntry:-1];
-		playLaunched=1;
-	}
-	if ((playLaunched==0)&&(!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
-		mPlaylist_pos=added_pos;
-		[self play_curEntry:-1];
-		playLaunched=1;
-	}
-	
+        }
+        mPlaylist_size=add_entries_nb;
+        //DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
+        mPlaylist_pos=0;
+        added_pos=0;
+        [self play_curEntry:-1];
+        playLaunched=1;
+    }
+    if ((playLaunched==0)&&(!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
+        mPlaylist_pos=added_pos;
+        [self play_curEntry:-1];
+        playLaunched=1;
+    }
+    
     /*	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
      if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
      [myindex autorelease];*/
     
     [self refreshCurrentVC];
     
-	return playLaunched;
+    return playLaunched;
 }
 
 
 -(int) add_to_playlist:(NSString*)filePath fileName:(NSString*)fileName forcenoplay:(int)forcenoplay{
-	int added_pos;
-	int playLaunched=0;
-	short int playcount=0;
-	signed char rating=0;
-	if (mPlaylist_size>=MAX_PL_ENTRIES) {
-		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-		[alert show];
-		return 0;
-	}
+    int added_pos;
+    int playLaunched=0;
+    short int playcount=0;
+    signed char rating=0;
+    if (mPlaylist_size>=MAX_PL_ENTRIES) {
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+        [alert show];
+        return 0;
+    }
     coverflow_needredraw=1;
     
-	if (mPlaylist_size) { //already in a playlist : append to it
-		if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
-			for (int i=mPlaylist_size-1;i>=0;i--) {
-				mPlaylist[i+1]=mPlaylist[i];
-			}
-			mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
-			mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
+    if (mPlaylist_size) { //already in a playlist : append to it
+        if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
+            for (int i=mPlaylist_size-1;i>=0;i--) {
+                mPlaylist[i+1]=mPlaylist[i];
+            }
+            mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
+            mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
             //[self checkAvailableCovers:0];
             mPlaylist[0].cover_flag=-1;
-			
-			added_pos=0;
-			mPlaylist_pos++;
-			
-		} else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
-			for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
-				mPlaylist[i+1]=mPlaylist[i];
-			}
-			
-			mPlaylist[mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
-			mPlaylist[mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
+            
+            added_pos=0;
+            mPlaylist_pos++;
+            
+        } else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
+            for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
+                mPlaylist[i+1]=mPlaylist[i];
+            }
+            
+            mPlaylist[mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
+            mPlaylist[mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
             //[self checkAvailableCovers:mPlaylist_pos+1];
             mPlaylist[mPlaylist_pos+1].cover_flag=-1;
-			added_pos=mPlaylist_pos+1;
-		} else { //last
-			mPlaylist[mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
-			mPlaylist[mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
+            added_pos=mPlaylist_pos+1;
+        } else { //last
+            mPlaylist[mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
+            mPlaylist[mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
             //            [self checkAvailableCovers:mPlaylist_size];
             mPlaylist[mPlaylist_size].cover_flag=-1;
-			added_pos=mPlaylist_size;
-		}
-		mPlaylist_size++;
-		
-		//TODO To optimize
-		mPlaylist[added_pos].mPlaylistCount=0;
-		rating=0;
-		DBHelper::getFileStatsDBmod(mPlaylist[added_pos].mPlaylistFilename,mPlaylist[added_pos].mPlaylistFilepath,&playcount,&rating);
-		mPlaylist[added_pos].mPlaylistRating=rating;
+            added_pos=mPlaylist_size;
+        }
+        mPlaylist_size++;
         
-		mShouldUpdateInfos=1;
-	} else { //create a new playlist with downloaded song
-		mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
-		mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
+        //TODO To optimize
+        mPlaylist[added_pos].mPlaylistCount=0;
+        rating=0;
+        DBHelper::getFileStatsDBmod(mPlaylist[added_pos].mPlaylistFilename,mPlaylist[added_pos].mPlaylistFilepath,&playcount,&rating);
+        mPlaylist[added_pos].mPlaylistRating=rating;
+        
+        mShouldUpdateInfos=1;
+    } else { //create a new playlist with downloaded song
+        mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
+        mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
         //[self checkAvailableCovers:0];
         mPlaylist[0].cover_flag=-1;
-		added_pos=0;
-		mPlaylist_size=1;
-		mPlaylist[added_pos].mPlaylistCount=0;
-		rating=0;
-		DBHelper::getFileStatsDBmod(mPlaylist[added_pos].mPlaylistFilename,mPlaylist[added_pos].mPlaylistFilepath,&playcount,&rating);
-		mPlaylist[added_pos].mPlaylistRating=rating;
-		
-		mPlaylist_pos=0;
-		
-		[self play_curEntry:-1];
-		playLaunched=1;
-	}
-	if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
-		mPlaylist_pos=added_pos;
-		[self play_curEntry:-1];
-		playLaunched=1;
-	}
+        added_pos=0;
+        mPlaylist_size=1;
+        mPlaylist[added_pos].mPlaylistCount=0;
+        rating=0;
+        DBHelper::getFileStatsDBmod(mPlaylist[added_pos].mPlaylistFilename,mPlaylist[added_pos].mPlaylistFilepath,&playcount,&rating);
+        mPlaylist[added_pos].mPlaylistRating=rating;
+        
+        mPlaylist_pos=0;
+        
+        [self play_curEntry:-1];
+        playLaunched=1;
+    }
+    if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
+        mPlaylist_pos=added_pos;
+        [self play_curEntry:-1];
+        playLaunched=1;
+    }
     
     [self refreshCurrentVC];
-	
-	//NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+    
+    //NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
     /*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
-	//[myindex autorelease];
-	return playLaunched;
+    //[myindex autorelease];
+    return playLaunched;
 }
 
 -(void) remove_from_playlist:(int)index {//remove entry
     coverflow_needredraw=1;
     
-	if (mPlaylist_size) { //ensure playlist is not empty
-		//[mPlaylist[index].mPlaylistFilename autorelease];
-		//[mPlaylist[index].mPlaylistFilepath autorelease];
-		
-		for (int i=index;i<mPlaylist_size-1;i++) {
-			mPlaylist[i]=mPlaylist[i+1];
-		}
+    if (mPlaylist_size) { //ensure playlist is not empty
+        //[mPlaylist[index].mPlaylistFilename autorelease];
+        //[mPlaylist[index].mPlaylistFilepath autorelease];
         
-		mPlaylist_size--;
-		if ((index<mPlaylist_pos)||(mPlaylist_pos==mPlaylist_size)) mPlaylist_pos--;
-		
-		//playlistPos.text=[NSString stringWithFormat:@"%d on %d",mPlaylist_pos,mPlaylist_size];
-		mShouldUpdateInfos=1;
-	}
-	
-	if (mPlaylist_size) {
+        for (int i=index;i<mPlaylist_size-1;i++) {
+            mPlaylist[i]=mPlaylist[i+1];
+        }
+        
+        mPlaylist_size--;
+        if ((index<mPlaylist_pos)||(mPlaylist_pos==mPlaylist_size)) mPlaylist_pos--;
+        
+        //playlistPos.text=[NSString stringWithFormat:@"%d on %d",mPlaylist_pos,mPlaylist_size];
+        mShouldUpdateInfos=1;
+    }
+    
+    if (mPlaylist_size) {
         /*		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
          [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
          [myindex autorelease];*/
-	}
+    }
 }
 
 -(NSString*) getCurrentModuleFilepath {
@@ -2301,28 +2502,28 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 -(BOOL) play_loadArchiveModule {
-	short int playcount=0;
-	int retcode;
-	NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-	NSString *filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+    short int playcount=0;
+    int retcode;
+    NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
+    NSString *filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     
     if (!filePath) return FALSE;
     
     if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
-	
+    
     
     mOnlyCurrentEntry=0;
     mOnlyCurrentSubEntry=0;
-	mSendStatTimer=0;
-	
-	// if already playing, stop
-	if (repeatingTimer) {
-		[repeatingTimer invalidate];
-		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-		[mplayer Stop];
-	}
+    mSendStatTimer=0;
+    
+    // if already playing, stop
+    if (repeatingTimer) {
+        [repeatingTimer invalidate];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
+    }
     mShouldUpdateInfos=1;
-	
+    
     
     //ensure any settings changes to be taken into account before loading next file
     [self settingsChanged:(int)SETTINGS_ALL];
@@ -2331,17 +2532,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentSubEntry|=2;
         mOnlyCurrentEntry|=2;
     }
-	// load module
-
-	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+    // load module
+    
+    if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
                     defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
                     defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                     defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                     defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                    defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
                     defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value
                          archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
-		//error while loading
+        //error while loading
         
         if ( [mplayer isArchive] &&
             !mOnlyCurrentSubEntry &&
@@ -2357,7 +2558,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                           defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
             } while (retcode);
         }
         
@@ -2367,21 +2568,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             else mLoadIssueMessage=1;
             return FALSE;
         }
-	}
+    }
     
     
     if (mShuffle==1) {
         if ([mplayer isArchive]) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
-
+            
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
                             defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
                             defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                             defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                             defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
                            defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
                     !mOnlyCurrentSubEntry &&
@@ -2395,8 +2596,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                                    defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     } while (retcode);
                     
                 }
@@ -2408,8 +2609,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     return FALSE;
                 }
             }
-
-//            [self hideWaiting];
+            
+            //            [self hideWaiting];
         }
     }
     
@@ -2420,23 +2621,23 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
-	
-	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
-	else btnShowSubSong.hidden=true;
+    
+    if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
+    else btnShowSubSong.hidden=true;
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
-	else btnShowArcList.hidden=true;
+    else btnShowArcList.hidden=true;
     if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
     else btnShowVoices.hidden=true;
     
-	
-	alertCannotPlay_displayed=0;
-	//Visiulization stuff
-	startChan=0;
+    
+    alertCannotPlay_displayed=0;
+    //Visiulization stuff
+    startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
-	sliderProgressModuleEdit=0;
-	sliderProgressModuleChanged=0;
+    sliderProgressModuleEdit=0;
+    sliderProgressModuleChanged=0;
     
     
     //Is OGLView visible ?
@@ -2465,29 +2666,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     sliderProgressModule.value=0;
     mIsPlaying=YES;
     mPaused=0;
-	
-	//Update song info if required
-	labelModuleName.hidden=NO;
+    
+    //Update song info if required
+    labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
         labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
     } else {
         labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
-	
+    
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
-	
-	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
-	if ([mplayer getSongLength]>0) {
-		if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
-		sliderProgressModule.enabled=YES;
+    
+    labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
+    if ([mplayer getSongLength]>0) {
+        if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        sliderProgressModule.enabled=YES;
         labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
-	} else {
-		if (display_length_mode) display_length_mode=0;
-		sliderProgressModule.enabled=FALSE;
+    } else {
+        if (display_length_mode) display_length_mode=0;
+        sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
-	}
+    }
     
     //Update current entry stats
     DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&mRating);
@@ -2495,9 +2696,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
     DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
     
-	[self showRating:mRating];
-	
-	
+    [self showRating:mRating];
+    
+    
     
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
@@ -2513,29 +2714,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-	//set volume (if applicable)
-	[mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
-	
-	
-	labelTime.text=@"00:00";
-	if (mplayer.numChannels) {
-		if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
-		else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
-	} else labelNumChannels.text=[NSString stringWithFormat:@""];
-	
-	labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
-	labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
-	textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
+    //set volume (if applicable)
+    [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
+    
+    
+    labelTime.text=@"00:00";
+    if (mplayer.numChannels) {
+        if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
+        else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
+    } else labelNumChannels.text=[NSString stringWithFormat:@""];
+    
+    labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
+    labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
+    textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
     [self adjustTextMessageFont];
-	
-	[textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
+    
+    [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
     
     [self updMediaCenter];
     
-	//Activate timer for play infos
-	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //5 times/second
-	
+    //Activate timer for play infos
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //5 times/second
+    
     if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
             if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
@@ -2556,7 +2757,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
     
-	return TRUE;
+    return TRUE;
 }
 
 - (void)titleTap:(UITapGestureRecognizer *)sender {
@@ -2643,7 +2844,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //[fileMngr release];
     }
     
-    if (cover_img==nil) {    
+    if (cover_img==nil) {
         cover_img=[self fexGetArchiveCover:[self getFullFilePath:filePath]];
     }
     
@@ -2663,11 +2864,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName subsong:(int)subsong {
-	short int playcount=0;
-	int retcode;
+    short int playcount=0;
+    int retcode;
     NSString *filePathTmp;
-	
-	mSendStatTimer=0;
+    
+    mSendStatTimer=0;
     shouldRestart=0;
     
     if (!filePath) return FALSE;
@@ -2676,13 +2877,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
     
     // if already playing, stop
-	if (repeatingTimer) {
-		[repeatingTimer invalidate];
-		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-		[mplayer Stop];
-	}
+    if (repeatingTimer) {
+        [repeatingTimer invalidate];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
+    }
     mShouldUpdateInfos=1;
-	// load module
+    // load module
     
     const char *tmp_str=[filePath UTF8String];
     char tmp_str_copy[1024];
@@ -2736,32 +2937,32 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentSubEntry|=2;
         mOnlyCurrentEntry|=2;
     }
-
     
-	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+    
+    if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
                     defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
                     defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                     defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                     defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                    defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-        defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
-		
+                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
+        
         //error while loading
         //if it is an archive, try to load next entry until end or valid one reached
         if ( [mplayer isArchive] &&
             !mOnlyCurrentSubEntry &&
             !mOnlyCurrentEntry ) {
-        
+            
             do {
                 if ([mplayer selectNextArcEntry]<0) break;
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value 
+                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                           defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
         }
@@ -2776,21 +2977,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             else mLoadIssueMessage=3;
             return FALSE;
         }
-	}
+    }
     
     if (mShuffle==1) {
         if ([mplayer isArchive]) {
             [mplayer Stop]; //deallocate relevant items
             
             if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
-
+            
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
                             defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
                             defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
                             defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                             defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
                            defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 
                 do {
@@ -2805,7 +3006,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
                                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
                                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     }
                 } while (retcode);
                 
@@ -2813,12 +3014,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     NSLog(@"Issue in LoadModule(archive) %@",filePath);
                     if (retcode==-99) mLoadIssueMessage=0;
                     else mLoadIssueMessage=4;
-                                        
+                    
                     return FALSE;
                 }
             }
             
-//            [self hideWaiting];
+            //            [self hideWaiting];
         }
     }
     
@@ -2835,21 +3036,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
     
-	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
-	else btnShowSubSong.hidden=true;
+    if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
+    else btnShowSubSong.hidden=true;
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
-	else btnShowArcList.hidden=true;
+    else btnShowArcList.hidden=true;
     if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
     else btnShowVoices.hidden=true;
     
-	alertCannotPlay_displayed=0;
-	//Visiulization stuff
-	startChan=0;
-	movePx=movePy=movePxOld=movePyOld=0;
+    alertCannotPlay_displayed=0;
+    //Visiulization stuff
+    startChan=0;
+    movePx=movePy=movePxOld=movePyOld=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
-	sliderProgressModuleEdit=0;
-	sliderProgressModuleChanged=0;
+    sliderProgressModuleEdit=0;
+    sliderProgressModuleChanged=0;
     
     
     
@@ -2915,27 +3116,27 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
     
-	//Update song info if required
+    //Update song info if required
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
-	lblCurrentSongCFlow.text=labelModuleName.text;
+    lblCurrentSongCFlow.text=labelModuleName.text;
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
     
     
     
-	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
-	if ([mplayer getSongLength]>0) {
-		if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
-		sliderProgressModule.enabled=YES;
+    labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
+    if ([mplayer getSongLength]>0) {
+        if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        sliderProgressModule.enabled=YES;
         labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
-	} else {
-		if (display_length_mode) display_length_mode=0;
-		sliderProgressModule.enabled=FALSE;
+    } else {
+        if (display_length_mode) display_length_mode=0;
+        sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
-	}
-	
+    }
+    
     if ([mplayer isArchive]) {  //Archive
         if (mOnlyCurrentEntry) { //Only one entry
             //Update rating info for playlist view
@@ -3015,12 +3216,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
     if (!mRestart) {//UPDATE Google Application
-		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
-		
-	}
-	[self showRating:mRating];
-	
-	
+        if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
+        
+    }
+    [self showRating:mRating];
+    
+    
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
         btnPauseCFlow.hidden=NO;
@@ -3036,7 +3237,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-	if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
+    if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
             if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
             if (coverflow.currentIndex!=mPlaylist_pos) {
@@ -3047,18 +3248,18 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         } else coverflow_needredraw=1;
     }
     
-	labelTime.text=@"00:00";
-	if (mplayer.numChannels) {
-		if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
-		else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
-	} else labelNumChannels.text=[NSString stringWithFormat:@""];
+    labelTime.text=@"00:00";
+    if (mplayer.numChannels) {
+        if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
+        else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
+    } else labelNumChannels.text=[NSString stringWithFormat:@""];
     
-	labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
-	labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
-	textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
+    labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
+    labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
+    textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
     [self adjustTextMessageFont];
-	
-	[textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
+    
+    [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
     
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
@@ -3068,9 +3269,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     
     [self updMediaCenter];
-        
-	//Activate timer for play infos
-	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+    
+    //Activate timer for play infos
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
     
     if (nowplayingPL) {
         NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
@@ -3079,8 +3280,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
     mRestart=0;
-	
-	return TRUE;
+    
+    return TRUE;
 }
 
 
@@ -3119,13 +3320,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	orientationHV=interfaceOrientation;
+    orientationHV=interfaceOrientation;
     //NSLog(@"should rotate to : %d",orientationHV);
     
     if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
-	if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
-//        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
+    if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
+        //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
         //waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
         
         if (coverflow) {
@@ -3153,17 +3354,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //[[self navigationController] setNavigationBarHidden:NO animated:NO];
             }
         }
-		if (oglViewFullscreen) {
+        if (oglViewFullscreen) {
             if (mHasFocus) {
                 statusbarHidden=YES;
                 [self setNeedsStatusBarAppearanceUpdate];
             }
             [self.navigationController setNavigationBarHidden:YES animated:YES];
-			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
-			m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_ww, mDevice_hh);
+            mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
+            m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_ww, mDevice_hh);
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
-			
-		} else {
+            
+        } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
                 [self setNeedsStatusBarAppearanceUpdate];
@@ -3192,7 +3393,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
                 oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             }
-			
+            
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
@@ -3212,15 +3413,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
                 
                 volumeView.frame = CGRectMake(volWin.bounds.origin.x,volWin.bounds.origin.y+8,volWin.bounds.size.width,volWin.bounds.size.height);
-                			//volumeView.center = CGPointMake((mDevice_ww)/2,32);
-                			//[volumeView sizeToFit];
+                //volumeView.center = CGPointMake((mDevice_ww)/2,32);
+                //[volumeView sizeToFit];
             }
-			
-			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
+            
+            if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
+            else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
             
             
-			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
+            //commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
             
             buttonLoopTitleSel.frame = CGRectMake(10,0+48,32,32);
@@ -3235,23 +3436,23 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-36*2,0+48,32,32);
             btnShowVoices.frame = CGRectMake(mDevice_ww-36*3,0+48,32,32);
-			
-			mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
-			mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
+            
+            mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
+            mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
             
             btnAddToPl.frame = CGRectMake(130+2+34,48,28,28);
-			
-			infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
+            
+            infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
             eqButton.frame = CGRectMake(mDevice_ww-40-40,4,36,36);
-			
-			playlistPos.frame = CGRectMake(mDevice_ww/2-90-20,0,180,20);
-			labelModuleLength.frame=CGRectMake(2,0,45,20);
-			labelTime.frame=CGRectMake(2,24,45,20);
+            
+            playlistPos.frame = CGRectMake(mDevice_ww/2-90-20,0,180,20);
+            labelModuleLength.frame=CGRectMake(2,0,45,20);
+            labelTime.frame=CGRectMake(2,24,45,20);
             btnChangeTime.frame=CGRectMake(2,24,45,20);
-			sliderProgressModule.frame = CGRectMake(48,23-6,mDevice_ww-48-40-40-4,23);
-		}
-	} else{
-//        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
+            sliderProgressModule.frame = CGRectMake(48,23-6,mDevice_ww-48-40-40-4,23);
+        }
+    } else{
+        //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
         //waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
         if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
             if (mHasFocus) {
@@ -3415,10 +3616,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
                 
-                NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
+                //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
             } else {
-                NSLog(@"WS ww:%d hh:%d",mDevice_ww,mDevice_hh);
+                //NSLog(@"WS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 if (mHasFocus) {
                     statusbarHidden=NO;
                     [self setNeedsStatusBarAppearanceUpdate];
@@ -3458,13 +3659,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
                 if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
-
+                
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volWin.hidden=YES;
                 
                 //volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
-               //                               volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
+                //                               volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
                 //                volumeView.frame = CGRectMake(10, 0, mDevice_hh-375-10, 44);
                 //              volumeView.center = CGPointMake((mDevice_hh-375)/2,32);
                 //            [volumeView sizeToFit];
@@ -3478,23 +3679,23 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
                 commandViewU.frame = CGRectMake(0, 0, mDevice_hh, 32+44+8);
                 
-				buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
-				buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
-				buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
-				buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
-				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
+                buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+                buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
+                buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+                buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
+                buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
                 buttonShuffleOneSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
-				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
+                btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
                 
                 mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
                 mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
                 
                 btnAddToPl.frame = CGRectMake(xofs+6+2+28,yofs+42+2,20,20);
-                                
+                
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
                 btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
                 btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
-                                
+                
                 infoButton.frame = CGRectMake(mDevice_hh-44,4,40,40);
                 eqButton.frame = CGRectMake(mDevice_hh-44-44,4,40,40);
                 
@@ -3503,12 +3704,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 labelModuleLength.frame=CGRectMake(2,0,45,20);
                 labelTime.frame=CGRectMake(2,20,45,20);
                 btnChangeTime.frame=CGRectMake(2,17,45,20);
-                                                
+                
                 sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-(24*5+36*3+10+48),23);
             }
         }
-	}
-	[self updateBarPos];
+    }
+    [self updateBarPos];
     [self updateVisibleChan];
     
     tim_midifx_note_range=88;// //128notes max
@@ -3517,13 +3718,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     } else {
         tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
     }
-
-	
-	return YES;
+    
+    
+    return YES;
 }
 
 -(void)updateBarPos {
-	if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
+    if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
         
         if (is_macOS) {
             playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+6), mDevice_ww, 44);
@@ -3536,13 +3737,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
             pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
         }
-	} else {
+    } else {
         int xofs=24*5+36*3+10;
-		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
-		pauseBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44);
-		playBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
-		pauseBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
-	}
+        playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
+        pauseBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44);
+        playBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
+        pauseBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
+    }
 }
 
 
@@ -3571,22 +3772,22 @@ GLuint EmptyTexture(int ww,int hh)
 {
     GLuint txtnumber;           /* Texture ID  */
     unsigned int *dataText;         /* Stored Data */
-	
-	dataText=(unsigned int*)malloc(ww*hh*4*sizeof(unsigned int));
+    
+    dataText=(unsigned int*)malloc(ww*hh*4*sizeof(unsigned int));
     
     glGenTextures(1, &txtnumber);               /* Create 1 Texture */
     glBindTexture(GL_TEXTURE_2D, txtnumber);    /* Bind The Texture */
-	
+    
     /* Build Texture Using Information In data */
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ww, hh,
-				 0, GL_RGBA, GL_UNSIGNED_BYTE, dataText);
-	
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, dataText);
+    
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	glBindTexture(GL_TEXTURE_2D, 0);
-	
-	free(dataText);
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    free(dataText);
     /* Return The Texture ID */
     return txtnumber;
 }
@@ -3599,17 +3800,17 @@ void ReduceToUnit(GLfloat vector[3])
 {
     /* Holds Unit Length */
     GLfloat length;
-	
+    
     /* Calculates The Length Of The Vector */
     length=(GLfloat)sqrt((vector[0]*vector[0])+(vector[1]*vector[1])+(vector[2]*vector[2]));
-	
+    
     /* Prevents Divide By 0 Error By Providing */
     if (length==0.0f)
     {
         /* An Acceptable Value For Vectors To Close To 0. */
         length=1.0f;
     }
-	
+    
     vector[0]/=length;  /* Dividing Each Element By */
     vector[1]/=length;  /* The Length Results In A  */
     vector[2]/=length;  /* Unit Normal Vector.      */
@@ -3626,25 +3827,25 @@ void calcNormal(GLfloat v[3][3], GLfloat out[3])
     static const int y=1;
     /* Define Z Coord */
     static const int z=2;
-	
+    
     /* Finds The Vector Between 2 Points By Subtracting */
     /* The x,y,z Coordinates From One Point To Another. */
-	
+    
     /* Calculate The Vector From Point 1 To Point 0 */
     v1[x]=v[0][x]-v[1][x];      /* Vector 1.x=Vertex[0].x-Vertex[1].x */
     v1[y]=v[0][y]-v[1][y];      /* Vector 1.y=Vertex[0].y-Vertex[1].y */
     v1[z]=v[0][z]-v[1][z];      /* Vector 1.z=Vertex[0].y-Vertex[1].z */
-	
+    
     /* Calculate The Vector From Point 2 To Point 1 */
     v2[x]=v[1][x]-v[2][x];      /* Vector 2.x=Vertex[0].x-Vertex[1].x */
     v2[y]=v[1][y]-v[2][y];      /* Vector 2.y=Vertex[0].y-Vertex[1].y */
     v2[z]=v[1][z]-v[2][z];      /* Vector 2.z=Vertex[0].z-Vertex[1].z */
-	
+    
     /* Compute The Cross Product To Give Us A Surface Normal */
     out[x]=v1[y]*v2[z]-v1[z]*v2[y];     /* Cross Product For Y - Z */
     out[y]=v1[z]*v2[x]-v1[x]*v2[z];     /* Cross Product For X - Z */
     out[z]=v1[x]*v2[y]-v1[y]*v2[x];     /* Cross Product For X - Y */
-	
+    
     ReduceToUnit(out);          /* Normalize The Vectors */
 }
 
@@ -3659,85 +3860,85 @@ void ProcessSpectrum(int ww,int hh,short int *spectrumDataL,short int *spectrumD
     GLfloat r,cr,cg,cb,rf,cmax;
     
     //////////////////////////////
-	glMatrixMode(GL_PROJECTION);
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-	const float aspectRatio = (float)ww/(float)hh;
-	const float _hw = 0.1f;
-	const float _hh = _hw/aspectRatio;
-	glFrustumf(-_hw, _hw, -_hh, _hh, 0.4f, 100.0f);
-	
+    const float aspectRatio = (float)ww/(float)hh;
+    const float _hw = 0.1f;
+    const float _hh = _hw/aspectRatio;
+    glFrustumf(-_hw, _hw, -_hh, _hh, 0.4f, 100.0f);
+    
     glPushMatrix();                     /* Push The Modelview Matrix */
-	
+    
     glTranslatef(0.0, 0.0, -50.0);      /* Translate 50 Units Into The Screen */
     //glRotatef(30.0f*sin(angle*0.11f*3.1459f/180.0f), 1, 0 ,0);
     //glRotatef(20.0f*sin(angle*0.17f*3.1459f/180.0f), 0, 1 ,0);
-	glRotatef(angle/20.0f, 0, 0, 1);
-	
-  	
+    glRotatef(angle/20.0f, 0, 0, 1);
+    
+    
     /* Begin Drawing Quads, setup vertex array pointer */
     glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glColorPointer(4, GL_FLOAT, 0, vertColor);
+    glColorPointer(4, GL_FLOAT, 0, vertColor);
     /* Enable Vertex Pointer */
     glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	
+    glEnableClientState(GL_COLOR_ARRAY);
+    
     /* 360 Degrees In Steps Of 20 */
     for (int i=0; i<numval*2; i++)
     {
-		if (i<numval) {
-			r=(float)spectrumDataL[i]/512.0f;
-			cr=(float)i/(float)numval*2+0.2f;
-			cg=(float)i/(float)numval;
-			cb=(float)i/(float)numval/3;
-		}
-		else {
-			r=(float)spectrumDataR[(2*numval-1-i)]/512.0f;
-			cg=(float)(i-numval)/(float)numval*2+0.2f;
-			cr=(float)(i-numval)/(float)numval;
-			cb=(float)(i-numval)/(float)numval/3;
-		}
-		cr=cr*r/4.0f;
-		cg=cg*r/4.0f;
-		cb=cb*r/4.0f;
-		cmax=r/4.0f;
-		if (cr<0) cr=0; if (cr>1.0f) cr=1.0f;
-		if (cg<0) cg=0; if (cg>1.0f) cg=1.0f;
-		if (cb<0) cb=0; if (cb>1.0f) cb=1.0f;
-		
-		
-		vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=1.0f;
-		
-		phi=(float)i*360.0f/(float)numval/2;
-		/* Calculate Angle Of First Point (0) */
-		v=((phi)/180.0f*3.142f);
-		
-		rf=1.0f+0.4*sin(angle*0.001f)*cos(v*(8+8*sin(angle*0.0008f))+angle*0.0010f);
-		
-		/* Calculate x Position (1st Point) */
+        if (i<numval) {
+            r=(float)spectrumDataL[i]/512.0f;
+            cr=(float)i/(float)numval*2+0.2f;
+            cg=(float)i/(float)numval;
+            cb=(float)i/(float)numval/3;
+        }
+        else {
+            r=(float)spectrumDataR[(2*numval-1-i)]/512.0f;
+            cg=(float)(i-numval)/(float)numval*2+0.2f;
+            cr=(float)(i-numval)/(float)numval;
+            cb=(float)(i-numval)/(float)numval/3;
+        }
+        cr=cr*r/4.0f;
+        cg=cg*r/4.0f;
+        cb=cb*r/4.0f;
+        cmax=r/4.0f;
+        if (cr<0) cr=0; if (cr>1.0f) cr=1.0f;
+        if (cg<0) cg=0; if (cg>1.0f) cg=1.0f;
+        if (cb<0) cb=0; if (cb>1.0f) cb=1.0f;
+        
+        
+        vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=1.0f;
+        
+        phi=(float)i*360.0f/(float)numval/2;
+        /* Calculate Angle Of First Point (0) */
+        v=((phi)/180.0f*3.142f);
+        
+        rf=1.0f+0.4*sin(angle*0.001f)*cos(v*(8+8*sin(angle*0.0008f))+angle*0.0010f);
+        
+        /* Calculate x Position (1st Point) */
         x1=(GLfloat)(cos(v)*(r+rf));
-		y1=(GLfloat)(sin(v)*(r+rf));
-		x2=(GLfloat)(cos(v)*(rf));
-		y2=(GLfloat)(sin(v)*(rf));
-		z=0.0f;
-		
-		x=x1+(GLfloat)(sin(v)*0.8f);
-		y=y1-(GLfloat)(cos(v)*0.8f);
-		vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-		vertices[0][0]=x;   /* Set x Value Of First Vertex */
+        y1=(GLfloat)(sin(v)*(r+rf));
+        x2=(GLfloat)(cos(v)*(rf));
+        y2=(GLfloat)(sin(v)*(rf));
+        z=0.0f;
+        
+        x=x1+(GLfloat)(sin(v)*0.8f);
+        y=y1-(GLfloat)(cos(v)*0.8f);
+        vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+        vertices[0][0]=x;   /* Set x Value Of First Vertex */
         vertices[0][1]=y;   /* Set y Value Of First Vertex */
         vertices[0][2]=z-1.0f;   /* Set z Value Of First Vertex */
-		
-		x=x2;
-		y=y2;
-		vertColor[1][0]=vertColor[1][1]=vertColor[1][2]=cmax;
-		vertices[1][0]=x;   /* Set x Value Of Second Vertex */
+        
+        x=x2;
+        y=y2;
+        vertColor[1][0]=vertColor[1][1]=vertColor[1][2]=cmax;
+        vertices[1][0]=x;   /* Set x Value Of Second Vertex */
         vertices[1][1]=y;   /* Set y Value Of Second Vertex */
         vertices[1][2]=z;   /* Set z Value Of Second Vertex */
-		
-		x=x1-(GLfloat)(sin(v)*0.8f);
-		y=y1+(GLfloat)(cos(v)*0.8f);
-		vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-		vertices[2][0]=x;   /* Set x Value Of First Vertex */
+        
+        x=x1-(GLfloat)(sin(v)*0.8f);
+        y=y1+(GLfloat)(cos(v)*0.8f);
+        vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+        vertices[2][0]=x;   /* Set x Value Of First Vertex */
         vertices[2][1]=y;   /* Set y Value Of First Vertex */
         vertices[2][2]=z-1.0f;   /* Set z Value Of First Vertex */
         calcNormal(vertices, normalData); /* Calculate The Quad Normal */
@@ -3746,50 +3947,50 @@ void ProcessSpectrum(int ww,int hh,short int *spectrumDataL,short int *spectrumD
         
         /* Render The Quad */
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-		
-		//same, but smaller
+        
+        //same, but smaller
         x1=(GLfloat)(cos(v)*(r*0.9f+rf+0.1f));
-		y1=(GLfloat)(sin(v)*(r*0.9f+rf+0.1f));
-		x2=(GLfloat)(cos(v)*(rf+0.1f));
-		y2=(GLfloat)(sin(v)*(rf+0.1f));
-		z=0.0f;
-		
-		
-		x=x1+(GLfloat)(sin(v)*0.6f);
-		y=y1-(GLfloat)(cos(v)*0.6f);
-		vertColor[0][0]=vertColor[0][1]=vertColor[0][2]=cmax;
-		vertices[0][0]=x;   /* Set x Value Of First Vertex */
+        y1=(GLfloat)(sin(v)*(r*0.9f+rf+0.1f));
+        x2=(GLfloat)(cos(v)*(rf+0.1f));
+        y2=(GLfloat)(sin(v)*(rf+0.1f));
+        z=0.0f;
+        
+        
+        x=x1+(GLfloat)(sin(v)*0.6f);
+        y=y1-(GLfloat)(cos(v)*0.6f);
+        vertColor[0][0]=vertColor[0][1]=vertColor[0][2]=cmax;
+        vertices[0][0]=x;   /* Set x Value Of First Vertex */
         vertices[0][1]=y;   /* Set y Value Of First Vertex */
         vertices[0][2]=z-0.9f;   /* Set z Value Of First Vertex */
-		
-		x=x2;
-		y=y2;
-		vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-		vertices[1][0]=x;   /* Set x Value Of Second Vertex */
+        
+        x=x2;
+        y=y2;
+        vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+        vertices[1][0]=x;   /* Set x Value Of Second Vertex */
         vertices[1][1]=y;   /* Set y Value Of Second Vertex */
         vertices[1][2]=z;   /* Set z Value Of Second Vertex */
-		
-		x=x1-(GLfloat)(sin(v)*0.2f);
-		y=y1+(GLfloat)(cos(v)*0.2f);
-		vertColor[2][0]=vertColor[2][1]=vertColor[2][2]=cmax;
-		vertices[2][0]=x;   /* Set x Value Of First Vertex */
+        
+        x=x1-(GLfloat)(sin(v)*0.2f);
+        y=y1+(GLfloat)(cos(v)*0.2f);
+        vertColor[2][0]=vertColor[2][1]=vertColor[2][2]=cmax;
+        vertices[2][0]=x;   /* Set x Value Of First Vertex */
         vertices[2][1]=y;   /* Set y Value Of First Vertex */
         vertices[2][2]=z-0.9f;   /* Set z Value Of First Vertex */
         calcNormal(vertices, normalData); /* Calculate The Quad Normal */
         /* Set The Normal */
         glNormal3f(normalData[0], normalData[1], normalData[2]);
-		
-		/* Render The Quad */
+        
+        /* Render The Quad */
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-		
-	}
-	
-	
-	
+        
+    }
+    
+    
+    
     /* Disable Vertex Pointer */
     glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	
+    glDisableClientState(GL_COLOR_ARRAY);
+    
     /* Pop The Matrix */
     glPopMatrix();
 }
@@ -3820,17 +4021,17 @@ void ViewPerspective()
 
 
 void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spectrumDataR,int numval,float alphaval) {
-	/* Set The Clear Color To Black */
+    /* Set The Clear Color To Black */
     glClearColor(0.0f, 0.0f, 0.0f, alphaval);
     /* Clear Screen And Depth Buffer */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     /* Reset The View */
     glLoadIdentity();
-	
-	switch (fxtype) {
-		case 0:
-			ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
-			break;
+    
+    switch (fxtype) {
+        case 0:
+            ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
+            break;
             /*case 1:
              DrawBlur1(0.95f,0.009f, _ww, _hh);
              ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
@@ -3838,13 +4039,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
              glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 512, 512, 0);
              glBindTexture(GL_TEXTURE_2D, 0);
              break;*/
-		case 1:
-			/*RenderToTexture(_ww, _hh,spectrumDataL,spectrumDataR,numval);
+        case 1:
+            /*RenderToTexture(_ww, _hh,spectrumDataL,spectrumDataR,numval);
              ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
              DrawBlur(8, 0.04f, _ww, _hh);*/
-			break;
-	}
-	
+            break;
+    }
+    
     
     glFlush();
 }
@@ -3854,11 +4055,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 /**************************************************/
 
 -(void)updateFlagOnExit{
-	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
-	
-	valNb=[[NSNumber alloc] initWithInt:0];
-	[prefs setObject:valNb forKey:@"ModizerRunning"];
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunning"];
     
     [prefs synchronize];
     //[valNb autorelease];
@@ -3866,29 +4067,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 //return 1 if flag is not ok
 -(int)checkFlagOnStartup{
-	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
     int retcode=0;
     
     [prefs synchronize];
-	
-	valNb=[prefs objectForKey:@"ModizerRunning"];if (DEBUG_NO_SETTINGS) valNb=nil;
-	if (valNb == nil) retcode=1;
-	else if ([valNb intValue]!=0) retcode=1;
-	
-	valNb=[[NSNumber alloc] initWithInt:1];
-	[prefs setObject:valNb forKey:@"ModizerRunning"];
-	
-	return retcode;
+    
+    valNb=[prefs objectForKey:@"ModizerRunning"];if (DEBUG_NO_SETTINGS) valNb=nil;
+    if (valNb == nil) retcode=1;
+    else if ([valNb intValue]!=0) retcode=1;
+    
+    valNb=[[NSNumber alloc] initWithInt:1];
+    [prefs setObject:valNb forKey:@"ModizerRunning"];
+    
+    return retcode;
 }
 
 -(void) updateAllSettingsAfterChange {
     /////////////////////////////////////
-	//update according to settings
-	if (oglViewFullscreen) {
-		oglViewFullscreen=0;
-		[self oglViewSwitchFS];
-	}
+    //update according to settings
+    if (oglViewFullscreen) {
+        oglViewFullscreen=0;
+        [self oglViewSwitchFS];
+    }
     
     if (infoIsFullscreen) {
         infoZoom.hidden=YES;
@@ -3898,16 +4099,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         infoUnzoom.hidden=YES;
     }
     
-	mLoopMode--;
-	[self changeLoopMode];
+    mLoopMode--;
+    [self changeLoopMode];
     [mplayer setLoopInf:mplayer.mLoopMode^1];
     [self pushedLoopInf];
     
     mShuffle--;
     if (mShuffle<0) mShuffle=2;
-	[self shuffle];
-	
-	//update settings according toi what was loaded
+    [self shuffle];
+    
+    //update settings according toi what was loaded
     
     [self settingsChanged:(int)SETTINGS_ALL];
     
@@ -3915,196 +4116,196 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 -(void)loadSettings:(int)safe_mode{
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
-	int not_expected_version;
+    NSNumber *valNb;
+    int not_expected_version;
     
     [prefs synchronize];
     
     not_expected_version=0;
-	valNb=[prefs objectForKey:@"VERSION_MAJOR"];if (safe_mode) valNb=nil;
-	if (valNb == nil) {
-		//should not happen on released version
-		not_expected_version=0;
-	} else {
-		if ([valNb intValue]!=VERSION_MAJOR) {
-			not_expected_version=1;
-		}
-	}
-	valNb=[prefs objectForKey:@"VERSION_MINOR"];if (safe_mode) valNb=nil;
-	if (valNb == nil) {
-		//should not happen on released version
-		not_expected_version=0;
-	} else {
-		if ([valNb intValue]!=VERSION_MINOR) {
-			not_expected_version=1;
-		}
-	}
-	if (not_expected_version) {
-		//do some stuff, like reset/upgrade DB, ...
-	}
+    valNb=[prefs objectForKey:@"VERSION_MAJOR"];if (safe_mode) valNb=nil;
+    if (valNb == nil) {
+        //should not happen on released version
+        not_expected_version=0;
+    } else {
+        if ([valNb intValue]!=VERSION_MAJOR) {
+            not_expected_version=1;
+        }
+    }
+    valNb=[prefs objectForKey:@"VERSION_MINOR"];if (safe_mode) valNb=nil;
+    if (valNb == nil) {
+        //should not happen on released version
+        not_expected_version=0;
+    } else {
+        if ([valNb intValue]!=VERSION_MINOR) {
+            not_expected_version=1;
+        }
+    }
+    if (not_expected_version) {
+        //do some stuff, like reset/upgrade DB, ...
+    }
     
     valNb=[prefs objectForKey:@"ViewFX"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mOglViewIsHidden=YES;
-	else mOglViewIsHidden = [valNb boolValue];
+    if (valNb == nil) mOglViewIsHidden=YES;
+    else mOglViewIsHidden = [valNb boolValue];
     
     
     ////////////////////////////////////
     // Internal stuff
     /////////////////////////
     valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) infoIsFullscreen = 0;
-	else infoIsFullscreen = [valNb intValue];
-	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) oglViewFullscreen = 0;
-	else oglViewFullscreen = [valNb intValue];
-	valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mLoopMode = 0;
-	else mLoopMode = [valNb intValue];
+    if (valNb == nil) infoIsFullscreen = 0;
+    else infoIsFullscreen = [valNb intValue];
+    valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
+    if (valNb == nil) oglViewFullscreen = 0;
+    else oglViewFullscreen = [valNb intValue];
+    valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
+    if (valNb == nil) mLoopMode = 0;
+    else mLoopMode = [valNb intValue];
     valNb=[prefs objectForKey:@"LoopModeInf"];if (safe_mode) valNb=nil;
-	if (valNb == nil) [mplayer setLoopInf:0];
-	else [mplayer setLoopInf:([valNb intValue]?1:0)];
+    if (valNb == nil) [mplayer setLoopInf:0];
+    else [mplayer setLoopInf:([valNb intValue]?1:0)];
     valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mShuffle = 0;
-	else mShuffle = [valNb intValue];
+    if (valNb == nil) mShuffle = 0;
+    else mShuffle = [valNb intValue];
     
     
     
-	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mIsPlaying=FALSE;
-	else mIsPlaying= [valNb boolValue];
+    valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
+    if (valNb == nil) mIsPlaying=FALSE;
+    else mIsPlaying= [valNb boolValue];
     valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
     if (valNb == nil) mPlayingPosRestart=0;
     else mPlayingPosRestart= [valNb intValue];
     
-	valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlaylist_size=0;
-	else mPlaylist_size= [valNb intValue];
-	valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlaylist_pos=0;
-	else mPlaylist_pos= [valNb intValue];
-	if (mPlaylist_size) {
-		NSMutableArray *fileNames,*filePaths;
-		
-		fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
-		filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
-		
-		if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
-			for (int i=0;i<mPlaylist_size;i++) {
-				mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-			}
-		}
-	}    
-	valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
-	if (valNb != nil) {
-		if ([valNb intValue]>1) {
-			valNb=[prefs objectForKey:@"Cur_subsong"];if (safe_mode) valNb=nil;
-			if (valNb != nil) mRestart_sub=[valNb intValue];
-		}
-	}
+    valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
+    if (valNb == nil) mPlaylist_size=0;
+    else mPlaylist_size= [valNb intValue];
+    valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
+    if (valNb == nil) mPlaylist_pos=0;
+    else mPlaylist_pos= [valNb intValue];
+    if (mPlaylist_size) {
+        NSMutableArray *fileNames,*filePaths;
+        
+        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
+        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
+        
+        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
+            for (int i=0;i<mPlaylist_size;i++) {
+                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+            }
+        }
+    }
+    valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
+    if (valNb != nil) {
+        if ([valNb intValue]>1) {
+            valNb=[prefs objectForKey:@"Cur_subsong"];if (safe_mode) valNb=nil;
+            if (valNb != nil) mRestart_sub=[valNb intValue];
+        }
+    }
     
     valNb=[prefs objectForKey:@"ArchiveCnt"];if (safe_mode) valNb=nil;
-	if (valNb != nil) {
-		if ([valNb intValue]>0) {
-			valNb=[prefs objectForKey:@"ArchiveIndex"];if (safe_mode) valNb=nil;
-			if (valNb != nil) mRestart_arc=[valNb intValue];
-		}
-	}
+    if (valNb != nil) {
+        if ([valNb intValue]>0) {
+            valNb=[prefs objectForKey:@"ArchiveIndex"];if (safe_mode) valNb=nil;
+            if (valNb != nil) mRestart_arc=[valNb intValue];
+        }
+    }
     
     [self updateAllSettingsAfterChange];
 }
 
 -(void)saveSettings{
-	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
     
     valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
-	[prefs setObject:valNb forKey:@"VERSION_MAJOR"];
-	valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
-	[prefs setObject:valNb forKey:@"VERSION_MINOR"];
+    [prefs setObject:valNb forKey:@"VERSION_MAJOR"];
+    valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
+    [prefs setObject:valNb forKey:@"VERSION_MINOR"];
     
     ///////////////////////////////////
     // Internal stuff
     ///////////////////////////////////////
     valNb=[[NSNumber alloc] initWithInt:(int)mOglViewIsHidden];
-	[prefs setObject:valNb forKey:@"ViewFX"];
-	
+    [prefs setObject:valNb forKey:@"ViewFX"];
+    
     valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
-	[prefs setObject:valNb forKey:@"InfoFullscreen"];
-	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
-	[prefs setObject:valNb forKey:@"OGLFullscreen"];
+    [prefs setObject:valNb forKey:@"InfoFullscreen"];
+    valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
+    [prefs setObject:valNb forKey:@"OGLFullscreen"];
     
-	
-	valNb=[[NSNumber alloc] initWithInt:mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopMode"];
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopModeInf"];
-	valNb=[[NSNumber alloc] initWithInt:mShuffle];
-	[prefs setObject:valNb forKey:@"Shuffle"];
     
-	
-	valNb=[[NSNumber alloc] initWithBool:mIsPlaying];
-	[prefs setObject:valNb forKey:@"IsPlaying"];
-	
-	valNb=[[NSNumber alloc] initWithInt:mPlaylist_size];
-	[prefs setObject:valNb forKey:@"PlaylistSize"];
-	
-	valNb=[[NSNumber alloc] initWithInt:mPlaylist_pos];
-	[prefs setObject:valNb forKey:@"PlaylistPos"];
-	
-	valNb=[[NSNumber alloc] initWithInt:[mplayer getCurrentTime]];
-	[prefs setObject:valNb forKey:@"PlayingPos"];
+    valNb=[[NSNumber alloc] initWithInt:mLoopMode];
+    [prefs setObject:valNb forKey:@"LoopMode"];
+    valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
+    [prefs setObject:valNb forKey:@"LoopModeInf"];
+    valNb=[[NSNumber alloc] initWithInt:mShuffle];
+    [prefs setObject:valNb forKey:@"Shuffle"];
     
-	if (mPlaylist_size) {
-		
-		NSMutableArray *fileNames,*filePaths;
-		fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-		filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-		for (int i=0;i<mPlaylist_size;i++) {
-			[fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
-			[filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
-		}
-		
-		[prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
-		[prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
-	}
-	
     
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
-	[prefs setObject:valNb forKey:@"Subsongs"];
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
-	[prefs setObject:valNb forKey:@"Cur_subsong"];
+    valNb=[[NSNumber alloc] initWithBool:mIsPlaying];
+    [prefs setObject:valNb forKey:@"IsPlaying"];
+    
+    valNb=[[NSNumber alloc] initWithInt:mPlaylist_size];
+    [prefs setObject:valNb forKey:@"PlaylistSize"];
+    
+    valNb=[[NSNumber alloc] initWithInt:mPlaylist_pos];
+    [prefs setObject:valNb forKey:@"PlaylistPos"];
+    
+    valNb=[[NSNumber alloc] initWithInt:[mplayer getCurrentTime]];
+    [prefs setObject:valNb forKey:@"PlayingPos"];
+    
+    if (mPlaylist_size) {
+        
+        NSMutableArray *fileNames,*filePaths;
+        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+        for (int i=0;i<mPlaylist_size;i++) {
+            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
+            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
+        }
+        
+        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
+        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
+    }
+    
+    
+    valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
+    [prefs setObject:valNb forKey:@"Subsongs"];
+    valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
+    [prefs setObject:valNb forKey:@"Cur_subsong"];
     
     valNb=[[NSNumber alloc] initWithInt:[mplayer getArcEntriesCnt]];
-	[prefs setObject:valNb forKey:@"ArchiveCnt"];
-	valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
-	[prefs setObject:valNb forKey:@"ArchiveIndex"];
+    [prefs setObject:valNb forKey:@"ArchiveCnt"];
+    valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
+    [prefs setObject:valNb forKey:@"ArchiveIndex"];
     
-	[prefs synchronize];
+    [prefs synchronize];
 }
 
 
 - (NSString *)machine
 {
-	size_t size;
-	
-	// Set 'oldp' parameter to NULL to get the size of the data
-	// returned so we can allocate appropriate amount of space
-	sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-	
-	// Allocate the space to store name
-	char *name = (char*)malloc(size);
-	
-	// Get the platform name
-	sysctlbyname("hw.machine", name, &size, NULL, 0);
-	
-	// Place name into a string
-	NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
-	
-	// Done with this
-	free(name);
-	
-	return machine;
+    size_t size;
+    
+    // Set 'oldp' parameter to NULL to get the size of the data
+    // returned so we can allocate appropriate amount of space
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    
+    // Allocate the space to store name
+    char *name = (char*)malloc(size);
+    
+    // Get the platform name
+    sysctlbyname("hw.machine", name, &size, NULL, 0);
+    
+    // Place name into a string
+    NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
+    
+    // Done with this
+    free(name);
+    
+    return machine;
 }
 
 -(UIImage*) fexGetArchiveCover:(NSString *)filepath {
@@ -4156,7 +4357,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                         break;
                     }
                 }
-
+                
                 
                 if (fex_next( fex )) {
                     NSLog(@"Error during fex scanning");
@@ -4231,7 +4432,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathCoverImgJPG,*pathFileImgJPG,*pathFolderImgJPEG,*pathCoverImgJPEG,*pathFileImgJPEG,*pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
     
-//    NSLog(@"look for %d",index);
+    //    NSLog(@"look for %d",index);
     
     mPlaylist[index].cover_flag=0; //used for cover flag
     filePath=mPlaylist[index].mPlaylistFilepath;
@@ -4283,7 +4484,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
     //NSLog(@"change orientation: %d / %d",o,op);
     o = [[UIApplication sharedApplication] statusBarOrientation];
-
+    
     switch (o) {
         case UIInterfaceOrientationLandscapeLeft:
             orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
@@ -4300,34 +4501,34 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     }
     
     /*switch (op) {
-        case UIDeviceOrientationPortrait:            // Device oriented vertically, home button on the bottom
-            orientationHV=(int)UIInterfaceOrientationPortrait;
-            break;
-        case UIDeviceOrientationPortraitUpsideDown:  // Device oriented vertically, home button on the top
-            orientationHV=(int)UIInterfaceOrientationPortraitUpsideDown;
-            break;
-        case UIDeviceOrientationLandscapeLeft:       // Device oriented horizontally, home button on the right
-            orientationHV=(int)UIInterfaceOrientationLandscapeRight;
-            break;
-        case UIDeviceOrientationLandscapeRight:      // Device oriented horizontally, home button on the left
-            orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
-            break;
-        case UIDeviceOrientationFaceUp:              // Device oriented flat, face up
-            orientationHV=(int)UIInterfaceOrientationPortrait;
-            break;
-        case UIDeviceOrientationFaceDown:             // Device oriented flat, face down
-            orientationHV=(int)UIInterfaceOrientationPortrait;
-            break;
-        default:
-            orientationHV=(int)UIInterfaceOrientationPortrait;
-    }*/
-
+     case UIDeviceOrientationPortrait:            // Device oriented vertically, home button on the bottom
+     orientationHV=(int)UIInterfaceOrientationPortrait;
+     break;
+     case UIDeviceOrientationPortraitUpsideDown:  // Device oriented vertically, home button on the top
+     orientationHV=(int)UIInterfaceOrientationPortraitUpsideDown;
+     break;
+     case UIDeviceOrientationLandscapeLeft:       // Device oriented horizontally, home button on the right
+     orientationHV=(int)UIInterfaceOrientationLandscapeRight;
+     break;
+     case UIDeviceOrientationLandscapeRight:      // Device oriented horizontally, home button on the left
+     orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
+     break;
+     case UIDeviceOrientationFaceUp:              // Device oriented flat, face up
+     orientationHV=(int)UIInterfaceOrientationPortrait;
+     break;
+     case UIDeviceOrientationFaceDown:             // Device oriented flat, face down
+     orientationHV=(int)UIInterfaceOrientationPortrait;
+     break;
+     default:
+     orientationHV=(int)UIInterfaceOrientationPortrait;
+     }*/
+    
     /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
-    {
-    }
-    else if(Orientation==UIDeviceOrientationPortrait)
-    {
-    }*/
+     {
+     }
+     else if(Orientation==UIDeviceOrientationPortrait)
+     {
+     }*/
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -4341,44 +4542,44 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	clock_t start_time,end_time;
-	start_time=clock();
+    clock_t start_time,end_time;
+    start_time=clock();
     [super viewDidLoad];
     
     //NSLocale* locale = [NSLocale autoupdatingCurrentLocale];
     //located_country=[NSString stringWithString:locale.countryCode];
     
     if (@available(iOS 14.0, *)) {
-            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-                is_macOS=1;
-                mDeviceType=DEVICE_MACOS;
-            }else{
-                is_macOS=0;
-            }
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            is_macOS=1;
+            mDeviceType=DEVICE_MACOS;
+        }else{
+            is_macOS=0;
         }
-
+    }
+    
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-     if (@available(iOS 14.0, *)) {
-         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-             for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
-                 if ([scene isKindOfClass:[UIWindowScene class]]) {
-                     UIWindowScene* windowScene = (UIWindowScene*) scene;
-                     //windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
-                     //windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
-                 }
-             }
-         
-             AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
-             ModizerWin *modizerWin=[main_delegate modizerWin];
-             
-             CGRect frame = [modizerWin frame];
-             frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-             frame.size.width = MODIZER_MACM1_WIDTH_MAX;
-             //[modizerWin setFrame: frame];
-             //[modizerWin setBounds:frame];
-         }
-     }
+        if (@available(iOS 14.0, *)) {
+            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+                for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+                    if ([scene isKindOfClass:[UIWindowScene class]]) {
+                        UIWindowScene* windowScene = (UIWindowScene*) scene;
+                        //windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
+                        //windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
+                    }
+                }
+                
+                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+                ModizerWin *modizerWin=[main_delegate modizerWin];
+                
+                CGRect frame = [modizerWin frame];
+                frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+                frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+                //[modizerWin setFrame: frame];
+                //[modizerWin setBounds:frame];
+            }
+        }
     
     self.navigationController.delegate = self;
     
@@ -4421,8 +4622,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //EQ
     eqVC=nil;
     bShowEQ=false;
-  
-
+    
+    
     [sliderProgressModule setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
     
     
@@ -4438,17 +4639,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     
     UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
-                                                              initWithTarget:self
-                                                              action:@selector(longPressPrevSubArc:)];
+                                                             initWithTarget:self
+                                                             action:@selector(longPressPrevSubArc:)];
     UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
-                                                              initWithTarget:self
-                                                              action:@selector(longPressNextSubArc:)];
+                                                             initWithTarget:self
+                                                             action:@selector(longPressNextSubArc:)];
     UILongPressGestureRecognizer *longPressPlPrevSGesture = [[UILongPressGestureRecognizer alloc]
-                                                              initWithTarget:self
-                                                              action:@selector(longPressPrevSubArc:)];
+                                                             initWithTarget:self
+                                                             action:@selector(longPressPrevSubArc:)];
     UILongPressGestureRecognizer *longPressPlNextSGesture = [[UILongPressGestureRecognizer alloc]
-                                                              initWithTarget:self
-                                                              action:@selector(longPressNextSubArc:)];
+                                                             initWithTarget:self
+                                                             action:@selector(longPressNextSubArc:)];
     
     [pauseBarSub layoutIfNeeded];
     [playBarSub layoutIfNeeded];
@@ -4456,9 +4657,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     
     /*[[[pauseBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPaPrevSGesture];
-    [[[pauseBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPaNextSGesture];
-    [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
-    [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];*/
+     [[[pauseBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPaNextSGesture];
+     [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
+     [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];*/
     
     if ([[playBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
         [[playBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
@@ -4478,30 +4679,30 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     UITapGestureRecognizer *tapGesture =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
     [labelModuleName addGestureRecognizer:tapGesture];
-	
-	mPlaylist=(t_plPlaylist_entry*)calloc(MAX_PL_ENTRIES,sizeof(t_plPlaylist_entry));
     
-	self.navigationItem.title=@"No file selected";
-	//	self.navigationItem.backBarButtonItem.title=@"dd";
-	
+    mPlaylist=(t_plPlaylist_entry*)calloc(MAX_PL_ENTRIES,sizeof(t_plPlaylist_entry));
+    
+    self.navigationItem.title=@"No file selected";
+    //	self.navigationItem.backBarButtonItem.title=@"dd";
+    
     UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
     [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
     unichar tmpChar=0xF0CA;
     [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
     [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
     [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
-	/*[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
-																				 style:UIBarButtonItemStylePlain
-																				target:self
-																				action:@selector(showPlaylist)] autorelease]
-									  animated:YES];
+    /*[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
+     style:UIBarButtonItemStylePlain
+     target:self
+     action:@selector(showPlaylist)] autorelease]
+     animated:YES];
      */
     mRandomFXCpt=0;
-	mRandomFXCptRev=0;
-	mHasFocus=0;
-	mShouldUpdateInfos=0;
-	mPaused=1;
-	mScaleFactor=1.0f;
+    mRandomFXCptRev=0;
+    mHasFocus=0;
+    mShouldUpdateInfos=0;
+    mPaused=1;
+    mScaleFactor=1.0f;
     
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
@@ -4512,13 +4713,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     if (safe_bottom>0) safe_bottom+=20;
     //NSLog(@"saf bottom: %f\n",safe_bottom);
     
-	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-		if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
         else mDeviceType=DEVICE_MACOS;
         UIScreen* mainscr = [UIScreen mainScreen];
         
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
-
+        
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
@@ -4529,18 +4730,18 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             mDevice_hh=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
-                
+        
         mScaleFactor=mainscr.scale;
         if (mScaleFactor>=2) {
             if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
         }
-	} else {
-		mDeviceType=DEVICE_IPHONE; //iphone
-		mDevice_hh=480;
-		mDevice_ww=320;
-		UIScreen* mainscr = [UIScreen mainScreen];
+    } else {
+        mDeviceType=DEVICE_IPHONE; //iphone
+        mDevice_hh=480;
+        mDevice_ww=320;
+        UIScreen* mainscr = [UIScreen mainScreen];
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
-//        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
             mDevice_ww=win.bounds.size.width;
@@ -4554,38 +4755,38 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         
         if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
         
-	}
+    }
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
     
-//    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
-	/* iPhone Simulator == i386
-	 iPhone == iPhone1,1             //Slow
-	 3G iPhone == iPhone1,2          //Slow
-	 3GS iPhone == iPhone2,1
-	 4 iPhone == iPhone3,1
-	 1st Gen iPod == iPod1,1         //Slow
-	 2nd Gen iPod == iPod2,1
-	 3rd Gen iPod == iPod3,1
-	 */
-	
-	NSString *strMachine=[self machine];
-		
-	self.hidesBottomBarWhenPushed = YES;
+    //    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
+    /* iPhone Simulator == i386
+     iPhone == iPhone1,1             //Slow
+     3G iPhone == iPhone1,2          //Slow
+     3GS iPhone == iPhone2,1
+     4 iPhone == iPhone3,1
+     1st Gen iPod == iPod1,1         //Slow
+     2nd Gen iPod == iPod2,1
+     3rd Gen iPod == iPod3,1
+     */
+    
+    NSString *strMachine=[self machine];
+    
+    self.hidesBottomBarWhenPushed = YES;
     
     //Coverflow
     coverflow = [[TKCoverflowView alloc] init];
     coverflow.autoresizingMask = 0;//UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
-	coverflow.coverflowDelegate = self;
-	coverflow.dataSource = self;
+    coverflow.coverflowDelegate = self;
+    coverflow.dataSource = self;
     coverflow.hidden=TRUE;
     
     if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad){
-		coverflow.coverSpacing = 160;
-		coverflow.coverSize = CGSizeMake(400, 400);
+        coverflow.coverSpacing = 160;
+        coverflow.coverSize = CGSizeMake(400, 400);
         coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
-	} else {
+    } else {
         coverflow.coverSpacing = 80.0;
         coverflow.coverSize = CGSizeMake(200, 200);
         coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
@@ -4718,7 +4919,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [self.view addSubview:btnBackCFlow];
     
     // Get location
-	/*self.locManager = [[[CLLocationManager alloc] init] autorelease];
+    /*self.locManager = [[[CLLocationManager alloc] init] autorelease];
      if (!self.locManager.locationServicesEnabled) {
      //@"User has opted out of location services"];
      //		NSLog(@"no location available");
@@ -4731,30 +4932,30 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
      locManager_isOn=2;
      [self.locManager startUpdatingLocation];
      }*/
-	
-//    [[infoButton layer] setCornerRadius:10.0];
-	/* Popup stuff */
-	[[infoMsgView layer] setCornerRadius:5.0];
-	[[infoMsgView layer] setBorderWidth:2.0];
-	[[infoMsgView layer] setBorderColor:[[UIColor colorWithRed: 0.95f green: 0.95f blue: 0.95f alpha: 1.0f] CGColor]];   //Adding Border color.
-	infoMsgView.hidden=YES;
     
-	/**/
-	
+    //    [[infoButton layer] setCornerRadius:10.0];
+    /* Popup stuff */
+    [[infoMsgView layer] setCornerRadius:5.0];
+    [[infoMsgView layer] setBorderWidth:2.0];
+    [[infoMsgView layer] setBorderColor:[[UIColor colorWithRed: 0.95f green: 0.95f blue: 0.95f alpha: 1.0f] CGColor]];   //Adding Border color.
+    infoMsgView.hidden=YES;
+    
+    /**/
+    
     ratingImg[0] = @"heart-empty.png";
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
-	
-	for (int i=0;i<MAX_MENU_FX_STRING;i++) viewTapInfoStr[i]=NULL;
-	
-	mPlaylist_size=0;
-	mIsPlaying=FALSE;
-	oglViewFullscreenChanged=0;
+    
+    for (int i=0;i<MAX_MENU_FX_STRING;i++) viewTapInfoStr[i]=NULL;
+    
+    mPlaylist_size=0;
+    mIsPlaying=FALSE;
+    oglViewFullscreenChanged=0;
     mOglViewIsHidden=YES;
-	mRating=0;
-	
-	infoZoom.hidden=NO;
-	infoUnzoom.hidden=YES;
+    mRating=0;
+    
+    infoZoom.hidden=NO;
+    infoUnzoom.hidden=YES;
     
     
     if (!is_macOS) {
@@ -4770,16 +4971,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         volumeView.transform = CGAffineTransformMakeScale(0.75, 0.75);
     }
     
-	
-	mRestart=0;
-	mRestart_sub=0;
-	
-	[sliderProgressModule.layer setCornerRadius:8.0];
-	[labelSeeking.layer setCornerRadius:8.0];
-	[labelTime.layer setCornerRadius:8.0];
-	//[commandViewU.layer setCornerRadius:8.0];
-	
-	textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:14];
+    
+    mRestart=0;
+    mRestart_sub=0;
+    
+    [sliderProgressModule.layer setCornerRadius:8.0];
+    [labelSeeking.layer setCornerRadius:8.0];
+    [labelTime.layer setCornerRadius:8.0];
+    //[commandViewU.layer setCornerRadius:8.0];
+    
+    textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:14];
     
     
     /////////////////////////////////////
@@ -4798,29 +4999,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     //init pattern notes buffer
-	for (int i=0;i<128;i++) {
-		mText[i]=nil;
-	}
-	for (int i=0;i<128;i++) {
-		mTextLine[i]=nil;
-	}
-	
-	end_time=clock();
-#ifdef LOAD_PROFILE
-	NSLog(@"detail1 : %d",end_time-start_time);
-#endif
-	
-	mHeader=nil;
-	mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
+    for (int i=0;i<128;i++) {
+        mText[i]=nil;
+    }
+    for (int i=0;i<128;i++) {
+        mTextLine[i]=nil;
+    }
     
-	end_time=clock();
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail2 : %d",end_time-start_time);
+    NSLog(@"detail1 : %d",end_time-start_time);
+#endif
+    
+    mHeader=nil;
+    mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
+    
+    end_time=clock();
+#ifdef LOAD_PROFILE
+    NSLog(@"detail2 : %d",end_time-start_time);
 #endif
     //opengl stuff
-	m_oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
-	[EAGLContext setCurrentContext:m_oglContext];
-	[m_oglView initialize:m_oglContext scaleFactor:mScaleFactor];
+    m_oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+    [EAGLContext setCurrentContext:m_oglContext];
+    [m_oglView initialize:m_oglContext scaleFactor:mScaleFactor];
     
     
     // Create gesture recognizer
@@ -4833,11 +5034,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     // Create gesture recognizer
     /*UITapGestureRecognizer *glViewOneFingerTwoTaps = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)];
-    // Set required taps and number of touches
-    [glViewOneFingerTwoTaps setNumberOfTapsRequired:2];
-    [glViewOneFingerTwoTaps setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];*/
+     // Set required taps and number of touches
+     [glViewOneFingerTwoTaps setNumberOfTapsRequired:2];
+     [glViewOneFingerTwoTaps setNumberOfTouchesRequired:1];
+     // Add the gesture to the view
+     [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];*/
     
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)];
@@ -4846,7 +5047,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [glViewPanGesture setMaximumNumberOfTouches:1];
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPanGesture];
-
+    
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPan2Gesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)];
     // Set required taps and number of touches
@@ -4859,7 +5060,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     UIPinchGestureRecognizer *glViewPinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPinchGesture:)];
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPinchGesture];
-
+    
     //[glViewOneFingerOneTap requireGestureRecognizerToFail : glViewOneFingerTwoTaps];
     
     //FLUID
@@ -4892,20 +5093,20 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
     [eqButton addAwesomeIcon:FAIconSliders beforeTitle:YES];
     
-	
-	end_time=clock();
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail3 : %d",end_time-start_time);
+    NSLog(@"detail3 : %d",end_time-start_time);
 #endif
     //Visualization
-	/* Set Starting Angle To Zero */
+    /* Set Starting Angle To Zero */
     angle=0.0f;
     /* Create Our Empty Texture */
     //    BlurTexture=EmptyTexture(128,128);
     //    FxTexture=EmptyTexture(512,512);
-	
-	
-	
+    
+    
+    
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
     glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
     glDepthFunc(GL_LEQUAL);   /* The Type Of Depth Testing (Less Or Equal) */
@@ -4915,12 +5116,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
     
-	txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
-	txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
-	txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
-	txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
-	txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
-	txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
+    txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
+    txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
+    txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
+    txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
+    txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
+    txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
     txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
@@ -4928,30 +5129,30 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d_2x.png"]);
     txtMenuHandle[11]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12a_2x.png"]);
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
-//    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
+    //    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
     
 #define SUBMENU0_START 0
 #define SUBMENU0_SIZE 6
-	txtSubMenuHandle[SUBMENU0_START]=0;
+    txtSubMenuHandle[SUBMENU0_START]=0;
     txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
-	txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
-	txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
     txtSubMenuHandle[SUBMENU0_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
     txtSubMenuHandle[SUBMENU0_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
     
 #define SUBMENU1_START 6
 #define SUBMENU1_SIZE 4
     txtSubMenuHandle[SUBMENU1_START]=0;
-	txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
-	txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
-	txtSubMenuHandle[SUBMENU1_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
+    txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
+    txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
+    txtSubMenuHandle[SUBMENU1_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
     
 #define SUBMENU2_START 10
 #define SUBMENU2_SIZE 3
     txtSubMenuHandle[SUBMENU2_START]=0;
-	txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
+    txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
     txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
 #define SUBMENU3_START 13
@@ -4979,10 +5180,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
 #define SUBMENU6_START 27
 #define SUBMENU6_SIZE 3
-	txtSubMenuHandle[SUBMENU6_START]=0;
+    txtSubMenuHandle[SUBMENU6_START]=0;
     txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[9];
     txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
-
+    
 #define SUBMENU7_START 30
 #define SUBMENU7_SIZE 5
     txtSubMenuHandle[SUBMENU7_START]=0;
@@ -4990,37 +5191,37 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
     txtSubMenuHandle[SUBMENU7_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
     txtSubMenuHandle[SUBMENU7_START+4]=txtMenuHandle[10];
-
+    
 #define SUBMENU8_START 35
 #define SUBMENU8_SIZE 4
-	txtSubMenuHandle[SUBMENU8_START]=0;
+    txtSubMenuHandle[SUBMENU8_START]=0;
     txtSubMenuHandle[SUBMENU8_START+1]=txtMenuHandle[11];
     txtSubMenuHandle[SUBMENU8_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
     txtSubMenuHandle[SUBMENU8_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
     
-	end_time=clock();
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail4 : %d",end_time-start_time);
+    NSLog(@"detail4 : %d",end_time-start_time);
 #endif
     //init play/pause status for button
-	self.pauseBar.hidden=YES;
-	self.playBar.hidden=NO;
-	self.pauseBarSub.hidden=YES;
-	self.playBarSub.hidden=YES;
-	[self updateBarPos];
-	end_time=clock();
+    self.pauseBar.hidden=YES;
+    self.playBar.hidden=NO;
+    self.pauseBarSub.hidden=YES;
+    self.playBarSub.hidden=YES;
+    [self updateBarPos];
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail5 : %d",end_time-start_time);
+    NSLog(@"detail5 : %d",end_time-start_time);
 #endif
-	mplayer.bGlobalAudioPause=1;
+    mplayer.bGlobalAudioPause=1;
     //init mod player var
-	
-	
-	end_time=clock();
+    
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail6 : %d",end_time-start_time);
+    NSLog(@"detail6 : %d",end_time-start_time);
 #endif
-	
+    
     //FFT
     for (int i=0;i<SPECTRUM_BANDS;i++)
         for (int j=0;j<8;j++) {
@@ -5032,38 +5233,38 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     fft_frequencyAvg = (float *)malloc(sizeof(float)*SPECTRUM_BANDS);
     fft_freqAvgCount = (int *)malloc(sizeof(int)*SPECTRUM_BANDS);
     fft_time = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
-
     
-	end_time=clock();
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail7 : %d",end_time-start_time);
+    NSLog(@"detail7 : %d",end_time-start_time);
 #endif
     
     [self updateVisibleChan];
     
-	mMoveStartChanLeft=mMoveStartChanRight=0;
-	
-	if ([self checkFlagOnStartup]) {
-		[self loadSettings:1];
-		mShouldUpdateInfos=1;
-	} else [self loadSettings:0];
+    mMoveStartChanLeft=mMoveStartChanRight=0;
+    
+    if ([self checkFlagOnStartup]) {
+        [self loadSettings:1];
+        mShouldUpdateInfos=1;
+    } else [self loadSettings:0];
     
     for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
     
-	
-	end_time=clock();
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail8 : %d",end_time-start_time);
+    NSLog(@"detail8 : %d",end_time-start_time);
 #endif
     
     [self.view bringSubviewToFront:infoMsgView];
     
-	
-	
-//	[super viewDidLoad];
-	end_time=clock();
+    
+    
+    //	[super viewDidLoad];
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"detail : %d",end_time-start_time);
+    NSLog(@"detail : %d",end_time-start_time);
 #endif
 }
 
@@ -5078,20 +5279,20 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         covers_default=nil;
     }
     
-	//if (locationLastUpdate) [locationLastUpdate release];
-	
-	[repeatingTimer invalidate];
-	repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-	
-	[mplayer Stop];
-	//[mplayer release];
+    //if (locationLastUpdate) [locationLastUpdate release];
     
-	for (int i=0;i<mPlaylist_size;i++) {
-		//[mPlaylist[i].mPlaylistFilename autorelease];
-		//[mPlaylist[i].mPlaylistFilepath autorelease];
-	}
-	free(mPlaylist);
-	mPlaylist_size=0;
+    [repeatingTimer invalidate];
+    repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+    
+    [mplayer Stop];
+    //[mplayer release];
+    
+    for (int i=0;i<mPlaylist_size;i++) {
+        //[mPlaylist[i].mPlaylistFilename autorelease];
+        //[mPlaylist[i].mPlaylistFilepath autorelease];
+    }
+    free(mPlaylist);
+    mPlaylist_size=0;
     
     //Fluid
     closeFluid();
@@ -5102,25 +5303,25 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     free(fft_frequencyAvg);
     free(fft_freqAvgCount);
     free(fft_time);
-
     
-	//[super dealloc];
+    
+    //[super dealloc];
 }
 
 
 -(void) enterBackground {
-	//if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
-	if (mHasFocus) {
-		mShouldHaveFocusAfterBackground=1;
-		[self viewWillDisappear:NO];
-	} else mShouldHaveFocusAfterBackground=0;
-	
+    //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
+    if (mHasFocus) {
+        mShouldHaveFocusAfterBackground=1;
+        [self viewWillDisappear:NO];
+    } else mShouldHaveFocusAfterBackground=0;
+    
 }
 
 -(void) enterForeground {
-	if (mShouldHaveFocusAfterBackground) {
-		[self viewWillAppear:YES];
-	}
+    if (mShouldHaveFocusAfterBackground) {
+        [self viewWillAppear:YES];
+    }
 }
 
 - (void)viewWillLayoutSubviews {
@@ -5136,7 +5337,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
-    //NSLog(@"transitionning to size: %f x %f\n",size.width,size.height);    
+    //NSLog(@"transitionning to size: %f x %f\n",size.width,size.height);
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
         //if (!is_macOS) mDeviceType=1; //ipad
@@ -5194,7 +5395,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     if (mFont) delete mFont;
     mFont=NULL;
-            
+    
     mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
     switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
         case 0:
@@ -5266,7 +5467,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         mDevice_ww=320;
         UIScreen* mainscr = [UIScreen mainScreen];
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
-//        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
             mDevice_ww=win.bounds.size.width;
@@ -5331,23 +5532,24 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
     
-	if (mPlaylist_size) {
-		//DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
+    if (mPlaylist_size) {
+        //DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
         for (int i=0;i<mPlaylist_size;i++) {  //reset rating to force resynchro (for ex, user delted an entry in 'favorites' list, thus reseting the rating for a given file
             mPlaylist[i].mPlaylistRating=-1;
         }
         
         //update rating (-1 => get current value from DB)
-        [self pushedRatingCommon:-1];
+        mPlaylist[mPlaylist_pos].mPlaylistRating=[self getCurrentRating];
+        //[self pushedRatingCommon:-1];
         
         //Check rating for current entry
         /*DBHelper::getFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,
-                                    mPlaylist[mPlaylist_pos].mPlaylistFilepath,
-                                    NULL,
-                                    &(mPlaylist[mPlaylist_pos].mPlaylistRating),
-                                    NULL,
-                                    NULL);*/
-		[self showRating:mPlaylist[mPlaylist_pos].mPlaylistRating];
+         mPlaylist[mPlaylist_pos].mPlaylistFilepath,
+         NULL,
+         &(mPlaylist[mPlaylist_pos].mPlaylistRating),
+         NULL,
+         NULL);*/
+        [self showRating:mPlaylist[mPlaylist_pos].mPlaylistRating];
         //update playlist
         /*		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
          [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];*/
@@ -5374,24 +5576,24 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
         
         [self checkForCover:filePathTmp];
-	}
+    }
     
     //update play/pause bars...
     
-	self.pauseBarSub.hidden=YES;
-	self.playBarSub.hidden=YES;
-	self.pauseBar.hidden=YES;
-	self.playBar.hidden=YES;
-	if (mPaused) {
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
-		else self.playBar.hidden=NO;
-	} else {
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
-		else self.pauseBar.hidden=NO;
-	}
+    self.pauseBarSub.hidden=YES;
+    self.playBarSub.hidden=YES;
+    self.pauseBar.hidden=YES;
+    self.playBar.hidden=YES;
+    if (mPaused) {
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
+        else self.playBar.hidden=NO;
+    } else {
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
+        else self.pauseBar.hidden=NO;
+    }
     
     //get ogl context & bind
-	[EAGLContext setCurrentContext:m_oglContext];
+    [EAGLContext setCurrentContext:m_oglContext];
     [m_oglView layoutSubviews];
     [m_oglView bind];
     
@@ -5400,7 +5602,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [self updateFont];
     [self updateVisibleChan];
-                    
+    
     NSString *fontPath;
     if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
     else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
@@ -5409,12 +5611,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         NSLog(@"Issue with mFont init");
         return;
     }
-	
-	
-	[self updateBarPos];
-	//Hack to allow UIToolbar to be set up correctly
-	if (((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortrait) || ((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortraitUpsideDown) ) {
-		[self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
+    
+    
+    [self updateBarPos];
+    //Hack to allow UIToolbar to be set up correctly
+    if (((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortrait) || ((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortraitUpsideDown) ) {
+        [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     } else {
         if (coverflow.hidden==FALSE) {
             [[self navigationController] setNavigationBarHidden:YES animated:NO];
@@ -5422,9 +5624,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     }
     /*CATransition *transition=[CATransition animation];
-    transition.duration=0.2;
-    transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
+     transition.duration=0.2;
+     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
     [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
     
@@ -5433,7 +5635,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
     m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
     [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-
+    
 }
 
 
@@ -5443,31 +5645,31 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     self.navigationController.delegate = self;
     is_macOS=false;
     if (@available(iOS 14.0, *)) {
-            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-                is_macOS=true;
-            }else{
-                is_macOS=false;
-            }
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            is_macOS=true;
+        }else{
+            is_macOS=false;
         }
+    }
     /*if (!is_macOS) */if (m_displayLink) [m_displayLink invalidate];
-        
+    
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0"))
-     if (@available(iOS 13.0, *)) {
-         [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
-     }
+        if (@available(iOS 13.0, *)) {
+            [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
+        }
     /*CATransition *transition=[CATransition animation];
-    transition.duration=0.2;
-    transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
-    */
-//    [[UIDevice currentDevice] systemVersion]
+     transition.duration=0.2;
+     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
+     */
+    //    [[UIDevice currentDevice] systemVersion]
     statusbarHidden=NO;
     [self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-	mHasFocus=1;
+    mHasFocus=1;
     
     nowplayingPL=nil;
     //
@@ -5660,9 +5862,9 @@ void infoSubMenuShowImages(int window_width,int window_height,int start_index,in
 static int mOglView1Tap=0;
 //static int mOglView2Taps=0;
 /*-(void) glViewOneFingerTwoTaps {
-    mOglView2Taps=1;
-    mOglView1Tap=0;
-}*/
+ mOglView2Taps=1;
+ mOglView1Tap=0;
+ }*/
 
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
     mOglView1Tap=2;
@@ -5704,16 +5906,16 @@ extern "C" int current_sample;
 - (void)doFrame {
     static int no_reentrant=0;
     static int framecpt=0;
-	uint ww,hh;
-	int nb_spectrum_bands;
-	uint hasdrawnotes;
-	char str_data[11*MAX_VISIBLE_MODCHANNELS+1]; //MAX 64 channels visible, much higher than what current screen can display
-	unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
+    uint ww,hh;
+    int nb_spectrum_bands;
+    uint hasdrawnotes;
+    char str_data[11*MAX_VISIBLE_MODCHANNELS+1]; //MAX 64 channels visible, much higher than what current screen can display
+    unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
-	int i,j,k,l,note_avail,idx,startRow;
-	int linestodraw,midline;
-	ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
-	int size_chan;
+    int i,j,k,l,note_avail,idx,startRow;
+    int linestodraw,midline;
+    ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
+    int size_chan;
     int shouldhide=0;
     int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
@@ -5726,7 +5928,7 @@ extern "C" int current_sample;
     if (no_reentrant) return;
     no_reentrant=1;
     
-	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
             size_chan=11*(mFontWidth/mScaleFactor);
@@ -5743,12 +5945,12 @@ extern "C" int current_sample;
     
     framecpt++;  //TODO: check dependency / FPS (30, 60)
     
-	
+    
     if (self.mainView.hidden) {
         no_reentrant=0;
         return;
     }
-	if (m_oglView.hidden) {
+    if (m_oglView.hidden) {
         no_reentrant=0;
         return;
     }
@@ -5763,9 +5965,9 @@ extern "C" int current_sample;
         no_reentrant=0;
         return;
     }
-	
-	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFontMenu,mScaleFactor);
-	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFontMenu,mScaleFactor);
+    
+    if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("FX Off", mFontMenu,mScaleFactor);
     
     if (!viewTapInfoStr[3]) viewTapInfoStr[3]= new CGLString("Fixed bar", mFontMenu,mScaleFactor);
@@ -5776,10 +5978,10 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[8]) viewTapInfoStr[8]= new CGLString("Show labels", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[9]) viewTapInfoStr[9]= new CGLString("Fullscreen", mFontMenu,mScaleFactor);
     
-		    
-	//get ogl view dimension
-	ww=m_oglView.frame.size.width;
-	hh=m_oglView.frame.size.height;
+    
+    //get ogl view dimension
+    ww=m_oglView.frame.size.width;
+    hh=m_oglView.frame.size.height;
     
     if (mOglView1Tap) mOglView1Tap--;
     
@@ -5864,121 +6066,121 @@ extern "C" int current_sample;
             note_fx_linewidth=hh/tim_midifx_note_range;
         }
     }
-		/*if (mOglView2Taps) { //double tap: fullscreen switch
-            mOglView2Taps=0;
-			oglViewFullscreen^=1;
-			oglViewFullscreenChanged=1;
-            viewTapHelpShow=0;
-			[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-		}*/
-
+    /*if (mOglView2Taps) { //double tap: fullscreen switch
+     mOglView2Taps=0;
+     oglViewFullscreen^=1;
+     oglViewFullscreenChanged=1;
+     viewTapHelpShow=0;
+     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+     }*/
     
-	//check for click
-	if (mOglView1Tap==1) {
-		mOglView1Tap=0;
-		
-		if (viewTapHelpShow==1) {  //Main Menu
-			viewTapHelpShow=0;
+    
+    //check for click
+    if (mOglView1Tap==1) {
+        mOglView1Tap=0;
+        
+        if (viewTapHelpShow==1) {  //Main Menu
+            viewTapHelpShow=0;
             viewTapHelpShowMode=1;
             int menu_cell_size=(ww<hh?ww:hh);
             int tlx=oglTapX;
-			int tly=oglTapY-(hh-menu_cell_size)/2;
+            int tly=oglTapY-(hh-menu_cell_size)/2;
             if (tly>=0) {
-            int touched_cellX=tlx*4/menu_cell_size;
-            int touched_cellY=tly*4/menu_cell_size;
-            int touched_coord=(touched_cellX<<4)|(touched_cellY);
-            
-            if (touched_coord==0x00) {
-				int val=settings[GLOB_FX1].detail.mdz_boolswitch.switch_value;
-				val++;
-				if (val>=2) val=0;
-				settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=val;
-			} else if (touched_coord==0x10) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU0_START;
-                viewTapHelpShow_SubNb=SUBMENU0_SIZE;
-			} else if (touched_coord==0x20) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU1_START;
-                viewTapHelpShow_SubNb=SUBMENU1_SIZE;
-			} else if (touched_coord==0x30) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU2_START;
-                viewTapHelpShow_SubNb=SUBMENU2_SIZE;
-			} else if (touched_coord==0x01) {
-				viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU3_START;
-                viewTapHelpShow_SubNb=SUBMENU3_SIZE;
-			} else if (touched_coord==0x11) {
-				int val=settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value;
-				val++;
-				if (val>=2) val=0;
-				settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=val;
-			} else if (touched_coord==0x21) {
-				viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU4_START;
-                viewTapHelpShow_SubNb=SUBMENU4_SIZE;
-			} else if (touched_coord==0x31) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU5_START;
-                viewTapHelpShow_SubNb=SUBMENU5_SIZE;
-			} else if (touched_coord==0x02) {
-				int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
-				val++;
-				if (val>=2) val=0;
-				settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
-                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-			} else if (touched_coord==0x12) {
-				viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU6_START;
-                viewTapHelpShow_SubNb=SUBMENU6_SIZE;
-			} else if (touched_coord==0x22) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU7_START;
-                viewTapHelpShow_SubNb=SUBMENU7_SIZE;
-			} else if (touched_coord==0x32) {
-                viewTapHelpShow=2;
-                viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=SUBMENU8_START;
-                viewTapHelpShow_SubNb=SUBMENU8_SIZE;
-			} else if (touched_coord==0x03) {
-                shouldhide=1;
-            } else if (touched_coord==0x13) {
-                oglViewFullscreen^=1;
-                oglViewFullscreenChanged=1;
-                [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-            } else if (touched_coord==0x23) {
-                settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
-                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;;
-                settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-			}
+                int touched_cellX=tlx*4/menu_cell_size;
+                int touched_cellY=tly*4/menu_cell_size;
+                int touched_coord=(touched_cellX<<4)|(touched_cellY);
+                
+                if (touched_coord==0x00) {
+                    int val=settings[GLOB_FX1].detail.mdz_boolswitch.switch_value;
+                    val++;
+                    if (val>=2) val=0;
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=val;
+                } else if (touched_coord==0x10) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU0_START;
+                    viewTapHelpShow_SubNb=SUBMENU0_SIZE;
+                } else if (touched_coord==0x20) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU1_START;
+                    viewTapHelpShow_SubNb=SUBMENU1_SIZE;
+                } else if (touched_coord==0x30) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU2_START;
+                    viewTapHelpShow_SubNb=SUBMENU2_SIZE;
+                } else if (touched_coord==0x01) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU3_START;
+                    viewTapHelpShow_SubNb=SUBMENU3_SIZE;
+                } else if (touched_coord==0x11) {
+                    int val=settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value;
+                    val++;
+                    if (val>=2) val=0;
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=val;
+                } else if (touched_coord==0x21) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU4_START;
+                    viewTapHelpShow_SubNb=SUBMENU4_SIZE;
+                } else if (touched_coord==0x31) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU5_START;
+                    viewTapHelpShow_SubNb=SUBMENU5_SIZE;
+                } else if (touched_coord==0x02) {
+                    int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
+                    val++;
+                    if (val>=2) val=0;
+                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                } else if (touched_coord==0x12) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU6_START;
+                    viewTapHelpShow_SubNb=SUBMENU6_SIZE;
+                } else if (touched_coord==0x22) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU7_START;
+                    viewTapHelpShow_SubNb=SUBMENU7_SIZE;
+                } else if (touched_coord==0x32) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU8_START;
+                    viewTapHelpShow_SubNb=SUBMENU8_SIZE;
+                } else if (touched_coord==0x03) {
+                    shouldhide=1;
+                } else if (touched_coord==0x13) {
+                    oglViewFullscreen^=1;
+                    oglViewFullscreenChanged=1;
+                    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+                } else if (touched_coord==0x23) {
+                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+                    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;;
+                    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+                }
             }
             
-		} else if (viewTapHelpShow==2) { //sub menu
+        } else if (viewTapHelpShow==2) { //sub menu
             viewTapHelpShow=0;
             viewTapHelpShowMode=2;
             int menu_cell_size=(ww<hh?ww:hh);
             int tlx=oglTapX;
-			int tly=oglTapY-(hh-menu_cell_size)/2;
+            int tly=oglTapY-(hh-menu_cell_size)/2;
             if (tly>=0) {
                 int touched_cellX=tlx*4/menu_cell_size;
                 int touched_cellY=tly*4/menu_cell_size;
@@ -6143,7 +6345,7 @@ extern "C" int current_sample;
                             if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
                             else settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
                             break;
-                        
+                            
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
                             size_chan=11*(mFontWidth/mScaleFactor);
@@ -6230,46 +6432,46 @@ extern "C" int current_sample;
                 }
             }
         } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
-	}
+    }
     
     if (mOglViewIsHidden) {
         m_oglView.hidden=YES;
         no_reentrant=0;
         return;
     }
-	//check if current mod is ended or not
-	/*if (mplayer.bGlobalAudioPause==2) {
+    //check if current mod is ended or not
+    /*if (mplayer.bGlobalAudioPause==2) {
      //mod ended => do nothing
      no_reentrant=0;
      return;
      }
      */
-	//get ogl context & bind
-	[EAGLContext setCurrentContext:m_oglContext];
-	[m_oglView bind];
-	
-	hasdrawnotes=0;
-	
-	//update spectrum data
-	if ( ((settings[GLOB_FX1].detail.mdz_boolswitch.switch_value)||
-		  (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
-		  (settings[GLOB_FX3].detail.mdz_switch.switch_value)||
+    //get ogl context & bind
+    [EAGLContext setCurrentContext:m_oglContext];
+    [m_oglView bind];
+    
+    hasdrawnotes=0;
+    
+    //update spectrum data
+    if ( ((settings[GLOB_FX1].detail.mdz_boolswitch.switch_value)||
+          (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
+          (settings[GLOB_FX3].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
           (settings[GLOB_FX5].detail.mdz_switch.switch_value)||
-		  (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)||
-		  (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
+          (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)||
+          (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value))  ) {
-		//compute new spectrum data
-		if ([mplayer isPlaying]){
+        //compute new spectrum data
+        if ([mplayer isPlaying]){
             //FFT: build audio buffer
-			short int **snd_buffer;
-			int cur_pos;
-			snd_buffer=[mplayer buffer_ana_cpy];
-			cur_pos=[mplayer getCurrentPlayedBufferIdx];
-			short int *curBuffer=snd_buffer[cur_pos];
+            short int **snd_buffer;
+            int cur_pos;
+            snd_buffer=[mplayer buffer_ana_cpy];
+            cur_pos=[mplayer getCurrentPlayedBufferIdx];
+            short int *curBuffer=snd_buffer[cur_pos];
             // COMPUTE FFT
 #define SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM 1024
-    /////////////////////////////////////////            
+            /////////////////////////////////////////
             //Number of Samples for input(time domain)/output(frequency domain)
             int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
             int idx;
@@ -6284,14 +6486,14 @@ extern "C" int current_sample;
             const float log2FrameSize = log2f(numSamples);
             
             /*for (int i=1; i<numSamples/2; i++) {
-                
-                //idx=6*(i-1)*2*SPECTRUM_BANDS/numSamples;
-                idx=SPECTRUM_BANDS*log2f(i)/log2FrameSize;
-                if (idx<SPECTRUM_BANDS) {
-                    fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
-                    fft_freqAvgCount[idx]++;
-                }
-            }*/
+             
+             //idx=6*(i-1)*2*SPECTRUM_BANDS/numSamples;
+             idx=SPECTRUM_BANDS*log2f(i)/log2FrameSize;
+             if (idx<SPECTRUM_BANDS) {
+             fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
+             fft_freqAvgCount[idx]++;
+             }
+             }*/
             int lowfreq,highfreq,tmpfreq;
             float sum;
             
@@ -6306,7 +6508,7 @@ extern "C" int current_sample;
                 if (highfreq<tmpfreq) highfreq=tmpfreq;
                 
                 if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
-            
+                
                 //sum=0;
                 for (int k=lowfreq;k<highfreq;k++) {
                     fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
@@ -6318,7 +6520,7 @@ extern "C" int current_sample;
                 //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
                 
                 if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
-                    
+                
                 //NSLog(@"/idx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
             }
             
@@ -6337,21 +6539,21 @@ extern "C" int current_sample;
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
             
             /*for (int i=0;i<SPECTRUM_BANDS;i++) {
-                lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
-                highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
-                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
-                if (lowfreq<numSamples/2) {
-                    sum=0;
-                    for (int k=lowfreq;k<highfreq;k++) {
-                        fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-                        //sum=sum+fft_frequency[k];
-                    }
-                    //sum=sum/(float)(highfreq-lowfreq+1);
-                    //sum*=(float)powf(i,1.5f)+1;
-                    //fft_frequencyAvg[i]=sum;
-                    fft_frequencyAvg[i]*=(float)powf(i,1.5f)+1;
-                }
-            }*/
+             lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
+             highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
+             if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+             if (lowfreq<numSamples/2) {
+             sum=0;
+             for (int k=lowfreq;k<highfreq;k++) {
+             fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+             //sum=sum+fft_frequency[k];
+             }
+             //sum=sum/(float)(highfreq-lowfreq+1);
+             //sum*=(float)powf(i,1.5f)+1;
+             //fft_frequencyAvg[i]=sum;
+             fft_frequencyAvg[i]*=(float)powf(i,1.5f)+1;
+             }
+             }*/
             
             highfreq=1;
             for (int i=0;i<SPECTRUM_BANDS;i++) {
@@ -6410,32 +6612,32 @@ extern "C" int current_sample;
                 
                 //APPLY THRESHOLDS (MIN VALUE & FACTOR/AVERAGE)
                 if ((sumL>BEAT_THRESHOLD_MIN)&&(newSpecL>sumL*BEAT_THRESHOLD_FACTOR)) real_beatDetectedL[i]=1;
-                if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;                
-            }            
-    /////////////////////////////////////////
-		}
-	}
-	
+                if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;
+            }
+            /////////////////////////////////////////
+        }
+    }
+    
     int detail_lvl=settings[GLOB_FXLOD].detail.mdz_switch.switch_value;
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) detail_lvl=0; //force low for fx4
     int decrease_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?3:2);
     int increase_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?2:1);
     int tgtL,tgtR;
-	switch (detail_lvl) {
-		case 2:
-			nb_spectrum_bands=SPECTRUM_BANDS;
+    switch (detail_lvl) {
+        case 2:
+            nb_spectrum_bands=SPECTRUM_BANDS;
             
-			for (int i=0;i<SPECTRUM_BANDS;i++) {
-				if (real_spectrumL[i]<oreal_spectrumL[i]) real_spectrumL[i]+=((oreal_spectrumL[i]-real_spectrumL[i])>>increase_factor)+1;
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                if (real_spectrumL[i]<oreal_spectrumL[i]) real_spectrumL[i]+=((oreal_spectrumL[i]-real_spectrumL[i])>>increase_factor)+1;
                 else if (real_spectrumL[i]>oreal_spectrumL[i]) real_spectrumL[i]+=((oreal_spectrumL[i]-real_spectrumL[i])>>decrease_factor)-1;
-				if (real_spectrumR[i]<oreal_spectrumR[i]) real_spectrumR[i]+=((oreal_spectrumR[i]-real_spectrumR[i])>>increase_factor)+1;
+                if (real_spectrumR[i]<oreal_spectrumR[i]) real_spectrumR[i]+=((oreal_spectrumR[i]-real_spectrumR[i])>>increase_factor)+1;
                 else if (real_spectrumR[i]>oreal_spectrumR[i]) real_spectrumR[i]+=((oreal_spectrumR[i]-real_spectrumR[i])>>decrease_factor)-1;
             }
             break;
-		case 1:
-			nb_spectrum_bands=SPECTRUM_BANDS/2;
+        case 1:
+            nb_spectrum_bands=SPECTRUM_BANDS/2;
             for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-				tgtL=max2(oreal_spectrumL[i*2],oreal_spectrumL[i*2+1]);
+                tgtL=max2(oreal_spectrumL[i*2],oreal_spectrumL[i*2+1]);
                 tgtR=max2(oreal_spectrumR[i*2],oreal_spectrumR[i*2+1]);
                 
                 if (real_spectrumL[i]<tgtL) real_spectrumL[i]+=((tgtL-real_spectrumL[i])>>increase_factor)+1;
@@ -6444,12 +6646,12 @@ extern "C" int current_sample;
                 else if (real_spectrumR[i]>tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>decrease_factor)-1;
                 
                 real_beatDetectedL[i]=max2(real_beatDetectedL[i*2],real_beatDetectedL[i*2+1]);
-				real_beatDetectedR[i]=max2(real_beatDetectedR[i*2],real_beatDetectedR[i*2+1]);
-			}
-			break;
-			
-		case 0:
-			nb_spectrum_bands=SPECTRUM_BANDS/4;
+                real_beatDetectedR[i]=max2(real_beatDetectedR[i*2],real_beatDetectedR[i*2+1]);
+            }
+            break;
+            
+        case 0:
+            nb_spectrum_bands=SPECTRUM_BANDS/4;
             for (int i=0;i<SPECTRUM_BANDS/4;i++) {
                 tgtL=max4(oreal_spectrumL[i*4],oreal_spectrumL[i*4+1],oreal_spectrumL[i*4+2],oreal_spectrumL[i*4+3]);
                 tgtR=max4(oreal_spectrumR[i*4],oreal_spectrumR[i*4+1],oreal_spectrumR[i*4+2],oreal_spectrumR[i*4+3]);
@@ -6459,348 +6661,348 @@ extern "C" int current_sample;
                 if (real_spectrumR[i]<tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>increase_factor)+1;
                 else if (real_spectrumR[i]>tgtR) real_spectrumR[i]+=((tgtR-real_spectrumR[i])>>decrease_factor)-1;
                 
-				real_beatDetectedL[i]=max4(real_beatDetectedL[i*4],real_beatDetectedL[i*4+1],real_beatDetectedL[i*4+2],real_beatDetectedL[i*4+3]);
-				real_beatDetectedR[i]=max4(real_beatDetectedR[i*4],real_beatDetectedR[i*4+1],real_beatDetectedR[i*4+2],real_beatDetectedR[i*4+3]);
-			}
-			break;
-	}
-	
-	angle+=(float)4.0f;
-	if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) {
-		/* Update Angle Based On The Clock */
-        
-		fxRadial(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,fxalpha);
-	} else {
-		glClearColor(0.0f, 0.0f, 0.0f, fxalpha);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	}
+                real_beatDetectedL[i]=max4(real_beatDetectedL[i*4],real_beatDetectedL[i*4+1],real_beatDetectedL[i*4+2],real_beatDetectedL[i*4+3]);
+                real_beatDetectedR[i]=max4(real_beatDetectedR[i*4],real_beatDetectedR[i*4+1],real_beatDetectedR[i*4+2],real_beatDetectedR[i*4+3]);
+            }
+            break;
+    }
     
-	RenderUtils::SetUpOrtho(0,ww,hh);
+    angle+=(float)4.0f;
+    if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) {
+        /* Update Angle Based On The Clock */
+        
+        fxRadial(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,fxalpha);
+    } else {
+        glClearColor(0.0f, 0.0f, 0.0f, fxalpha);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    }
+    
+    RenderUtils::SetUpOrtho(0,ww,hh);
     
     if ([mplayer isPlaying]) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
                                                                                                          settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
     }
     
-	if (([mplayer isPlaying])&&
+    if (([mplayer isPlaying])&&
         ((settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)||
          (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||
          (settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) ) {
+        
+        int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
+        if (display_note_mode>=3) display_note_mode-=3;
+        
+        if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
+            playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
             
-            int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
-            if (display_note_mode>=3) display_note_mode-=3;
-            
-            if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
+            if (mHeader) delete mHeader;
+            mHeader=nil;
+            if (DEBUG_INFOS) {
+                sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
+                mHeader= new CGLString(str_data, mFont,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
+                //glScalef(1.58f, 1.58f, 1.58f);
+                mHeader->Render(0);
+                glPopMatrix();
+            }
+        } else if (mplayer.mPatternDataAvail) { //Modplug
+            if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
                 playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
                 
+                int *pat,*row;
+                pat=[mplayer playPattern];
+                row=[mplayer playRow];
+                currentPattern=pat[playerpos];
+                currentRow=row[playerpos];
+                
+                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
+                idx=startRow*mplayer.numChannels+startChan;
+                
+                for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
+                
+                if (currentNotes) {
+                    idx=currentRow*mplayer.numChannels;
+                    for (j=0;j<mplayer.numChannels;j++,idx++)  {
+                        if (currentNotes[idx].Note) {
+                            cnote=(currentNotes[idx].Note-13)&127;
+                            cinst=(currentNotes[idx].Instrument)&0x1F;
+                            cvol=(currentNotes[idx].Volume)&0xFF;
+                            if (!cvol) cvol=63;
+                            
+                            tim_notes_cpy[playerpos][j]=cnote|(cinst<<8)|(cvol<<16)|((1<<1)<<24); //VOICE_ON : 1<<1
+                        }
+                    }
+                }
+                
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+            }
+            
+            if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+                //DISPLAY MOD PATTERNS
+                linestodraw=round((hh-NOTES_DISPLAY_TOPMARGIN+mFontHeight/mScaleFactor+3)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
+                int limit_midline=round((hh-NOTES_DISPLAY_TOPMARGIN)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
+                midline=0;//linestodraw>>1;
+                
+                for (i=0;i<linestodraw;i++) {
+                    if (mText[i]) delete mText[i];
+                    mText[i]=nil;
+                }
+                for (i=0;i<linestodraw;i++) {
+                    if (mTextLine[i]) delete mTextLine[i];
+                    mTextLine[i]=nil;
+                }
                 if (mHeader) delete mHeader;
                 mHeader=nil;
-                if (DEBUG_INFOS) {
-                    sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
-                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
-                    glPushMatrix();
-                    glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
-                    //glScalef(1.58f, 1.58f, 1.58f);
-                    mHeader->Render(0);
-                    glPopMatrix();
-                }
-            } else if (mplayer.mPatternDataAvail) { //Modplug
-                if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
-                    playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
-                    
-                    int *pat,*row;
-                    pat=[mplayer playPattern];
-                    row=[mplayer playRow];
-                    currentPattern=pat[playerpos];
-                    currentRow=row[playerpos];
-                    
-                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];                    
-                    idx=startRow*mplayer.numChannels+startChan;
-                    
-                    for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
-                    
-                    if (currentNotes) {
-                        idx=currentRow*mplayer.numChannels;
-                        for (j=0;j<mplayer.numChannels;j++,idx++)  {
-                            if (currentNotes[idx].Note) {
-                                cnote=(currentNotes[idx].Note-13)&127;
-                                cinst=(currentNotes[idx].Instrument)&0x1F;
-                                cvol=(currentNotes[idx].Volume)&0xFF;
-                                if (!cvol) cvol=63;
-                                
-                                tim_notes_cpy[playerpos][j]=cnote|(cinst<<8)|(cvol<<16)|((1<<1)<<24); //VOICE_ON : 1<<1
-                            }
-                        }
-                    }
-                    
-                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+                
+                int *pat,*row;
+                int playerpos;
+                //            int *playerOffset;
+                pat=[mplayer playPattern];
+                row=[mplayer playRow];
+                //            playerOffset=[mplayer playOffset];
+                playerpos=[mplayer getCurrentPlayedBufferIdx];
+                currentPattern=pat[playerpos];
+                currentRow=row[playerpos];
+                
+                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
+                prevNotes=nil;
+                nextNotes=nil;
+                int prevPattern=[mplayer prevPattern][playerpos];
+                if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
+                
+                int nextPattern=[mplayer nextPattern][playerpos];
+                if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
+                
+                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
+                else {
+                    midline=currentRow;
+                    if (midline>=limit_midline) midline=limit_midline-1;
                 }
                 
-                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-                    //DISPLAY MOD PATTERNS
-                    linestodraw=round((hh-NOTES_DISPLAY_TOPMARGIN+mFontHeight/mScaleFactor+3)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-                    int limit_midline=round((hh-NOTES_DISPLAY_TOPMARGIN)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-                    midline=0;//linestodraw>>1;
-                    
-                    for (i=0;i<linestodraw;i++) {
-                        if (mText[i]) delete mText[i];
-                        mText[i]=nil;
-                    }
-                    for (i=0;i<linestodraw;i++) {
-                        if (mTextLine[i]) delete mTextLine[i];
-                        mTextLine[i]=nil;
-                    }
-                    if (mHeader) delete mHeader;
-                    mHeader=nil;
-                    
-                    int *pat,*row;
-                    int playerpos;
-                    //            int *playerOffset;
-                    pat=[mplayer playPattern];
-                    row=[mplayer playRow];
-                    //            playerOffset=[mplayer playOffset];
-                    playerpos=[mplayer getCurrentPlayedBufferIdx];
-                    currentPattern=pat[playerpos];
-                    currentRow=row[playerpos];
-                    
-                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
-                    prevNotes=nil;
-                    nextNotes=nil;
-                    int prevPattern=[mplayer prevPattern][playerpos];
-                    if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
+                endChan=startChan+visibleChan;
+                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
+                else if (endChan<mplayer.numChannels) endChan++;
+                startRow=currentRow-midline;
                 
-                    int nextPattern=[mplayer nextPattern][playerpos];
-                    if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
-                    
-                    if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
-                    else {
-                        midline=currentRow;
-                        if (midline>=limit_midline) midline=limit_midline-1;
-                    }
-                    
-                    endChan=startChan+visibleChan;
-                    if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
-                    else if (endChan<mplayer.numChannels) endChan++;
-                    startRow=currentRow-midline;
-                    
-                    int channelVolumeData[SOUND_MAXMOD_CHANNELS];
-                    unsigned char *volData=[mplayer playVolData];
-                    for (int i=0;i<endChan-startChan;i++) {
-                        channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
-                    }
+                int channelVolumeData[SOUND_MAXMOD_CHANNELS];
+                unsigned char *volData=[mplayer playVolData];
+                for (int i=0;i<endChan-startChan;i++) {
+                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
+                }
                 
-                    idx=startRow*mplayer.numChannels+startChan;
-                    
-                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
-                    
-                    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
-                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
-                    
-                    if (currentNotes) {
-                        hasdrawnotes=1;
-                        l=0;
-                        for (i=startRow;i<startRow+linestodraw;i++) {
-                            note_avail=0;
-                            if (i<0) {
-                                if ((prevNotes)&&((numRowsP+i)>=0)) {
-                                    if (numRowsP+i>=0) {
-                                        note_avail=1;
-                                        idx=(numRowsP+i)*mplayer.numChannels+startChan;
-                                        readNote=prevNotes;
-                                    }
-                                }
-                            } else if (currentNotes&&(i<numRows)) {
-                                note_avail=1;
-                                idx=i*mplayer.numChannels+startChan;
-                                readNote=currentNotes;
-                            } else {
-                                if ((nextNotes)&&((i-numRows)<numRowsN)) {
+                idx=startRow*mplayer.numChannels+startChan;
+                
+                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
+                
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                
+                if (currentNotes) {
+                    hasdrawnotes=1;
+                    l=0;
+                    for (i=startRow;i<startRow+linestodraw;i++) {
+                        note_avail=0;
+                        if (i<0) {
+                            if ((prevNotes)&&((numRowsP+i)>=0)) {
+                                if (numRowsP+i>=0) {
                                     note_avail=1;
-                                    idx=(i-numRows)*mplayer.numChannels+startChan;
-                                    readNote=nextNotes;
+                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
+                                    readNote=prevNotes;
                                 }
                             }
-                            if (note_avail) {
-                                k=0;
-                                switch (display_note_mode) {
-                                    case 0: //all infos
-                                        for (j=0;j<endChan-startChan;j++)  {
-                                            cnote=currentNotes[idx].Note;
-                                            cinst=currentNotes[idx].Instrument;
-                                            ceff=currentNotes[idx].Effect;
-                                            cparam=currentNotes[idx].Parameter;
-                                            cvol=currentNotes[idx].Volume;
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            if (cinst) {
-                                                str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                                str_data[k++]=dec2hex[cinst&0xF];
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            if (cvol) {
-                                                str_data[k++]=dec2hex[(cvol>>4)&0xF];
-                                                str_data[k++]=dec2hex[cvol&0xF];
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            if (ceff) {
-                                                str_data[k++]='A'+ceff;
-                                            } else {
-                                                str_data[k++]='.';
-                                            }
-                                            if (cparam) {
-                                                str_data[k++]=dec2hex[(cparam>>4)&0xF];
-                                                str_data[k++]=dec2hex[cparam&0xF];
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                    case 1: //note + instru
-                                        for (j=0;j<endChan-startChan;j++)  {
-                                            cnote=currentNotes[idx].Note;
-                                            cinst=currentNotes[idx].Instrument;
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            if (cinst) {
-                                                str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                                str_data[k++]=dec2hex[cinst&0xF];
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                    case 2: //only note
-                                        for (j=0;j<endChan-startChan;j++)  {
-                                            cnote=currentNotes[idx].Note;
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                }
-                                str_data[k]=0;
-                                mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
-                                
-                            } else {
-                                mText[l++] = NULL;
-                                
+                        } else if (currentNotes&&(i<numRows)) {
+                            note_avail=1;
+                            idx=i*mplayer.numChannels+startChan;
+                            readNote=currentNotes;
+                        } else {
+                            if ((nextNotes)&&((i-numRows)<numRowsN)) {
+                                note_avail=1;
+                                idx=(i-numRows)*mplayer.numChannels+startChan;
+                                readNote=nextNotes;
                             }
                         }
-                        str_data[2]=0;
-                        for (l=0;l<linestodraw;l++) {
-                            i=l+startRow;
-                            if (mText[l]) {
-                                glPushMatrix();
-                                glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-                                
-                                if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
-                                else {
-                                    if (i!=currentRow) mText[l]->Render(3+display_note_mode);
-                                    else {                                        
-                                        mText[l]->Render(20+display_note_mode);
+                        if (note_avail) {
+                            k=0;
+                            switch (display_note_mode) {
+                                case 0: //all infos
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        cinst=currentNotes[idx].Instrument;
+                                        ceff=currentNotes[idx].Effect;
+                                        cparam=currentNotes[idx].Parameter;
+                                        cvol=currentNotes[idx].Volume;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cinst) {
+                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                            str_data[k++]=dec2hex[cinst&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cvol) {
+                                            str_data[k++]=dec2hex[(cvol>>4)&0xF];
+                                            str_data[k++]=dec2hex[cvol&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (ceff) {
+                                            str_data[k++]='A'+ceff;
+                                        } else {
+                                            str_data[k++]='.';
+                                        }
+                                        if (cparam) {
+                                            str_data[k++]=dec2hex[(cparam>>4)&0xF];
+                                            str_data[k++]=dec2hex[cparam&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
                                     }
-                                }
-                                glPopMatrix();
+                                    break;
+                                case 1: //note + instru
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        cinst=currentNotes[idx].Instrument;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cinst) {
+                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                            str_data[k++]=dec2hex[cinst&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
+                                    }
+                                    break;
+                                case 2: //only note
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
+                                    }
+                                    break;
                             }
-                            if ((i<0)&&prevNotes) {
-                                str_data[0]=dec2hex[((numRowsP+i)>>4)&0xF];
-                                str_data[1]=dec2hex[(numRowsP+i)&0xF];
-                            } else if (i<numRows) {
-                                str_data[0]=dec2hex[(i>>4)&0xF];
-                                str_data[1]=dec2hex[i&0xF];
-                            } else if (nextNotes) {
-                                str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
-                                str_data[1]=dec2hex[(i-numRows)&0xF];
-                            }
-                            mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
+                            str_data[k]=0;
+                            mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
+                            
+                        } else {
+                            mText[l++] = NULL;
+                            
+                        }
+                    }
+                    str_data[2]=0;
+                    for (l=0;l<linestodraw;l++) {
+                        i=l+startRow;
+                        if (mText[l]) {
                             glPushMatrix();
-                            glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-                            mTextLine[l]->Render(1+(l&1));
+                            glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
+                            
+                            if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
+                            else {
+                                if (i!=currentRow) mText[l]->Render(3+display_note_mode);
+                                else {
+                                    mText[l]->Render(20+display_note_mode);
+                                }
+                            }
                             glPopMatrix();
                         }
-                        
-                        
+                        if ((i<0)&&prevNotes) {
+                            str_data[0]=dec2hex[((numRowsP+i)>>4)&0xF];
+                            str_data[1]=dec2hex[(numRowsP+i)&0xF];
+                        } else if (i<numRows) {
+                            str_data[0]=dec2hex[(i>>4)&0xF];
+                            str_data[1]=dec2hex[i&0xF];
+                        } else if (nextNotes) {
+                            str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
+                            str_data[1]=dec2hex[(i-numRows)&0xF];
+                        }
+                        mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
+                        glPushMatrix();
+                        glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
+                        mTextLine[l]->Render(1+(l&1));
+                        glPopMatrix();
                     }
-                    //draw header + fps
-                    memset(str_data,32,11*visibleChan);
-                    str_data[11*visibleChan]=0; //11 chars max / channel
-                    float xofs=0;
-                    switch (display_note_mode) {
-                        case 0:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*11+7]='0'+(j+1)/10;
-                                str_data[(j-startChan)*11+8]='0'+(j+1)%10;
-                            }
-                            str_data[(endChan-1-startChan)*11+9]=0;
-                            xofs=0.0f;
-                            break;
-                        case 1:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*6+5]='0'+(j+1)/10;
-                                str_data[(j-startChan)*6+6]='0'+(j+1)%10;
-                            }
-                            str_data[(endChan-1-startChan)*6+7]=0;
-                            xofs=0.0f;
-                            break;
-                        case 2:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*4+4]='0'+(j+1)/10;
-                                str_data[(j-startChan)*4+5]='0'+(j+1)%10;
-                            }
-                            str_data[(endChan-1-startChan)*4+6]=0;
-                            xofs=0.0f;
-                            break;
-                    }
-                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
-                    glPushMatrix();
-                    glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
-                    //glScalef(1.58f, 1.58f, 1.58f);
-                    mHeader->Render(0);
-                    glPopMatrix();
+                    
+                    
                 }
+                //draw header + fps
+                memset(str_data,32,11*visibleChan);
+                str_data[11*visibleChan]=0; //11 chars max / channel
+                float xofs=0;
+                switch (display_note_mode) {
+                    case 0:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
+                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*11+9]=0;
+                        xofs=0.0f;
+                        break;
+                    case 1:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
+                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*6+7]=0;
+                        xofs=0.0f;
+                        break;
+                    case 2:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
+                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*4+6]=0;
+                        xofs=0.0f;
+                        break;
+                }
+                mHeader= new CGLString(str_data, mFont,mScaleFactor);
+                glPushMatrix();
+                glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
+                //glScalef(1.58f, 1.58f, 1.58f);
+                mHeader->Render(0);
+                glPopMatrix();
             }
         }
-	
-	if ([mplayer isPlaying]){
-		short int **snd_buffer;
-		int cur_pos,prev_pos;
-		int pos_fx;
-		snd_buffer=[mplayer buffer_ana_cpy];
-		cur_pos=[mplayer getCurrentPlayedBufferIdx];
-		short int *curBuffer=snd_buffer[cur_pos];
-		pos_fx=0;
-		if ((settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
-		if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
-		if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) pos_fx=1;
-		if (hasdrawnotes) pos_fx=1;
-		if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
-		
-		//if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
-//                                  settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
-		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
+    }
+    
+    if ([mplayer isPlaying]){
+        short int **snd_buffer;
+        int cur_pos,prev_pos;
+        int pos_fx;
+        snd_buffer=[mplayer buffer_ana_cpy];
+        cur_pos=[mplayer getCurrentPlayedBufferIdx];
+        short int *curBuffer=snd_buffer[cur_pos];
+        pos_fx=0;
+        if ((settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
+        if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
+        if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) pos_fx=1;
+        if (hasdrawnotes) pos_fx=1;
+        if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
+        
+        //if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
+        //                                  settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
+        if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
@@ -6831,10 +7033,10 @@ extern "C" int current_sample;
                 RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
         }
-	}
+    }
     
-	if ([mplayer isPlaying]){
-		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
+    if ([mplayer isPlaying]){
+        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
             if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4) RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
             else RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
         } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
@@ -6852,7 +7054,7 @@ extern "C" int current_sample;
             if (settings[GLOB_FX5].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
-                    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
+                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }
         
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
@@ -6887,20 +7089,20 @@ extern "C" int current_sample;
                     break;
             }
         }
-	}
+    }
     if (viewTapHelpShow) {
-		if (viewTapHelpInfo<255) {
+        if (viewTapHelpInfo<255) {
             viewTapHelpInfo+=256;//48;
             /*			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;*/
-			if (viewTapHelpInfo>255) viewTapHelpInfo=255;
-		}
-	} else {
-		if (viewTapHelpInfo>0) {
+            if (viewTapHelpInfo>255) viewTapHelpInfo=255;
+        }
+    } else {
+        if (viewTapHelpInfo>0) {
             viewTapHelpInfo-=256;//48;
             /*			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;*/
-			if (viewTapHelpInfo<0) viewTapHelpInfo=0;
-		}
-	}
+            if (viewTapHelpInfo<0) viewTapHelpInfo=0;
+        }
+    }
     
     if (shouldhide) {
         shouldhide=0;
@@ -6914,12 +7116,12 @@ extern "C" int current_sample;
     }
     
     
-	if (viewTapHelpInfo) {
+    if (viewTapHelpInfo) {
         int fadelev=255*sin(viewTapHelpInfo*3.14159/2/256);
-		RenderUtils::SetUpOrtho(0,ww,hh);
+        RenderUtils::SetUpOrtho(0,ww,hh);
         int active_idx=0;
         
-		if (viewTapHelpShowMode==1) {
+        if (viewTapHelpShowMode==1) {
             active_idx=[self computeActiveFX];
             
             //NSLog(@"alpha: %d / %d",fadelev,(int)(fxalpha*255));
@@ -6928,9 +7130,9 @@ extern "C" int current_sample;
             
             glPushMatrix();
             int menu_cell_size=(ww<hh?ww:hh);
-			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
-			viewTapInfoStr[2]->Render(128+(fadelev/2));
-			glPopMatrix();
+            glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+            viewTapInfoStr[2]->Render(128+(fadelev/2));
+            glPopMatrix();
             
             glPushMatrix();
             glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
@@ -6980,9 +7182,9 @@ extern "C" int current_sample;
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             int menu_cell_size=(ww<hh?ww:hh);
             glPushMatrix();
-			glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
-			viewTapInfoStr[1]->Render(128+(fadelev/2));
-			glPopMatrix();
+            glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
+            viewTapInfoStr[1]->Render(128+(fadelev/2));
+            glPopMatrix();
             
             switch (viewTapHelpShow_SubStart) {
                 case SUBMENU0_START: //FX2
@@ -7078,13 +7280,13 @@ extern "C" int current_sample;
         }
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
-		glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+        glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
                      menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
-		viewTapInfoStr[0]->Render(128+(fadelev/2));
-		glPopMatrix();
-	}
-	
-//    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
+        viewTapInfoStr[0]->Render(128+(fadelev/2));
+        glPopMatrix();
+    }
+    
+    //    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
     
     // Apple (and the khronos group) encourages you to discard depth
     // render buffer contents whenever is possible
@@ -7095,7 +7297,7 @@ extern "C" int current_sample;
 
 
 - (void)viewDidDisappear:(BOOL)animated {
-	mHasFocus=0;
+    mHasFocus=0;
     
     for (int i=0;i<MAX_MENU_FX_STRING;i++) if (viewTapInfoStr[i]) {
         delete viewTapInfoStr[i];
@@ -7131,13 +7333,13 @@ extern "C" int current_sample;
 
 /* POPUP functions */
 -(void) hidePopup {
-	infoMsgView.hidden=YES;
-	mPopupAnimation=0;
+    infoMsgView.hidden=YES;
+    mPopupAnimation=0;
 }
 
 -(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg style:(int)style{
-	CGRect frame;
-	if (mPopupAnimation) return;
+    CGRect frame;
+    if (mPopupAnimation) return;
     UIColor *bgcol;
     switch (style){
         case 0://info
@@ -7150,39 +7352,39 @@ extern "C" int current_sample;
     
     infoMsgView.backgroundColor=bgcol;
     
-	mPopupAnimation=1;
+    mPopupAnimation=1;
     infoMsgLbl.text=[NSString stringWithString:msg];
     infoSecMsgLbl.text=[NSString stringWithString:secmsg];
-	frame=infoMsgView.frame;
-	frame.origin.y=self.view.frame.size.height;
-	infoMsgView.frame=frame;
-	infoMsgView.hidden=NO;
-	[UIView beginAnimations:@"closePopup" context:nil];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationDelay:0];
-	[UIView setAnimationDuration:0.5];
-	frame=infoMsgView.frame;
-	frame.origin.y=self.view.frame.size.height-144;
-	infoMsgView.frame=frame;
-	[UIView commitAnimations];
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height;
+    infoMsgView.frame=frame;
+    infoMsgView.hidden=NO;
+    [UIView beginAnimations:@"closePopup" context:nil];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDelay:0];
+    [UIView setAnimationDuration:0.5];
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height-144;
+    infoMsgView.frame=frame;
+    [UIView commitAnimations];
 }
 -(void) closePopup {
-	CGRect frame;
-	[UIView beginAnimations:@"hidePopup" context:nil];
+    CGRect frame;
+    [UIView beginAnimations:@"hidePopup" context:nil];
     [UIView setAnimationDelegate:self];
-	[UIView setAnimationDelay:2.5];
-	[UIView setAnimationDuration:1.0];
-	frame=infoMsgView.frame;
-	frame.origin.y=self.view.frame.size.height;
-	infoMsgView.frame=frame;
-	[UIView commitAnimations];
+    [UIView setAnimationDelay:2.5];
+    [UIView setAnimationDuration:1.0];
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height;
+    infoMsgView.frame=frame;
+    [UIView commitAnimations];
 }
 
 
 #pragma mark -
 #pragma mark TKCoverflowViewDelegate methods
 - (void) coverflowView:(TKCoverflowView*)coverflowView coverAtIndexWasBroughtToFront:(int)index{
-	//NSLog(@"Front %d",index);
+    //NSLog(@"Front %d",index);
     if ((index>=0)&&(index<mPlaylist_size)){
         lblMainCoverflow.text=mPlaylist[index].mPlaylistFilename;
         lblSecCoverflow.text=mPlaylist[index].mPlaylistFilepath;
@@ -7190,14 +7392,14 @@ extern "C" int current_sample;
 }
 
 - (TKCoverflowCoverView*) coverflowView:(TKCoverflowView*)coverflowView coverAtIndex:(int)index{
-	TKCoverflowCoverView *cover = [coverflowView dequeueReusableCoverView];
-	if(cover == nil){
-		//BOOL phone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
-		CGRect rect = CGRectMake(0,0,coverflow.coverSize.width, coverflow.coverSize.height);//phone ? CGRectMake(0, 0, 224,300) : CGRectMake(0, 0, 300, 600);
-		cover = [[TKCoverflowCoverView alloc] initWithFrame:rect]; // 224
-		cover.baseline = coverflow.coverSize.height;//224;
-	}
-//    NSLog(@"ask for cov index %d",index);
+    TKCoverflowCoverView *cover = [coverflowView dequeueReusableCoverView];
+    if(cover == nil){
+        //BOOL phone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
+        CGRect rect = CGRectMake(0,0,coverflow.coverSize.width, coverflow.coverSize.height);//phone ? CGRectMake(0, 0, 224,300) : CGRectMake(0, 0, 300, 600);
+        cover = [[TKCoverflowCoverView alloc] initWithFrame:rect]; // 224
+        cover.baseline = coverflow.coverSize.height;//224;
+    }
+    //    NSLog(@"ask for cov index %d",index);
     if (mPlaylist[index].cover_flag==-1) [self checkAvailableCovers:index];
     if (mPlaylist[index].cover_flag>0) { //A cover should be available
         NSString *filePath,*coverFilePath;
@@ -7221,7 +7423,7 @@ extern "C" int current_sample;
             //NSLog(@"embedded img in archive");
             img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
         }
-                    //NSLog(@"got idx %d %d %@",index,mPlaylist[index].cover_flag,coverFilePath);
+        //NSLog(@"got idx %d %d %@",index,mPlaylist[index].cover_flag,coverFilePath);
         if (coverFilePath) img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
         
         if (img==nil) { //file not available anymore
@@ -7256,13 +7458,13 @@ extern "C" int current_sample;
     }
     
     if (mScaleFactor!=1) cover.image = [[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
-     
-	return cover;
+    
+    return cover;
 }
 
 - (void) coverflowView:(TKCoverflowView*)coverflowView coverAtIndexWasDoubleTapped:(int)index{
-	TKCoverflowCoverView *cover = [coverflowView coverAtIndex:index];
-	if(cover == nil) return;
+    TKCoverflowCoverView *cover = [coverflowView coverAtIndex:index];
+    if(cover == nil) return;
     /*	[UIView beginAnimations:nil context:nil];
      [UIView setAnimationDuration:1];
      [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:cover cache:YES];
@@ -7271,19 +7473,19 @@ extern "C" int current_sample;
 }
 
 - (void) coverflowView:(TKCoverflowView*)coverflowView coverAtIndexWasSingleTapped:(int)index{
-	TKCoverflowCoverView *cover = [coverflowView coverAtIndex:index];
-	if(cover == nil) return;
+    TKCoverflowCoverView *cover = [coverflowView coverAtIndex:index];
+    if(cover == nil) return;
     
     [UIView beginAnimations:@"selectCov1" context:(void *)cover];
-	[UIView setAnimationDuration:0.15f];
+    [UIView setAnimationDuration:0.15f];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
     cover.frame=CGRectMake(cover.frame.origin.x, cover.frame.origin.y,cover.frame.size.width,cover.frame.size.height);
     cover.transform=CGAffineTransformMakeScale(0.9f,0.9f);
-	[UIView commitAnimations];
+    [UIView commitAnimations];
     
-	mPlaylist_pos=index;
-	[self play_curEntry:-1];
+    mPlaylist_pos=index;
+    [self play_curEntry:-1];
 }
 
 #pragma mark -
@@ -7332,7 +7534,7 @@ extern "C" int current_sample;
         
     } else if ([animationID compare:@"selectCov1"]==NSOrderedSame) {
         [UIView beginAnimations:@"selectCov2" context:context];
-        [UIView setAnimationDuration:0.2f];    
+        [UIView setAnimationDuration:0.2f];
         [UIView setAnimationDelegate:self];
         [UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
         TKCoverflowCoverView* cover=((__bridge TKCoverflowCoverView*)context);
@@ -7341,7 +7543,7 @@ extern "C" int current_sample;
         [UIView commitAnimations];
     } else if ([animationID compare:@"selectCov2"]==NSOrderedSame) {
         [UIView beginAnimations:@"selectCov3" context:nil];
-        [UIView setAnimationDuration:0.2f];    
+        [UIView setAnimationDuration:0.2f];
         [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
         TKCoverflowCoverView* cover=((__bridge TKCoverflowCoverView*)context);
         cover.frame=CGRectMake(cover.frame.origin.x, cover.frame.origin.y,cover.frame.size.width,cover.frame.size.height);
@@ -7375,14 +7577,14 @@ extern "C" int current_sample;
 }
 
 /*- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    switch (current_selmode) {
-        case ARCSUB_MODE_ARC:
-            return NSLocalizedString(@"Choose a song",@"Choose a song");
-        case ARCSUB_MODE_SUB:
-            return NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
-    }
-    return 0;
-}*/
+ switch (current_selmode) {
+ case ARCSUB_MODE_ARC:
+ return NSLocalizedString(@"Choose a song",@"Choose a song");
+ case ARCSUB_MODE_SUB:
+ return NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
+ }
+ return 0;
+ }*/
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;

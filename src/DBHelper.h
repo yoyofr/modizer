@@ -20,7 +20,7 @@ typedef struct {
 
 namespace DBHelper 
 {
-	void getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,int *song_length=NULL,char *channels_nb=NULL,int *songs=NULL);    
+	int getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,int *song_length=NULL,char *channels_nb=NULL,int *songs=NULL);
 	void getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpaths,short int *playcountArray,signed char *ratingArray,int *song_lengthA=NULL,char *channels_nbA=NULL,int *songsA=NULL);
     int deleteStatsDirDB(NSString *fullpath);
     int deleteStatsFileDB(NSString *fullpath);
@@ -32,6 +32,8 @@ namespace DBHelper
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating);
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,char channels_nb,int songs);
     NSMutableArray *getMissingPartsNameFromFilePath(NSString *localPath,NSString *ext);
+
+    int updateRatingDBmod(NSString *fullpath,signed char rating);
 	
 	int getNbFormatEntries();
 	int getNbAuthorEntries();

@@ -791,5 +791,28 @@
     return 0;
 }
 
++(NSString *)getFullCleanFilePath:(NSString*)filePath {
+    NSRange r=[filePath rangeOfString:@"?"];
+    if (r.location != NSNotFound) {
+        //remove the subsong index
+        filePath=[filePath substringToIndex:r.location];
+    }
+    r=[filePath rangeOfString:@"@"];
+    if (r.location != NSNotFound) {
+        //remove the subsong index
+        filePath=[filePath substringToIndex:r.location];
+    }
+    return filePath;
+}
+
++(NSString *)getFilePathNoSubSong:(NSString*)filePath {
+    NSRange r=[filePath rangeOfString:@"?"];
+    if (r.location != NSNotFound) {
+        //remove the subsong index
+        filePath=[filePath substringToIndex:r.location];
+    }
+    return filePath;
+}
+
 
 @end

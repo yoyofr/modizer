@@ -1737,9 +1737,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     local_entries[index][local_entries_count[index]].type=1;
                                     //check if Archive file
                                     if ([archivetype_ext indexOfObject:extension]!=NSNotFound) { //check if really an archive
-                                        if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=1;
+                                        if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
                                     } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
-                                        if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
+                                        if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
                                         else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
                                     }
                                     

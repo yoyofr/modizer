@@ -20,5 +20,8 @@
 +(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file;
 +(int) isAllowedFile:(NSString*)file;
 
++(NSString *)getFullCleanFilePath:(NSString*)filePath;
++(NSString *)getFilePathNoSubSong:(NSString*)filePath;
+
 @end
 
