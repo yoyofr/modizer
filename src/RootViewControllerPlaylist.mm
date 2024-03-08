@@ -2007,6 +2007,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 -(void) loadFavoritesList{
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
+    
     playlist->nb_entries=0;
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -2024,6 +2025,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
                     playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                    
+                    
+                    //adjust label
+                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
+                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
+                    }
+                    
+                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
+                    }
+                    
                     playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
                     
                     playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);

@@ -28,40 +28,6 @@
 		CCB817C22B7196C800364D64 /* pxtnMem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB817262B7196C800364D64 /* pxtnMem.cpp */; };
 		CCB817C32B7196C800364D64 /* pxtnPulse_Frequency.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB817292B7196C800364D64 /* pxtnPulse_Frequency.cpp */; };
 		CCB817C42B7196C800364D64 /* pxtnPulse_Oggv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB8172A2B7196C800364D64 /* pxtnPulse_Oggv.cpp */; };
-		CCB817C52B7196C800364D64 /* HiOpen2.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8172E2B7196C800364D64 /* HiOpen2.inc */; };
-		CCB817C62B7196C800364D64 /* Bass01Beta.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8172F2B7196C800364D64 /* Bass01Beta.inc */; };
-		CCB817C72B7196C800364D64 /* HiOpen3.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817302B7196C800364D64 /* HiOpen3.inc */; };
-		CCB817C82B7196C800364D64 /* RevSym.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817312B7196C800364D64 /* RevSym.inc */; };
-		CCB817C92B7196C800364D64 /* Tom04.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817322B7196C800364D64 /* Tom04.inc */; };
-		CCB817CA2B7196C800364D64 /* Bass01.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817332B7196C800364D64 /* Bass01.inc */; };
-		CCB817CB2B7196C800364D64 /* HiOpen.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817342B7196C800364D64 /* HiOpen.inc */; };
-		CCB817CC2B7196C800364D64 /* Bass02.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817352B7196C800364D64 /* Bass02.inc */; };
-		CCB817CD2B7196C800364D64 /* Snare01Beta.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817362B7196C800364D64 /* Snare01Beta.inc */; };
-		CCB817CE2B7196C800364D64 /* Bass03.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817372B7196C800364D64 /* Bass03.inc */; };
-		CCB817CF2B7196C800364D64 /* Tom02.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817382B7196C800364D64 /* Tom02.inc */; };
-		CCB817D02B7196C800364D64 /* Tom03.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173A2B7196C800364D64 /* Tom03.inc */; };
-		CCB817D12B7196C800364D64 /* Tom01.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173B2B7196C800364D64 /* Tom01.inc */; };
-		CCB817D22B7196C800364D64 /* Bass04.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173C2B7196C800364D64 /* Bass04.inc */; };
-		CCB817D32B7196C800364D64 /* Bell.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173D2B7196C800364D64 /* Bell.inc */; };
-		CCB817D42B7196C800364D64 /* Bass05.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173E2B7196C800364D64 /* Bass05.inc */; };
-		CCB817D52B7196C800364D64 /* Snare03.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8173F2B7196C800364D64 /* Snare03.inc */; };
-		CCB817D62B7196C800364D64 /* Snare02.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817402B7196C800364D64 /* Snare02.inc */; };
-		CCB817D72B7196C800364D64 /* Ride01.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817412B7196C800364D64 /* Ride01.inc */; };
-		CCB817D82B7196C800364D64 /* CrashBeta.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817422B7196C800364D64 /* CrashBeta.inc */; };
-		CCB817D92B7196C800364D64 /* Snare01.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817432B7196C800364D64 /* Snare01.inc */; };
-		CCB817DA2B7196C800364D64 /* Snare04.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817442B7196C800364D64 /* Snare04.inc */; };
-		CCB817DB2B7196C800364D64 /* Wave100.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817452B7196C800364D64 /* Wave100.inc */; };
-		CCB817DC2B7196C800364D64 /* HiOpenBeta.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817472B7196C800364D64 /* HiOpenBeta.inc */; };
-		CCB817DD2B7196C800364D64 /* Orcdrm.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817482B7196C800364D64 /* Orcdrm.inc */; };
-		CCB817DE2B7196C800364D64 /* Per02.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817492B7196C800364D64 /* Per02.inc */; };
-		CCB817DF2B7196C800364D64 /* Crash.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8174A2B7196C800364D64 /* Crash.inc */; };
-		CCB817E02B7196C800364D64 /* HiCloseBeta.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8174B2B7196C800364D64 /* HiCloseBeta.inc */; };
-		CCB817E12B7196C800364D64 /* Per01.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8174C2B7196C800364D64 /* Per01.inc */; };
-		CCB817E22B7196C800364D64 /* Crash02.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8174D2B7196C800364D64 /* Crash02.inc */; };
-		CCB817E42B7196C800364D64 /* Cat.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB8174F2B7196C800364D64 /* Cat.inc */; };
-		CCB817E52B7196C800364D64 /* HiClos2.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817502B7196C800364D64 /* HiClos2.inc */; };
-		CCB817E62B7196C800364D64 /* HiClose.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817512B7196C800364D64 /* HiClose.inc */; };
-		CCB817E72B7196C800364D64 /* HiClos3.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCB817522B7196C800364D64 /* HiClos3.inc */; };
 		CCB817E92B7196C800364D64 /* res0.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB817562B7196C800364D64 /* res0.c */; };
 		CCB817EA2B7196C800364D64 /* block.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB8175C2B7196C800364D64 /* block.c */; };
 		CCB817EB2B7196C800364D64 /* lookup.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB817632B7196C800364D64 /* lookup.c */; };
@@ -607,76 +573,42 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCB817D12B7196C800364D64 /* Tom01.inc in Sources */,
-				CCB817D62B7196C800364D64 /* Snare02.inc in Sources */,
 				CCB817B92B7196C800364D64 /* pxtnEvelist.cpp in Sources */,
 				CCB817FF2B7196C800364D64 /* registry.c in Sources */,
 				CCB817B62B7196C800364D64 /* pxtnText.cpp in Sources */,
 				CCB817BF2B7196C800364D64 /* pxtnPulse_NoiseBuilder.cpp in Sources */,
-				CCB817D82B7196C800364D64 /* CrashBeta.inc in Sources */,
 				CCB817F52B7196C800364D64 /* psy.c in Sources */,
-				CCB817CF2B7196C800364D64 /* Tom02.inc in Sources */,
 				CCB817F62B7196C800364D64 /* smallft.c in Sources */,
-				CCB817D92B7196C800364D64 /* Snare01.inc in Sources */,
 				CCB817EE2B7196C800364D64 /* mdct.c in Sources */,
 				CCB817C22B7196C800364D64 /* pxtnMem.cpp in Sources */,
-				CCB817CC2B7196C800364D64 /* Bass02.inc in Sources */,
 				CCB817B02B7196C800364D64 /* pxtnPulse_Noise.cpp in Sources */,
 				CCB817F92B7196C800364D64 /* synthesis.c in Sources */,
-				CCB817C62B7196C800364D64 /* Bass01Beta.inc in Sources */,
-				CCB817E02B7196C800364D64 /* HiCloseBeta.inc in Sources */,
-				CCB817CD2B7196C800364D64 /* Snare01Beta.inc in Sources */,
 				CCB817C42B7196C800364D64 /* pxtnPulse_Oggv.cpp in Sources */,
-				CCB817C82B7196C800364D64 /* RevSym.inc in Sources */,
 				CCB817EA2B7196C800364D64 /* block.c in Sources */,
-				CCB817E72B7196C800364D64 /* HiClos3.inc in Sources */,
-				CCB817CE2B7196C800364D64 /* Bass03.inc in Sources */,
-				CCB817E12B7196C800364D64 /* Per01.inc in Sources */,
-				CCB817CA2B7196C800364D64 /* Bass01.inc in Sources */,
-				CCB817D42B7196C800364D64 /* Bass05.inc in Sources */,
 				CCB817B72B7196C800364D64 /* pxtnError.cpp in Sources */,
 				CCB817C02B7196C800364D64 /* pxtnOverDrive.cpp in Sources */,
 				CCB817F82B7196C800364D64 /* floor1.c in Sources */,
-				CCB817DE2B7196C800364D64 /* Per02.inc in Sources */,
-				CCB817E52B7196C800364D64 /* HiClos2.inc in Sources */,
 				CCB817BA2B7196C800364D64 /* pxtnService_moo.cpp in Sources */,
-				CCB817D22B7196C800364D64 /* Bass04.inc in Sources */,
 				CCB817C32B7196C800364D64 /* pxtnPulse_Frequency.cpp in Sources */,
 				CCB8182C2B719A1100364D64 /* organya.c in Sources */,
-				CCB817CB2B7196C800364D64 /* HiOpen.inc in Sources */,
 				CCB817F12B7196C800364D64 /* analysis.c in Sources */,
-				CCB817E42B7196C800364D64 /* Cat.inc in Sources */,
 				CCB817B22B7196C800364D64 /* pxtnDescriptor.cpp in Sources */,
-				CCB817D72B7196C800364D64 /* Ride01.inc in Sources */,
 				CCB817E92B7196C800364D64 /* res0.c in Sources */,
 				CCB817F42B7196C800364D64 /* bitrate.c in Sources */,
 				CCB817ED2B7196C800364D64 /* info.c in Sources */,
 				CCB817B52B7196C800364D64 /* pxtoneNoise.cpp in Sources */,
 				CCB817C12B7196C800364D64 /* pxtnUnit.cpp in Sources */,
 				CCB817F02B7196C800364D64 /* envelope.c in Sources */,
-				CCB817D32B7196C800364D64 /* Bell.inc in Sources */,
-				CCB817DA2B7196C800364D64 /* Snare04.inc in Sources */,
-				CCB817D52B7196C800364D64 /* Snare03.inc in Sources */,
-				CCB817DD2B7196C800364D64 /* Orcdrm.inc in Sources */,
 				CCB817BC2B7196C800364D64 /* pxtnPulse_PCM.cpp in Sources */,
-				CCB817DF2B7196C800364D64 /* Crash.inc in Sources */,
 				CCB817EB2B7196C800364D64 /* lookup.c in Sources */,
-				CCB817E62B7196C800364D64 /* HiClose.inc in Sources */,
 				CCB817F32B7196C800364D64 /* floor0.c in Sources */,
-				CCB817C52B7196C800364D64 /* HiOpen2.inc in Sources */,
-				CCB817C92B7196C800364D64 /* Tom04.inc in Sources */,
 				CCB817BE2B7196C800364D64 /* pxtnDelay.cpp in Sources */,
-				CCB817DB2B7196C800364D64 /* Wave100.inc in Sources */,
-				CCB817C72B7196C800364D64 /* HiOpen3.inc in Sources */,
 				CCB817B82B7196C800364D64 /* pxtnWoicePTV.cpp in Sources */,
-				CCB817E22B7196C800364D64 /* Crash02.inc in Sources */,
-				CCB817D02B7196C800364D64 /* Tom03.inc in Sources */,
 				CCB817FC2B7196C800364D64 /* lpc.c in Sources */,
 				CCB817F72B7196C800364D64 /* sharedbook.c in Sources */,
 				CCB818012B7196C800364D64 /* window.c in Sources */,
 				CCB817FB2B7196C800364D64 /* mapping0.c in Sources */,
 				CCB817B12B7196C800364D64 /* pxtnMaster.cpp in Sources */,
-				CCB817DC2B7196C800364D64 /* HiOpenBeta.inc in Sources */,
 				CCB8182F2B71A0C100364D64 /* MetaInfoHelper.cpp in Sources */,
 				CCB817F22B7196C800364D64 /* codebook.c in Sources */,
 				CCB817FE2B7196C800364D64 /* lsp.c in Sources */,

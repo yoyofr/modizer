@@ -552,6 +552,7 @@ static int display_length_mode=0;
     __block NSString *filePath,*fileName;
     UIAlertController *msgAlert;
     UIAlertAction* userAction;
+    UIAlertAction* cancelAction;
     
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
@@ -566,7 +567,7 @@ static int display_length_mode=0;
                                                                           message:[NSString stringWithFormat:NSLocalizedString(@"What do you want to add",@"")]
                                                                    preferredStyle:UIAlertControllerStyleActionSheet];
         //Cancel action
-        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+        cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
                                                              handler:^(UIAlertAction * action) {
             if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
         }];
@@ -579,7 +580,10 @@ static int display_length_mode=0;
             //Update the rating at file level
             filePath=[ModizFileHelper getFullCleanFilePath:filePath];
             DBHelper::updateRatingDBmod(filePath,5);
-            mPlaylist[mPlaylist_pos].mPlaylistRating=5;
+            //update playlist
+            self.mPlaylist[self.mPlaylist_pos].mPlaylistRating=5;
+            //update UI
+            [self showRating:5];
             
             if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
         }];
@@ -593,7 +597,11 @@ static int display_length_mode=0;
                 filePath=[ModizFileHelper getFullCleanFilePath:filePath];
                 filePath=[NSString stringWithFormat:@"%@@%d",filePath,[self.mplayer getArcIndex]];
                 DBHelper::updateRatingDBmod(filePath,5);
-                mPlaylist[mPlaylist_pos].mPlaylistRating=5;
+                //update playlist
+                self.mPlaylist[self.mPlaylist_pos].mPlaylistRating=5;
+                //update UI
+                [self showRating:5];
+                
                 
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
             }];
@@ -605,21 +613,35 @@ static int display_length_mode=0;
                 //Update the rating at file level
                 filePath=[ModizFileHelper getFullCleanFilePath:filePath];
                 
-                if ([self.mplayer isArchive]) filePath=[NSString stringWithFormat:@"%@@%d?%d",filePath,[self.mplayer getArcIndex],mplayer.mod_currentsub];
+                if ([self.mplayer isArchive]) filePath=[NSString stringWithFormat:@"%@@%d?%d",fileName,[self.mplayer getArcIndex],self.mplayer.mod_currentsub];
                 else filePath=[NSString stringWithFormat:@"%@?%d",filePath,self.mplayer.mod_currentsub];
                 
                 DBHelper::updateRatingDBmod(filePath,5);
-                mPlaylist[mPlaylist_pos].mPlaylistRating=5;
-                
+                //recompute avg for global file
+                DBHelper::updateFileStatsAvgRatingDBmod(filePath);
+                //update playlist
+                self.mPlaylist[self.mPlaylist_pos].mPlaylistRating=5;
+                //update UI
+                [self showRating:5];
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+                                
+                
+                
             }];
             [msgAlert addAction:userAction];
         }
     } else {
         //remove a rating
+        NSLog(@"tsttotototaaa");
         msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Remove from favorites",@"")
                                                                           message:[NSString stringWithFormat:NSLocalizedString(@"What do you want to remove",@"")]
                                                                    preferredStyle:UIAlertControllerStyleActionSheet];
+        //Cancel action
+        cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                                                             handler:^(UIAlertAction * action) {
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+        }];
+        [msgAlert addAction:cancelAction];
     }
     
     [self showAlert:msgAlert];
@@ -698,13 +720,11 @@ static int display_length_mode=0;
         //No archive but Multisubsongs
         /////////////////////////////////////////////////////////////////////////////:
         // 1st, try  current entry
-        
         if (!(mOnlyCurrentSubEntry&1)) {
-            filePath=[filePath stringByAppendingFormat:@"?%d",[mplayer getArcIndex]];
+            filePath=[filePath stringByAppendingFormat:@"?%d",mplayer.mod_currentsub];
         }
         if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
-            NSLog(@"yo");
-            if (((int)rating)>0) {
+            if (rating==5) {
                 NSLog(@"Rating %d found for %@ / %@",rating,fileName,filePath);
                 return rating;
             }
@@ -714,8 +734,7 @@ static int display_length_mode=0;
         //fileName=[filePath lastPathComponent];
                         
         if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
-            NSLog(@"yo");
-            if (((int)rating)>0) {
+            if (rating==5) {
                 NSLog(@"Rating %d found for %@ / %@",rating,fileName,filePath);
                 return rating;
             }
@@ -727,8 +746,10 @@ static int display_length_mode=0;
     }
     
     if (DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating)) {
-        NSLog(@"Rating %d found for %@",rating,filePath);
-        return rating;
+        if (rating==5) {
+            NSLog(@"Rating %d found for %@",rating,filePath);
+            return rating;
+        }
     }
     return 0;
 }
@@ -764,12 +785,15 @@ static int display_length_mode=0;
             if (!(mOnlyCurrentSubEntry&1)) {
                 filePath=[filePath stringByAppendingFormat:@"?%d",mplayer.mod_currentsub];
             }
+            NSLog(@"toto1");
             
             //Update archive entry stats
             DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
             DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,rating,[mplayer getSongLength],mplayer.numChannels,-1);
         } else { //All entries
+            NSLog(@"toto2");
+            
             //Update current entry stats
             DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
@@ -790,6 +814,8 @@ static int display_length_mode=0;
         /////////////////////////////////////////////////////////////////////////////:
         if (mOnlyCurrentSubEntry) { // only one subsong
             
+            NSLog(@"toto3");
+            
             if (!(mOnlyCurrentSubEntry&1)) {
                 filePath=[filePath stringByAppendingFormat:@"?%d",[mplayer getArcIndex]];
             }
@@ -799,6 +825,9 @@ static int display_length_mode=0;
             if (rating==-1) rating=tmp_rating;
             DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,playcount,rating,[mplayer getSongLength],mplayer.numChannels,-1);
         } else { // all subsongs
+            
+            NSLog(@"toto4");
+            
             //Update subsong stats
             DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
@@ -810,7 +839,9 @@ static int display_length_mode=0;
         /////////////////////////////////////////////////////////////////////////////
         //No archive, no multisongs: simple file
         /////////////////////////////////////////////////////////////////////////////
+        ///
         
+        NSLog(@"toto5");
         //Update file stats
         DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
         if (rating==-1) rating=tmp_rating;
@@ -1414,15 +1445,21 @@ static float movePinchScale,movePinchScaleOld;
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
             NSString *filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
             
+            [self updateStats:fileName filePath:filePath playcount_inc:false];
+            
+            NSLog(@"too2    ");
+#if 0
             if ([mplayer isArchive]) {
                 /////////////////////////////////////////////////////////////////////////////:
                 //Archive
                 /////////////////////////////////////////////////////////////////////////////:
                 if (mOnlyCurrentEntry) { //Only one entry
+                    NSLog(@"yoto1");
                     //Update archive entry stats
                     DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
                 } else { //All entries
+                    NSLog(@"yoto2");
                     //Update Global file stats
                     DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,-1/*[mplayer getGlobalLength]*/,mplayer.numChannels,-[mplayer getArcEntriesCnt]);
@@ -1436,10 +1473,12 @@ static float movePinchScale,movePinchScaleOld;
                 //No archive but Multisubsongs
                 /////////////////////////////////////////////////////////////////////////////:
                 if (mOnlyCurrentSubEntry) { // only one subsong
+                    NSLog(@"yoto3");
                     //Update subsong stats
                     DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
                 } else { // all subsongs
+                    NSLog(@"yoto4");
                     //Update Global file stats
                     DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
@@ -1452,12 +1491,12 @@ static float movePinchScale,movePinchScaleOld;
                 /////////////////////////////////////////////////////////////////////////////:
                 //No archive, no multisongs: simple file
                 /////////////////////////////////////////////////////////////////////////////:
-                
+                NSLog(@"yoto5");
                 //Update file stats
                 DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
                 DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
             }
-            
+#endif
             
             mShouldUpdateInfos=0;
         }
@@ -2691,6 +2730,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
     //Update current entry stats
+    //increase playcount by one if not restarting
     DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&mRating);
     if (!mRestart) playcount++;
     mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
@@ -2860,6 +2900,46 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     } else {
         cover_view.hidden=TRUE;
         cover_viewBG.hidden=TRUE;
+    }
+}
+
+-(void)updateStats:(NSString *)fileName filePath:(NSString *)filePath playcount_inc:(bool)playcount_inc {
+    signed char rating;
+    short int playcount;
+    
+    if ([mplayer isArchive]) {
+        //Update Global file stats
+        DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating);
+        if (playcount_inc) playcount++;
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,-1/*[mplayer getGlobalLength]*/,mplayer.numChannels,-[mplayer getArcEntriesCnt]);
+        
+        //Update archive entry stats
+        DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&mRating);
+        if (playcount_inc) playcount++;
+        DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+        
+        //Update subsong entry if applicable
+        if (mplayer.mod_subsongs>1) {
+            DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"%@/%@",[mplayer getSubTitle:mplayer.mod_currentsub],[mplayer getArcEntryTitle:[mplayer getArcIndex]]],[NSString stringWithFormat:@"%@@%d?%d",filePath,[mplayer getArcIndex],mplayer.mod_currentsub],&playcount,&mRating);
+            if (playcount_inc) playcount++;
+            DBHelper::updateFileStatsDBmod([NSString stringWithFormat:@"%@/%@",[mplayer getSubTitle:mplayer.mod_currentsub],[mplayer getArcEntryTitle:[mplayer getArcIndex]]] ,[NSString stringWithFormat:@"%@@%d.%d",filePath,[mplayer getArcIndex],mplayer.mod_currentsub],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+        }
+    } else if ([mplayer isMultiSongs]){
+        //Update Global file stats
+        DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating);
+        if (playcount_inc) playcount++;
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
+        
+        //Update subsong entry stats
+        DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],&playcount,&mRating);
+        if (playcount_inc) playcount++;
+        DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+    } else {
+        //Update Global file stats
+        DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&rating);
+        if (playcount_inc) playcount++;
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
+        
     }
 }
 
@@ -3136,7 +3216,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
     }
-    
+  
+    [self updateStats:fileName filePath:filePath playcount_inc:(mRestart==0)];
+#if 0
     if ([mplayer isArchive]) {  //Archive
         if (mOnlyCurrentEntry) { //Only one entry
             //Update rating info for playlist view
@@ -3152,12 +3234,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
         } else { //Archive - All entries
             //Update rating info for playlist view
+            
             mRating=0;
             DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
-            
             //Not restarting app, update playcount
             if (!mRestart) playcount++;
-            
             //Update Global file stats
             DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,-1/*[mplayer getGlobalLength]*/,mplayer.numChannels,-[mplayer getArcEntriesCnt]);
             
@@ -3166,6 +3247,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (!mRestart) playcount++;
             DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
             
+            //Check if subsong
+            if (mplayer.mod_subsongs>1) {
+                DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"%@/%@",[mplayer getSubTitle:mplayer.mod_currentsub],[mplayer getArcEntryTitle:[mplayer getArcIndex]]],[NSString stringWithFormat:@"%@@%d?%d",filePath,[mplayer getArcIndex],mplayer.mod_currentsub],&playcount,&mRating);
+                if (!mRestart) playcount++;
+                DBHelper::updateFileStatsDBmod([NSString stringWithFormat:@"%@/%@",[mplayer getSubTitle:mplayer.mod_currentsub],[mplayer getArcEntryTitle:[mplayer getArcIndex]]] ,[NSString stringWithFormat:@"%@@%d.%d",filePath,[mplayer getArcIndex],mplayer.mod_currentsub],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+            }
+            
+            mRating=[self getCurrentRating];
             mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
             
         }
@@ -3214,7 +3303,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
         
     }
-    
+#endif
     if (!mRestart) {//UPDATE Google Application
         if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
         

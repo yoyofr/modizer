@@ -522,6 +522,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     sqlite3 *db;
     int err;
     int avg_rating;
+    int global_rating;
     int entries_nb;
     int playcount,sng_length,channels,songs;
     
@@ -541,6 +542,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     NSString *fullpathCleaned=[NSString stringWithFormat:@"%s",tmp_str_copy];
     
     avg_rating=0;
+    global_rating=0;
     entries_nb=0;
     playcount=0;
     
@@ -581,8 +583,9 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                     //if (tmp_rating>0)
                     entries_nb++;
                 } else {
-                    //printf("skipping: %s\n",tmp_fullpath);
+                    //entry for the global file                    
                     playcount=(int)sqlite3_column_int(stmt, 1);
+                    global_rating=(int)sqlite3_column_int(stmt, 2);
                     sng_length=(int)sqlite3_column_int(stmt, 3);
                     channels=(int)sqlite3_column_int(stmt, 4);
                     songs=(int)sqlite3_column_int(stmt, 5);
@@ -597,6 +600,8 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                     avg_rating=abs(avg_rating/songs+1);
                     if (!avg_rating) avg_rating=1;
                 }
+                //if a 5 rating already exist, force it
+                if (global_rating==5) avg_rating=5;
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -656,14 +661,15 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	pthread_mutex_unlock(&db_mutex);
 }
 
-void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,char channels_nb,int songs) {
+int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,signed char channels_nb,int songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
+    int ret=0;
     
     //NSLog(@"upFS pl %d ra %d le %d ch %d sg %d %@ %@",playcount,rating,song_length,channels_nb,songs,name,fullpath);
     
-    if (name==nil) return;
+    if (name==nil) return ret;
     
     //NSLog(@"updlong: %@/%@ played:%d rating:%d length:%d ...\n",name,[fullpath lastPathComponent],playcount,rating,song_length);
     
@@ -671,9 +677,26 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
+        sqlite3_stmt *stmt;
 		
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                ret++;
+                if (name==nil) name=[NSString stringWithUTF8String:(const char*)(sqlite3_column_text(stmt,0))];
+                if (playcount<0) playcount=(short int)sqlite3_column_int(stmt, 1);
+                if (song_length<0) song_length=(int)sqlite3_column_int(stmt, 2);
+                if (channels_nb<0) channels_nb=(char)sqlite3_column_int(stmt, 3);
+                if (songs<0) songs=(int)sqlite3_column_int(stmt, 4);
+                
+                break;
+            }
+            sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
 		sprintf(sqlStatement,"DELETE FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
@@ -690,6 +713,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
+    return ret;
 }
 
 int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
