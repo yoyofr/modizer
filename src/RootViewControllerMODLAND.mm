@@ -2257,9 +2257,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     
                     if (cur_db_entries[section][indexPath.row].downloaded==1) {
                         if (cur_db_entries[section][indexPath.row].rating==-1) {
-                            DBHelper::getFileStatsDBmod(
-                                                        cur_db_entries[section][indexPath.row].label,
-                                                        [NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
+                            DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
                                                          [self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]],
                                                         &cur_db_entries[section][indexPath.row].playcount,
                                                         &cur_db_entries[section][indexPath.row].rating,

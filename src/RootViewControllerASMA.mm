@@ -1432,9 +1432,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                            22);
                 if (cur_db_entries[section][indexPath.row].downloaded==1) {
                     if (cur_db_entries[section][indexPath.row].rating==-1) {
-                        DBHelper::getFileStatsDBmod(
-                                                    cur_db_entries[section][indexPath.row].label,
-                                                    [NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath],
+                        DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath],
                                                     &cur_db_entries[section][indexPath.row].playcount,
                                                     &cur_db_entries[section][indexPath.row].rating,
                                                     NULL,

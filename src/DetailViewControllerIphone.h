@@ -174,8 +174,7 @@ class CGLString;
 	
 	int mPlayingPosRestart;
 	BOOL mIsPlaying;
-	int mRestart,mRestart_sub,mRestart_arc;
-	signed char mRating;
+	int mRestart,mRestart_sub,mRestart_arc;	
 	
 	int mHasFocus;
 	float mScaleFactor;

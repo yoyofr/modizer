@@ -1063,9 +1063,7 @@ extern pthread_mutex_t db_mutex;
                                    22);
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
             if (cur_db_entries[section][indexPath.row].rating==-1) {
-                DBHelper::getFileStatsDBmod(
-                                            cur_db_entries[section][indexPath.row].label,
-                                            [NSString stringWithFormat:@"Documents/%@%@",mWebBaseDir,cur_db_entries[section][indexPath.row].fullpath],
+                DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"Documents/%@%@",mWebBaseDir,cur_db_entries[section][indexPath.row].fullpath],
                                             &cur_db_entries[section][indexPath.row].playcount,
                                             &cur_db_entries[section][indexPath.row].rating,
                                             NULL,

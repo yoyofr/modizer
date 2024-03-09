@@ -20,7 +20,8 @@ typedef struct {
 
 namespace DBHelper 
 {
-	int getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length=NULL,char *channels_nb=NULL,int *songs=NULL);
+	int getFileStatsDBmod(NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length=NULL,char *channels_nb=NULL,int *songs=NULL);
+    int getRating(NSString *filePath,int arcidx,int subidx);
 	int deleteStatsDirDB(NSString *fullpath);
     int deleteStatsFileDB(NSString *fullpath);
 	

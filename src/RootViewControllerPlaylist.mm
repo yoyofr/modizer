@@ -703,7 +703,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
 		
-		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists ORDER BY name");
+		snprintf(sqlStatement,sizeof(sqlStatement),"SELECT id,name,num_files FROM playlists ORDER BY name");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -735,7 +735,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
 		
 		//Get playlist name
-		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -745,8 +745,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-		sprintf(sqlStatement,"SELECT p.name,p.fullpath,s.rating,s.play_count FROM playlists_entries p \
-				LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath AND p.name=s.name \
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT p.name,p.fullpath,s.rating,s.play_count,s.avg_rating FROM playlists_entries p \
+				LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath \
 				WHERE id_playlist=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -756,6 +756,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 				signed char tmpsc=(signed char)sqlite3_column_int(stmt, 2);
 				if (tmpsc<0) tmpsc=0;
 				if (tmpsc>5) tmpsc=5;
+                if ((tmpsc==0)&&(sqlite3_column_type(stmt,4)!=SQLITE_NULL)) {
+                    tmpsc=(signed char)sqlite3_column_int(stmt, 4);
+                    if (tmpsc) tmpsc=1;
+                }
 				_playlist->entries[_playlist->nb_entries].ratings=tmpsc;
 				_playlist->entries[_playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt, 3);
 				_playlist->nb_entries++;
@@ -780,7 +784,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"INSERT INTO playlists (name,num_files) SELECT \"%s\",0",[listName UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists (name,num_files) SELECT \"%s\",0",[listName UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
@@ -807,7 +811,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
 		
 		//Get playlist name
-		sprintf(sqlStatement,"SELECT name FROM playlists WHERE id=%s",[id_playlist UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name FROM playlists WHERE id=%s",[id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -836,7 +840,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
 		for (int i=0;i<playlist->nb_entries;i++) {
-			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
 			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 			if (err==SQLITE_OK){
@@ -848,7 +852,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 			}
 		}
 		if (result) {
-			sprintf(sqlStatement,"UPDATE playlists SET num_files=\
+            snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
 					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
 					WHERE id=%s",
 					[playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
@@ -879,7 +883,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
 		for (int i=0;i<nb_entries;i++) {
-			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
 			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 			if (err==SQLITE_OK){
@@ -891,7 +895,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 			}
 		}
 		if (result) {
-			sprintf(sqlStatement,"UPDATE playlists SET num_files=\
+            snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
 					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
 					WHERE id=%s",
 					[id_playlist UTF8String],[id_playlist UTF8String]);
@@ -921,7 +925,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
-		sprintf(sqlStatement,"DELETE FROM playlists_entries WHERE id_playlist=\"%s\" AND fullpath=\"%s\"",
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=\"%s\" AND fullpath=\"%s\"",
 				[id_playlist UTF8String],[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -947,7 +951,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"DELETE FROM playlists_entries WHERE id_playlist=%s",
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=%s",
 				[playlist->playlist_id UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -958,7 +962,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
 		for (int i=0;i<playlist->nb_entries;i++) {
-			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
 			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 			if (err==SQLITE_OK){
@@ -969,7 +973,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
-		sprintf(sqlStatement,"UPDATE playlists SET num_files=\
+        snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
 				(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
 				WHERE id=%s",
 				[playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
@@ -994,7 +998,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"UPDATE playlists SET name=\"%s\" WHERE id=%s",[playlist_name UTF8String],[id_playlist UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET name=\"%s\" WHERE id=%s",[playlist_name UTF8String],[id_playlist UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
@@ -1013,12 +1017,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
-		sprintf(sqlStatement,"DELETE FROM playlists_entries WHERE id_playlist=%s",[id_playlist UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=%s",[id_playlist UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
 		
-		sprintf(sqlStatement,"DELETE FROM playlists WHERE id=%s",[id_playlist UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists WHERE id=%s",[id_playlist UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -1317,13 +1321,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             local_entries[index][local_entries_count[index]].songs=1;//0;
                             local_entries[index][local_entries_count[index]].channels_nb=0;
                             
-                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                             if (err==SQLITE_OK){
                                 while (sqlite3_step(stmt) == SQLITE_ROW) {
                                     signed char rating=(signed char)sqlite3_column_int(stmt, 1);
                                     if (rating<0) rating=0;
                                     if (rating>5) rating=5;
+                                    if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                        rating=(signed char)sqlite3_column_int(stmt, 5);
+                                        if (rating) rating=1;
+                                    }
                                     local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
                                     local_entries[index][local_entries_count[index]].rating=rating;
                                     local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
@@ -1492,13 +1500,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 local_entries[index][local_entries_count[index]].songs=1;//0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
                                         signed char rating=(signed char)sqlite3_column_int(stmt, 1);
                                         if (rating<0) rating=0;
                                         if (rating>5) rating=5;
+                                        if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                            rating=(signed char)sqlite3_column_int(stmt, 5);
+                                            if (rating) rating=1;
+                                        }
                                         local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
                                         local_entries[index][local_entries_count[index]].rating=rating;
                                         local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
@@ -1668,13 +1680,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 local_entries[index][local_entries_count[index]].songs=0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
                                         signed char rating=(signed char)sqlite3_column_int(stmt, 1);
                                         if (rating<0) rating=0;
                                         if (rating>5) rating=5;
+                                        if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                            rating=(signed char)sqlite3_column_int(stmt, 5);
+                                            if (rating) rating=1;
+                                        }
                                         local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
                                         local_entries[index][local_entries_count[index]].rating=rating;
                                         local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
@@ -1916,13 +1932,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                     local_entries[index][local_entries_count[index]].songs=0;
                                     local_entries[index][local_entries_count[index]].channels_nb=0;
                                     
-                                    sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s/%s\"",[[file lastPathComponent] UTF8String],[currentPath UTF8String],[file UTF8String]);
+                                    snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     if (err==SQLITE_OK){
                                         while (sqlite3_step(stmt) == SQLITE_ROW) {
                                             signed char rating=(signed char)sqlite3_column_int(stmt, 1);
                                             if (rating<0) rating=0;
                                             if (rating>5) rating=5;
+                                            if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                                rating=(signed char)sqlite3_column_int(stmt, 5);
+                                                if (rating) rating=1;
+                                            }
                                             local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
                                             local_entries[index][local_entries_count[index]].rating=rating;
                                             local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
@@ -2019,7 +2039,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -2068,7 +2088,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -2095,8 +2115,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
         playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
         
-            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
-                                        detailViewController.mPlaylist[i].mPlaylistFilepath,
+            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
                                         &(playlist->entries[i].playcounts),
                                         &(detailViewController.mPlaylist[i].mPlaylistRating),
                                         NULL,
@@ -2403,13 +2422,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             short int playcount;
                             signed char rating,avg_rating;
 
-                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
-                                                        playlist->entries[indexPath.row-1].fullpath,
+                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
                                                         &playcount,&rating,&avg_rating);
                             playcount=0;
                             DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                            playlist->entries[indexPath.row-1].fullpath,
-                                                           playcount,rating);
+                                                           playcount,rating,avg_rating);
                     
                             [self loadMostPlayedList];
 
@@ -2420,13 +2438,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
                             short int playcount;
                             signed char rating,avg_rating;
-                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
-                                                        playlist->entries[indexPath.row-1].fullpath,
+                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
                                                         &playcount,&rating,&avg_rating);
                             rating=0;
                             DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                            playlist->entries[indexPath.row-1].fullpath,
-                                                           playcount,rating);
+                                                           playcount,rating,avg_rating);
                     
                             [self loadFavoritesList];
                     forceReloadCells=true;
@@ -2668,8 +2685,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 
                 char signed avg_rating;
                 if ((playlist->entries[row-2].ratings==-1)||(playlist->entries[row-2].playcounts==-1)) {
-                    DBHelper::getFileStatsDBmod(playlist->entries[row-2].label,
-                                                playlist->entries[row-2].fullpath,
+                    DBHelper::getFileStatsDBmod(playlist->entries[row-2].fullpath,
                                                 &(playlist->entries[row-2].playcounts),
                                                 &(playlist->entries[row-2].ratings),
                                                 &avg_rating,
@@ -2681,7 +2697,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     }
                 }
                 
-                if ((playlist->entries[row-2].ratings==0)&&(avg_rating>0)) playlist->entries[row-2].ratings=avg_rating;
+                if ((playlist->entries[row-2].ratings==0)&&(avg_rating>0)) playlist->entries[row-2].ratings=1;
 
                 if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
                 NSArray *filename_parts=[playlist->entries[row-2].fullpath componentsSeparatedByString:@"/"];
@@ -2784,13 +2800,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating==-1) {
                         char signed avg_rating;
-                        DBHelper::getFileStatsDBmod(
-                                                    cur_local_entries[indexPath.section-2][indexPath.row].label,
-                                                    cur_local_entries[indexPath.section-2][indexPath.row].fullpath,
+                        DBHelper::getFileStatsDBmod(cur_local_entries[indexPath.section-2][indexPath.row].fullpath,
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].playcount,
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].rating,&avg_rating);
                         if ((cur_local_entries[indexPath.section-2][indexPath.row].rating==0)&&(avg_rating>0))
-                            cur_local_entries[indexPath.section-2][indexPath.row].rating=avg_rating;
+                            cur_local_entries[indexPath.section-2][indexPath.row].rating=1;
                     }
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.section-2][indexPath.row].rating)]];
                     tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
@@ -2855,25 +2869,23 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
                 short int playcount;
                 signed char rating,avg_rating;
-                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
-                                            playlist->entries[indexPath.row-rowofs].fullpath,
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].fullpath,
                                             &playcount,&rating,&avg_rating);
                 playcount=0;
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
-                                               playcount,rating);
+                                               playcount,rating,avg_rating);
                 [self loadMostPlayedList];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {  //favorites: reset rating
                 short int playcount;
                 signed char rating,avg_rating;
-                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
-                                            playlist->entries[indexPath.row-rowofs].fullpath,
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].fullpath,
                                             &playcount,&rating,&avg_rating);
                 rating=0;
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
-                                               playcount,rating);
+                                               playcount,rating,avg_rating);
                 [self loadFavoritesList];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {
@@ -3304,8 +3316,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
                 playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
                 
-                DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
-                                            detailViewController.mPlaylist[i].mPlaylistFilepath,
+                DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
                                             &(playlist->entries[i].playcounts),
                                             &(detailViewController.mPlaylist[i].mPlaylistRating),
                                             NULL,
