@@ -157,6 +157,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         pthread_mutex_lock(&db_mutex);
         
         if (mUpdateToNewDB) {
+            //1st clean obsolete data
+            DBHelper::cleanDB();
+            //rename to old DB
             [fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
             //        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
         }
@@ -1089,11 +1092,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             local_entries[index][local_entries_count[index]].songs=1;//0;
                             local_entries[index][local_entries_count[index]].channels_nb=0;
                             
-                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                             if (err==SQLITE_OK){
                                 while (sqlite3_step(stmt) == SQLITE_ROW) {
                                     signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                    if (sqlite3_column_type(stmt,5)!=SQLITE_NULL) {
+                                        rating=(signed char)sqlite3_column_int(stmt, 5);
+                                    }
                                     if (rating<0) rating=0;
                                     if (rating>5) rating=5;
                                     local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
@@ -1283,11 +1289,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 local_entries[index][local_entries_count[index]].songs=1;//0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
                                         signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                        if (sqlite3_column_type(stmt,5)!=SQLITE_NULL) {
+                                            rating=(signed char)sqlite3_column_int(stmt, 5);
+                                        }
                                         if (rating<0) rating=0;
                                         if (rating>5) rating=5;
                                         local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
@@ -1480,11 +1489,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 local_entries[index][local_entries_count[index]].songs=0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
                                         signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                        if (sqlite3_column_type(stmt,5)!=SQLITE_NULL) {
+                                            rating=(signed char)sqlite3_column_int(stmt, 5);
+                                        }
                                         if (rating<0) rating=0;
                                         if (rating>5) rating=5;
                                         local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
@@ -1756,7 +1768,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     local_entries[index][local_entries_count[index]].songs=0;
                                     local_entries[index][local_entries_count[index]].channels_nb=0;
                                     
-                                    sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s/%s\"",[[file lastPathComponent] UTF8String],[currentPath UTF8String],[file UTF8String]);
+                                    sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s/%s\"",[[file lastPathComponent] UTF8String],[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     
                                     //printf("%s\n",sqlStatement);
@@ -1764,6 +1776,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     if (err==SQLITE_OK){
                                         while (sqlite3_step(stmt) == SQLITE_ROW) {
                                             signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                            if (sqlite3_column_type(stmt,5)!=SQLITE_NULL) {
+                                                rating=(signed char)sqlite3_column_int(stmt, 5);
+                                            }
                                             if (rating<0) rating=0;
                                             if (rating>5) rating=5;
                                             
@@ -2803,6 +2818,7 @@ static int shouldRestart=1;
                                             cur_local_entries[section][indexPath.row].fullpath,
                                             &cur_local_entries[section][indexPath.row].playcount,
                                             &cur_local_entries[section][indexPath.row].rating,
+                                            NULL,
                                             &cur_local_entries[section][indexPath.row].song_length,
                                             &cur_local_entries[section][indexPath.row].channels_nb,
                                             &cur_local_entries[section][indexPath.row].songs);

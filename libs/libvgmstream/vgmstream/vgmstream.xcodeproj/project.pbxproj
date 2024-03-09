@@ -3123,9 +3123,8 @@
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D",
 					"VGM_USE_MPEG=1",
@@ -3182,9 +3181,8 @@
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D",
 					"VGM_USE_MPEG=1",

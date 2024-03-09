@@ -1165,6 +1165,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
                                             cur_db_entries[section][indexPath.row].fullpath,
                                             &cur_db_entries[section][indexPath.row].playcount,
                                             &cur_db_entries[section][indexPath.row].rating,
+                                            NULL,
                                             &cur_db_entries[section][indexPath.row].song_length,
                                             &cur_db_entries[section][indexPath.row].channels_nb,
                                             &cur_db_entries[section][indexPath.row].songs);

@@ -2263,6 +2263,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                          [self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]],
                                                         &cur_db_entries[section][indexPath.row].playcount,
                                                         &cur_db_entries[section][indexPath.row].rating,
+                                                        NULL,
                                                         &cur_db_entries[section][indexPath.row].song_length,
                                                         &cur_db_entries[section][indexPath.row].channels_nb,
                                                         &cur_db_entries[section][indexPath.row].songs);

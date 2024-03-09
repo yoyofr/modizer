@@ -64,7 +64,6 @@
 		592865051E2FD09900A08A4E /* firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5928647D1E2FD09900A08A4E /* firmware.cpp */; };
 		592865061E2FD09900A08A4E /* firmware.h in Headers */ = {isa = PBXBuildFile; fileRef = 5928647E1E2FD09900A08A4E /* firmware.h */; };
 		592865071E2FD09900A08A4E /* instruction_attributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 5928647F1E2FD09900A08A4E /* instruction_attributes.h */; };
-		592865081E2FD09900A08A4E /* instruction_tabdef.inc in Sources */ = {isa = PBXBuildFile; fileRef = 592864801E2FD09900A08A4E /* instruction_tabdef.inc */; };
 		592865091E2FD09900A08A4E /* instructions.h in Headers */ = {isa = PBXBuildFile; fileRef = 592864811E2FD09900A08A4E /* instructions.h */; };
 		5928650A1E2FD09900A08A4E /* matrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 592864821E2FD09900A08A4E /* matrix.h */; };
 		5928650B1E2FD09900A08A4E /* mc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592864831E2FD09900A08A4E /* mc.cpp */; };
@@ -106,7 +105,6 @@
 		592865321E2FD09900A08A4E /* SPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592864AC1E2FD09900A08A4E /* SPU.cpp */; };
 		592865331E2FD09900A08A4E /* SPU.h in Headers */ = {isa = PBXBuildFile; fileRef = 592864AD1E2FD09900A08A4E /* SPU.h */; };
 		592865341E2FD09900A08A4E /* thumb_instructions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592864AE1E2FD09900A08A4E /* thumb_instructions.cpp */; };
-		592865351E2FD09900A08A4E /* thumb_tabdef.inc in Sources */ = {isa = PBXBuildFile; fileRef = 592864AF1E2FD09900A08A4E /* thumb_tabdef.inc */; };
 		592865361E2FD09900A08A4E /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = 592864B01E2FD09900A08A4E /* types.h */; };
 		592865721E2FD09900A08A4E /* dlditool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592864F11E2FD09900A08A4E /* dlditool.cpp */; };
 		592865731E2FD09900A08A4E /* xstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 592864F21E2FD09900A08A4E /* xstring.cpp */; };
@@ -774,13 +772,11 @@
 				592865051E2FD09900A08A4E /* firmware.cpp in Sources */,
 				592865731E2FD09900A08A4E /* xstring.cpp in Sources */,
 				592862D31E2E020500A08A4E /* XSFPlayer.cpp in Sources */,
-				592865351E2FD09900A08A4E /* thumb_tabdef.inc in Sources */,
 				592862A41E2D4B6200A08A4E /* SDAT.cpp in Sources */,
 				59C22AD325BCAB0F003FEDBF /* XSFPlayer_2SF.cpp in Sources */,
 				592865751E2FD09900A08A4E /* version.cpp in Sources */,
 				592862A21E2D4B6200A08A4E /* SBNK.cpp in Sources */,
 				592864FC1E2FD09900A08A4E /* bios.cpp in Sources */,
-				592865081E2FD09900A08A4E /* instruction_tabdef.inc in Sources */,
 				5928650E1E2FD09900A08A4E /* metaspu.cpp in Sources */,
 				592862DD1E2E060000A08A4E /* XSFConfig_NCSF.cpp in Sources */,
 				592865031E2FD09900A08A4E /* FIFO.cpp in Sources */,
@@ -833,10 +829,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -876,10 +871,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};

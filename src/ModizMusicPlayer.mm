@@ -6568,7 +6568,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             mod_total_length+=subsong_length;
             
             short int playcount;
-            signed char rating;
+            signed char rating,avg_rating;
             int song_length;
             char channels_nb;
             int songs;
@@ -6587,13 +6587,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             
-            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 
                 DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
             }
@@ -6679,7 +6679,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             mod_total_length+=subsong_length;
             
             short int playcount;
-            signed char rating;
+            signed char rating,avg_rating;
             int song_length;
             char channels_nb;
             int songs;
@@ -6698,13 +6698,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             
-            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 
                 DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
             }
@@ -7609,7 +7609,7 @@ char* loadRom(const char* path, size_t romSize)
             mod_total_length+=sid_subsong_length;
             
             short int playcount;
-            signed char rating;
+            signed char rating,avg_rating;
             int song_length;
             char channels_nb;
             int songs;
@@ -7629,14 +7629,14 @@ char* loadRom(const char* path, size_t romSize)
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
             
-            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 
                 //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
                 
@@ -7951,7 +7951,7 @@ char* loadRom(const char* path, size_t romSize)
                 mod_total_length+=sid_subsong_length;
                 
                 short int playcount;
-                signed char rating;
+                signed char rating,avg_rating;
                 int song_length;
                 char channels_nb;
                 int songs;
@@ -7971,14 +7971,14 @@ char* loadRom(const char* path, size_t romSize)
                 
                 NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
                 
-                DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
                 
                 DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,numChannels,sidtune_info->songs());
                 
                 if (i==sidtune_info->songs()-1) {// Global file stats update
                     fileName=[filePath lastPathComponent];
-                    DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                     
                     //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
                     
@@ -8162,7 +8162,7 @@ char* loadRom(const char* path, size_t romSize)
             mod_total_length+=subsong_length;
             
             short int playcount;
-            signed char rating;
+            signed char rating,avg_rating;
             int song_length;
             char channels_nb;
             int songs;
@@ -8181,13 +8181,13 @@ char* loadRom(const char* path, size_t romSize)
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             
-            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 
                 DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
             }
@@ -8463,7 +8463,7 @@ char* loadRom(const char* path, size_t romSize)
         mod_total_length+=subsong_length;
         
         short int playcount;
-        signed char rating;
+        signed char rating,avg_rating;
         int song_length;
         char channels_nb;
         int songs;
@@ -8482,13 +8482,13 @@ char* loadRom(const char* path, size_t romSize)
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
         
-        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
         
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
         }
@@ -8642,7 +8642,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         mod_total_length+=subsong_length;
         
         short int playcount;
-        signed char rating;
+        signed char rating,avg_rating;
         int song_length;
         char channels_nb;
         int songs;
@@ -8661,13 +8661,13 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
         
-        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
         
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
         }
@@ -9088,7 +9088,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             close_vgmstream(vgmStreamTmp);
             
             short int playcount;
-            signed char rating;
+            signed char rating,avg_rating;
             int song_length;
             char channels_nb;
             int songs;
@@ -9107,13 +9107,13 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             
-            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+                DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                 
                 DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
             }
@@ -10023,7 +10023,7 @@ int vgmGetFileLength()
         mod_total_length+=subsong_length;
         
         short int playcount;
-        signed char rating;
+        signed char rating,avg_rating;
         int song_length;
         char channels_nb;
         int songs;
@@ -10042,13 +10042,13 @@ int vgmGetFileLength()
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathAsap,i];
         
-        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
         
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::getFileStatsDBmod(fileName,filePathAsap,&playcount,&rating,&song_length,&channels_nb,&songs);
+            DBHelper::getFileStatsDBmod(fileName,filePathAsap,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
             
             DBHelper::updateFileStatsDBmod(fileName,filePathAsap,playcount,rating,mod_total_length,numChannels,mod_subsongs);
         }
@@ -10299,7 +10299,7 @@ int vgmGetFileLength()
             for (int i=0;i<mod_subsongs; i++) {
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
                     short int playcount;
-                    signed char rating;
+                    signed char rating,avg_rating;
                     int song_length;
                     char channels_nb;
                     int songs;
@@ -10328,14 +10328,14 @@ int vgmGetFileLength()
                     
                     NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
                     
-                    DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                     //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,gme_subsong_length,rating);
                     
                     DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
                     
                     if (i==mod_subsongs-1) {// Global file stats update
                         fileName=[filePath lastPathComponent];
-                        DBHelper::getFileStatsDBmod(fileName,filePathGME,&playcount,&rating,&song_length,&channels_nb,&songs);
+                        DBHelper::getFileStatsDBmod(fileName,filePathGME,&playcount,&rating,&avg_rating,&song_length,&channels_nb,&songs);
                         
                         //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathGME,mod_total_length,rating);
                         

@@ -147,11 +147,11 @@ extern "C" void updateMainLoopC(void) {
             
             [mFileMngr createFileAtPath:[[icloudURL path] stringByAppendingPathComponent:@"put_files_here.modizer"] contents:NULL attributes:NULL];
         } else icloudURL=nil;
-        
-        
     }
     
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    
+    NSLog(@"%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {
@@ -171,7 +171,6 @@ extern "C" void updateMainLoopC(void) {
     //[SettingsGenViewController loadSettings];
     //[SettingsGenViewController restoreSettings];
  
-    
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
     sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
@@ -273,7 +272,7 @@ extern "C" void updateMainLoopC(void) {
     
     [modizerWin addSubview:[animatedLaunchVC view]];
     //[self pushViewController:animatedLaunchVC animated:YES];
-        
+                
 	return YES;
 }
 

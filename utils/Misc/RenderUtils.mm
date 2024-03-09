@@ -370,39 +370,41 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         printf("%s: count too high: %d / %d\n",__func__,count,max_count);
     } else glDrawArrays(GL_LINES, 0, count);
     
-    //draw frame
-    count=0;
-    glLineWidth(1.0f*mScaleFactor);
-    colR=64;colG=64;colB=64;
-    //top
-    pts[count++] = LineVertex(0, hh-1,colR,colG,colB,colA);
-    pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
-    //right
-    pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
-    pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-    //bottom
-    pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-    pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-    //left
-    pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-    pts[count++] = LineVertex(0,hh-1,colR,colG,colB,colA);
-    
-    for (int r=0;r<columns_nb;r++) {
-        int xpos=xofs+r*columns_width;
-        int max_voices=num_voices*(r+1)/columns_nb;
-        int ypos=hh-mulfactor;
+    if (draw_frame) {
+        //draw frame
+        count=0;
+        glLineWidth(1.0f*mScaleFactor);
+        colR=64;colG=64;colB=64;
+        //top
+        pts[count++] = LineVertex(0, hh-1,colR,colG,colB,colA);
+        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
+        //right
+        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
+        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        //bottom
+        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        //left
+        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        pts[count++] = LineVertex(0,hh-1,colR,colG,colB,colA);
         
-        pts[count++] = LineVertex(xpos,hh-1,colR,colG,colB,colA);
-        pts[count++] = LineVertex(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        for (int r=0;r<columns_nb;r++) {
+            int xpos=xofs+r*columns_width;
+            int max_voices=num_voices*(r+1)/columns_nb;
+            int ypos=hh-mulfactor;
+            
+            pts[count++] = LineVertex(xpos,hh-1,colR,colG,colB,colA);
+            pts[count++] = LineVertex(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        }
+        for (int r=0;r<max_voices_by_row;r++) {
+            pts[count++] = LineVertex(0,hh-mulfactor*r*2,colR,colG,colB,colA);
+            pts[count++] = LineVertex(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA);
+        }
+        
+        if (count>=max_count) {
+            printf("%s: count too high: %d / %d\n",__func__,count,max_count);
+        } else glDrawArrays(GL_LINES, 0, count);
     }
-    for (int r=0;r<max_voices_by_row;r++) {
-        pts[count++] = LineVertex(0,hh-mulfactor*r*2,colR,colG,colB,colA);
-        pts[count++] = LineVertex(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA);
-    }
-    
-    if (count>=max_count) {
-        printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-    } else glDrawArrays(GL_LINES, 0, count);
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -1139,10 +1141,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
     pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
         
-    
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    
     
     pts[0] = LineVertex(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
     pts[1] = LineVertex(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_level);

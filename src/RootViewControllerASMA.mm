@@ -1437,6 +1437,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                     [NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath],
                                                     &cur_db_entries[section][indexPath.row].playcount,
                                                     &cur_db_entries[section][indexPath.row].rating,
+                                                    NULL,
                                                     &cur_db_entries[section][indexPath.row].song_length,
                                                     &cur_db_entries[section][indexPath.row].channels_nb,
                                                     &cur_db_entries[section][indexPath.row].songs);

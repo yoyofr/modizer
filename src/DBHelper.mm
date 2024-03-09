@@ -6,7 +6,10 @@
  *  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
  *
  */
+
 #include "DBHelper.h"
+
+#import "ModizFileHelper.h"
 
 #include "ModizerConstants.h"
 #include "sqlite3.h"
@@ -87,7 +90,7 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 		sprintf(sqltmp,"%s",[localPath cStringUsingEncoding:NSUTF8StringEncoding]);
 //		printf("%s\n",sqltmp);
 		
-		if (adjusted) sprintf(sqlStatement,"SELECT fullpath FROM mod_file WHERE localpath like \"%s\"",sqltmp);
+		if (adjusted) sprintf(sqlStatement,"SELECT fullpath FROM mod_file WHERE localpath LIKE \"%s\"",sqltmp);
 		else sprintf(sqlStatement,"SELECT fullpath FROM mod_file WHERE localpath = \"%s\"",sqltmp);
 		
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -156,7 +159,8 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 
 
 
-int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,int *song_length,char *channels_nb,int *songs) {
+
+int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length,char *channels_nb,int *songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -166,6 +170,7 @@ int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pla
 	
 	if (playcount) *playcount=0;
 	if (rating) *rating=0;
+    if (avg_rating) *avg_rating=0;
 	if (song_length) *song_length=0;
 	if (channels_nb) *channels_nb=0;
 	if (songs) *songs=0;
@@ -179,9 +184,8 @@ int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pla
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
-		
-		//sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-        sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+				
+        sprintf(sqlStatement,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -192,9 +196,14 @@ int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pla
                     if (*rating<0) *rating=0;
 					if (*rating>5) *rating=5;
                 }
-				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 2);
-				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 3);
-				if (songs) *songs=(int)sqlite3_column_int(stmt, 4);
+                if (avg_rating) {
+                    if (sqlite3_column_type(stmt,2)==SQLITE_NULL) *avg_rating=(signed char)sqlite3_column_int(stmt, 2);
+                    if (*avg_rating<0) *avg_rating=0;
+                    if (*avg_rating>5) *avg_rating=5;
+                }
+				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 3);
+				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 4);
+				if (songs) *songs=(int)sqlite3_column_int(stmt, 5);
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
@@ -204,61 +213,6 @@ int DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pla
 	
 	pthread_mutex_unlock(&db_mutex);
     return ret;
-}
-
-void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpaths,short int *playcountArray,signed char *ratingArray,int *song_lengthA,char *channels_nbA,int *songsA) {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-    
-    
-    if (names==nil) return ;
-    if ([names count]==0) return ;
-    
-	int nb_entries=[names count];
-	
-	if (playcountArray) memset(playcountArray,0,sizeof(short int)*nb_entries);
-	if (ratingArray) memset(ratingArray,0,sizeof(signed char)*nb_entries);
-	if (song_lengthA) memset(song_lengthA,0,sizeof(int)*nb_entries);
-	if (channels_nbA) memset(channels_nbA,0,sizeof(char)*nb_entries);
-	if (songsA) memset(songsA,0,sizeof(int)*nb_entries);
-	
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-        
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
-        if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
-		
-		for (int i=0;i<nb_entries;i++) {
-			sprintf(sqlStatement,"SELECT play_count,rating,length,channels_nb,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[names objectAtIndex:i] UTF8String],[[fullpaths objectAtIndex:i] UTF8String]);
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					if (playcountArray) playcountArray[i]=(short int)sqlite3_column_int(stmt, 0);
-					if (ratingArray) {
-                        ratingArray[i]=(signed char)sqlite3_column_int(stmt, 1);
-                        if (ratingArray[i]<0) ratingArray[i]=0;
-                        if (ratingArray[i]>5) ratingArray[i]=5;
-                    }
-					if (song_lengthA) song_lengthA[i]=(int)sqlite3_column_int(stmt, 2);
-					if (channels_nbA) channels_nbA[i]=(char)sqlite3_column_int(stmt, 3);
-					if (songsA) songsA[i]=(int)sqlite3_column_int(stmt, 4);
-				}
-				sqlite3_finalize(stmt);
-			} else {
-				NSLog(@"ErrSQL : %d",err);
-				break;
-			}
-		}
-		
-	}
-	sqlite3_close(db);
-	
-	pthread_mutex_unlock(&db_mutex);
 }
 
 int DBHelper::deleteStatsFileDB(NSString *fullpath) {
@@ -277,7 +231,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -312,53 +266,6 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
 	return ret;
-}
-
-
-void DBHelper::getFilesStatsDBmod(t_plPlaylist_entry *playlist,int nb_entries) {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-    
-    if (playlist==NULL) return;
-    if (nb_entries==0) return;
-	
-	for (int i=0;i<nb_entries;i++) {
-		playlist[i].mPlaylistRating=0;
-		playlist[i].mPlaylistCount=0;
-	}
-	
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-        
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
-        if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
-		
-		for (int i=0;i<nb_entries;i++) {
-			sprintf(sqlStatement,"SELECT play_count,rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[playlist[i].mPlaylistFilename UTF8String],[playlist[i].mPlaylistFilepath UTF8String]);
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					playlist[i].mPlaylistRating=sqlite3_column_int(stmt, 1);
-					playlist[i].mPlaylistCount=sqlite3_column_int(stmt, 0);
-					if (playlist[i].mPlaylistRating<0) playlist[i].mPlaylistRating=0;
-					else if (playlist[i].mPlaylistRating>5) playlist[i].mPlaylistRating=5;
-				}
-				sqlite3_finalize(stmt);
-			} else {
-				NSLog(@"ErrSQL : %d",err);
-				break;
-			}
-		}
-		
-	}
-	sqlite3_close(db);
-	
-	pthread_mutex_unlock(&db_mutex);
 }
 
 int DBHelper::getNbFormatEntries() {
@@ -525,143 +432,194 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     int global_rating;
     int entries_nb;
     int playcount,sng_length,channels,songs;
+    bool isMultisongs=false;
+    bool isArchive=false;
+    NSString *fullpathCleaned;
     
     if (fullpath==nil) return;
     
-    //NSLog(@"upd avgrating: %@\n",fullpath);
-    const char *tmp_str=[fullpath UTF8String];
-    char tmp_str_copy[1024];
-    int i=0,j=0;
-    tmp_str_copy[j]=0;
-    while (tmp_str[i]) {
-        if (tmp_str[i]=='@') break;
-        if (tmp_str[i]=='?') break;
-        tmp_str_copy[j++]=tmp_str[i++];
-        tmp_str_copy[j]=0;
-    }
-    NSString *fullpathCleaned=[NSString stringWithFormat:@"%s",tmp_str_copy];
+    if ([fullpath rangeOfString:@"?"].location!=NSNotFound) isMultisongs=true;
+    if ([fullpath rangeOfString:@"@"].location!=NSNotFound) isArchive=true;
     
-    avg_rating=0;
-    global_rating=0;
-    entries_nb=0;
-    playcount=0;
-    
-    pthread_mutex_lock(&db_mutex);
-    
-    //1st get all related entries (archive entries & subsongs)
-    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-        char sqlStatement[1024];
-        sqlite3_stmt *stmt;
+    if (isMultisongs) {
+        //1st compute avg rating for multisong entry
+        fullpathCleaned=[ModizFileHelper getFilePathNoSubSong:fullpath];
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+        avg_rating=0;
+        global_rating=0;
+        entries_nb=0;
+        playcount=0;
+        
+        pthread_mutex_lock(&db_mutex);
+        
+        //1st get all related entries (archive entries & subsongs)
+        if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+            char sqlStatement[1024];
+            sqlite3_stmt *stmt;
+            
+            err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+            if (err==SQLITE_OK){
+            } else NSLog(@"ErrSQL : %d",err);
+            
+            sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            
+            //printf("req: %s\n",sqlStatement);
+            
+            int fullpath_len=[fullpathCleaned length];
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    int tmp_rating;
+                    char *tmp_fullpath;
+                    tmp_fullpath=(char*)sqlite3_column_text(stmt,0);
+                    
+                    if (strlen(tmp_fullpath)>fullpath_len) {
+                    
+                        tmp_rating=(signed char)sqlite3_column_int(stmt, 2);
+                    
+                        //printf("entry #%d, name: %s, rating: %d\n",entries_nb,tmp_fullpath,tmp_rating);
+                    
+                        if (tmp_rating<0) tmp_rating=0;
+                        if (tmp_rating>5) tmp_rating=5;
+                        avg_rating+=tmp_rating;
+                        //if (tmp_rating>0)
+                        entries_nb++;
+                    } else {
+                        //entry for the global file
+                        playcount=(int)sqlite3_column_int(stmt, 1);
+                        global_rating=(int)sqlite3_column_int(stmt, 2);
+                        sng_length=(int)sqlite3_column_int(stmt, 3);
+                        channels=(int)sqlite3_column_int(stmt, 4);
+                        songs=(int)sqlite3_column_int(stmt, 5);
+                    }
+                }
+                if (entries_nb&&(songs>0)) {
+                    /*if (avg_rating>0) {
+                        avg_rating=avg_rating/entries_nb;
+                        if (avg_rating==0) avg_rating=1;
+                    }*/
+                    if (avg_rating>0) {
+                        avg_rating=abs(avg_rating/songs);
+                        if (!avg_rating) avg_rating=1;
+                    }
+                } else avg_rating=0;
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+            
+        //2nd update rating based on average
+        
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
-        
-        sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
-        
-        //printf("req: %s\n",sqlStatement);
-        
-        int fullpath_len=[fullpathCleaned length];
-        
-        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-        
+            
+        sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
-            while (sqlite3_step(stmt) == SQLITE_ROW) {
-                int tmp_rating;
-                char *tmp_fullpath;
-                tmp_fullpath=(char*)sqlite3_column_text(stmt,0);
-                
-                if (strlen(tmp_fullpath)>fullpath_len) {
-                
-                    tmp_rating=(signed char)sqlite3_column_int(stmt, 2);
-                
-                    //printf("entry #%d, name: %s, rating: %d\n",entries_nb,tmp_fullpath,tmp_rating);
-                
-                    if (tmp_rating<0) tmp_rating=0;
-                    if (tmp_rating>5) tmp_rating=5;
-                    avg_rating+=tmp_rating;
-                    //if (tmp_rating>0)
-                    entries_nb++;
-                } else {
-                    //entry for the global file                    
-                    playcount=(int)sqlite3_column_int(stmt, 1);
-                    global_rating=(int)sqlite3_column_int(stmt, 2);
-                    sng_length=(int)sqlite3_column_int(stmt, 3);
-                    channels=(int)sqlite3_column_int(stmt, 4);
-                    songs=(int)sqlite3_column_int(stmt, 5);
-                }
-            }
-            if (entries_nb&&songs) {
-                /*if (avg_rating>0) {
-                    avg_rating=avg_rating/entries_nb;
-                    if (avg_rating==0) avg_rating=1;
-                }*/
-                if (avg_rating>0) {
-                    avg_rating=abs(avg_rating/songs+1);
-                    if (!avg_rating) avg_rating=1;
-                }
-                //if a 5 rating already exist, force it
-                if (global_rating==5) avg_rating=5;
-            }
-            sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
+            
+        }
+        sqlite3_close(db);
         
-    //2nd update rating based on average
-    
-    sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
-    err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-    if (err==SQLITE_OK){
-    } else NSLog(@"ErrSQL : %d",err);
-        
-    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,avg_rating,sng_length,channels,songs);
-    err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-    if (err==SQLITE_OK){
-    } else NSLog(@"ErrSQL : %d",err);
-        
+        pthread_mutex_unlock(&db_mutex);
     }
-    sqlite3_close(db);
     
-    pthread_mutex_unlock(&db_mutex);
+    if (isArchive) {
+        fullpathCleaned=[ModizFileHelper getFullCleanFilePath:fullpath];
+        
+        avg_rating=0;
+        global_rating=0;
+        entries_nb=0;
+        playcount=0;
+        
+        pthread_mutex_lock(&db_mutex);
+        
+        //1st get all related entries (archive entries & subsongs)
+        if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+            char sqlStatement[1024];
+            sqlite3_stmt *stmt;
+            
+            err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+            if (err==SQLITE_OK){
+            } else NSLog(@"ErrSQL : %d",err);
+            
+            sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            
+            //printf("req: %s\n",sqlStatement);
+            
+            int fullpath_len=[fullpathCleaned length];
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    int tmp_rating;
+                    char *tmp_fullpath;
+                    tmp_fullpath=(char*)sqlite3_column_text(stmt,0);
+                    
+                    //filter subsong entries
+                    if (strchr(tmp_fullpath,'?')==NULL) {
+                        //check if not global file
+                        if (strlen(tmp_fullpath)>fullpath_len) {
+                            //got an entry, get rating
+                            tmp_rating=(signed char)sqlite3_column_int(stmt, 2);
+                            if (tmp_rating==0) {
+                                //if 0, try avg_rating
+                                if (sqlite3_column_type(stmt, 6)!=SQLITE_NULL) tmp_rating=(signed char)sqlite3_column_int(stmt, 6);
+                            }
+                            
+                            if (tmp_rating<0) tmp_rating=0;
+                            if (tmp_rating>5) tmp_rating=5;
+                            avg_rating+=tmp_rating;
+                            //if (tmp_rating>0)
+                            entries_nb++;
+                        } else {
+                            //entry for the global file
+                            playcount=(int)sqlite3_column_int(stmt, 1);
+                            global_rating=(int)sqlite3_column_int(stmt, 2);
+                            sng_length=(int)sqlite3_column_int(stmt, 3);
+                            channels=(int)sqlite3_column_int(stmt, 4);
+                            songs=(int)sqlite3_column_int(stmt, 5);
+                        }
+                    }
+                }
+                if (entries_nb&&(songs>0)) {
+                    /*if (avg_rating>0) {
+                        avg_rating=avg_rating/entries_nb;
+                        if (avg_rating==0) avg_rating=1;
+                    }*/
+                    if (avg_rating>0) {
+                        avg_rating=abs(avg_rating/songs);
+                        if (!avg_rating) avg_rating=1;
+                    }
+                } else avg_rating=0;
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+            
+        //2nd update rating based on average
+        
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+            
+        sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+            
+        }
+        sqlite3_close(db);
+        
+        pthread_mutex_unlock(&db_mutex);
+    }
+    
     
 }
 
-void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating) {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;	
-	
-    //NSLog(@"upFS pl %d ra %d %@ %@",playcount,rating,name,fullpath);
-    
-    if (name==nil) return;
-    
-    //NSLog(@"upd: %@/%@ played:%d rating:%d\n",name,[fullpath lastPathComponent],playcount,rating);
-    
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-        
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
-        if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
-		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
-			
-			sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-			} else NSLog(@"ErrSQL : %d",err);
-				
-				}
-	sqlite3_close(db);
-	
-	pthread_mutex_unlock(&db_mutex);
-}
-
-int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,signed char channels_nb,int songs) {
+int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,signed char avg_rating,int song_length,signed char channels_nb,int songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -683,7 +641,7 @@ int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int pl
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,rating,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -693,6 +651,8 @@ int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int pl
                 if (song_length<0) song_length=(int)sqlite3_column_int(stmt, 2);
                 if (channels_nb<0) channels_nb=(char)sqlite3_column_int(stmt, 3);
                 if (songs<0) songs=(int)sqlite3_column_int(stmt, 4);
+                if (rating<0) rating=(int)sqlite3_column_int(stmt, 5);
+                if (avg_rating<0) avg_rating=(int)sqlite3_column_int(stmt, 6);
                 
                 break;
             }
@@ -704,7 +664,7 @@ int DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int pl
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,song_length,channels_nb,songs);
+		sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
@@ -739,13 +699,14 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
         char channels_nb=0;
         char *name=NULL;
         int songs=0;
+        char avg_rating=0;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
                 
-        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -755,6 +716,7 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
                 song_length=(int)sqlite3_column_int(stmt, 2);
                 channels_nb=(char)sqlite3_column_int(stmt, 3);
                 songs=(int)sqlite3_column_int(stmt, 4);
+                avg_rating=(signed char)sqlite3_column_int(stmt, 5);
                 
                 break;
             }
@@ -770,7 +732,7 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
             name=(char*)strdup([[fullpath lastPathComponent] UTF8String]);
         }
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO user_stats (name,fullpath,play_count,rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d",name,[fullpath UTF8String],playcount,rating,song_length,channels_nb,songs);
+        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",name,[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
@@ -784,5 +746,104 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
     return ret;
 }
 
-
+int DBHelper::cleanDB() {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    BOOL success;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[256];
+        char sqlStatement2[256];
+        sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //---------------------------------------------------
+        //Check if tables structure is up-to-date
+        //---------------------------------------------------
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT sql FROM sqlite_schema WHERE name='user_stats'");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                if (strstr((const char*)sqlite3_column_text(stmt, 0),"avg_rating")==NULL) {
+                    //---------------------------------------------------
+                    //missing avg_rating column added in v3.6, create it
+                    //---------------------------------------------------
+                    snprintf(sqlStatement2,sizeof(sqlStatement2),"ALTER TABLE user_stats ADD COLUMN avg_rating integer");
+                    err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
+                    if (err!=SQLITE_OK) {
+                        NSLog(@"Issue during add of avg_rating column in user_stats");
+                    }
+                }
+                break;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        
+        //First check that user_stats entries still exist
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM user_stats");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                //clean up for archive/multisong entries
+                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
+                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:fullpath]];
+                if (!success) {//file does not exist
+                    //NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
+                    
+                    snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",sqlite3_column_text(stmt, 0));
+                    err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
+                    if (err!=SQLITE_OK) {
+                        NSLog(@"Issue during delete of user_Stats");
+                    }
+                }
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //Second check that playlist entries still exist
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM playlists_entries");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                //clean up for archive/multisong entries
+                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
+                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:fullpath]];
+                if (!success) {//file does not exist
+                    NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
+                    
+                    sprintf(sqlStatement2,"DELETE FROM playlists_entries WHERE fullpath=\"%s\"",sqlite3_column_text(stmt, 0));
+                    err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
+                    if (err!=SQLITE_OK) {
+                        NSLog(@"Issue during delete of playlists_entries");
+                    }
+                }
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //No defrag DB
+        sprintf(sqlStatement2,"VACUUM");
+        err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
+        if (err!=SQLITE_OK) {
+            NSLog(@"Issue during VACUUM");
+        }
+    };
+    sqlite3_close(db);
+    
+    
+    pthread_mutex_unlock(&db_mutex);
+    fileManager=nil;
+    
+    return 0;
+}
 

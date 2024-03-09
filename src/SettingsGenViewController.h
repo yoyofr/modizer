@@ -200,6 +200,7 @@ enum MDZ_SETTINGS {
     GLOB_FX3DSpectrum,
     GLOB_FXOscillo,
         GLOB_FXOscilloShowLabel,
+        GLOB_FXOscilloShowGrid,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
     GLOB_FX1,

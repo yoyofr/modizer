@@ -350,7 +350,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
@@ -992,7 +993,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscilloShowLabel].description=NULL;
     settings[GLOB_FXOscilloShowLabel].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXOscilloShowLabel].sub_family=0;
-    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GLOB_FXOscilloShowGrid].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXOscilloShowGrid].label=(char*)"Oscillo show grid";
+    settings[GLOB_FXOscilloShowGrid].description=NULL;
+    settings[GLOB_FXOscilloShowGrid].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXOscilloShowGrid].sub_family=0;
+    settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";

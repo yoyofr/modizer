@@ -2026,14 +2026,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                     
-                    
+                    NSLog(@"lbl %@",playlist->entries[playlist->nb_entries].label);
+                    NSLog(@"fp %@",playlist->entries[playlist->nb_entries].fullpath);
                     //adjust label
                     if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
                         playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
-                    }
-                    
-                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
-                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
+                    } else {
+                        
+                        if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                            playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
+                        }
                     }
                     
                     playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
@@ -2097,6 +2099,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                         detailViewController.mPlaylist[i].mPlaylistFilepath,
                                         &(playlist->entries[i].playcounts),
                                         &(detailViewController.mPlaylist[i].mPlaylistRating),
+                                        NULL,
                                         &(playlist->entries[i].song_length),
                                         &(playlist->entries[i].channels_nb),
                                         &(playlist->entries[i].songs));
@@ -2398,11 +2401,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     //to check
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
                             short int playcount;
-                            signed char rating;
+                            signed char rating,avg_rating;
 
                             DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                         playlist->entries[indexPath.row-1].fullpath,
-                                                        &playcount,&rating);
+                                                        &playcount,&rating,&avg_rating);
                             playcount=0;
                             DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                            playlist->entries[indexPath.row-1].fullpath,
@@ -2416,10 +2419,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
                             short int playcount;
-                            signed char rating;
+                            signed char rating,avg_rating;
                             DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                         playlist->entries[indexPath.row-1].fullpath,
-                                                        &playcount,&rating);
+                                                        &playcount,&rating,&avg_rating);
                             rating=0;
                             DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                            playlist->entries[indexPath.row-1].fullpath,
@@ -2663,11 +2666,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 cellValue=playlist->entries[row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
                                 
+                char signed avg_rating;
                 if ((playlist->entries[row-2].ratings==-1)||(playlist->entries[row-2].playcounts==-1)) {
                     DBHelper::getFileStatsDBmod(playlist->entries[row-2].label,
                                                 playlist->entries[row-2].fullpath,
                                                 &(playlist->entries[row-2].playcounts),
                                                 &(playlist->entries[row-2].ratings),
+                                                &avg_rating,
                                                 &(playlist->entries[row-2].song_length),
                                                 &(playlist->entries[row-2].channels_nb),
                                                 &(playlist->entries[row-2].songs));
@@ -2675,6 +2680,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         detailViewController.mPlaylist[row-2].mPlaylistRating=playlist->entries[row-2].ratings;
                     }
                 }
+                
+                if ((playlist->entries[row-2].ratings==0)&&(avg_rating>0)) playlist->entries[row-2].ratings=avg_rating;
 
                 if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
                 NSArray *filename_parts=[playlist->entries[row-2].fullpath componentsSeparatedByString:@"/"];
@@ -2776,11 +2783,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating==-1) {
+                        char signed avg_rating;
                         DBHelper::getFileStatsDBmod(
                                                     cur_local_entries[indexPath.section-2][indexPath.row].label,
                                                     cur_local_entries[indexPath.section-2][indexPath.row].fullpath,
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].playcount,
-                                                    &cur_local_entries[indexPath.section-2][indexPath.row].rating);
+                                                    &cur_local_entries[indexPath.section-2][indexPath.row].rating,&avg_rating);
+                        if ((cur_local_entries[indexPath.section-2][indexPath.row].rating==0)&&(avg_rating>0))
+                            cur_local_entries[indexPath.section-2][indexPath.row].rating=avg_rating;
                     }
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.section-2][indexPath.row].rating)]];
                     tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
@@ -2844,10 +2854,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
                 short int playcount;
-                signed char rating;
+                signed char rating,avg_rating;
                 DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                             playlist->entries[indexPath.row-rowofs].fullpath,
-                                            &playcount,&rating);
+                                            &playcount,&rating,&avg_rating);
                 playcount=0;
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
@@ -2856,10 +2866,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {  //favorites: reset rating
                 short int playcount;
-                signed char rating;
+                signed char rating,avg_rating;
                 DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                             playlist->entries[indexPath.row-rowofs].fullpath,
-                                            &playcount,&rating);
+                                            &playcount,&rating,&avg_rating);
                 rating=0;
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
@@ -3298,6 +3308,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                             detailViewController.mPlaylist[i].mPlaylistFilepath,
                                             &(playlist->entries[i].playcounts),
                                             &(detailViewController.mPlaylist[i].mPlaylistRating),
+                                            NULL,
                                             &(playlist->entries[i].song_length),
                                             &(playlist->entries[i].channels_nb),
                                             &(playlist->entries[i].songs));

@@ -1,4 +1,4 @@
-CREATE TABLE user_stats (name text,fullpath text, play_count integer, rating integer,length int,channels int,songs int,mod_type int);
+CREATE TABLE user_stats (name text,fullpath text, play_count integer, rating integer,avg_rating int,length int,channels int,songs int,mod_type int);
 
 CREATE TABLE playlists (id integer primary key autoincrement, name text, num_files integer);
 
