@@ -27,7 +27,7 @@
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../src/ModizerVoicesData.h"
 static int m_voice_ofs;
-static int smplIncr;
+static int64_t smplIncr;
 static int m_voice_currentChannel;
 //TODO:  MODIZER changes end / YOYOFR
 
@@ -2364,10 +2364,10 @@ static void render_and_add_channel(
       directout += 2;
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=\
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=\
             LIMIT8( ( ((localbuf[i]*lin_l) >> att_l)+((localbuf[i]*lin_r) >> att_r) )>>11 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
@@ -2382,10 +2382,10 @@ static void render_and_add_channel(
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=\
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=\
             LIMIT8( ((localbuf[i]*lin) >> att) >>10 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
@@ -3007,7 +3007,7 @@ static void render(struct YAM_STATE *state, uint32 odometer, uint32 samples) {
             break;
         }
     }
-    smplIncr=44100*1024/44100;    
+    smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     //TODO:  MODIZER changes end / YOYOFR
 
 //  st=odometer;

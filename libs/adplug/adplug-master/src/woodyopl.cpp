@@ -1000,7 +1000,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
     //TODO:  MODIZER changes start / YOYOFR
     Bit32s voicesData[NUM_CHANNELS][BLOCKBUF_SIZE];
     int m_total_channels=18;
-    int smplIncr=1024;
+    int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     //TODO:  MODIZER changes end / YOYOFR
 
 	for (Bits cursmp=0; cursmp<samples_to_process; cursmp+=endsamples) {
@@ -1651,15 +1651,15 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
         if (m_voice_current_system) {
             for (int uu=0;uu<NUM_CHANNELS;uu++) {
                 for (int i=0;i<endsamples;i++) {
-                    int ofs_start=m_voice_current_ptr[uu];
-                    int ofs_end=(m_voice_current_ptr[uu]+smplIncr);
+                    int64_t ofs_start=m_voice_current_ptr[uu];
+                    int64_t ofs_end=(m_voice_current_ptr[uu]+smplIncr);
                     for (;;) {
-                        if (generic_mute_mask&(1<<uu)) m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
-                        else m_voice_buff[uu][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(voicesData[uu][i]>>7);
-                        ofs_start+=1024;
+                        if (generic_mute_mask&(1<<uu)) m_voice_buff[uu][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+                        else m_voice_buff[uu][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(voicesData[uu][i]>>7);
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                         if (ofs_start>=ofs_end) break;
                     }
-                    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                     m_voice_current_ptr[uu]=ofs_end;
                 }
             }

@@ -1074,7 +1074,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
         m_voice_current_samplerate=44100;
         printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     
   out[0] = out[1] = 0;
@@ -1088,41 +1088,42 @@ INLINE static void mix_output_stereo(OPLL *opll) {
       //TODO:  MODIZER changes start / YOYOFR
       if ((m_voice_ofs>=0)&&(i<m_total_channels)) {
           
-          int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
-          int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+          int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+          int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
           
+          if (ofs_end>ofs_start)
           for (;;) {
               
-              m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+              m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               
               /*if (opll->rhythm_mode==0) {
-                  if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+                  if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               } else {
-                  if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+                  if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
                   else {
                       //add rhythm channels
                       if (i==6) {
                           int out6= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[9] * (opll->pan_fine[9][0]+opll->pan_fine[9][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out6>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out6>>1);
                       } else if (i==7) {
                           int out7= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[10] * (opll->pan_fine[10][0]+opll->pan_fine[10][1]))>>5) +
                                     ((int16_t)(opll->ch_out[11] * (opll->pan_fine[11][0]+opll->pan_fine[11][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out7>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out7>>1);
                       } else if (i==8) {
                           int out8= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[12] * (opll->pan_fine[12][0]+opll->pan_fine[12][1]))>>5) +
                                     ((int16_t)(opll->ch_out[13] * (opll->pan_fine[13][0]+opll->pan_fine[13][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
                       }
                   }
               }*/
               
-              ofs_start+=1024;
+              ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
               if (ofs_start>=ofs_end) break;
           }
-          while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+          while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
           m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
           
       }

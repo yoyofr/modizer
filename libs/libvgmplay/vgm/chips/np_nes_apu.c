@@ -276,7 +276,7 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	if(apu->option[OPT_NONLINEAR_MIXER])
@@ -316,17 +316,17 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
     
     //TODO:  MODIZER changes start / YOYOFR
     if (m_voice_ofs>=0) {
-        int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
-        int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
         
-        if ((ofs_end>>10)>(ofs_start>>10))
+        if ((ofs_end)>(ofs_start))
         for (;;) {
             for (int i=0;i<2;i++)
-                m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((m[i] * (apu->sm[0][i]+apu->sm[1][i]))>>12));
-            ofs_start+=1024;
+                m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((m[i] * (apu->sm[0][i]+apu->sm[1][i]))>>12));
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             if (ofs_start>=ofs_end) break;
         }
-        while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
         for (int i=0;i<2;i++) m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
     }
     //TODO:  MODIZER changes end / YOYOFR

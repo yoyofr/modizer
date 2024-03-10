@@ -179,7 +179,7 @@ void Track_Filter::handle_fade( sample_t out [], int out_count )
         if (m_genNumVoicesChannels)
             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                    m_voice_buff[j][(i + (m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1) ]=((int)(m_voice_buff[j][(i + (m_voice_prev_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*gain)>>shift;
+                    m_voice_buff[j][(i + (m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1) ]=((int)(m_voice_buff[j][(i + (m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*gain)>>shift;
                 }
             }
         //YOYOFR

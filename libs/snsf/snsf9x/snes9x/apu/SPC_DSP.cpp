@@ -905,12 +905,12 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     //TODO:  MODIZER changes start / YOYOFR
     int current_voice=v->voice_number;
     int new_val=(m.t_output*(vol+voln))>>7;
-    int start_ofs=m_voice_current_ptr[current_voice];
-    int end_ofs=m_voice_current_ptr[current_voice]+44100*1024/32000;
+    int64_t ofs_start=m_voice_current_ptr[current_voice];
+    int64_t ofs_end=m_voice_current_ptr[current_voice]+(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000;
     for (;;) {
-        m_voice_buff[current_voice][(start_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>6);
-        start_ofs+=1024;
-        if (start_ofs>=end_ofs) break;
+        m_voice_buff[current_voice][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>6);
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        if (ofs_start>=ofs_end) break;
     }
     //TODO:  MODIZER changes end / YOYOFR
 }
@@ -1209,10 +1209,9 @@ PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
 for (int jj=0;jj<8;jj++) {\
-    m_voice_current_ptr[jj]+=44100*1024/32000/*44100*256/32000*/;\
-    /*if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;*/\
-    m_voice_buff[jj][(m_voice_current_ptr[jj]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
-    m_voice_buff[jj][((m_voice_current_ptr[jj]>>10)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+    m_voice_current_ptr[jj]+=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000/*44100*256/32000*/;\
+    m_voice_buff[jj][(m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+    m_voice_buff[jj][((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
 }\
 
 

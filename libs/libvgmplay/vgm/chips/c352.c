@@ -194,7 +194,7 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/(c->sample_rate_base);//m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -206,6 +206,7 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         out[0]=out[1]=out[2]=out[3]=0;
 
         for(j=0;j<C352_VOICES;j++)
+            //if (j==11)
         {
 
             v = &c->v[j];
@@ -239,34 +240,55 @@ void c352_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_ofs>=0) {
-                int ofs_start=m_voice_current_ptr[m_voice_ofs+j];
-                int ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
                 
-                if ((ofs_end>>10)>(ofs_start>>10))
-                for (;;) {
-                    if ((v->flags & C352_FLG_BUSY)&&(!c->v[j].mute)) {
-                        int vol=v->curr_vol[0]+v->curr_vol[1];
-                        if (!c->muteRear && !MuteAllRear) vol+=v->curr_vol[2]+v->curr_vol[3];
-                        m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((((int)(s))*(int)(vol))>>15);
-                    } else m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
+                if ((ofs_end)>(ofs_start)) {
+                    int val=0;
+                    if(!c->v[j].mute)
+                    {
+                        if (!c->muteRear && !MuteAllRear) {
+                            // Left
+                            val += (((v->flags & C352_FLG_PHASEFL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[0]))>>8;
+                            val += (((v->flags & C352_FLG_PHASERL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[2]))>>8;
+                            // Right
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[1]))>>8;
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[3]))>>8;
+                            
+                            val=val>>2;
+                            
+                        } else {
+                            // Left
+                            val += (((v->flags & C352_FLG_PHASEFL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[0]))>>8;
+                            // Right
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[1]))>>8;
+                            
+                            val=val>>1;
+                        }
+                    }
                     
-                    ofs_start+=1024;
-                    if (ofs_start>=ofs_end) break;
+                    for (;;) {
+                        
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>7));
+                        
+                        ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
                 }
-                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
-                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
 
             if(!c->v[j].mute)
             {
                 // Left
-                out[0] += (((v->flags & C352_FLG_PHASEFL) ? -s : s) * v->curr_vol[0])>>8;
-                out[2] += (((v->flags & C352_FLG_PHASERL) ? -s : s) * v->curr_vol[2])>>8;
+                out[0] += (((v->flags & C352_FLG_PHASEFL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[0]))>>8;
+                out[2] += (((v->flags & C352_FLG_PHASERL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[2]))>>8;
 
                 // Right
-                out[1] += (((v->flags & C352_FLG_PHASEFR) ? -s : s) * v->curr_vol[1])>>8;
-                out[3] += (((v->flags & C352_FLG_PHASEFR) ? -s : s) * v->curr_vol[3])>>8;
+                out[1] += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[1]))>>8;
+                out[3] += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[3]))>>8;
             }
         }
 

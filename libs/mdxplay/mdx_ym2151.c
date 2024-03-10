@@ -2427,18 +2427,18 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
         
         //TODO:  MODIZER changes start / YOYOFR
         {
-            int smplIncr=1024;
-            int ofs_start=m_voice_current_ptr[0];
-            int ofs_end=(m_voice_current_ptr[0]+smplIncr);
+            int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            int64_t ofs_start=m_voice_current_ptr[0];
+            int64_t ofs_end=(m_voice_current_ptr[0]+smplIncr);
             
-            if ((ofs_end>>10)>(ofs_start>>10))
+            if ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))
             for (;;) {
                 for (int ii=0;ii<8;ii++)
-                    m_voice_buff[ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((chanout[ii]>>6));
-                ofs_start+=1024;
+                    m_voice_buff[ii][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((chanout[ii]>>6));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             for (int ii=0;ii<8;ii++) m_voice_current_ptr[ii]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

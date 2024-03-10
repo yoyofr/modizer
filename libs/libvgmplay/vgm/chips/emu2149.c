@@ -462,7 +462,7 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         m_voice_current_samplerate=44100;
         printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
   for (i = 0; i < samples; i ++)
@@ -476,14 +476,15 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int jj=0;jj<3;jj++) {
-                int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
-                int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                if (ofs_end>ofs_start)
                 for (;;) {
-                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->cout[jj])>>1);
-                    ofs_start+=1024;
+                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }
@@ -509,16 +510,16 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int jj=0;jj<3;jj++) {
-                int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
-                int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
                 
-                
+                if (ofs_end>ofs_start)
                 for (;;) {
-                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->cout[jj])>>1);
-                    ofs_start+=1024;
+                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }

@@ -7,39 +7,8 @@
 //
 
 
-#define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
-
-#define PRI_SEC_ACTIONS_IMAGE_SIZE 40
-#define ROW_HEIGHT 40
-
-#include <sys/types.h>
-#include <sys/sysctl.h>
-
-#include <pthread.h>
-#include <stdlib.h>
-static volatile int mPopupAnimation=0;
-
-#import "AppDelegate_Phone.h"
 #import "RootViewControllerXPWebParser.h"
-#import "DetailViewControllerIphone.h"
-#import "DownloadViewController.h"
-#import "WebBrowser.h"
-#import "SettingsGenViewController.h"
-extern volatile t_settings settings[MAX_SETTINGS];
 
-#import "TFHpple.h"
-
-#import "CBAutoScrollLabel.h"
-
-#import "QuartzCore/CAAnimation.h"
-#import "TTFadeAnimator.h"
-
-#import "AFNetworking.h"
-#import "AFHTTPSessionManager.h"
-#import "AFURLSessionManager.h"
-
-#include <pthread.h>
-extern pthread_mutex_t db_mutex;
 
 @implementation RootViewControllerXPWebParser
 
@@ -144,8 +113,9 @@ extern pthread_mutex_t db_mutex;
     
     indexTitleMode=0;
     
-    sort_mode=0;
+    mPopupAnimation=0;
     
+    sort_mode=0;
     
     self.navigationController.delegate = self;
     
@@ -170,7 +140,6 @@ extern pthread_mutex_t db_mutex;
         self.navigationItem.title=navbarTitle.text;
         
     }
-    
     
     ratingImg[0] = @"heart-empty.png";
     ratingImg[1] = @"heart-half-filled.png";
@@ -562,6 +531,7 @@ extern pthread_mutex_t db_mutex;
 
 #pragma mark -
 #pragma mark Table view delegate
+
 - (void) primaryActionTapped: (UIButton*) sender {
     //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
@@ -617,7 +587,6 @@ extern pthread_mutex_t db_mutex;
     [self showWaiting];
     [self flushMainLoop];
     
-    
     t_WEB_browse_entry **cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     int section=indexPath.section-1;
@@ -642,7 +611,6 @@ extern pthread_mutex_t db_mutex;
     [self hideWaiting];
 }
 
-
 - (void) accessoryActionTapped: (UIButton*) sender {
     //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
@@ -653,8 +621,6 @@ extern pthread_mutex_t db_mutex;
     mAccessoryButton=1;
     [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
-
-
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     t_WEB_browse_entry **cur_db_entries;

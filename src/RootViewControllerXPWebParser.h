@@ -6,6 +6,20 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
 
+#define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
+#define PRI_SEC_ACTIONS_IMAGE_SIZE 40
+#define ROW_HEIGHT 40
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
+#include <pthread.h>
+extern pthread_mutex_t db_mutex;
+
+#include <stdlib.h>
+
+#import "AppDelegate_Phone.h"
+
 #import <UIKit/UIKit.h>
 #import <sqlite3.h>
 #import "DBHelper.h"
@@ -15,6 +29,18 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 #import "ImagesCache.h"
+#import "DetailViewControllerIphone.h"
+#import "DownloadViewController.h"
+#import "WebBrowser.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
+#import "TFHpple.h"
+#import "CBAutoScrollLabel.h"
+#import "QuartzCore/CAAnimation.h"
+#import "TTFadeAnimator.h"
+#import "AFNetworking.h"
+#import "AFHTTPSessionManager.h"
+#import "AFURLSessionManager.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
@@ -25,6 +51,10 @@
     UIView *infoMsgView;
     UILabel *infoMsgLbl;
     UILabel *navbarTitle;
+    
+    volatile int mPopupAnimation;
+
+
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -102,10 +132,14 @@
 
 -(void) checkCreate:(NSString *)filePath;
 
--(void) fillKeysWithRepoList;
-
--(void) fillKeysWithWEBSource;
-
 -(void)updateMiniPlayer;
 
+-(bool) searchStringRegExp:(NSString*)searchPattern sourceString:(NSString*)sourceString;
+- (void)showMiniPlayer;
+-(void) flushMainLoop;
+-(void) updateWaitingDetail:(NSString *)text;
+-(void) showAlertMsg:(NSString*)title message:(NSString*)message;
+-(void) showWaiting;
+-(void) hideWaiting;
+- (void) addToPlaylistSelView:(NSString*)fullPath label:(NSString*)label showNowListening:(bool)showNL;
 @end

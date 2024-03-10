@@ -2001,10 +2001,10 @@ void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, 
           
           int64_t val=((j * (panl[i]+panr[i]))>>8)*6>>3;
           //val = (val*ht->ht_mixgain)>>8;
-          if (!(generic_mute_mask&(1<<i))) m_voice_buff[i][(m_voice_current_ptr[i]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(val >> 6);
+          if (!(generic_mute_mask&(1<<i))) m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(val >> 6);
           
-          m_voice_current_ptr[i]+=1024;
-          if ((m_voice_current_ptr[i]>>10)>SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
+          m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+          if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
           //TODO:  MODIZER changes end / YOYOFR
       }
       

@@ -578,16 +578,16 @@ void TownsPcmEmulator::nextTick(int *outbuf, int buflen)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            int smplIncr=44100*1024/m_voice_current_samplerate+1;
-            int ofs_start=m_voice_current_ptr[m_voice_ofs];
-            int ofs_end=(m_voice_current_ptr[m_voice_ofs]+smplIncr);
+            int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs]+smplIncr);
             for (;;) {
-                m_voice_buff[m_voice_ofs][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((((_volL+_volR) * output) >> 12));
+                m_voice_buff[m_voice_ofs][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((((_volL+_volR) * output) >> 12));
                 
-                ofs_start+=1024;
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             m_voice_current_ptr[m_voice_ofs]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR

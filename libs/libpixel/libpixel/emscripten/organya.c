@@ -542,7 +542,10 @@ static int get_samples(char *buf,int samplesNb)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    if (samplesNb!=1024) {
+        printf("okok\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
 	for(l = 0; l < samplesNb*NCH*(BPS/8)/*576*NCH*(BPS/8)*/; l++)
@@ -589,36 +592,54 @@ static int get_samples(char *buf,int samplesNb)
 		for(i = 0; i < CHANNELS; i++)
 		{
             int smpl;
-			if(org.chan[i].pos < -1.0)
-				continue;
-			pan = 1.0;
-			if(NCH == 2)
-			{
-				pan = org.chan[i].playing.pan/8.0;
-				if((l/(BPS/8))%NCH == 0)
-					pan = 1.5-pan;
-				if(pan > 1.0)
-					pan = 1.0;
-			}
-			//if (i>=CHANNELS/2)
-            if (organya_mute_mask&(1<<i)) smpl=0;
-            else {
-                wave += org.chan[i].wave*pan;
-                smpl=org.chan[i].wave*pan;
-            }
-                        
-            //TODO:  MODIZER changes start / YOYOFR
-            
-                int ofs_start=m_voice_current_ptr[i];
-                int ofs_end=(m_voice_current_ptr[i]+smplIncr);
-                for (;;) {
-                    m_voice_buff[i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=LIMIT8(((smpl)>>0));
-                    ofs_start+=1024;
-                    if (ofs_start>=ofs_end) break;
+            if(org.chan[i].pos < -1.0) {
+                if(l%(NCH*(BPS/8)) == 0) {
+                    //TODO:  MODIZER changes start / YOYOFR
+                    smpl=0;//org.chan[i].wave*pan;
+                    int64_t ofs_start=m_voice_current_ptr[i];
+                    int64_t ofs_end=(m_voice_current_ptr[i]+smplIncr);
+                    for (;;) {
+                        m_voice_buff[i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>0));
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[i]=ofs_end;
+                    //TODO:  MODIZER changes end / YOYOFR
                 }
-                while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<10);
-                m_voice_current_ptr[i]=ofs_end;
-            //TODO:  MODIZER changes end / YOYOFR
+            } else {
+                
+                pan = 1.0;
+                if(NCH == 2)
+                {
+                    pan = org.chan[i].playing.pan/8.0;
+                    if((l/(BPS/8))%NCH == 0)
+                        pan = 1.5-pan;
+                    if(pan > 1.0)
+                        pan = 1.0;
+                }
+                //if (i>=CHANNELS/2)
+                if (organya_mute_mask&(1<<i)) smpl=0;
+                else {
+                    wave += org.chan[i].wave*pan;
+                    smpl=org.chan[i].wave*pan;
+                }
+                
+                if(l%(NCH*(BPS/8)) == 0) {
+                    //TODO:  MODIZER changes start / YOYOFR
+                    
+                    int64_t ofs_start=m_voice_current_ptr[i];
+                    int64_t ofs_end=(m_voice_current_ptr[i]+smplIncr);
+                    for (;;) {
+                        m_voice_buff[i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>0));
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[i]=ofs_end;
+                    //TODO:  MODIZER changes end / YOYOFR
+                }
+            }
 		}
 
 		// Clip the wave, don't overflow!

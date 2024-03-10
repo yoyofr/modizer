@@ -991,23 +991,23 @@ INLINE signed int op_calc1(UINT32 phase, unsigned int env, signed int pm, unsign
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
-static int smplIncr,cur_channel,m_voice_ofs;
+static int64_t smplIncr,cur_channel,m_voice_ofs;
 //TODO:  MODIZER changes end / YOYOFR
 
 
 //TODO:  MODIZER changes start / YOYOFR
 #define MDZ_OUTPUT(val,channel) \
 if (m_voice_ofs>=0) { \
-    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
-    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
 \
-    if ((ofs_end>>10)>(ofs_start>>10)) \
+    if ((ofs_end)>(ofs_start)) \
     for (;;) { \
-            m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
-        ofs_start+=1024; \
+            m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
         if (ofs_start>=ofs_end) break; \
     } \
-    while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10); \
+    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT); \
     m_voice_current_ptr[m_voice_ofs+channel]=ofs_end; \
 }
 //TODO:  MODIZER changes end / YOYOFR
@@ -2520,7 +2520,7 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    smplIncr=44100*1024/m_voice_current_samplerate+1;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	for( i=0; i < length ; i++ )

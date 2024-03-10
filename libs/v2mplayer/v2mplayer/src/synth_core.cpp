@@ -3212,9 +3212,9 @@ private:
             if (voice == POLY) {
                 //TODO:  MODIZER changes start / YOYOFR
                 for (int jj=0;jj<nsamples;jj++) {
-                    m_voice_buff[chan][m_voice_current_ptr[chan]>>10]=0;
-                    m_voice_current_ptr[chan]+=1024;
-                    if ((m_voice_current_ptr[chan]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                    m_voice_buff[chan][m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                    m_voice_current_ptr[chan]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if ((m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 }
                 //TODO:  MODIZER changes end / YOYOFR
                 
@@ -3245,9 +3245,9 @@ private:
             
             //TODO:  MODIZER changes start / YOYOFR
             for (int jj=0;jj<nsamples;jj++) {
-                m_voice_buff[chan][m_voice_current_ptr[chan]>>10]=LIMIT8(  (int)((instance.chanbuf[jj].l+instance.chanbuf[jj].r)*64)  );
-                m_voice_current_ptr[chan]+=1024;
-                if ((m_voice_current_ptr[chan]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                m_voice_buff[chan][m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(  (int)((instance.chanbuf[jj].l+instance.chanbuf[jj].r)*64)  );
+                m_voice_current_ptr[chan]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if ((m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
             //TODO:  MODIZER changes end / YOYOFR
         }

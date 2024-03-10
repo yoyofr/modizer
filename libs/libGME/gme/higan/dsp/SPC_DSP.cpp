@@ -915,8 +915,8 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     }
     current_voice=v->voice_number;
     int newamp=LIMIT8((m.t_output * (vol+voln)) >> 13);
-    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
-    m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>10)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
+    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
+    m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
     
     //TODO:  MODIZER changes end / YOYOFR
     
@@ -1219,10 +1219,9 @@ PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
 for (int jj=0;jj<8;jj++) {\
-    m_voice_current_ptr[jj]+=44100*1024/32000/*44100*256/32000*/;\
-    /*if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<10;*/\
-    m_voice_buff[jj][(m_voice_current_ptr[jj]>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
-    m_voice_buff[jj][((m_voice_current_ptr[jj]>>10)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+    m_voice_current_ptr[jj]+=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000/*44100*256/32000*/;\
+    m_voice_buff[jj][(m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+    m_voice_buff[jj][((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
 }\
 
 //TODO:  MODIZER changes end / YOYOFR

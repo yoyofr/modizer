@@ -583,19 +583,19 @@ static inline void pcm8( int flush_for_end )
             //TODO:  MODIZER changes start / YOYOFR
             if (generic_mute_mask&(1<<8)) v=0;
             
-            int smplIncr=1024;
-            int ofs_start=m_voice_current_ptr[8];
-            int ofs_end=(m_voice_current_ptr[8]+smplIncr);
+            int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            int64_t ofs_start=m_voice_current_ptr[8];
+            int64_t ofs_end=(m_voice_current_ptr[8]+smplIncr);
             int out=self->sample_buffer2[i]/2 * self->master_volume/PCM8_MAX_VOLUME;
             
-            if ((ofs_end>>10)>(ofs_start>>10))
+            if ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))
                 for (;;) {
-                    m_voice_buff[8][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((v>>8));
-                    ofs_start+=1024;
+                    m_voice_buff[8][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((v>>8));
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if (ofs_start>=ofs_end) break;
                 }
-            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) {
-                ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<10);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) {
+                ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             }
             m_voice_current_ptr[8]=ofs_end;
             

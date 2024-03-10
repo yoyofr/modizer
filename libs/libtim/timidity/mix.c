@@ -20,11 +20,6 @@
     mix.c
 */
 
-//TODO:  MODIZER changes start / YOYOFR
-#include "../../../src/ModizerVoicesData.h"
-static signed int *m_vb_acc_ptr;
-static unsigned char *m_vb_acc_cnt_ptr;
-//TODO:  MODIZER changes end / YOYOFR
 
 
 #ifdef HAVE_CONFIG_H
@@ -43,6 +38,14 @@ static unsigned char *m_vb_acc_cnt_ptr;
 #include "tables.h"
 #include "resample.h"
 #include "mix.h"
+
+#include <sys/types.h>
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+static signed int *m_vb_acc_ptr;
+static unsigned char *m_vb_acc_cnt_ptr;
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #ifdef SMOOTH_MIXING
 #ifdef LOOKUP_HACK
@@ -126,8 +129,8 @@ void mix_voice(int32 *buf, int v, int32 c)
     
     //TODO:  MODIZER changes start / YOYOFR
     int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
-    m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
-    m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
     //TODO:  MODIZER changes end / YOYOFR
 
 	if (vp->status == VOICE_DIE) {

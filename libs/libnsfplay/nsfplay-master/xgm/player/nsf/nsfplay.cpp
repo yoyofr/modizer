@@ -7,7 +7,7 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../../../src/ModizerVoicesData.h"
-static int smplIncr;
+static int64_t smplIncr;
 static int m_voice_currentChannel;
 //TODO:  MODIZER changes end / YOYOFR
 
@@ -726,48 +726,48 @@ void NSFPlayer::SetPlayFreq (double r)
         
         //TODO:  MODIZER changes start / YOYOFR
             m_voice_currentChannel=0; //APU - square 1
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (apu->GetOut(0)*m_genMasterVol)>>11 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (apu->GetOut(0)*m_genMasterVol)>>11 );
             m_voice_currentChannel++; //APU - square 2
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (apu->GetOut(1)*m_genMasterVol)>>11 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (apu->GetOut(1)*m_genMasterVol)>>11 );
             m_voice_currentChannel++; //APU - triangle
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (dmc->GetOut(0)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(0)*m_genMasterVol)>>13 );
             m_voice_currentChannel++; //APU - noise
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (dmc->GetOut(1)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(1)*m_genMasterVol)>>13 );
             m_voice_currentChannel++; //APU - dmc
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (dmc->GetOut(2)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(2)*m_genMasterVol)>>13 );
             m_voice_currentChannel++;
             
             if (nsf->use_fds) {
-                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (fds->GetOut()*m_genMasterVol)>>12 );
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (fds->GetOut()*m_genMasterVol)>>12 );
                 m_voice_currentChannel++;
             }
             if (nsf->use_fme7) {
                 for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (fme7->GetOut(j)*m_genMasterVol)>>10 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (fme7->GetOut(j)*m_genMasterVol)>>10 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_mmc5) {
                 for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (mmc5->GetOut(j)*m_genMasterVol)>>10 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (mmc5->GetOut(j)*m_genMasterVol)>>10 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_n106) {
                 for (int j=0;j<8;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (n106->GetOut(j)*m_genMasterVol)>>15 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (n106->GetOut(j)*m_genMasterVol)>>15 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_vrc6) {
                 for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (vrc6->GetOut(j)*m_genMasterVol)>>10 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (vrc6->GetOut(j)*m_genMasterVol)>>10 );
                     m_voice_currentChannel++;
                 }
             }
             if (nsf->use_vrc7) {
                 for (int j=0;j<9;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=LIMIT8( (vrc7->GetOut(j)*m_genMasterVol)>>13 );
+                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (vrc7->GetOut(j)*m_genMasterVol)>>13 );
                     m_voice_currentChannel++;
                 }
             }
@@ -779,10 +779,10 @@ void NSFPlayer::SetPlayFreq (double r)
              if (nsfData->use_vrc6) numChannels++;
              if (nsfData->use_vrc7) numChannels++;*/
             
-            smplIncr=1024;
+            smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             for (int i=0;i<m_voice_currentChannel;i++) {
                 m_voice_current_ptr[i]+=smplIncr;
-                if ((m_voice_current_ptr[i]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         //TODO:  MODIZER changes end / YOYOFR
     }

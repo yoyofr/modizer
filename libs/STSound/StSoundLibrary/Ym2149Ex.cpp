@@ -364,13 +364,13 @@ ymint vol;
     if (!(generic_mute_mask&(1<<2))) vol += (*pVolC)&bt3;
     
     
-    if (!(generic_mute_mask&(1<<0))) m_voice_buff[0][(m_voice_current_ptr[0]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolA)&bt1)>>5);
-    if (!(generic_mute_mask&(1<<1))) m_voice_buff[1][(m_voice_current_ptr[1]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolB)&bt2)>>5);
-    if (!(generic_mute_mask&(1<<2))) m_voice_buff[2][(m_voice_current_ptr[2]>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolC)&bt3)>>5);
+    if (!(generic_mute_mask&(1<<0))) m_voice_buff[0][(m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolA)&bt1)>>5);
+    if (!(generic_mute_mask&(1<<1))) m_voice_buff[1][(m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolB)&bt2)>>5);
+    if (!(generic_mute_mask&(1<<2))) m_voice_buff[2][(m_voice_current_ptr[2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((*pVolC)&bt3)>>5);
     
         for (int jj=0;jj<3;jj++) {
-            m_voice_current_ptr[jj]+=1024;
-            if ((m_voice_current_ptr[jj]>>10)>SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[jj]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
         }
         //TODO:  MODIZER changes end / YOYOFR
 

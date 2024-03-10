@@ -4440,7 +4440,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffering */
@@ -4525,19 +4525,19 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
         
         //TODO:  MODIZER changes start / YOYOFR
         
-            int ofs_start=m_voice_current_ptr[0];
-            int ofs_end=(m_voice_current_ptr[0]+smplIncr);
+            int64_t ofs_start=m_voice_current_ptr[0];
+            int64_t ofs_end=(m_voice_current_ptr[0]+smplIncr);
             for (;;) {
-                for (int jj=0;jj<4;jj++) m_voice_buff[jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[jj]>>5));
+                for (int jj=0;jj<4;jj++) m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[jj]>>5));
                 
-                if (F2612->dac_test) m_voice_buff[4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((dacout>>5));
-                else m_voice_buff[4][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[4]>>5));
-                m_voice_buff[5][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[5]>>5));
+                if (F2612->dac_test) m_voice_buff[4][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((dacout>>5));
+                else m_voice_buff[4][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[4]>>5));
+                m_voice_buff[5][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((out_fm[5]>>5));
                 
-                ofs_start+=1024;
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<10);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             for (int jj=0;jj<6;jj++) m_voice_current_ptr[jj]=ofs_end;
         
         //TODO:  MODIZER changes end / YOYOFR

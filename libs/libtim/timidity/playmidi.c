@@ -6803,15 +6803,15 @@ static void do_compute_data_midi(int32 count)
     for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
         
         for (int jj=0;jj<count;jj++) {
-            int val=m_voice_buff_accumul_temp[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-            int cnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            int val=m_voice_buff_accumul_temp[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            int cnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
             if (cnt) {
-                m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/cnt);
+                m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/cnt);
             }
         }
         
-        m_voice_current_ptr[ii]+=count<<10;
-        while (m_voice_current_ptr[ii]>=(SOUND_BUFFER_SIZE_SAMPLE<<10)) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+        m_voice_current_ptr[ii]+=(int64_t)(count)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        while (m_voice_current_ptr[ii]>=(SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
     }
     //TODO:  MODIZER changes end / YOYOFR
     

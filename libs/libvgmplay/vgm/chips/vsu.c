@@ -256,7 +256,7 @@ void VSU_Write(UINT8 ChipID, UINT32 A, UINT8 V)
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
-static int smplIncr,m_voice_ofs;
+static int64_t smplIncr,m_voice_ofs;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -300,16 +300,16 @@ INLINE void VSU_CalcCurrentOutput(vsu_state* chip, int ch, int* left, int* right
     
     //TODO:  MODIZER changes start / YOYOFR
     if (m_voice_ofs>=0) {
-        int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
-        int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
         
-        if ((ofs_end>>10)>(ofs_start>>10))
+        if (ofs_end>ofs_start)
         for (;;) {
-            m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((WD*(l_ol+r_ol))>>5));
-            ofs_start+=1024;
+            m_voice_buff[m_voice_ofs+ch][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((WD*(l_ol+r_ol))>>5));
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             if (ofs_start>=ofs_end) break;
         }
-        while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
         m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
     }
     //TODO:  MODIZER changes end / YOYOFR
@@ -610,7 +610,7 @@ void vsu_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         //printf("voice sample rate null\n");
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
 	

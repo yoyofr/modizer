@@ -253,17 +253,17 @@ void qsoundc_update(void* param, UINT32 samples, INT16* output)
             output[curSmpl * 2 + 1] = chip->out[1];
             
             //TODO:  MODIZER changes start / YOYOFR
-            int smplIncr=44100*1024/m_voice_current_samplerate+1;
-            int ofs_start=m_voice_current_ptr[0];
-            int ofs_end=(m_voice_current_ptr[0]+smplIncr);
+            int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+            int64_t ofs_start=m_voice_current_ptr[0];
+            int64_t ofs_end=(m_voice_current_ptr[0]+smplIncr);
             for (;;) {
                 for (int jj=0;jj<16+3;jj++)
-                    if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chip->voice_output[jj]>>4)*0.6f);
-                    else m_voice_buff[jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
-                ofs_start+=1024;
+                    if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chip->voice_output[jj]>>4)*0.6f);
+                    else m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }
-            while ((ofs_end>>10)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<10);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             for (int jj=0;jj<16+3;jj++) m_voice_current_ptr[jj]=ofs_end;
         
             //TODO:  MODIZER changes end / YOYOFR
