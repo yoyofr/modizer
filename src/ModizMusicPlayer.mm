@@ -1803,7 +1803,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
         iModuleLength=tim_midilength;
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:[NSString stringWithUTF8String:tim_filepath]];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,m_genNumVoicesChannels,1);
+        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,m_genNumVoicesChannels,1);
         
         mod_message_updated=2;
     }
@@ -6506,7 +6506,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         numChannels=(mdx->haspdx?9:8);//mdx->tracks;
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
         
         
         if (tmp_mod_name) sprintf(mod_message,"Title.....: %s\n",tmp_mod_name);
@@ -6640,11 +6640,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             filePathMain=[ModizFileHelper getFilePathFromDocuments:filePath];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
             }
         }
         
@@ -6741,11 +6741,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             filePathMain=[tmp_path componentsJoinedByString:@"/"];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
             }
         }
         
@@ -6851,7 +6851,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     }
         
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
     if (mLoopMode) iModuleLength=-1;
     
@@ -6995,12 +6995,12 @@ typedef struct {
             filePathNSF=[tmp_path componentsJoinedByString:@"/"];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathNSF,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,song_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,song_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
                                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathNSF,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathNSF,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
             }
         }
     
@@ -7233,7 +7233,7 @@ typedef struct {
 
     iCurrentTime=0;
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
     numChannels=pt3_numofchips*3;
     m_voicesDataAvail=1;
@@ -7364,7 +7364,7 @@ typedef struct {
     }
     
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
     if (mLoopMode) iModuleLength=-1;
     
@@ -7424,7 +7424,7 @@ typedef struct {
         
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -7726,12 +7726,12 @@ char* loadRom(const char* path, size_t romSize)
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
             
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,sid_subsong_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,sid_subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathSid,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathSid,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
             }
         }
         
@@ -8057,12 +8057,12 @@ char* loadRom(const char* path, size_t romSize)
                 
                 NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,sid_subsong_length,numChannels,sidtune_info->songs());
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,sid_subsong_length,numChannels,sidtune_info->songs());
                 
                 if (i==sidtune_info->songs()-1) {// Global file stats update
                     fileName=[filePath lastPathComponent];
                     
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,NULL,NULL,NULL,mod_total_length,numChannels,sidtune_info->songs());
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,-1,-1,-1,mod_total_length,numChannels,sidtune_info->songs());
                 }
             }
             
@@ -8254,11 +8254,11 @@ char* loadRom(const char* path, size_t romSize)
                 
                 NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
                 
                 if (i==mod_subsongs-1) {// Global file stats update
                     fileName=[filePath lastPathComponent];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                    DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
                 }
             }
         }
@@ -8275,7 +8275,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mod_subsongs==0) {
             mod_subsongs=1;
             NSString *filePathMain=[ModizFileHelper getFilePathFromDocuments:filePath];
-            DBHelper::updateFileStatsDBmod([filePathMain lastPathComponent],filePathMain,NULL,NULL,NULL,iModuleLength,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod([filePathMain lastPathComponent],filePathMain,-1,-1,-1,iModuleLength,numChannels,mod_subsongs);
         }
         
         //Loop
@@ -8445,7 +8445,7 @@ char* loadRom(const char* path, size_t romSize)
     
     
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,mod_maxsub);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,mod_maxsub);
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -8558,11 +8558,11 @@ char* loadRom(const char* path, size_t romSize)
         filePathMain=[tmp_path componentsJoinedByString:@"/"];
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
         }
     }
     
@@ -8727,11 +8727,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         filePathMain=[tmp_path componentsJoinedByString:@"/"];
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
         }
     }
     openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
@@ -9163,11 +9163,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             filePathMain=[tmp_path componentsJoinedByString:@"/"];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
                 fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
             }
         }
     }
@@ -9402,7 +9402,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     timeline=NULL;
     
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -9712,7 +9712,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     }
     
     NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -10024,7 +10024,7 @@ int vgmGetFileLength()
         numChannels=2;//pmd_get_tracks();
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -10096,11 +10096,11 @@ int vgmGetFileLength()
         filePathAsap=[tmp_path componentsJoinedByString:@"/"];
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathAsap,i];
-        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
             fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathAsap,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+            DBHelper::updateFileStatsDBmod(fileName,filePathAsap,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
         }
     }
     
@@ -10279,16 +10279,16 @@ int vgmGetFileLength()
                 filePathAsap=[tmp_path componentsJoinedByString:@"/"];
                 
                 NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathAsap,i];
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,subsong_length,numChannels,mod_subsongs);
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
                 
                 if (i==mod_subsongs-1) {// Global file stats update
                     fileName=[filePath lastPathComponent];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathAsap,NULL,NULL,NULL,mod_total_length,numChannels,mod_subsongs);
+                    DBHelper::updateFileStatsDBmod(fileName,filePathAsap,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
                 }
             }
         } else {
             NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-            DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,NULL,NULL,NULL,iModuleLength,numChannels,1);
+            DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
         }
         
         
@@ -10406,11 +10406,11 @@ int vgmGetFileLength()
                     filePathGME=[tmp_path componentsJoinedByString:@"/"];
                     
                     NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,NULL,NULL,NULL,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
                     
                     if (i==mod_subsongs-1) {// Global file stats update
                         fileName=[filePath lastPathComponent];
-                        DBHelper::updateFileStatsDBmod(fileName,filePathGME,NULL,NULL,NULL,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
+                        DBHelper::updateFileStatsDBmod(fileName,filePathGME,-1,-1,-1,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
                     }
                 }
             }
