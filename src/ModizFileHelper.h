@@ -22,6 +22,7 @@
 
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;
++(NSString *)getFilePathFromDocuments:(NSString*)filePath;
 
 @end
 

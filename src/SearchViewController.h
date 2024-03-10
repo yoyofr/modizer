@@ -73,6 +73,8 @@ typedef struct {
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIView *searchPrgView;
 	IBOutlet UILabel *searchLabel;
+    
+    NSMutableDictionary *dictActionBtn;
 	
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

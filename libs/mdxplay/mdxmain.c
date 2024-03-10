@@ -99,7 +99,7 @@ if (!self_construct()) {
 	fm_volume           = 127;
 	volume              = 127;
 	is_output_to_stdout = FLAG_FALSE;
-	max_infinite_loops  = (infloop==1?10:1); 
+	max_infinite_loops  = (infloop==1?32767:1); 
 	fade_out_speed      = 5;
 	dump_voice          = FLAG_FALSE;
 	output_titles       = FLAG_FALSE;

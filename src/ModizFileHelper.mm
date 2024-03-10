@@ -814,5 +814,17 @@
     return filePath;
 }
 
++(NSString *)getFilePathFromDocuments:(NSString*)filePath {
+    NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+    for (;;) {
+        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+            break;
+        }
+        [tmp_path removeObjectAtIndex:0];
+        if ([tmp_path count]==0) return NULL;
+    }
+    return [tmp_path componentsJoinedByString:@"/"];
+}
+
 
 @end

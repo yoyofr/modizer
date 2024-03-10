@@ -155,6 +155,8 @@ static NSFileManager *mFileMngr;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
+    dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
+    
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     
@@ -1706,13 +1708,21 @@ static NSFileManager *mFileMngr;
 }
 
 - (void) primaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+	//NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
 	[tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doPrimAction:indexPath];
 }
 
 - (void) secondaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+	//NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
 	[tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doSecAction:indexPath];
 }
@@ -1784,8 +1794,10 @@ static NSFileManager *mFileMngr;
 		
 		if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value>=1) {
 			[actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
 		} else {
 			[actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
 		}
 		
 	} else {

@@ -2434,7 +2434,7 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
             if ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))
             for (;;) {
                 for (int ii=0;ii<8;ii++)
-                    m_voice_buff[ii][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((chanout[ii]>>6));
+                    m_voice_buff[ii][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((chanout[ii]>>7));
                 ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }

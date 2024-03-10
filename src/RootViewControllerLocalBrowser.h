@@ -34,8 +34,6 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
     
-    NSMutableDictionary *dictActionBtn;
-	
 	WaitingView *waitingView;
     
     UIAlertView *alertRename;
@@ -49,6 +47,8 @@
     NSMutableArray *list;
     NSMutableArray *keys;
 	NSMutableArray *indexTitles,*indexTitlesSpace;
+    
+    NSMutableDictionary *dictActionBtn;
 		
 	int mShowSubdir,shouldFillKeys;
     

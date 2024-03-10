@@ -530,7 +530,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
                             for (int ii=0;ii<samples;ii++)
-                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (-buf_pos[ii*2]-buf_pos[ii*2+1])>>19 );
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((-buf_pos[ii*2]-buf_pos[ii*2+1])>>18)+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]) );
                             
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -541,7 +541,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
                             for (int ii=0;ii<samples;ii++)
-                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (buf_pos[ii*2]+buf_pos[ii*2+1])>>19 );
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((buf_pos[ii*2]+buf_pos[ii*2+1])>>18)+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]) );
                             
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -594,7 +594,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
     //TODO:  MODIZER changes start / YOYOFR
     for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
         m_voice_current_ptr[ii]+=(int64_t)(s->ticksize)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-        while ((m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        while ((m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE*4*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     }
     //TODO:  MODIZER changes end / YOYOFR
 

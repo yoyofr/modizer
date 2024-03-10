@@ -177,14 +177,21 @@ static inline void sample_backend(int left1,int left2, int right1,int right2) //
     
     //TODO:  MODIZER changes start / YOYOFR
     
-    m_voice_buff[0][m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(left1>>6);
-    m_voice_buff[3][m_voice_current_ptr[3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(left2>>6);
-    m_voice_buff[1][m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(right1>>6);
-    m_voice_buff[2][m_voice_current_ptr[2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(right2>>6);
+    int64_t ofs_start=m_voice_current_ptr[0];
+    int64_t ofs_end=m_voice_current_ptr[0]+(int64_t)(44100)*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+    
+    for (;;) {
+        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left1>>6);
+        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left2>>6);
+        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right1>>6);
+        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right2>>6);
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        if (ofs_start>=ofs_end) break;
+    }
     
     for (int jj=0;jj<4;jj++) {
-        m_voice_current_ptr[jj]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT/*44100*256/32000*/;
-        if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        m_voice_current_ptr[jj]=ofs_end;
+        if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     }
         
     //TODO:  MODIZER changes end / YOYOFR
@@ -282,16 +289,34 @@ static void sample16si_sinc_handler (void)
     }
 
     //TODO:  MODIZER changes start / YOYOFR
-    m_voice_buff[0][m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[0]>>6);
-    m_voice_buff[3][m_voice_current_ptr[3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[3]>>6);
-    m_voice_buff[1][m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[1]>>6);
-    m_voice_buff[2][m_voice_current_ptr[2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[2]>>6);
+//    m_voice_buff[0][m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[0]>>6);
+//    m_voice_buff[3][m_voice_current_ptr[3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[3]>>6);
+//    m_voice_buff[1][m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[1]>>6);
+//    m_voice_buff[2][m_voice_current_ptr[2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(datas[2]>>6);
+//    
+//    for (int jj=0;jj<4;jj++) {
+//        m_voice_current_ptr[jj]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT/*44100*256/32000*/;
+//        if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*4*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//    }
+    
+    int64_t ofs_start=m_voice_current_ptr[0];
+    int64_t ofs_end=m_voice_current_ptr[0]+(int64_t)(44100)*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+    
+    for (;;) {
+        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[0]>>6);
+        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[3]>>6);
+        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[1]>>6);
+        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[2]>>6);
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        if (ofs_start>=ofs_end) break;
+    }
     
     for (int jj=0;jj<4;jj++) {
-        m_voice_current_ptr[jj]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT/*44100*256/32000*/;
-        if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        m_voice_current_ptr[jj]=ofs_end;
+        if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     }
-    //TODO:  MODIZER changes end / YOYOFR
+    
+//    //TODO:  MODIZER changes end / YOYOFR
     
     *(sndbufpt++) = clamp_sample(datas[0] + datas[3]);
     *(sndbufpt++) = clamp_sample(datas[1] + datas[2]);

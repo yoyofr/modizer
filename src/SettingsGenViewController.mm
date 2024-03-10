@@ -1998,6 +1998,8 @@ void optNSFPLAYChangedC(id param) {
 {
     [super viewDidLoad];
     
+    dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
+    
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     
@@ -2319,6 +2321,7 @@ void optNSFPLAYChangedC(id param) {
         case MDZ_BOOLSWITCH:
             switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,40)];
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[switchview.description componentsSeparatedByString:@";"] firstObject]];
             switchview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             cell.accessoryView = switchview;
             //[switchview release];
@@ -2340,6 +2343,7 @@ void optNSFPLAYChangedC(id param) {
                                       forState:UIControlStateNormal];
             
             [segconview addTarget:self action:@selector(segconChanged:) forControlEvents:UIControlEventValueChanged];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[segconview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = segconview;
             //[segconview release];
             segconview.selectedSegmentIndex=settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value;
@@ -2354,6 +2358,7 @@ void optNSFPLAYChangedC(id param) {
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             //[sliderview release];
             break;
@@ -2366,6 +2371,7 @@ void optNSFPLAYChangedC(id param) {
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             //[sliderview release];
             break;
@@ -2378,6 +2384,7 @@ void optNSFPLAYChangedC(id param) {
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             //[sliderview release];
             break;

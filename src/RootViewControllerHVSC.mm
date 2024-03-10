@@ -142,6 +142,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	start_time=clock();	
 	childController=NULL;
     
+    dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
+    
     self.navigationController.delegate = self;
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
@@ -1775,11 +1777,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                     [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
                 } else {
                     [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
                     [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                     [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
                 }
                 actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 actionView.enabled=YES;
@@ -1937,7 +1941,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
@@ -1998,7 +2005,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
@@ -2056,7 +2066,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;

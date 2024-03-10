@@ -41,6 +41,8 @@
     NSMutableArray *keys;
     NSMutableArray *indexTitles,*indexTitlesDownload;
     
+    NSMutableDictionary *dictActionBtn;
+    
     int mNbASMAFileEntries;
     
     int shouldFillKeys;

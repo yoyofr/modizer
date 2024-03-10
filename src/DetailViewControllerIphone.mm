@@ -2151,7 +2151,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 -(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths {
     int limitPl=0;
     mRestart=0;
-    mRestart_sub=0;
+    mRestart_sub=-1;
     mRestart_arc=0;
     mPlayingPosRestart=0;
     
@@ -2205,7 +2205,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index {
     int limitPl=0;
     mRestart=0;
-    mRestart_sub=0;
+    mRestart_sub=-1;
     mRestart_arc=0;
     mPlayingPosRestart=0;
     
@@ -2639,7 +2639,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (mShuffle==1) mOnlyCurrentSubEntry=1;
             mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
         }
-        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+        [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
     } else {
         [mplayer PlaySeek:mPlayingPosRestart subsong:0];
     }
@@ -2873,7 +2873,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     int found_arc=0;
     int arc_index=-1;
     int found_sub=0;
-    int sub_index=0;
+    int sub_index=-1;
     int i=0;
     mOnlyCurrentEntry=0;
     mOnlyCurrentSubEntry=0;
@@ -3052,7 +3052,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         else self.playBar.hidden=NO;
         
         [self updateBarPos];
-        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+        [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
         if (mPlayingPosRestart) {
             mPlayingPosRestart=0;
         } else sliderProgressModule.value=0;
@@ -3081,7 +3081,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         else self.pauseBar.hidden=NO;
         [self updateBarPos];
         //mRestart=0;
-        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+        [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
         if (mPlayingPosRestart) {
             mPlayingPosRestart=0;
         } else sliderProgressModule.value=0;

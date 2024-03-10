@@ -270,6 +270,8 @@ typedef struct {
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
     
+    NSMutableDictionary *dictActionBtn;
+    
     WaitingView *waitingView;
     
     MiniPlayerVC *miniplayerVC;

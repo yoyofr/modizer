@@ -40,6 +40,8 @@
     NSMutableArray *list;
     NSMutableArray *keys;
 	NSMutableArray *indexTitles,*indexTitlesDownload;
+    
+    NSMutableDictionary *dictActionBtn;
 	
 	int mNbHVSCFileEntries;
 	
