@@ -33,6 +33,8 @@
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
+    
+    NSMutableDictionary *dictActionBtn;
 	
 	WaitingView *waitingView;
     

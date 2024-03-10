@@ -551,7 +551,7 @@ static int display_length_mode=0;
     signed char avg_rating;
     short int playcount;
     
-    NSLog(@"upd: %@ | %@",fileName,filePath);
+//    NSLog(@"upd: %@ | %@",fileName,filePath);
     filePath=[ModizFileHelper getFullCleanFilePath:filePath];
     
     if ([mplayer isArchive]) {

@@ -154,11 +154,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         NSError *error;
         NSFileManager *fileManager=[[NSFileManager alloc] init];
         
-        pthread_mutex_lock(&db_mutex);
-        
         if (mUpdateToNewDB) {
             //1st clean obsolete data
             DBHelper::cleanDB();
+        }
+        
+        pthread_mutex_lock(&db_mutex);
+        if (mUpdateToNewDB) {
             //rename to old DB
             [fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
             //        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
@@ -524,6 +526,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     clock_t start_time,end_time;
     start_time=clock();
     childController=nil;
+    
+    dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
@@ -2696,10 +2700,14 @@ static int shouldRestart=1;
             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
             [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            //secActionView.tag=indexPath.row*100+indexPath.section;
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
             
             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            //actionView.tag=indexPath.row*100+indexPath.section;
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             
             int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
             icon_posx-=32;
@@ -2772,6 +2780,7 @@ static int shouldRestart=1;
             [secActionView setImage:[UIImage imageNamed:@"folder.png"] forState:UIControlStateHighlighted];
             [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
             
             secActionView.enabled=YES;
             secActionView.hidden=NO;
@@ -2788,6 +2797,7 @@ static int shouldRestart=1;
                 [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
                 [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                 [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
                 
                 secActionView.enabled=YES;
                 secActionView.hidden=NO;
@@ -2806,11 +2816,13 @@ static int shouldRestart=1;
                 [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
                 [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                 [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             } else {
                 [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
                 [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
                 [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                 [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             }
             actionView.enabled=YES;
             actionView.hidden=NO;
@@ -3019,11 +3031,15 @@ static int shouldRestart=1;
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
-    
+        
     [self updateWaitingTitle:@""];
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
@@ -3141,7 +3157,10 @@ static int shouldRestart=1;
 
 
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
@@ -3189,7 +3208,11 @@ static int shouldRestart=1;
 }
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;

@@ -715,6 +715,7 @@
 		CC1E63B9120423E0000A8A4E /* uade.conf in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630E120423DF000A8A4E /* uade.conf */; };
 		CC1E63BA120423E0000A8A4E /* uaerc in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630F120423DF000A8A4E /* uaerc */; };
 		CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */; };
+		CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE352A52B79704200E06DE1 /* liblibopenmpt-modizer.a */; };
@@ -2186,6 +2187,8 @@
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
 		CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerWin.h; sourceTree = "<group>"; };
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
+		CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerXPWebParser.h; sourceTree = "<group>"; };
+		CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerXPWebParser.mm; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green.png"; sourceTree = "<group>"; };
@@ -2821,6 +2824,8 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */,
+				CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */,
 				59F726A02657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.h */,
 				59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */,
 				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
@@ -5982,6 +5987,7 @@
 				3370BC35124A858C00691400 /* revmodel.cpp in Sources */,
 				3370BC4B124A891500691400 /* mdxmain.c in Sources */,
 				CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */,
+				CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */,
 				3370BC8E124A8B7D00691400 /* pcm8.c in Sources */,
 				CC8369612B57CCC80035A4DA /* ioplug68.c in Sources */,
 				CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */,

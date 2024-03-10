@@ -151,7 +151,9 @@ extern "C" void updateMainLoopC(void) {
     
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     
+#ifdef DEBUG_MODIZER
     NSLog(@"%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
+#endif
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {

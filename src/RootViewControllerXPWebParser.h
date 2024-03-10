@@ -1,9 +1,9 @@
 //
-//  RootViewControllerSMSPWebParser.h
+//  RootViewControllerXPWebParser.h
 //  modizer1
 //
-//  Created by Yohann Magnien on 07/05/21.
-//  Copyright __YoyoFR / Yohann Magnien__ 2021. All rights reserved.
+//  Created by Yohann Magnien on 10/03/24.
+//  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -20,7 +20,7 @@
 @class DownloadViewController;
 
 
-@interface RootViewControllerSMSPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerXPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;

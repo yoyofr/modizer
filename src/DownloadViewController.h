@@ -45,8 +45,8 @@
     
     bool darkMode;
     bool forceReloadCells;
-	
-	AFURLSessionManager *AFmanager;
+    
+    AFURLSessionManager *AFmanager;
     
 	NSInputStream *networkStream;
 	NSOutputStream *fileStream;

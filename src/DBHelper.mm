@@ -874,7 +874,7 @@ int DBHelper::getRating(NSString *filePath,int arcidx,int subidx) {
         if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
             //got stat
             if (rating==5) {
-                NSLog(@"Rating %d found for %@",rating,fpath);
+//                NSLog(@"Rating %d found for %@",rating,fpath);
                 return rating;
             }
         }
@@ -890,7 +890,7 @@ int DBHelper::getRating(NSString *filePath,int arcidx,int subidx) {
             
             if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
                 if (rating==5) {
-                    NSLog(@"Rating %d found for %@",rating,fpath);
+//                    NSLog(@"Rating %d found for %@",rating,fpath);
                     return rating;
                 }
             }
@@ -898,22 +898,22 @@ int DBHelper::getRating(NSString *filePath,int arcidx,int subidx) {
             fpath=[ModizFileHelper getFullCleanFilePath:[NSString stringWithString:filePath]];
             if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
                 if (rating==5) {
-                    NSLog(@"Rating %d found for %@",rating,fpath);
+//                    NSLog(@"Rating %d found for %@",rating,fpath);
                     return rating;
                 }
             }
-            NSLog(@"no rating for %@",fpath);
+            //NSLog(@"no rating for %@",fpath);
             return 0;
         }
         //2nd case, no subsong available
         //try global file
         if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
             if (rating==5) {
-                NSLog(@"Rating %d found for %@",rating,fpath);
+//                NSLog(@"Rating %d found for %@",rating,fpath);
                 return rating;
             }
         }
-        NSLog(@"no rating for %@",fpath);
+        //NSLog(@"no rating for %@",fpath);
         return 0;
         
     } else if (subidx>=0) {
@@ -924,7 +924,7 @@ int DBHelper::getRating(NSString *filePath,int arcidx,int subidx) {
         fpath=[fpath stringByAppendingFormat:@"?%d",subidx];
         if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
             if (rating==5) {
-                NSLog(@"Rating %d found for %@",rating,fpath);
+//                NSLog(@"Rating %d found for %@",rating,fpath);
                 return rating;
             }
         }
@@ -932,19 +932,19 @@ int DBHelper::getRating(NSString *filePath,int arcidx,int subidx) {
         fpath=[ModizFileHelper getFilePathNoSubSong:filePath];
         if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
             if (rating==5) {
-                NSLog(@"Rating %d found for %@",rating,fpath);
+//                NSLog(@"Rating %d found for %@",rating,fpath);
                 return rating;
             }
         }
         //still no data
-        NSLog(@"no rating for %@",fpath);
+//        NSLog(@"no rating for %@",fpath);
         return 0;
     }
     
     //simple file
     if (DBHelper::getFileStatsDBmod(fpath,NULL,&rating,NULL)) {
         if (rating==5) {
-            NSLog(@"Rating %d found for %@",rating,fpath);
+//            NSLog(@"Rating %d found for %@",rating,fpath);
             return rating;
         }
     }

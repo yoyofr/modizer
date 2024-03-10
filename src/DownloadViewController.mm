@@ -1285,58 +1285,6 @@ static NSFileManager *mFileMngr;
  else return -1;
  }*/
 
-- (void) cancelTapped: (UIButton*) sender {
-	pthread_mutex_lock(&download_mutex);
-	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
-	int pos=indexPath.row;
-	if (indexPath.section==0) {//FTP
-        if (mGetFTPInProgress) pos++;
-		if (mFilePath[pos]) {mFilePath[pos]=nil;}
-		if (mFTPpath[pos])  {mFTPpath[pos]=nil;}
-		if (mFTPhost[pos])  {mFTPhost[pos]=nil;}
-		if (mFTPFilename[pos]) {mFTPFilename[pos]=nil;}
-		
-		for (int i=pos;i<mFTPDownloadQueueDepth-1;i++) {
-			mFilePath[i]=mFilePath[i+1];
-			mFTPpath[i]=mFTPpath[i+1];
-			mFTPhost[i]=mFTPhost[i+1];
-			mFTPFilename[i]=mFTPFilename[i+1];
-			mUsePrimaryAction[i]=mUsePrimaryAction[i+1];
-			mFileSize[i]=mFileSize[i+1];
-			mIsMODLAND[i]=mIsMODLAND[i+1];
-		}
-		if (mFTPDownloadQueueDepth) {
-			mFilePath[mFTPDownloadQueueDepth-1]=nil;
-			mFTPpath[mFTPDownloadQueueDepth-1]=nil;
-			mFTPhost[mFTPDownloadQueueDepth-1]=nil;
-			mFTPFilename[mFTPDownloadQueueDepth-1]=nil;
-			mFTPDownloadQueueDepth--;
-		}
-		
-	}
-	if (indexPath.section==1) {//URL
-		if (mGetURLInProgress) pos++;
-		if (mURL[pos]) {mURL[pos]=nil;}
-		if (mURLFilename[pos]) {mURLFilename[pos]=nil;}
-        
-		for (int i=pos;i<mURLDownloadQueueDepth-1;i++) {
-			mURL[i]=mURL[i+1];
-			mURLFilename[i]=mURLFilename[i+1];
-		}
-		if (mURLDownloadQueueDepth) {
-			mURL[mURLDownloadQueueDepth-1]=nil;
-			mURLFilename[mURLDownloadQueueDepth-1]=nil;
-			mURLDownloadQueueDepth--;
-		}
-	}
-	
-	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
-    else barItem.badgeValue=nil;
-	
-	[tableView reloadData];
-	pthread_mutex_unlock(&download_mutex);
-}
-
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	static NSString *CellIdentifier = @"Cell";
@@ -1394,10 +1342,6 @@ static NSFileManager *mFileMngr;
         bottomLabel.autoresizesSubviews=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleRightMargin;
         
         
-/*        lCancelButton = [[[BButton alloc] initWithFrame:CGRectMake(tableView.bounds.size.width-2-32,4,32,32) type:BButtonTypeDanger] autorelease];
-        [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
-		cell.accessoryView=lCancelButton;
-        [lCancelButton addAwesomeIcon:0x057 beforeTitle:YES font_size:20];*/
 		[cell layoutSubviews];
 	} else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
