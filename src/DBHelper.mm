@@ -839,6 +839,14 @@ int DBHelper::cleanDB() {
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
+        //update playlist table / entries
+        snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
+                (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist)");
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err!=SQLITE_OK){
+            NSLog(@"ErrSQL : %d",err);
+        }
+        
         //No defrag DB
         sprintf(sqlStatement2,"VACUUM");
         err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);

@@ -628,7 +628,7 @@ static int display_length_mode=0;
     if (tmp_rating) {
         //Remove current file action
         
-        userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@\n%@",NSLocalizedString(@"Remove current file",@""),[fileName lastPathComponent]] style:UIAlertActionStyleDefault
+        userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@\n%@",NSLocalizedString(@"Remove current file",@""),[filePath lastPathComponent]] style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction * action) {
             
             //Update the rating at file level
@@ -649,7 +649,7 @@ static int display_length_mode=0;
         [msgAlert addAction:userAction];
     } else {
         //Add current file action
-        userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@\n%@",NSLocalizedString(@"Add current file",@""),[fileName lastPathComponent]] style:UIAlertActionStyleDefault
+        userAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%@\n%@",NSLocalizedString(@"Add current file",@""),[filePath lastPathComponent]] style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction * action) {
             
             //Update the rating at file level

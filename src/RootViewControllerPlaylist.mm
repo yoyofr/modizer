@@ -118,6 +118,29 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	return 1; //NSOrderedDescending
 }
 
+int qsort_ComparePlaylistEntriesFP(const void *entryA, const void *entryB) {
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_playlist_entry*)entryA)->fullpath;
+    strB=((t_playlist_entry*)entryB)->fullpath;
+    res=[strA localizedCaseInsensitiveCompare:strB];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
+}
+
+int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_playlist_entry*)entryA)->fullpath;
+    strB=((t_playlist_entry*)entryB)->fullpath;
+    res=[strB localizedCaseInsensitiveCompare:strA];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
+}
+
+
 - (void)createNewPlaylist {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
                                         message:nil
@@ -312,15 +335,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [self updateMiniPlayer];
     }
 }
-- (void)sortAZPlaylist {
+- (void)sortAZPlaylist:(bool)fullpath {
     if (playlist->nb_entries) {
         
         NSString *tmpFP;
         if (!(playlist->playlist_id)) {
             tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
         }
-                    
-        qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
+        
+        if (fullpath) qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesFP);
+        else qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
         
         
         if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
@@ -356,14 +380,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [self updateMiniPlayer];
     }
 }
-- (void)sortZAPlaylist {
+- (void)sortZAPlaylist:(bool)fullpath {
     if (playlist->nb_entries) {
         NSString *tmpFP;
         if (!(playlist->playlist_id)) {
             tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
         }
         
-        qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
+        if (fullpath) qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRevFP);
+        else qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
         
         
         if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
@@ -397,6 +422,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [self updateMiniPlayer];
     }
 }
+
+
 - (void)editPlaylist {
     if (playlist->nb_entries) {
         self.navigationItem.rightBarButtonItem = self.editButtonItem;
@@ -2685,7 +2712,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 cellValue=playlist->entries[row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
                                 
-                char signed avg_rating;
+                char signed avg_rating=-1;
                 if ((playlist->entries[row-2].ratings==-1)||(playlist->entries[row-2].playcounts==-1)) {
                     DBHelper::getFileStatsDBmod(playlist->entries[row-2].fullpath,
                                                 &(playlist->entries[row-2].playcounts),
@@ -2701,12 +2728,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 
                 if ((playlist->entries[row-2].ratings==0)&&(avg_rating>0)) playlist->entries[row-2].ratings=1;
 
-                if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
+                if (playlist->entries[row-2].ratings>0) {
+                    bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
+                }
                 NSArray *filename_parts=[playlist->entries[row-2].fullpath componentsSeparatedByString:@"/"];
                 
                 NSString *tmp_str;
                 
-                if ([filename_parts count]>=3) {
+                /*if ([filename_parts count]>=3) {
                     if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {
                         tmp_str = [NSString stringWithFormat:@"%@/%@|",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
                     } else tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
@@ -2714,9 +2743,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-2] compare:@"Documents"]!=NSOrderedSame) {
                         tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
                     } else tmp_str = @"";
-                }
+                }*/
+                tmp_str = [[filename_parts subarrayWithRange:NSMakeRange(1,[filename_parts count]-1)] componentsJoinedByString:@"/"];
                 
-                bottomLabel.text=[tmp_str stringByAppendingFormat:@"Pl:%d",playlist->entries[row-2].playcounts];
+                bottomLabel.text=[tmp_str stringByAppendingFormat:@" | Pl:%d ",playlist->entries[row-2].playcounts];
                 
                 
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
@@ -2811,7 +2841,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         if ((cur_local_entries[indexPath.section-2][indexPath.row].rating==0)&&(avg_rating>0))
                             cur_local_entries[indexPath.section-2][indexPath.row].rating=1;
                     }
-                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.section-2][indexPath.row].rating)]];
+                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) {
+                        bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.section-2][indexPath.row].rating)]];
+                    }
                     tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
@@ -3529,15 +3561,27 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
                         handler:^(UIAlertAction * action) {
-                            [self sortAZPlaylist];
+                            [self sortAZPlaylist:false];
                         }];
                     [alertC addAction:sortAZAction];
                     
                     UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
                         handler:^(UIAlertAction * action) {
-                            [self sortZAPlaylist];
+                            [self sortZAPlaylist:false];
                         }];
                     [alertC addAction:sortZAAction];
+                    
+                    UIAlertAction* sortAZActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z (fullpath)",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self sortAZPlaylist:true];
+                        }];
+                    [alertC addAction:sortAZActionFP];
+                    
+                    UIAlertAction* sortZAActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A (fullpath)",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self sortZAPlaylist:true];
+                        }];
+                    [alertC addAction:sortZAActionFP];
                     
                     UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
                         handler:^(UIAlertAction * action) {
@@ -3579,15 +3623,27 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         
                         UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
                             handler:^(UIAlertAction * action) {
-                                [self sortAZPlaylist];
+                                [self sortAZPlaylist:false];
                             }];
                         [alertC addAction:sortAZAction];
                         
                         UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
                             handler:^(UIAlertAction * action) {
-                                [self sortZAPlaylist];
+                                [self sortZAPlaylist:false];
                             }];
                         [alertC addAction:sortZAAction];
+                        
+                        UIAlertAction* sortAZActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z (fullpath)",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self sortAZPlaylist:true];
+                            }];
+                        [alertC addAction:sortAZActionFP];
+                        
+                        UIAlertAction* sortZAActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A (fullpath)",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self sortZAPlaylist:true];
+                            }];
+                        [alertC addAction:sortZAActionFP];
                                                 
                         [self showAlert:alertC];
                     } else if ((integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED)||(integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES)) {
