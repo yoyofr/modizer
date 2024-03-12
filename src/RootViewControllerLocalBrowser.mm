@@ -2829,13 +2829,16 @@ static int shouldRestart=1;
             
             
             if (cur_local_entries[section][indexPath.row].rating==-1) {
+                signed char avg_rating;
                 DBHelper::getFileStatsDBmod(cur_local_entries[section][indexPath.row].fullpath,
                                             &cur_local_entries[section][indexPath.row].playcount,
                                             &cur_local_entries[section][indexPath.row].rating,
-                                            NULL,
+                                            &avg_rating,
                                             &cur_local_entries[section][indexPath.row].song_length,
                                             &cur_local_entries[section][indexPath.row].channels_nb,
                                             &cur_local_entries[section][indexPath.row].songs);
+                if ((cur_local_entries[section][indexPath.row].rating==0)&&(avg_rating>0))
+                    cur_local_entries[section][indexPath.row].rating=1;
             }
             if (cur_local_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[section][indexPath.row].rating)]];
             

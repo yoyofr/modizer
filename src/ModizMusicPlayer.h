@@ -128,7 +128,8 @@ extern "C" {
 	int mp_datasize,numChannels;
     int mLoopMode; //0:off, 1:infinite
     int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
-    NSString *mod_currentfile;
+    NSString *mod_currentfile;  //file being loaded
+    NSString *mod_loadmodule_filepath; //filepath given as param of LoadModule
     NSString *mod_currentext;
     NSString *artist,*album;
 

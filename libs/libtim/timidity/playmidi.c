@@ -22,6 +22,7 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../src/ModizerVoicesData.h"
+extern int mdz_tim_only_precompute;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -8337,6 +8338,10 @@ static int play_midi(MidiEvent *eventlist, int32 samples)
     rc = aq_flush(0);
     if(RC_IS_SKIP_FILE(rc))
 	return rc;
+    
+    //YOYOFR
+    if (mdz_tim_only_precompute) return rc;
+    //YOYOFR
 
     skip_to(midi_restart_time);
 

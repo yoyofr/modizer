@@ -18,7 +18,8 @@
 +(NSMutableArray*)buildListSupportFileType:(t_filetypeList)ftype;
 
 +(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file;
-+(int) isAllowedFile:(NSString*)file;
++(int) isPlayableFile:(NSString*)file;
++(int) isSingleFileType:(NSString*)_filePath;
 
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;

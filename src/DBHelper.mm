@@ -257,7 +257,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -655,19 +655,19 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
             while (sqlite3_step(stmt) == SQLITE_ROW) {
                 ret++;
                 if (name==NULL) name=[NSString stringWithUTF8String:(const char*)(sqlite3_column_text(stmt,0))];
-                if (playcount<0) playcount=(short int)sqlite3_column_int(stmt, 1);
-                if (song_length<0) song_length=(int)sqlite3_column_int(stmt, 2);
-                if (channels_nb<0) channels_nb=(char)sqlite3_column_int(stmt, 3);
-                if (songs<0) songs=(int)sqlite3_column_int(stmt, 4);
-                if (rating<0) rating=(int)sqlite3_column_int(stmt, 5);
-                if (avg_rating<0) avg_rating=(int)sqlite3_column_int(stmt, 6);
+                if (playcount==-1) playcount=(short int)sqlite3_column_int(stmt, 1);
+                if (song_length==-1) song_length=(int)sqlite3_column_int(stmt, 2);
+                if (channels_nb==-1) channels_nb=(char)sqlite3_column_int(stmt, 3);
+                if (songs==-1) songs=(int)sqlite3_column_int(stmt, 4);
+                if (rating==-1) rating=(int)sqlite3_column_int(stmt, 5);
+                if (avg_rating==-1) avg_rating=(int)sqlite3_column_int(stmt, 6);
                 
                 break;
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);

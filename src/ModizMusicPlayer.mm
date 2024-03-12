@@ -539,7 +539,6 @@ int optHC_ResampleQuality=1;
 #include "v2mconv.h"
 #include "sounddef.h"
 
-int v2m_voices_mask;
 static float *v2m_sample_data_float;
 
 static V2MPlayer *v2m_player;
@@ -896,8 +895,11 @@ static int optNSFPLAYDefaultLength=SONG_DEFAULT_LENGTH;
 bool tim_force_soundfont;
 char tim_force_soundfont_path[1024];
 char tim_config_file_path[1024];
+int mdz_tim_only_precompute;
 
 static char tim_filepath[1024];
+static char tim_filepath_orgfile[1024];
+static char tim_filepath_filename[256];
 static volatile int tim_finished;
 static int tim_max_voices=DEFAULT_VOICES;
 static int tim_reverb=0;
@@ -1799,15 +1801,6 @@ static int tim_output_data(char *buf, int32 nbytes) {
             g_playing=0;
             return 0;
         }
-    }
-    
-    if ((tim_midilength!=-1) && (tim_midilength!=iModuleLength)) {
-        iModuleLength=tim_midilength;
-        
-        NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:[NSString stringWithUTF8String:tim_filepath]];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,m_genNumVoicesChannels,1);
-        
-        mod_message_updated=2;
     }
     
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
@@ -3143,6 +3136,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
     }
     
+    mdz_tim_only_precompute=0;
     tim_main(1, argv);
     //tim_close();
     //    [pool release];
@@ -5141,6 +5135,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                            m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                         if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
@@ -6337,6 +6332,38 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     return;
 }
 
+-(void) mmp_updateDBStatsAtLoad {
+    if (mdz_ArchiveFilesCnt) {
+        //update file
+        NSString *fpath=[NSString stringWithFormat:@"%@@%d",[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],mdz_currentArchiveIndex];
+        DBHelper::updateFileStatsDBmod([self getArcEntryTitle:mdz_currentArchiveIndex],fpath,-1,-1,-1,iModuleLength,numChannels,mod_subsongs);
+        
+        //if only 1 archive entry, update it as well
+        if (mdz_ArchiveFilesCnt==1) DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,iModuleLength,numChannels,mod_subsongs);
+        else { //archive with multiple entries, reset stats if needed
+            DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,0,0,-mdz_ArchiveFilesCnt);
+        }
+    } else { //not an archive
+        DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,iModuleLength,numChannels,mod_subsongs);
+    }
+}
+
+-(void) mmp_updateDBStatsAtLoadSubsong:(int)mod_total_length {
+    if (mdz_ArchiveFilesCnt) {
+        //update file
+        NSString *fpath=[NSString stringWithFormat:@"%@@%d",[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],mdz_currentArchiveIndex];
+        DBHelper::updateFileStatsDBmod([self getArcEntryTitle:mdz_currentArchiveIndex],fpath,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+        
+        //if only 1 archive entry, update it as well
+        if (mdz_ArchiveFilesCnt==1) DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+        else { //archive with multiple entries, reset stats if needed
+            DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,0,0,-mdz_ArchiveFilesCnt);
+        }
+    } else { //not an archive
+        DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+    }
+}
+
 
 -(int) mmp_gsfLoad:(NSString*)filePath {  //GSF
     mPlayType=MMP_GSF;
@@ -6546,8 +6573,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         numChannels=(mdx->haspdx?9:8);//mdx->tracks;
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
         
+        [self mmp_updateDBStatsAtLoad];
         
         if (tmp_mod_name) sprintf(mod_message,"Title.....: %s\n",tmp_mod_name);
         else sprintf(mod_message,"Title.....: N/A\n");
@@ -6632,6 +6659,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         mod_maxsub=1+mod_subsongs-1;
         mod_currentsub=atariSndh.GetDefaultSubsong();
         
+        numChannels=4;
+        
         if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
         if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
         atariSndh.GetSubsongInfo(mod_currentsub, info);
@@ -6677,18 +6706,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             NSString *filePathMain;
             NSString *fileName=[self getSubTitle:i];
             
-            filePathMain=[ModizFileHelper getFilePathFromDocuments:filePath];
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
+            
             if (i==mod_subsongs-1) {// Global file stats update
-                fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
             }
         }
-        
-        numChannels=2;
         
         if (info.musicSubTitle) sprintf(mod_message,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
                                         info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
@@ -6699,7 +6727,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         artist=[NSString stringWithUTF8String:info.musicAuthor];
         
         atariWaveData=(uint32_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4);
-        numChannels=4;
         m_voicesDataAvail=1;
         m_genNumVoicesChannels=numChannels;
         for (int i=0;i<m_genNumVoicesChannels;i++) {
@@ -6747,6 +6774,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         mod_minsub=1;
         mod_maxsub=1+info.tracks-1;
         mod_currentsub=sc68_cntl(sc68,SC68_GET_TRACK);
+        numChannels=2;
+        
         
         if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
         if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
@@ -6770,26 +6799,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             NSString *filePathMain;
             NSString *fileName=[self getSubTitle:i];
             
-            NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-            for (;;) {
-                if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                    break;
-                }
-                [tmp_path removeObjectAtIndex:0];
-                if ([tmp_path count]==0) break;
-            }
-            filePathMain=[tmp_path componentsJoinedByString:@"/"];
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
-                fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
             }
         }
         
-        numChannels=2;
         
         sprintf(mod_message,"Title.....: %s\nArtist....: %s\nFormat....: %s\nHardware..: %s\nConverter.: %s\nRipper....: %s\n",
                 info.title,info.artist,info.format,info.dsk.hw,info.converter,info.ripper);
@@ -6890,8 +6910,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         else m_voice_voiceColor[i]=m_voice_systemColor[1];
     }
         
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+    [self mmp_updateDBStatsAtLoad];
     
     if (mLoopMode) iModuleLength=-1;
     
@@ -7000,47 +7019,29 @@ typedef struct {
     //update DB with songlength
     //////////////////////////////////
     mod_total_length=0;
-    if (mod_subsongs<256)
+    
         for (int i=0;i<mod_subsongs; i++) {
             int song_length;
-            NSString *filePathNSF;
+            NSString *filePathMain;
             NSString *fileName;
             NSMutableArray *tmp_path;
             
             //set subsong
             nsfPlayer->SetSong(i+mod_minsub);
-            //nsfPlayer->Reset();
-            
-            const char *nsfe_title=nsfData->GetTitleString("%L",i);
-            if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-            else {
-                const char *nsf_title=nsfData->GetTitleString("%T",i);
-                if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-                snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
-            }
             
             song_length=nsfPlayer->GetLength();
             mod_total_length+=song_length;
             
             fileName=[self getSubTitle:i];
             
-            tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-            for (;;) {
-                if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                    break;
-                }
-                [tmp_path removeObjectAtIndex:0];
-                if ([tmp_path count]==0) break;
-            }
-            filePathNSF=[tmp_path componentsJoinedByString:@"/"];
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
             
-            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathNSF,i];
+            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,song_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
-                fileName=[filePath lastPathComponent];
-                                
-                DBHelper::updateFileStatsDBmod(fileName,filePathNSF,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
             }
         }
     
@@ -7272,15 +7273,15 @@ typedef struct {
     if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
 
     iCurrentTime=0;
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
-    
+
     numChannels=pt3_numofchips*3;
     m_voicesDataAvail=1;
     m_genNumVoicesChannels=numChannels;
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[i/3];
     }
+    
+    [self mmp_updateDBStatsAtLoad];
     
     //Loop
     if (mLoopMode) iModuleLength=-1;
@@ -7403,8 +7404,7 @@ typedef struct {
         }
     }
     
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+    [self mmp_updateDBStatsAtLoad];
     
     if (mLoopMode) iModuleLength=-1;
     
@@ -7463,8 +7463,7 @@ typedef struct {
         artist=[NSString stringWithUTF8String:info.pSongAuthor];
         
         
-        NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+        [self mmp_updateDBStatsAtLoad];
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -7750,28 +7749,18 @@ char* loadRom(const char* path, size_t romSize)
             else if (sid_subsong_length==0) sid_subsong_length=1000;
             mod_total_length+=sid_subsong_length;
             
-            NSString *filePathSid;
+            NSString *filePathMain;
             NSString *fileName=[self getSubTitle:i];
             
             
-            NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-            for (;;) {
-                if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                    break;
-                }
-                [tmp_path removeObjectAtIndex:0];
-                if ([tmp_path count]==0) break;
-            }
-            filePathSid=[tmp_path componentsJoinedByString:@"/"];
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
             
-            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
-            
+            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,sid_subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
-                fileName=[filePath lastPathComponent];
-                
-                DBHelper::updateFileStatsDBmod(fileName,filePathSid,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
             }
         }
         
@@ -8081,28 +8070,18 @@ char* loadRom(const char* path, size_t romSize)
                 else if (sid_subsong_length==0) sid_subsong_length=1000;
                 mod_total_length+=sid_subsong_length;
                 
-                NSString *filePathSid;
+                NSString *filePathMain;
                 NSString *fileName=[self getSubTitle:i];
                 
                 
-                NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-                for (;;) {
-                    if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                        break;
-                    }
-                    [tmp_path removeObjectAtIndex:0];
-                    if ([tmp_path count]==0) break;
-                }
-                filePathSid=[tmp_path componentsJoinedByString:@"/"];
+                filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
                 
-                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,sid_subsong_length,numChannels,mod_subsongs);
                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,sid_subsong_length,numChannels,sidtune_info->songs());
-                
-                if (i==sidtune_info->songs()-1) {// Global file stats update
-                    fileName=[filePath lastPathComponent];
-                    
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,-1,-1,-1,mod_total_length,numChannels,sidtune_info->songs());
+                if (i==mod_subsongs-1) {// Global file stats update
+                    [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
             
@@ -8286,9 +8265,37 @@ char* loadRom(const char* path, size_t romSize)
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
-        
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+    
+    if (mod_subsongs>1) {
+        mod_total_length=0;
+        for (int i=0;i<mod_subsongs;i++) {
+            int subsong_length=0;
+            if (m3uReader.size()) subsong_length=m3uReader[i].length;
+            if (subsong_length<=0) {
+                if (kss->info) subsong_length=kss->info[i].time_in_ms;
+                else subsong_length=optGENDefaultLength;
+            }
+            if (subsong_length<1000) subsong_length=1000;
+            
+            mod_total_length+=subsong_length;
+            
+            int song_length;
+            NSString *filePathMain;
+            NSString *fileName=[self getSubTitle:i];
+            
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+            
+            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
+            
+            if (i==mod_subsongs-1) {// Global file stats update
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
+            }
+        }
+    } else {
+        [self mmp_updateDBStatsAtLoad];
+    }
     
     KSSPLAY_get_MGStext(kssplay,mod_message+strlen(mod_message),MAX_STIL_DATA_LENGTH*2-strlen(mod_message));
     
@@ -8338,6 +8345,10 @@ char* loadRom(const char* path, size_t romSize)
         mod_minsub=0;
         mod_maxsub=mod_subsongs-1;
         mod_currentsub=0;
+        numChannels=hvl_song->ht_Channels;
+        iModuleLength=hvl_GetPlayTime(hvl_song);
+        iCurrentTime=0;
+        
         
         if (mod_subsongs>1) NSLog(@"hvl multisub");
         
@@ -8365,17 +8376,19 @@ char* loadRom(const char* path, size_t romSize)
                 NSString *filePathMain;
                 NSString *fileName=[self getSubTitle:i];
                 
-                filePathMain=[ModizFileHelper getFilePathFromDocuments:filePath];
+                filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
                 
                 NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-                
                 DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
                 
                 if (i==mod_subsongs-1) {// Global file stats update
-                    fileName=[filePath lastPathComponent];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                    [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
+        } else {
+            mod_subsongs=1;
+            [self mmp_updateDBStatsAtLoad];
         }
         
         if (!hvl_InitSubsong( hvl_song,mod_currentsub )) {
@@ -8384,19 +8397,11 @@ char* loadRom(const char* path, size_t romSize)
             mPlayType=0;
             return -2;
         }
-        iModuleLength=hvl_GetPlayTime(hvl_song);
-        iCurrentTime=0;
         
-        if (mod_subsongs==0) {
-            mod_subsongs=1;
-            NSString *filePathMain=[ModizFileHelper getFilePathFromDocuments:filePath];
-            DBHelper::updateFileStatsDBmod([filePathMain lastPathComponent],filePathMain,-1,-1,-1,iModuleLength,numChannels,mod_subsongs);
-        }
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
-        numChannels=hvl_song->ht_Channels;
         
         m_genNumVoicesChannels=numChannels;
         m_voicesDataAvail=1;
@@ -8559,8 +8564,7 @@ char* loadRom(const char* path, size_t romSize)
     
     
     
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,mod_maxsub);
+    [self mmp_updateDBStatsAtLoad];
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -8662,22 +8666,14 @@ char* loadRom(const char* path, size_t romSize)
         NSString *filePathMain;
         NSString *fileName=[self getSubTitle:i];
         
-        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-        for (;;) {
-            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                break;
-            }
-            [tmp_path removeObjectAtIndex:0];
-            if ([tmp_path count]==0) break;
-        }
-        filePathMain=[tmp_path componentsJoinedByString:@"/"];
+        filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+        if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
-            fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+            [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
         }
     }
     
@@ -8831,22 +8827,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         NSString *filePathMain;
         NSString *fileName=[self getSubTitle:i];
         
-        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-        for (;;) {
-            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                break;
-            }
-            [tmp_path removeObjectAtIndex:0];
-            if ([tmp_path count]==0) break;
-        }
-        filePathMain=[tmp_path componentsJoinedByString:@"/"];
+        filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+        if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
         
         NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
-            fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+            [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
         }
     }
     openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
@@ -9058,7 +9046,46 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     iCurrentTime=0;
     
     numChannels=64;
-    m_genNumVoicesChannels=numChannels;
+    
+    strcpy(tim_filepath,[filePath UTF8String]);
+    if (mdz_ArchiveFilesCnt) {
+        strcpy(tim_filepath_orgfile,[[NSString stringWithFormat:@"%@@%d",mod_loadmodule_filepath,mdz_currentArchiveIndex] UTF8String]);
+        strcpy(tim_filepath_filename,[[self getArcEntryTitle:mdz_currentArchiveIndex] UTF8String]);
+    }
+    else {
+        strcpy(tim_filepath_orgfile,[mod_loadmodule_filepath UTF8String]);
+        strcpy(tim_filepath_filename,[[mod_loadmodule_filepath lastPathComponent] UTF8String]);
+    }
+    
+    tim_finished=1;
+    
+    //preplay the file to get the number of channels in m_genNumVoicesChannels
+    {
+        char *argv[1];
+        argv[0]=tim_filepath;
+        
+        //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+        
+        if (tim_force_soundfont) {
+            //NSLog(@"forcing with: %s",tim_force_soundfont_path);
+            tim_init(tim_force_soundfont_path);
+            snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
+        } else {
+            //timidity
+            tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+            tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
+            snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
+        }
+        
+        mdz_tim_only_precompute=1;
+        tim_main(1, argv);
+    }
+    
+    iModuleLength=tim_midilength;
+    numChannels=m_genNumVoicesChannels;
+    
+    [self mmp_updateDBStatsAtLoad];
+    
     m_voicesDataAvail=1;
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
@@ -9070,9 +9097,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
-    strcpy(tim_filepath,[filePath UTF8String]);
     
-    tim_finished=1;
     
     return 0;
 }
@@ -9267,22 +9292,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             NSString *filePathMain;
             NSString *fileName=[self getSubTitle:i];
             
-            NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-            for (;;) {
-                if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                    break;
-                }
-                [tmp_path removeObjectAtIndex:0];
-                if ([tmp_path count]==0) break;
-            }
-            filePathMain=[tmp_path componentsJoinedByString:@"/"];
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
             
             NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
             DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
             
             if (i==mod_subsongs-1) {// Global file stats update
-                fileName=[filePath lastPathComponent];
-                DBHelper::updateFileStatsDBmod(fileName,filePathMain,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
             }
         }
     }
@@ -9483,7 +9500,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     v2m_player->Open(mp_data,PLAYBACK_FREQ);
     
     
-    v2m_voices_mask=0xFFFFFFFF;
+    generic_mute_mask=0xFFFFFFFF;
     v2m_player->Play(0);
     
     v2m_sample_data_float=(float*)calloc(1,sizeof(float)*2*SOUND_BUFFER_SIZE_SAMPLE);
@@ -9516,8 +9533,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     if (timeline) delete timeline;
     timeline=NULL;
     
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+    [self mmp_updateDBStatsAtLoad];
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -9826,8 +9842,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         //strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength.....: %ds\n",hc_sample_rate,iModuleLength/1000] UTF8String]);
     }
     
-    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+    [self mmp_updateDBStatsAtLoad];
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
@@ -10067,6 +10082,8 @@ int vgmGetFileLength()
     if (GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %s",[[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String]);
     if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
+    [self mmp_updateDBStatsAtLoad];
+    
     //Loop
     if (mLoopMode==1) {
         iModuleLength=-1;
@@ -10138,8 +10155,7 @@ int vgmGetFileLength()
         
         numChannels=2;//pmd_get_tracks();
         
-        NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-        DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+        [self mmp_updateDBStatsAtLoad];
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -10197,25 +10213,17 @@ int vgmGetFileLength()
         int subsong_length=ASAPInfo_GetDuration(ASAP_GetInfo(asap),i);
         mod_total_length+=subsong_length;
         
-        NSString *filePathAsap;
+        NSString *filePathMain;
         NSString *fileName=[self getSubTitle:i];
         
-        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-        for (;;) {
-            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                break;
-            }
-            [tmp_path removeObjectAtIndex:0];
-            if ([tmp_path count]==0) break;
-        }
-        filePathAsap=[tmp_path componentsJoinedByString:@"/"];
+        filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+        if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
         
-        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathAsap,i];
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
         DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
         
         if (i==mod_subsongs-1) {// Global file stats update
-            fileName=[filePath lastPathComponent];
-            DBHelper::updateFileStatsDBmod(fileName,filePathAsap,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+            [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
         }
     }
     
@@ -10380,30 +10388,21 @@ int vgmGetFileLength()
                 int subsong_length=adPlugPlayer->songlength(i);
                 mod_total_length+=subsong_length;
                 
-                NSString *filePathAsap;
+                NSString *filePathMain;
                 NSString *fileName=[self getSubTitle:i];
                 
-                NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-                for (;;) {
-                    if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                        break;
-                    }
-                    [tmp_path removeObjectAtIndex:0];
-                    if ([tmp_path count]==0) break;
-                }
-                filePathAsap=[tmp_path componentsJoinedByString:@"/"];
+                filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
                 
-                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathAsap,i];
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
                 DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
                 
                 if (i==mod_subsongs-1) {// Global file stats update
-                    fileName=[filePath lastPathComponent];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathAsap,-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
+                    [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
         } else {
-            NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
-            DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
+            [self mmp_updateDBStatsAtLoad];
         }
         
         
@@ -10483,6 +10482,8 @@ int vgmGetFileLength()
         mod_maxsub=mod_subsongs-1;
         mod_currentsub=0;
         
+        numChannels=gme_voice_count( gme_emu );
+        
         // Start track
         err=gme_start_track( gme_emu, mod_currentsub );
         if (err) {
@@ -10496,10 +10497,9 @@ int vgmGetFileLength()
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
-        if (mod_subsongs<256)
             for (int i=0;i<mod_subsongs; i++) {
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
-                    NSString *filePathGME;
+                    NSString *filePathMain;
                     NSString *fileName;
                     NSMutableArray *tmp_path;
                     int gme_subsong_length=gme_info->play_length;
@@ -10509,23 +10509,15 @@ int vgmGetFileLength()
                     gme_free_info(gme_info);
                     
                     fileName=[self getSubTitle:i];
+                    //NSLog(@"%@",mod_loadmodule_filepath);
+                    filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                    if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
                     
-                    tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-                    for (;;) {
-                        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                            break;
-                        }
-                        [tmp_path removeObjectAtIndex:0];
-                        if ([tmp_path count]==0) break;
-                    }
-                    filePathGME=[tmp_path componentsJoinedByString:@"/"];
-                    
-                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
+                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
                     DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
                     
                     if (i==mod_subsongs-1) {// Global file stats update
-                        fileName=[filePath lastPathComponent];
-                        DBHelper::updateFileStatsDBmod(fileName,filePathGME,-1,-1,-1,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
+                        [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                     }
                 }
             }
@@ -10587,7 +10579,7 @@ int vgmGetFileLength()
         //            else gme_set_fade( gme_emu, 1<<30);
         
         iCurrentTime=0;
-        numChannels=gme_voice_count( gme_emu );
+        
         if (m_voicesDataAvail) {
             m_genNumVoicesChannels=numChannels;
         }
@@ -10735,6 +10727,8 @@ extern bool icloud_available;
     
     no_reentrant=true;
     
+    mod_loadmodule_filepath=[NSString stringWithString:_filePath];
+    
     detailViewControllerIphone=detailVC;
     
     mplayer_error_msg[0]=0;
@@ -10830,11 +10824,13 @@ extern bool icloud_available;
                     if (found==1) { //FEX
                         
                         //update singlefiletype flag
-                        //[self isAcceptedFile:[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex] no_aux_file:1];
+                        //TO REVIEW GLOBALLY, Currently breaking DB user_stats (total archive count is wrong, will give 1 instead of archive total entries if only 1 file is extracted
+                        
+                        /*NSString *tmp_archive_entryname=NULL;
                         if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)){
-                            NSString *tmpstr=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
-                            //NSLog(@"yo:%@",tmpstr);
-                        }
+                            tmp_archive_entryname=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
+                            mSingleFileType=[ModizFileHelper isSingleFileType:tmp_archive_entryname];
+                        } else mSingleFileType=0;*/
                         
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         
@@ -10844,6 +10840,7 @@ extern bool icloud_available;
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
                         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                         
+                                                
                         if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
                             [self fex_extractSingleFileToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] file_index:archiveIndex isRestarting:isRestarting];
@@ -10942,7 +10939,6 @@ extern bool icloud_available;
                     //sort the file list
                     if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
                     
-                    
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     else if (mdz_ShufflePlayMode) mdz_currentArchiveIndex=arc4random()%mdz_ArchiveFilesCnt;
                     
@@ -10954,8 +10950,7 @@ extern bool icloud_available;
                     extension = (NSString *)[temparray_filepath lastObject];
                     //[temparray_filepath removeLastObject];
                     file_no_ext=[temparray_filepath firstObject];
-                    
-                    
+
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     filePath=[self getFullFilePath:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
@@ -13655,8 +13650,8 @@ extern "C" void adjust_amplification(void);
             xSFPlayer->MuteChannels(channel,active);
             break;
         case MMP_V2M:
-            if (active) v2m_voices_mask|=1<<channel;
-            else v2m_voices_mask&=0xFFFFFFFF^(1<<channel);
+            if (active) generic_mute_mask|=1<<channel;
+            else generic_mute_mask&=0xFFFFFFFF^(1<<channel);
             break;
         case MMP_PIXEL:
             if (pixel_organya_mode) {

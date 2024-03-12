@@ -112,10 +112,11 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
     
 }
 
+#define OSCILLO_BUFFER_SIZE SOUND_BUFFER_SIZE_SAMPLE*4
 static signed char *prev_snd_data;
 static signed char *prev_snd_dataStereo;
 static int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
-static signed char cur_snd_data[SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX];
+static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 
 static CFont *mOscilloFont=NULL;
 static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
@@ -146,27 +147,28 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         
     //looking at 2 buffers -> 2 x SOUND_BUFFER_SIZE SAMPLE
     //max shift is 1/3, so 1/6 on the left and 1/6 on the right
-    int max_ofs=(SOUND_BUFFER_SIZE_SAMPLE*2*2/6);
+    int max_ofs=(OSCILLO_BUFFER_SIZE*2/6);
     int min_ofs=0;
-    int max_len_oscillo_buffer=SOUND_BUFFER_SIZE_SAMPLE*2*4/6;
+    int max_len_oscillo_buffer=OSCILLO_BUFFER_SIZE*4/6;
     
     if (isfullscreen) colA=255;
     else colA=220;
-    
-    int snd_data_idx_next=(snd_data_idx+1)%SOUND_BUFFER_NB;
+        
     for (int i=0;i<num_voices;i++)
         for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
             cur_snd_data[j*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[snd_data_idx][j*SOUND_MAXVOICES_BUFFER_FX+i];
-            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[snd_data_idx_next][j*SOUND_MAXVOICES_BUFFER_FX+i];
+            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*1)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+1)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*2)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+2)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*3)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+3)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
         }
     
     if (first_call) {
-        prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX);
+        prev_snd_data=(signed char*)malloc(OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
         if (!prev_snd_data) {
             printf("%s: cannot allocate prev_snd_data\n",__func__);
             return;
         }
-        memcpy(prev_snd_data,cur_snd_data,SOUND_BUFFER_SIZE_SAMPLE*2*SOUND_MAXVOICES_BUFFER_FX);
+        memcpy(prev_snd_data,cur_snd_data,OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++)
             snd_data_ofs[i]=max_ofs/2;
@@ -211,7 +213,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     count=0;
     
     //determine min smplincr / width of oscillo on screen, help reduce processing time
-    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*2/columns_width;
+    int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
     if (smplincr<1) smplincr=1;
     int bufflen=max_len_oscillo_buffer/smplincr;
         

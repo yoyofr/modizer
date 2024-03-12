@@ -18,7 +18,10 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+//YOYOFR
 extern char tim_config_file_path[1024];
+extern int mdz_tim_only_precompute;
+//YOYOFR
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -5582,7 +5585,7 @@ MAIN_INTERFACE int timidity_play_main(int nfiles, char **files)
 		control_ratio = MAX_CONTROL_RATIO;
 	}
 
-	init_load_soundfont();
+	if (!mdz_tim_only_precompute) init_load_soundfont();
 	if(!output_fail)
 	{
 	    aq_setup();
@@ -5726,8 +5729,6 @@ int tim_main(int argc, char **argv) {
     
     timidity_init_player();
 
-
-
 	nfiles = argc - optind;
 	files  = argv + optind;
 	if (nfiles > 0
@@ -5783,6 +5784,103 @@ int tim_main(int argc, char **argv) {
 	return main_ret;
 }
 
+int tim_precompute(int argc, char **argv) {
+        int err;
+        int nfiles;
+        char **files;
+        char *files_nbuf;
+        int main_ret;
+        int longind;
+        
+        audio_buffer_bits=DEFAULT_AUDIO_BUFFER_BITS;
+
+        
+        play_mode=&ios_play_mode;
+        timidity_start_initialize();
+        //    add_to_pathlist(path);
+        
+        optind = longind = 0;
+        optreset = 1;
+        
+        if (got_a_configuration != 1){
+            if ((err = timidity_pre_load_configuration()) != 0)
+                return err;
+        }
+        optind = longind = 0;
+        optreset = 1;
+        /*    while ((c = getopt_long(argc, argv, optcommands, longopts, &longind)) > 0)
+         if ((err = set_tim_opt_long(c, optarg, longind)) != 0)
+         break;*/
+        err += timidity_post_load_configuration();
+        /* If there were problems, give up now */
+        if (err) {
+            if (!got_a_configuration) {
+            } else
+                ctl->cmsg(CMSG_ERROR, VERB_NORMAL,
+                          "Try %s -h for help", program_name);
+            /* Try to continue if it is Windows version */
+        }
+        
+        timidity_init_player();
+
+
+
+        nfiles = argc - optind;
+        files  = argv + optind;
+        if (nfiles > 0
+                && ctl->id_character != 'r' && ctl->id_character != 'A'
+                && ctl->id_character != 'W' && ctl->id_character != 'N'
+                && ctl->id_character != 'P')
+            files = expand_file_archives(files, &nfiles);
+        if (nfiles > 0)
+            files_nbuf = files[0];
+        if (dumb_error_count)
+            sleep(1);
+        
+        main_ret = timidity_play_main(nfiles, files);
+
+        
+        if (pcm_alternate_file)
+            free(pcm_alternate_file);
+        if (opt_output_name)
+            free(opt_output_name);
+        if (opt_aq_max_buff) {
+            free(opt_aq_max_buff);opt_aq_max_buff=NULL;
+        }
+        if (opt_aq_fill_buff) {
+            free(opt_aq_fill_buff);opt_aq_fill_buff=NULL;
+        }
+        if (output_text_code) {
+            free(output_text_code);output_text_code=NULL;
+        }
+        if (wrdt_open_opts)
+            free(wrdt_open_opts);
+        if (nfiles > 0
+                && ctl->id_character != 'r' && ctl->id_character != 'A'
+                && ctl->id_character != 'W' && ctl->id_character != 'N'
+                && ctl->id_character != 'P') {
+            free(files_nbuf);
+            free(files);
+        }
+        free_soft_queue();
+        free_instruments(0);
+        free_soundfonts();
+        free_cache_data();
+        free_wrd();
+        free_readmidi();
+        free_global_mblock();
+        free_reverb_buffer();
+        free_effect_buffers();
+        free(voice);voice=NULL;
+        free_gauss_table();
+        for (int i = 0; i < TIM_MAX_CHANNELS; i++)
+            free_drum_effect(i);
+
+           tmdy_free_config();
+        return main_ret;
+    }
+
+    
 extern int tim_close() {
     return 0;
 }    

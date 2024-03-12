@@ -3225,7 +3225,7 @@ private:
             // clear channel buffer
             memset(instance.chanbuf, 0, nsamples * sizeof(StereoSample));
             //TODO:  MODIZER changes start / YOYOFR
-            if (v2m_voices_mask&(1<<chan)) {
+            if (generic_mute_mask&(1<<chan)) {
             //TODO:  MODIZER changes end / YOYOFR
                 // render all voices on this channel
                 for (; voice < POLY; voice++)

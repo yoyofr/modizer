@@ -378,7 +378,7 @@ static NSFileManager *mFileMngr;
         
 		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[NSHomeDirectory() stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
-			if ([ModizFileHelper isAllowedFile:mCurrentFilename]) {
+			if ([ModizFileHelper isPlayableFile:mCurrentFilename]) {
                 if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
                     NSMutableArray *array_label = [[NSMutableArray alloc] init];
                     NSMutableArray *array_path = [[NSMutableArray alloc] init];
@@ -1017,7 +1017,7 @@ static NSFileManager *mFileMngr;
 			[dirEnum skipDescendents];
 		}
 		if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
-			if ([ModizFileHelper isAllowedFile:file]) {
+			if ([ModizFileHelper isPlayableFile:file]) {
 				nb_added++;
 				//[self addDownloadedURLtoPlayer:file filepath:[NSString stringWithFormat:@"%@%@",_shortPath,file] forcenoplay:fnp];
 				[filePaths addObject:[NSString stringWithFormat:@"%@%@",_shortPath,file]];
@@ -1074,7 +1074,7 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName {
-    if ([ModizFileHelper isAllowedFile:fileName]) {
+    if ([ModizFileHelper isPlayableFile:fileName]) {
         [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:1];
     }
 }
@@ -1104,7 +1104,7 @@ static NSFileManager *mFileMngr;
     [self addSkipBackupAttributeToItemAtPath:localPath];
 	
     if (mURLIsMODLAND[0]) {
-        if ([ModizFileHelper isAllowedFile:mCurrentURLFilename]) {
+        if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
             if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
                 NSMutableArray *array_path = [[NSMutableArray alloc] init];
