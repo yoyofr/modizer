@@ -1,9 +1,9 @@
-#ifndef _EMUADPCM_H_
-#define _EMUADPCM_H_
+#ifndef _EMUADPCMKSS_H_
+#define _EMUADPCMKSS_H_
 
 #include <stdint.h>
 
-typedef struct __KSSOPL_ADPCM {
+typedef struct __OPLKSS_ADPCM {
   uint32_t clk;
 
   uint8_t reg[0x20];
@@ -25,15 +25,15 @@ typedef struct __KSSOPL_ADPCM {
   int32_t output[2];
   uint32_t diff;
 
-} KSSOPL_ADPCM;
+} OPLKSS_ADPCM;
 
-KSSOPL_ADPCM *KSSOPL_ADPCM_new(uint32_t clk);
-void KSSOPL_ADPCM_reset(KSSOPL_ADPCM *);
-void KSSOPL_ADPCM_delete(KSSOPL_ADPCM *);
-void KSSOPL_ADPCM_writeReg(KSSOPL_ADPCM *, uint32_t reg, uint32_t val);
-int16_t KSSOPL_ADPCM_calc(KSSOPL_ADPCM *);
-uint8_t KSSOPL_ADPCM_status(KSSOPL_ADPCM *);
-void KSSOPL_ADPCM_resetStatus(KSSOPL_ADPCM *);
-void KSSOPL_ADPCM_writeRAM(KSSOPL_ADPCM *, uint32_t start, uint32_t length, const uint8_t *data);
-void KSSOPL_ADPCM_writeROM(KSSOPL_ADPCM *, uint32_t start, uint32_t length, const uint8_t *data);
+OPLKSS_ADPCM *OPLKSS_ADPCM_new(uint32_t clk);
+void OPLKSS_ADPCM_reset(OPLKSS_ADPCM *);
+void OPLKSS_ADPCM_delete(OPLKSS_ADPCM *);
+void OPLKSS_ADPCM_writeReg(OPLKSS_ADPCM *, uint32_t reg, uint32_t val);
+int16_t OPLKSS_ADPCM_calc(OPLKSS_ADPCM *);
+uint8_t OPLKSS_ADPCM_status(OPLKSS_ADPCM *);
+void OPLKSS_ADPCM_resetStatus(OPLKSS_ADPCM *);
+void OPLKSS_ADPCM_writeRAM(OPLKSS_ADPCM *, uint32_t start, uint32_t length, const uint8_t *data);
+void OPLKSS_ADPCM_writeROM(OPLKSS_ADPCM *, uint32_t start, uint32_t length, const uint8_t *data);
 #endif

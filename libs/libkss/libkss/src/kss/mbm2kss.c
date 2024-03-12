@@ -33,9 +33,15 @@ static uint8_t kss_header[KSS_HEADER_SIZE + HEADER_SIZE] = {
 };
 
 static unsigned char *drv_top = 0;
+
+#if !defined(EXCLUDE_DRIVER_ALL) && !defined(EXCLUDE_DRIVER_MBR143)
 static uint8_t drv_code[] = {
 #include "drivers/mbr143.h"
 };
+#else
+static uint8_t drv_code[8192];
+#endif
+
 static int drv_size = sizeof(drv_code);
 static int mbplay = 0;
 static int mbkload = 0;

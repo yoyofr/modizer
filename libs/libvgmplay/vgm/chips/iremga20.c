@@ -100,7 +100,7 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* precache some values */

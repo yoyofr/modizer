@@ -10,17 +10,15 @@
 		59FFA1EE264002F8004152B8 /* emu8950.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA18A264002F8004152B8 /* emu8950.c */; };
 		59FFA1EF264002F8004152B8 /* emuadpcm.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA18C264002F8004152B8 /* emuadpcm.c */; };
 		59FFA1F0264002F8004152B8 /* emu76489.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1A3264002F8004152B8 /* emu76489.c */; };
-		59FFA1F1264002F8004152B8 /* emu2149.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1AB264002F8004152B8 /* emu2149.c */; };
-		59FFA1F2264002F8004152B8 /* emu2212.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1AD264002F8004152B8 /* emu2212.c */; };
-		59FFA1F3264002F8004152B8 /* kmhd180.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1B5264002F8004152B8 /* kmhd180.c */; };
-		59FFA1F4264002F8004152B8 /* makeft.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1B6264002F8004152B8 /* makeft.c */; };
+		59FFA1F1264002F8004152B8 /* kss_emu2149.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1AB264002F8004152B8 /* kss_emu2149.c */; };
+		59FFA1F2264002F8004152B8 /* kss_emu2212.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1AD264002F8004152B8 /* kss_emu2212.c */; };
 		59FFA1F5264002F8004152B8 /* kmz80c.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1BA264002F8004152B8 /* kmz80c.c */; };
 		59FFA1F6264002F8004152B8 /* kmdmg.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1BD264002F8004152B8 /* kmdmg.c */; };
 		59FFA1F7264002F8004152B8 /* kmz80t.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1BE264002F8004152B8 /* kmz80t.c */; };
 		59FFA1F8264002F8004152B8 /* kmr800.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1BF264002F8004152B8 /* kmr800.c */; };
 		59FFA1F9264002F8004152B8 /* kmevent.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1C2264002F8004152B8 /* kmevent.c */; };
 		59FFA1FA264002F8004152B8 /* kmz80.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1C3264002F8004152B8 /* kmz80.c */; };
-		59FFA1FC264002F8004152B8 /* emu2413.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1CE264002F8004152B8 /* emu2413.c */; };
+		59FFA1FC264002F8004152B8 /* kss_emu2413.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1CE264002F8004152B8 /* kss_emu2413.c */; };
 		59FFA1FD264002F8004152B8 /* dc_filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1D3264002F8004152B8 /* dc_filter.c */; };
 		59FFA1FE264002F8004152B8 /* filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1D5264002F8004152B8 /* filter.c */; };
 		59FFA1FF264002F8004152B8 /* rc_filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1D8264002F8004152B8 /* rc_filter.c */; };
@@ -36,6 +34,7 @@
 		59FFA20A264002F8004152B8 /* kssload.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1EA264002F8004152B8 /* kssload.c */; };
 		59FFA20B264002F8004152B8 /* mbm2kss.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1EB264002F8004152B8 /* mbm2kss.c */; };
 		59FFA20C264002F8004152B8 /* kss2kss.c in Sources */ = {isa = PBXBuildFile; fileRef = 59FFA1EC264002F8004152B8 /* kss2kss.c */; };
+		CCD4E2122B9F905100EE9AE1 /* psg_rconv.c in Sources */ = {isa = PBXBuildFile; fileRef = CCD4E20F2B9F905100EE9AE1 /* psg_rconv.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,14 +52,11 @@
 /* Begin PBXFileReference section */
 		59FF994E263F3312004152B8 /* liblibkss.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibkss.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		59FFA18A264002F8004152B8 /* emu8950.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu8950.c; sourceTree = "<group>"; };
-		59FFA18B264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		59FFA18C264002F8004152B8 /* emuadpcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emuadpcm.c; sourceTree = "<group>"; };
 		59FFA18D264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		59FFA18E264002F8004152B8 /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		59FFA18F264002F8004152B8 /* emu8950.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu8950.h; sourceTree = "<group>"; };
 		59FFA190264002F8004152B8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		59FFA191264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		59FFA192264002F8004152B8 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		59FFA193264002F8004152B8 /* emuadpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emuadpcm.h; sourceTree = "<group>"; };
 		59FFA195264002F8004152B8 /* mpk106.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mpk106.h; sourceTree = "<group>"; };
 		59FFA196264002F8004152B8 /* kinrou5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kinrou5.h; sourceTree = "<group>"; };
@@ -69,27 +65,20 @@
 		59FFA199264002F8004152B8 /* opx4kss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opx4kss.h; sourceTree = "<group>"; };
 		59FFA19A264002F8004152B8 /* mgsdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mgsdrv.h; sourceTree = "<group>"; };
 		59FFA19B264002F8004152B8 /* mpk103.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mpk103.h; sourceTree = "<group>"; };
-		59FFA19D264002F8004152B8 /* bin2h.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bin2h.js; sourceTree = "<group>"; };
 		59FFA19F264002F8004152B8 /* emu76489.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu76489.h; sourceTree = "<group>"; };
 		59FFA1A0264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		59FFA1A1264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		59FFA1A2264002F8004152B8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		59FFA1A3264002F8004152B8 /* emu76489.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu76489.c; sourceTree = "<group>"; };
-		59FFA1A4264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		59FFA1A6264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		59FFA1A7264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		59FFA1A8264002F8004152B8 /* emu2149.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2149.h; sourceTree = "<group>"; };
+		59FFA1A8264002F8004152B8 /* kss_emu2149.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kss_emu2149.h; sourceTree = "<group>"; };
 		59FFA1A9264002F8004152B8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		59FFA1AA264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		59FFA1AB264002F8004152B8 /* emu2149.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2149.c; sourceTree = "<group>"; };
-		59FFA1AD264002F8004152B8 /* emu2212.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2212.c; sourceTree = "<group>"; };
+		59FFA1AB264002F8004152B8 /* kss_emu2149.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss_emu2149.c; sourceTree = "<group>"; };
+		59FFA1AD264002F8004152B8 /* kss_emu2212.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss_emu2212.c; sourceTree = "<group>"; };
 		59FFA1AE264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		59FFA1AF264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		59FFA1B0264002F8004152B8 /* emu2212.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2212.h; sourceTree = "<group>"; };
-		59FFA1B1264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		59FFA1B0264002F8004152B8 /* kss_emu2212.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kss_emu2212.h; sourceTree = "<group>"; };
 		59FFA1B3264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		59FFA1B5264002F8004152B8 /* kmhd180.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmhd180.c; sourceTree = "<group>"; };
-		59FFA1B6264002F8004152B8 /* makeft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = makeft.c; sourceTree = "<group>"; };
 		59FFA1B7264002F8004152B8 /* kmtypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmtypes.h; sourceTree = "<group>"; };
 		59FFA1B8264002F8004152B8 /* kmevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmevent.h; sourceTree = "<group>"; };
 		59FFA1B9264002F8004152B8 /* kmz80.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = kmz80.txt; sourceTree = "<group>"; };
@@ -99,22 +88,14 @@
 		59FFA1BD264002F8004152B8 /* kmdmg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmdmg.c; sourceTree = "<group>"; };
 		59FFA1BE264002F8004152B8 /* kmz80t.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmz80t.c; sourceTree = "<group>"; };
 		59FFA1BF264002F8004152B8 /* kmr800.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmr800.c; sourceTree = "<group>"; };
-		59FFA1C0264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		59FFA1C1264002F8004152B8 /* .gitattributes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
 		59FFA1C2264002F8004152B8 /* kmevent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmevent.c; sourceTree = "<group>"; };
 		59FFA1C3264002F8004152B8 /* kmz80.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmz80.c; sourceTree = "<group>"; };
 		59FFA1C4264002F8004152B8 /* kmz80i.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmz80i.h; sourceTree = "<group>"; };
-		59FFA1C6264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		59FFA1C7264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		59FFA1C8264002F8004152B8 /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
-		59FFA1C9264002F8004152B8 /* sample2413.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sample2413.c; sourceTree = "<group>"; };
-		59FFA1CA264002F8004152B8 /* emu2413.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2413.h; sourceTree = "<group>"; };
+		59FFA1CA264002F8004152B8 /* kss_emu2413.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kss_emu2413.h; sourceTree = "<group>"; };
 		59FFA1CB264002F8004152B8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		59FFA1CC264002F8004152B8 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		59FFA1CD264002F8004152B8 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
-		59FFA1CE264002F8004152B8 /* emu2413.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = emu2413.c; sourceTree = "<group>"; };
-		59FFA1CF264002F8004152B8 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		59FFA1D0264002F8004152B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		59FFA1CE264002F8004152B8 /* kss_emu2413.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss_emu2413.c; sourceTree = "<group>"; };
 		59FFA1D3264002F8004152B8 /* dc_filter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dc_filter.c; sourceTree = "<group>"; };
 		59FFA1D4264002F8004152B8 /* rc_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rc_filter.h; sourceTree = "<group>"; };
 		59FFA1D5264002F8004152B8 /* filter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filter.c; sourceTree = "<group>"; };
@@ -129,7 +110,6 @@
 		59FFA1DF264002F8004152B8 /* mmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mmap.h; sourceTree = "<group>"; };
 		59FFA1E0264002F8004152B8 /* detect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = detect.c; sourceTree = "<group>"; };
 		59FFA1E1264002F8004152B8 /* kssplay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kssplay.c; sourceTree = "<group>"; };
-		59FFA1E2264002F8004152B8 /* kss2wav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss2wav.c; sourceTree = "<group>"; };
 		59FFA1E4264002F8004152B8 /* opx2kss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opx2kss.c; sourceTree = "<group>"; };
 		59FFA1E5264002F8004152B8 /* kss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kss.h; sourceTree = "<group>"; };
 		59FFA1E6264002F8004152B8 /* mgs2kss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mgs2kss.c; sourceTree = "<group>"; };
@@ -140,6 +120,9 @@
 		59FFA1EB264002F8004152B8 /* mbm2kss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mbm2kss.c; sourceTree = "<group>"; };
 		59FFA1EC264002F8004152B8 /* kss2kss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss2kss.c; sourceTree = "<group>"; };
 		59FFA1ED264002F8004152B8 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCD4E20F2B9F905100EE9AE1 /* psg_rconv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psg_rconv.c; sourceTree = "<group>"; };
+		CCD4E2102B9F905100EE9AE1 /* psg_rconv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psg_rconv.h; sourceTree = "<group>"; };
+		CCD4E2132B9F906200EE9AE1 /* kss2wav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kss2wav.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,8 +155,7 @@
 		59FF9950263F3312004152B8 /* libkss */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA1CF264002F8004152B8 /* CMakeLists.txt */,
-				59FFA1D0264002F8004152B8 /* LICENSE */,
+				CCD4E2142B9F906200EE9AE1 /* example */,
 				59FFA188264002F8004152B8 /* modules */,
 				59FFA1ED264002F8004152B8 /* README.md */,
 				59FFA1D1264002F8004152B8 /* src */,
@@ -198,16 +180,13 @@
 		59FFA189264002F8004152B8 /* emu8950 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA18A264002F8004152B8 /* emu8950.c */,
-				59FFA18B264002F8004152B8 /* CMakeLists.txt */,
-				59FFA18C264002F8004152B8 /* emuadpcm.c */,
 				59FFA18D264002F8004152B8 /* LICENSE */,
-				59FFA18E264002F8004152B8 /* CHANGELOG.md */,
+				59FFA18A264002F8004152B8 /* emu8950.c */,
+				59FFA18C264002F8004152B8 /* emuadpcm.c */,
 				59FFA18F264002F8004152B8 /* emu8950.h */,
-				59FFA190264002F8004152B8 /* README.md */,
-				59FFA191264002F8004152B8 /* .gitignore */,
-				59FFA192264002F8004152B8 /* .clang-format */,
 				59FFA193264002F8004152B8 /* emuadpcm.h */,
+				59FFA18E264002F8004152B8 /* CHANGELOG.md */,
+				59FFA190264002F8004152B8 /* README.md */,
 			);
 			path = emu8950;
 			sourceTree = "<group>";
@@ -215,35 +194,25 @@
 		59FFA194264002F8004152B8 /* drivers */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA195264002F8004152B8 /* mpk106.h */,
 				59FFA196264002F8004152B8 /* kinrou5.h */,
 				59FFA197264002F8004152B8 /* mbr143.h */,
-				59FFA198264002F8004152B8 /* README.md */,
-				59FFA199264002F8004152B8 /* opx4kss.h */,
 				59FFA19A264002F8004152B8 /* mgsdrv.h */,
 				59FFA19B264002F8004152B8 /* mpk103.h */,
-				59FFA19C264002F8004152B8 /* tool */,
+				59FFA195264002F8004152B8 /* mpk106.h */,
+				59FFA199264002F8004152B8 /* opx4kss.h */,
+				59FFA198264002F8004152B8 /* README.md */,
 			);
 			path = drivers;
-			sourceTree = "<group>";
-		};
-		59FFA19C264002F8004152B8 /* tool */ = {
-			isa = PBXGroup;
-			children = (
-				59FFA19D264002F8004152B8 /* bin2h.js */,
-			);
-			path = tool;
 			sourceTree = "<group>";
 		};
 		59FFA19E264002F8004152B8 /* emu76489 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA19F264002F8004152B8 /* emu76489.h */,
-				59FFA1A0264002F8004152B8 /* CMakeLists.txt */,
 				59FFA1A1264002F8004152B8 /* LICENSE */,
-				59FFA1A2264002F8004152B8 /* README.md */,
 				59FFA1A3264002F8004152B8 /* emu76489.c */,
-				59FFA1A4264002F8004152B8 /* .gitignore */,
+				59FFA19F264002F8004152B8 /* emu76489.h */,
+				59FFA1A2264002F8004152B8 /* README.md */,
+				59FFA1A0264002F8004152B8 /* CMakeLists.txt */,
 			);
 			path = emu76489;
 			sourceTree = "<group>";
@@ -251,12 +220,10 @@
 		59FFA1A5264002F8004152B8 /* emu2149 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA1A6264002F8004152B8 /* CMakeLists.txt */,
 				59FFA1A7264002F8004152B8 /* LICENSE */,
-				59FFA1A8264002F8004152B8 /* emu2149.h */,
+				59FFA1AB264002F8004152B8 /* kss_emu2149.c */,
+				59FFA1A8264002F8004152B8 /* kss_emu2149.h */,
 				59FFA1A9264002F8004152B8 /* README.md */,
-				59FFA1AA264002F8004152B8 /* .gitignore */,
-				59FFA1AB264002F8004152B8 /* emu2149.c */,
 			);
 			path = emu2149;
 			sourceTree = "<group>";
@@ -264,11 +231,10 @@
 		59FFA1AC264002F8004152B8 /* emu2212 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA1AD264002F8004152B8 /* emu2212.c */,
-				59FFA1AE264002F8004152B8 /* CMakeLists.txt */,
 				59FFA1AF264002F8004152B8 /* LICENSE */,
-				59FFA1B0264002F8004152B8 /* emu2212.h */,
-				59FFA1B1264002F8004152B8 /* .gitignore */,
+				59FFA1AD264002F8004152B8 /* kss_emu2212.c */,
+				59FFA1B0264002F8004152B8 /* kss_emu2212.h */,
+				59FFA1AE264002F8004152B8 /* CMakeLists.txt */,
 			);
 			path = emu2212;
 			sourceTree = "<group>";
@@ -276,47 +242,31 @@
 		59FFA1B2264002F8004152B8 /* kmz80 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA1B3264002F8004152B8 /* CMakeLists.txt */,
-				59FFA1B4264002F8004152B8 /* test */,
-				59FFA1B6264002F8004152B8 /* makeft.c */,
-				59FFA1B7264002F8004152B8 /* kmtypes.h */,
-				59FFA1B8264002F8004152B8 /* kmevent.h */,
-				59FFA1B9264002F8004152B8 /* kmz80.txt */,
-				59FFA1BA264002F8004152B8 /* kmz80c.c */,
-				59FFA1BB264002F8004152B8 /* kmz80.h */,
-				59FFA1BC264002F8004152B8 /* README.md */,
 				59FFA1BD264002F8004152B8 /* kmdmg.c */,
-				59FFA1BE264002F8004152B8 /* kmz80t.c */,
-				59FFA1BF264002F8004152B8 /* kmr800.c */,
-				59FFA1C0264002F8004152B8 /* .gitignore */,
-				59FFA1C1264002F8004152B8 /* .gitattributes */,
 				59FFA1C2264002F8004152B8 /* kmevent.c */,
+				59FFA1BF264002F8004152B8 /* kmr800.c */,
 				59FFA1C3264002F8004152B8 /* kmz80.c */,
+				59FFA1BA264002F8004152B8 /* kmz80c.c */,
+				59FFA1BE264002F8004152B8 /* kmz80t.c */,
+				59FFA1B8264002F8004152B8 /* kmevent.h */,
+				59FFA1B7264002F8004152B8 /* kmtypes.h */,
+				59FFA1BB264002F8004152B8 /* kmz80.h */,
 				59FFA1C4264002F8004152B8 /* kmz80i.h */,
+				59FFA1BC264002F8004152B8 /* README.md */,
+				59FFA1B3264002F8004152B8 /* CMakeLists.txt */,
+				59FFA1B9264002F8004152B8 /* kmz80.txt */,
 			);
 			path = kmz80;
-			sourceTree = "<group>";
-		};
-		59FFA1B4264002F8004152B8 /* test */ = {
-			isa = PBXGroup;
-			children = (
-				59FFA1B5264002F8004152B8 /* kmhd180.c */,
-			);
-			path = test;
 			sourceTree = "<group>";
 		};
 		59FFA1C5264002F8004152B8 /* emu2413 */ = {
 			isa = PBXGroup;
 			children = (
-				59FFA1C6264002F8004152B8 /* CMakeLists.txt */,
 				59FFA1C7264002F8004152B8 /* LICENSE */,
+				59FFA1CE264002F8004152B8 /* kss_emu2413.c */,
+				59FFA1CA264002F8004152B8 /* kss_emu2413.h */,
 				59FFA1C8264002F8004152B8 /* CHANGELOG.md */,
-				59FFA1C9264002F8004152B8 /* sample2413.c */,
-				59FFA1CA264002F8004152B8 /* emu2413.h */,
 				59FFA1CB264002F8004152B8 /* README.md */,
-				59FFA1CC264002F8004152B8 /* .gitignore */,
-				59FFA1CD264002F8004152B8 /* .clang-format */,
-				59FFA1CE264002F8004152B8 /* emu2413.c */,
 			);
 			path = emu2413;
 			sourceTree = "<group>";
@@ -324,11 +274,11 @@
 		59FFA1D1264002F8004152B8 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CCD4E2112B9F905100EE9AE1 /* rconv */,
 				59FFA1D2264002F8004152B8 /* filters */,
 				59FFA1D9264002F8004152B8 /* kssplay.h */,
 				59FFA1DA264002F8004152B8 /* vm */,
 				59FFA1E1264002F8004152B8 /* kssplay.c */,
-				59FFA1E2264002F8004152B8 /* kss2wav.c */,
 				59FFA1E3264002F8004152B8 /* kss */,
 			);
 			path = src;
@@ -374,6 +324,23 @@
 				59FFA1EC264002F8004152B8 /* kss2kss.c */,
 			);
 			path = kss;
+			sourceTree = "<group>";
+		};
+		CCD4E2112B9F905100EE9AE1 /* rconv */ = {
+			isa = PBXGroup;
+			children = (
+				CCD4E20F2B9F905100EE9AE1 /* psg_rconv.c */,
+				CCD4E2102B9F905100EE9AE1 /* psg_rconv.h */,
+			);
+			path = rconv;
+			sourceTree = "<group>";
+		};
+		CCD4E2142B9F906200EE9AE1 /* example */ = {
+			isa = PBXGroup;
+			children = (
+				CCD4E2132B9F906200EE9AE1 /* kss2wav.c */,
+			);
+			path = example;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -435,8 +402,7 @@
 				59FFA206264002F8004152B8 /* mgs2kss.c in Sources */,
 				59FFA1EE264002F8004152B8 /* emu8950.c in Sources */,
 				59FFA1F7264002F8004152B8 /* kmz80t.c in Sources */,
-				59FFA1F3264002F8004152B8 /* kmhd180.c in Sources */,
-				59FFA1F2264002F8004152B8 /* emu2212.c in Sources */,
+				59FFA1F2264002F8004152B8 /* kss_emu2212.c in Sources */,
 				59FFA205264002F8004152B8 /* opx2kss.c in Sources */,
 				59FFA1FF264002F8004152B8 /* rc_filter.c in Sources */,
 				59FFA1F9264002F8004152B8 /* kmevent.c in Sources */,
@@ -447,12 +413,12 @@
 				59FFA203264002F8004152B8 /* kssplay.c in Sources */,
 				59FFA200264002F8004152B8 /* mmap.c in Sources */,
 				59FFA1F6264002F8004152B8 /* kmdmg.c in Sources */,
-				59FFA1F1264002F8004152B8 /* emu2149.c in Sources */,
+				59FFA1F1264002F8004152B8 /* kss_emu2149.c in Sources */,
 				59FFA1EF264002F8004152B8 /* emuadpcm.c in Sources */,
+				CCD4E2122B9F905100EE9AE1 /* psg_rconv.c in Sources */,
 				59FFA209264002F8004152B8 /* mpk2kss.c in Sources */,
 				59FFA20A264002F8004152B8 /* kssload.c in Sources */,
 				59FFA1FD264002F8004152B8 /* dc_filter.c in Sources */,
-				59FFA1F4264002F8004152B8 /* makeft.c in Sources */,
 				59FFA20B264002F8004152B8 /* mbm2kss.c in Sources */,
 				59FFA201264002F8004152B8 /* vm.c in Sources */,
 				59FFA1F8264002F8004152B8 /* kmr800.c in Sources */,
@@ -460,7 +426,7 @@
 				59FFA1F0264002F8004152B8 /* emu76489.c in Sources */,
 				59FFA1FA264002F8004152B8 /* kmz80.c in Sources */,
 				59FFA1FE264002F8004152B8 /* filter.c in Sources */,
-				59FFA1FC264002F8004152B8 /* emu2413.c in Sources */,
+				59FFA1FC264002F8004152B8 /* kss_emu2413.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

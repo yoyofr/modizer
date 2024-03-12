@@ -1,5 +1,5 @@
-#ifndef _EMU8950_H_
-#define _EMU8950_H_
+#ifndef _EMU8950KSS_H_
+#define _EMU8950KSS_H_
 
 #include "emuadpcm.h"
 #include <stdint.h>
@@ -8,40 +8,40 @@
 extern "C" {
 #endif
 
-#define KSSOPL_DEBUG 0
+#define OPLKSS_DEBUG 0
 
 /* voice data */
-typedef struct __KSSOPL_PATCH {
+typedef struct __OPLKSS_PATCH {
   uint8_t TL, FB, EG, ML, AR, DR, SL, RR, KR, KL, AM, PM, WS;
-} KSSOPL_PATCH;
+} OPLKSS_PATCH;
 
 /* mask */
-#define KSSOPL_MASK_CH(x) (1 << (x))
-#define KSSOPL_MASK_HH (1 << 9)
-#define KSSOPL_MASK_CYM (1 << 10)
-#define KSSOPL_MASK_TOM (1 << 11)
-#define KSSOPL_MASK_SD (1 << 12)
-#define KSSOPL_MASK_BD (1 << 13)
-#define KSSOPL_MASK_ADPCM (1 << 14)
-#define KSSOPL_MASK_RHYTHM (KSSOPL_MASK_HH | KSSOPL_MASK_CYM | KSSOPL_MASK_TOM | KSSOPL_MASK_SD | KSSOPL_MASK_BD)
+#define OPLKSS_MASK_CH(x) (1 << (x))
+#define OPLKSS_MASK_HH (1 << 9)
+#define OPLKSS_MASK_CYM (1 << 10)
+#define OPLKSS_MASK_TOM (1 << 11)
+#define OPLKSS_MASK_SD (1 << 12)
+#define OPLKSS_MASK_BD (1 << 13)
+#define OPLKSS_MASK_ADPCM (1 << 14)
+#define OPLKSS_MASK_RHYTHM (OPLKSS_MASK_HH | OPLKSS_MASK_CYM | OPLKSS_MASK_TOM | OPLKSS_MASK_SD | OPLKSS_MASK_BD)
 
 /* rate conveter */
-typedef struct __KSSOPL_RateConv {
+typedef struct __OPLKSS_RateConv {
   int ch;
   double timer;
   double f_ratio;
   int16_t *sinc_table;
   int16_t **buf;
-} KSSOPL_RateConv;
+} OPLKSS_RateConv;
 
-KSSOPL_RateConv *KSSOPL_RateConv_new(double f_inp, double f_out, int ch);
-void KSSOPL_RateConv_reset(KSSOPL_RateConv *conv);
-void KSSOPL_RateConv_putData(KSSOPL_RateConv *conv, int ch, int16_t data);
-int16_t KSSOPL_RateConv_getData(KSSOPL_RateConv *conv, int ch);
-void KSSOPL_RateConv_delete(KSSOPL_RateConv *conv);
+OPLKSS_RateConv *OPLKSS_RateConv_new(double f_inp, double f_out, int ch);
+void OPLKSS_RateConv_reset(OPLKSS_RateConv *conv);
+void OPLKSS_RateConv_putData(OPLKSS_RateConv *conv, int ch, int16_t data);
+int16_t OPLKSS_RateConv_getData(OPLKSS_RateConv *conv, int ch);
+void OPLKSS_RateConv_delete(OPLKSS_RateConv *conv);
 
 /* slot */
-typedef struct __KSSOPL_SLOT {
+typedef struct __OPLKSS_SLOT {
   uint8_t number;
 
   /* type flags:
@@ -51,8 +51,8 @@ typedef struct __KSSOPL_SLOT {
    */
   uint8_t type;
 
-  KSSOPL_PATCH __patch;  
-  KSSOPL_PATCH *patch;  /* = alias for __patch */
+  OPLKSS_PATCH __patch;  
+  OPLKSS_PATCH *patch;  /* = alias for __patch */
 
   /* slot output */
   int32_t output[2]; /* output value, latest and previous. */
@@ -77,13 +77,13 @@ typedef struct __KSSOPL_SLOT {
 
   uint32_t update_requests; /* flags to debounce update */
 
-#if KSSOPL_DEBUG
+#if OPLKSS_DEBUG
   uint8_t last_eg_state;
 #endif
-} KSSOPL_SLOT;
+} OPLKSS_SLOT;
 
-typedef struct __KSSOPL {
-  KSSOPL_ADPCM *adpcm;
+typedef struct __OPLKSS {
+  OPLKSS_ADPCM *adpcm;
   uint32_t clk;
   uint32_t rate;
 
@@ -116,7 +116,7 @@ typedef struct __KSSOPL {
   uint32_t noise;
   uint8_t short_noise;
 
-  KSSOPL_SLOT slot[18];
+  OPLKSS_SLOT slot[18];
   uint8_t ch_alg[9]; // alg for each channels
 
   uint8_t pan[16];
@@ -132,7 +132,7 @@ typedef struct __KSSOPL {
 
   int16_t mix_out[2];
 
-  KSSOPL_RateConv *conv;
+  OPLKSS_RateConv *conv;
 
   uint32_t timer1_counter; //  80us counter
   uint32_t timer2_counter; // 320us counter
@@ -142,30 +142,30 @@ typedef struct __KSSOPL {
   void (*timer2_func)(void *user);
   uint8_t status;
 
-} KSSOPL;
+} OPLKSS;
 
-KSSOPL *KSSOPL_new(uint32_t clk, uint32_t rate);
-void KSSOPL_delete(KSSOPL *);
+OPLKSS *OPLKSS_new(uint32_t clk, uint32_t rate);
+void OPLKSS_delete(OPLKSS *);
 
-void KSSOPL_reset(KSSOPL *);
+void OPLKSS_reset(OPLKSS *);
 
 /** 
  * Set output wave sampling rate. 
  * @param rate sampling rate. If clock / 72 (typically 49716 or 49715 at 3.58MHz) is set, the internal rate converter is disabled.
  */
-void KSSOPL_setRate(KSSOPL *opl, uint32_t rate);
+void OPLKSS_setRate(OPLKSS *opl, uint32_t rate);
 
 /** 
  * Set internal calcuration quality. Currently no effects, just for compatibility.
  * >= v1.0.0 always synthesizes internal output at clock/72 Hz.
  */
-void KSSOPL_setQuality(KSSOPL *opl, uint8_t q);
+void OPLKSS_setQuality(OPLKSS *opl, uint8_t q);
 
 /**
- * Set KSSOPL chip type.
+ * Set OPLKSS chip type.
  * @param type 0:Y8950, 1:YM3526, 2:YM3812
  */
-void KSSOPL_setChipType(KSSOPL *opl, uint8_t type);
+void OPLKSS_setChipType(OPLKSS *opl, uint8_t type);
 
 /** 
  * Set pan pot (extra function - not YM2413 chip feature)
@@ -177,7 +177,7 @@ void KSSOPL_setChipType(KSSOPL *opl, uint8_t type);
  *            +-- bit 0: enable Right output
  * ```
  */
-void KSSOPL_setPan(KSSOPL *opl, uint32_t ch, uint8_t pan);
+void OPLKSS_setPan(OPLKSS *opl, uint32_t ch, uint8_t pan);
 
 /**
  * Set fine-grained panning
@@ -185,42 +185,42 @@ void KSSOPL_setPan(KSSOPL *opl, uint32_t ch, uint8_t pan);
  * @param pan output strength of left/right channel. 
  *            pan[0]: left, pan[1]: right. pan[0]=pan[1]=1.0f for center.
  */
-void KSSOPL_setPanFine(KSSOPL *opl, uint32_t ch, float pan[2]);
+void OPLKSS_setPanFine(OPLKSS *opl, uint32_t ch, float pan[2]);
 
-void KSSOPL_writeIO(KSSOPL *opl, uint32_t reg, uint8_t val);
-void KSSOPL_writeReg(KSSOPL *opl, uint32_t reg, uint8_t val);
+void OPLKSS_writeIO(OPLKSS *opl, uint32_t reg, uint8_t val);
+void OPLKSS_writeReg(OPLKSS *opl, uint32_t reg, uint8_t val);
 
 /**
  * Calculate sample
  */
-int16_t KSSOPL_calc(KSSOPL *opl);
+int16_t OPLKSS_calc(OPLKSS *opl);
 
 /**
  * Calulate stereo sample
  */
-void KSSOPL_calcStereo(KSSOPL *opl, int32_t out[2]);
+void OPLKSS_calcStereo(OPLKSS *opl, int32_t out[2]);
 
 /** 
  *  Set channel mask 
- *  @param mask mask flag: KSSOPL_MASK_* can be used.
- *  - bit 0..8: mask for ch 1 to 9 (KSSOPL_MASK_CH(i))
- *  - bit 9: mask for Hi-Hat (KSSOPL_MASK_HH)
- *  - bit 10: mask for Top-Cym (KSSOPL_MASK_CYM)
- *  - bit 11: mask for Tom (KSSOPL_MASK_TOM)
- *  - bit 12: mask for Snare Drum (KSSOPL_MASK_SD)
- *  - bit 13: mask for Bass Drum (KSSOPL_MASK_BD)
+ *  @param mask mask flag: OPLKSS_MASK_* can be used.
+ *  - bit 0..8: mask for ch 1 to 9 (OPLKSS_MASK_CH(i))
+ *  - bit 9: mask for Hi-Hat (OPLKSS_MASK_HH)
+ *  - bit 10: mask for Top-Cym (OPLKSS_MASK_CYM)
+ *  - bit 11: mask for Tom (OPLKSS_MASK_TOM)
+ *  - bit 12: mask for Snare Drum (OPLKSS_MASK_SD)
+ *  - bit 13: mask for Bass Drum (OPLKSS_MASK_BD)
  */
-uint32_t KSSOPL_setMask(KSSOPL *, uint32_t mask);
+uint32_t OPLKSS_setMask(OPLKSS *, uint32_t mask);
 
 /**
  * Toggler channel mask flag
  */
-uint32_t KSSOPL_toggleMask(KSSOPL *, uint32_t mask);
+uint32_t OPLKSS_toggleMask(OPLKSS *, uint32_t mask);
 
-uint8_t KSSOPL_readIO(KSSOPL *opl);
+uint8_t OPLKSS_readIO(OPLKSS *opl);
 
 /**
- * Read KSSOPL status register
+ * Read OPLKSS status register
  * @returns
  * 76543210
  * |||||  +- D0: PCM/BSY
@@ -230,16 +230,16 @@ uint8_t KSSOPL_readIO(KSSOPL *opl);
  * |+------- D6: TIMER1
  * +-------- D7: IRQ
  */
-uint8_t KSSOPL_status(KSSOPL *opl);
+uint8_t OPLKSS_status(OPLKSS *opl);
 
-void KSSOPL_writeADPCMData(KSSOPL *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data);
+void OPLKSS_writeADPCMData(OPLKSS *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data);
 
 /* for compatibility */
-#define KSSOPL_set_rate KSSOPL_setRate
-#define KSSOPL_set_quality KSSOPL_setQuality
-#define KSSOPL_set_pan KSSOPL_setPan
-#define KSSOPL_set_pan_fine KSSOPL_setPanFine
-#define KSSOPL_calc_stereo KSSOPL_calcStereo
+#define OPLKSS_set_rate OPLKSS_setRate
+#define OPLKSS_set_quality OPLKSS_setQuality
+#define OPLKSS_set_pan OPLKSS_setPan
+#define OPLKSS_set_pan_fine OPLKSS_setPanFine
+#define OPLKSS_calc_stereo OPLKSS_calcStereo
 
 #ifdef __cplusplus
 }

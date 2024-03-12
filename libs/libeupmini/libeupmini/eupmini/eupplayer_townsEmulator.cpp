@@ -578,7 +578,7 @@ void TownsPcmEmulator::nextTick(int *outbuf, int buflen)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
+            int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
             int64_t ofs_start=m_voice_current_ptr[m_voice_ofs];
             int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs]+smplIncr);
             for (;;) {

@@ -1,5 +1,5 @@
 /**
- * emu2413 v1.5.6
+ * emu2413 v1.5.9
  * https://github.com/digital-sound-antiques/emu2413
  * Copyright (C) 2020 Mitsutaka Okazaki
  *
@@ -10,11 +10,16 @@
  * - [VRC7 presets](https://siliconpr0n.org/archive/doku.php?id=vendor:yamaha:opl2#opll_vrc7_patch_format) by Nuke.YKT
  * - YMF281B presets by Chabin
  */
-#include "emu2413.h"
+#include "kss_emu2413.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #ifndef INLINE
 #if defined(_MSC_VER)
@@ -28,9 +33,9 @@
 
 #define _PI_ 3.14159265358979323846264338327950288
 
-#define KSSOPLL_TONE_NUM 3
+#define OPLLKSS_TONE_NUM 3
 /* clang-format off */
-static uint8_t default_inst[KSSOPLL_TONE_NUM][(16 + 3) * 8] = {{
+static uint8_t default_inst[OPLLKSS_TONE_NUM][(16 + 3) * 8] = {{
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, // 0: User
 0x71,0x61,0x1e,0x17,0xd0,0x78,0x00,0x17, // 1: Violin
 0x13,0x41,0x1a,0x0d,0xd8,0xf7,0x23,0x13, // 2: Guitar
@@ -104,7 +109,7 @@ static uint8_t default_inst[KSSOPLL_TONE_NUM][(16 + 3) * 8] = {{
 #define EG_STEP 0.375
 #define EG_BITS 7
 #define EG_MUTE ((1 << EG_BITS) - 1)
-#define EG_MAX (EG_MUTE - 3)
+#define EG_MAX (EG_MUTE - 4)
 
 /* dynamic range of total level */
 #define TL_STEP 0.75
@@ -208,7 +213,7 @@ static uint8_t eg_step_tables[4][8] = {
     {0, 1, 1, 1, 1, 1, 1, 1},
 };
 
-enum __KSSOPLL_EG_STATE { ATTACK, DECAY, SUSTAIN, RELEASE, DAMP, UNKNOWN };
+enum __OPLLKSS_EG_STATE { ATTACK, DECAY, SUSTAIN, RELEASE, DAMP, UNKNOWN };
 
 static uint32_t ml_table[16] = {1,     1 * 2, 2 * 2,  3 * 2,  4 * 2,  5 * 2,  6 * 2,  7 * 2,
                                 8 * 2, 9 * 2, 10 * 2, 10 * 2, 12 * 2, 12 * 2, 15 * 2, 15 * 2};
@@ -221,16 +226,16 @@ static double kl_table[16] = {dB2(0.000),  dB2(9.000),  dB2(12.000), dB2(13.875)
 static uint32_t tll_table[8 * 16][1 << TL_BITS][4];
 static int32_t rks_table[8 * 2][2];
 
-static KSSOPLL_PATCH null_patch = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static KSSOPLL_PATCH default_patch[KSSOPLL_TONE_NUM][(16 + 3) * 2];
+static OPLLKSS_PATCH null_patch = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static OPLLKSS_PATCH default_patch[OPLLKSS_TONE_NUM][(16 + 3) * 2];
 
-static INLINE int min(int i, int j) {
-  return (i < j) ? i : j;
-}
-
-static INLINE int max(int i, int j) {
-  return (i > j) ? i : j;
-}
+/* don't forget min/max is defined as a macro in stdlib.h of Visual C. */
+#ifndef min
+static INLINE int min(int i, int j) { return (i < j) ? i : j; }
+#endif
+#ifndef max
+static INLINE int max(int i, int j) { return (i > j) ? i : j; }
+#endif
 
 /***************************************************
 
@@ -258,8 +263,8 @@ static double sinc(double x) { return (x == 0.0 ? 1.0 : sin(_PI_ * x) / (_PI_ * 
 static double windowed_sinc(double x) { return blackman(0.5 + 0.5 * x / (LW / 2)) * sinc(x); }
 
 /* f_inp: input frequency. f_out: output frequencey, ch: number of channels */
-KSSOPLL_RateConv *KSSOPLL_RateConv_new(double f_inp, double f_out, int ch) {
-  KSSOPLL_RateConv *conv = malloc(sizeof(KSSOPLL_RateConv));
+OPLLKSS_RateConv *OPLLKSS_RateConv_new(double f_inp, double f_out, int ch) {
+  OPLLKSS_RateConv *conv = malloc(sizeof(OPLLKSS_RateConv));
   int i;
 
   conv->ch = ch;
@@ -292,7 +297,7 @@ static INLINE int16_t lookup_sinc_table(int16_t *table, double x) {
   return table[min(SINC_RESO * LW / 2 - 1, index)];
 }
 
-void KSSOPLL_RateConv_reset(KSSOPLL_RateConv *conv) {
+void OPLLKSS_RateConv_reset(OPLLKSS_RateConv *conv) {
   int i;
   conv->timer = 0;
   for (i = 0; i < conv->ch; i++) {
@@ -301,7 +306,7 @@ void KSSOPLL_RateConv_reset(KSSOPLL_RateConv *conv) {
 }
 
 /* put original data to this converter at f_inp. */
-void KSSOPLL_RateConv_putData(KSSOPLL_RateConv *conv, int ch, int16_t data) {
+void OPLLKSS_RateConv_putData(OPLLKSS_RateConv *conv, int ch, int16_t data) {
   int16_t *buf = conv->buf[ch];
   int i;
   for (i = 0; i < LW - 1; i++) {
@@ -312,7 +317,7 @@ void KSSOPLL_RateConv_putData(KSSOPLL_RateConv *conv, int ch, int16_t data) {
 
 /* get resampled data from this converter at f_out. */
 /* this function must be called f_out / f_inp times per one putData call. */
-int16_t KSSOPLL_RateConv_getData(KSSOPLL_RateConv *conv, int ch) {
+int16_t OPLLKSS_RateConv_getData(OPLLKSS_RateConv *conv, int ch) {
   int16_t *buf = conv->buf[ch];
   int32_t sum = 0;
   int k;
@@ -328,7 +333,7 @@ int16_t KSSOPLL_RateConv_getData(KSSOPLL_RateConv *conv, int ch) {
   return sum >> SINC_AMP_BITS;
 }
 
-void KSSOPLL_RateConv_delete(KSSOPLL_RateConv *conv) {
+void OPLLKSS_RateConv_delete(OPLLKSS_RateConv *conv) {
   int i;
   for (i = 0; i < conv->ch; i++) {
     free(conv->buf[i]);
@@ -395,16 +400,16 @@ static void makeRksTable(void) {
     }
 }
 
-static void makeDefaultPatch() {
+static void makeDefaultPatch(void) {
   int i, j;
-  for (i = 0; i < KSSOPLL_TONE_NUM; i++)
+  for (i = 0; i < OPLLKSS_TONE_NUM; i++)
     for (j = 0; j < 19; j++)
-      KSSOPLL_getDefaultPatch(i, j, &default_patch[i][j * 2]);
+      OPLLKSS_getDefaultPatch(i, j, &default_patch[i][j * 2]);
 }
 
 static uint8_t table_initialized = 0;
 
-static void initializeTables() {
+static void initializeTables(void) {
   makeTllTable();
   makeRksTable();
   makeSinTable();
@@ -429,16 +434,16 @@ static void initializeTables() {
 #define CAR(o, x) (&(o)->slot[((x) << 1) | 1])
 #define BIT(s, b) (((s) >> (b)) & 1)
 
-#if KSSOPLL_DEBUG
-static void _debug_print_patch(KSSOPLL_SLOT *slot) {
-  KSSOPLL_PATCH *p = slot->patch;
+#if OPLLKSS_DEBUG
+static void _debug_print_patch(OPLLKSS_SLOT *slot) {
+  OPLLKSS_PATCH *p = slot->patch;
   printf("[slot#%d am:%d pm:%d eg:%d kr:%d ml:%d kl:%d tl:%d ws:%d fb:%d A:%d D:%d S:%d R:%d]\n", slot->number, //
          p->AM, p->PM, p->EG, p->KR, p->ML,                                                                     //
          p->KL, p->TL, p->WS, p->FB,                                                                            //
          p->AR, p->DR, p->SL, p->RR);
 }
 
-static char *_debug_eg_state_name(KSSOPLL_SLOT *slot) {
+static char *_debug_eg_state_name(OPLLKSS_SLOT *slot) {
   switch (slot->eg_state) {
   case ATTACK:
     return "attack";
@@ -455,7 +460,7 @@ static char *_debug_eg_state_name(KSSOPLL_SLOT *slot) {
   }
 }
 
-static INLINE void _debug_print_slot_info(KSSOPLL_SLOT *slot) {
+static INLINE void _debug_print_slot_info(OPLLKSS_SLOT *slot) {
   char *name = _debug_eg_state_name(slot);
   printf("[slot#%d state:%s fnum:%03x rate:%d-%d]\n", slot->number, name, slot->blk_fnum, slot->eg_rate_h,
          slot->eg_rate_l);
@@ -464,7 +469,7 @@ static INLINE void _debug_print_slot_info(KSSOPLL_SLOT *slot) {
 }
 #endif
 
-static INLINE int get_parameter_rate(KSSOPLL_SLOT *slot) {
+static INLINE int get_parameter_rate(OPLLKSS_SLOT *slot) {
 
   if ((slot->type & 1) == 0 && slot->key_flag == 0) {
     return 0;
@@ -500,11 +505,11 @@ enum SLOT_UPDATE_FLAG {
   UPDATE_ALL = 255,
 };
 
-static INLINE void request_update(KSSOPLL_SLOT *slot, int flag) { slot->update_requests |= flag; }
+static INLINE void request_update(OPLLKSS_SLOT *slot, int flag) { slot->update_requests |= flag; }
 
-static void commit_slot_update(KSSOPLL_SLOT *slot) {
+static void commit_slot_update(OPLLKSS_SLOT *slot) {
 
-#if KSSOPLL_DEBUG
+#if OPLLKSS_DEBUG
   if (slot->last_eg_state != slot->eg_state) {
     _debug_print_slot_info(slot);
     slot->last_eg_state = slot->eg_state;
@@ -549,7 +554,7 @@ static void commit_slot_update(KSSOPLL_SLOT *slot) {
   slot->update_requests = 0;
 }
 
-static void reset_slot(KSSOPLL_SLOT *slot, int number) {
+static void reset_slot(OPLLKSS_SLOT *slot, int number) {
   slot->number = number;
   slot->type = number % 2;
   slot->pg_keep = 0;
@@ -572,15 +577,15 @@ static void reset_slot(KSSOPLL_SLOT *slot, int number) {
   slot->patch = &null_patch;
 }
 
-static INLINE void slotOn(KSSOPLL *opll, int i) {
-  KSSOPLL_SLOT *slot = &opll->slot[i];
+static INLINE void slotOn(OPLLKSS *opll, int i) {
+  OPLLKSS_SLOT *slot = &opll->slot[i];
   slot->key_flag = 1;
   slot->eg_state = DAMP;
   request_update(slot, UPDATE_EG);
 }
 
-static INLINE void slotOff(KSSOPLL *opll, int i) {
-  KSSOPLL_SLOT *slot = &opll->slot[i];
+static INLINE void slotOff(OPLLKSS *opll, int i) {
+  OPLLKSS_SLOT *slot = &opll->slot[i];
   slot->key_flag = 0;
   if (slot->type & 1) {
     slot->eg_state = RELEASE;
@@ -588,7 +593,7 @@ static INLINE void slotOff(KSSOPLL *opll, int i) {
   }
 }
 
-static INLINE void update_key_status(KSSOPLL *opll) {
+static INLINE void update_key_status(OPLLKSS *opll) {
   const uint8_t r14 = opll->reg[0x0e];
   const uint8_t rhythm_mode = BIT(r14, 5);
   uint32_t new_slot_key_status = 0;
@@ -633,7 +638,7 @@ static INLINE void update_key_status(KSSOPLL *opll) {
   opll->slot_key_status = new_slot_key_status;
 }
 
-static INLINE void set_patch(KSSOPLL *opll, int32_t ch, int32_t num) {
+static INLINE void set_patch(OPLLKSS *opll, int32_t ch, int32_t num) {
   opll->patch_number[ch] = num;
   MOD(opll, ch)->patch = &opll->patch[num * 2 + 0];
   CAR(opll, ch)->patch = &opll->patch[num * 2 + 1];
@@ -641,7 +646,7 @@ static INLINE void set_patch(KSSOPLL *opll, int32_t ch, int32_t num) {
   request_update(CAR(opll, ch), UPDATE_ALL);
 }
 
-static INLINE void set_sus_flag(KSSOPLL *opll, int ch, int flag) {
+static INLINE void set_sus_flag(OPLLKSS *opll, int ch, int flag) {
   CAR(opll, ch)->sus_flag = flag;
   request_update(CAR(opll, ch), UPDATE_EG);
   if (MOD(opll, ch)->type & 1) {
@@ -651,20 +656,20 @@ static INLINE void set_sus_flag(KSSOPLL *opll, int ch, int flag) {
 }
 
 /* set volume ( volume : 6bit, register value << 2 ) */
-static INLINE void set_volume(KSSOPLL *opll, int ch, int volume) {
+static INLINE void set_volume(OPLLKSS *opll, int ch, int volume) {
   CAR(opll, ch)->volume = volume;
   request_update(CAR(opll, ch), UPDATE_TLL);
 }
 
-static INLINE void set_slot_volume(KSSOPLL_SLOT *slot, int volume) {
+static INLINE void set_slot_volume(OPLLKSS_SLOT *slot, int volume) {
   slot->volume = volume;
   request_update(slot, UPDATE_TLL);
 }
 
 /* set f-Nnmber ( fnum : 9bit ) */
-static INLINE void set_fnumber(KSSOPLL *opll, int ch, int fnum) {
-  KSSOPLL_SLOT *car = CAR(opll, ch);
-  KSSOPLL_SLOT *mod = MOD(opll, ch);
+static INLINE void set_fnumber(OPLLKSS *opll, int ch, int fnum) {
+  OPLLKSS_SLOT *car = CAR(opll, ch);
+  OPLLKSS_SLOT *mod = MOD(opll, ch);
   car->fnum = fnum;
   car->blk_fnum = (car->blk_fnum & 0xe00) | (fnum & 0x1ff);
   mod->fnum = fnum;
@@ -674,9 +679,9 @@ static INLINE void set_fnumber(KSSOPLL *opll, int ch, int fnum) {
 }
 
 /* set block data (blk : 3bit ) */
-static INLINE void set_block(KSSOPLL *opll, int ch, int blk) {
-  KSSOPLL_SLOT *car = CAR(opll, ch);
-  KSSOPLL_SLOT *mod = MOD(opll, ch);
+static INLINE void set_block(OPLLKSS *opll, int ch, int blk) {
+  OPLLKSS_SLOT *car = CAR(opll, ch);
+  OPLLKSS_SLOT *mod = MOD(opll, ch);
   car->blk = blk;
   car->blk_fnum = ((blk & 7) << 9) | (car->blk_fnum & 0x1ff);
   mod->blk = blk;
@@ -685,7 +690,7 @@ static INLINE void set_block(KSSOPLL *opll, int ch, int blk) {
   request_update(mod, UPDATE_EG | UPDATE_RKS | UPDATE_TLL);
 }
 
-static INLINE void update_rhythm_mode(KSSOPLL *opll) {
+static INLINE void update_rhythm_mode(OPLLKSS *opll) {
   const uint8_t new_rhythm_mode = (opll->reg[0x0e] >> 5) & 1;
 
   if (opll->rhythm_mode != new_rhythm_mode) {
@@ -718,7 +723,7 @@ static INLINE void update_rhythm_mode(KSSOPLL *opll) {
   opll->rhythm_mode = new_rhythm_mode;
 }
 
-static void update_ampm(KSSOPLL *opll) {
+static void update_ampm(OPLLKSS *opll) {
   if (opll->test_flag & 2) {
     opll->pm_phase = 0;
     opll->am_phase = 0;
@@ -729,7 +734,7 @@ static void update_ampm(KSSOPLL *opll) {
   opll->lfo_am = am_table[(opll->am_phase >> 6) % sizeof(am_table)];
 }
 
-static void update_noise(KSSOPLL *opll, int cycle) {
+static void update_noise(OPLLKSS *opll, int cycle) {
   int i;
   for (i = 0; i < cycle; i++) {
     if (opll->noise & 1) {
@@ -739,7 +744,7 @@ static void update_noise(KSSOPLL *opll, int cycle) {
   }
 }
 
-static void update_short_noise(KSSOPLL *opll) {
+static void update_short_noise(OPLLKSS *opll) {
   const uint32_t pg_hh = opll->slot[SLOT_HH].pg_out;
   const uint32_t pg_cym = opll->slot[SLOT_CYM].pg_out;
 
@@ -753,7 +758,7 @@ static void update_short_noise(KSSOPLL *opll) {
   opll->short_noise = (h_bit2 ^ h_bit7) | (h_bit3 ^ c_bit5) | (c_bit3 ^ c_bit5);
 }
 
-static INLINE void calc_phase(KSSOPLL_SLOT *slot, int32_t pm_phase, uint8_t reset) {
+static INLINE void calc_phase(OPLLKSS_SLOT *slot, int32_t pm_phase, uint8_t reset) {
   const int8_t pm = slot->patch->PM ? pm_table[(slot->fnum >> 6) & 7][(pm_phase >> 10) & 7] : 0;
   if (reset) {
     slot->pg_phase = 0;
@@ -763,7 +768,7 @@ static INLINE void calc_phase(KSSOPLL_SLOT *slot, int32_t pm_phase, uint8_t rese
   slot->pg_out = slot->pg_phase >> DP_BASE_BITS;
 }
 
-static INLINE uint8_t lookup_attack_step(KSSOPLL_SLOT *slot, uint32_t counter) {
+static INLINE uint8_t lookup_attack_step(OPLLKSS_SLOT *slot, uint32_t counter) {
   int index;
 
   switch (slot->eg_rate_h) {
@@ -785,7 +790,7 @@ static INLINE uint8_t lookup_attack_step(KSSOPLL_SLOT *slot, uint32_t counter) {
   }
 }
 
-static INLINE uint8_t lookup_decay_step(KSSOPLL_SLOT *slot, uint32_t counter) {
+static INLINE uint8_t lookup_decay_step(OPLLKSS_SLOT *slot, uint32_t counter) {
   int index;
 
   switch (slot->eg_rate_h) {
@@ -805,18 +810,17 @@ static INLINE uint8_t lookup_decay_step(KSSOPLL_SLOT *slot, uint32_t counter) {
   }
 }
 
-static INLINE void start_envelope(KSSOPLL_SLOT *slot) {
+static INLINE void start_envelope(OPLLKSS_SLOT *slot) {
   if (min(15, slot->patch->AR + (slot->rks >> 2)) == 15) {
     slot->eg_state = DECAY;
     slot->eg_out = 0;
   } else {
     slot->eg_state = ATTACK;
-    slot->eg_out = EG_MUTE;
   }
   request_update(slot, UPDATE_EG);
 }
 
-static INLINE void calc_envelope(KSSOPLL_SLOT *slot, KSSOPLL_SLOT *buddy, uint16_t eg_counter, uint8_t test) {
+static INLINE void calc_envelope(OPLLKSS_SLOT *slot, OPLLKSS_SLOT *buddy, uint16_t eg_counter, uint8_t test) {
 
   uint32_t mask = (1 << slot->eg_shift) - 1;
   uint8_t s;
@@ -836,7 +840,9 @@ static INLINE void calc_envelope(KSSOPLL_SLOT *slot, KSSOPLL_SLOT *buddy, uint16
 
   switch (slot->eg_state) {
   case DAMP:
-    if (slot->eg_out >= EG_MUTE) {
+    // DAMP to ATTACK transition is occured when the envelope reaches EG_MAX (max attenuation but it's not mute).
+    // Do not forget to check (eg_counter & mask) == 0 to synchronize it with the progress of the envelope.
+    if (slot->eg_out >= EG_MAX && (eg_counter & mask) == 0) {
       start_envelope(slot);
       if (slot->type & 1) {
         if (!slot->pg_keep) {
@@ -857,6 +863,8 @@ static INLINE void calc_envelope(KSSOPLL_SLOT *slot, KSSOPLL_SLOT *buddy, uint16
     break;
 
   case DECAY:
+    // DECAY to SUSTAIN transition must be checked at every cycle regardless of the conditions of the envelope rate and
+    // counter. i.e. the transition is not synchronized with the progress of the envelope.
     if ((slot->eg_out >> 3) == slot->patch->SL) {
       slot->eg_state = SUSTAIN;
       request_update(slot, UPDATE_EG);
@@ -874,13 +882,13 @@ static INLINE void calc_envelope(KSSOPLL_SLOT *slot, KSSOPLL_SLOT *buddy, uint16
   }
 }
 
-static void update_slots(KSSOPLL *opll) {
+static void update_slots(OPLLKSS *opll) {
   int i;
   opll->eg_counter++;
 
   for (i = 0; i < 18; i++) {
-    KSSOPLL_SLOT *slot = &opll->slot[i];
-    KSSOPLL_SLOT *buddy = NULL;
+    OPLLKSS_SLOT *slot = &opll->slot[i];
+    OPLLKSS_SLOT *buddy = NULL;
     if (slot->type == 0) {
       buddy = &opll->slot[i + 1];
     }
@@ -903,17 +911,17 @@ static INLINE int16_t lookup_exp_table(uint16_t i) {
   return ((i & 0x8000) ? ~res : res) << 1;
 }
 
-static INLINE int16_t to_linear(uint16_t h, KSSOPLL_SLOT *slot, int16_t am) {
+static INLINE int16_t to_linear(uint16_t h, OPLLKSS_SLOT *slot, int16_t am) {
   uint16_t att;
-  if (slot->eg_out >= EG_MAX)
+  if (slot->eg_out > EG_MAX)
     return 0;
 
-  att = min(EG_MAX, (slot->eg_out + slot->tll + am)) << 4;
+  att = min(EG_MUTE, (slot->eg_out + slot->tll + am)) << 4;
   return lookup_exp_table(h + att);
 }
 
-static INLINE int16_t calc_slot_car(KSSOPLL *opll, int ch, int16_t fm) {
-  KSSOPLL_SLOT *slot = CAR(opll, ch);
+static INLINE int16_t calc_slot_car(OPLLKSS *opll, int ch, int16_t fm) {
+  OPLLKSS_SLOT *slot = CAR(opll, ch);
 
   uint8_t am = slot->patch->AM ? opll->lfo_am : 0;
 
@@ -923,8 +931,8 @@ static INLINE int16_t calc_slot_car(KSSOPLL *opll, int ch, int16_t fm) {
   return slot->output[0];
 }
 
-static INLINE int16_t calc_slot_mod(KSSOPLL *opll, int ch) {
-  KSSOPLL_SLOT *slot = MOD(opll, ch);
+static INLINE int16_t calc_slot_mod(OPLLKSS *opll, int ch) {
+  OPLLKSS_SLOT *slot = MOD(opll, ch);
 
   int16_t fm = slot->patch->FB > 0 ? (slot->output[1] + slot->output[0]) >> (9 - slot->patch->FB) : 0;
   uint8_t am = slot->patch->AM ? opll->lfo_am : 0;
@@ -935,8 +943,8 @@ static INLINE int16_t calc_slot_mod(KSSOPLL *opll, int ch) {
   return slot->output[0];
 }
 
-static INLINE int16_t calc_slot_tom(KSSOPLL *opll) {
-  KSSOPLL_SLOT *slot = MOD(opll, 8);
+static INLINE int16_t calc_slot_tom(OPLLKSS *opll) {
+  OPLLKSS_SLOT *slot = MOD(opll, 8);
 
   return to_linear(slot->wave_table[slot->pg_out], slot, 0);
 }
@@ -944,8 +952,8 @@ static INLINE int16_t calc_slot_tom(KSSOPLL *opll) {
 /* Specify phase offset directly based on 10-bit (1024-length) sine table */
 #define _PD(phase) ((PG_BITS < 10) ? (phase >> (10 - PG_BITS)) : (phase << (PG_BITS - 10)))
 
-static INLINE int16_t calc_slot_snare(KSSOPLL *opll) {
-  KSSOPLL_SLOT *slot = CAR(opll, 7);
+static INLINE int16_t calc_slot_snare(OPLLKSS *opll) {
+  OPLLKSS_SLOT *slot = CAR(opll, 7);
 
   uint32_t phase;
 
@@ -957,16 +965,16 @@ static INLINE int16_t calc_slot_snare(KSSOPLL *opll) {
   return to_linear(slot->wave_table[phase], slot, 0);
 }
 
-static INLINE int16_t calc_slot_cym(KSSOPLL *opll) {
-  KSSOPLL_SLOT *slot = CAR(opll, 8);
+static INLINE int16_t calc_slot_cym(OPLLKSS *opll) {
+  OPLLKSS_SLOT *slot = CAR(opll, 8);
 
   uint32_t phase = opll->short_noise ? _PD(0x300) : _PD(0x100);
 
   return to_linear(slot->wave_table[phase], slot, 0);
 }
 
-static INLINE int16_t calc_slot_hat(KSSOPLL *opll) {
-  KSSOPLL_SLOT *slot = MOD(opll, 7);
+static INLINE int16_t calc_slot_hat(OPLLKSS *opll) {
+  OPLLKSS_SLOT *slot = MOD(opll, 7);
 
   uint32_t phase;
 
@@ -981,7 +989,7 @@ static INLINE int16_t calc_slot_hat(KSSOPLL *opll) {
 #define _MO(x) (-(x) >> 1)
 #define _RO(x) (x)
 
-static void update_output(KSSOPLL *opll) {
+static void update_output(OPLLKSS *opll) {
   int16_t *out;
   int i;
 
@@ -993,18 +1001,18 @@ static void update_output(KSSOPLL *opll) {
 
   /* CH1-6 */
   for (i = 0; i < 6; i++) {
-    if (!(opll->mask & KSSOPLL_MASK_CH(i))) {
+    if (!(opll->mask & OPLLKSS_MASK_CH(i))) {
       out[i] = _MO(calc_slot_car(opll, i, calc_slot_mod(opll, i)));
     }
   }
 
   /* CH7 */
   if (!opll->rhythm_mode) {
-    if (!(opll->mask & KSSOPLL_MASK_CH(6))) {
+    if (!(opll->mask & OPLLKSS_MASK_CH(6))) {
       out[6] = _MO(calc_slot_car(opll, 6, calc_slot_mod(opll, 6)));
     }
   } else {
-    if (!(opll->mask & KSSOPLL_MASK_BD)) {
+    if (!(opll->mask & OPLLKSS_MASK_BD)) {
       out[9] = _RO(calc_slot_car(opll, 6, calc_slot_mod(opll, 6)));
     }
   }
@@ -1012,14 +1020,14 @@ static void update_output(KSSOPLL *opll) {
 
   /* CH8 */
   if (!opll->rhythm_mode) {
-    if (!(opll->mask & KSSOPLL_MASK_CH(7))) {
+    if (!(opll->mask & OPLLKSS_MASK_CH(7))) {
       out[7] = _MO(calc_slot_car(opll, 7, calc_slot_mod(opll, 7)));
     }
   } else {
-    if (!(opll->mask & KSSOPLL_MASK_HH)) {
+    if (!(opll->mask & OPLLKSS_MASK_HH)) {
       out[10] = _RO(calc_slot_hat(opll));
     }
-    if (!(opll->mask & KSSOPLL_MASK_SD)) {
+    if (!(opll->mask & OPLLKSS_MASK_SD)) {
       out[11] = _RO(calc_slot_snare(opll));
     }
   }
@@ -1027,47 +1035,99 @@ static void update_output(KSSOPLL *opll) {
 
   /* CH9 */
   if (!opll->rhythm_mode) {
-    if (!(opll->mask & KSSOPLL_MASK_CH(8))) {
+    if (!(opll->mask & OPLLKSS_MASK_CH(8))) {
       out[8] = _MO(calc_slot_car(opll, 8, calc_slot_mod(opll, 8)));
     }
   } else {
-    if (!(opll->mask & KSSOPLL_MASK_TOM)) {
+    if (!(opll->mask & OPLLKSS_MASK_TOM)) {
       out[12] = _RO(calc_slot_tom(opll));
     }
-    if (!(opll->mask & KSSOPLL_MASK_CYM)) {
+    if (!(opll->mask & OPLLKSS_MASK_CYM)) {
       out[13] = _RO(calc_slot_cym(opll));
     }
   }
   update_noise(opll, 2);
 }
 
-INLINE static void mix_output(KSSOPLL *opll) {
+INLINE static void mix_output(OPLLKSS *opll) {
   int16_t out = 0;
   int i;
   for (i = 0; i < 14; i++) {
-    out += opll->ch_out[i];
+      if (!(generic_mute_mask&(1<<(i+15)))) { //YOYOFR
+          out += opll->ch_out[i];
+      }
   }
   if (opll->conv) {
-    KSSOPLL_RateConv_putData(opll->conv, 0, out);
+    OPLLKSS_RateConv_putData(opll->conv, 0, out);
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_rateratio=opll->conv->f_ratio;
+      //TODO:  MODIZER changes start / YOYOFR
   } else {
     opll->mix_out[0] = out;
   }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int64_t smplIncr=(int64_t)(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_rateratio;
+    if (m_voicesForceOfs>=0) {
+        int val=0;
+        for (int i = 0; i < 14; i++) {
+            if (!(generic_mute_mask&(1<<(i+15)))) val=opll->ch_out[i];
+            else val=0;
+            int64_t ofs_start=m_voice_current_ptr[m_voicesForceOfs+i];
+            int64_t ofs_end=ofs_start+smplIncr;
+            for (;;) {
+                m_voice_buff[m_voicesForceOfs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>4));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voicesForceOfs+i]=ofs_end;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 }
 
-INLINE static void mix_output_stereo(KSSOPLL *opll) {
+INLINE static void mix_output_stereo(OPLLKSS *opll) {
   int16_t *out = opll->mix_out;
   int i;
   out[0] = out[1] = 0;
   for (i = 0; i < 14; i++) {
-    if (opll->pan[i] & 2)
-      out[0] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][0]);
-    if (opll->pan[i] & 1)
-      out[1] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][1]);
+      if (!(generic_mute_mask&(1<<(i+15)))) { //YOYOFR
+          if (opll->pan[i] & 2)
+              out[0] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][0]);
+          if (opll->pan[i] & 1)
+              out[1] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][1]);
+      }
   }
   if (opll->conv) {
-    KSSOPLL_RateConv_putData(opll->conv, 0, out[0]);
-    KSSOPLL_RateConv_putData(opll->conv, 1, out[1]);
+    OPLLKSS_RateConv_putData(opll->conv, 0, out[0]);
+    OPLLKSS_RateConv_putData(opll->conv, 1, out[1]);
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_rateratio=opll->conv->f_ratio;
+      //TODO:  MODIZER changes start / YOYOFR
   }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int64_t smplIncr=(int64_t)(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_rateratio;
+    if (m_voicesForceOfs>=0) {
+        int val=0;
+        for (int i = 0; i < 14; i++) {
+            if (!(generic_mute_mask&(1<<(i+15)))) val=opll->ch_out[i];
+            else val=0;
+            int64_t ofs_start=m_voice_current_ptr[m_voicesForceOfs+i];
+            int64_t ofs_end=ofs_start+smplIncr;
+            for (;;) {
+                m_voice_buff[m_voicesForceOfs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>4));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voicesForceOfs+i]=ofs_end;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 }
 
 /***********************************************************
@@ -1076,20 +1136,20 @@ INLINE static void mix_output_stereo(KSSOPLL *opll) {
 
 ***********************************************************/
 
-KSSOPLL *KSSOPLL_new(uint32_t clk, uint32_t rate) {
-  KSSOPLL *opll;
+OPLLKSS *OPLLKSS_new(uint32_t clk, uint32_t rate) {
+  OPLLKSS *opll;
   int i;
 
   if (!table_initialized) {
     initializeTables();
   }
 
-  opll = (KSSOPLL *)calloc(sizeof(KSSOPLL), 1);
+  opll = (OPLLKSS *)calloc(sizeof(OPLLKSS), 1);
   if (opll == NULL)
     return NULL;
 
   for (i = 0; i < 19 * 2; i++)
-    memcpy(&opll->patch[i], &null_patch, sizeof(KSSOPLL_PATCH));
+    memcpy(&opll->patch[i], &null_patch, sizeof(OPLLKSS_PATCH));
 
   opll->clk = clk;
   opll->rate = rate;
@@ -1098,21 +1158,21 @@ KSSOPLL *KSSOPLL_new(uint32_t clk, uint32_t rate) {
   opll->mix_out[0] = 0;
   opll->mix_out[1] = 0;
 
-  KSSOPLL_reset(opll);
-  KSSOPLL_setChipType(opll, 0);
-  KSSOPLL_resetPatch(opll, 0);
+  OPLLKSS_reset(opll);
+  OPLLKSS_setChipType(opll, 0);
+  OPLLKSS_resetPatch(opll, 0);
   return opll;
 }
 
-void KSSOPLL_delete(KSSOPLL *opll) {
+void OPLLKSS_delete(OPLLKSS *opll) {
   if (opll->conv) {
-    KSSOPLL_RateConv_delete(opll->conv);
+    OPLLKSS_RateConv_delete(opll->conv);
     opll->conv = NULL;
   }
   free(opll);
 }
 
-static void reset_rate_conversion_params(KSSOPLL *opll) {
+static void reset_rate_conversion_params(OPLLKSS *opll) {
   const double f_out = opll->rate;
   const double f_inp = opll->clk / 72.0;
 
@@ -1121,20 +1181,20 @@ static void reset_rate_conversion_params(KSSOPLL *opll) {
   opll->inp_step = f_out;
 
   if (opll->conv) {
-    KSSOPLL_RateConv_delete(opll->conv);
+    OPLLKSS_RateConv_delete(opll->conv);
     opll->conv = NULL;
   }
 
   if (floor(f_inp) != f_out && floor(f_inp + 0.5) != f_out) {
-    opll->conv = KSSOPLL_RateConv_new(f_inp, f_out, 2);
+    opll->conv = OPLLKSS_RateConv_new(f_inp, f_out, 2);
   }
 
   if (opll->conv) {
-    KSSOPLL_RateConv_reset(opll->conv);
+    OPLLKSS_RateConv_reset(opll->conv);
   }
 }
 
-void KSSOPLL_reset(KSSOPLL *opll) {
+void OPLLKSS_reset(OPLLKSS *opll) {
   int i;
 
   if (!opll)
@@ -1162,7 +1222,7 @@ void KSSOPLL_reset(KSSOPLL *opll) {
   }
 
   for (i = 0; i < 0x40; i++)
-    KSSOPLL_writeReg(opll, i, 0);
+    OPLLKSS_writeReg(opll, i, 0);
 
   for (i = 0; i < 15; i++) {
     opll->pan[i] = 3;
@@ -1174,7 +1234,7 @@ void KSSOPLL_reset(KSSOPLL *opll) {
   }
 }
 
-void KSSOPLL_forceRefresh(KSSOPLL *opll) {
+void OPLLKSS_forceRefresh(OPLLKSS *opll) {
   int i;
 
   if (opll == NULL)
@@ -1189,16 +1249,16 @@ void KSSOPLL_forceRefresh(KSSOPLL *opll) {
   }
 }
 
-void KSSOPLL_setRate(KSSOPLL *opll, uint32_t rate) {
+void OPLLKSS_setRate(OPLLKSS *opll, uint32_t rate) {
   opll->rate = rate;
   reset_rate_conversion_params(opll);
 }
 
-void KSSOPLL_setQuality(KSSOPLL *opll, uint8_t q) {}
+void OPLLKSS_setQuality(OPLLKSS *opll, uint8_t q) {}
 
-void KSSOPLL_setChipType(KSSOPLL *opll, uint8_t type) { opll->chip_type = type; }
+void OPLLKSS_setChipType(OPLLKSS *opll, uint8_t type) { opll->chip_type = type; }
 
-void KSSOPLL_writeReg(KSSOPLL *opll, uint32_t reg, uint8_t data) {
+void OPLLKSS_writeReg(OPLLKSS *opll, uint32_t reg, uint8_t data) {
   int ch, i;
 
   if (reg >= 0x40)
@@ -1372,21 +1432,21 @@ void KSSOPLL_writeReg(KSSOPLL *opll, uint32_t reg, uint8_t data) {
   }
 }
 
-void KSSOPLL_writeIO(KSSOPLL *opll, uint32_t adr, uint8_t val) {
+void OPLLKSS_writeIO(OPLLKSS *opll, uint32_t adr, uint8_t val) {
   if (adr & 1)
-    KSSOPLL_writeReg(opll, opll->adr, val);
+    OPLLKSS_writeReg(opll, opll->adr, val);
   else
     opll->adr = val;
 }
 
-void KSSOPLL_setPan(KSSOPLL *opll, uint32_t ch, uint8_t pan) { opll->pan[ch & 15] = pan; }
+void OPLLKSS_setPan(OPLLKSS *opll, uint32_t ch, uint8_t pan) { opll->pan[ch & 15] = pan; }
 
-void KSSOPLL_setPanFine(KSSOPLL *opll, uint32_t ch, float pan[2]) {
+void OPLLKSS_setPanFine(OPLLKSS *opll, uint32_t ch, float pan[2]) {
   opll->pan_fine[ch & 15][0] = pan[0];
   opll->pan_fine[ch & 15][1] = pan[1];
 }
 
-void KSSOPLL_dumpToPatch(const uint8_t *dump, KSSOPLL_PATCH *patch) {
+void OPLLKSS_dumpToPatch(const uint8_t *dump, OPLLKSS_PATCH *patch) {
   patch[0].AM = (dump[0] >> 7) & 1;
   patch[1].AM = (dump[1] >> 7) & 1;
   patch[0].PM = (dump[0] >> 6) & 1;
@@ -1415,21 +1475,21 @@ void KSSOPLL_dumpToPatch(const uint8_t *dump, KSSOPLL_PATCH *patch) {
   patch[1].RR = (dump[7]) & 15;
 }
 
-void KSSOPLL_getDefaultPatch(int32_t type, int32_t num, KSSOPLL_PATCH *patch) {
-  KSSOPLL_dumpToPatch(default_inst[type] + num * 8, patch);
+void OPLLKSS_getDefaultPatch(int32_t type, int32_t num, OPLLKSS_PATCH *patch) {
+  OPLLKSS_dumpToPatch(default_inst[type] + num * 8, patch);
 }
 
-void KSSOPLL_setPatch(KSSOPLL *opll, const uint8_t *dump) {
-  KSSOPLL_PATCH patch[2];
+void OPLLKSS_setPatch(OPLLKSS *opll, const uint8_t *dump) {
+  OPLLKSS_PATCH patch[2];
   int i;
   for (i = 0; i < 19; i++) {
-    KSSOPLL_dumpToPatch(dump + i * 8, patch);
-    memcpy(&opll->patch[i * 2 + 0], &patch[0], sizeof(KSSOPLL_PATCH));
-    memcpy(&opll->patch[i * 2 + 1], &patch[1], sizeof(KSSOPLL_PATCH));
+    OPLLKSS_dumpToPatch(dump + i * 8, patch);
+    memcpy(&opll->patch[i * 2 + 0], &patch[0], sizeof(OPLLKSS_PATCH));
+    memcpy(&opll->patch[i * 2 + 1], &patch[1], sizeof(OPLLKSS_PATCH));
   }
 }
 
-void KSSOPLL_patchToDump(const KSSOPLL_PATCH *patch, uint8_t *dump) {
+void OPLLKSS_patchToDump(const OPLLKSS_PATCH *patch, uint8_t *dump) {
   dump[0] = (uint8_t)((patch[0].AM << 7) + (patch[0].PM << 6) + (patch[0].EG << 5) + (patch[0].KR << 4) + patch[0].ML);
   dump[1] = (uint8_t)((patch[1].AM << 7) + (patch[1].PM << 6) + (patch[1].EG << 5) + (patch[1].KR << 4) + patch[1].ML);
   dump[2] = (uint8_t)((patch[0].KL << 6) + patch[0].TL);
@@ -1440,17 +1500,17 @@ void KSSOPLL_patchToDump(const KSSOPLL_PATCH *patch, uint8_t *dump) {
   dump[7] = (uint8_t)((patch[1].SL << 4) + patch[1].RR);
 }
 
-void KSSOPLL_copyPatch(KSSOPLL *opll, int32_t num, KSSOPLL_PATCH *patch) {
-  memcpy(&opll->patch[num], patch, sizeof(KSSOPLL_PATCH));
+void OPLLKSS_copyPatch(OPLLKSS *opll, int32_t num, OPLLKSS_PATCH *patch) {
+  memcpy(&opll->patch[num], patch, sizeof(OPLLKSS_PATCH));
 }
 
-void KSSOPLL_resetPatch(KSSOPLL *opll, uint8_t type) {
+void OPLLKSS_resetPatch(OPLLKSS *opll, uint8_t type) {
   int i;
   for (i = 0; i < 19 * 2; i++)
-    KSSOPLL_copyPatch(opll, i, &default_patch[type % KSSOPLL_TONE_NUM][i]);
+    OPLLKSS_copyPatch(opll, i, &default_patch[type % OPLLKSS_TONE_NUM][i]);
 }
 
-int16_t KSSOPLL_calc(KSSOPLL *opll) {
+int16_t OPLLKSS_calc(OPLLKSS *opll) {
   while (opll->out_step > opll->out_time) {
     opll->out_time += opll->inp_step;
     update_output(opll);
@@ -1458,12 +1518,12 @@ int16_t KSSOPLL_calc(KSSOPLL *opll) {
   }
   opll->out_time -= opll->out_step;
   if (opll->conv) {
-    opll->mix_out[0] = KSSOPLL_RateConv_getData(opll->conv, 0);
+    opll->mix_out[0] = OPLLKSS_RateConv_getData(opll->conv, 0);
   }
   return opll->mix_out[0];
 }
 
-void KSSOPLL_calcStereo(KSSOPLL *opll, int32_t out[2]) {
+void OPLLKSS_calcStereo(OPLLKSS *opll, int32_t out[2]) {
   while (opll->out_step > opll->out_time) {
     opll->out_time += opll->inp_step;
     update_output(opll);
@@ -1471,15 +1531,15 @@ void KSSOPLL_calcStereo(KSSOPLL *opll, int32_t out[2]) {
   }
   opll->out_time -= opll->out_step;
   if (opll->conv) {
-    out[0] = KSSOPLL_RateConv_getData(opll->conv, 0);
-    out[1] = KSSOPLL_RateConv_getData(opll->conv, 1);
+    out[0] = OPLLKSS_RateConv_getData(opll->conv, 0);
+    out[1] = OPLLKSS_RateConv_getData(opll->conv, 1);
   } else {
     out[0] = opll->mix_out[0];
     out[1] = opll->mix_out[1];
   }
 }
 
-uint32_t KSSOPLL_setMask(KSSOPLL *opll, uint32_t mask) {
+uint32_t OPLLKSS_setMask(OPLLKSS *opll, uint32_t mask) {
   uint32_t ret;
 
   if (opll) {
@@ -1490,7 +1550,7 @@ uint32_t KSSOPLL_setMask(KSSOPLL *opll, uint32_t mask) {
     return 0;
 }
 
-uint32_t KSSOPLL_toggleMask(KSSOPLL *opll, uint32_t mask) {
+uint32_t OPLLKSS_toggleMask(OPLLKSS *opll, uint32_t mask) {
   uint32_t ret;
 
   if (opll) {

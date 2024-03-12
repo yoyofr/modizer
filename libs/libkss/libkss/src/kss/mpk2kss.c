@@ -4,12 +4,16 @@
 #include "kss.h"
 
 static uint8_t MPKDRV106[8192] = {
+#if !defined(EXCLUDE_DRIVER_ALL) && !defined(EXCLUDE_DRIVER_MPK106)
 #include "drivers/mpk106.h"
+#endif
 };
 static uint32_t mpkdrv106_size = sizeof(MPKDRV106);
 
 static uint8_t MPKDRV103[8192] = {
+#if !defined(EXCLUDE_DRIVER_ALL) && !defined(EXCLUDE_DRIVER_MPK106)
 #include "drivers/mpk103.h"
+#endif
 };
 static uint32_t mpkdrv103_size = sizeof(MPKDRV103);
 
@@ -18,7 +22,7 @@ static uint8_t mpk106_init[0x100] = {
     0xCD, 0x10, 0x40, /* CALL 04010H */
     0x3E, 0x01,       /* LD A,01H */
     0x32, 0x49, 0x5D, /* LD (05D49H),A ; FM  SLOT*/
-    0x32, 0x4A, 0x5D, /* LD (05D4AH),A ; SCC SLOT */
+    0x32, 0x4A, 0x5D, /* LD (05D4AH),A ; SCCKSS SLOT */
     0x21, 0x00, 0xA0, /* LD HL,A000H */
     0x0E, 0x01,       /* LD C,01H */
     0xAF,             /* XOR A */

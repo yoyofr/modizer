@@ -100,16 +100,16 @@ static void _emu2413_set_mute_mask(OPLL *opll, UINT32 MuteMask)
 				ChnMsk = OPLL_MASK_BD;
 				break;
 			case 10:
-				ChnMsk = OPLL_MASK_SD;
+				ChnMsk = OPLL_MASK_HH;
 				break;
 			case 11:
-				ChnMsk = OPLL_MASK_TOM;
+				ChnMsk = OPLL_MASK_SD;
 				break;
 			case 12:
-				ChnMsk = OPLL_MASK_CYM;
+				ChnMsk = OPLL_MASK_TOM;
 				break;
 			case 13:
-				ChnMsk = OPLL_MASK_HH;
+				ChnMsk = OPLL_MASK_CYM;
 				break;
 			default:
 				ChnMsk = 0;

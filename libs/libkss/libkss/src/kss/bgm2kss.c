@@ -4,15 +4,17 @@
 #include "kss.h"
 
 static uint8_t KINROU[8192] = {
+#if !defined(EXCLUDE_DRIVER_ALL) && !defined(EXCLUDE_DRIVER_KINROU)
 #include "drivers/kinrou5.h"
+#endif
 };
 static uint32_t kinrou_size = sizeof(KINROU);
 
 static uint8_t kinrou_init[0x100] = {
     0xCD, 0x20, 0x60,       /* CALL	6020H */
     0x3E, 0x3F,             /* LD	A,3FH */
-    0x32, 0x10, 0x60,       /* LD	(6010H),A	; KSSOPLL SLOT */
-    0x32, 0x11, 0x60,       /* LD	(6011H),A	; SCC SLOT */
+    0x32, 0x10, 0x60,       /* LD	(6010H),A	; OPLL SLOT */
+    0x32, 0x11, 0x60,       /* LD	(6011H),A	; SCCKSS SLOT */
     0x21, 0x07, 0x80,       /* LD HL,A007H ; DATA ADDRESS */
     0xED, 0x5B, 0x01, 0x80, /* LD	DE,(A001H) ; COMPILE ADDRESS */
     /* INIT FLAG WORK */

@@ -1061,9 +1061,8 @@ INLINE static void mix_output_stereo(OPLL *opll) {
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int outp[5];
     int m_voice_ofs=-1;
-    int m_total_channels=(vgmVRC7?6:9)+5;
+    int m_total_channels=(vgmVRC7?6:9+5);
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
@@ -1074,7 +1073,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
         m_voice_current_samplerate=44100;
         printf("voice sample rate null\n");
     }
-    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
   out[0] = out[1] = 0;
@@ -1086,15 +1085,21 @@ INLINE static void mix_output_stereo(OPLL *opll) {
       out[1] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][1]);
       
       //TODO:  MODIZER changes start / YOYOFR
-      if ((m_voice_ofs>=0)&&(i<m_total_channels)) {
+      int jj=i;
+      if (vgmVRC7) {
+          if (i>=6) jj=-1;
+      } else {
           
-          int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
-          int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+      }
+      if ((m_voice_ofs>=0)&&(jj<m_total_channels)&&(jj>=0)) {
+          
+          int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+          int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
           
           if (ofs_end>ofs_start)
           for (;;) {
               
-              m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+              m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               
               /*if (opll->rhythm_mode==0) {
                   if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
@@ -1124,7 +1129,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
               if (ofs_start>=ofs_end) break;
           }
           while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-          m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+          m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
           
       }
       //TODO:  MODIZER changes end / YOYOFR

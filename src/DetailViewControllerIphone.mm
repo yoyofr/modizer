@@ -5240,9 +5240,25 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    if (mOglViewIsHidden==NO) {
+        //YOYOFR HACK to remove one day (maybe after switch to Metal ?)
+        //on macos, when switching to full screen size, a lag appears if opengl view is displayed
+        //so remove it for 1s
+        mOglViewIsHidden=YES;
+        [self checkGLViewCanDisplay];
+    
+        NSTimeInterval delayInSeconds = 0.1;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            mOglViewIsHidden=NO;
+            [self checkGLViewCanDisplay];
+        });
+    }
+        
+        
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
-    //NSLog(@"transitionning to size: %f x %f\n",size.width,size.height);
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
         //if (!is_macOS) mDeviceType=1; //ipad

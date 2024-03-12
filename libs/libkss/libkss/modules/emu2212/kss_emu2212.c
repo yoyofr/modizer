@@ -3,22 +3,22 @@
   emu2212.c -- S.C.C. emulator by Mitsutaka Okazaki 2001-2016
 
   2001 09-30 : Version 1.00
-  2001 10-03 : Version 1.01 -- Added SCC_set_quality().
-  2002 02-14 : Version 1.10 -- Added SCC_writeReg(), SCC_set_type().
-                               Fixed SCC_write().
-  2002 02-17 : Version 1.11 -- Fixed SCC_write().
-  2002 03-02 : Version 1.12 -- Removed SCC_init & SCC_close.
-  2003 09-19 : Version 1.13 -- Added SCC_setMask() and SCC_toggleMask()
-  2004 10-21 : Version 1.14 -- Fixed the problem where SCC+ is disabled.
+  2001 10-03 : Version 1.01 -- Added SCCKSS_set_quality().
+  2002 02-14 : Version 1.10 -- Added SCCKSS_writeReg(), SCCKSS_set_type().
+                               Fixed SCCKSS_write().
+  2002 02-17 : Version 1.11 -- Fixed SCCKSS_write().
+  2002 03-02 : Version 1.12 -- Removed SCCKSS_init & SCCKSS_close.
+  2003 09-19 : Version 1.13 -- Added SCCKSS_setMask() and SCCKSS_toggleMask()
+  2004 10-21 : Version 1.14 -- Fixed the problem where SCCKSS+ is disabled.
   2015 12-13 : Version 1.15 -- Changed own integer types to C99 stdint.h types.
   2016 09-06 : Version 1.16 -- Support per-channel output.
 
-  Registar map for SCC_writeReg()
+  Registar map for SCCKSS_writeReg()
 
   $00-1F : WaveTable CH.A
   $20-3F : WaveTable CH.B
   $40-5F : WaveTable CH.C
-  $60-7F : WaveTable CH.D&E(SCC), CH.D(SCC+)
+  $60-7F : WaveTable CH.D&E(SCCKSS), CH.D(SCCKSS+)
   $80-9F : WaveTable CH.E
  
   $C0    : CH.A Freq(L)
@@ -38,7 +38,7 @@
   $D3    : CH.D Volume
   $D4    : CH.E Volume
  
-  $E0    : Bit0 = 0:SCC, 1:SCC+
+  $E0    : Bit0 = 0:SCCKSS, 1:SCCKSS+
   $E1    : CH mask
   $E2    : Extra Flags
 
@@ -46,12 +46,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "emu2212.h"
+#include "kss_emu2212.h"
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #define GETA_BITS 22
 
 static void
-internal_refresh (SCC * scc)
+internal_refresh (SCCKSS * scc)
 {
   if (scc->quality)
   {
@@ -67,7 +72,7 @@ internal_refresh (SCC * scc)
 }
 
 uint32_t
-SCC_setMask (SCC *scc, uint32_t mask)
+SCCKSS_setMask (SCCKSS *scc, uint32_t mask)
 {
   uint32_t ret = 0;
   if(scc)
@@ -79,7 +84,7 @@ SCC_setMask (SCC *scc, uint32_t mask)
 }
 
 uint32_t
-SCC_toggleMask (SCC *scc, uint32_t mask)
+SCCKSS_toggleMask (SCCKSS *scc, uint32_t mask)
 {
   uint32_t ret = 0;
   if(scc)
@@ -91,38 +96,38 @@ SCC_toggleMask (SCC *scc, uint32_t mask)
 }
 
 void
-SCC_set_quality (SCC * scc, uint32_t q)
+SCCKSS_set_quality (SCCKSS * scc, uint32_t q)
 {
   scc->quality = q;
   internal_refresh (scc);
 }
 
 void
-SCC_set_rate (SCC * scc, uint32_t r)
+SCCKSS_set_rate (SCCKSS * scc, uint32_t r)
 {
   scc->rate = r ? r : 44100;
   internal_refresh (scc);
 }
 
-SCC *
-SCC_new (uint32_t c, uint32_t r)
+SCCKSS *
+SCCKSS_new (uint32_t c, uint32_t r)
 {
-  SCC *scc;
+  SCCKSS *scc;
 
-  scc = (SCC *) malloc (sizeof (SCC));
+  scc = (SCCKSS *) malloc (sizeof (SCCKSS));
   if (scc == NULL)
     return NULL;
-  memset(scc, 0, sizeof (SCC));
+  memset(scc, 0, sizeof (SCCKSS));
 
   scc->clk = c;
   scc->rate = r ? r : 44100;
-  SCC_set_quality (scc, 0);
-  scc->type = SCC_ENHANCED;
+  SCCKSS_set_quality (scc, 0);
+  scc->type = SCCKSS_ENHANCED;
   return scc;
 }
 
 void
-SCC_reset (SCC * scc)
+SCCKSS_reset (SCCKSS * scc)
 {
   int i, j;
 
@@ -163,14 +168,14 @@ SCC_reset (SCC * scc)
 }
 
 void
-SCC_delete (SCC * scc)
+SCCKSS_delete (SCCKSS * scc)
 {
   if (scc != NULL)
     free (scc);
 }
 
 static inline void
-update_output (SCC * scc)
+update_output (SCCKSS * scc)
 {
   int i;
 
@@ -189,7 +194,7 @@ update_output (SCC * scc)
     if (scc->ch_enable & (1 << i))
     {
       scc->phase[i] = ((scc->count[i] >> (GETA_BITS)) + scc->offset[i]) & 0x1F;
-      if(!(scc->mask & SCC_MASK_CH(i)))
+      if(!(scc->mask & SCCKSS_MASK_CH(i)))
         scc->ch_out[i] += (scc->volume[i] * scc->wave[i][scc->phase[i]]) & 0xfff0;
     }
 
@@ -199,13 +204,38 @@ update_output (SCC * scc)
 }
 
 static inline int16_t 
-mix_output(SCC * scc) {
-  scc->out = scc->ch_out[0] + scc->ch_out[1] + scc->ch_out[2] + scc->ch_out[3] + scc->ch_out[4];
+mix_output(SCCKSS * scc) {
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    for (int i=0;i<5;i++)
+        if (!(generic_mute_mask&((int64_t)1<<(i+15+14+4+3)))) scc->out += scc->ch_out[i];
+  //scc->out = scc->ch_out[0] + scc->ch_out[1] + scc->ch_out[2] + scc->ch_out[3] + scc->ch_out[4];
+    
+        
+    int64_t smplIncr=(int64_t)(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_rateratio;
+    if (m_voicesForceOfs>=0) {
+        int val=0;
+        for (int i = 0; i < 5; i++) {
+            if (!(generic_mute_mask&((int64_t)1<<(i+15+14+4+3)))) val=scc->ch_out[i]+m_voice_buff_adjustement;
+            else val=0;
+            int64_t ofs_start=m_voice_current_ptr[m_voicesForceOfs+i];
+            int64_t ofs_end=ofs_start+smplIncr;
+            for (;;) {
+                m_voice_buff[m_voicesForceOfs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>5));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voicesForceOfs+i]=ofs_end;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
   return (int16_t)scc->out;
 }
 
 int16_t
-SCC_calc (SCC * scc)
+SCCKSS_calc (SCCKSS * scc)
 {
   if (!scc->quality) {
     update_output(scc);
@@ -223,7 +253,7 @@ SCC_calc (SCC * scc)
 }
 
 uint32_t
-SCC_readReg (SCC * scc, uint32_t adr)
+SCCKSS_readReg (SCCKSS * scc, uint32_t adr)
 {
   if (adr < 0xA0)
     return scc->wave[adr >> 5][adr & 0x1f];
@@ -234,7 +264,7 @@ SCC_readReg (SCC * scc, uint32_t adr)
 }
 
 void
-SCC_writeReg (SCC * scc, uint32_t adr, uint32_t val)
+SCCKSS_writeReg (SCCKSS * scc, uint32_t adr, uint32_t val)
 {
   int ch;
   uint32_t freq;
@@ -307,100 +337,100 @@ SCC_writeReg (SCC * scc, uint32_t adr, uint32_t val)
 }
 
 static inline void
-write_standard (SCC * scc, uint32_t adr, uint32_t val)
+write_standard (SCCKSS * scc, uint32_t adr, uint32_t val)
 {
   adr &= 0xFF;
 
   if (adr < 0x80)               /* wave */
   {
-    SCC_writeReg (scc, adr, val);
+    SCCKSS_writeReg (scc, adr, val);
   }
   else if (adr < 0x8A)          /* freq */
   {
-    SCC_writeReg (scc, adr + 0xC0 - 0x80, val);
+    SCCKSS_writeReg (scc, adr + 0xC0 - 0x80, val);
   }
   else if (adr < 0x8F)          /* volume */
   {
-    SCC_writeReg (scc, adr + 0xD0 - 0x8A, val);
+    SCCKSS_writeReg (scc, adr + 0xD0 - 0x8A, val);
   }
   else if (adr == 0x8F)         /* ch enable */
   {
-    SCC_writeReg (scc, 0xE1, val);
+    SCCKSS_writeReg (scc, 0xE1, val);
   }
   else if (0xE0 <= adr)         /* flags */
   {
-    SCC_writeReg (scc, 0xE2, val);
+    SCCKSS_writeReg (scc, 0xE2, val);
   }
 }
 
 static inline void
-write_enhanced (SCC * scc, uint32_t adr, uint32_t val)
+write_enhanced (SCCKSS * scc, uint32_t adr, uint32_t val)
 {
   adr &= 0xFF;
 
   if (adr < 0xA0)               /* wave */
   {
-    SCC_writeReg (scc, adr, val);
+    SCCKSS_writeReg (scc, adr, val);
   }
   else if (adr < 0xAA)          /* freq */
   {
-    SCC_writeReg (scc, adr + 0xC0 - 0xA0, val);
+    SCCKSS_writeReg (scc, adr + 0xC0 - 0xA0, val);
   }
   else if (adr < 0xAF)          /* volume */
   {
-    SCC_writeReg (scc, adr + 0xD0 - 0xAA, val);
+    SCCKSS_writeReg (scc, adr + 0xD0 - 0xAA, val);
   }
   else if (adr == 0xAF)         /* ch enable */
   {
-    SCC_writeReg (scc, 0xE1, val);
+    SCCKSS_writeReg (scc, 0xE1, val);
   }
   else if (0xC0 <= adr && adr <= 0xDF)  /* flags */
   {
-    SCC_writeReg (scc, 0xE2, val);
+    SCCKSS_writeReg (scc, 0xE2, val);
   }
 }
 
 static inline uint32_t 
-read_enhanced (SCC * scc, uint32_t adr)
+read_enhanced (SCCKSS * scc, uint32_t adr)
 {
   adr &= 0xFF;
   if (adr < 0xA0)
-    return SCC_readReg (scc, adr);
+    return SCCKSS_readReg (scc, adr);
   else if (adr < 0xAA)
-    return SCC_readReg (scc, adr + 0xC0 - 0xA0);
+    return SCCKSS_readReg (scc, adr + 0xC0 - 0xA0);
   else if (adr < 0xAF)
-    return SCC_readReg (scc, adr + 0xD0 - 0xAA);
+    return SCCKSS_readReg (scc, adr + 0xD0 - 0xAA);
   else if (adr == 0xAF)
-    return SCC_readReg (scc, 0xE1);
+    return SCCKSS_readReg (scc, 0xE1);
   else if (0xC0 <= adr && adr <= 0xDF)
-    return SCC_readReg (scc, 0xE2);
+    return SCCKSS_readReg (scc, 0xE2);
   else
     return 0;
 }
 
 static inline uint32_t
-read_standard (SCC * scc, uint32_t adr)
+read_standard (SCCKSS * scc, uint32_t adr)
 {
   adr &= 0xFF;
   if(adr<0x80)
-    return SCC_readReg (scc, adr);
+    return SCCKSS_readReg (scc, adr);
   else if (0xA0<=adr&&adr<=0xBF)
-    return SCC_readReg (scc, 0x80+(adr&0x1F));
+    return SCCKSS_readReg (scc, 0x80+(adr&0x1F));
   else if (adr < 0x8A)          
-    return SCC_readReg (scc, adr + 0xC0 - 0x80);
+    return SCCKSS_readReg (scc, adr + 0xC0 - 0x80);
   else if (adr < 0x8F)          
-    return SCC_readReg (scc, adr + 0xD0 - 0x8A);
+    return SCCKSS_readReg (scc, adr + 0xD0 - 0x8A);
   else if (adr == 0x8F)         
-    return SCC_readReg (scc, 0xE1);
+    return SCCKSS_readReg (scc, 0xE1);
   else if (0xE0 <= adr)         
-    return SCC_readReg (scc, 0xE2);
+    return SCCKSS_readReg (scc, 0xE2);
   else return 0;
 }
 
 uint32_t
-SCC_read (SCC * scc, uint32_t adr)
+SCCKSS_read (SCCKSS * scc, uint32_t adr)
 {
-  if( scc->type == SCC_ENHANCED && (adr&0xFFFE) == 0xBFFE ) 
+  if( scc->type == SCCKSS_ENHANCED && (adr&0xFFFE) == 0xBFFE ) 
     return (scc->base_adr>>8)&0x20;
   
   if( adr < scc->base_adr ) return 0;
@@ -415,10 +445,10 @@ SCC_read (SCC * scc, uint32_t adr)
 
   switch (scc->type) 
   {
-  case SCC_STANDARD:
+  case SCCKSS_STANDARD:
       return read_standard (scc, adr);
     break;
-  case SCC_ENHANCED:
+  case SCCKSS_ENHANCED:
     if(!scc->mode)
       return read_standard (scc, adr);
     else 
@@ -432,11 +462,11 @@ SCC_read (SCC * scc, uint32_t adr)
 }
 
 void
-SCC_write (SCC * scc, uint32_t adr, uint32_t val)
+SCCKSS_write (SCCKSS * scc, uint32_t adr, uint32_t val)
 {
   val = val & 0xFF;
 
-  if( scc->type == SCC_ENHANCED && (adr&0xFFFE) == 0xBFFE ) 
+  if( scc->type == SCCKSS_ENHANCED && (adr&0xFFFE) == 0xBFFE ) 
   {
     scc->base_adr = 0x9000 | ((val&0x20)<<8);
     return;
@@ -452,7 +482,7 @@ SCC_write (SCC * scc, uint32_t adr, uint32_t val)
       scc->mode = 0;
       scc->active = 1;
     }
-    else if( val&0x80 && scc->type == SCC_ENHANCED)
+    else if( val&0x80 && scc->type == SCCKSS_ENHANCED)
     {
       scc->mode = 1;
       scc->active = 1;
@@ -469,10 +499,10 @@ SCC_write (SCC * scc, uint32_t adr, uint32_t val)
 
   switch (scc->type) 
   {
-  case SCC_STANDARD:
+  case SCCKSS_STANDARD:
       write_standard (scc, adr, val);
     break;
-  case SCC_ENHANCED:
+  case SCCKSS_ENHANCED:
     if(scc->mode)
       write_enhanced (scc, adr, val);
     else 
@@ -485,7 +515,7 @@ SCC_write (SCC * scc, uint32_t adr, uint32_t val)
 }
 
 void
-SCC_set_type (SCC * scc, uint32_t type)
+SCCKSS_set_type (SCCKSS * scc, uint32_t type)
 {
   scc->type = type;
 }

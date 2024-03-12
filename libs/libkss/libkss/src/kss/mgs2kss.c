@@ -5,7 +5,9 @@
 #include "kss.h"
 
 static uint8_t MGSDRV[0x2000] = {
+#if !defined(EXCLUDE_DRIVER_ALL) && !defined(EXCLUDE_DRIVER_MGSDRV)
 #include "drivers/mgsdrv.h"
+#endif
 };
 static uint32_t mgsdrv_size = sizeof(MGSDRV);
 
@@ -25,7 +27,7 @@ static uint8_t mgsdrv_init[0x100] = {
     /* SAVE MIB POINTER TO WORK AREA */
     0xDD, 0x22, 0xF0, 0x7F, /* LD (07FF0H),IX */
 
-    /* FORCE ACTIVATE SCC(MEGAROM MODE) */
+    /* FORCE ACTIVATE SCCKSS(MEGAROM MODE) */
     0xAF,             /* XOR A */
     0x32, 0xFE, 0xBF, /* LD (0BFFEH), A */
     0x3E, 0x3F,       /* LD A, 03FH */

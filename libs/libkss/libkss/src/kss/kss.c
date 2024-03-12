@@ -51,7 +51,7 @@ int KSS_check_type(uint8_t *data, uint32_t size, const char *filename) {
     return MPK106DATA;
   else if (KSS_isMPK103data(data, size))
     return MPK103DATA;
-  else if (!strncmp("KSCC", (const char *)data, 4))
+  else if (!strncmp("KSCCKSS", (const char *)data, 4))
     return KSSDATA;
   else if (!strncmp("KSSX", (const char *)data, 4))
     return KSSDATA;
@@ -141,13 +141,13 @@ static uint8_t guarded_read(uint8_t *data, uint32_t pos, uint32_t size) {
 static void scan_info(KSS *kss) {
   uint32_t i, j, k;
 
-  if (strncmp("KSCC", (const char *)(kss->data), 4) == 0) {
+  if (strncmp("KSCCKSS", (const char *)(kss->data), 4) == 0) {
     kss->kssx = 0;
     get_legacy_header(kss);
     check_device(kss, kss->device_flag);
     kss->trk_min = 0;
     kss->trk_max = 255;
-    for (i = 0; i < EDSC_MAX; i++)
+    for (i = 0; i < KSS_DEVICE_MAX; i++)
       kss->vol[i] = 0x80;
   } else if (strncmp("KSSX", (const char *)(kss->data), 4) == 0) {
     kss->kssx = 1;
@@ -156,12 +156,12 @@ static void scan_info(KSS *kss) {
     if (kss->data[0x0E] < 0x10) {
       kss->trk_min = 0;
       kss->trk_max = 255;
-      for (i = 0; i < EDSC_MAX; i++)
+      for (i = 0; i < KSS_DEVICE_MAX; i++)
         kss->vol[i] = 0x80;
     } else {
       kss->trk_min = (kss->data[0x19] << 8) + kss->data[0x18];
       kss->trk_max = (kss->data[0x1B] << 8) + kss->data[0x1A];
-      for (i = 0; i < EDSC_MAX; i++)
+      for (i = 0; i < KSS_DEVICE_MAX; i++)
         kss->vol[i] = kss->data[0x1C + i];
 
       i = (kss->data[0x13] << 24) + (kss->data[0x12] << 16) + (kss->data[0x11] << 8) + kss->data[0x10] + 0x10 +

@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "kssplay.h"
+
+#include "../src/kssplay.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
 
-#define MAX_RATE 192000
+#define MAX_RATE 384000
 #define MAX_PATH 256
 
 static void WORD(char *buf, uint32_t data) {
@@ -212,20 +213,20 @@ int main(int argc, char *argv[]) {
   KSSPLAY_set_data(kssplay, kss);
   KSSPLAY_reset(kssplay, opt.song_num, 0);
 
-  KSSPLAY_set_device_quality(kssplay, EDSC_PSG, opt.quality);
-  KSSPLAY_set_device_quality(kssplay, EDSC_SCC, opt.quality);
-  KSSPLAY_set_device_quality(kssplay, EDSC_KSSOPLL, opt.quality);
+  KSSPLAY_set_device_quality(kssplay, KSS_DEVICE_PSG, opt.quality);
+  KSSPLAY_set_device_quality(kssplay, KSS_DEVICE_SCC, opt.quality);
+  KSSPLAY_set_device_quality(kssplay, KSS_DEVICE_OPLL, opt.quality);
 
   if(opt.nch > 1) {
-    KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
-    KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
+    KSSPLAY_set_device_pan(kssplay, KSS_DEVICE_PSG, -32);
+    KSSPLAY_set_device_pan(kssplay, KSS_DEVICE_SCC,  32);
     kssplay->opll_stereo = 1;
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 0, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 1, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 2, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 3, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 4, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 5, 2);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 0, 1);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 1, 2);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 2, 1);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 3, 2);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 4, 1);
+    KSSPLAY_set_channel_pan(kssplay, KSS_DEVICE_OPLL, 5, 2);
   }
 
   int16_t *wavebuf = malloc(opt.rate * opt.nch * sizeof(int16_t));
@@ -264,7 +265,8 @@ int main(int argc, char *argv[]) {
 
   fseek(fp, 0, SEEK_SET);
   DWORD(header + 4, 36 + written);
-  fwrite(header, sizeof(header), 1, fp); /* Write dummy header */
+  DWORD(header + 40, written);
+  fwrite(header, sizeof(header), 1, fp); // write fixed header
 
   fclose(fp);
 

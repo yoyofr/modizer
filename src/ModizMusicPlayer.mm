@@ -432,6 +432,7 @@ static char **sidtune_title,**sidtune_name,**sidtune_artist;
 signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 signed int *m_voice_buff_accumul_temp[SOUND_MAXVOICES_BUFFER_FX];
 unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
+int m_voice_buff_adjustement;
 
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
@@ -447,10 +448,11 @@ char m_voicesDataAvail;
 char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
+double m_voice_current_rateratio;
 int m_voice_current_sample;
 int m_genNumVoicesChannels;
 int m_genMasterVol;
-int generic_mute_mask;
+int64_t generic_mute_mask;
 
 //SID
 int sid_v4;
@@ -1967,6 +1969,8 @@ static char nsfplay_opt_n163_option0;
 static char nsfplay_opt_n163_option1;
 static char nsfplay_opt_n163_option2;
 
+#define MODIZ_MAX_CHIPS 8 //has to be the max / each lib
+#define MODIZ_CHIP_NAME_MAX_CHAR 16
 #define NES_MAX_CHIPS 8
 enum {
     NES_OFF=0,
@@ -1978,11 +1982,23 @@ enum {
     NES_VRC6,
     NES_VRC7
 };
-char nsfChipsetType[NES_MAX_CHIPS];
-char nsfChipsetStartVoice[NES_MAX_CHIPS];
-char nsfChipsetVoicesCount[NES_MAX_CHIPS];
-char nsfChipsetName[NES_MAX_CHIPS][16];
-char nsfChipsetCount;
+#define KSS_MAX_CHIPS 5
+enum {
+    KSS_OFF=0,
+    KSS_Y8950,
+    KSS_YM2413,
+    KSS_SN76489,
+    KSS_PSG,
+    KSS_SCC
+};
+
+char modizChipsetType[MODIZ_MAX_CHIPS];
+char modizChipsetStartVoice[MODIZ_MAX_CHIPS];
+char modizChipsetVoicesCount[MODIZ_MAX_CHIPS];
+char modizChipsetName[MODIZ_MAX_CHIPS][MODIZ_CHIP_NAME_MAX_CHAR];
+char modizChipsetCount;
+
+
 
 
 static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsize)
@@ -5321,6 +5337,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         
                         if (mPlayType==MMP_KSS) {
+                            
+                            if (m_genNumVoicesChannels) {
+                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    m_voice_current_ptr[j]=0;
+                                }
+                            }
+                                                        
                             KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
@@ -5334,6 +5358,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             /* If the fade is ended or the play is stopped, break */
                             if ( (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_END) || (KSSPLAY_get_stop_flag(kssplay)) ) nbBytes=0;
                             else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            //NSLog(@"ptr:%d",m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            
+                            if (m_genNumVoicesChannels) {
+                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    
+                                    if (m_voice_current_ptr[j])
+                                        for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                            m_voice_buff[j][i]=m_voice_buff[j][(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-1];
+                                        }
+                                }
+                            }
+                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];                                    
+                                }
+                            }
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if (mSingleSubMode==0) {
@@ -7019,18 +7059,18 @@ typedef struct {
     artist=[NSString stringWithUTF8String:nsfData->artist];
     
     numChannels=0;
-    memset(nsfChipsetType,0,sizeof(nsfChipsetType));
-    nsfChipsetCount=0;
-    nsfChipsetType[nsfChipsetCount]=NES_APU;
-    nsfChipsetStartVoice[nsfChipsetCount]=0;
-    nsfChipsetVoicesCount[nsfChipsetCount]=5;
+    memset(modizChipsetType,0,sizeof(modizChipsetType));
+    modizChipsetCount=0;
+    modizChipsetType[modizChipsetCount]=NES_APU;
+    modizChipsetStartVoice[modizChipsetCount]=0;
+    modizChipsetVoicesCount[modizChipsetCount]=5;
     
-    snprintf(nsfChipsetName[nsfChipsetCount],16,"RP2A03");
+    snprintf(modizChipsetName[modizChipsetCount],16,"RP2A03");
     for (int i=numChannels;i<numChannels+5;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+        m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
     }
     numChannels+=5;
-    nsfChipsetCount++;
+    modizChipsetCount++;
     
     
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nArtist...: %s\nCopyright: %s\n",nsfData->GetTitleString("%T",-1),nsfData->artist,nsfData->copyright);
@@ -7042,76 +7082,76 @@ typedef struct {
     
     if (nsfData->use_fds) {
         strcat(mod_message,"Mapper...: FDS\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_FDS;
-        nsfChipsetVoicesCount[nsfChipsetCount]=1;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"FDS");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_FDS;
+        modizChipsetVoicesCount[modizChipsetCount]=1;
+        snprintf(modizChipsetName[modizChipsetCount],16,"FDS");
         for (int i=numChannels;i<numChannels+1;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels++;
-        nsfChipsetCount++;
+        modizChipsetCount++;
         
     }
     if (nsfData->use_fme7) {
         strcat(mod_message,"Mapper...: FME7\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_FME7;
-        nsfChipsetVoicesCount[nsfChipsetCount]=3;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"5B");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_FME7;
+        modizChipsetVoicesCount[modizChipsetCount]=3;
+        snprintf(modizChipsetName[modizChipsetCount],16,"5B");
         for (int i=numChannels;i<numChannels+3;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels+=3;
-        nsfChipsetCount++;
+        modizChipsetCount++;
     }
     if (nsfData->use_mmc5) {
         strcat(mod_message,"Mapper...: MMC5\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_MMC5;
-        nsfChipsetVoicesCount[nsfChipsetCount]=3;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"MMC5");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_MMC5;
+        modizChipsetVoicesCount[modizChipsetCount]=3;
+        snprintf(modizChipsetName[modizChipsetCount],16,"MMC5");
         for (int i=numChannels;i<numChannels+3;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels+=3;
-        nsfChipsetCount++;
+        modizChipsetCount++;
     }
     if (nsfData->use_n106) {
         strcat(mod_message,"Mapper...: N106\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_N106;
-        nsfChipsetVoicesCount[nsfChipsetCount]=8;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"N163");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_N106;
+        modizChipsetVoicesCount[modizChipsetCount]=8;
+        snprintf(modizChipsetName[modizChipsetCount],16,"N163");
         for (int i=numChannels;i<numChannels+8;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels+=8;
-        nsfChipsetCount++;
+        modizChipsetCount++;
     }
     if (nsfData->use_vrc6) {
         strcat(mod_message,"Mapper...: VRC6\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_VRC6;
-        nsfChipsetVoicesCount[nsfChipsetCount]=3;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"VRC6");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_VRC6;
+        modizChipsetVoicesCount[modizChipsetCount]=3;
+        snprintf(modizChipsetName[modizChipsetCount],16,"VRC6");
         for (int i=numChannels;i<numChannels+3;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels+=3;
-        nsfChipsetCount++;
+        modizChipsetCount++;
     }
     if (nsfData->use_vrc7) {
         strcat(mod_message,"Mapper...: VRC7\n");
-        nsfChipsetStartVoice[nsfChipsetCount]=numChannels;
-        nsfChipsetType[nsfChipsetCount]=NES_VRC7;
-        nsfChipsetVoicesCount[nsfChipsetCount]=9;
-        snprintf(nsfChipsetName[nsfChipsetCount],16,"VRC7");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=NES_VRC7;
+        modizChipsetVoicesCount[modizChipsetCount]=9;
+        snprintf(modizChipsetName[modizChipsetCount],16,"VRC7");
         for (int i=numChannels;i<numChannels+9;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[nsfChipsetCount];
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         numChannels+=9;
-        nsfChipsetCount++;
+        modizChipsetCount++;
     }
     
     if (nsfData->text) {
@@ -8156,26 +8196,101 @@ char* loadRom(const char* path, size_t romSize)
     
     KSSPLAY_set_device_quality(kssplay, EDSC_PSG, 1);
     KSSPLAY_set_device_quality(kssplay, EDSC_SCC, 1);
-    KSSPLAY_set_device_quality(kssplay, EDSC_KSSOPLL, 1);
-    
-    kssplay->opll_stereo = 1;
+    KSSPLAY_set_device_quality(kssplay, EDSC_OPLL, 1);
     
     KSSPLAY_set_master_volume(kssplay, 32);
     
     KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
     KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
     kssplay->opll_stereo = 1;
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 0, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 1, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 2, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 3, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 4, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 5, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 0, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 1, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 2, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 3, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 4, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 5, 2);
     
+    numChannels=0;
+    memset(modizChipsetType,0,sizeof(modizChipsetType));
+    modizChipsetCount=0;
+    mod_message[0]=0;
+        
+    if (kssplay->kss->msx_audio && !kssplay->device_mute[KSS_DEVICE_OPL]) {
+        strcat(mod_message,"Y8950,");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=KSS_Y8950;
+        modizChipsetVoicesCount[modizChipsetCount]=15;
+        snprintf(modizChipsetName[modizChipsetCount],16,"Y8950");
+        for (int i=numChannels;i<numChannels+1;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+        }
+        numChannels+=15;
+        modizChipsetCount++;
+    }
+    if (kssplay->kss->fmpac && !kssplay->device_mute[KSS_DEVICE_OPLL]) {
+        strcat(mod_message,"YM2413,");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=KSS_YM2413;
+        modizChipsetVoicesCount[modizChipsetCount]=14;
+        snprintf(modizChipsetName[modizChipsetCount],16,"YM2413");
+        for (int i=numChannels;i<numChannels+1;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+        }
+        numChannels+=14;
+        modizChipsetCount++;
+    }
+    if (!kssplay->device_mute[KSS_DEVICE_PSG]) {
+        if (kssplay->kss->sn76489) {
+            strcat(mod_message,"SN76489,");
+            modizChipsetStartVoice[modizChipsetCount]=numChannels;
+            modizChipsetType[modizChipsetCount]=KSS_SN76489;
+            modizChipsetVoicesCount[modizChipsetCount]=4;
+            snprintf(modizChipsetName[modizChipsetCount],16,"SN76489");
+            for (int i=numChannels;i<numChannels+1;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            }
+            numChannels+=4;
+            modizChipsetCount++;
+        } else {
+            strcat(mod_message,"PSG,");
+            modizChipsetStartVoice[modizChipsetCount]=numChannels;
+            modizChipsetType[modizChipsetCount]=KSS_PSG;
+            modizChipsetVoicesCount[modizChipsetCount]=3;
+            snprintf(modizChipsetName[modizChipsetCount],16,"PSG");
+            for (int i=numChannels;i<numChannels+1;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            }
+            numChannels+=3;
+            modizChipsetCount++;
+        }
+    }
+    if (!kssplay->device_mute[KSS_DEVICE_SCC]) {
+        strcat(mod_message,"Konami SCC,");
+        modizChipsetStartVoice[modizChipsetCount]=numChannels;
+        modizChipsetType[modizChipsetCount]=KSS_SCC;
+        modizChipsetVoicesCount[modizChipsetCount]=5;
+        snprintf(modizChipsetName[modizChipsetCount],16,"SCC");
+        for (int i=numChannels;i<numChannels+1;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+        }
+        numChannels+=5;
+        modizChipsetCount++;
+    }
     
-    numChannels=2;
+    //remove the last ','
+    if (strlen(mod_message)) mod_message[strlen(mod_message)-1]=0;
+        
+    generic_mute_mask=0;
+    m_voicesDataAvail=1;
+    m_genNumVoicesChannels=numChannels;
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+        
+    NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
+    DBHelper::updateFileStatsDBmod([filePathDoc lastPathComponent],filePathDoc,-1,-1,-1,iModuleLength,numChannels,1);
     
-    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);
+    KSSPLAY_get_MGStext(kssplay,mod_message+strlen(mod_message),MAX_STIL_DATA_LENGTH*2-strlen(mod_message));
     
     if (mLoopMode) iModuleLength=-1;
     iCurrentTime=0;
@@ -12964,6 +13079,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_KSS:
         case MMP_NSFPLAY:
         case MMP_PIXEL:
         case MMP_EUP:
@@ -12993,9 +13109,10 @@ extern "C" void adjust_amplification(void);
     switch (mPlayType) {
         case MMP_TIMIDITY:
             return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(channel)];
+        case MMP_KSS:
         case MMP_NSFPLAY: {
             int chipIdx=[self getSystemForVoice:channel];
-            return [NSString stringWithFormat:@"%d-%s",channel-nsfChipsetStartVoice[chipIdx]+1,nsfChipsetName[chipIdx]];
+            return [NSString stringWithFormat:@"%d-%s",channel-modizChipsetStartVoice[chipIdx]+1,modizChipsetName[chipIdx]];
         }
         case MMP_2SF:
             return [NSString stringWithFormat:@"#%d-NDS",channel+1];
@@ -13080,8 +13197,9 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemsNb {
     switch (mPlayType) {
+        case MMP_KSS:
         case MMP_NSFPLAY:
-            return nsfChipsetCount;
+            return modizChipsetCount;
         case MMP_HC:
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
@@ -13124,8 +13242,9 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_KSS:
         case MMP_NSFPLAY:
-            return [NSString stringWithFormat:@"%s",nsfChipsetName[systemIdx]];
+            return [NSString stringWithFormat:@"%s",modizChipsetName[systemIdx]];
         case MMP_2SF:
             return @"NDS";
         case MMP_V2M:
@@ -13186,8 +13305,9 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
         case MMP_NSFPLAY:
-            for (int i=0;i<nsfChipsetCount;i++) {
-                if ((voiceIdx>=nsfChipsetStartVoice[i])&&(voiceIdx<nsfChipsetStartVoice[i]+nsfChipsetVoicesCount[i])) return i;
+        case MMP_KSS:
+            for (int i=0;i<modizChipsetCount;i++) {
+                if ((voiceIdx>=modizChipsetStartVoice[i])&&(voiceIdx<modizChipsetStartVoice[i]+modizChipsetVoicesCount[i])) return i;
             }
             return 0;
         case MMP_HC:
@@ -13240,10 +13360,11 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemm_voicesStatus:(int)systemIdx {
     int tmp;
     switch (mPlayType) {
+        case MMP_KSS:
         case MMP_NSFPLAY:
             tmp=0;
-            for (int i=nsfChipsetStartVoice[systemIdx];i<nsfChipsetStartVoice[systemIdx]+nsfChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
-            if (tmp==nsfChipsetVoicesCount[systemIdx]) return 2; //all active
+            for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
+            if (tmp==modizChipsetVoicesCount[systemIdx]) return 2; //all active
             else if (tmp>0) return 1; //partially active
             return 0; //all off
         case MMP_HC:
@@ -13391,8 +13512,9 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i];
             else for (int i=6;i<14;i++) [self setm_voicesStatus:active index:i];
             break;
+        case MMP_KSS:
         case MMP_NSFPLAY:
-            for (int i=nsfChipsetStartVoice[systemIdx];i<nsfChipsetStartVoice[systemIdx]+nsfChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
+            for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_PIXEL:
         case MMP_2SF:
@@ -13456,12 +13578,39 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_KSS: {
+            int chipIdx=[self getSystemForVoice:channel];
+            int voiceIdx=channel-modizChipsetStartVoice[chipIdx];
+            switch (modizChipsetType[chipIdx]) {
+                case KSS_Y8950:
+                    if (active) generic_mute_mask&=~((int64_t)1<<voiceIdx);
+                    else generic_mute_mask|=((int64_t)1<<voiceIdx);
+                    break;
+                case KSS_YM2413:
+                    if (active) generic_mute_mask&=~((int64_t)1<<(voiceIdx+15));
+                    else generic_mute_mask|=((int64_t)1<<(voiceIdx+15));
+                    break;
+                case KSS_SN76489:
+                    if (active) generic_mute_mask&=~((int64_t)1<<(voiceIdx+15+14));
+                    else generic_mute_mask|=((int64_t)1<<(voiceIdx+15+14));
+                    break;
+                case KSS_PSG:
+                    if (active) generic_mute_mask&=~((int64_t)1<<(voiceIdx+15+14+4));
+                    else generic_mute_mask|=((int64_t)1<<(voiceIdx+15+14+4));
+                    break;
+                case KSS_SCC:
+                    if (active) generic_mute_mask&=~((int64_t)1<<(voiceIdx+15+14+4+3));
+                    else generic_mute_mask|=((int64_t)1<<(voiceIdx+15+14+4+3));
+                    break;
+            }
+        }
+            break;
         case MMP_NSFPLAY: {
             int chipIdx=[self getSystemForVoice:channel];
-            int voiceIdx=channel-nsfChipsetStartVoice[chipIdx];
+            int voiceIdx=channel-modizChipsetStartVoice[chipIdx];
             int current_mask=(*nsfPlayerConfig)["MASK"];
             //NSLog(@"chip %d voice %d mask %08X",chipIdx,voiceIdx,current_mask);
-            switch (nsfChipsetType[chipIdx]) {
+            switch (modizChipsetType[chipIdx]) {
                 case NES_APU:
                     if (active) current_mask&=0xFFFFFFFF^(1<<voiceIdx);
                     else current_mask|=(1<<voiceIdx);

@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 project(libkss)
+
+# add_compile_definitions(EXCLUDE_DRIVER_ALL)
 
 if(MSVC)
   set(CMAKE_C_FLAGS "/Ox /W3 /wd4996")
@@ -31,30 +33,14 @@ if(NOT TARGET kmz80)
 	add_subdirectory(modules/kmz80)
 endif()
 
-set(SOURCES
-	src/filters/dc_filter.c
-	src/filters/filter.c
-	src/filters/rc_filter.c
-	src/kss/bgm2kss.c
-	src/kss/kss.c
-	src/kss/kss2kss.c
-	src/kss/kssload.c
-	src/kss/mbm2kss.c
-	src/kss/mgs2kss.c
-	src/kss/mpk2kss.c
-	src/kss/opx2kss.c
-	src/kssplay.c
-	src/vm/detect.c
-	src/vm/mmap.c
-	src/vm/vm.c
-)
+file(GLOB SOURCES src/*.c src/**/*.c)
 
 include_directories(modules)
 
 add_library(kss STATIC ${SOURCES})
 target_link_libraries(kss emu2149 emu2212 emu2413 emu8950 emu76489 kmz80)
 
-add_executable(kss2wav EXCLUDE_FROM_ALL src/kss2wav.c)
+add_executable(kss2wav EXCLUDE_FROM_ALL example/kss2wav.c)
 if(NOT CMAKE_COMPILER_IS_GNUCC)
 	target_link_libraries(kss2wav kss)
 else()

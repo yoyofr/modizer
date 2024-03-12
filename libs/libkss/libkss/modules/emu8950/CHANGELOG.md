@@ -1,3 +1,12 @@
+# v1.1.2 (2022 09-14)
+- Update minimum cmake version to 3.0
+
+# v1.1.1 (2021 05-04)
+- Fix the problem where BUF_RDY status bit stays 0 after status register is reset.
+
+# v1.1.0 (2020 10-04)
+- Support notesel, timer and CSM mode.
+
 # v1.0.1 (2020 02-12)
 - Remove deferred rhythm mode switching.
 - Improve white noise emulation.
@@ -13,10 +22,10 @@
 - Support per-channel output.
 
 # v0.13 (2003-09-19)
-- Add KSSOPL_setMask & KSSOPL_toggleMask.
+- Add OPLKSS_setMask & OPLKSS_toggleMask.
 
 # v0.12 (2002-03-02)
-- Remove KSSOPL_init & KSSOPL_close.
+- Remove OPLKSS_init & OPLKSS_close.
 
 # v0.11 (2001-??-??)
 - Add ADPCM emulation.

@@ -41,10 +41,10 @@
 
 FILE *fp;
 
-KSSOPL_ADPCM *KSSOPL_ADPCM_new(uint32_t clk) {
-  KSSOPL_ADPCM *_this;
+OPLKSS_ADPCM *OPLKSS_ADPCM_new(uint32_t clk) {
+  OPLKSS_ADPCM *_this;
 
-  _this = (KSSOPL_ADPCM *)malloc(sizeof(KSSOPL_ADPCM));
+  _this = (OPLKSS_ADPCM *)malloc(sizeof(OPLKSS_ADPCM));
   if (!_this)
     return NULL;
 
@@ -62,16 +62,16 @@ KSSOPL_ADPCM *KSSOPL_ADPCM_new(uint32_t clk) {
     goto Error_Exit;
   memset(_this->memory[1], 0, ROM_SIZE);
 
-  KSSOPL_ADPCM_reset(_this);
+  OPLKSS_ADPCM_reset(_this);
 
   return _this;
 
 Error_Exit:
-  KSSOPL_ADPCM_delete(_this);
+  OPLKSS_ADPCM_delete(_this);
   return NULL;
 }
 
-void KSSOPL_ADPCM_delete(KSSOPL_ADPCM *_this) {
+void OPLKSS_ADPCM_delete(OPLKSS_ADPCM *_this) {
   if (_this) {
     free(_this->memory[0]);
     free(_this->memory[1]);
@@ -79,7 +79,7 @@ void KSSOPL_ADPCM_delete(KSSOPL_ADPCM *_this) {
   }
 }
 
-void KSSOPL_ADPCM_reset(KSSOPL_ADPCM *_this) {
+void OPLKSS_ADPCM_reset(OPLKSS_ADPCM *_this) {
   int i;
 
   for (i = 0; i < 0x20; i++)
@@ -100,8 +100,8 @@ void KSSOPL_ADPCM_reset(KSSOPL_ADPCM *_this) {
 #define DELTA_ADDR_MAX (1 << 16)
 #define DELTA_ADDR_MASK (DELTA_ADDR_MAX - 1)
 
-/* Update KSSOPL_ADPCM data stage (Register $0F) */
-static inline int update_stage(KSSOPL_ADPCM *_this) {
+/* Update OPLKSS_ADPCM data stage (Register $0F) */
+static inline int update_stage(OPLKSS_ADPCM *_this) {
   _this->delta_addr += _this->delta_n;
 
   if (_this->delta_addr & DELTA_ADDR_MAX) {
@@ -126,7 +126,7 @@ static inline int update_stage(KSSOPL_ADPCM *_this) {
   return 0;
 }
 
-static inline void update_output(KSSOPL_ADPCM *_this, uint32_t val) {
+static inline void update_output(OPLKSS_ADPCM *_this, uint32_t val) {
   static uint32_t F[] = {
       57, 57, 57, 57, 77, 102, 128, 153 // This table values are from ymdelta.c by Tatsuyuki Satoh.
   };
@@ -142,7 +142,7 @@ static inline void update_output(KSSOPL_ADPCM *_this, uint32_t val) {
   _this->diff = CLAP(DMIN, (_this->diff * F[val & 7]) >> 6, DMAX);
 }
 
-static inline uint32_t calc(KSSOPL_ADPCM *_this) {
+static inline uint32_t calc(OPLKSS_ADPCM *_this) {
   uint32_t val;
 
   if (_this->play_start && update_stage(_this)) {
@@ -157,7 +157,7 @@ static inline uint32_t calc(KSSOPL_ADPCM *_this) {
   return ((_this->output[0] + _this->output[1]) * (_this->reg[0x12] & 0xff)) >> 13;
 }
 
-int16_t KSSOPL_ADPCM_calc(KSSOPL_ADPCM *_this) {
+int16_t OPLKSS_ADPCM_calc(OPLKSS_ADPCM *_this) {
   if (_this->reg[0x07] & R07_SP_OFF)
     return 0;
 
@@ -183,7 +183,7 @@ uint32_t decode_stop_address(uint8_t mode, uint8_t l, uint8_t h) {
   }
 }
 
-void KSSOPL_ADPCM_writeReg(KSSOPL_ADPCM *_this, uint32_t adr, uint32_t data) {
+void OPLKSS_ADPCM_writeReg(OPLKSS_ADPCM *_this, uint32_t adr, uint32_t data) {
   adr &= 0x1f;
   data &= 0xff;
 
@@ -231,7 +231,7 @@ void KSSOPL_ADPCM_writeReg(KSSOPL_ADPCM *_this, uint32_t adr, uint32_t data) {
     _this->reg[0x0E] = data;
     break;
 
-  case 0x0F: /* KSSOPL_ADPCM-DATA */
+  case 0x0F: /* OPLKSS_ADPCM-DATA */
     _this->reg[0x0F] = data;
 
     if ((_this->reg[0x07] & R07_REC) && (_this->reg[0x07] & R07_MEMORY_DATA)) {
@@ -265,16 +265,16 @@ void KSSOPL_ADPCM_writeReg(KSSOPL_ADPCM *_this, uint32_t adr, uint32_t data) {
  *    +----- D4: EOS
  * IRQ bit (D7) is not implemented on this module.
  */
-uint8_t KSSOPL_ADPCM_status(KSSOPL_ADPCM *_this) { 
+uint8_t OPLKSS_ADPCM_status(OPLKSS_ADPCM *_this) { 
   // BUF_RDY is always 1 - it is not accurate but practically okay.
   return _this->status | STATUS_BUF_RDY;
 }
 
-void KSSOPL_ADPCM_resetStatus(KSSOPL_ADPCM *_this) {
+void OPLKSS_ADPCM_resetStatus(OPLKSS_ADPCM *_this) {
   _this->status = 0;
 }
 
-void KSSOPL_ADPCM_writeRAM(KSSOPL_ADPCM *_this, uint32_t start, uint32_t length, const uint8_t *data) {
+void OPLKSS_ADPCM_writeRAM(OPLKSS_ADPCM *_this, uint32_t start, uint32_t length, const uint8_t *data) {
   if (start >= RAM_SIZE) return;
   if (start + length > RAM_SIZE) {
     length = RAM_SIZE - start;
@@ -282,7 +282,7 @@ void KSSOPL_ADPCM_writeRAM(KSSOPL_ADPCM *_this, uint32_t start, uint32_t length,
   memcpy(_this->memory[0] + start, data, length);
 }
 
-void KSSOPL_ADPCM_writeROM(KSSOPL_ADPCM *_this, uint32_t start, uint32_t length, const uint8_t *data) {
+void OPLKSS_ADPCM_writeROM(OPLKSS_ADPCM *_this, uint32_t start, uint32_t length, const uint8_t *data) {
   if (start >= ROM_SIZE) return;
   if (start + length > ROM_SIZE) {
     length = ROM_SIZE - start;

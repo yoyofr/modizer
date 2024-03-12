@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 
+#include "filters/dc_filter.h"
 #include "filters/filter.h"
 #include "filters/rc_filter.h"
-#include "filters/dc_filter.h"
 #include "kss/kss.h"
+#include "rconv/psg_rconv.h"
+
 #include "vm/vm.h"
 
 #ifdef __cplusplus
@@ -38,11 +40,11 @@ struct tagKSSPLAY {
   double step_inc;
 
   int32_t master_volume;
-  int32_t device_volume[EDSC_MAX];
-  uint32_t device_mute[EDSC_MAX];
-  int32_t device_pan[EDSC_MAX];
-  uint32_t device_type[EDSC_MAX];
-  FIR *device_fir[2][EDSC_MAX];
+  int32_t device_volume[KSS_DEVICE_MAX];
+  uint32_t device_mute[KSS_DEVICE_MAX];
+  int32_t device_pan[KSS_DEVICE_MAX];
+  uint32_t device_type[KSS_DEVICE_MAX];
+  FIR *device_fir[2][KSS_DEVICE_MAX];
   RCF *rcf[2];
   DCF *dcf[2];
   uint32_t lastout[2];
@@ -59,6 +61,8 @@ struct tagKSSPLAY {
 
   int scc_disable;
   int opll_stereo;
+
+  PSGKSS_RateConv *psg_rconv;
 };
 
 /**
@@ -86,7 +90,7 @@ struct tagKSSPLAY {
  * sng[3]   :NOISE
  *
  * dac[0]: 1-bit DAC
- * dac[1]: SCC 8-bit DAC
+ * dac[1]: SCCKSS 8-bit DAC
  */
 typedef struct tagKSSPLAY_PER_CH_OUT {
   int16_t psg[3];
@@ -137,30 +141,40 @@ int KSSPLAY_get_loop_count(KSSPLAY *kssplay);
 int KSSPLAY_get_stop_flag(KSSPLAY *kssplay);
 int KSSPLAY_get_fade_flag(KSSPLAY *kssplay);
 
+void KSSPLAY_set_dcf(KSSPLAY *kssplay, int enable);
 void KSSPLAY_set_rcf(KSSPLAY *kssplay, uint32_t r, uint32_t c);
 void KSSPLAY_set_opll_patch(KSSPLAY *kssplay, uint8_t *illdata);
-void KSSPLAY_set_cpu_speed(KSSPLAY *kssplay, uint32_t cpu_speed);
-void KSSPLAY_set_device_lpf(KSSPLAY *kssplay, uint32_t device, uint32_t cutoff);
-void KSSPLAY_set_device_mute(KSSPLAY *kssplay, uint32_t devnum, uint32_t mute);
-void KSSPLAY_set_device_pan(KSSPLAY *kssplay, uint32_t devnum, int32_t pan);
-void KSSPLAY_set_channel_pan(KSSPLAY *kssplay, uint32_t device, uint32_t ch, uint32_t pan);
-void KSSPLAY_set_device_quality(KSSPLAY *kssplay, uint32_t device, uint32_t quality);
-void KSSPLAY_set_device_volume(KSSPLAY *kssplay, uint32_t devnum, int32_t vol);
+void KSSPLAY_set_speed(KSSPLAY *kssplay, uint32_t cpu_speed);
+void KSSPLAY_set_device_lpf(KSSPLAY *kssplay, KSS_DEVICE device, uint32_t cutoff);
+void KSSPLAY_set_device_mute(KSSPLAY *kssplay, KSS_DEVICE deice, uint32_t mute);
+void KSSPLAY_set_device_pan(KSSPLAY *kssplay, KSS_DEVICE device, int32_t pan);
+void KSSPLAY_set_channel_pan(KSSPLAY *kssplay, KSS_DEVICE device, uint32_t ch, uint32_t pan);
+void KSSPLAY_set_device_quality(KSSPLAY *kssplay, KSS_DEVICE device, uint32_t quality);
+void KSSPLAY_set_device_volume(KSSPLAY *kssplay, KSS_DEVICE device, int32_t vol);
 void KSSPLAY_set_master_volume(KSSPLAY *kssplay, int32_t vol);
-void KSSPLAY_set_device_mute(KSSPLAY *kssplay, uint32_t devnum, uint32_t mute);
-void KSSPLAY_set_channel_mask(KSSPLAY *kssplay, uint32_t device, uint32_t mask);
-void KSSPLAY_set_device_type(KSSPLAY *kssplay, uint32_t devnum, uint32_t type);
+void KSSPLAY_set_device_mute(KSSPLAY *kssplay, KSS_DEVICE devnum, uint32_t mute);
+void KSSPLAY_set_channel_mask(KSSPLAY *kssplay, KSS_DEVICE device, uint32_t mask);
+void KSSPLAY_set_device_type(KSSPLAY *kssplay, KSS_DEVICE device, uint32_t type);
 void KSSPLAY_set_silent_limit(KSSPLAY *kssplay, uint32_t time_in_ms);
 
-void KSSPLAY_set_iowrite_handler(KSSPLAY *kssplay, void *context, void (*handler)(void *context, uint32_t a, uint32_t d));
-void KSSPLAY_set_memwrite_handler(KSSPLAY *kssplay, void *context, void (*handler)(void *context, uint32_t a, uint32_t d));
+void KSSPLAY_set_iowrite_handler(KSSPLAY *kssplay, void *context,
+                                 void (*handler)(void *context, uint32_t a, uint32_t d));
+void KSSPLAY_set_memwrite_handler(KSSPLAY *kssplay, void *context,
+                                  void (*handler)(void *context, uint32_t a, uint32_t d));
 
-uint32_t KSSPLAY_get_device_volume(KSSPLAY *kssplay, uint32_t devnum);
+uint32_t KSSPLAY_get_device_volume(KSSPLAY *kssplay, KSS_DEVICE device);
 void KSSPLAY_get_MGStext(KSSPLAY *kssplay, char *buf, int max);
 uint8_t KSSPLAY_get_MGS_jump_count(KSSPLAY *kssplay);
 
 void KSSPLAY_write_memory(KSSPLAY *kssplay, uint32_t a, uint32_t d);
 void KSSPLAY_write_io(KSSPLAY *kssplay, uint32_t a, uint32_t d);
+
+/** 
+ * Copy device's registers to a buffer. 
+ * @param buf - a pointer to a buffer that is larger than 256 bytes.
+ * @returns number of bytes written.
+ */
+int KSSPLAY_read_device_regs(KSSPLAY *kssplay, KSS_DEVICE device, uint8_t *buf);
 
 #ifdef __cplusplus
 }

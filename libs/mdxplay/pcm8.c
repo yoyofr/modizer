@@ -10,7 +10,6 @@
 #include "ModizerConstants.h"
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
-extern int generic_mute_mask;
 //TODO:  MODIZER changes end / YOYOFR
 
 

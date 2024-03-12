@@ -22,4 +22,5 @@ void DCF_reset(DCF *dcf, double rate) {
   /** R:47K, C:1uF, Cutoff: 2pi*R*C Hz */
   dcf->weight = 1.0 / ((1.0 / rate) / (1.0 * (1.0e-06) * 47000) + 1.0);
   dcf->in = dcf->out = 0;
+  dcf->enable = 1;
 }

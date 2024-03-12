@@ -6278,7 +6278,8 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
-					libs/,
+					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
+					libs,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6387,7 +6388,8 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
-					libs/,
+					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
+					libs,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6496,7 +6498,8 @@
 					libs/libeupmini/libeupmini/eupmini,
 					libs/libpixel/libpixel/src/pxtone,
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
-					libs/,
+					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
+					libs,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

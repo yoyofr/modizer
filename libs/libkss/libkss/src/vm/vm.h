@@ -1,9 +1,9 @@
 #ifndef _VM_H_
 #define _VM_H_
 
-#include "emu2149/emu2149.h"
-#include "emu2212/emu2212.h"
-#include "emu2413/emu2413.h"
+#include "emu2149/kss_emu2149.h"
+#include "emu2212/kss_emu2212.h"
+#include "emu2413/kss_emu2413.h"
 #include "emu8950/emu8950.h"
 #include "emu76489/emu76489.h"
 #include "kmz80/kmz80.h"
@@ -54,10 +54,10 @@ struct tagVM {
   int32_t DA1; /* 1bit D/A (I/O mapped 0xAA) */
   int32_t DA8; /* 8bit D/A (memory mapped 0x5000 - 0x5FFF) */
 
-  PSG *psg;
-  SCC *scc;
-  KSSOPLL *opll;
-  KSSOPL *opl;
+  PSGKSS *psg;
+  SCCKSS *scc;
+  OPLLKSS *opll;
+  OPLKSS *opl;
   SNG *sng;
 
   void *fp;
@@ -72,27 +72,27 @@ struct tagVM {
 
 enum { VM_MAIN_SLOT = 0, VM_BANK_SLOT = 1 };
 
-enum { VM_PSG_AUTO = 0, VM_PSG_AY, VM_PSG_YM };
-enum { VM_SCC_AUTO = 0, VM_SCC_STANDARD, VM_SCC_ENHANCED };
-enum { VM_KSSOPLL_2413 = 0, VM_KSSOPLL_VRC7, VM_KSSOPLL_281B };
-enum { VM_KSSOPL_PANA = 0, VM_KSSOPL_TOSH, VM_KSSOPL_PHIL };
+enum { VM_PSGKSS_AUTO = 0, VM_PSGKSS_AY, VM_PSGKSS_YM };
+enum { VM_SCCKSS_AUTO = 0, VM_SCCKSS_STANDARD, VM_SCCKSS_ENHANCED };
+enum { VM_OPLL_2413 = 0, VM_OPLL_VRC7, VM_OPLL_281B };
+enum { VM_OPL_PANA = 0, VM_OPL_TOSH, VM_OPL_PHIL };
 
-VM *VM_new();
+VM *VM_new(int rate);
 void VM_delete(VM *vm);
 void VM_reset_device(VM *vm);
 void VM_reset(VM *vm, uint32_t cpu_clk, uint32_t pc, uint32_t play_adr, double vsync_freq, uint32_t song,
               uint32_t DA8);
 void VM_init_memory(VM *vm, uint32_t ram_mode, uint32_t offset, uint32_t num, uint8_t *data);
 void VM_init_bank(VM *vm, uint32_t mode, uint32_t num, uint32_t offset, uint8_t *data);
-void VM_exec(VM *vm, uint32_t cycles);
+uint32_t VM_exec(VM *vm, uint32_t cycles);
 void VM_exec_func(VM *vm, uint32_t init_adr);
 void VM_set_clock(VM *vm, uint32_t clock, double vsync_freq);
 void VM_set_wioproc(VM *vm, uint32_t a, VM_WIOPROC p);
 
-void VM_set_PSG_type(VM *vm, uint32_t psg_type);
-void VM_set_SCC_type(VM *vm, uint32_t scc_type);
-void VM_set_KSSOPLL_type(VM *vm, uint32_t opll_type);
-void VM_set_KSSOPL_type(VM *vm, uint32_t opl_type);
+void VM_set_PSGKSS_type(VM *vm, uint32_t psg_type);
+void VM_set_SCCKSS_type(VM *vm, uint32_t scc_type);
+void VM_set_OPLL_type(VM *vm, uint32_t opll_type);
+void VM_set_OPL_type(VM *vm, uint32_t opl_type);
 
 void VM_write_memory(VM *vm, uint32_t a, uint32_t d);
 void VM_write_io(VM *vm, uint32_t a, uint32_t d);

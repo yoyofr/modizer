@@ -23,13 +23,13 @@ static void memwrite(VM *vm, uint32_t a, uint32_t d) {
   }
 
   if (!vm->scc_disable) {
-    if (vm->scc_type == VM_SCC_AUTO && (a == 0x9000 || a == 0xB000 || a == 0xBFFE)) {
+    if (vm->scc_type == VM_SCCKSS_AUTO && (a == 0x9000 || a == 0xB000 || a == 0xBFFE)) {
       if (a == 0x9000 && d != 0x00)
-        SCC_write(vm->scc, a, 0x3f);
+        SCCKSS_write(vm->scc, a, 0x3f);
       else
-        SCC_write(vm->scc, a, d);
+        SCCKSS_write(vm->scc, a, d);
     } else if ((0x9800 <= a && a <= 0x98FF) || (0xB800 <= a && a <= 0xB8FF)) {
-      SCC_write(vm->scc, a, d);
+      SCCKSS_write(vm->scc, a, d);
       LPDETECT_write(vm->lpde, a, d);
     }
   }
@@ -52,11 +52,11 @@ static uint32_t ioread(VM *vm, uint32_t a) {
   a &= 0xff;
 
   if ((vm->psg) && ((a & 0xff) == 0xA2))
-    return PSG_readIO(vm->psg);
+    return PSGKSS_readIO(vm->psg);
   else if (a == 0xC1)
-    return KSSOPL_readIO(vm->opl);
+    return OPLKSS_readIO(vm->opl);
   else if (a == 0xC0)
-    return KSSOPL_status(vm->opl);
+    return OPLKSS_status(vm->opl);
 
   return 0xff;
 }
@@ -89,7 +89,7 @@ static void iowrite(VM *vm, uint32_t a, uint32_t d) {
   case 0xA0:
   case 0xA1:
     if (vm->psg) {
-      PSG_writeIO(vm->psg, a, d);
+      PSGKSS_writeIO(vm->psg, a, d);
       LPDETECT_write(vm->lpde, a, d);
     }
     break;
@@ -119,7 +119,7 @@ static void iowrite(VM *vm, uint32_t a, uint32_t d) {
   case 0xF0:
   case 0xF1:
     if (vm->opll) {
-      KSSOPLL_writeIO(vm->opll, a, d);
+      OPLLKSS_writeIO(vm->opll, a, d);
       LPDETECT_write(vm->lpde, a, d);
     }
     break;
@@ -127,7 +127,7 @@ static void iowrite(VM *vm, uint32_t a, uint32_t d) {
   case 0xC0:
   case 0xC1:
     if (vm->opl) {
-      KSSOPL_writeIO(vm->opl, a, d);
+        OPLKSS_writeIO(vm->opl, a, d);
       LPDETECT_write(vm->lpde, a, d);
     }
     break;
@@ -179,18 +179,19 @@ VM *VM_new(int rate) {
   memset(vm, 0, sizeof(VM));
 
   vm->sng = SNG_new(MSX_CLK, rate);
-  vm->psg = PSG_new(MSX_CLK, rate);
-  vm->scc = SCC_new(MSX_CLK, rate);
-  vm->opll = KSSOPLL_new(MSX_CLK, rate);
-  vm->opl = KSSOPL_new(MSX_CLK, rate);
+  vm->psg = PSGKSS_new(MSX_CLK, rate);
+  PSGKSS_setClockDivider(vm->psg, 1);
+  vm->scc = SCCKSS_new(MSX_CLK, rate);
+  vm->opll = OPLLKSS_new(MSX_CLK, rate);
+  vm->opl = OPLKSS_new(MSX_CLK, rate);
   vm->mmap = MMAP_new();
   vm->lpde = LPDETECT_new();
   vm->ram_mode = 0;
   vm->DA8_enable = 0;
   vm->bank_mode = BANK_16K;
-  vm->psg_type = VM_PSG_AUTO;
-  vm->scc_type = VM_SCC_AUTO;
-  vm->opll_type = VM_KSSOPLL_2413;
+  vm->psg_type = VM_PSGKSS_AUTO;
+  vm->scc_type = VM_SCCKSS_AUTO;
+  vm->opll_type = VM_OPLL_2413;
   assert(vm->mmap);
 
   return vm;
@@ -201,15 +202,15 @@ void VM_delete(VM *vm) {
   MMAP_delete(vm->mmap);
   LPDETECT_delete(vm->lpde);
   SNG_delete(vm->sng);
-  PSG_delete(vm->psg);
-  SCC_delete(vm->scc);
-  KSSOPLL_delete(vm->opll);
-  KSSOPL_delete(vm->opl);
+  PSGKSS_delete(vm->psg);
+  SCCKSS_delete(vm->scc);
+    OPLLKSS_delete(vm->opll);
+    OPLKSS_delete(vm->opl);
   kmevent_free(&vm->kme, vm->vsync_id);
   free(vm);
 }
 
-void VM_exec(VM *vm, uint32_t cycles) { kmz80_exec(&vm->context, cycles); }
+uint32_t VM_exec(VM *vm, uint32_t cycles) { return kmz80_exec(&vm->context, cycles); }
 
 void VM_exec_func(VM *vm, uint32_t func_adr) { exec_setup(vm, func_adr); }
 
@@ -222,64 +223,64 @@ void VM_set_clock(VM *vm, uint32_t clock, double vsync_freq) {
 }
 
 void VM_reset_device(VM *vm) {
-  PSG_reset(vm->psg);
-  VM_set_PSG_type(vm, vm->psg_type);
-  SCC_reset(vm->scc);
-  VM_set_SCC_type(vm, vm->scc_type);
-  KSSOPLL_reset(vm->opll);
-  VM_set_KSSOPLL_type(vm, vm->opll_type);
-  KSSOPL_reset(vm->opl);
-  VM_set_KSSOPL_type(vm, vm->opl_type);
+  PSGKSS_reset(vm->psg);
+  VM_set_PSGKSS_type(vm, vm->psg_type);
+  SCCKSS_reset(vm->scc);
+  VM_set_SCCKSS_type(vm, vm->scc_type);
+    OPLLKSS_reset(vm->opll);
+  VM_set_OPLL_type(vm, vm->opll_type);
+    OPLKSS_reset(vm->opl);
+  VM_set_OPL_type(vm, vm->opl_type);
   SNG_reset(vm->sng);
 }
 
-void VM_set_PSG_type(VM *vm, uint32_t psg_type) {
+void VM_set_PSGKSS_type(VM *vm, uint32_t psg_type) {
   if (!vm->psg)
     return;
 
-  if (psg_type == VM_PSG_AUTO)
-    PSG_setVolumeMode(vm->psg, EMU2149_VOL_DEFAULT);
-  else if (psg_type == VM_PSG_AY)
-    PSG_setVolumeMode(vm->psg, EMU2149_VOL_AY_3_8910);
-  else if (psg_type == VM_PSG_YM)
-    PSG_setVolumeMode(vm->psg, EMU2149_VOL_YM2149);
+  if (psg_type == VM_PSGKSS_AUTO)
+    PSGKSS_setVolumeMode(vm->psg, 0);
+  else if (psg_type == VM_PSGKSS_AY)
+    PSGKSS_setVolumeMode(vm->psg, 2);
+  else if (psg_type == VM_PSGKSS_YM)
+    PSGKSS_setVolumeMode(vm->psg, 1);
   vm->psg_type = psg_type;
 }
 
-void VM_set_SCC_type(VM *vm, uint32_t scc_type) {
+void VM_set_SCCKSS_type(VM *vm, uint32_t scc_type) {
   if (!vm->scc)
     return;
 
-  if (scc_type == VM_SCC_AUTO) {
-    SCC_set_type(vm->scc, SCC_ENHANCED);
-    SCC_write(vm->scc, 0x9000, 0x3f);
-  } else if (scc_type == VM_SCC_STANDARD) {
-    SCC_set_type(vm->scc, SCC_STANDARD);
-    SCC_write(vm->scc, 0x9000, 0x3f);
-  } else if (scc_type == VM_SCC_ENHANCED) {
-    SCC_set_type(vm->scc, SCC_ENHANCED);
-    SCC_write(vm->scc, 0xBFFE, 0x20);
-    SCC_write(vm->scc, 0xB000, 0x80);
+  if (scc_type == VM_SCCKSS_AUTO) {
+    SCCKSS_set_type(vm->scc, SCCKSS_ENHANCED);
+    SCCKSS_write(vm->scc, 0x9000, 0x3f);
+  } else if (scc_type == VM_SCCKSS_STANDARD) {
+    SCCKSS_set_type(vm->scc, SCCKSS_STANDARD);
+    SCCKSS_write(vm->scc, 0x9000, 0x3f);
+  } else if (scc_type == VM_SCCKSS_ENHANCED) {
+    SCCKSS_set_type(vm->scc, SCCKSS_ENHANCED);
+    SCCKSS_write(vm->scc, 0xBFFE, 0x20);
+    SCCKSS_write(vm->scc, 0xB000, 0x80);
   }
   vm->scc_type = scc_type;
 }
 
-void VM_set_KSSOPLL_type(VM *vm, uint32_t opll_type) {
+void VM_set_OPLL_type(VM *vm, uint32_t opll_type) {
   if (!vm->opll)
     return;
 
-  if (opll_type == VM_KSSOPLL_2413)
-    KSSOPLL_reset_patch(vm->opll, KSSOPLL_2413_TONE);
-  else if (opll_type == VM_KSSOPLL_VRC7)
-    KSSOPLL_reset_patch(vm->opll, KSSOPLL_VRC7_TONE);
-  else if (opll_type == VM_KSSOPLL_281B)
-    KSSOPLL_reset_patch(vm->opll, KSSOPLL_281B_TONE);
+  if (opll_type == VM_OPLL_2413)
+      OPLLKSS_reset_patch(vm->opll,OPLLKSS_2413_TONE);
+  else if (opll_type == VM_OPLL_VRC7)
+      OPLLKSS_reset_patch(vm->opll,OPLLKSS_VRC7_TONE);
+  else if (opll_type == VM_OPLL_281B)
+      OPLLKSS_reset_patch(vm->opll,OPLLKSS_281B_TONE);
   else
     ;
   vm->opll_type = opll_type;
 }
 
-void VM_set_KSSOPL_type(VM *vm, uint32_t opl_type) { vm->opl_type = opl_type; }
+void VM_set_OPL_type(VM *vm, uint32_t opl_type) { vm->opl_type = opl_type; }
 
 void VM_reset(VM *vm, uint32_t clock, uint32_t init_adr, uint32_t vsync_adr, double vsync_freq, uint32_t song,
               uint32_t DA8) {

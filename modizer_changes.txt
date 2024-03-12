@@ -34,6 +34,7 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
   - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer (1/voice)
   - vgmstream: not sure it'ss worth doing it as it is mostly streaming from stereo sourcecode
   - LibKSS
+  - PMDMINI
   - SC68
 
 missing seek support:
@@ -47,9 +48,8 @@ missing seek support:
 => ADPLUG oscillo data not generated when OPL is not Woody
 => HC /PSF2 fadeout for oscillo
 
-=> like button :open pop-up to select between subsong/arcentry/file (when relevant) 
+
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
-=> when in infinite mode, don't update song length in database
 
 3.6
 ---
@@ -66,6 +66,8 @@ missing seek support:
 - [DB] ASMA updated to latest version
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category
+- [UI] Favorites management improved to select between songs & files
+- [DB] User stats management improved
 - [PLAYER] STSOUND now support voices muting
 - [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)
 - [FX] STSOUND now generates detailed oscilloscope output

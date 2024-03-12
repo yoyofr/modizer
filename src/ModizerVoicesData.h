@@ -14,6 +14,7 @@
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern signed int *m_voice_buff_accumul_temp[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_buff_adjustement;
 
 extern int m_genNumVoicesChannels;
 
@@ -25,8 +26,11 @@ extern int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];
 extern char vgmVRC7,vgm2610b;
 extern int HC_voicesMuteMask1,HC_voicesMuteMask2;
 extern int v2m_voices_mask;
+extern int64_t generic_mute_mask;
+
 extern signed char m_voice_current_system,m_voice_current_systemSub;
 extern int m_voice_current_samplerate;
+extern double m_voice_current_rateratio;
 extern char m_voice_current_systemPairedOfs;
 extern char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 extern int m_voice_current_sample;

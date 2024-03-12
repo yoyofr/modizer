@@ -1,3 +1,11 @@
+# v1.5.9 (2022-09-21)
+- Fix the envelope threshold for DAMP to ATTACK state transition (Issue #12).
+
+# v1.5.7 (2022-09-14)
+- Silence some pedantic warnings.
+- Update minimum cmake version to 3.0.
+- Fix the problem where min/max function conflict with the Visual C++ macros.
+
 # v1.5.6 (2021-02-28)
 - Update YMF281 ROM patches.
 
@@ -6,7 +14,7 @@
 
 # <s>v1.5.4 (2021 02-04)</s>
 - Fix the problem where the internal sample rate is calculated as int instead of double.
-- Replace older "KSSOPLL_dump2patch" to "KSSOPLL_dumpToPatch".
+- Replace older "OPLLKSS_dump2patch" to "OPLLKSS_dumpToPatch".
 
 # v1.5.3 (2021 01-31)
 - Change min/max macros to inline functions to suppress compiler errors/warnings.
@@ -27,10 +35,10 @@
 
 # v1.4.0 (2020 02-08)
 - Refactor API and internals.
-- Add KSSOPLL_setChipType. KSSOPLL_setChipMode is deprecated.
+- Add OPLLKSS_setChipType. OPLLKSS_setChipMode is deprecated.
 
 # v1.3.0 (2020 02-03)
-- Add fine-grained panning (KSSOPLL_setPanFine).
+- Add fine-grained panning (OPLLKSS_setPanFine).
 
 # v1.2.7 (2020 01-12)
 - Reactivate output array of carrier slot for backward compatibility.

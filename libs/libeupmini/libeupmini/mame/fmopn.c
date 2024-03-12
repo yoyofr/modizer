@@ -4440,7 +4440,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
         m_voice_current_samplerate=44100;
         //printf("voice sample rate null\n");
     }
-    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate+1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffering */
