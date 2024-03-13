@@ -819,6 +819,7 @@
 		CCB21EDA1246C9E900A30F62 /* unzoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21ED91246C9E900A30F62 /* unzoom@2x.png */; };
 		CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EDB1246C9F200A30F62 /* zoom@2x.png */; };
 		CCB21EE21246CA5100A30F62 /* close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EE11246CA5100A30F62 /* close@2x.png */; };
+		CCB4C4672BA0F1F300695908 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB4C4662BA0F1F300695908 /* ReplayKit.framework */; };
 		CCB818302B7278BF00364D64 /* liblibpixel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB816FE2B7196A500364D64 /* liblibpixel.a */; };
 		CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */; };
 		CCB8D97017F6172D008E6A45 /* txtMenu7a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D96F17F6172D008E6A45 /* txtMenu7a_2x.png */; };
@@ -2514,6 +2515,7 @@
 		CCB21ED91246C9E900A30F62 /* unzoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "unzoom@2x.png"; sourceTree = "<group>"; };
 		CCB21EDB1246C9F200A30F62 /* zoom@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "zoom@2x.png"; sourceTree = "<group>"; };
 		CCB21EE11246CA5100A30F62 /* close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "close@2x.png"; sourceTree = "<group>"; };
+		CCB4C4662BA0F1F300695908 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		CCB816F92B7196A500364D64 /* libpixel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpixel.xcodeproj; path = libpixel/libpixel.xcodeproj; sourceTree = "<group>"; };
 		CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDZUIImageView.h; sourceTree = "<group>"; };
 		CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MDZUIImageView.m; sourceTree = "<group>"; };
@@ -2689,6 +2691,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				59FF9ACB263F350A004152B8 /* liblibkss.a in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
+				CCB4C4672BA0F1F300695908 /* ReplayKit.framework in Frameworks */,
 				5980544E262F221600BB0309 /* libxmp.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
@@ -2741,6 +2744,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CCB4C4662BA0F1F300695908 /* ReplayKit.framework */,
 				59047C7426331C0100623C08 /* libc++abi.tbd */,
 				59047C6F26331BE700623C08 /* libc++.tbd */,
 				593288A3261FC61700DB4E7C /* CoreImage.framework */,

@@ -782,6 +782,17 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
 				_playlist->entries[_playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 				_playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                
+                //adjust label
+                if ([_playlist->entries[_playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
+                    _playlist->entries[_playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[_playlist->entries[_playlist->nb_entries].fullpath lastPathComponent]] ,_playlist->entries[_playlist->nb_entries].label];
+                } else {
+                    
+                    if ([_playlist->entries[_playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                        _playlist->entries[_playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[_playlist->entries[_playlist->nb_entries].fullpath lastPathComponent]],_playlist->entries[_playlist->nb_entries].label];
+                    }
+                }
+                
 				signed char tmpsc=(signed char)sqlite3_column_int(stmt, 2);
 				if (tmpsc<0) tmpsc=0;
 				if (tmpsc>5) tmpsc=5;
@@ -2075,8 +2086,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                     
-                    NSLog(@"lbl %@",playlist->entries[playlist->nb_entries].label);
-                    NSLog(@"fp %@",playlist->entries[playlist->nb_entries].fullpath);
+                    //NSLog(@"lbl %@",playlist->entries[playlist->nb_entries].label);
+                    //NSLog(@"fp %@",playlist->entries[playlist->nb_entries].fullpath);
                     //adjust label
                     if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
                         playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
@@ -2123,6 +2134,17 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
                     playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                     playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                    
+                    //adjust label
+                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
+                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
+                    } else {
+                        
+                        if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                            playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
+                        }
+                    }
+                    
                     playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
 
                     playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);

@@ -181,7 +181,7 @@ static int display_length_mode=0;
 
 @synthesize oglButton;
 
-@synthesize btnShowSubSong,btnShowArcList,btnShowVoices;
+@synthesize btnShowSubSong,btnShowArcList,btnShowVoices,btnRecordScreen;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
@@ -206,6 +206,22 @@ static int display_length_mode=0;
 -(void) cancelSubSel {
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(IBAction)changeScreenRecorderFlag {
+    if (bRSactive) {
+        bRSactive=false;
+        if (isRecordingScreen) {
+            [self StopRecording];
+        }
+    } else {
+        bRSactive=true;
+        if ((!isRecordingScreen)&&(bRSactive)) {
+            [self StartRecording];
+        }
+    }
+    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
 }
 
 -(IBAction)showVoicesSelector:(id)sender {
@@ -606,7 +622,7 @@ static int display_length_mode=0;
     
     tmp_rating=mPlaylist[mPlaylist_pos].mPlaylistRating;
     
-    NSLog(@"updating rating multi: %@\n%@",fileName,filePath);
+    //NSLog(@"updating rating multi: %@\n%@",fileName,filePath);
     
     msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Favorites",@"")
                                                    message:[NSString stringWithFormat:NSLocalizedString(@"Please choose",@"")]
@@ -1733,8 +1749,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 }
 
+int recording=0;
 - (IBAction)showEQ {
-    
     if (bShowEQ) {
         [eqVC viewWillDisappear:YES];
         [eqVC.view removeFromSuperview];
@@ -2670,11 +2686,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&tmp_rating,&avg_rating);
     if (!mRestart) playcount++;
     mPlaylist[mPlaylist_pos].mPlaylistRating=tmp_rating;
-    DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,tmp_rating,avg_rating,[mplayer getSongLength],-1,-1);
+    DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,tmp_rating,avg_rating,-1,-1,-1);
     
     [self showRating:tmp_rating];
-    
-    
     
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
@@ -2890,6 +2904,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
         if (tmp_str[i]=='?') {
             found_sub=1;
+            sub_index=0;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
             if (!filePathTmp) filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
@@ -3336,6 +3351,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-36*2,0+48,32,32);
             btnShowVoices.frame = CGRectMake(mDevice_ww-36*3,0+48,32,32);
+            btnRecordScreen.frame = CGRectMake(mDevice_ww-36*4,0+48,32,32);
             
             mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
             mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
@@ -3595,6 +3611,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
                 btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
                 btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
+                btnRecordScreen.frame = CGRectMake(xofs+6+24*5+4-36,yofs+40,32,32);
                 
                 infoButton.frame = CGRectMake(mDevice_hh-44,4,40,40);
                 eqButton.frame = CGRectMake(mDevice_hh-44-44,4,40,40);
@@ -4604,6 +4621,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mPaused=1;
     mScaleFactor=1.0f;
     
+    isRecordingScreen=false;
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -4970,17 +4988,24 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [btnShowVoices setStyle:BButtonStyleBootstrapV2];
     [btnShowArcList setStyle:BButtonStyleBootstrapV2];
     [btnShowSubSong setStyle:BButtonStyleBootstrapV2];
+    [btnRecordScreen setStyle:BButtonStyleBootstrapV2];
     
     
     [btnShowVoices setType:BButtonTypeInverse];
     [btnShowArcList setType:BButtonTypeInverse];
     [btnShowSubSong setType:BButtonTypeInverse];
+    [btnRecordScreen setType:BButtonTypeInverse];
     
     [btnShowVoices addAwesomeIcon:FAIconMusic beforeTitle:YES];
     [btnShowArcList addAwesomeIcon:FAIconArchive beforeTitle:YES];
     [btnShowSubSong addAwesomeIcon:FAIconStackOverflow beforeTitle:YES];
+    [btnRecordScreen addAwesomeIcon:FAIconVideoCamera beforeTitle:YES];
     
     btnShowVoices.hidden=false;
+    btnRecordScreen.hidden=false;
+    btnRecordScreen.enabled=true;
+    btnRecordScreen.selected=false;
+    bRSactive=false;
     
     
     [infoButton setStyle:BButtonStyleBootstrapV2];
@@ -5446,6 +5471,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     eqVC=nil;
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
+    
+    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
     
     if (mPlaylist_size) {
         for (int i=0;i<mPlaylist_size;i++) {  //reset rating to force resynchro (for ex, user delted an entry in 'favorites' list, thus reseting the rating for a given file
@@ -7635,6 +7663,69 @@ extern "C" int current_sample;
     }
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)StartRecording {
+    RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+    recorder.delegate = self;
+    isRecordingScreen=true;
+    [recorder startRecordingWithHandler:^(NSError *error) {
+
+        if(error) {
+            isRecordingScreen=false;
+            NSLog(@"Error= %@",error.localizedDescription);
+        }
+    }];
+}
+
+- (void)StopRecording
+{
+    RPScreenRecorder* recorder = RPScreenRecorder.sharedRecorder;
+    isRecordingScreen=false;
+    
+    [recorder stopRecordingWithHandler:^(RPPreviewViewController * previewViewController,
+NSError * error) {
+
+        if(error)
+        {
+            NSLog(@"Error= %@",error.localizedDescription);
+        }
+
+        if(previewViewController)
+        {
+            previewViewController.previewControllerDelegate = self;
+
+            previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+
+            [self presentViewController:previewViewController animated:YES completion:nil];
+        }
+
+    }];
+}
+
+- (void)screenRecorder:(RPScreenRecorder *)screenRecorder
+            didStopRecordingWithError:(NSError *)error
+            previewViewController:(RPPreviewViewController *)previewViewController {
+    
+    isRecordingScreen=false;
+    
+    if(error) {
+        NSLog(@"Error= %@",error.localizedDescription);
+    }
+    
+}
+
+#pragma mark RPPreview ViewController Delegate
+
+/* @abstract Called when the view controller is finished. */
+- (void)previewControllerDidFinish:(RPPreviewViewController *)previewController {
+    NSLog(@"previewControllerDidFinish");
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+/* @abstract Called when the view controller is finished and returns a set of activity types that the user has completed on the recording. The built in activity types are listed in UIActivity.h. */
+- (void)previewController:(RPPreviewViewController *)previewController didFinishWithActivityTypes:(NSSet <NSString *> *)activityTypes {
+    NSLog(@"previewController");
 }
 
 

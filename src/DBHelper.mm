@@ -591,7 +591,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                         }
                     }
                 }
-                if (entries_nb&&(songs>0)) {
+                if (entries_nb&&(abs(songs)>0)) {
                     /*if (avg_rating>0) {
                      avg_rating=avg_rating/entries_nb;
                      if (avg_rating==0) avg_rating=1;

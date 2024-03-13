@@ -203,11 +203,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="635"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="635"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" barStyle="black" id="716">
@@ -224,7 +224,7 @@
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="635"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -463,6 +463,18 @@
                                         </state>
                                         <connections>
                                             <action selector="showVoicesSelector:" destination="11" eventType="touchUpInside" id="UKG-Pz-8le"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ITc-yB-ktX" userLabel="ScreenRecord" customClass="BButton">
+                                        <rect key="frame" x="169" y="0.0" width="32" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal">
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="changeScreenRecorderFlag" destination="11" eventType="touchUpInside" id="UF1-NE-cie"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1647" userLabel="ArcSelector" customClass="BButton">
@@ -931,6 +943,7 @@
                 <outlet property="btnAddToPl" destination="L8O-uz-tyg" id="77a-Qg-wbp"/>
                 <outlet property="btnChangeTime" destination="1885" id="1887"/>
                 <outlet property="btnLoopInf" destination="1544" id="1547"/>
+                <outlet property="btnRecordScreen" destination="ITc-yB-ktX" id="wXJ-gs-efi"/>
                 <outlet property="btnShowArcList" destination="1647" id="1659"/>
                 <outlet property="btnShowSubSong" destination="1626" id="1638"/>
                 <outlet property="btnShowVoices" destination="Bl7-vC-pr8" id="80p-pm-Wp9"/>
@@ -1198,7 +1211,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="3926"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <mutableString key="text">v3.6 © Yohann Magnien / YoyoFR
+                        <string key="text">v3.6 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
@@ -1238,7 +1251,7 @@ Integrated player libs:
 - WeBSID
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <color key="textColor" systemColor="labelColor"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>

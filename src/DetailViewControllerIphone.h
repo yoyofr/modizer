@@ -24,6 +24,8 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
+#import <ReplayKit/ReplayKit.h>
+
 #import "OBSlider.h"
 
 #import "ModizMusicPlayer.h"
@@ -55,7 +57,7 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
     bool darkMode;
@@ -69,6 +71,10 @@ class CGLString;
     //Voices
     VoicesViewController *voicesVC;
     bool bShowVC;
+    
+    //Record screen
+    bool bRSactive;
+    bool isRecordingScreen;
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
@@ -106,7 +112,7 @@ class CGLString;
 
     //Subsongs and Archive entries picker
 	IBOutlet UIButton *btnChangeTime;
-    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices;
+    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen;
 	
 	IBOutlet UILabel *labelTime,*labelModuleLength;
 	IBOutlet UILabel *labelSeeking;
@@ -191,6 +197,7 @@ class CGLString;
 @property int mShuffle;
 @property int mShouldUpdateInfos,mLoopMode;
 @property bool bShowVC,bShowEQ;
+@property bool bRSactive;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 
 -(IBAction)pushedAddToPl;
@@ -211,6 +218,8 @@ class CGLString;
 - (IBAction)showPlaylist;
 
 - (IBAction)showEQ;
+
+-(IBAction)changeScreenRecorderFlag;
 
 - (IBAction)showInfo;
 - (IBAction)hideInfo;
@@ -287,7 +296,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices;
+@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*buttonShuffleOneSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd,*pauseBarSubRewind,*pauseBarSubFFwd;
@@ -344,5 +353,8 @@ class CGLString;
 -(void) updMediaCenter;
 -(void) cmdLike;
 -(void) cmdDislike;
+
+- (void)StartRecording;
+- (void)StopRecording;
 
 @end

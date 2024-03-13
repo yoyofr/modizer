@@ -70,6 +70,7 @@ missing seek support:
 - [DB] User stats management improved
 - [PLAYER] STSOUND now support voices muting
 - [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)
+- [FX] LIBKSS now generates detailed oscilloscope output
 - [FX] STSOUND now generates detailed oscilloscope output
 - [FX] HVL/AHX now generates detailed oscilloscope output
 - [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
