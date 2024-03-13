@@ -57,7 +57,7 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
     bool darkMode;
@@ -214,6 +214,8 @@ class CGLString;
 -(IBAction)playPrevSub;
 -(void) longPressNextSubArc:(UIGestureRecognizer *)gestureRecognizer;
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer;
+
+- (void)restartCurrent;
 
 - (IBAction)showPlaylist;
 

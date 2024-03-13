@@ -3205,7 +3205,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
             
             //copy voice data for oscillo view
-            NSLog(@"uade voice: %d",m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            //NSLog(@"uade voice: %d",m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             
             for (int j=0;j<4;j++) {
                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)];

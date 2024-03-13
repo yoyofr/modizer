@@ -56,6 +56,7 @@ missing seek support:
 - [PLAYER] WebSID re-added following request. Now possible to choose default SID player between sidplayfp & WebSID
 - [PLAYER] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)
+- [PLAYER] LIBKSS updated to latest version
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
 - [PLAYER] PMDMini now support seek

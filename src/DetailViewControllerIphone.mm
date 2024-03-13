@@ -1875,6 +1875,23 @@ int recording=0;
      [UIView commitAnimations];*/
 }
 
+- (void)restartCurrent {
+    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
+        [mplayer selectArcEntry:[mplayer getArcIndex]];
+        
+        [self showWaitingLoading];
+        
+        [self play_loadArchiveModule];
+        [self hideWaiting];
+        [self refreshCurrentVC];
+    } else {
+        //restart
+        if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
+        else [self play_curEntry:-1];
+        if (mPaused) [self playPushed:nil];
+        [self refreshCurrentVC];
+    }
+}
 
 - (IBAction)playPrevSub {
     static bool no_reentrant=false;
@@ -1885,21 +1902,7 @@ int recording=0;
     if (no_reentrant) return;
     no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
-        if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
-            [mplayer selectArcEntry:[mplayer getArcIndex]];
-            
-            [self showWaitingLoading];
-            
-            [self play_loadArchiveModule];
-            [self hideWaiting];
-            [self refreshCurrentVC];
-        } else {
-            //restart
-            if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
-            else [self play_curEntry:-1];
-            if (mPaused) [self playPushed:nil];
-            [self refreshCurrentVC];
-        }
+        [self restartCurrent];
         no_reentrant=false;
         return;
     }
@@ -7665,17 +7668,85 @@ extern "C" int current_sample;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)StartRecording {
-    RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
-    recorder.delegate = self;
-    isRecordingScreen=true;
-    [recorder startRecordingWithHandler:^(NSError *error) {
+/*
+-(void)ShowBroadcasting {
+    [RPBroadcastActivityViewController loadBroadcastActivityViewControllerWithHandler:^(RPBroadcastActivityViewController * broadcastActivityViewController, NSError *error) {
+        
+        broadcastActivityViewController.delegate = self;
 
-        if(error) {
-            isRecordingScreen=false;
-            NSLog(@"Error= %@",error.localizedDescription);
-        }
+        [self presentViewController:broadcastActivityViewController animated:YES completion:nil];
+        
     }];
+}*/
+
+- (void)StartRecording {
+    UIAlertController *msgAlert;
+    UIAlertAction* userAction;
+    UIAlertAction* cancelAction;
+    
+    msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Screen recording",@"")
+                                                   message:[NSString stringWithFormat:NSLocalizedString(@"Please choose",@"")]
+                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    //Cancel action
+    cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                                          handler:^(UIAlertAction * action) {
+    }];
+    [msgAlert addAction:cancelAction];
+    
+    //Start recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Start recording",@"") style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction * action) {
+        RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+        recorder.delegate = self;
+        isRecordingScreen=true;
+        [recorder startRecordingWithHandler:^(NSError *error) {
+
+            if(error) {
+                isRecordingScreen=false;
+                NSLog(@"Error= %@",error.localizedDescription);
+            }
+        }];
+    }];
+    [msgAlert addAction:userAction];
+    
+    //Restart recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart song & start recording",@"") style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction * action) {
+        RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+        recorder.delegate = self;
+        isRecordingScreen=true;
+        [self restartCurrent];
+        [recorder startRecordingWithHandler:^(NSError *error) {
+            if(error) {
+                isRecordingScreen=false;
+                NSLog(@"Error= %@",error.localizedDescription);
+            }
+        }];
+    }];
+    [msgAlert addAction:userAction];
+    
+    //Restart recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart song, fullscreen & start recording",@"") style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction * action) {
+        RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+        recorder.delegate = self;
+        isRecordingScreen=true;
+        oglViewFullscreen=1;
+        oglViewFullscreenChanged=1;
+        [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+        [self restartCurrent];
+        [recorder startRecordingWithHandler:^(NSError *error) {
+            if(error) {
+                isRecordingScreen=false;
+                NSLog(@"Error= %@",error.localizedDescription);
+            }
+        }];
+    }];
+    [msgAlert addAction:userAction];
+    
+    [self showAlert:msgAlert];
+
+    
 }
 
 - (void)StopRecording
@@ -7693,10 +7764,9 @@ NSError * error) {
 
         if(previewViewController)
         {
+            [self pausePushed:NULL];
             previewViewController.previewControllerDelegate = self;
-
             previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-
             [self presentViewController:previewViewController animated:YES completion:nil];
         }
 
