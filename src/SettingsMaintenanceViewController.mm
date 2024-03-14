@@ -150,7 +150,14 @@ extern pthread_mutex_t db_mutex;
 -(void) resetSettings {
     [self showWaiting];
     [self flushMainLoop];
+    
+    //remove settings from userpref
+    NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+    //
+    //load default
     [SettingsGenViewController applyDefaultSettings];
+    [detailViewController settingsChanged:(int)SETTINGS_ALL];
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Settings reseted",@"")];
     [self hideWaiting];

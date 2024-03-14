@@ -192,6 +192,8 @@ enum MDZ_SETTINGS {
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
         MDZ_SETTINGS_FAMILY_OSCILLO,
+        OSCILLO_ShowLabel,
+        OSCILLO_ShowGrid,
         OSCILLO_MONO_COLOR,
         OSCILLO_MULTI_COLOR01,
         OSCILLO_MULTI_COLOR02,
@@ -200,7 +202,8 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR05,
         OSCILLO_MULTI_COLOR06,
         OSCILLO_MULTI_COLOR07,
-        OSCILLO_MULTI_COLOR08,        
+        OSCILLO_MULTI_COLOR08,
+    GLOB_FXOscillo,
     GLOB_FXAlpha,
     GLOB_FXLOD,
     GLOB_FXFPS,
@@ -214,9 +217,6 @@ enum MDZ_SETTINGS {
     GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
         
-    GLOB_FXOscillo,
-    GLOB_FXOscilloShowLabel,
-    GLOB_FXOscilloShowGrid,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
     GLOB_FX1,

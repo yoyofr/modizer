@@ -201,12 +201,29 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
+    
+    int max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+    float ratio;
+    
+    //check best config, maximize 16/9 ratio
+    if (num_voices>1)
+    for (;;) {
+        columns_width=ww/columns_nb;
+        max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+        mulfactor=(hh-8)/(max_voices_by_row)/2;
+        ratio=columns_width/(2*mulfactor);
+        
+        if (ratio<=3) break;
+        if (columns_nb>=num_voices) break;
+        
+        columns_nb++;
+        
+    }
+   // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
+    
     int xofs=(ww-columns_width*columns_nb)/2;
     int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
     int cur_voices=0;
-        
-    int max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-    mulfactor=(hh-8)/(max_voices_by_row)/2;
     
     int max_count=2*columns_width*num_voices;
     pts=(LineVertex*)malloc(sizeof(LineVertex)*2*columns_width*num_voices);
@@ -4226,7 +4243,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
     }
     
     
-    int j=data_pianofx_len-1-(data_pianofx_len/2);//MIDIFX_OFS;
+    int j=data_pianofx_len-1;//-(data_pianofx_len/2);//MIDIFX_OFS;
     //glLineWidth(line_width+2);
     index=0;
     for (int i=0; i<256; i++) {

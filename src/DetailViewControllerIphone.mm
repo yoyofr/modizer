@@ -6287,8 +6287,8 @@ extern "C" int current_sample;
                             settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START://11: //Oscillo
-                            if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=0;
-                            else settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
+                            if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
+                            else settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
                             break;
                             
                         case SUBMENU4_START://14: //MOD Pattern
@@ -6310,8 +6310,8 @@ extern "C" int current_sample;
                             settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START://11: //Oscillo
-                            if (settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value) settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=0;
-                            else settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=1;
+                            if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
+                            else settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
                             break;
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
@@ -6419,7 +6419,7 @@ extern "C" int current_sample;
             cur_pos=[mplayer getCurrentPlayedBufferIdx];
             short int *curBuffer=snd_buffer[cur_pos];
             // COMPUTE FFT
-#define SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM 1024
+#define SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM 512
             /////////////////////////////////////////
             //Number of Samples for input(time domain)/output(frequency domain)
             int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
@@ -6642,7 +6642,7 @@ extern "C" int current_sample;
         if (display_note_mode>=3) display_note_mode-=3;
         
         if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
-            playerpos=[mplayer getCurrentGenBufferIdx]; //(playerpos+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+            playerpos=[mplayer getCurrentGenBufferIdx];
             RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
             
             if (mHeader) delete mHeader;
@@ -6658,7 +6658,7 @@ extern "C" int current_sample;
             }
         } else if (mplayer.mPatternDataAvail) { //Modplug
             if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
-                playerpos=[mplayer getCurrentGenBufferIdx]; //(playerpos+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+                playerpos=[mplayer getCurrentGenBufferIdx];
                 
                 int *pat,*row;
                 pat=[mplayer playPattern];
@@ -6955,27 +6955,27 @@ extern "C" int current_sample;
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
-                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
+                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,NULL,settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
                     char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
                     
-                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) {
+                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,NULL,settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
                 break;
             case 3:
@@ -7008,12 +7008,13 @@ extern "C" int current_sample;
         
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
-            playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+            //playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
             switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
                 case 1:
                     RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     break;
                 case 2:
+                    playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
                 case 3:
@@ -7034,6 +7035,7 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
+                    playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
             }
@@ -7102,8 +7104,8 @@ extern "C" int current_sample;
                     break;
                 case SUBMENU3_START: //Oscillo
                     active_idx=1<<settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
-                    if (settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
-                    if (settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
+                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
+                    if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
                     break;
                 case SUBMENU4_START: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;

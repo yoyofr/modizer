@@ -2955,17 +2955,13 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 -(int) getCurrentPlayedBufferIdx {
     //buffer_ana_play_ofs-1 is the last one enqueued, so with +1 it should be the one playing right one.
-    //take some contingency in case it is updated just after
-    //at 44100Hz and with sound buffer=1024 samples, 1 buffer is 23ms. So 3 buffers are ~70ms
+    //take some contingency in case it is updated just after    
     int idx=(buffer_ana_play_ofs+4);
     if (idx<0) idx+=SOUND_BUFFER_NB;
     return idx%SOUND_BUFFER_NB;
 }
 
 -(int) getCurrentGenBufferIdx {
-    //buffer_ana_play_ofs-1 is the last one enqueued, so with +1 it should be the one playing right one.
-    //take some contingency in case it is updated just after
-    //at 44100Hz and with sound buffer=1024 samples, 1 buffer is 23ms. So 3 buffers are ~70ms
     int idx=(buffer_ana_play_ofs-1);
     if (idx<0) idx+=SOUND_BUFFER_NB;
     return idx%SOUND_BUFFER_NB;
