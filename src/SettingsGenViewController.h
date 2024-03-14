@@ -11,6 +11,9 @@
 #import "DetailViewControllerIphone.h"
 #import "TPKeyboardAvoidingTableView.h"
 
+#import "MSColorPicker/MSColorSelectionViewController.h"
+
+
 #import "CFtpServer.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
@@ -23,7 +26,8 @@ enum MDZ_SETTINGS_TYPE {
     MDZ_SLIDER_DISCRETE,
     MDZ_SLIDER_DISCRETE_TIME,
     MDZ_TEXTBOX,
-    MDZ_MSGBOX
+    MDZ_MSGBOX,
+    MDZ_COLORPICKER
 };
 
 enum MDZ_SETTINGS_SCOPE {
@@ -42,7 +46,8 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_VGMSTREAM,
     SETTINGS_XMP,
     SETTINGS_ONLINE,
-    SETTINGS_NSFPLAY
+    SETTINGS_NSFPLAY,
+    SETTINGS_OSCILLO
 };
 
 enum MDZ_SETTINGS {
@@ -186,6 +191,16 @@ enum MDZ_SETTINGS {
         XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
+        MDZ_SETTINGS_FAMILY_OSCILLO,
+        OSCILLO_MONO_COLOR,
+        OSCILLO_MULTI_COLOR01,
+        OSCILLO_MULTI_COLOR02,
+        OSCILLO_MULTI_COLOR03,
+        OSCILLO_MULTI_COLOR04,
+        OSCILLO_MULTI_COLOR05,
+        OSCILLO_MULTI_COLOR06,
+        OSCILLO_MULTI_COLOR07,
+        OSCILLO_MULTI_COLOR08,        
     GLOB_FXAlpha,
     GLOB_FXLOD,
     GLOB_FXFPS,
@@ -196,11 +211,12 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern_FontSize,
     GLOB_FXMIDIPattern,
     GLOB_FXPiano,
-        GLOB_FXPianoColorMode,
+    GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
+        
     GLOB_FXOscillo,
-        GLOB_FXOscilloShowLabel,
-        GLOB_FXOscilloShowGrid,
+    GLOB_FXOscilloShowLabel,
+    GLOB_FXOscilloShowGrid,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
     GLOB_FX1,
@@ -210,6 +226,10 @@ enum MDZ_SETTINGS {
     GLOB_FX5,
     GLOB_FXRandom,
     
+
+    
+    
+    
     MAX_SETTINGS
 };
 
@@ -217,7 +237,6 @@ typedef struct {
     //boolswitch
     unsigned char switch_value;
 } t_setting_boolswitch;
-
 
 typedef struct {
     //switch
@@ -245,6 +264,12 @@ typedef struct {
     char *text;
 } t_setting_msgbox;
 
+typedef struct {
+    //color
+    int rgb;
+} t_setting_color;
+
+
 
 typedef struct {
 //common fields
@@ -260,12 +285,13 @@ typedef struct {
         t_setting_boolswitch mdz_boolswitch;
         t_setting_textbox mdz_textbox;
         t_setting_msgbox mdz_msgbox;
+        t_setting_color mdz_color;
     } detail;
 } t_settings;
 
 
 
-@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate> {
+@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate,UIColorPickerViewControllerDelegate,MSColorSelectionViewControllerDelegate,UIPopoverPresentationControllerDelegate> {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
@@ -276,6 +302,9 @@ typedef struct {
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
+    
+    //Color picker
+    UIButton *currentColorPickerBtn;
     
     //FTP
     CFtpServer *ftpserver;
@@ -298,7 +327,11 @@ typedef struct {
 + (void) restoreSettings;
 + (void) backupSettings;
 + (void) applyDefaultSettings;
++(void) oscilloGenSystemColor:(int)mode;
+
 -(IBAction) goPlayer;
 -(void) updateMiniPlayer;
+
+
 
 @end

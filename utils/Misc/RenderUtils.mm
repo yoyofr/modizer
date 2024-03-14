@@ -14,6 +14,9 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 #include "RenderUtils.h"
 #include "TextureUtils.h"
 
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
+
 #import "Font.h"
 #import "GLString.h"
 
@@ -112,7 +115,8 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
     
 }
 
-#define OSCILLO_BUFFER_SIZE SOUND_BUFFER_SIZE_SAMPLE*4
+#define OSCILLO_BUFFER_NB 4
+#define OSCILLO_BUFFER_SIZE SOUND_BUFFER_SIZE_SAMPLE*OSCILLO_BUFFER_NB
 static signed char *prev_snd_data;
 static signed char *prev_snd_dataStereo;
 static int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
@@ -142,8 +146,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     static char first_call=1;
     
     //snd_data_idx--;
-    if (snd_data_idx<0) snd_data_idx=SOUND_BUFFER_NB-1;
-    if (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
+    //snd_data_idx-=OSCILLO_BUFFER_NB-1;
+    while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
+    while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
         
     //looking at 2 buffers -> 2 x SOUND_BUFFER_SIZE SAMPLE
     //max shift is 1/3, so 1/6 on the left and 1/6 on the right
@@ -155,11 +160,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     else colA=220;
         
     for (int i=0;i<num_voices;i++)
-        for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
-            cur_snd_data[j*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[snd_data_idx][j*SOUND_MAXVOICES_BUFFER_FX+i];
-            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*1)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+1)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
-            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*2)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+2)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
-            cur_snd_data[(j+SOUND_BUFFER_SIZE_SAMPLE*3)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+3)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+        for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
+            for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
+                cur_snd_data[(j+k*SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+k)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+            }
         }
     
     if (first_call) {
@@ -316,9 +320,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
             
             if (color_mode==1) {
-                colR=0;
-                colG=255;
-                colB=0;
+                colR=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>16)&0xFF;
+                colG=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>8)&0xFF;
+                colB=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>0)&0xFF;
+                
             } else {
                 colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
@@ -5811,11 +5816,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     //current playing line
     //    230,76,153
     if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, 0,120,100,200,120);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, hh, 120,100,200,120);
+        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, 0,210,210,255,200);
+        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, hh,210,210,255,200);
     } else {
-        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width,120,100,200,120);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,  120,100,200,120);
+        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width,210,210,255,200);
+        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,210,210,255,200);
         
     }
     glLineWidth(band_width*mScaleFactor);

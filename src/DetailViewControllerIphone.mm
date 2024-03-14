@@ -966,7 +966,12 @@ static float movePinchScale,movePinchScaleOld;
         [self checkGLViewCanDisplay];
     }
     
-    
+    /////////////////////
+    //OSCILLO
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_OSCILLO)) {
+        [mplayer optUpdateSystemColor];
+    }
     
     /////////////////////
     //ADPLUG
@@ -6637,7 +6642,7 @@ extern "C" int current_sample;
         if (display_note_mode>=3) display_note_mode-=3;
         
         if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
-            playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+            playerpos=[mplayer getCurrentGenBufferIdx]; //(playerpos+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
             RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
             
             if (mHeader) delete mHeader;
@@ -6653,7 +6658,7 @@ extern "C" int current_sample;
             }
         } else if (mplayer.mPatternDataAvail) { //Modplug
             if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
-                playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+                playerpos=[mplayer getCurrentGenBufferIdx]; //(playerpos+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
                 
                 int *pat,*row;
                 pat=[mplayer playPattern];

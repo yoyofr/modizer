@@ -53,6 +53,7 @@ missing seek support:
 
 3.6
 ---
+- [UI] Replaykit implemented to record video
 - [PLAYER] WebSID re-added following request. Now possible to choose default SID player between sidplayfp & WebSID
 - [PLAYER] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version (2024/02/24)

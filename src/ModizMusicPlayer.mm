@@ -25,8 +25,10 @@ int mod_total_length;
 
 
 #import "ModizMusicPlayer.h"
-
 #import "ModizFileHelper.h"
+
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
 int PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
 
@@ -2124,7 +2126,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 #endif
 
-//extern volatile t_settings settings[MAX_SETTINGS];
+
 
 @implementation ModizMusicPlayer
 @synthesize artist,album;
@@ -2380,19 +2382,21 @@ void propertyListenerCallback (void                   *inUserData,              
         }
         memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
         
-        for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
-            CGFloat hue=(240.0f/360.0f)+i*(70.0f/360.0f);
-            while (hue>1.0) hue-=1.0f;
-            while (hue<0.0) hue+=1.0f;
-            UIColor *col=[UIColor colorWithHue:hue saturation:0.5f brightness:1.0f alpha:1.0f];
-            CGFloat red,green,blue;
-            //voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
-            [col getRed:&red green:&green blue:&blue alpha:NULL];
-            m_voice_systemColor[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
-            //printf("col %d: %02X %02X %02\n",i,(int)(red*255),(int)(green*255),(int)(blue*255));
-        }
+        /*for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
+         CGFloat hue=(240.0f/360.0f)+i*(70.0f/360.0f);
+         while (hue>1.0) hue-=1.0f;
+         while (hue<0.0) hue+=1.0f;
+         UIColor *col=[UIColor colorWithHue:hue saturation:0.5f brightness:1.0f alpha:1.0f];
+         CGFloat red,green,blue;
+         //voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
+         [col getRed:&red green:&green blue:&blue alpha:NULL];
+         m_voice_systemColor[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+         printf("col %d: %02X%02X%02\n",i,(int)(red*255),(int)(green*255),(int)(blue*255));
+         }*/
         
-        
+        m_genNumVoicesChannels=0;
+        [self optUpdateSystemColor];
+                
         //Global
         bGlobalShouldEnd=0;
         bGlobalSoundGenInProgress=0;
@@ -2950,12 +2954,23 @@ void propertyListenerCallback (void                   *inUserData,              
     return 0;
 }
 -(int) getCurrentPlayedBufferIdx {
-    //buffer_ana_play_ofs is the last one enqueued, so +1 should be the one playing right one.
+    //buffer_ana_play_ofs-1 is the last one enqueued, so with +1 it should be the one playing right one.
     //take some contingency in case it is updated just after
     //at 44100Hz and with sound buffer=1024 samples, 1 buffer is 23ms. So 3 buffers are ~70ms
-    int idx=(buffer_ana_play_ofs+3)%SOUND_BUFFER_NB;
-    return idx;
+    int idx=(buffer_ana_play_ofs+4);
+    if (idx<0) idx+=SOUND_BUFFER_NB;
+    return idx%SOUND_BUFFER_NB;
 }
+
+-(int) getCurrentGenBufferIdx {
+    //buffer_ana_play_ofs-1 is the last one enqueued, so with +1 it should be the one playing right one.
+    //take some contingency in case it is updated just after
+    //at 44100Hz and with sound buffer=1024 samples, 1 buffer is 23ms. So 3 buffers are ~70ms
+    int idx=(buffer_ana_play_ofs-1);
+    if (idx<0) idx+=SOUND_BUFFER_NB;
+    return idx%SOUND_BUFFER_NB;
+}
+
 void mdx_update(unsigned char *data,int len,int end_reached) {
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
         mdx_stop();
@@ -5070,7 +5085,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         }
                                     }
                                 }
-                                                
+                                
                                 //NSLog(@"prev ptr: %d",m_voice_prev_current_ptr[5]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 //copy voice data for oscillo view
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -5078,8 +5093,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
                                     }
                                     m_voice_prev_current_ptr[j]=0;
-//                                    m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-//                                    if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]-=SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    //                                    m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    //                                    if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]-=SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                 }
                                 
                             }
@@ -5136,7 +5151,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 } else {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];                                            
+                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                         if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
@@ -5225,7 +5240,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             adPlugPlayer->seek(0);
                                         }
                                     }
-                                                                                                                                                
+                                    
                                     if ((written<SOUND_BUFFER_SIZE_SAMPLE)&&opl_towrite) {
                                         short int *dest=(short int *)(buffer_ana[buffer_ana_gen_ofs]);
                                         
@@ -5340,7 +5355,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     m_voice_current_ptr[j]=0;
                                 }
                             }
-                                                        
+                            
                             KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
@@ -5367,7 +5382,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];                                    
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
                                 }
                             }
                             
@@ -6570,7 +6585,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         iModuleLength=mdx_get_length( mdx,pdx);
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//MDX_DEFAULT_LENGTH;
         iCurrentTime=0;
-                        
+        
         numChannels=(mdx->haspdx?9:8);//mdx->tracks;
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
@@ -6910,7 +6925,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         if (i<6) m_voice_voiceColor[i]=m_voice_systemColor[0];
         else m_voice_voiceColor[i]=m_voice_systemColor[1];
     }
-        
+    
     [self mmp_updateDBStatsAtLoad];
     
     if (mLoopMode) iModuleLength=-1;
@@ -7021,30 +7036,30 @@ typedef struct {
     //////////////////////////////////
     mod_total_length=0;
     
-        for (int i=0;i<mod_subsongs; i++) {
-            int song_length;
-            NSString *filePathMain;
-            NSString *fileName;
-            NSMutableArray *tmp_path;
-            
-            //set subsong
-            nsfPlayer->SetSong(i+mod_minsub);
-            
-            song_length=nsfPlayer->GetLength();
-            mod_total_length+=song_length;
-            
-            fileName=[self getSubTitle:i];
-            
-            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
-            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
-            
-            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,song_length,numChannels,mod_subsongs);
-            
-            if (i==mod_subsongs-1) {// Global file stats update
-                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
-            }
+    for (int i=0;i<mod_subsongs; i++) {
+        int song_length;
+        NSString *filePathMain;
+        NSString *fileName;
+        NSMutableArray *tmp_path;
+        
+        //set subsong
+        nsfPlayer->SetSong(i+mod_minsub);
+        
+        song_length=nsfPlayer->GetLength();
+        mod_total_length+=song_length;
+        
+        fileName=[self getSubTitle:i];
+        
+        filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+        if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+        
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,song_length,numChannels,mod_subsongs);
+        
+        if (i==mod_subsongs-1) {// Global file stats update
+            [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
         }
+    }
     
     nsfPlayer->SetSong(mod_currentsub-mod_minsub);
     
@@ -7257,7 +7272,7 @@ typedef struct {
     mCurrentSamples=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
-        
+    
     iModuleLength=0;
     while (1) {
         if (pt3_renday(NULL, SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[0], &pt3_t, 0,0)) break;
@@ -7272,9 +7287,9 @@ typedef struct {
     }
     
     if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
-
+    
     iCurrentTime=0;
-
+    
     numChannels=pt3_numofchips*3;
     m_voicesDataAvail=1;
     m_genNumVoicesChannels=numChannels;
@@ -7384,7 +7399,7 @@ typedef struct {
     mCurrentSamples=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
-        
+    
     if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
     
     iCurrentTime=0;
@@ -8194,7 +8209,7 @@ char* loadRom(const char* path, size_t romSize)
     memset(modizChipsetType,0,sizeof(modizChipsetType));
     modizChipsetCount=0;
     mod_message[0]=0;
-        
+    
     if (kssplay->kss->msx_audio && !kssplay->device_mute[KSS_DEVICE_OPL]) {
         strcat(mod_message,"Y8950,");
         modizChipsetStartVoice[modizChipsetCount]=numChannels;
@@ -8259,7 +8274,7 @@ char* loadRom(const char* path, size_t romSize)
     
     //remove the last ','
     if (strlen(mod_message)) mod_message[strlen(mod_message)-1]=0;
-        
+    
     generic_mute_mask=0;
     m_voicesDataAvail=1;
     m_genNumVoicesChannels=numChannels;
@@ -10380,7 +10395,7 @@ int vgmGetFileLength()
         mod_currentsub=adPlugPlayer->getsubsong();
         
         generic_mute_mask=0;
-                        
+        
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
@@ -10498,30 +10513,30 @@ int vgmGetFileLength()
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
-            for (int i=0;i<mod_subsongs; i++) {
-                if (gme_track_info( gme_emu, &gme_info, i )==0) {
-                    NSString *filePathMain;
-                    NSString *fileName;
-                    NSMutableArray *tmp_path;
-                    int gme_subsong_length=gme_info->play_length;
-                    if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
-                    mod_total_length+=gme_info->play_length;
-                    
-                    gme_free_info(gme_info);
-                    
-                    fileName=[self getSubTitle:i];
-                    //NSLog(@"%@",mod_loadmodule_filepath);
-                    filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
-                    if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
-                    
-                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
-                    
-                    if (i==mod_subsongs-1) {// Global file stats update
-                        [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
-                    }
+        for (int i=0;i<mod_subsongs; i++) {
+            if (gme_track_info( gme_emu, &gme_info, i )==0) {
+                NSString *filePathMain;
+                NSString *fileName;
+                NSMutableArray *tmp_path;
+                int gme_subsong_length=gme_info->play_length;
+                if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
+                mod_total_length+=gme_info->play_length;
+                
+                gme_free_info(gme_info);
+                
+                fileName=[self getSubTitle:i];
+                //NSLog(@"%@",mod_loadmodule_filepath);
+                filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+                
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
+                
+                if (i==mod_subsongs-1) {// Global file stats update
+                    [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
+        }
         
         
         sprintf(mod_name," %s",mod_filename);
@@ -10828,10 +10843,10 @@ extern bool icloud_available;
                         //TO REVIEW GLOBALLY, Currently breaking DB user_stats (total archive count is wrong, will give 1 instead of archive total entries if only 1 file is extracted
                         
                         /*NSString *tmp_archive_entryname=NULL;
-                        if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)){
-                            tmp_archive_entryname=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
-                            mSingleFileType=[ModizFileHelper isSingleFileType:tmp_archive_entryname];
-                        } else mSingleFileType=0;*/
+                         if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)){
+                         tmp_archive_entryname=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
+                         mSingleFileType=[ModizFileHelper isSingleFileType:tmp_archive_entryname];
+                         } else mSingleFileType=0;*/
                         
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         
@@ -10841,7 +10856,7 @@ extern bool icloud_available;
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
                         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                         
-                                                
+                        
                         if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
                             [self fex_extractSingleFileToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] file_index:archiveIndex isRestarting:isRestarting];
@@ -10951,7 +10966,7 @@ extern bool icloud_available;
                     extension = (NSString *)[temparray_filepath lastObject];
                     //[temparray_filepath removeLastObject];
                     file_no_ext=[temparray_filepath firstObject];
-
+                    
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     filePath=[self getFullFilePath:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
@@ -12986,6 +13001,19 @@ extern "C" void adjust_amplification(void);
 -(void) optOMPT_MasterVol:(float) mstVol {
     optOMPT_MasterVol=(int32_t)(2000.0*log10((int )(mstVol*256)/128.0));
     if (ompt_mod) openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
+}
+
+///////////////////////////
+/////
+///////////////////////
+///
+-(void) optUpdateSystemColor {
+    for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
+        m_voice_systemColor[i]=settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb;
+    }
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[[self getSystemForVoice:i]];
+    }
 }
 
 ///////////////////////////

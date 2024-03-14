@@ -39,6 +39,14 @@ volatile t_settings settings[MAX_SETTINGS];
 
 #pragma mark - Callback methods
 
+//OSCILLO Colors
+-(void) optOSCILLOColorChangedC {
+    [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
+}
+void optOSCILLOColorChangedC(id param) {
+    [param optOSCILLOColorChangedC];
+}
+
 //FTP
 void optFTPSwitchChanged(id param) {
     [param FTPswitchChanged];
@@ -165,11 +173,13 @@ void optNSFPLAYChangedC(id param) {
         if (settings[i].label) {
         
             str=[NSString stringWithFormat:@"%s",settings[i].label];
+            //NSLog(@"restore settings: %@",str);
             int j=settings[i].family;
             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
                 str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
                 j=settings[j].family;
             }
+            //NSLog(@"got: %@",str);
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -211,6 +221,8 @@ void optNSFPLAYChangedC(id param) {
                     //
                 case MDZ_MSGBOX:
                     break;
+                case MDZ_COLORPICKER:
+                    break;
                 case MDZ_FAMILY:
                     break;
             }
@@ -226,12 +238,14 @@ void optNSFPLAYChangedC(id param) {
 	for (int i=0;i<MAX_SETTINGS;i++)
         if (settings[i].label) {
             
+            //NSLog(@"backup settings: %@",str);
             str=[NSString stringWithFormat:@"%s",settings[i].label];
             int j=settings[i].family;
             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
                 str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
                 j=settings[j].family;
             }
+            //NSLog(@"got: %@",str);
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -259,6 +273,8 @@ void optNSFPLAYChangedC(id param) {
                     else [prefs setObject:@"" forKey:str];
                     break;
                     //
+                case MDZ_COLORPICKER:
+                    break;
                 case MDZ_MSGBOX:
                     break;
                 case MDZ_FAMILY:
@@ -267,6 +283,32 @@ void optNSFPLAYChangedC(id param) {
         }
     [prefs synchronize];
 }
+
++(void) oscilloGenSystemColor:(int)mode {
+    float start_pos,mul_factor,sat;
+    switch (mode) {
+        case 0:
+        default:
+            start_pos=55.0f/360.0f;
+            mul_factor=(11.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.8f;
+            settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb=0x00FF00;
+            break;
+    }
+    
+    for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
+        CGFloat hue=start_pos+i*mul_factor;
+        while (hue>1.0) hue-=1.0f;
+        while (hue<0.0) hue+=1.0f;
+        UIColor *col=[UIColor colorWithHue:hue saturation:sat brightness:1.0f alpha:1.0f];
+        CGFloat red,green,blue;
+        [col getRed:&red green:&green blue:&blue alpha:NULL];
+        CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
+        settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+    }
+}
+    
+
 
 + (void) applyDefaultSettings {
     /////////////////////////////////////
@@ -352,6 +394,10 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXOscilloShowLabel].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=1;
+    
+    [SettingsGenViewController oscilloGenSystemColor:0];
+    
+    
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
@@ -525,6 +571,14 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_FAMILY_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    
+    settings[MDZ_SETTINGS_FAMILY_OSCILLO].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_OSCILLO].label=(char*)"Oscillo";
+    settings[MDZ_SETTINGS_FAMILY_OSCILLO].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_OSCILLO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_OSCILLO].sub_family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    
+    
     
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].label=(char*)"Plugins";
@@ -1002,6 +1056,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscilloShowGrid].sub_family=0;
     settings[GLOB_FXOscilloShowGrid].detail.mdz_boolswitch.switch_value=1;
     
+        
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
     settings[GLOB_FXSpectrum].description=NULL;
@@ -1197,6 +1252,72 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[1]=(char*)"60";
     
+    /////////////////////////////////////
+    //OSCILLO
+    /////////////////////////////////////
+    
+    settings[OSCILLO_MONO_COLOR].label=(char*)"Mono color";
+    settings[OSCILLO_MONO_COLOR].description=NULL;
+    settings[OSCILLO_MONO_COLOR].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MONO_COLOR].sub_family=0;
+    settings[OSCILLO_MONO_COLOR].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MONO_COLOR].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR01].label=(char*)"Multi color | System 1";
+    settings[OSCILLO_MULTI_COLOR01].description=NULL;
+    settings[OSCILLO_MULTI_COLOR01].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR01].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR01].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR01].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR02].label=(char*)"Multi color | System 2";
+    settings[OSCILLO_MULTI_COLOR02].description=NULL;
+    settings[OSCILLO_MULTI_COLOR02].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR02].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR02].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR02].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR03].label=(char*)"Multi color | System 3";
+    settings[OSCILLO_MULTI_COLOR03].description=NULL;
+    settings[OSCILLO_MULTI_COLOR03].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR03].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR03].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR03].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR04].label=(char*)"Multi color | System 4";
+    settings[OSCILLO_MULTI_COLOR04].description=NULL;
+    settings[OSCILLO_MULTI_COLOR04].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR04].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR04].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR04].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR05].label=(char*)"Multi color | System 5";
+    settings[OSCILLO_MULTI_COLOR05].description=NULL;
+    settings[OSCILLO_MULTI_COLOR05].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR05].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR05].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR05].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR06].label=(char*)"Multi color | System 6";
+    settings[OSCILLO_MULTI_COLOR06].description=NULL;
+    settings[OSCILLO_MULTI_COLOR06].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR06].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR06].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR06].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR07].label=(char*)"Multi color | System 7";
+    settings[OSCILLO_MULTI_COLOR07].description=NULL;
+    settings[OSCILLO_MULTI_COLOR07].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR07].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR07].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR07].type=MDZ_COLORPICKER;
+    
+    settings[OSCILLO_MULTI_COLOR08].label=(char*)"Multi color | System 8";
+    settings[OSCILLO_MULTI_COLOR08].description=NULL;
+    settings[OSCILLO_MULTI_COLOR08].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLOR08].sub_family=0;
+    settings[OSCILLO_MULTI_COLOR08].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLOR08].type=MDZ_COLORPICKER;
     
     /////////////////////////////////////
     //PLUGINS
@@ -2126,10 +2247,14 @@ void optNSFPLAYChangedC(id param) {
     return footer;
 }
 
-- (void)boolswitchChanged:(id)sender {
+- (void)boolswitchChanged:(UISwitch*)sender {
     int refresh=0;
     UISwitch *sw=(UISwitch*)sender;
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
     
@@ -2138,10 +2263,114 @@ void optNSFPLAYChangedC(id param) {
     }    
     if (refresh) [tableView reloadData];
 }
-- (void)segconChanged:(id)sender {
+
+-(void)colorPickerSelected:(id)sender {
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[((UIButton*)sender).description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+        
+    CGFloat r,g,b,a;
+    r=g=b=a=0;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
+        if (@available(iOS 14.0, *)) {
+            UIColor *col=((UIColorWell*)sender).selectedColor;
+            CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
+            r=cicol.red;
+            g=cicol.green;
+            b=cicol.blue;            
+        }
+    } else {
+        [((UIButton*)sender).backgroundColor getRed:&r green:&g blue:&b alpha:&a];
+        
+    }
+    
+    settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb=((unsigned char)(r*255)<<16)|((unsigned char)(g*255)<<8)|((unsigned char)(b*255)<<0);
+    
+    if (settings[cur_settings_idx[indexPath.section]].callback) {
+        settings[cur_settings_idx[indexPath.section]].callback(self);
+    }
+}
+
+- (void)colorPickerOpen:(UIButton*)sender {
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
+        if (@available(iOS 14.0, *)) {
+        }
+    } else {
+        MSColorSelectionViewController *colorSelectionController = [[MSColorSelectionViewController alloc] init];
+        UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:colorSelectionController];
+        
+        navCtrl.modalPresentationStyle = UIModalPresentationPopover;
+        navCtrl.popoverPresentationController.delegate = self;
+        navCtrl.popoverPresentationController.sourceView = sender;
+        navCtrl.popoverPresentationController.sourceRect = sender.bounds;
+        navCtrl.preferredContentSize = [colorSelectionController.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        
+        currentColorPickerBtn=sender;
+        
+        colorSelectionController.delegate = self;
+        colorSelectionController.color = sender.backgroundColor;
+        
+        navCtrl.view.backgroundColor=[UIColor lightGrayColor];
+        
+        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+            UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", ) style:UIBarButtonItemStyleDone target:self action:@selector(ms_dismissViewController:)];
+            colorSelectionController.navigationItem.rightBarButtonItem = doneBtn;
+        }
+        
+        [self presentViewController:navCtrl animated:YES completion:nil];
+        
+        
+    }
+//    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+//        if (@available(iOS 14.0, *)) {
+//            UIColorPickerViewController *colorPickerVC=[[UIColorPickerViewController alloc] init];
+//            colorPickerVC.title=@"Choose a color";
+//            colorPickerVC.supportsAlpha=false;
+//            colorPickerVC.delegate=self;
+//            colorPickerVC.modalPresentationStyle=UIModalPresentationPopover;
+//            colorPickerVC.modalPresentationStyle = UIModalPresentationPopover;
+//            colorPickerVC.popoverPresentationController.sourceView = self.view;
+//            CGRect frame=sender.frame;
+//            NSLog(@"%f %f",frame.origin.x,frame.origin.y);
+//            colorPickerVC.popoverPresentationController.sourceRect = CGRectMake(frame.origin.x, frame.origin.y, 0, 0);
+//            colorPickerVC.popoverPresentationController.permittedArrowDirections=0;
+//            
+//            colorPickerVC.selectedColor=sender.backgroundColor;
+//            
+//            [self presentViewController:colorPickerVC animated:YES completion:nil];
+//        }
+//    
+//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
+//        [self presentViewController:alertC animated:YES completion:nil];
+//    } else { //if iPad
+//        alertC.modalPresentationStyle = UIModalPresentationPopover;
+//        alertC.popoverPresentationController.sourceView = self.view;
+//        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
+//        alertC.popoverPresentationController.permittedArrowDirections=0;
+//        [self presentViewController:alertC animated:YES completion:nil];
+//    }
+//    if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
+//    settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
+//    
+//    if (settings[cur_settings_idx[indexPath.section]].callback) {
+//        settings[cur_settings_idx[indexPath.section]].callback(self);
+//    }
+//    if (refresh) [tableView reloadData];
+}
+
+
+- (void)segconChanged:(UISegmentedControl*)sender {
     int refresh=0;
     
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value !=[(UISegmentedControl*)sender selectedSegmentIndex]) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value=[(UISegmentedControl*)sender selectedSegmentIndex];
     
@@ -2150,8 +2379,11 @@ void optNSFPLAYChangedC(id param) {
     }    
     if (refresh) [tableView reloadData];
 }
-- (void)sliderChanged:(id)sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+- (void)sliderChanged:(MNEValueTrackingSlider*)sender {
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((MNEValueTrackingSlider*)sender).value;
     
@@ -2442,6 +2674,43 @@ void optNSFPLAYChangedC(id param) {
             else msgLabel.text=@"";
             cell.accessoryView = msgLabel;
             //[msgLabel release];
+            break;
+        case MDZ_COLORPICKER:
+            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
+                if (@available(iOS 14.0, *)) {
+                    int rgb=settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb;
+                    UIColorWell *colorWell= [[UIColorWell alloc] initWithFrame:CGRectMake(0,0,40,40)];
+                    colorWell.supportsAlpha=false;
+                    
+                    [colorWell addTarget:self action:@selector(colorPickerSelected:) forControlEvents:UIControlEventValueChanged];
+                                        
+                    colorWell.selectedColor=[UIColor colorWithRed:((rgb>>16)&0xFF)*1.0f/255.0f
+                                                            green:((rgb>>8)&0xFF)*1.0f/255.0f
+                                                             blue:((rgb>>0)&0xFF)*1.0f/255.0f
+                                                            alpha:1];
+                    
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[colorWell.description componentsSeparatedByString:@";"] firstObject]];
+                    cell.accessoryView = colorWell;
+                }
+            } else {
+                int rgb=settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb;
+                UIButton *colorBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+                colorBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+                colorBtn.layer.borderWidth = 1.0f;
+                colorBtn.layer.cornerRadius = 6.0f;
+                
+                [colorBtn setFrame:CGRectMake(0,0,32,32)];
+                [colorBtn setBackgroundColor:[UIColor colorWithRed:((rgb>>16)&0xFF)*1.0f/255.0f
+                                                                                   green:((rgb>>8)&0xFF)*1.0f/255.0f
+                                                                                    blue:((rgb>>0)&0xFF)*1.0f/255.0f
+                                                                                   alpha:1]];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[colorBtn.description componentsSeparatedByString:@";"] firstObject]];
+                
+                [colorBtn addTarget:self action:@selector(colorPickerOpen:) forControlEvents:UIControlEventTouchUpInside];
+                
+
+                cell.accessoryView = colorBtn;
+            }
             break;
     }
     
@@ -2777,5 +3046,34 @@ void optNSFPLAYChangedC(id param) {
     return [[TTFadeAnimator alloc] init];
 }
 
+#pragma mark - UIColorPickerViewControllerDelegate
+
+//IOS 15+
+- (void)colorPickerViewController:(UIColorPickerViewController *)viewController
+                   didSelectColor:(UIColor *)color
+                     continuously:(BOOL)continuously {
+    
+}
+
+//iOS 14, deprecated from iOS 15
+- (void)colorPickerViewControllerDidSelectColor:(UIColorPickerViewController *)viewController {
+    
+}
+
+#pragma mark - MSColorViewDelegate
+
+- (void)colorViewController:(MSColorSelectionViewController *)colorViewCntroller didChangeColor:(UIColor *)color
+{
+    currentColorPickerBtn.backgroundColor = color;
+    //UIButton *colorBtn=(UIButton*)(navCtrl.popoverPresentationController.sourceView);
+}
+
+#pragma mark - Private
+
+- (void)ms_dismissViewController:(id)sender
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [self colorPickerSelected:currentColorPickerBtn];
+}
 
 @end

@@ -335,6 +335,7 @@ extern "C" {
 -(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer;
 
 -(int) getCurrentPlayedBufferIdx;
+-(int) getCurrentGenBufferIdx;
 
 -(void) optUADE_Led:(int)isOn;
 -(void) optUADE_Norm:(int)isOn;
@@ -351,7 +352,7 @@ extern "C" {
 -(void) optOMPT_Sampling:(int) mode;
 -(void) optOMPT_StereoSeparation:(float) val;
 
-
+-(void) optUpdateSystemColor;
 
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
 -(void) optVGMPLAY_NUKEDOPNoption:(unsigned char)val;
