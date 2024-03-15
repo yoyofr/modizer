@@ -40,11 +40,11 @@ volatile t_settings settings[MAX_SETTINGS];
 #pragma mark - Callback methods
 
 //OSCILLO Colors
--(void) optOSCILLOColorChangedC {
+-(void) optOSCILLOColorChanged {
     [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
 }
 void optOSCILLOColorChangedC(id param) {
-    [param optOSCILLOColorChangedC];
+    [param optOSCILLOColorChanged];
 }
 
 //FTP
@@ -291,21 +291,23 @@ void optNSFPLAYChangedC(id param) {
 }
 
 
-+(void) oscilloGenSystemColor:(int)mode color_idx:(int)color_idx {
++(void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx {
     float start_pos,mul_factor,sat;
-    switch (mode) {
-        default:
-        case 0:
+    
+    switch (_mode) {
+        case 1:
             start_pos=55.0f/360.0f;
             mul_factor=(5.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=0.8f;
             if ((color_idx<0)||(color_idx==0)) settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb=0x00FF00;
             break;
-        case 1:
-            start_pos=220.0f/360.0f;
-            mul_factor=(11.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
-            sat=0.8f;
+        case 0:
+            start_pos=240.0f/360.0f;
+            mul_factor=(9.5f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.6f;
             if ((color_idx<0)||(color_idx==0)) settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb=0x00FF00;
+            break;
+        default:
             break;
     }
     
@@ -2302,6 +2304,7 @@ void optNSFPLAYChangedC(id param) {
     
     if (colidx>=0) {
         [SettingsGenViewController oscilloGenSystemColor:0 color_idx:colidx];
+        [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
     }
     
