@@ -78,13 +78,13 @@ typedef int32 mix_t;
 	if (++pan_delay_wpt == PAN_DELAY_BUF_MAX) {pan_delay_wpt = 0;}
 
 //YOYOFR
-#define MIXATION_MODIZER(a) *m_vb_acc_ptr++ +=((a)*s)>>18; \
+#define MIXATION_MODIZER(a) *m_vb_acc_ptr++ +=((a)*s)>>19; \
                             *m_vb_acc_cnt_ptr++ +=1;
 
-#define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>18; \
+#define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>19; \
                                     *m_vb_acc_cnt_ptr++ +=1;
 
-#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>19; \
+#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>20; \
                                        *m_vb_acc_cnt_ptr++ +=1;
     
 //YOYOFR
@@ -127,6 +127,7 @@ void mix_voice(int32 *buf, int v, int32 c)
 	Voice *vp = voice + v;
 	retim_sample_t *sp;
     
+    //printf("advance voice ptr %d %d\n",v,c);
     //TODO:  MODIZER changes start / YOYOFR
     int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
     m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));

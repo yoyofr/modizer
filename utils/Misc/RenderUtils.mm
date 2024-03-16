@@ -125,7 +125,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 static CFont *mOscilloFont=NULL;
 static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
 
-#define FX_OSCILLO_MAXROWS 8
+#define FX_OSCILLO_MAXROWS 16
 #include "ModizerVoicesData.h"
 
 #define absint(a) (a>=0?a:-a)
@@ -149,12 +149,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     //snd_data_idx-=OSCILLO_BUFFER_NB-1;
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
-        
-    //looking at 2 buffers -> 2 x SOUND_BUFFER_SIZE SAMPLE
-    //max shift is 1/3, so 1/6 on the left and 1/6 on the right
-    int max_ofs=(OSCILLO_BUFFER_SIZE*2/6);
+    
+    int max_len_oscillo_buffer=735;// 1frame at 60fps & 44100Hz, assume OSCILLO_BUFFER_SIZE>735  OSCILLO_BUFFER_SIZE*2/6;
+    int max_ofs=OSCILLO_BUFFER_SIZE-max_len_oscillo_buffer;
     int min_ofs=0;
-    int max_len_oscillo_buffer=OSCILLO_BUFFER_SIZE*4/6;
+    
     
     if (isfullscreen) colA=255;
     else colA=220;
