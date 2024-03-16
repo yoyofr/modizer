@@ -5087,6 +5087,8 @@ static void play_midi_prescan(MidiEvent *ev) {
     unsigned char ch_used[TIM_MAX_CHANNELS];
     int ch_idx=0;
     bool ch_found;
+    memset(m_channel_voice_mapping,0,sizeof(m_channel_voice_mapping));
+    memset(m_voice_channel_mapping,0,sizeof(m_voice_channel_mapping));
     //YOYOFR
     
     
@@ -5118,13 +5120,12 @@ static void play_midi_prescan(MidiEvent *ev) {
                 }
 #endif
                 ch = ev->channel;
-                                                
+                                                                                    
                 switch(ev->type)
                 {
                     case ME_NOTEON:
                         note_on_prescan(ev);
                         
-                        //YOYOFR  check used channel only if a note is played
                         ch_found=false;
                         for (int ii=0;ii<ch_idx;ii++) {
                             if (ch_used[ii]==ch) {
@@ -5134,14 +5135,14 @@ static void play_midi_prescan(MidiEvent *ev) {
                         }
                         if (!ch_found) {
                             ch_used[ch_idx]=ch;
+                            m_channel_voice_mapping[ch]=ch_idx;
+                            m_voice_channel_mapping[ch_idx]=ch;
                             ch_idx++;
                             if (ch_idx>=TIM_MAX_CHANNELS) {
                                 printf("reaching channel limit\n");
                                 ch_idx--;
                             }
                         }
-                        //YOYOFR
-                        
                         break;
                         
                     case ME_NOTEOFF:
@@ -5193,6 +5194,7 @@ static void play_midi_prescan(MidiEvent *ev) {
                     case ME_DRUMPART:
                         if(midi_drumpart_change(ch, ev->a))
                             midi_program_change(ch, channel[ch].program);
+                        
                         break;
                         
                     case ME_KEYSHIFT:
@@ -5220,9 +5222,12 @@ static void play_midi_prescan(MidiEvent *ev) {
         ev++;
     }
     
-    //printf("max ch: %d\n",ch_idx); //YOYOFR
+/*    printf("max ch: %d\n",ch_idx); //YOYOFR
+    for (int ii=0;ii<ch_idx;ii++) {
+        printf("%d ch %d\n",ii,ch_used[ii]);        
+    }*/
     m_genNumVoicesChannels=ch_idx;
-
+    
     /* calculate compensation ratio */
     if (0 < mainvolume_max && mainvolume_max < 0x7f) {
       compensation_ratio = pow((double)0x7f/(double)mainvolume_max, 4);
@@ -6766,7 +6771,7 @@ static void do_compute_data_midi(int32 count)
 			int8 flag;
 			
 			if (channel_effect) {
-				flag = 0;
+                flag = 0;
 				ch = voice[i].channel;
 				if (opt_drum_effect && ISDRUMCHANNEL(ch)) {
 					make_drum_effect(ch);
@@ -6782,7 +6787,7 @@ static void do_compute_data_midi(int32 count)
 					vpb = vpblist[ch];
 				}
 			} else {
-				vpb = buffer_pointer;
+                vpb = buffer_pointer;
 			}
 
 			if(!IS_SET_CHANNELMASK(channel_mute, voice[i].channel)) {
@@ -6801,13 +6806,18 @@ static void do_compute_data_midi(int32 count)
     
     //TODO:  MODIZER changes start / YOYOFR
     //printf("advance ptr by %d\n",count);
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
-        
+    for (int ii=0;ii<m_genNumVoicesChannels;ii++) {
+
+        int mcnt=m_voice_buff_accumul_temp_cnt[ii][(00+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+        if (mcnt) {
+            //printf("voice %d cnt %d\n",ii,mcnt);
+        }
         for (int jj=0;jj<count;jj++) {
             int val=m_voice_buff_accumul_temp[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-            int cnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-            if (cnt) {
-                m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/cnt);
+            int mcnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            if (mcnt) {
+                m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/4);
+                //m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
             }
         }
         

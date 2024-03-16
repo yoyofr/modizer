@@ -84,7 +84,7 @@ typedef int32 mix_t;
 #define DELAYED_MIXATION_MODIZER *m_vb_acc_ptr++ += pan_delay_buf[pan_delay_spt]>>19; \
                                     *m_vb_acc_cnt_ptr++ +=1;
 
-#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>20; \
+#define MIXATION_MIXDELAYED_MODIZER(a) *m_vb_acc_ptr++ +=(((a)*s)+pan_delay_buf[pan_delay_spt])>>19; \
                                        *m_vb_acc_cnt_ptr++ +=1;
     
 //YOYOFR
@@ -127,9 +127,11 @@ void mix_voice(int32 *buf, int v, int32 c)
 	Voice *vp = voice + v;
 	retim_sample_t *sp;
     
-    //printf("advance voice ptr %d %d\n",v,c);
+    //printf("advance voice ptr %d %d\n",vp->channel,c);
     //TODO:  MODIZER changes start / YOYOFR
     int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
+    //printf("advance voice ptr %d %d\n",vp->channel,c);
+    currentVoice=m_channel_voice_mapping[currentVoice];
     m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
     m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
     //TODO:  MODIZER changes end / YOYOFR
@@ -325,7 +327,7 @@ static inline void ramp_out(mix_t *sp, int32 *lp, int v, int32 c)
 					s = *sp++;
                     
                     //YOYOFR
-                    MIXATION_MODIZER((left+right)>>1);
+                    MIXATION_MODIZER((left+right));
                     //YOYOFR
                     
 					MIXATION(left);
@@ -675,7 +677,7 @@ static inline void mix_mystery_signal(
 					s = *sp++;
                     
                     //YOYOFR
-                    MIXATION_MODIZER((left+right)>>1)
+                    MIXATION_MODIZER((left+right))
                     //YOYOFR
                     
 					MIXATION(left);
@@ -769,7 +771,7 @@ static inline void mix_mystery_signal(
 					s = *sp++;
                     
                     //YOYOFR
-                    MIXATION_MODIZER((left+right)>>1)
+                    MIXATION_MODIZER((left+right))
                     //YOYOFR
                     
 					MIXATION(left);
@@ -835,7 +837,7 @@ static inline void mix_mystery_signal(
 					s = *sp++;
                     
                     //YOYOFR
-                    MIXATION_MODIZER((left+right)>>1)
+                    MIXATION_MODIZER((left+right))
                     //YOYOFR
                     
 					MIXATION(left);
@@ -930,7 +932,7 @@ static inline void mix_mystery_signal(
 					s = *sp++;
                     
                     //YOYOFR
-                    MIXATION_MODIZER((left+right)>>1)
+                    MIXATION_MODIZER((left+right))
                     //YOYOFR
                     
 					MIXATION(left);
@@ -1153,7 +1155,7 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 			s = *sp++;
             
             //YOYOFR
-            MIXATION_MODIZER((left+right)>>1)
+            MIXATION_MODIZER((left+right))
             //YOYOFR
             
 			MIXATION(left);
@@ -1248,7 +1250,7 @@ static inline void mix_mystery(mix_t *sp, int32 *lp, int v, int count)
 			s = *sp++;
             
             //YOYOFR
-            MIXATION_MODIZER((left+right)>>1)
+            MIXATION_MODIZER((left+right))
             //YOYOFR
             
 			MIXATION(left);
@@ -1678,6 +1680,11 @@ static inline void mix_single(mix_t *sp, int32 *lp, int v, int count)
 	}
 	for (i = 0; vp->left_mix_offset && i < count; i++) {
 		s = *sp++;
+        
+        //YOYOFR
+        MIXATION_MODIZER(left)
+        //YOYOFR
+        
 		MIXATION(left);
 		lp++;
 		vp->left_mix_offset += vp->left_mix_inc;

@@ -435,6 +435,8 @@ signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 signed int *m_voice_buff_accumul_temp[SOUND_MAXVOICES_BUFFER_FX];
 unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
 int m_voice_buff_adjustement;
+unsigned char m_voice_channel_mapping[256]; //used for timidity to map channels used to voices
+unsigned char m_channel_voice_mapping[256]; //used for timidity to map channels used to voices
 
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
@@ -1827,7 +1829,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
             if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             
             memset(m_voice_buff_accumul_temp[j],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
-            memset(m_voice_buff_accumul_temp_cnt[j],0,SOUND_BUFFER_SIZE_SAMPLE*2);
+            memset(m_voice_buff_accumul_temp_cnt[j],0,SOUND_BUFFER_SIZE_SAMPLE*2);            
         }
         
         int i,voices,vol;
@@ -13119,7 +13121,7 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
         case MMP_TIMIDITY:
-            return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(channel)];
+            return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(m_voice_channel_mapping[channel])];
         case MMP_KSS:
         case MMP_NSFPLAY: {
             /*int chipIdx=[self getSystemForVoice:channel];

@@ -16,6 +16,10 @@ extern signed int *m_voice_buff_accumul_temp[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_buff_adjustement;
 
+//timdity
+extern unsigned char m_voice_channel_mapping[256];
+extern unsigned char m_channel_voice_mapping[256];
+
 extern int m_genNumVoicesChannels;
 
 extern int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];

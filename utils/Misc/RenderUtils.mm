@@ -156,7 +156,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     
     if (isfullscreen) colA=255;
-    else colA=220;
+    else colA=255;
         
     for (int i=0;i<num_voices;i++)
         for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
@@ -344,9 +344,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
-                colR*=1.2f;
+                /*colR*=1.2f;
                 colG*=1.2f;
-                colB*=1.2f;
+                colB*=1.2f;*/
             }
             
             //draw label if specified
@@ -385,6 +385,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
+//    glLineWidth(2.0f*mScaleFactor);
     glLineWidth(2.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
