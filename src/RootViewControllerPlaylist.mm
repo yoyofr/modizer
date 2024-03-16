@@ -85,37 +85,37 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (editing==FALSE) {
         if (mDetailPlayerMode) self.navigationItem.rightBarButtonItem = nil;
         else {
-        UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
-        [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
-        btn.adjustsImageWhenHighlighted = YES;
-        [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
-        self.navigationItem.rightBarButtonItem = item;
+            UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+            [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+            btn.adjustsImageWhenHighlighted = YES;
+            [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+            UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+            self.navigationItem.rightBarButtonItem = item;
         }
     }
     [tableView reloadData];
 }
 
 int qsort_ComparePlaylistEntries(const void *entryA, const void *entryB) {
-	NSString *strA,*strB;
-	NSComparisonResult res;
-	strA=((t_playlist_entry*)entryA)->label;
-	strB=((t_playlist_entry*)entryB)->label;
-	res=[strA localizedCaseInsensitiveCompare:strB];
-	if (res==NSOrderedAscending) return -1;
-	if (res==NSOrderedSame) return 0;
-	return 1; //NSOrderedDescending
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_playlist_entry*)entryA)->label;
+    strB=((t_playlist_entry*)entryB)->label;
+    res=[strA localizedCaseInsensitiveCompare:strB];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
 }
 
 int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
-	NSString *strA,*strB;
-	NSComparisonResult res;
-	strA=((t_playlist_entry*)entryA)->label;
-	strB=((t_playlist_entry*)entryB)->label;
-	res=[strB localizedCaseInsensitiveCompare:strA];
-	if (res==NSOrderedAscending) return -1;
-	if (res==NSOrderedSame) return 0;
-	return 1; //NSOrderedDescending
+    NSString *strA,*strB;
+    NSComparisonResult res;
+    strA=((t_playlist_entry*)entryA)->label;
+    strB=((t_playlist_entry*)entryB)->label;
+    res=[strB localizedCaseInsensitiveCompare:strA];
+    if (res==NSOrderedAscending) return -1;
+    if (res==NSOrderedSame) return 0;
+    return 1; //NSOrderedDescending
 }
 
 int qsort_ComparePlaylistEntriesFP(const void *entryA, const void *entryB) {
@@ -143,8 +143,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 - (void)createNewPlaylist {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
-                                        message:nil
-                                        preferredStyle:UIAlertControllerStyleAlert];
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
     __weak UIAlertController *weakAlert = alertC;
     [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = @"";
@@ -152,7 +152,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         [self freePlaylist];
-
+        
     }];
     [alertC addAction:cancelAction];
     
@@ -194,8 +194,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 - (void)saveToNewPlaylist {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
-                                        message:nil
-                                        preferredStyle:UIAlertControllerStyleAlert];
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
     __weak UIAlertController *weakAlert = alertC;
     [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = @"";
@@ -208,14 +208,14 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *plName = weakAlert.textFields.firstObject;
         if (![plName.text isEqualToString:@""]) {
-             playlist->playlist_id=nil;
-             playlist->playlist_name=nil;
-             playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
-             playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
-             integrated_playlist=0;
-             [self addListToPlaylistDB];
-             self.navigationItem.title=playlist->playlist_name;
-             [self.tableView reloadData];
+            playlist->playlist_id=nil;
+            playlist->playlist_name=nil;
+            playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
+            playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
+            integrated_playlist=0;
+            [self addListToPlaylistDB];
+            self.navigationItem.title=playlist->playlist_name;
+            [self.tableView reloadData];
         }
         else{
             [self presentViewController:weakAlert animated:YES completion:nil];
@@ -228,8 +228,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 -(void) deletePlaylist {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
-                                        message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
-                                        preferredStyle:UIAlertControllerStyleAlert];
+                                                                    message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
+                                                             preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
     }];
@@ -246,8 +246,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 - (void)renamePlaylist {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
-                                        message:nil
-                                        preferredStyle:UIAlertControllerStyleAlert];
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
     __weak UIAlertController *weakAlert = alertC;
     [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.text = playlist->playlist_name;
@@ -297,12 +297,12 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
                     playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
                     playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
-                
+                    
                     playlist->entries[to_idx].label=tmpL;
                     playlist->entries[to_idx].fullpath=tmpF;
                     playlist->entries[to_idx].ratings=tmpR;
                     playlist->entries[to_idx].playcounts=tmpC;
-                                  
+                    
                     if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
                         t_plPlaylist_entry tmpF;
                         tmpF=detailViewController.mPlaylist[from_idx];
@@ -310,11 +310,11 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                         detailViewController.mPlaylist[to_idx]=tmpF;
                         
                         /*if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
-                        else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
-                        else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;*/
+                         else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
+                         else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;*/
                         if (detailViewController.mPlaylist_pos==from_idx) detailViewController.mPlaylist_pos=to_idx;
                         else if (detailViewController.mPlaylist_pos==to_idx) detailViewController.mPlaylist_pos=from_idx;
-                                                    
+                        
                         detailViewController.mShouldUpdateInfos=1;
                     }
                 }
@@ -351,13 +351,13 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             for (int i=0;i<detailViewController.mPlaylist_size;i++) {
                 detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
                 detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
-                    
+                
                 detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
                 detailViewController.mPlaylist[i].mPlaylistCount=0;
-
+                
                 detailViewController.mPlaylist[i].cover_flag=-1;
                 if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
-                        detailViewController.mPlaylist_pos=i;
+                    detailViewController.mPlaylist_pos=i;
                 }
             }
             
@@ -395,13 +395,13 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             for (int i=0;i<detailViewController.mPlaylist_size;i++) {
                 detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
                 detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
-                    
+                
                 detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
                 detailViewController.mPlaylist[i].mPlaylistCount=0;
-
+                
                 detailViewController.mPlaylist[i].cover_flag=-1;
                 if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
-                        detailViewController.mPlaylist_pos=i;
+                    detailViewController.mPlaylist_pos=i;
                 }
             }
             
@@ -502,9 +502,9 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 
 - (void)viewDidLoad {
-	clock_t start_time,end_time;
-	start_time=clock();
-	childController=NULL;
+    clock_t start_time,end_time;
+    start_time=clock();
+    childController=NULL;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -518,21 +518,21 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     mFileMngr=[[NSFileManager alloc] init];
-	
-	mShowSubdir=0;
+    
+    mShowSubdir=0;
     
     if (browse_depth==0) mFreePlaylist=0;
-	
+    
     ratingImg[0] = @"heart-empty.png";
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
-	/* Init popup view*/
-	/**/
-	
-	//self.tableView.pagingEnabled;
-	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	self.tableView.sectionHeaderHeight = 18;
-	self.tableView.rowHeight = 40;
+    /* Init popup view*/
+    /**/
+    
+    //self.tableView.pagingEnabled;
+    self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.tableView.sectionHeaderHeight = 18;
+    self.tableView.rowHeight = 40;
     
     popTipViewRow=-1;
     popTipViewSection=-1;
@@ -543,32 +543,32 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     [self.tableView addGestureRecognizer:lpgr];
     //[lpgr release];
     
-	shouldFillKeys=1;
-	mSearch=0;
-	
-	search_local=0;
-    local_nb_entries=0;
-	search_local_nb_entries=0;
+    shouldFillKeys=1;
+    mSearch=0;
     
-	mSearchText=nil;
-	mRenamePlaylist=0;
-	mClickedPrimAction=0;
-	list=nil;
-	keys=nil;
-	
-	if (browse_depth==2) { //Playlist/Local mode
-		currentPath = @"Documents";
-		//[currentPath retain];
-	}
+    search_local=0;
+    local_nb_entries=0;
+    search_local_nb_entries=0;
+    
+    mSearchText=nil;
+    mRenamePlaylist=0;
+    mClickedPrimAction=0;
+    list=nil;
+    keys=nil;
+    
+    if (browse_depth==2) { //Playlist/Local mode
+        currentPath = @"Documents";
+        //[currentPath retain];
+    }
     
     if (mDetailPlayerMode) self.navigationItem.rightBarButtonItem = nil;
     else {
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
-    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
-    btn.adjustsImageWhenHighlighted = YES;
-    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
-    self.navigationItem.rightBarButtonItem = item;
+        UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+        [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+        btn.adjustsImageWhenHighlighted = YES;
+        [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+        self.navigationItem.rightBarButtonItem = item;
     }
     if (show_playlist) {
         sBar.frame=CGRectMake(0,0,0,0);
@@ -576,68 +576,68 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         //[self.view setNeedsUpdateConstraints];
         //[self.view setNeedsLayout];
     }
-	
-	indexTitles = [[NSMutableArray alloc] init];
-	[indexTitles addObject:@"{search}"];
-	[indexTitles addObject:@"#"];
-	[indexTitles addObject:@"A"];
-	[indexTitles addObject:@"B"];
-	[indexTitles addObject:@"C"];
-	[indexTitles addObject:@"D"];
-	[indexTitles addObject:@"E"];
-	[indexTitles addObject:@"F"];
-	[indexTitles addObject:@"G"];
-	[indexTitles addObject:@"H"];
-	[indexTitles addObject:@"I"];
-	[indexTitles addObject:@"J"];
-	[indexTitles addObject:@"K"];
-	[indexTitles addObject:@"L"];
-	[indexTitles addObject:@"M"];
-	[indexTitles addObject:@"N"];
-	[indexTitles addObject:@"O"];
-	[indexTitles addObject:@"P"];
-	[indexTitles addObject:@"Q"];
-	[indexTitles addObject:@"R"];
-	[indexTitles addObject:@"S"];
-	[indexTitles addObject:@"T"];
-	[indexTitles addObject:@"U"];
-	[indexTitles addObject:@"V"];
-	[indexTitles addObject:@"W"];
-	[indexTitles addObject:@"X"];
-	[indexTitles addObject:@"Y"];
-	[indexTitles addObject:@"Z"];
-	
-	indexTitlesDownload = [[NSMutableArray alloc] init];
-	[indexTitlesDownload addObject:@"{search}"];
-	[indexTitlesDownload addObject:@" "];
-	[indexTitlesDownload addObject:@"#"];
-	[indexTitlesDownload addObject:@"A"];
-	[indexTitlesDownload addObject:@"B"];
-	[indexTitlesDownload addObject:@"C"];
-	[indexTitlesDownload addObject:@"D"];
-	[indexTitlesDownload addObject:@"E"];
-	[indexTitlesDownload addObject:@"F"];
-	[indexTitlesDownload addObject:@"G"];
-	[indexTitlesDownload addObject:@"H"];
-	[indexTitlesDownload addObject:@"I"];
-	[indexTitlesDownload addObject:@"J"];
-	[indexTitlesDownload addObject:@"K"];
-	[indexTitlesDownload addObject:@"L"];
-	[indexTitlesDownload addObject:@"M"];
-	[indexTitlesDownload addObject:@"N"];
-	[indexTitlesDownload addObject:@"O"];
-	[indexTitlesDownload addObject:@"P"];
-	[indexTitlesDownload addObject:@"Q"];
-	[indexTitlesDownload addObject:@"R"];
-	[indexTitlesDownload addObject:@"S"];
-	[indexTitlesDownload addObject:@"T"];
-	[indexTitlesDownload addObject:@"U"];
-	[indexTitlesDownload addObject:@"V"];
-	[indexTitlesDownload addObject:@"W"];
-	[indexTitlesDownload addObject:@"X"];
-	[indexTitlesDownload addObject:@"Y"];
-	[indexTitlesDownload addObject:@"Z"];
-	
+    
+    indexTitles = [[NSMutableArray alloc] init];
+    [indexTitles addObject:@"{search}"];
+    [indexTitles addObject:@"#"];
+    [indexTitles addObject:@"A"];
+    [indexTitles addObject:@"B"];
+    [indexTitles addObject:@"C"];
+    [indexTitles addObject:@"D"];
+    [indexTitles addObject:@"E"];
+    [indexTitles addObject:@"F"];
+    [indexTitles addObject:@"G"];
+    [indexTitles addObject:@"H"];
+    [indexTitles addObject:@"I"];
+    [indexTitles addObject:@"J"];
+    [indexTitles addObject:@"K"];
+    [indexTitles addObject:@"L"];
+    [indexTitles addObject:@"M"];
+    [indexTitles addObject:@"N"];
+    [indexTitles addObject:@"O"];
+    [indexTitles addObject:@"P"];
+    [indexTitles addObject:@"Q"];
+    [indexTitles addObject:@"R"];
+    [indexTitles addObject:@"S"];
+    [indexTitles addObject:@"T"];
+    [indexTitles addObject:@"U"];
+    [indexTitles addObject:@"V"];
+    [indexTitles addObject:@"W"];
+    [indexTitles addObject:@"X"];
+    [indexTitles addObject:@"Y"];
+    [indexTitles addObject:@"Z"];
+    
+    indexTitlesDownload = [[NSMutableArray alloc] init];
+    [indexTitlesDownload addObject:@"{search}"];
+    [indexTitlesDownload addObject:@" "];
+    [indexTitlesDownload addObject:@"#"];
+    [indexTitlesDownload addObject:@"A"];
+    [indexTitlesDownload addObject:@"B"];
+    [indexTitlesDownload addObject:@"C"];
+    [indexTitlesDownload addObject:@"D"];
+    [indexTitlesDownload addObject:@"E"];
+    [indexTitlesDownload addObject:@"F"];
+    [indexTitlesDownload addObject:@"G"];
+    [indexTitlesDownload addObject:@"H"];
+    [indexTitlesDownload addObject:@"I"];
+    [indexTitlesDownload addObject:@"J"];
+    [indexTitlesDownload addObject:@"K"];
+    [indexTitlesDownload addObject:@"L"];
+    [indexTitlesDownload addObject:@"M"];
+    [indexTitlesDownload addObject:@"N"];
+    [indexTitlesDownload addObject:@"O"];
+    [indexTitlesDownload addObject:@"P"];
+    [indexTitlesDownload addObject:@"Q"];
+    [indexTitlesDownload addObject:@"R"];
+    [indexTitlesDownload addObject:@"S"];
+    [indexTitlesDownload addObject:@"T"];
+    [indexTitlesDownload addObject:@"U"];
+    [indexTitlesDownload addObject:@"V"];
+    [indexTitlesDownload addObject:@"W"];
+    [indexTitlesDownload addObject:@"X"];
+    [indexTitlesDownload addObject:@"Y"];
+    [indexTitlesDownload addObject:@"Z"];
+    
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
@@ -652,12 +652,12 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-	
-	[super viewDidLoad];
-	
-	end_time=clock();
+    
+    [super viewDidLoad];
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"rootview : %d",end_time-start_time);
+    NSLog(@"rootview : %d",end_time-start_time);
 #endif
 }
 
@@ -682,10 +682,10 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         [mode_entries addObject:NSLocalizedString(@"Random picks",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Generate a randomized playlist",@"")];
-                
+        
         [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
         [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getMostPlayedCountFromDB]]];
-                
+        
         [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
         [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getFavoritesCountFromDB]]];
         
@@ -719,69 +719,69 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 }
 
 -(void) loadPlayListsListFromDB:(NSMutableArray*)entries list_id:(NSMutableArray*)list_id entries_details:(NSMutableArray*)details {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		
-		snprintf(sqlStatement,sizeof(sqlStatement),"SELECT id,name,num_files FROM playlists ORDER BY name");
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				[entries addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
-				[list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
+        
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT id,name,num_files FROM playlists ORDER BY name");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                [entries addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                [list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
                 if (sqlite3_column_int(stmt, 2)==1) [details addObject:@"1 entry"];
                 else [details addObject:[NSString stringWithFormat:@"%d entries",sqlite3_column_int(stmt, 2)]];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 -(void) loadPlayListsFromDB:(NSString *)_id_playlist intoPlaylist:(t_playlist *)_playlist  {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	
-	pthread_mutex_lock(&db_mutex);
-	_playlist->nb_entries=0;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    
+    pthread_mutex_lock(&db_mutex);
+    _playlist->nb_entries=0;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		
-		//Get playlist name
+        
+        //Get playlist name
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				_playlist->playlist_id=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                _playlist->playlist_id=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 _playlist->playlist_name=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT p.name,p.fullpath,s.rating,s.play_count,s.avg_rating FROM playlists_entries p \
-				LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath \
-				WHERE id_playlist=%s",[_id_playlist UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				_playlist->entries[_playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-				_playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+    LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath \
+    WHERE id_playlist=%s",[_id_playlist UTF8String]);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                _playlist->entries[_playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                _playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                 
                 //adjust label
                 if ([_playlist->entries[_playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
@@ -793,341 +793,341 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     }
                 }
                 
-				signed char tmpsc=(signed char)sqlite3_column_int(stmt, 2);
-				if (tmpsc<0) tmpsc=0;
-				if (tmpsc>5) tmpsc=5;
+                signed char tmpsc=(signed char)sqlite3_column_int(stmt, 2);
+                if (tmpsc<0) tmpsc=0;
+                if (tmpsc>5) tmpsc=5;
                 if ((tmpsc==0)&&(sqlite3_column_type(stmt,4)!=SQLITE_NULL)) {
                     tmpsc=(signed char)sqlite3_column_int(stmt, 4);
                     if (tmpsc) tmpsc=1;
                 }
-				_playlist->entries[_playlist->nb_entries].ratings=tmpsc;
-				_playlist->entries[_playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt, 3);
-				_playlist->nb_entries++;
-				if (_playlist->nb_entries>=MAX_PL_ENTRIES) break;
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+                _playlist->entries[_playlist->nb_entries].ratings=tmpsc;
+                _playlist->entries[_playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt, 3);
+                _playlist->nb_entries++;
+                if (_playlist->nb_entries>=MAX_PL_ENTRIES) break;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 -(NSString *) minitNewPlaylistDB:(NSString *)listName {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	NSString *id_playlist;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		int err;
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    NSString *id_playlist;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        int err;
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists (name,num_files) SELECT \"%s\",0",[listName UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
-		
-		//Get id
-		id_playlist=[[NSString alloc] initWithFormat:@"%lld",sqlite3_last_insert_rowid(db) ];
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return id_playlist;
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //Get id
+        id_playlist=[[NSString alloc] initWithFormat:@"%lld",sqlite3_last_insert_rowid(db) ];
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return id_playlist;
 }
 -(NSString *) getPlaylistNameDB:(NSString*)id_playlist {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	NSString *listName;
-	sqlite3 *db;
-	int err;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *listName;
+    sqlite3 *db;
+    int err;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
-		
-		//Get playlist name
+        
+        //Get playlist name
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name FROM playlists WHERE id=%s",[id_playlist UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				listName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return listName;
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                listName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return listName;
 }
 
 -(bool) addListToPlaylistDB {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	bool result;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    bool result;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		for (int i=0;i<playlist->nb_entries;i++) {
+        for (int i=0;i<playlist->nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-				break;
-			}
-		}
-		if (result) {
+                     [playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
+            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+            if (err==SQLITE_OK){
+                result=TRUE;
+            } else {
+                result=FALSE;
+                NSLog(@"ErrSQL : %d",err);
+                break;
+            }
+        }
+        if (result) {
             snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
-					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
-					WHERE id=%s",
-					[playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-			}
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return result;
+     (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
+     WHERE id=%s",
+                     [playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
+            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+            if (err==SQLITE_OK){
+                result=TRUE;
+            } else {
+                result=FALSE;
+                NSLog(@"ErrSQL : %d",err);
+            }
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return result;
 }
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries  {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	bool result;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    bool result;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		for (int i=0;i<nb_entries;i++) {
+        for (int i=0;i<nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-					[id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-				break;
-			}
-		}
-		if (result) {
+                     [id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
+            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+            if (err==SQLITE_OK){
+                result=TRUE;
+            } else {
+                result=FALSE;
+                NSLog(@"ErrSQL : %d",err);
+                break;
+            }
+        }
+        if (result) {
             snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
-					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
-					WHERE id=%s",
-					[id_playlist UTF8String],[id_playlist UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-			}
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return result;
+     (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
+     WHERE id=%s",
+                     [id_playlist UTF8String],[id_playlist UTF8String]);
+            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+            if (err==SQLITE_OK){
+                result=TRUE;
+            } else {
+                result=FALSE;
+                NSLog(@"ErrSQL : %d",err);
+            }
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return result;
 }
 -(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	bool result;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    bool result;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
-		
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=\"%s\" AND fullpath=\"%s\"",
-				[id_playlist UTF8String],[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-			result=TRUE;
-		} else {
-			NSLog(@"ErrSQL : %d",err);
-			result=FALSE;
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return result;
+                 [id_playlist UTF8String],[fullpath UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+            result=TRUE;
+        } else {
+            NSLog(@"ErrSQL : %d",err);
+            result=FALSE;
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return result;
 }
 -(bool) replacePlaylistDBwithCurrent {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=%s",
-				[playlist->playlist_id UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
-		
-		err=sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0);
+                 [playlist->playlist_id UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		for (int i=0;i<playlist->nb_entries;i++) {
+        err=sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        for (int i=0;i<playlist->nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-			} else NSLog(@"ErrSQL : %d",err);
-		}
+                     [playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
+            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+            if (err==SQLITE_OK){
+            } else NSLog(@"ErrSQL : %d",err);
+        }
         
         err=sqlite3_exec(db, "COMMIT", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
-		
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
-				(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
-				WHERE id=%s",
-				[playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return TRUE;
+    (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
+    WHERE id=%s",
+                 [playlist->playlist_id UTF8String],[playlist->playlist_id UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return TRUE;
 }
 -(void) updatePlaylistNameDB:(NSString*)id_playlist playlist_name:(NSString *)playlist_name {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET name=\"%s\" WHERE id=%s",[playlist_name UTF8String],[id_playlist UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 
 -(int) deletePlaylistDB:(NSString*)id_playlist {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err,ret;
-	pthread_mutex_lock(&db_mutex);
-	ret=1;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err,ret;
+    pthread_mutex_lock(&db_mutex);
+    ret=1;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists_entries WHERE id_playlist=%s",[id_playlist UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else {ret=0;NSLog(@"ErrSQL : %d",err);}
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM playlists WHERE id=%s",[id_playlist UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return ret;
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else {ret=0;NSLog(@"ErrSQL : %d",err);}
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return ret;
 }
 
 
 -(void)listLocalFiles {
-	NSString *file,*cpath;
-	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSString *file,*cpath;
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
-	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
-	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
     NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
-	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-	NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-	NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
-	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-	NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
-	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
-	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
-	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
-								  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-								  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
-								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
+    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
+                                  [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
+                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
-	NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
-	NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
-	NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
+    NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
+    NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
+    NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
     NSArray *filetype_extSID_MULTISONGSFILE=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-	NSMutableArray *sid_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extSID_MULTISONGSFILE count]];
+    NSMutableArray *sid_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extSID_MULTISONGSFILE count]];
     
     NSMutableArray *all_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]+[filetype_extSID_MULTISONGSFILE count]];
-	
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	char sqlStatement[1024];
-	sqlite3_stmt *stmt;
-	int local_entries_index,local_nb_entries_limit;
+    
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    char sqlStatement[1024];
+    sqlite3_stmt *stmt;
+    int local_entries_index,local_nb_entries_limit;
     int browseType;
     int shouldStop=0;
-	
-	NSRange r;
-	// in case of search, do not ask DB again => duplicate already found entries & filter them
+    
+    NSRange r;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
     
     if (search_local_nb_entries) {
         for (int i=0;i<27;i++) {
@@ -1141,70 +1141,70 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         free(search_local_entries_data);
     }
     
-	search_local=0;
-	if (mSearch) {
-		search_local=1;
-		
-		search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
-		
-		for (int i=0;i<27;i++) {
-			search_local_entries_count[i]=0;
-			if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
-			for (int j=0;j<local_entries_count[i];j++)  {
-//				r.location=NSNotFound;
-//				r = [local_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+    search_local=0;
+    if (mSearch) {
+        search_local=1;
+        
+        search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
+        
+        for (int i=0;i<27;i++) {
+            search_local_entries_count[i]=0;
+            if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
+            for (int j=0;j<local_entries_count[i];j++)  {
+                //				r.location=NSNotFound;
+                //				r = [local_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                //				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
                 if ([self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label]) {
-					search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
-					search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
-					search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
-					search_local_entries[i][search_local_entries_count[i]].rating=local_entries[i][j].rating;
-					search_local_entries[i][search_local_entries_count[i]].type=local_entries[i][j].type;
-					
-					search_local_entries[i][search_local_entries_count[i]].song_length=local_entries[i][j].song_length;
-					search_local_entries[i][search_local_entries_count[i]].songs=local_entries[i][j].songs;
-					search_local_entries[i][search_local_entries_count[i]].channels_nb=local_entries[i][j].channels_nb;
+                    search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
+                    search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
+                    search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
+                    search_local_entries[i][search_local_entries_count[i]].rating=local_entries[i][j].rating;
+                    search_local_entries[i][search_local_entries_count[i]].type=local_entries[i][j].type;
                     
-					search_local_entries_count[i]++;
-					search_local_nb_entries++;
-				}
-			}
-		}
-		return;
-	}
-	
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) != SQLITE_OK) db=NULL;
+                    search_local_entries[i][search_local_entries_count[i]].song_length=local_entries[i][j].song_length;
+                    search_local_entries[i][search_local_entries_count[i]].songs=local_entries[i][j].songs;
+                    search_local_entries[i][search_local_entries_count[i]].channels_nb=local_entries[i][j].channels_nb;
+                    
+                    search_local_entries_count[i]++;
+                    search_local_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) != SQLITE_OK) db=NULL;
     
     err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
-	
-	[filetype_ext addObjectsFromArray:filetype_extMDX];
+    
+    [filetype_ext addObjectsFromArray:filetype_extMDX];
     [filetype_ext addObjectsFromArray:filetype_extPMD];
-	[filetype_ext addObjectsFromArray:filetype_extSID];
-	[filetype_ext addObjectsFromArray:filetype_extSTSOUND];
+    [filetype_ext addObjectsFromArray:filetype_extSID];
+    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
     [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
-	[filetype_ext addObjectsFromArray:filetype_extSC68];
+    [filetype_ext addObjectsFromArray:filetype_extSC68];
     [filetype_ext addObjectsFromArray:filetype_extPT3];
     [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
-	[filetype_ext addObjectsFromArray:filetype_extARCHIVE];
-	[filetype_ext addObjectsFromArray:filetype_extUADE];
-	[filetype_ext addObjectsFromArray:filetype_extMODPLUG];
+    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
+    [filetype_ext addObjectsFromArray:filetype_extUADE];
+    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
     [filetype_ext addObjectsFromArray:filetype_extXMP];
     [filetype_ext addObjectsFromArray:filetype_extGME];
-	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
-	[filetype_ext addObjectsFromArray:filetype_ext2SF];
+    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
     [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
     [filetype_ext addObjectsFromArray:filetype_extEUP];
-	[filetype_ext addObjectsFromArray:filetype_extHVL];
+    [filetype_ext addObjectsFromArray:filetype_extHVL];
     [filetype_ext addObjectsFromArray:filetype_extS98];
     [filetype_ext addObjectsFromArray:filetype_extKSS];
-	[filetype_ext addObjectsFromArray:filetype_extGSF];
-	[filetype_ext addObjectsFromArray:filetype_extASAP];
-	[filetype_ext addObjectsFromArray:filetype_extWMIDI];
+    [filetype_ext addObjectsFromArray:filetype_extGSF];
+    [filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
     [filetype_ext addObjectsFromArray:filetype_extVGM];
     
     [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];
@@ -1213,7 +1213,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     
     [all_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
     [all_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
-	
+    
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
             local_entries_data[i].label=nil;
@@ -1230,9 +1230,9 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         local_nb_entries=0;
     }
     for (int i=0;i<27;i++) local_entries_count[i]=0;
-	
-	// First check count for each section
-	cpath=[NSHomeDirectory() stringByAppendingPathComponent:  currentPath];
+    
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:  currentPath];
     //NSLog(@"%@\n%@",cpath,currentPath);
     //Check if it is a directory or an archive
     BOOL isDirectory;
@@ -1338,8 +1338,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-//                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                            if (r.location != NSNotFound) {
+                            //                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            //                            if (r.location != NSNotFound) {
                             if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
@@ -1430,8 +1430,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-//                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                        if (r.location != NSNotFound) {
+                        //                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //                        if (r.location != NSNotFound) {
                         if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
@@ -1517,8 +1517,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-//                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                                if (r.location != NSNotFound) {
+                                //                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                //                                if (r.location != NSNotFound) {
                                 if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
@@ -1597,8 +1597,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-//                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                        if (r.location != NSNotFound) {
+                        //                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //                        if (r.location != NSNotFound) {
                         if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
@@ -1677,8 +1677,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-//                            NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                            if (r.location != NSNotFound) {
+                            //                            NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            //                            if (r.location != NSNotFound) {
                             if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                 /*if(r.location== 0)*/ filtered=0;
                             }
@@ -1783,8 +1783,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                         if (!filtered) {
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-//                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                                if (r.location != NSNotFound) {
+                                //                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                //                                if (r.location != NSNotFound) {
                                 if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
@@ -1810,8 +1810,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-//                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                        if (r.location != NSNotFound) {
+                        //                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        //                        if (r.location != NSNotFound) {
                         if ([self searchStringRegExp:mSearchText sourceString:file]) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
@@ -1892,8 +1892,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                                 if (!filtered) {
                                     if ((mSearch)&&([mSearchText length]>0)) {
                                         filtered=1;
-//                                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                                        if (r.location != NSNotFound) {
+                                        //                                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                        //                                        if (r.location != NSNotFound) {
                                         if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                             /*if(r.location== 0)*/ filtered=0;
                                         }
@@ -1926,8 +1926,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-//                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-//                                if (r.location != NSNotFound) {
+                                //                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                //                                if (r.location != NSNotFound) {
                                 if ([self searchStringRegExp:mSearchText sourceString:file]) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
@@ -2029,7 +2029,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     BOOL isDir;
     
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-        
+    
     dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
     
     NSArray *sortedDirContent = imp_RandomizeUsingMutableCopy(dirContent);
@@ -2046,7 +2046,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             extension = (NSString *)[temparray_filepath lastObject];
             //[temparray_filepath removeLastObject];
             file_no_ext=[temparray_filepath firstObject];
-                                                
+            
             int found=0;
             
             if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -2080,34 +2080,34 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
-            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-            if (err==SQLITE_OK){
-                while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                
+                //NSLog(@"lbl %@",playlist->entries[playlist->nb_entries].label);
+                //NSLog(@"fp %@",playlist->entries[playlist->nb_entries].fullpath);
+                //adjust label
+                if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
+                    playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
+                } else {
                     
-                    //NSLog(@"lbl %@",playlist->entries[playlist->nb_entries].label);
-                    //NSLog(@"fp %@",playlist->entries[playlist->nb_entries].fullpath);
-                    //adjust label
-                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
-                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
-                    } else {
-                        
-                        if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
-                            playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
-                        }
+                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
                     }
-                    
-                    playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
-                    
-                    playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
-                    playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
-                    playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
-                    playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
-                    playlist->nb_entries++;
                 }
-                sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+                
+                playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
+                
+                playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
+                playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
+                playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
+                playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
+                playlist->nb_entries++;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -2129,56 +2129,194 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         } else NSLog(@"ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
-            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-            if (err==SQLITE_OK){
-                while (sqlite3_step(stmt) == SQLITE_ROW) {
-                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                
+                //adjust label
+                if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
+                    playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
+                } else {
                     
-                    //adjust label
-                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
-                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]] ,playlist->entries[playlist->nb_entries].label];
-                    } else {
-                        
-                        if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
-                            playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
-                        }
+                    if ([playlist->entries[playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
+                        playlist->entries[playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[playlist->entries[playlist->nb_entries].fullpath lastPathComponent]],playlist->entries[playlist->nb_entries].label];
                     }
-                    
-                    playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
-
-                    playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
-                    playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
-                    playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
-                    playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
-                    playlist->nb_entries++;
                 }
-                sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+                
+                playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
+                
+                playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
+                playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
+                playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
+                playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
+                playlist->nb_entries++;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
     
 }
 
+int getPlaylistStatsDBmod(t_playlist *pl) {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    int ret=0;
+    
+    if (pl==NULL) return ret;
+    if (pl->nb_entries==0) return ret;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        
+        char sqlStatement[1024*32];
+        sqlite3_stmt *stmt;
+        
+        clock_t start_time,end_time;
+        start_time=clock();
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //sqlite3_exec(db, "PRAGMA synchronous=OFF", NULL, NULL, NULL);
+          //      sqlite3_exec(db, "PRAGMA count_changes=OFF", NULL, NULL, NULL);
+                sqlite3_exec(db, "PRAGMA journal_mode=MEMORY", NULL, NULL, NULL);
+                sqlite3_exec(db, "PRAGMA temp_store=MEMORY", NULL, NULL, NULL);
+
+        
+        printf("yo1\n");
+        int i=0;
+
+//        err=sqlite3_exec(db, "DELETE FROM tmp_plnow", NULL, NULL, NULL);
+//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
+//        
+//        err=sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, NULL);
+//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
+//        
+//        end_time=clock();
+//        printf("yo2 %d\n",end_time-start_time);
+//        start_time=clock();
+//        while (i<pl->nb_entries) {
+//            int j=0;
+//            int k=0;
+//            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO tmp_plnow (fullpath) SELECT \"%s\"",[pl->entries[i].fullpath UTF8String]);
+//            k=strlen(sqlStatement);
+//            i++;
+//            /*while ((i<pl->nb_entries)&&(j<100)) {
+//                int l=strlen([pl->entries[i].fullpath UTF8String]);
+//                if ((k+l)<sizeof(sqlStatement)) snprintf(sqlStatement+k,sizeof(sqlStatement)-k," UNION ALL SELECT \"%s\"",[pl->entries[i].fullpath UTF8String]);
+//                else break;
+//                k+=l+20;
+//                i++;
+//                j++;
+//            }*/
+//            
+//            
+//            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+//            if (err==SQLITE_OK){
+//                
+//            } else {
+//                NSLog(@"ErrSQL : %d",err);
+//            }
+//        }
+//        
+//        err=sqlite3_exec(db, "COMMIT TRANSACTION", NULL, NULL, NULL);
+//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
+        
+        end_time=clock();
+        printf("yo3 %ul\n",end_time-start_time);
+        start_time=clock();
+        
+        i=0;
+        while (i<pl->nb_entries) {
+            //printf("i:%d\n",i);
+            snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath IN (\"%s\"",[pl->entries[i].fullpath UTF8String]);
+            
+            int j=1;
+            int k=strlen(sqlStatement);
+            while (((i+j)<pl->nb_entries)&&(j<128)) {
+                int l=strlen([pl->entries[i+j].fullpath UTF8String]);
+                if ((k+l+1024)<sizeof(sqlStatement)) snprintf(sqlStatement+k,sizeof(sqlStatement)-k,",\"%s\"",[pl->entries[i+j].fullpath UTF8String]);
+                else break;
+                k+=l+3;
+                j++;
+            }
+            k=strlen(sqlStatement);
+            sqlStatement[k]=')';
+            sqlStatement[k+1]=0;
+            
+//                    snprintf(sqlStatement,sizeof(sqlStatement),"SELECT s.play_count,s.rating,s.avg_rating,s.length,s.channels,s.songs FROM tmp_plnow p LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath");
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            
+            int ii=i;
+            int imax=i+j;
+            if (err==SQLITE_OK){
+                
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    ret++;
+                    const char *dbstr=(const char *)sqlite3_column_text(stmt, 0);
+                    for (int kk=ii;kk<imax;kk++) {
+                        if (strcmp([pl->entries[kk].fullpath UTF8String],dbstr)==0) {
+                            pl->entries[kk].playcounts=(short int)sqlite3_column_int(stmt, 1);
+                            pl->entries[kk].ratings=(signed char)sqlite3_column_int(stmt, 2);
+                            if (pl->entries[kk].ratings<0) pl->entries[kk].ratings=0;
+                            if (pl->entries[kk].ratings>5) pl->entries[kk].ratings=5;
+                            pl->entries[kk].song_length=(int)sqlite3_column_int(stmt, 3);
+                            pl->entries[kk].channels_nb=(char)sqlite3_column_int(stmt, 4);
+                            pl->entries[kk].songs=(int)sqlite3_column_int(stmt, 5);
+                            ii++;
+                            break;
+                        }
+                    }
+                    
+                }
+                sqlite3_finalize(stmt);
+            } else {
+                NSLog(@"ErrSQL : %d",err);
+                break;
+            }
+            i+=j;
+        }
+        end_time=clock();
+        printf("yo4 %ul\n",end_time-start_time);
+        start_time=clock();
+    }
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutex);
+    return ret;
+}
+
+
 -(void) reloadNowPlaying {
+    NSLog(@"start");
     for (int i=0;i<detailViewController.mPlaylist_size;i++) {
         playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
         playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
-        
-            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
-                                        &(playlist->entries[i].playcounts),
-                                        &(detailViewController.mPlaylist[i].mPlaylistRating),
-                                        NULL,
-                                        &(playlist->entries[i].song_length),
-                                        &(playlist->entries[i].channels_nb),
-                                        &(playlist->entries[i].songs));
+        //        DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
+        //                                    &(playlist->entries[i].playcounts),
+        //                                    &(detailViewController.mPlaylist[i].mPlaylistRating),
+        //                                    NULL,
+        //                                    &(playlist->entries[i].song_length),
+        //                                    &(playlist->entries[i].channels_nb),
+        //                                    &(playlist->entries[i].songs));
         playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
     }
+    
     playlist->nb_entries=detailViewController.mPlaylist_size;
     playlist->playlist_name=nil;
     playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
     playlist->playlist_id=nil;
+    
+    getPlaylistStatsDBmod(playlist);
+    
+    NSLog(@"end");
 }
 
 -(void) refreshViewAfterDownload {
@@ -2202,7 +2340,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
-    return UIStatusBarStyleDefault;    
+    return UIStatusBarStyleDefault;
 }
 
 -(void) viewWillAppear:(BOOL)animated {
@@ -2218,7 +2356,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
-        
+    
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
@@ -2260,9 +2398,9 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     [self.tableView reloadData];
     
     /*if (currentPlayedEntry>=0) {
-        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-    }*/
+     NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+     [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+     }*/
     
     if (detailViewController) {
         if (detailViewController.mPlaylist_size) {
@@ -2288,7 +2426,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 - (void)viewDidAppear:(BOOL)animated {
     [self hideWaiting];
-        
+    
     [super viewDidAppear:animated];
     if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING)) {
         NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
@@ -2303,9 +2441,9 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
     /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
-        
+     [childController viewDidDisappear:FALSE];
+     }*/
+    
     [super viewDidDisappear:animated];
     
 }
@@ -2419,23 +2557,23 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 //main playlist screen, delete a playlist
                 //////////////////////////////////////////////////////////////////////////////////////:
                 UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
-                                               message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
-                                               preferredStyle:UIAlertControllerStyleAlert];
-                 
+                                                                               message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                
                 UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
-                   handler:^(UIAlertAction * action) {
-                        if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-5]]) {
-                            keys=nil;
-                            list=nil;
-                            [self fillKeys];
-                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                        }
-                    }];
+                                                                     handler:^(UIAlertAction * action) {
+                    if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-5]]) {
+                        keys=nil;
+                        list=nil;
+                        [self fillKeys];
+                        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    }
+                }];
                 UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
-                   handler:^(UIAlertAction * action) {
-                        [cell setSlideState:SESlideTableViewCellSlideStateCenter animated:YES];
-                    }];
-                 
+                                                                     handler:^(UIAlertAction * action) {
+                    [cell setSlideState:SESlideTableViewCellSlideStateCenter animated:YES];
+                }];
+                
                 [alert addAction:cancelAction];
                 [alert addAction:deleteAction];
                 [self presentViewController:alert animated:YES completion:nil];
@@ -2446,79 +2584,78 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     //////////////////////////////////////////////////////////////////////////////////////:
                     //nowplaying playlist, remove an entry
                     //////////////////////////////////////////////////////////////////////////////////////:
-                            detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilename=nil;
-                            detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilepath=nil;
-                            for (int i=indexPath.row-1;i<playlist->nb_entries-1;i++) {
-                                detailViewController.mPlaylist[i].mPlaylistFilename=detailViewController.mPlaylist[i+1].mPlaylistFilename;
-                                detailViewController.mPlaylist[i].mPlaylistFilepath=detailViewController.mPlaylist[i+1].mPlaylistFilepath;
-                                detailViewController.mPlaylist[i].mPlaylistRating=detailViewController.mPlaylist[i+1].mPlaylistRating;
-                                detailViewController.mPlaylist[i].mPlaylistCount=detailViewController.mPlaylist[i+1].mPlaylistCount;
-                                detailViewController.mPlaylist[i].cover_flag=detailViewController.mPlaylist[i+1].cover_flag;
-                            }
-                            detailViewController.mPlaylist_size--;
-                            if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
-                            if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
-                            detailViewController.mShouldUpdateInfos=1;
-                    
-                    
+                    detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilename=nil;
+                    detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilepath=nil;
+                    for (int i=indexPath.row-1;i<playlist->nb_entries-1;i++) {
+                        detailViewController.mPlaylist[i].mPlaylistFilename=detailViewController.mPlaylist[i+1].mPlaylistFilename;
+                        detailViewController.mPlaylist[i].mPlaylistFilepath=detailViewController.mPlaylist[i+1].mPlaylistFilepath;
+                        detailViewController.mPlaylist[i].mPlaylistRating=detailViewController.mPlaylist[i+1].mPlaylistRating;
+                        detailViewController.mPlaylist[i].mPlaylistCount=detailViewController.mPlaylist[i+1].mPlaylistCount;
+                        detailViewController.mPlaylist[i].cover_flag=detailViewController.mPlaylist[i+1].cover_flag;
+                    }
+                    detailViewController.mPlaylist_size--;
+                    if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
+                    if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
+                    detailViewController.mShouldUpdateInfos=1;
+                                        
                     [self reloadNowPlaying];
-                            
+                    
                     forceReloadCells=true;
                     [self.tableView reloadData];
-                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                     
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
                     //to check
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
-                            short int playcount;
-                            signed char rating,avg_rating;
-
-                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
-                                                        &playcount,&rating,&avg_rating);
-                            playcount=0;
-                            DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
-                                                           playlist->entries[indexPath.row-1].fullpath,
-                                                           playcount,rating,avg_rating);
+                    short int playcount;
+                    signed char rating,avg_rating;
                     
-                            [self loadMostPlayedList];
-
-                            forceReloadCells=true;
-                            [self.tableView reloadData];
-                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
+                                                &playcount,&rating,&avg_rating);
+                    playcount=0;
+                    DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                   playlist->entries[indexPath.row-1].fullpath,
+                                                   playcount,rating,avg_rating);
                     
-                } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
-                            short int playcount;
-                            signed char rating,avg_rating;
-                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
-                                                        &playcount,&rating,&avg_rating);
-                            rating=0;
-                            DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
-                                                           playlist->entries[indexPath.row-1].fullpath,
-                                                           playcount,rating,avg_rating);
+                    [self loadMostPlayedList];
                     
-                            [self loadFavoritesList];
                     forceReloadCells=true;
                     [self.tableView reloadData];
-                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    
+                } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
+                    short int playcount;
+                    signed char rating,avg_rating;
+                    DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
+                                                &playcount,&rating,&avg_rating);
+                    rating=0;
+                    DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                   playlist->entries[indexPath.row-1].fullpath,
+                                                   playcount,rating,avg_rating);
+                    
+                    [self loadFavoritesList];
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                    //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                 } else if (integrated_playlist==0) {
                     if (indexPath.row>=2) {
                         //////////////////////////////////////////////////////////////////////////////////////:
                         //user playlist, remove an entry
                         //////////////////////////////////////////////////////////////////////////////////////:
-                                playlist->entries[indexPath.row-2].label=nil;
-                                playlist->entries[indexPath.row-2].fullpath=nil;
-                                for (int i=indexPath.row-2;i<playlist->nb_entries-1;i++) {
-                                    playlist->entries[i].label=playlist->entries[i+1].label;
-                                    playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
-                                    playlist->entries[i].ratings=playlist->entries[i+1].ratings;
-                                    playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
-                                }
-                                playlist->nb_entries--;
-                                [self replacePlaylistDBwithCurrent];
-                                  
+                        playlist->entries[indexPath.row-2].label=nil;
+                        playlist->entries[indexPath.row-2].fullpath=nil;
+                        for (int i=indexPath.row-2;i<playlist->nb_entries-1;i++) {
+                            playlist->entries[i].label=playlist->entries[i+1].label;
+                            playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
+                            playlist->entries[i].ratings=playlist->entries[i+1].ratings;
+                            playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
+                        }
+                        playlist->nb_entries--;
+                        [self replacePlaylistDBwithCurrent];
+                        
                         forceReloadCells=true;
                         [self.tableView reloadData];
-                                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                        //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                         
                     }
                 }
@@ -2530,7 +2667,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {    
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     static NSString *CellIdentifier_withAction = @"CellA";
     NSString *cellValue;
@@ -2584,7 +2721,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         
-        [cell setBackgroundColor:[UIColor clearColor]];        
+        [cell setBackgroundColor:[UIColor clearColor]];
         
         NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
         UIImage *image = [UIImage imageNamed:imgFile];
@@ -2598,7 +2735,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         // Create the label for the top row of text
         //
         topLabel = [[UILabel alloc] init];
-        [cell.contentView addSubview:topLabel];        
+        [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
         //
@@ -2641,7 +2778,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         secActionView.tag = SECACT_IMAGE_TAG;
         
         cell.accessoryView=nil;
-//        cell.selectionStyle=UITableViewCellSelectionStyleGray;
+        //        cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
@@ -2733,7 +2870,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             } else {  //playlist entries
                 cellValue=playlist->entries[row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
-                                
+                
                 char signed avg_rating=-1;
                 if ((playlist->entries[row-2].ratings==-1)||(playlist->entries[row-2].playcounts==-1)) {
                     DBHelper::getFileStatsDBmod(playlist->entries[row-2].fullpath,
@@ -2749,7 +2886,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 }
                 
                 if ((playlist->entries[row-2].ratings==0)&&(avg_rating>0)) playlist->entries[row-2].ratings=1;
-
+                
                 if (playlist->entries[row-2].ratings>0) {
                     bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
                 }
@@ -2758,14 +2895,14 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 NSString *tmp_str;
                 
                 /*if ([filename_parts count]>=3) {
-                    if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {
-                        tmp_str = [NSString stringWithFormat:@"%@/%@|",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
-                    } else tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
-                } else if ([filename_parts count]>=2) {
-                    if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-2] compare:@"Documents"]!=NSOrderedSame) {
-                        tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
-                    } else tmp_str = @"";
-                }*/
+                 if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {
+                 tmp_str = [NSString stringWithFormat:@"%@/%@|",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
+                 } else tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
+                 } else if ([filename_parts count]>=2) {
+                 if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-2] compare:@"Documents"]!=NSOrderedSame) {
+                 tmp_str = [NSString stringWithFormat:@"%@|",[filename_parts objectAtIndex:[filename_parts count]-2]];
+                 } else tmp_str = @"";
+                 }*/
                 tmp_str = [[filename_parts subarrayWithRange:NSMakeRange(1,[filename_parts count]-1)] componentsJoinedByString:@"/"];
                 
                 bottomLabel.text=[tmp_str stringByAppendingFormat:@" | Pl:%d ",playlist->entries[row-2].playcounts];
@@ -2921,7 +3058,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 detailViewController.mShouldUpdateInfos=1;
                 
                 [self reloadNowPlaying];
-                        
+                
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) { //random, TODO
                 
@@ -3047,8 +3184,8 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     int rowofs=(integrated_playlist?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)&&(integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING)) {
         /*if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-            if (indexPath.row-rowofs==detailViewController.mPlaylist_pos) return NO;
-        }*/
+         if (indexPath.row-rowofs==detailViewController.mPlaylist_pos) return NO;
+         }*/
         return YES;
     }
     return NO;
@@ -3172,7 +3309,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     
     [self showWaiting];
     [self flushMainLoop];
-
+    
     if (browse_depth==0) {
         if (indexPath.row>=2) { //start selected playlist
             [self freePlaylist];
@@ -3207,7 +3344,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 
                 [detailViewController play_listmodules:playlist start_index:0];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                                
+                
                 keys=nil;
                 list=nil;
                 [self fillKeys];
@@ -3308,11 +3445,11 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                             [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
                         } else {
                             UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
-                                                               message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")
-                                                               preferredStyle:UIAlertControllerStyleAlert];
+                                                                                            message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")
+                                                                                     preferredStyle:UIAlertControllerStyleAlert];
                             UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
-                                handler:^(UIAlertAction * action) {
-                                }];
+                                                                                handler:^(UIAlertAction * action) {
+                            }];
                             [alertC addAction:closeAction];
                             [self showAlert:alertC];
                             break;
@@ -3383,22 +3520,23 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             [self createNewPlaylist];
         }
         if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //display current queue
-            for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+            /*for (int i=0;i<detailViewController.mPlaylist_size;i++) {
                 playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
                 playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
                 
-                DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
-                                            &(playlist->entries[i].playcounts),
-                                            &(detailViewController.mPlaylist[i].mPlaylistRating),
-                                            NULL,
-                                            &(playlist->entries[i].song_length),
-                                            &(playlist->entries[i].channels_nb),
-                                            &(playlist->entries[i].songs));
+//                DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilepath,
+//                                            &(playlist->entries[i].playcounts),
+//                                            &(detailViewController.mPlaylist[i].mPlaylistRating),
+//                                            NULL,
+//                                            &(playlist->entries[i].song_length),
+//                                            &(playlist->entries[i].channels_nb),
+//                                            &(playlist->entries[i].songs));
                 playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
-            }
+            }*/
             playlist->nb_entries=detailViewController.mPlaylist_size;
             playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
             playlist->playlist_id=nil;
+            
             
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
             //set new title
@@ -3531,7 +3669,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 
                 
                 [tabView reloadData];
-                                                                
+                
                 [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                 
             } else if (row==0 ){ //add new entry to current playlist
@@ -3555,155 +3693,155 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                     UIAlertController *alertC;
                     
                     alertC = [UIAlertController alertControllerWithTitle:nil
-                                                       message:nil
-                                                       preferredStyle:UIAlertControllerStyleActionSheet];
-                        
+                                                                 message:nil
+                                                          preferredStyle:UIAlertControllerStyleActionSheet];
+                    
                     UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
-                        handler:^(UIAlertAction * action) {
-                        }];
+                                                                         handler:^(UIAlertAction * action) {
+                    }];
                     [alertC addAction:cancelAction];
-                        
+                    
                     UIAlertAction* renameAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self renamePlaylist];
-                        }];
+                                                                         handler:^(UIAlertAction * action) {
+                        [self renamePlaylist];
+                    }];
                     [alertC addAction:renameAction];
                     
                     UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self editPlaylist];
-                        }];
+                                                                       handler:^(UIAlertAction * action) {
+                        [self editPlaylist];
+                    }];
                     [alertC addAction:editAction];
                     
                     UIAlertAction* shuffleAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Shuffle",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self shufflePlaylist];
-                        }];
+                                                                          handler:^(UIAlertAction * action) {
+                        [self shufflePlaylist];
+                    }];
                     [alertC addAction:shuffleAction];
                     
                     UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self sortAZPlaylist:false];
-                        }];
+                                                                         handler:^(UIAlertAction * action) {
+                        [self sortAZPlaylist:false];
+                    }];
                     [alertC addAction:sortAZAction];
                     
                     UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self sortZAPlaylist:false];
-                        }];
+                                                                         handler:^(UIAlertAction * action) {
+                        [self sortZAPlaylist:false];
+                    }];
                     [alertC addAction:sortZAAction];
                     
                     UIAlertAction* sortAZActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z (fullpath)",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self sortAZPlaylist:true];
-                        }];
+                                                                           handler:^(UIAlertAction * action) {
+                        [self sortAZPlaylist:true];
+                    }];
                     [alertC addAction:sortAZActionFP];
                     
                     UIAlertAction* sortZAActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A (fullpath)",@"") style:UIAlertActionStyleDefault
-                        handler:^(UIAlertAction * action) {
-                            [self sortZAPlaylist:true];
-                        }];
+                                                                           handler:^(UIAlertAction * action) {
+                        [self sortZAPlaylist:true];
+                    }];
                     [alertC addAction:sortZAActionFP];
                     
                     UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
-                        handler:^(UIAlertAction * action) {
-                            [self deletePlaylist];
-                        }];
+                                                                         handler:^(UIAlertAction * action) {
+                        [self deletePlaylist];
+                    }];
                     [alertC addAction:deleteAction];
-                                            
+                    
                     [self showAlert:alertC];
                 } else { //"now playing", "most played", "favorites" playlists -> does not exist in DB
                     UIAlertController *alertC;
-
+                    
                     if (integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING) {
                         alertC = [UIAlertController alertControllerWithTitle:nil
-                                                           message:nil
-                                                           preferredStyle:UIAlertControllerStyleActionSheet];
-                            
+                                                                     message:nil
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
+                        
                         UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
-                            handler:^(UIAlertAction * action) {
-                            }];
+                                                                             handler:^(UIAlertAction * action) {
+                        }];
                         [alertC addAction:cancelAction];
-                            
+                        
                         UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self saveToNewPlaylist];
-                            }];
+                                                                           handler:^(UIAlertAction * action) {
+                            [self saveToNewPlaylist];
+                        }];
                         [alertC addAction:saveAction];
                         
                         UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self editPlaylist];
-                            }];
+                                                                           handler:^(UIAlertAction * action) {
+                            [self editPlaylist];
+                        }];
                         [alertC addAction:editAction];
                         
                         UIAlertAction* shuffleAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Shuffle",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self shufflePlaylist];
-                            }];
+                                                                              handler:^(UIAlertAction * action) {
+                            [self shufflePlaylist];
+                        }];
                         [alertC addAction:shuffleAction];
                         
                         UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self sortAZPlaylist:false];
-                            }];
+                                                                             handler:^(UIAlertAction * action) {
+                            [self sortAZPlaylist:false];
+                        }];
                         [alertC addAction:sortAZAction];
                         
                         UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self sortZAPlaylist:false];
-                            }];
+                                                                             handler:^(UIAlertAction * action) {
+                            [self sortZAPlaylist:false];
+                        }];
                         [alertC addAction:sortZAAction];
                         
                         UIAlertAction* sortAZActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z (fullpath)",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self sortAZPlaylist:true];
-                            }];
+                                                                               handler:^(UIAlertAction * action) {
+                            [self sortAZPlaylist:true];
+                        }];
                         [alertC addAction:sortAZActionFP];
                         
                         UIAlertAction* sortZAActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A (fullpath)",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self sortZAPlaylist:true];
-                            }];
+                                                                               handler:^(UIAlertAction * action) {
+                            [self sortZAPlaylist:true];
+                        }];
                         [alertC addAction:sortZAActionFP];
-                                                
+                        
                         [self showAlert:alertC];
                     } else if ((integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED)||(integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES)) {
                         alertC = [UIAlertController alertControllerWithTitle:nil
-                                                           message:nil
-                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+                                                                     message:nil
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
                         UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
-                            handler:^(UIAlertAction * action) {
-                            }];
+                                                                             handler:^(UIAlertAction * action) {
+                        }];
                         [alertC addAction:cancelAction];
-                            
+                        
                         UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self saveToNewPlaylist];
-                            }];
+                                                                           handler:^(UIAlertAction * action) {
+                            [self saveToNewPlaylist];
+                        }];
                         [alertC addAction:saveAction];
                         
                         UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self editPlaylist];
-                            }];
+                                                                           handler:^(UIAlertAction * action) {
+                            [self editPlaylist];
+                        }];
                         [alertC addAction:editAction];
                         
                         [self showAlert:alertC];
                         
                     } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
                         alertC = [UIAlertController alertControllerWithTitle:nil
-                                                           message:nil
-                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+                                                                     message:nil
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
                         UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
-                            handler:^(UIAlertAction * action) {
-                            }];
+                                                                             handler:^(UIAlertAction * action) {
+                        }];
                         [alertC addAction:cancelAction];
-                            
+                        
                         UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
-                            handler:^(UIAlertAction * action) {
-                                [self saveToNewPlaylist];
-                            }];
+                                                                           handler:^(UIAlertAction * action) {
+                            [self saveToNewPlaylist];
+                        }];
                         [alertC addAction:saveAction];
                         
                         [self showAlert:alertC];
@@ -3786,14 +3924,14 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                         
                         [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                     } else {
-                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")];                        
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")];
                     }
                 }
             }
         }
     }
     mAccessoryButton=0;
-    }
+}
 
 /* POPUP functions */
 -(void) hidePopup {
@@ -3873,7 +4011,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     waitingView=nil;
     
     mSearchText=nil;
-        
+    
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
             local_entries_data[i].label=nil;
@@ -3923,7 +4061,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         int pos=currentPlayedEntry+1;
         if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-
+        
         if (pos<[self.tableView numberOfRowsInSection:0]) {
             [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
         }

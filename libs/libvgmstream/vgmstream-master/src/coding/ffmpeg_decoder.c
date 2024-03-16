@@ -2,7 +2,7 @@
 #include "coding.h"
 
 #ifdef VGM_USE_FFMPEG
-#include <libavcodec/avcodec.h>
+#include "avcodec.h"
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
 

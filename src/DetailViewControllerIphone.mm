@@ -4108,19 +4108,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
     if (valNb == nil) mPlaylist_pos=0;
     else mPlaylist_pos= [valNb intValue];
-    if (mPlaylist_size) {
-        NSMutableArray *fileNames,*filePaths;
-        
-        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
-        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
-        
-        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
-            for (int i=0;i<mPlaylist_size;i++) {
-                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-            }
-        }
-    }
+    
     valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
     if (valNb != nil) {
         if ([valNb intValue]>1) {
@@ -4134,6 +4122,66 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if ([valNb intValue]>0) {
             valNb=[prefs objectForKey:@"ArchiveIndex"];if (safe_mode) valNb=nil;
             if (valNb != nil) mRestart_arc=[valNb intValue];
+        }
+    }
+    
+    if (mPlaylist_size) {
+//        NSMutableArray *fileNames,*filePaths;
+//
+//        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
+//        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
+//
+//        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
+//            for (int i=0;i<mPlaylist_size;i++) {
+//                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+//                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+//            }
+//        }
+        FILE *f;
+        f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
+        if (f) {
+            fseek(f,0,SEEK_END);
+            int64_t fsize=ftell(f);
+            fseek(f,0,SEEK_SET);
+            char *fdata=(char *)malloc(fsize);
+            if (fdata) {
+                fread(fdata,1,fsize,f);
+                int ofs=0;
+                for (int i=0;i<mPlaylist_size;i++) {
+                    char *str=fdata+ofs;
+                    mPlaylist[i].mPlaylistFilename=[NSString stringWithUTF8String:str];
+                    //move to next 0
+                    while (fdata[ofs]) {
+                        ofs++;
+                        if (ofs>=fsize) break;
+                    }
+                    //move to 1st char of string
+                    ofs++;
+                    if (ofs>=fsize) break;
+                    
+                    
+                    
+                    str=fdata+ofs;
+                    mPlaylist[i].mPlaylistFilepath=[NSString stringWithUTF8String:str];
+                    //move to next 0
+                    while (fdata[ofs]) {
+                        ofs++;
+                        if (ofs>=fsize) break;
+                    }
+                    //move to 1st char of string
+                    ofs++;
+                    if (ofs>=fsize) break;
+                    
+                    
+                }
+            }
+            
+            fclose(f);
+        } else {
+            mRestart_sub=0;
+            mRestart_arc=0;
+            mPlaylist_pos=0;
+            mPlaylist_size=0;
         }
     }
     
@@ -4182,17 +4230,27 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [prefs setObject:valNb forKey:@"PlayingPos"];
     
     if (mPlaylist_size) {
-        
-        NSMutableArray *fileNames,*filePaths;
-        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-        for (int i=0;i<mPlaylist_size;i++) {
-            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
-            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
+        FILE *f;
+        f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
+        if (f) {
+            for (int i=0;i<mPlaylist_size;i++) {
+                const char *str=[mPlaylist[i].mPlaylistFilename UTF8String];
+                fwrite(str,1,strlen(str)+1,f);
+                str=[mPlaylist[i].mPlaylistFilepath UTF8String];
+                fwrite(str,1,strlen(str)+1,f);
+            }
+            fclose(f);
         }
-        
-        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
-        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
+//        NSMutableArray *fileNames,*filePaths;
+//        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+//        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+//        for (int i=0;i<mPlaylist_size;i++) {
+//            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
+//            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
+//        }
+//        
+//        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
+//        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
     }
     
     
