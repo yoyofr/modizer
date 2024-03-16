@@ -210,18 +210,14 @@ static int display_length_mode=0;
 
 -(IBAction)changeScreenRecorderFlag {
     if (bRSactive) {
-        bRSactive=false;
-        if (isRecordingScreen) {
+        if (isRecordingScreen!=RS_NOT_RECORDING) {
             [self StopRecording];
         }
     } else {
-        bRSactive=true;
-        if ((!isRecordingScreen)&&(bRSactive)) {
+        if ((isRecordingScreen==RS_NOT_RECORDING)&&(bRSactive)) {
             [self StartRecording];
         }
     }
-    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
-    [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
 }
 
 -(IBAction)showVoicesSelector:(id)sender {
@@ -1086,9 +1082,7 @@ static float movePinchScale,movePinchScaleOld;
     //NSFPLAY
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_NSFPLAY)) {
-        [mplayer optNSFPLAY_UpdateParam:settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value
-                              n163_opt1:settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value
-                              n163_opt2:settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value];
+        [mplayer optNSFPLAY_UpdateParam];
         
         [mplayer optNSFPLAY_DefaultLength:settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value];
     }
@@ -1567,6 +1561,12 @@ static float movePinchScale,movePinchScaleOld;
         else self.playBar.hidden=NO;
         
         [self updateBarPos];
+        
+        //check if video recording is in progress and if should stop
+        if (isRecordingScreen!=RS_NOT_RECORDING) {
+            if ((isRecordingScreen==RS_RECORDING_AND_STOP)||(isRecordingScreen==RS_RECORDING_AND_STOP_FS)) [self StopRecording];
+        }
+        
         //and go to next entry if playlist
         if ((mLoopMode==2)||(mplayer.mLoopMode==1))  [self play_curEntry:-1];
         else {
@@ -4629,7 +4629,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mPaused=1;
     mScaleFactor=1.0f;
     
-    isRecordingScreen=false;
+    isRecordingScreen=0;
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -7701,52 +7701,117 @@ extern "C" int current_sample;
     [msgAlert addAction:cancelAction];
     
     //Start recording action
-    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Start recording",@"") style:UIAlertActionStyleDefault
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Record",@"") style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
-        isRecordingScreen=true;
+        
         [recorder startRecordingWithHandler:^(NSError *error) {
-
             if(error) {
-                isRecordingScreen=false;
+                isRecordingScreen=RS_NOT_RECORDING;
                 NSLog(@"Error= %@",error.localizedDescription);
+            } else {
+                bRSactive=true;
+                isRecordingScreen=RS_RECORDING;
             }
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         }];
     }];
     [msgAlert addAction:userAction];
     
     //Restart recording action
-    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart song & start recording",@"") style:UIAlertActionStyleDefault
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart & record",@"") style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
-        isRecordingScreen=true;
+        
         [self restartCurrent];
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
-                isRecordingScreen=false;
+                isRecordingScreen=RS_NOT_RECORDING;
                 NSLog(@"Error= %@",error.localizedDescription);
+            } else {
+                isRecordingScreen=RS_RECORDING;
+                bRSactive=true;
             }
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         }];
     }];
     [msgAlert addAction:userAction];
     
-    //Restart recording action
-    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart song, fullscreen & start recording",@"") style:UIAlertActionStyleDefault
+    //Restart & stop recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, record & stop",@"") style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
-        isRecordingScreen=true;
+        
+        [self restartCurrent];
+        [recorder startRecordingWithHandler:^(NSError *error) {
+            if(error) {
+                isRecordingScreen=RS_NOT_RECORDING;
+                NSLog(@"Error= %@",error.localizedDescription);
+            } else {
+                isRecordingScreen=RS_RECORDING_AND_STOP;
+                bRSactive=true;
+            }
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
+        }];
+    }];
+    [msgAlert addAction:userAction];
+    
+    //Restart & FS recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, fullscreen & record",@"") style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction * action) {
+        RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+        recorder.delegate = self;
+                
         oglViewFullscreen=1;
         oglViewFullscreenChanged=1;
         [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-        [self restartCurrent];
+        
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
-                isRecordingScreen=false;
+                isRecordingScreen=RS_NOT_RECORDING;
+                oglViewFullscreen=0;
+                oglViewFullscreenChanged=0;
                 NSLog(@"Error= %@",error.localizedDescription);
+            } else {
+                bRSactive=true;
+                isRecordingScreen=RS_RECORDING_FS;
+                [self restartCurrent];
             }
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
+        }];
+    }];
+    [msgAlert addAction:userAction];
+    
+    //Restart, FS & stop recording action
+    userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, fullscreen, record & stop",@"") style:UIAlertActionStyleDefault
+                                          handler:^(UIAlertAction * action) {
+        RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
+        recorder.delegate = self;
+                
+        oglViewFullscreen=1;
+        oglViewFullscreenChanged=1;
+        [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+        
+        [recorder startRecordingWithHandler:^(NSError *error) {
+            if(error) {
+                isRecordingScreen=RS_NOT_RECORDING;
+                oglViewFullscreen=0;
+                oglViewFullscreenChanged=0;
+                NSLog(@"Error= %@",error.localizedDescription);
+            } else {
+                bRSactive=true;
+                isRecordingScreen=RS_RECORDING_AND_STOP_FS;
+                [self restartCurrent];
+            }
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+            [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         }];
     }];
     [msgAlert addAction:userAction];
@@ -7759,11 +7824,14 @@ extern "C" int current_sample;
 - (void)StopRecording
 {
     RPScreenRecorder* recorder = RPScreenRecorder.sharedRecorder;
-    isRecordingScreen=false;
+    
     
     [recorder stopRecordingWithHandler:^(RPPreviewViewController * previewViewController,
 NSError * error) {
-
+        isRecordingScreen=RS_NOT_RECORDING;
+        bRSactive=false;
+        [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+        [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         if(error)
         {
             NSLog(@"Error= %@",error.localizedDescription);

@@ -1960,12 +1960,11 @@ xgm::NSFPlayer *nsfPlayer;
 xgm::NSFPlayerConfig *nsfPlayerConfig;
 xgm::NSF *nsfData;
 //NSFPLAY
-static char nsfplay_opt_n163_option0;
-static char nsfplay_opt_n163_option1;
-static char nsfplay_opt_n163_option2;
 
 #define MODIZ_MAX_CHIPS 8 //has to be the max / each lib
-#define MODIZ_CHIP_NAME_MAX_CHAR 16
+#define MODIZ_CHIP_NAME_MAX_CHAR 32
+#define MODIZ_VOICE_NAME_MAX_CHAR 32
+
 #define NES_MAX_CHIPS 8
 enum {
     NES_OFF=0,
@@ -1991,6 +1990,7 @@ char modizChipsetType[MODIZ_MAX_CHIPS];
 char modizChipsetStartVoice[MODIZ_MAX_CHIPS];
 char modizChipsetVoicesCount[MODIZ_MAX_CHIPS];
 char modizChipsetName[MODIZ_MAX_CHIPS][MODIZ_CHIP_NAME_MAX_CHAR];
+char modizVoicesName[SOUND_MAXVOICES_BUFFER_FX][MODIZ_VOICE_NAME_MAX_CHAR];
 char modizChipsetCount;
 
 
@@ -6935,20 +6935,6 @@ typedef struct {
     int val_option;
 } nsfplay_fixes_t;
 
-/*nsfplay_fixes_t nsfplay_fixes_list[]={
- {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION1",1}, //dracula x - bloodlines.nsf | N163 OPT_PHASE_READ_ONLY
- {"7a7f8d146d7b92845e1287e66abbaefb","N163_OPTION2",1}, //dracula x - bloodlines.nsf | N163 OPT_LIMIT_WAVELENGTH
- {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION1",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_PHASE_READ_ONLY
- {"d3cbfc438be378eb0e69ae963c3372e6","N163_OPTION2",1}, //chrono trigger sing mountain n106.nsf | N163 OPT_LIMIT_WAVELENGTH
- {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION1",1}, //digan no maseki - euress (n106).nsf | N163 OPT_PHASE_READ_ONLY
- {"369dab4b730d9fe9de7f15c549eda76d","N163_OPTION2",1}, //digan no maseki - euress (n106).nsf | N163 OPT_LIMIT_WAVELENGTH
- {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION1",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_PHASE_READ_ONLY
- {"810f1f3000bdcd0c7ccdd596b32eba06","N163_OPTION2",1}, //digan no maseki - euress (n106) v2.nsf | N163 OPT_LIMIT_WAVELENGTH
- {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION1",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_PHASE_READ_ONLY
- {"5e0c2f3e4dd8e07bdfbf93d628b67a1f","N163_OPTION2",1}, //final fantasy vi nakama wo motomete n106 vrc7 | N163 OPT_LIMIT_WAVELENGTH
- {"","",0} //END of list
- };*/
-
 -(int) mmp_nsfplayLoad:(NSString*)filePath {  //NSFPLAY
     mPlayType=MMP_NSFPLAY;
     
@@ -6964,40 +6950,24 @@ typedef struct {
     fclose(f);
     
     
-    /* compute md5 on file to trigger some fixes/options*/
-    /*int tmp_md5_data_size=mp_datasize;
-     char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-     
-     f=fopen([filePath UTF8String],"rb");
-     if (f==NULL) {
-     NSLog(@"SID Cannot open file %@",filePath);
-     mPlayType=0;
-     free(tmp_md5_data);
-     return -1;
-     }
-     fread(tmp_md5_data,1,tmp_md5_data_size,f);
-     fclose(f);
-     
-     md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
-     free(tmp_md5_data);*/
-    
     nsfPlayer=new xgm::NSFPlayer();
     
     nsfPlayerConfig=new xgm::NSFPlayerConfig();
     (*nsfPlayerConfig)["RATE"]=44100;
     (*nsfPlayerConfig)["MASTER_VOLUME"]=256;
-    (*nsfPlayerConfig)["N163_OPTION0"]=nsfplay_opt_n163_option0; //N163 hardware accurate serial multiplexing
-    (*nsfPlayerConfig)["N163_OPTION1"]=nsfplay_opt_n163_option1; //N163 OPT_PHASE_READ_ONLY
-    (*nsfPlayerConfig)["N163_OPTION2"]=nsfplay_opt_n163_option2; //N163 OPT_LIMIT_WAVELENGTH
     
-#ifdef DEBUG_MODIZER
-    //NSLog(@"%s: MD5 %s / loading %s",__func__,song_md5,[[filePath lastPathComponent] UTF8String]);
-#endif
-    /*for (int i=0;nsfplay_fixes_list[i].md5[0];i++)
-     if (strcmp(song_md5,nsfplay_fixes_list[i].md5)==0) {
-     (*nsfPlayerConfig)[nsfplay_fixes_list[i].option_id]=nsfplay_fixes_list[i].val_option;
-     }
-     */
+    (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
+    (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
+    
+    
+    (*nsfPlayerConfig)["REGION"]=settings[NSFPLAY_Region].detail.mdz_switch.switch_value;
+    (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
+    (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;
+    
+    (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value; //N163 hardware accurate serial multiplexing
+    (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value; //N163 OPT_PHASE_READ_ONLY
+    (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value; //N163 OPT_LIMIT_WAVELENGTH
+    
     nsfPlayer->SetConfig(nsfPlayerConfig);
     
     nsfData=new xgm::NSF();
@@ -7085,6 +7055,12 @@ typedef struct {
     numChannels+=5;
     modizChipsetCount++;
     
+    snprintf(modizVoicesName[0],MODIZ_VOICE_NAME_MAX_CHAR,"Square 0");
+    snprintf(modizVoicesName[1],MODIZ_VOICE_NAME_MAX_CHAR,"Square 1");
+    snprintf(modizVoicesName[2],MODIZ_VOICE_NAME_MAX_CHAR,"Triangle");
+    snprintf(modizVoicesName[3],MODIZ_VOICE_NAME_MAX_CHAR,"Noise");
+    snprintf(modizVoicesName[4],MODIZ_VOICE_NAME_MAX_CHAR,"DMC");
+    
     
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nArtist...: %s\nCopyright: %s\n",nsfData->GetTitleString("%T",-1),nsfData->artist,nsfData->copyright);
     if (nsfData->ripper) {
@@ -7102,8 +7078,10 @@ typedef struct {
         for (int i=numChannels;i<numChannels+1;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
+        snprintf(modizVoicesName[numChannels],MODIZ_VOICE_NAME_MAX_CHAR,"FDS");
         numChannels++;
         modizChipsetCount++;
+        
         
     }
     if (nsfData->use_fme7) {
@@ -7114,6 +7092,7 @@ typedef struct {
         snprintf(modizChipsetName[modizChipsetCount],16,"5B");
         for (int i=numChannels;i<numChannels+3;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"5B:%d",i);
         }
         numChannels+=3;
         modizChipsetCount++;
@@ -7127,6 +7106,9 @@ typedef struct {
         for (int i=numChannels;i<numChannels+3;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
+        snprintf(modizVoicesName[numChannels+0],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:S0");
+        snprintf(modizVoicesName[numChannels+1],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:S1");
+        snprintf(modizVoicesName[numChannels+2],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:PCM");
         numChannels+=3;
         modizChipsetCount++;
     }
@@ -7138,6 +7120,8 @@ typedef struct {
         snprintf(modizChipsetName[modizChipsetCount],16,"N163");
         for (int i=numChannels;i<numChannels+8;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"N163:%d",i);
+            
         }
         numChannels+=8;
         modizChipsetCount++;
@@ -7151,6 +7135,9 @@ typedef struct {
         for (int i=numChannels;i<numChannels+3;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
+        snprintf(modizVoicesName[numChannels+0],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:S0");
+        snprintf(modizVoicesName[numChannels+1],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:S1");
+        snprintf(modizVoicesName[numChannels+2],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:SAW");
         numChannels+=3;
         modizChipsetCount++;
     }
@@ -7162,6 +7149,7 @@ typedef struct {
         snprintf(modizChipsetName[modizChipsetCount],16,"VRC7");
         for (int i=numChannels;i<numChannels+9;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"VRC7:%d",i);
         }
         numChannels+=9;
         modizChipsetCount++;
@@ -12715,15 +12703,18 @@ extern bool icloud_available;
     optNSFPLAYDefaultLength=(int)(val*1000);
 }
 
--(void) optNSFPLAY_UpdateParam:(int)n163_opt0 n163_opt1:(int)n163_opt1 n163_opt2:(int)n163_opt2 {
-    nsfplay_opt_n163_option0=n163_opt0;
-    nsfplay_opt_n163_option1=n163_opt1;
-    nsfplay_opt_n163_option2=n163_opt2;
-    
+-(void) optNSFPLAY_UpdateParam {
     if (nsfPlayerConfig) {
-        (*nsfPlayerConfig)["N163_OPTION0"]=nsfplay_opt_n163_option0; //N163 hardware accurate serial multiplexing
-        (*nsfPlayerConfig)["N163_OPTION1"]=nsfplay_opt_n163_option1; //N163 OPT_PHASE_READ_ONLY
-        (*nsfPlayerConfig)["N163_OPTION2"]=nsfplay_opt_n163_option2; //N163 OPT_LIMIT_WAVELENGTH
+        (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
+        (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
+        
+        (*nsfPlayerConfig)["REGION"]=settings[NSFPLAY_Region].detail.mdz_switch.switch_value;
+        (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
+        (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value; //N163 hardware accurate serial multiplexing
+        (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value; //N163 OPT_PHASE_READ_ONLY
+        (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value; //N163 OPT_LIMIT_WAVELENGTH
         nsfPlayer->Notify(-1);
     }
 }
@@ -13131,8 +13122,9 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(channel)];
         case MMP_KSS:
         case MMP_NSFPLAY: {
-            int chipIdx=[self getSystemForVoice:channel];
-            return [NSString stringWithFormat:@"%d-%s",channel-modizChipsetStartVoice[chipIdx]+1,modizChipsetName[chipIdx]];
+            /*int chipIdx=[self getSystemForVoice:channel];
+            return [NSString stringWithFormat:@"%d-%s",channel-modizChipsetStartVoice[chipIdx]+1,modizChipsetName[chipIdx]];*/
+            return [NSString stringWithFormat:@"%s",modizVoicesName[channel]];
         }
         case MMP_2SF:
             return [NSString stringWithFormat:@"#%d-NDS",channel+1];

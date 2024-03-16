@@ -33,7 +33,6 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
   - ASAP: waiting feedback from Piotr
   - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer (1/voice)
   - vgmstream: not sure it'ss worth doing it as it is mostly streaming from stereo sourcecode
-  - LibKSS
   - PMDMINI
   - SC68
 

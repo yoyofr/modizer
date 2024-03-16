@@ -57,6 +57,14 @@ struct Resources;
 class CFont;
 class CGLString;
 
+enum {
+    RS_NOT_RECORDING=0,
+    RS_RECORDING,
+    RS_RECORDING_FS,
+    RS_RECORDING_AND_STOP,
+    RS_RECORDING_AND_STOP_FS
+};
+
 @interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
@@ -74,7 +82,7 @@ class CGLString;
     
     //Record screen
     bool bRSactive;
-    bool isRecordingScreen;
+    int isRecordingScreen; //0: not recording, 1: record, 2: record & stop at song end
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;

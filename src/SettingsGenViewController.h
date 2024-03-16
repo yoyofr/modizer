@@ -11,6 +11,8 @@
 #import "DetailViewControllerIphone.h"
 #import "TPKeyboardAvoidingTableView.h"
 
+#import "CMPopTipView.h"
+
 #import "MSColorPicker/MSColorSelectionViewController.h"
 
 
@@ -128,6 +130,21 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_NSFPLAY,
         NSFPLAY_DefaultLength,
+        NSFPLAY_LowPass_Filter_Strength,  //LPF: 0-400 lowpass filter strength (0=off, 112=default, 400=full)
+        NSFPLAY_HighPass_Filter_Strength, //HPF: 0-256 highpass filter strength (256=off, 164=default, 0=full)
+        NSFPLAY_Region,  //REGION: 0=auto, 1/2=prefer NTSC/PAL, 3/4/5=force NTSC/PAL/DENDY
+        NSFPLAY_VRC7_Patch,  /* 0 - VRC7 set by Nuke.KYT 3/15/2019 (dumped from VRC7 via special debug mode)
+                              1 - VRC7 set by rainwarrior 8/01/2012 (used by Famitracker 0.4.0)
+                              2 - VRC7 set by quietust 1/18/2004 (used by Famitracker 0.3.6)
+                              3 - VRC7 set by Mitsutaka Okazaki 6/24/2001 (used by Famitracker 0.3.5 and prior)
+                              4 - VRC7 set by Mitsutaka Okazaki 4/10/2004
+                              5 - VRC7 set by kevtris 11/15/1999 (second set in vrcvii.txt)
+                              6 - VRC7 set by kevtris 11/14/1999 (first set in vrcvii.txt)
+                              7 - YM2413 set by Mitsutaka Okazaki 4/10/2004
+                              8 - YMF281B set by Chabin 4/10/2004
+                              9 - YMF281B set by plgDavid 2/28/2021*/
+        NSFPLAY_ForceIRQ, //IRQ_ENABLE: forces IRQ capability to be enabled for all NSFs, not just NSF2.
+    
         NSFPLAY_N163_OPTION0,
         NSFPLAY_N163_OPTION1,
         NSFPLAY_N163_OPTION2,
@@ -291,10 +308,13 @@ typedef struct {
 
 
 
-@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate,UIColorPickerViewControllerDelegate,MSColorSelectionViewControllerDelegate,UIPopoverPresentationControllerDelegate> {
+@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate,UIColorPickerViewControllerDelegate,MSColorSelectionViewControllerDelegate,UIPopoverPresentationControllerDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
+    
+    CMPopTipView *popTipView;
+    int popTipViewRow,popTipViewSection;
     
     NSMutableDictionary *dictActionBtn;
     
@@ -322,6 +342,9 @@ typedef struct {
 
 @property (nonatomic,retain) IBOutlet TPKeyboardAvoidingTableView *tableView;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
+
+
+@property (nonatomic, retain) CMPopTipView *popTipView;
 
 + (void) loadSettings;
 + (void) restoreSettings;

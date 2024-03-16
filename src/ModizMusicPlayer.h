@@ -402,7 +402,7 @@ extern "C" {
 
 -(void) optGSF_UpdateParam;
 
--(void) optNSFPLAY_UpdateParam:(int)n163_opt0 n163_opt1:(int)n163_opt1 n163_opt2:(int)n163_opt2;
+-(void) optNSFPLAY_UpdateParam;
 
 -(void) optXMP_SetInterpolation:(int) mode;
 -(void) optXMP_SetStereoSeparation:(int) value;

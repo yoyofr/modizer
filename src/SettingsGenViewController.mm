@@ -28,11 +28,111 @@ volatile t_settings settings[MAX_SETTINGS];
 
 #include "MiniPlayerImplementTableView.h"
 
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    const NSInteger BOTTOM_LABEL_TAG = 1002;
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+    if (indexPath != nil) {
+        if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
+            int crow=indexPath.row;
+            int csection=indexPath.section;
+            if (csection>=0) {
+                //display popup
+                
+                //get info
+                NSError *err;
+                NSDictionary *dict;
+                
+                if (settings[cur_settings_idx[indexPath.section]].description) {
+                    NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+                    
+                    if (self.popTipView == nil) {
+                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
+                        self.popTipView.delegate = self;
+                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                        self.popTipView.textColor = [UIColor darkTextColor];
+                        self.popTipView.textAlignment=UITextAlignmentLeft;
+                        self.popTipView.titleAlignment=UITextAlignmentLeft;
+                        
+                        [self.popTipView presentPointingAtView:[[self.tableView cellForRowAtIndexPath:indexPath] viewWithTag:BOTTOM_LABEL_TAG]  inView:self.view animated:YES];
+                        popTipViewRow=crow;
+                        popTipViewSection=csection;
+                    } else {
+                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                            self.popTipView.message=str;
+                            [self.popTipView presentPointingAtView:[[self.tableView cellForRowAtIndexPath:indexPath] viewWithTag:BOTTOM_LABEL_TAG] inView:self.view animated:YES];
+                            popTipViewRow=crow;
+                            popTipViewSection=csection;
+                        }
+                    }
+                }
+            }
+        } else {
+            //hide popup
+            if (popTipView!=nil) {
+                [self.popTipView dismissAnimated:YES];
+                popTipView=nil;
+            }
+        }
+    }
+}
+
+-(void)handleTapPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+    if (indexPath != nil) {
+        //if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
+            int crow=indexPath.row;
+            int csection=indexPath.section;
+            if (csection>=0) {
+                //display popup
+                
+                //get info
+                NSError *err;
+                NSDictionary *dict;
+                
+                if (settings[cur_settings_idx[indexPath.section]].description) {
+                    NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+                    
+                    if (self.popTipView == nil) {
+                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
+                        self.popTipView.delegate = self;
+                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                        self.popTipView.textColor = [UIColor darkTextColor];
+                        
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        popTipViewRow=crow;
+                        popTipViewSection=csection;
+                    } else {
+                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                            self.popTipView.message=str;
+                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                            popTipViewRow=crow;
+                            popTipViewSection=csection;
+                        }
+                    }
+                }
+           // }
+        } else {
+            //hide popup
+            if (popTipView!=nil) {
+                [self.popTipView dismissAnimated:YES];
+                popTipView=nil;
+            }
+        }
+    }
+}
+
+
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -164,14 +264,14 @@ void optNSFPLAYChangedC(id param) {
 
 + (void) restoreSettings {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
+    NSNumber *valNb;
     NSString *str;
-            
+    
     [prefs synchronize];
-
-	for (int i=0;i<MAX_SETTINGS;i++)
+    
+    for (int i=0;i<MAX_SETTINGS;i++)
         if (settings[i].label) {
-        
+            
             str=[NSString stringWithFormat:@"%s",settings[i].label];
             //NSLog(@"restore settings: %@",str);
             int j=settings[i].family;
@@ -236,10 +336,10 @@ void optNSFPLAYChangedC(id param) {
 
 + (void) backupSettings {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-	NSNumber *valNb;
+    NSNumber *valNb;
     NSString *str;
     
-	for (int i=0;i<MAX_SETTINGS;i++)
+    for (int i=0;i<MAX_SETTINGS;i++)
         if (settings[i].label) {
             
             //NSLog(@"backup settings: %@",str);
@@ -322,7 +422,7 @@ void optNSFPLAYChangedC(id param) {
         if ((color_idx<0)||(color_idx==(i+1))) settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
     }
 }
-    
+
 
 
 + (void) applyDefaultSettings {
@@ -488,6 +588,14 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
     settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
     
+    settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value=112;
+    settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value=164;
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_value=0;
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value=0;
+    settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value=0;
+    
+    
+    
     /////////////////////////////////////
     //SID
     /////////////////////////////////////
@@ -522,7 +630,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
     settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
-        
+    
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////
@@ -653,21 +761,20 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].sub_family=0;
     settings[GLOB_DefaultLength].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
-    settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
     /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
-    settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";
-    settings[GLOB_PlaybackFrequency].description=(char*)"Change requires restart";
-    settings[GLOB_PlaybackFrequency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_PlaybackFrequency].sub_family=0;
-    settings[GLOB_PlaybackFrequency].callback=&optGLOBALChangedC;
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb=2;
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[0]=(char*)"44,1Khz";
-    settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[1]=(char*)"48Khz";*/
+     settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";
+     settings[GLOB_PlaybackFrequency].description=(char*)"Change requires restart";
+     settings[GLOB_PlaybackFrequency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+     settings[GLOB_PlaybackFrequency].sub_family=0;
+     settings[GLOB_PlaybackFrequency].callback=&optGLOBALChangedC;
+     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
+     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb=2;
+     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value_nb*sizeof(char*));
+     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[0]=(char*)"44,1Khz";
+     settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_labels[1]=(char*)"48Khz";*/
     
     settings[GLOB_ResumeOnStart].label=(char*)"Resume position on launch";
     settings[GLOB_ResumeOnStart].description=NULL;
@@ -1059,7 +1166,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Multi 1";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo";
-        
+    
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
     settings[GLOB_FXSpectrum].description=NULL;
@@ -1538,23 +1645,91 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //NSFPLAY
     /////////////////////////////////////
-            
+    
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].label=(char*)"NSFPLAY";
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_NSFPLAY].sub_family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     
-    settings[NSFPLAY_DefaultLength].label=(char*)"NSFPLAY default Length";
+    settings[NSFPLAY_DefaultLength].label=(char*)"Default length";
     settings[NSFPLAY_DefaultLength].description=NULL;
     settings[NSFPLAY_DefaultLength].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_DefaultLength].sub_family=0;
     settings[NSFPLAY_DefaultLength].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
-    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
+    settings[NSFPLAY_LowPass_Filter_Strength].label=(char*)"LP filter";
+    settings[NSFPLAY_LowPass_Filter_Strength].description=(char*)"Min=off, default: 112";
+    settings[NSFPLAY_LowPass_Filter_Strength].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_LowPass_Filter_Strength].sub_family=0;
+    settings[NSFPLAY_LowPass_Filter_Strength].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_LowPass_Filter_Strength].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_min_value=0;
+    settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_max_value=400;
+    
+    settings[NSFPLAY_HighPass_Filter_Strength].label=(char*)"HP filter";
+    settings[NSFPLAY_HighPass_Filter_Strength].description=(char*)"Max=off, default: 164";
+    settings[NSFPLAY_HighPass_Filter_Strength].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_HighPass_Filter_Strength].sub_family=0;
+    settings[NSFPLAY_HighPass_Filter_Strength].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_HighPass_Filter_Strength].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_min_value=0;
+    settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_max_value=256;
+    
+    settings[NSFPLAY_Region].type=MDZ_SWITCH;
+    settings[NSFPLAY_Region].label=(char*)"Region";
+    settings[NSFPLAY_Region].description=(char*)"1/2/3=prefer NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY";
+    settings[NSFPLAY_Region].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_Region].sub_family=0;
+    settings[NSFPLAY_Region].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_value_nb=7;
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels=(char**)malloc(settings[NSFPLAY_Region].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[0]=(char*)"Auto";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[5]=(char*)"5";
+    settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[6]=(char*)"6";
+    
+    settings[NSFPLAY_VRC7_Patch].type=MDZ_SWITCH;
+    settings[NSFPLAY_VRC7_Patch].label=(char*)"VRC7 Patches";
+    settings[NSFPLAY_VRC7_Patch].description=(char*)"0 - VRC7 set by Nuke.KYT 3/15/2019\n\
+1 - VRC7 set by rainwarrior 8/01/2012\n\
+2 - VRC7 set by quietust 1/18/2004\n\
+3 - VRC7 set by Mitsutaka Okazaki\n\
+4 - VRC7 set by Mitsutaka Okazaki\n\
+5 - VRC7 set by kevtris 11/15/1999\n\
+6 - VRC7 set by kevtris 11/14/1999\n\
+7 - YM2413 set by Mitsutaka Okazaki 4/10/2004\n\
+8 - YMF281B set by Chabin 4/10/2004\n\
+9 - YMF281B set by plgDavid 2/28/2021";
+    settings[NSFPLAY_VRC7_Patch].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_VRC7_Patch].sub_family=0;
+    settings[NSFPLAY_VRC7_Patch].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value_nb=10;
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels=(char**)malloc(settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[0]=(char*)"0";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[5]=(char*)"5";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[6]=(char*)"6";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[7]=(char*)"7";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[8]=(char*)"8";
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[9]=(char*)"9";
+    
+    
+    settings[NSFPLAY_ForceIRQ].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_ForceIRQ].label=(char*)"Force IRQ";
+    settings[NSFPLAY_ForceIRQ].description=(char*)"Forces IRQ capability for all NSFs, not just NSF2";
+    settings[NSFPLAY_ForceIRQ].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_ForceIRQ].sub_family=0;
+    settings[NSFPLAY_ForceIRQ].callback=&optNSFPLAYChangedC;
     
     settings[NSFPLAY_N163_OPTION0].type=MDZ_BOOLSWITCH;
     settings[NSFPLAY_N163_OPTION0].label=(char*)"N163 Serial Multiplex mixing";
@@ -1579,7 +1754,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_N163_OPTION2].sub_family=0;
     settings[NSFPLAY_N163_OPTION2].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
-        
+    
     /////////////////////////////////////
     //TIMIDITY
     /////////////////////////////////////
@@ -1667,7 +1842,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
-            
+    
     settings[VGMPLAY_PreferJTAG].type=MDZ_BOOLSWITCH;
     settings[VGMPLAY_PreferJTAG].label=(char*)"Japanese Tag";
     settings[VGMPLAY_PreferJTAG].description=NULL;
@@ -1779,7 +1954,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_HC].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_HC].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_HC].sub_family=MDZ_SETTINGS_FAMILY_HC;
-
+    
     settings[HC_ResampleQuality].type=MDZ_SWITCH;
     settings[HC_ResampleQuality].label=(char*)"Resampling";
     settings[HC_ResampleQuality].description=NULL;
@@ -1798,7 +1973,7 @@ void optNSFPLAYChangedC(id param) {
     
     /////////////////////////////////////
     //GME
-    ///////////////////////////////////// 
+    /////////////////////////////////////
     
     /////////////////////////////////////
     //SID
@@ -1876,7 +2051,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.text=(char*)malloc(strlen("0xD440")+1);
     settings[SID_ThirdSIDAddress].detail.mdz_textbox.max_width_char=6;
     strcpy(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text,"0xD440");
-
+    
     settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
     settings[SID_ForceLoop].label=(char*)"Force Loop";
     settings[SID_ForceLoop].description=NULL;
@@ -1884,8 +2059,8 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ForceLoop].sub_family=0;
     settings[SID_ForceLoop].callback=&optSIDChangedC;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
-
-        
+    
+    
     settings[SID_CLOCK].type=MDZ_SWITCH;
     settings[SID_CLOCK].label=(char*)"CLOCK";
     settings[SID_CLOCK].description=NULL;
@@ -1998,7 +2173,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_NTSC].sub_family=0;
     settings[UADE_NTSC].callback=&optUADEChangedC;
     settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
-            
+    
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////
@@ -2096,14 +2271,14 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[3]=(char*)"3";
     settings[XMP_Amplification].detail.mdz_switch.switch_value=1;
-        
+    
     /*settings[XMP_DSPLowPass].type=MDZ_BOOLSWITCH;
-    settings[XMP_DSPLowPass].label=(char*)"Lowpass filter";
-    settings[XMP_DSPLowPass].description=NULL;
-    settings[XMP_DSPLowPass].family=MDZ_SETTINGS_FAMILY_XMP;
-    settings[XMP_DSPLowPass].sub_family=0;
-    settings[XMP_DSPLowPass].callback=&optXMPChangedC;
-    settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value=1;*/
+     settings[XMP_DSPLowPass].label=(char*)"Lowpass filter";
+     settings[XMP_DSPLowPass].description=NULL;
+     settings[XMP_DSPLowPass].family=MDZ_SETTINGS_FAMILY_XMP;
+     settings[XMP_DSPLowPass].sub_family=0;
+     settings[XMP_DSPLowPass].callback=&optXMPChangedC;
+     settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value=1;*/
     
     
     settings[XMP_FLAGS_A500F].type=MDZ_BOOLSWITCH;
@@ -2142,6 +2317,15 @@ void optNSFPLAYChangedC(id param) {
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
+    
+    popTipViewRow=-1;
+    popTipViewSection=-1;
+    
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(handleLongPress:)];
+    lpgr.minimumPressDuration = 1.0; //seconds
+    lpgr.delegate = self;
+    [self.tableView addGestureRecognizer:lpgr];
     
     self.navigationController.delegate = self;
     
@@ -2281,7 +2465,7 @@ void optNSFPLAYChangedC(id param) {
     
     if (settings[cur_settings_idx[indexPath.section]].callback) {
         settings[cur_settings_idx[indexPath.section]].callback(self);
-    }    
+    }
     if (refresh) [tableView reloadData];
 }
 
@@ -2315,7 +2499,7 @@ void optNSFPLAYChangedC(id param) {
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[((UIButton*)sender).description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
-        
+    
     CGFloat r,g,b,a;
     r=g=b=a=0;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
@@ -2324,7 +2508,7 @@ void optNSFPLAYChangedC(id param) {
             CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
             r=cicol.red;
             g=cicol.green;
-            b=cicol.blue;            
+            b=cicol.blue;
         }
     } else {
         [((UIButton*)sender).backgroundColor getRed:&r green:&g blue:&b alpha:&a];
@@ -2372,41 +2556,41 @@ void optNSFPLAYChangedC(id param) {
         
         
     }
-//    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-//        if (@available(iOS 14.0, *)) {
-//            UIColorPickerViewController *colorPickerVC=[[UIColorPickerViewController alloc] init];
-//            colorPickerVC.title=@"Choose a color";
-//            colorPickerVC.supportsAlpha=false;
-//            colorPickerVC.delegate=self;
-//            colorPickerVC.modalPresentationStyle=UIModalPresentationPopover;
-//            colorPickerVC.modalPresentationStyle = UIModalPresentationPopover;
-//            colorPickerVC.popoverPresentationController.sourceView = self.view;
-//            CGRect frame=sender.frame;
-//            NSLog(@"%f %f",frame.origin.x,frame.origin.y);
-//            colorPickerVC.popoverPresentationController.sourceRect = CGRectMake(frame.origin.x, frame.origin.y, 0, 0);
-//            colorPickerVC.popoverPresentationController.permittedArrowDirections=0;
-//            
-//            colorPickerVC.selectedColor=sender.backgroundColor;
-//            
-//            [self presentViewController:colorPickerVC animated:YES completion:nil];
-//        }
-//    
-//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
-//        [self presentViewController:alertC animated:YES completion:nil];
-//    } else { //if iPad
-//        alertC.modalPresentationStyle = UIModalPresentationPopover;
-//        alertC.popoverPresentationController.sourceView = self.view;
-//        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
-//        alertC.popoverPresentationController.permittedArrowDirections=0;
-//        [self presentViewController:alertC animated:YES completion:nil];
-//    }
-//    if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
-//    settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
-//    
-//    if (settings[cur_settings_idx[indexPath.section]].callback) {
-//        settings[cur_settings_idx[indexPath.section]].callback(self);
-//    }
-//    if (refresh) [tableView reloadData];
+    //    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+    //        if (@available(iOS 14.0, *)) {
+    //            UIColorPickerViewController *colorPickerVC=[[UIColorPickerViewController alloc] init];
+    //            colorPickerVC.title=@"Choose a color";
+    //            colorPickerVC.supportsAlpha=false;
+    //            colorPickerVC.delegate=self;
+    //            colorPickerVC.modalPresentationStyle=UIModalPresentationPopover;
+    //            colorPickerVC.modalPresentationStyle = UIModalPresentationPopover;
+    //            colorPickerVC.popoverPresentationController.sourceView = self.view;
+    //            CGRect frame=sender.frame;
+    //            NSLog(@"%f %f",frame.origin.x,frame.origin.y);
+    //            colorPickerVC.popoverPresentationController.sourceRect = CGRectMake(frame.origin.x, frame.origin.y, 0, 0);
+    //            colorPickerVC.popoverPresentationController.permittedArrowDirections=0;
+    //
+    //            colorPickerVC.selectedColor=sender.backgroundColor;
+    //
+    //            [self presentViewController:colorPickerVC animated:YES completion:nil];
+    //        }
+    //
+    //    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
+    //        [self presentViewController:alertC animated:YES completion:nil];
+    //    } else { //if iPad
+    //        alertC.modalPresentationStyle = UIModalPresentationPopover;
+    //        alertC.popoverPresentationController.sourceView = self.view;
+    //        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
+    //        alertC.popoverPresentationController.permittedArrowDirections=0;
+    //        [self presentViewController:alertC animated:YES completion:nil];
+    //    }
+    //    if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
+    //    settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
+    //
+    //    if (settings[cur_settings_idx[indexPath.section]].callback) {
+    //        settings[cur_settings_idx[indexPath.section]].callback(self);
+    //    }
+    //    if (refresh) [tableView reloadData];
 }
 
 
@@ -2423,7 +2607,7 @@ void optNSFPLAYChangedC(id param) {
     
     if (settings[cur_settings_idx[indexPath.section]].callback) {
         settings[cur_settings_idx[indexPath.section]].callback(self);
-    }    
+    }
     if (refresh) [tableView reloadData];
 }
 - (void)sliderChanged:(MNEValueTrackingSlider*)sender {
@@ -2436,7 +2620,7 @@ void optNSFPLAYChangedC(id param) {
     
     if (settings[cur_settings_idx[indexPath.section]].callback) {
         settings[cur_settings_idx[indexPath.section]].callback(self);
-    }    
+    }
     //    if (OPTION(video_fskip)==10) [((MNEValueTrackingSlider*)sender) setValue:10 sValue:@"AUTO"];
     //    [tableView reloadData];
 }
@@ -2455,8 +2639,8 @@ void optNSFPLAYChangedC(id param) {
     
     switch (cur_settings_idx[textField.tag]) {
         case ONLINE_MODLAND_URL_CUSTOM:
-            case ONLINE_HVSC_URL_CUSTOM:
-            case ONLINE_ASMA_URL_CUSTOM:
+        case ONLINE_HVSC_URL_CUSTOM:
+        case ONLINE_ASMA_URL_CUSTOM:
             if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
                 if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"HTTP://",7)==0) break; //HTTP
                 if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"FTP://",6)==0) break; //FTP
@@ -2505,6 +2689,7 @@ void optNSFPLAYChangedC(id param) {
     NSMutableArray *tmpArray;
     MNEValueTrackingSlider *sliderview;
     UIButton *resetBtn;
+    UITapGestureRecognizer *tapLabelDesc;
     
     
     
@@ -2537,6 +2722,7 @@ void optNSFPLAYChangedC(id param) {
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
+        topLabel.userInteractionEnabled=true;
         
         bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
@@ -2546,10 +2732,15 @@ void optNSFPLAYChangedC(id param) {
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
         bottomLabel.font = [UIFont systemFontOfSize:12];
-        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        bottomLabel.lineBreakMode=NSLineBreakByTruncatingTail;
         bottomLabel.opaque=TRUE;
         
+        tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+        tapLabelDesc.delegate = self;
         
+        [bottomLabel addGestureRecognizer:tapLabelDesc];
+        bottomLabel.userInteractionEnabled=true;
+                
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
         
@@ -2582,25 +2773,34 @@ void optNSFPLAYChangedC(id param) {
                                    tabView.bounds.size.width/**4/10*/,
                                    50);
         bottomLabel.frame= CGRectMake(4,
-                                   38,
-                                   tabView.bounds.size.width/**4/10*/,
-                                   12);
+                                      38,
+                                      tabView.bounds.size.width/**4/10*/,
+                                      12);
         
         topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
-        bottomLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+        
+        if (strstr(settings[cur_settings_idx[indexPath.section]].description,"\n")) {
+            NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+            str=(NSString *)[[str componentsSeparatedByString:@"\n"] firstObject];
+            bottomLabel.text=[str stringByAppendingString:@"..."];
+        }
+        else bottomLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
     } else {
         topLabel.frame= CGRectMake(4,
                                    0,
                                    tabView.bounds.size.width*4/10,
                                    50);
         bottomLabel.frame= CGRectMake(4,
-                                   0,
-                                   tabView.bounds.size.width*4/10,
-                                   0);
+                                      0,
+                                      tabView.bounds.size.width*4/10,
+                                      0);
         
         topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
         bottomLabel.text=@"";
     }
+    
+    //tapLabelDesc=[[bottomLabel gestureRecognizers] firstObject];
+    //[topLabel removeGestureRecognizer:tapLabelDesc];
     
     switch (settings[cur_settings_idx[indexPath.section]].type) {
         case MDZ_FAMILY:
@@ -2615,6 +2815,8 @@ void optNSFPLAYChangedC(id param) {
             cell.accessoryView = switchview;
             //[switchview release];
             switchview.on=settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value;
+            
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_SWITCH:{
             tmpArray=[[NSMutableArray alloc] init];
@@ -2636,7 +2838,9 @@ void optNSFPLAYChangedC(id param) {
             cell.accessoryView = segconview;
             //[segconview release];
             segconview.selectedSegmentIndex=settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value;
+                                                
         }
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_SLIDER_CONTINUOUS:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2649,7 +2853,8 @@ void optNSFPLAYChangedC(id param) {
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
-            //[sliderview release];
+            
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_SLIDER_DISCRETE:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
@@ -2662,7 +2867,8 @@ void optNSFPLAYChangedC(id param) {
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
-            //[sliderview release];
+            
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_SLIDER_DISCRETE_TIME:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2675,7 +2881,8 @@ void optNSFPLAYChangedC(id param) {
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
-            //[sliderview release];
+            
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_TEXTBOX: {
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2708,7 +2915,7 @@ void optNSFPLAYChangedC(id param) {
             
             cell.accessoryView = txtfield;
             
-            //[txtfield release];
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         }
         case MDZ_MSGBOX:
@@ -2730,7 +2937,8 @@ void optNSFPLAYChangedC(id param) {
             if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else msgLabel.text=@"";
             cell.accessoryView = msgLabel;
-            //[msgLabel release];
+            
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_COLORPICKER:
             
@@ -2754,7 +2962,7 @@ void optNSFPLAYChangedC(id param) {
             resetBtn.hidden=NO;
             
             
-
+            
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
                 if (@available(iOS 14.0, *)) {
                     int rgb=settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb;
@@ -2762,7 +2970,7 @@ void optNSFPLAYChangedC(id param) {
                     colorWell.supportsAlpha=false;
                     
                     [colorWell addTarget:self action:@selector(colorPickerSelected:) forControlEvents:UIControlEventValueChanged];
-                                        
+                    
                     colorWell.selectedColor=[UIColor colorWithRed:((rgb>>16)&0xFF)*1.0f/255.0f
                                                             green:((rgb>>8)&0xFF)*1.0f/255.0f
                                                              blue:((rgb>>0)&0xFF)*1.0f/255.0f
@@ -2780,20 +2988,24 @@ void optNSFPLAYChangedC(id param) {
                 
                 [colorBtn setFrame:CGRectMake(0,0,40,40)];
                 [colorBtn setBackgroundColor:[UIColor colorWithRed:((rgb>>16)&0xFF)*1.0f/255.0f
-                                                                                   green:((rgb>>8)&0xFF)*1.0f/255.0f
-                                                                                    blue:((rgb>>0)&0xFF)*1.0f/255.0f
-                                                                                   alpha:1]];
+                                                             green:((rgb>>8)&0xFF)*1.0f/255.0f
+                                                              blue:((rgb>>0)&0xFF)*1.0f/255.0f
+                                                             alpha:1]];
                 [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[colorBtn.description componentsSeparatedByString:@";"] firstObject]];
                 
                 [colorBtn addTarget:self action:@selector(colorPickerOpen:) forControlEvents:UIControlEventTouchUpInside];
                 
-
+                
                 cell.accessoryView = colorBtn;
             }
+//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
     }
     
-    
+    bottomLabel.frame= CGRectMake(4,
+                                  38,
+                                  tabView.bounds.size.width-cell.accessoryView.frame.size.width-16,
+                                  12);
     return cell;
 }
 
@@ -2854,74 +3066,74 @@ void optNSFPLAYChangedC(id param) {
 #pragma mark - FTP and usefull methods
 
 - (NSString *)getIPAddress {
-	NSString *address = @"error";
-	struct ifaddrs *interfaces = NULL;
-	struct ifaddrs *temp_addr = NULL;
-	int success = 0;
-	
-	// retrieve the current interfaces - returns 0 on success
-	success = getifaddrs(&interfaces);
-	if (success == 0)
-	{
-		// Loop through linked list of interfaces
-		temp_addr = interfaces;
-		while(temp_addr != NULL)
-		{
-			if(temp_addr->ifa_addr->sa_family == AF_INET)
-			{
-				// Check if interface is en0 which is the wifi connection on the iPhone
-				if([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"])
-				{
-					// Get NSString from C String
-					address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
-				}
-			}
-			
-			temp_addr = temp_addr->ifa_next;
-		}
-	}
-	
-	// Free memory
-	freeifaddrs(interfaces);
-	
-	return address;
+    NSString *address = @"error";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+    
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0)
+    {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL)
+        {
+            if(temp_addr->ifa_addr->sa_family == AF_INET)
+            {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                if([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"])
+                {
+                    // Get NSString from C String
+                    address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+                }
+            }
+            
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    
+    // Free memory
+    freeifaddrs(interfaces);
+    
+    return address;
 }
 
 -(bool)startFTPServer {
-	int ftpport=0;
-	sscanf(settings[FTP_PORT].detail.mdz_textbox.text,"%d",&ftpport);
-	if (ftpport==0) return FALSE;
-	
+    int ftpport=0;
+    sscanf(settings[FTP_PORT].detail.mdz_textbox.text,"%d",&ftpport);
+    if (ftpport==0) return FALSE;
+    
     if (!ftpserver) ftpserver = new CFtpServer();
     bServerRunning = false;
     
     ftpserver->SetMaxPasswordTries( 3 );
-	ftpserver->SetNoLoginTimeout( 45 ); // seconds
-	ftpserver->SetNoTransferTimeout( 90 ); // seconds
-	ftpserver->SetDataPortRange( 1024, 4096 ); // data TCP-Port range = [100-999]
-	ftpserver->SetCheckPassDelay( 0 ); // milliseconds. Bruteforcing protection.
-	
-	pUser = ftpserver->AddUser(settings[FTP_USER].detail.mdz_textbox.text,
-							   settings[FTP_PASSWORD].detail.mdz_textbox.text,
-							   [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
-	
+    ftpserver->SetNoLoginTimeout( 45 ); // seconds
+    ftpserver->SetNoTransferTimeout( 90 ); // seconds
+    ftpserver->SetDataPortRange( 1024, 4096 ); // data TCP-Port range = [100-999]
+    ftpserver->SetCheckPassDelay( 0 ); // milliseconds. Bruteforcing protection.
+    
+    pUser = ftpserver->AddUser(settings[FTP_USER].detail.mdz_textbox.text,
+                               settings[FTP_PASSWORD].detail.mdz_textbox.text,
+                               [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+    
     // Create anonymous user
-	if (settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value) {
-		pAnonymousUser = ftpserver->AddUser("anonymous",
+    if (settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value) {
+        pAnonymousUser = ftpserver->AddUser("anonymous",
                                             NULL,
                                             [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
-	}
-	
-	
-    if( pUser ) {
-		pUser->SetMaxNumberOfClient( 0 ); // Unlimited
-		pUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
-							 CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
-							 CFtpServer::DELETEDIR );
     }
-	if( pAnonymousUser ) pAnonymousUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
-													   CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
-													   CFtpServer::DELETEDIR );
+    
+    
+    if( pUser ) {
+        pUser->SetMaxNumberOfClient( 0 ); // Unlimited
+        pUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
+                             CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
+                             CFtpServer::DELETEDIR );
+    }
+    if( pAnonymousUser ) pAnonymousUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
+                                                       CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
+                                                       CFtpServer::DELETEDIR );
     if (!ftpserver->StartListening( INADDR_ANY, ftpport )) return false;
     if (!ftpserver->StartAccepting()) return false;
     
@@ -3019,15 +3231,15 @@ void optNSFPLAYChangedC(id param) {
 }
 
 -(void) FTPswitchChanged {
-	if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
-		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==ReachableViaWiFi) {
-			if (!bServerRunning) { // Start the FTP Server
-				if ([self startFTPServer]) {
-					bServerRunning = true;
-					
-					NSString *ip = [self getIPAddress];
+    if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
+        if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==ReachableViaWiFi) {
+            if (!bServerRunning) { // Start the FTP Server
+                if ([self startFTPServer]) {
+                    bServerRunning = true;
                     
-					NSString *msg = [NSString stringWithFormat:@"Running on %@", ip];
+                    NSString *ip = [self getIPAddress];
+                    
+                    NSString *msg = [NSString stringWithFormat:@"Running on %@", ip];
                     if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
                         free(settings[FTP_STATUS].detail.mdz_msgbox.text);
                     }
@@ -3036,11 +3248,11 @@ void optNSFPLAYChangedC(id param) {
                     
                     // Disable idle timer to avoid wifi connection lost
                     [UIApplication sharedApplication].idleTimerDisabled=YES;
-				} else {
-					bServerRunning = false;
-					UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-					[alert show];
-					settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+                } else {
+                    bServerRunning = false;
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                    [alert show];
+                    settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
                     
                     ftpserver->StopListening();
                     // Delete users
@@ -3051,22 +3263,22 @@ void optNSFPLAYChangedC(id param) {
                     }
                     settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
                     strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
-				}
-			}
-			
-		} else {
-			UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Warning" message:@"FTP server can only run on a WIFI connection." delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil];
-			[alert show];
-			settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
-		}
-	} else {
-		if (bServerRunning) { // Stop FTP server
-			// Stop the server
-			ftpserver->StopListening();
-			// Delete users
-			ftpserver->DeleteUser(pAnonymousUser);
-			ftpserver->DeleteUser(pUser);
-			bServerRunning = false;
+                }
+            }
+            
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Warning" message:@"FTP server can only run on a WIFI connection." delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil];
+            [alert show];
+            settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+        }
+    } else {
+        if (bServerRunning) { // Stop FTP server
+            // Stop the server
+            ftpserver->StopListening();
+            // Delete users
+            ftpserver->DeleteUser(pAnonymousUser);
+            ftpserver->DeleteUser(pUser);
+            bServerRunning = false;
             if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
                 free(settings[FTP_STATUS].detail.mdz_msgbox.text);
             }
@@ -3078,9 +3290,9 @@ void optNSFPLAYChangedC(id param) {
             if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged)
                 [UIApplication sharedApplication].idleTimerDisabled=YES;
             else [UIApplication sharedApplication].idleTimerDisabled=NO;
-		}
-	}
-	[tableView reloadData];
+        }
+    }
+    [tableView reloadData];
 }
 
 -(void) dealloc {
@@ -3153,6 +3365,12 @@ void optNSFPLAYChangedC(id param) {
 {
     [self dismissViewControllerAnimated:YES completion:nil];
     [self colorPickerSelected:currentColorPickerBtn];
+}
+
+#pragma mark CMPopTipViewDelegate methods
+- (void)popTipViewWasDismissedByUser:(CMPopTipView *)_popTipView {
+    // User can tap CMPopTipView to dismiss it
+    self.popTipView = nil;
 }
 
 @end

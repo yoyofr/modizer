@@ -308,7 +308,7 @@
             }
         }
         else {
-            rectWidth = (int)(containerView.frame.size.width/3);
+            rectWidth = (int)(containerView.frame.size.width*3/4);
         }
     }
     else {
@@ -322,7 +322,7 @@
             }
         }
         else {
-            rectWidth = (int)(containerView.frame.size.width*2/3);
+            rectWidth = (int)(containerView.frame.size.width*3/4);
         }
     }
 
@@ -388,7 +388,7 @@
     
 	CGFloat W = containerView.bounds.size.width;
 	
-	CGPoint p = [targetView.superview convertPoint:targetView.center toView:containerView];
+	CGPoint p = [targetView.superview convertPoint:targetView.bounds.origin toView:containerView];
 	CGFloat x_p = p.x;
 	CGFloat x_b = x_p - roundf(_bubbleSize.width/2);
 	if (x_b < _sidePadding) {
@@ -582,9 +582,9 @@
 		_sidePadding = 2.0;
         _borderWidth = 1.0;
 		
-		self.textFont = [UIFont boldSystemFontOfSize:14.0];
+		self.textFont = [UIFont boldSystemFontOfSize:12.0];
 		self.textColor = [UIColor whiteColor];
-		self.textAlignment = UITextAlignmentCenter;
+		self.textAlignment = UITextAlignmentLeft;
 		self.backgroundColor = [UIColor colorWithRed:62.0/255.0 green:60.0/255.0 blue:154.0/255.0 alpha:1.0];
         self.has3DStyle = YES;
         self.borderColor = [UIColor blackColor];
@@ -620,10 +620,10 @@
         self.title = titleToShow;
 		self.message = messageToShow;
         
-        self.titleFont = [UIFont boldSystemFontOfSize:16.0];
+        self.titleFont = [UIFont boldSystemFontOfSize:14.0];
         self.titleColor = [UIColor whiteColor];
         self.titleAlignment = UITextAlignmentCenter;
-        self.textFont = [UIFont systemFontOfSize:14.0];
+        self.textFont = [UIFont systemFontOfSize:12.0];
 		self.textColor = [UIColor whiteColor];
 	}
 	return self;
@@ -634,6 +634,7 @@
 	
 	if ((self = [self initWithFrame:frame])) {
 		self.message = messageToShow;
+        self.textAlignment = UITextAlignmentLeft;
 	}
 	return self;
 }
