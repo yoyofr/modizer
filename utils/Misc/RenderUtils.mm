@@ -205,14 +205,14 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     float ratio;
     
     //check best config, maximize 16/9 ratio
-    if (num_voices>1)
+    if (num_voices>=1)
     for (;;) {
         columns_width=ww/columns_nb;
         max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
         mulfactor=(hh-8)/(max_voices_by_row)/2;
         ratio=columns_width/(2*mulfactor);
         
-        if (ratio<=3) break;
+        if (ratio<=2) break;
         if (columns_nb>=num_voices) break;
         
         columns_nb++;
