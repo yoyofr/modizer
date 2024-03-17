@@ -2799,8 +2799,8 @@ void optNSFPLAYChangedC(id param) {
         bottomLabel.text=@"";
     }
     
-    //tapLabelDesc=[[bottomLabel gestureRecognizers] firstObject];
-    //[topLabel removeGestureRecognizer:tapLabelDesc];
+    tapLabelDesc=[[bottomLabel gestureRecognizers] firstObject];
+    if (tapLabelDesc) [topLabel removeGestureRecognizer:tapLabelDesc];
     
     switch (settings[cur_settings_idx[indexPath.section]].type) {
         case MDZ_FAMILY:
@@ -2816,7 +2816,11 @@ void optNSFPLAYChangedC(id param) {
             //[switchview release];
             switchview.on=settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         case MDZ_SWITCH:{
             tmpArray=[[NSMutableArray alloc] init];
@@ -2836,11 +2840,15 @@ void optNSFPLAYChangedC(id param) {
             [segconview addTarget:self action:@selector(segconChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[segconview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = segconview;
-            //[segconview release];
             segconview.selectedSegmentIndex=settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value;
+            
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
                                                 
         }
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
             break;
         case MDZ_SLIDER_CONTINUOUS:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2854,7 +2862,11 @@ void optNSFPLAYChangedC(id param) {
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         case MDZ_SLIDER_DISCRETE:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
@@ -2868,7 +2880,11 @@ void optNSFPLAYChangedC(id param) {
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         case MDZ_SLIDER_DISCRETE_TIME:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2882,7 +2898,11 @@ void optNSFPLAYChangedC(id param) {
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             cell.accessoryView = sliderview;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         case MDZ_TEXTBOX: {
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2915,7 +2935,11 @@ void optNSFPLAYChangedC(id param) {
             
             cell.accessoryView = txtfield;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         }
         case MDZ_MSGBOX:
@@ -2938,7 +2962,11 @@ void optNSFPLAYChangedC(id param) {
             else msgLabel.text=@"";
             cell.accessoryView = msgLabel;
             
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
         case MDZ_COLORPICKER:
             
@@ -2960,8 +2988,6 @@ void optNSFPLAYChangedC(id param) {
             
             resetBtn.enabled=YES;
             resetBtn.hidden=NO;
-            
-            
             
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
                 if (@available(iOS 14.0, *)) {
@@ -2998,7 +3024,12 @@ void optNSFPLAYChangedC(id param) {
                 
                 cell.accessoryView = colorBtn;
             }
-//            if (settings[cur_settings_idx[indexPath.section]].description) [topLabel addGestureRecognizer:tapLabelDesc];
+            
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
             break;
     }
     

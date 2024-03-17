@@ -214,7 +214,7 @@ static int display_length_mode=0;
             [self StopRecording];
         }
     } else {
-        if ((isRecordingScreen==RS_NOT_RECORDING)&&(bRSactive)) {
+        if (isRecordingScreen==RS_NOT_RECORDING) {
             [self StartRecording];
         }
     }
@@ -563,7 +563,7 @@ static int display_length_mode=0;
     signed char avg_rating;
     short int playcount;
     
-//    NSLog(@"upd: %@ | %@",fileName,filePath);
+    //    NSLog(@"upd: %@ | %@",fileName,filePath);
     filePath=[ModizFileHelper getFullCleanFilePath:filePath];
     
     if ([mplayer isArchive]) {
@@ -809,7 +809,7 @@ static int display_length_mode=0;
     NSString *filePath,*fileName;
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-
+    
     return DBHelper::getRating(filePath,([mplayer isArchive]?[mplayer getArcIndex]:-1),([mplayer isMultiSongs]?mplayer.mod_currentsub:-1));;
 }
 
@@ -855,7 +855,7 @@ static int display_length_mode=0;
             }
         }
     }
-        
+    
     DBHelper::getFileStatsDBmod(filePath,&playcount,&tmp_rating,NULL);
     
     if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
@@ -1426,14 +1426,14 @@ static float movePinchScale,movePinchScaleOld;
     }
     int mpl_upd=[mplayer shouldUpdateInfos];
     if (mpl_upd||mShouldUpdateInfos) {
-                
+        
         ///////////////////////////////////////////////////
         // Update miniplayer
         ///////////////////////////////////////////////////
         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
         mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
-            
-            
+        
+        
         /////////////////////////////////////////////////////////////////////////////
         //update rating
         /////////////////////////////////////////////////////////////////////////////
@@ -3136,7 +3136,7 @@ int recording=0;
         sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
     }
-  
+    
     [self updateStats:fileName filePath:filePath playcount_inc:(mRestart==0)];
     if (!mRestart) {//UPDATE Google Application
         if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
@@ -4126,57 +4126,110 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     }
     
     if (mPlaylist_size) {
-//        NSMutableArray *fileNames,*filePaths;
-//
-//        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
-//        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
-//
-//        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
-//            for (int i=0;i<mPlaylist_size;i++) {
-//                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-//                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-//            }
-//        }
-        FILE *f;
-        f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
+        //        NSMutableArray *fileNames,*filePaths;
+        //
+        //        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
+        //        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
+        //
+        //        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
+        //            for (int i=0;i<mPlaylist_size;i++) {
+        //                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+        //                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+        //            }
+        //        }
+        //FILE *f;
+        gzFile f;
+        //f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
+        f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
         if (f) {
-            fseek(f,0,SEEK_END);
-            int64_t fsize=ftell(f);
-            fseek(f,0,SEEK_SET);
+            //fseek(f,0,SEEK_END);
+            //gzseek(f,0,SEEK_END);
+            //int64_t fsize=ftell(f);
+            //int64_t fsize=gztell(f);
+            //fseek(f,0,SEEK_SET);
+            //gzseek(f,0,SEEK_SET);
+            int fsize=1<<16;
             char *fdata=(char *)malloc(fsize);
+            char str[1024];
             if (fdata) {
-                fread(fdata,1,fsize,f);
+                //fread(fdata,1,fsize,f);
+                int available_bytes=gzread(f,fdata,fsize);
                 int ofs=0;
+                int ofs_str=0;
                 for (int i=0;i<mPlaylist_size;i++) {
-                    char *str=fdata+ofs;
+                    while (fdata[ofs]) {
+                        str[ofs_str++]=fdata[ofs];
+                        if (ofs_str>=1024) break;
+                        ofs++;
+                        if (ofs>=fsize) {//refill
+                            available_bytes=gzread(f,fdata,fsize);
+                            if (!available_bytes) {
+                                NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                                mPlaylist_size=0;
+                                break;
+                            }
+                            ofs=0;
+                        }
+                    }
+                    if (ofs_str>=1024) {
+                        NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                        mPlaylist_size=0;
+                        break;
+                    }
+                    str[ofs_str]=0;
+                    ofs_str=0;
                     mPlaylist[i].mPlaylistFilename=[NSString stringWithUTF8String:str];
-                    //move to next 0
-                    while (fdata[ofs]) {
-                        ofs++;
-                        if (ofs>=fsize) break;
-                    }
+                    
                     //move to 1st char of string
                     ofs++;
-                    if (ofs>=fsize) break;
-                    
-                    
-                    
-                    str=fdata+ofs;
+                    if (ofs>=fsize) { //refill
+                        available_bytes=gzread(f,fdata,fsize);
+                        if (!available_bytes) {
+                            NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                            mPlaylist_size=0;
+                            break;
+                        }
+                        ofs=0;
+                    }
+                                                            
+                    while (fdata[ofs]) {
+                        str[ofs_str++]=fdata[ofs];
+                        if (ofs_str>=1024) break;
+                        ofs++;
+                        if (ofs>=fsize) { //refill
+                            available_bytes=gzread(f,fdata,fsize);
+                            if (!available_bytes) {
+                                NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                                mPlaylist_size=0;
+                                break;
+                            }
+                            ofs=0;
+                        }
+                    }
+                    if (ofs_str>=1024) {
+                        NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                        mPlaylist_size=0;
+                        break;
+                    }
+                    str[ofs_str]=0;
+                    ofs_str=0;
                     mPlaylist[i].mPlaylistFilepath=[NSString stringWithUTF8String:str];
-                    //move to next 0
-                    while (fdata[ofs]) {
-                        ofs++;
-                        if (ofs>=fsize) break;
-                    }
                     //move to 1st char of string
                     ofs++;
-                    if (ofs>=fsize) break;
-                    
-                    
+                    if (ofs>=fsize) { //refill
+                        available_bytes=gzread(f,fdata,fsize);
+                        if (!available_bytes) {
+                            NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                            mPlaylist_size=0;
+                            break;
+                        }
+                        ofs=0;
+                    }
                 }
             }
-            
-            fclose(f);
+            free(fdata);
+            gzclose(f);
+            //fclose(f);
         } else {
             mRestart_sub=0;
             mRestart_arc=0;
@@ -4230,27 +4283,32 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [prefs setObject:valNb forKey:@"PlayingPos"];
     
     if (mPlaylist_size) {
-        FILE *f;
-        f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
+        //FILE *f;
+        gzFile f;
+        //f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
+        f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
         if (f) {
             for (int i=0;i<mPlaylist_size;i++) {
                 const char *str=[mPlaylist[i].mPlaylistFilename UTF8String];
-                fwrite(str,1,strlen(str)+1,f);
+                //fwrite(str,1,strlen(str)+1,f);
+                gzwrite(f,str,strlen(str)+1);
                 str=[mPlaylist[i].mPlaylistFilepath UTF8String];
-                fwrite(str,1,strlen(str)+1,f);
+                //fwrite(str,1,strlen(str)+1,f);
+                gzwrite(f,str,strlen(str)+1);
             }
-            fclose(f);
+            //fclose(f);
+            gzclose(f);
         }
-//        NSMutableArray *fileNames,*filePaths;
-//        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-//        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-//        for (int i=0;i<mPlaylist_size;i++) {
-//            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
-//            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
-//        }
-//        
-//        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
-//        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
+        //        NSMutableArray *fileNames,*filePaths;
+        //        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+        //        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+        //        for (int i=0;i<mPlaylist_size;i++) {
+        //            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
+        //            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
+        //        }
+        //
+        //        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
+        //        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
     }
     
     
@@ -4687,7 +4745,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mPaused=1;
     mScaleFactor=1.0f;
     
-    isRecordingScreen=0;
+    isRecordingScreen=RS_NOT_RECORDING;
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -5331,7 +5389,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         //so remove it for 1s
         mOglViewIsHidden=YES;
         [self checkGLViewCanDisplay];
-    
+        
         NSTimeInterval delayInSeconds = 0.1;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -5339,8 +5397,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             [self checkGLViewCanDisplay];
         });
     }
-        
-        
+    
+    
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
     
@@ -7734,15 +7792,15 @@ extern "C" int current_sample;
 }
 
 /*
--(void)ShowBroadcasting {
-    [RPBroadcastActivityViewController loadBroadcastActivityViewControllerWithHandler:^(RPBroadcastActivityViewController * broadcastActivityViewController, NSError *error) {
-        
-        broadcastActivityViewController.delegate = self;
-
-        [self presentViewController:broadcastActivityViewController animated:YES completion:nil];
-        
-    }];
-}*/
+ -(void)ShowBroadcasting {
+ [RPBroadcastActivityViewController loadBroadcastActivityViewControllerWithHandler:^(RPBroadcastActivityViewController * broadcastActivityViewController, NSError *error) {
+ 
+ broadcastActivityViewController.delegate = self;
+ 
+ [self presentViewController:broadcastActivityViewController animated:YES completion:nil];
+ 
+ }];
+ }*/
 
 - (void)StartRecording {
     UIAlertController *msgAlert;
@@ -7760,7 +7818,7 @@ extern "C" int current_sample;
     
     //Start recording action
     userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Record",@"") style:UIAlertActionStyleDefault
-                                          handler:^(UIAlertAction * action) {
+                                        handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
         
@@ -7780,7 +7838,7 @@ extern "C" int current_sample;
     
     //Restart recording action
     userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart & record",@"") style:UIAlertActionStyleDefault
-                                          handler:^(UIAlertAction * action) {
+                                        handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
         
@@ -7801,7 +7859,7 @@ extern "C" int current_sample;
     
     //Restart & stop recording action
     userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, record & stop",@"") style:UIAlertActionStyleDefault
-                                          handler:^(UIAlertAction * action) {
+                                        handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
         
@@ -7822,10 +7880,10 @@ extern "C" int current_sample;
     
     //Restart & FS recording action
     userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, fullscreen & record",@"") style:UIAlertActionStyleDefault
-                                          handler:^(UIAlertAction * action) {
+                                        handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
-                
+        
         oglViewFullscreen=1;
         oglViewFullscreenChanged=1;
         [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
@@ -7849,10 +7907,10 @@ extern "C" int current_sample;
     
     //Restart, FS & stop recording action
     userAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Restart, fullscreen, record & stop",@"") style:UIAlertActionStyleDefault
-                                          handler:^(UIAlertAction * action) {
+                                        handler:^(UIAlertAction * action) {
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
-                
+        
         oglViewFullscreen=1;
         oglViewFullscreenChanged=1;
         [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
@@ -7875,7 +7933,7 @@ extern "C" int current_sample;
     [msgAlert addAction:userAction];
     
     [self showAlert:msgAlert];
-
+    
     
 }
 
@@ -7885,7 +7943,7 @@ extern "C" int current_sample;
     
     
     [recorder stopRecordingWithHandler:^(RPPreviewViewController * previewViewController,
-NSError * error) {
+                                         NSError * error) {
         isRecordingScreen=RS_NOT_RECORDING;
         bRSactive=false;
         [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
@@ -7894,7 +7952,7 @@ NSError * error) {
         {
             NSLog(@"Error= %@",error.localizedDescription);
         }
-
+        
         if(previewViewController)
         {
             [self pausePushed:NULL];
@@ -7902,13 +7960,13 @@ NSError * error) {
             previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
             [self presentViewController:previewViewController animated:YES completion:nil];
         }
-
+        
     }];
 }
 
 - (void)screenRecorder:(RPScreenRecorder *)screenRecorder
-            didStopRecordingWithError:(NSError *)error
-            previewViewController:(RPPreviewViewController *)previewViewController {
+didStopRecordingWithError:(NSError *)error
+ previewViewController:(RPPreviewViewController *)previewViewController {
     
     isRecordingScreen=false;
     

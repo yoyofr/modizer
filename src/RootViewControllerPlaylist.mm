@@ -2173,8 +2173,9 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
     pthread_mutex_lock(&db_mutex);
     
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-        
+#define SEARCH_CHUNK_SIZE 128
         char sqlStatement[1024*32];
+        bool found_entry[SEARCH_CHUNK_SIZE];
         sqlite3_stmt *stmt;
         
         clock_t start_time,end_time;
@@ -2193,42 +2194,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
         printf("yo1\n");
         int i=0;
 
-//        err=sqlite3_exec(db, "DELETE FROM tmp_plnow", NULL, NULL, NULL);
-//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
-//        
-//        err=sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, NULL);
-//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
-//        
-//        end_time=clock();
-//        printf("yo2 %d\n",end_time-start_time);
-//        start_time=clock();
-//        while (i<pl->nb_entries) {
-//            int j=0;
-//            int k=0;
-//            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO tmp_plnow (fullpath) SELECT \"%s\"",[pl->entries[i].fullpath UTF8String]);
-//            k=strlen(sqlStatement);
-//            i++;
-//            /*while ((i<pl->nb_entries)&&(j<100)) {
-//                int l=strlen([pl->entries[i].fullpath UTF8String]);
-//                if ((k+l)<sizeof(sqlStatement)) snprintf(sqlStatement+k,sizeof(sqlStatement)-k," UNION ALL SELECT \"%s\"",[pl->entries[i].fullpath UTF8String]);
-//                else break;
-//                k+=l+20;
-//                i++;
-//                j++;
-//            }*/
-//            
-//            
-//            err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-//            if (err==SQLITE_OK){
-//                
-//            } else {
-//                NSLog(@"ErrSQL : %d",err);
-//            }
-//        }
-//        
-//        err=sqlite3_exec(db, "COMMIT TRANSACTION", NULL, NULL, NULL);
-//        if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d",err);
-        
         end_time=clock();
         printf("yo3 %ul\n",end_time-start_time);
         start_time=clock();
@@ -2240,11 +2205,13 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             
             int j=1;
             int k=strlen(sqlStatement);
-            while (((i+j)<pl->nb_entries)&&(j<128)) {
+            found_entry[0]=NO;
+            while (((i+j)<pl->nb_entries)&&(j<SEARCH_CHUNK_SIZE)) {
                 int l=strlen([pl->entries[i+j].fullpath UTF8String]);
                 if ((k+l+1024)<sizeof(sqlStatement)) snprintf(sqlStatement+k,sizeof(sqlStatement)-k,",\"%s\"",[pl->entries[i+j].fullpath UTF8String]);
                 else break;
                 k+=l+3;
+                found_entry[j]=NO;
                 j++;
             }
             k=strlen(sqlStatement);
@@ -2262,17 +2229,19 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                     ret++;
                     const char *dbstr=(const char *)sqlite3_column_text(stmt, 0);
                     for (int kk=ii;kk<imax;kk++) {
-                        if (strcmp([pl->entries[kk].fullpath UTF8String],dbstr)==0) {
-                            pl->entries[kk].playcounts=(short int)sqlite3_column_int(stmt, 1);
-                            pl->entries[kk].ratings=(signed char)sqlite3_column_int(stmt, 2);
-                            if (pl->entries[kk].ratings<0) pl->entries[kk].ratings=0;
-                            if (pl->entries[kk].ratings>5) pl->entries[kk].ratings=5;
-                            pl->entries[kk].song_length=(int)sqlite3_column_int(stmt, 3);
-                            pl->entries[kk].channels_nb=(char)sqlite3_column_int(stmt, 4);
-                            pl->entries[kk].songs=(int)sqlite3_column_int(stmt, 5);
-                            ii++;
-                            break;
-                        }
+                        if (found_entry[kk-ii]==NO)
+                            if (strcmp([pl->entries[kk].fullpath UTF8String],dbstr)==0) {
+                                pl->entries[kk].playcounts=(short int)sqlite3_column_int(stmt, 1);
+                                pl->entries[kk].ratings=(signed char)sqlite3_column_int(stmt, 2);
+                                if (pl->entries[kk].ratings<0) pl->entries[kk].ratings=0;
+                                if (pl->entries[kk].ratings>5) pl->entries[kk].ratings=5;
+                                pl->entries[kk].song_length=(int)sqlite3_column_int(stmt, 3);
+                                pl->entries[kk].channels_nb=(char)sqlite3_column_int(stmt, 4);
+                                pl->entries[kk].songs=(int)sqlite3_column_int(stmt, 5);
+                                found_entry[kk-ii]=YES;
+                                //ii++;
+                                break;
+                            }
                     }
                     
                 }
@@ -2281,7 +2250,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 NSLog(@"ErrSQL : %d",err);
                 break;
             }
-            i+=j;
+            i=imax;
         }
         end_time=clock();
         printf("yo4 %ul\n",end_time-start_time);

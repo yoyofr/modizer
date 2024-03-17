@@ -5452,14 +5452,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
+                            
                             m_voice_current_sample=0;
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                             mCurrentSamples+=nbBytes/4;
                             //m_voice_current_sample+=nbBytes/4;
                             //copy voice data for oscillo view
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][((i+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) - SOUND_BUFFER_SIZE_SAMPLE))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
+                            
+                            for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)];
                                 }
+                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=(SOUND_BUFFER_SIZE_SAMPLE*2)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             }
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
@@ -10522,8 +10526,7 @@ int vgmGetFileLength()
                     [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
-        }
-        
+        }        
         
         sprintf(mod_name," %s",mod_filename);
         if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {

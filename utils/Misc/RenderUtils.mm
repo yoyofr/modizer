@@ -430,6 +430,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         } else glDrawArrays(GL_LINES, 0, count);
     }
     
+    glLineWidth(1.0f*mScaleFactor);
+    
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);

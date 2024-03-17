@@ -635,7 +635,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
     
     //NSLog(@"upFS pl %d ra %d avg %d le %d ch %d sg %d %@ %@",playcount,rating,avg_rating,song_length,channels_nb,songs,name,fullpath);
     
-    if (name==nil) return ret;
+    if (name==NULL) return ret;
     
     //NSLog(@"updlong: %@/%@ played:%d rating:%d length:%d ...\n",name,[fullpath lastPathComponent],playcount,rating,song_length);
     
@@ -671,6 +671,10 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
+        
+        if (playcount==-1) playcount=0;
+        if (rating==-1) rating=0;
+        if (avg_rating==-1) avg_rating=0;
         
         sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
