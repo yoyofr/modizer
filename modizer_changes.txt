@@ -11,11 +11,7 @@ Todo/Requested:
 
 - Todo: keep download queue when exit program and restore at next launch
 - Todo: add PDX/MDX to keyboard visualizer
-- Bug/playlist:
-When editing playlists with many files (several thousand), Modizer will clear the full playlist so I have to re-add everything from scratch. So trying to organize alphabetically or even deleting a single file will cause Modizer to crash and the playlist is empty when re-opening the app.
-
-One suggestion would be to copy/paste playlists or add all songs from one playlist into another. Personally, it would save me a lot of time if I was able to copy everything from one playlist into another, rather than having to add tracks folder by folder.
-
+- Todo: local browser : capacity to 'list all' sorted by fullpath
 
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
@@ -23,8 +19,7 @@ One suggestion would be to copy/paste playlists or add all songs from one playli
 - TODO: add description for Settings when relevant
 - TODO: add S98 playback library
 - TODO: add WSR playback library
-
-- TODO: .tar.gz support, i.e. tar support (gz ok / fex)
+- TODO: implement libarchive & dcom fex (might impact DB stats / archive entries)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
@@ -42,11 +37,8 @@ missing seek support:
 => add launch popup with last changes (ex: regexp for Searches)
 => check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
-=> update playback libs to latest version
 => ADPLUG oscillo data not generated when OPL is not Woody
 => HC /PSF2 fadeout for oscillo
-
-
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 
 3.6
@@ -67,6 +59,9 @@ missing seek support:
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category
 - [UI] Favorites management improved to select between songs & files
+- [UI] Capacity to sort playlist by fullpath
+- [UI] Capacity to save a playlist to a new one (create a copy)
+- [UI] Playlist management improved and optimized
 - [DB] User stats management improved
 - [PLAYER] STSOUND now support voices muting
 - [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)

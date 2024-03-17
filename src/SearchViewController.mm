@@ -1481,6 +1481,10 @@ static NSFileManager *mFileMngr;
                 _playlist->label[_playlist->nb_entries]=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 _playlist->fullpath[_playlist->nb_entries]=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                 _playlist->nb_entries++;
+                if (playlist->nb_entries>=MAX_PL_ENTRIES) {
+                    NSLog(@"max entries reached (%d)",MAX_PL_ENTRIES);
+                    break;
+                }
                 //TODO : add check / max size (1024)
             }
             sqlite3_finalize(stmt);

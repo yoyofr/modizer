@@ -144,10 +144,36 @@ enum MDZ_SETTINGS {
                               8 - YMF281B set by Chabin 4/10/2004
                               9 - YMF281B set by plgDavid 2/28/2021*/
         NSFPLAY_ForceIRQ, //IRQ_ENABLE: forces IRQ capability to be enabled for all NSFs, not just NSF2.
+        NSFPLAY_Quality,  //0-40 oversampling, default 10
     
-        NSFPLAY_N163_OPTION0,
-        NSFPLAY_N163_OPTION1,
-        NSFPLAY_N163_OPTION2,
+        NSFPLAY_APU_OPTION0,    //unmute on reset
+        NSFPLAY_APU_OPTION1,    //phase reset
+        NSFPLAY_APU_OPTION2,    //nonlinear mixing
+        NSFPLAY_APU_OPTION3,    //Swap duty 1/2
+        NSFPLAY_APU_OPTION4,    //Initialize sweep unmute
+        NSFPLAY_DMC_OPTION0,    //enable $4011 writes
+        NSFPLAY_DMC_OPTION1,    //enable periodic noise
+        NSFPLAY_DMC_OPTION2,    //unmute on reset
+        NSFPLAY_DMC_OPTION3,    //anti clicking (suppresses $4011 pop without disabling its nonlinear mix)
+        NSFPLAY_DMC_OPTION4,    //nonlinear mixer
+        NSFPLAY_DMC_OPTION5,    //randomize noise on reset
+        NSFPLAY_DMC_OPTION6,    //mute triangle on pitch 0 (prevents high frequency aliasing)
+        NSFPLAY_DMC_OPTION7,    //randomize triangle on reset
+        NSFPLAY_DMC_OPTION8,    //reverse bits of DPCM sample bytes
+
+    
+        NSFPLAY_FDS_OPTION0,    //(Hz) lowpass filter cutoff frequency (0=off, 2000=default)
+        NSFPLAY_FDS_OPTION1,    //reset "phase" on $4085 write (works around timing issue in Bio Miracle Bokutte Upa)
+        NSFPLAY_FDS_OPTION2,    //write protect $8000-DFFF (for some multi-expansion NSFs)
+    
+        NSFPLAY_MMC5_OPTION0,   //nonlinear mixing
+        NSFPLAY_MMC5_OPTION1,   //phase reset
+    
+        NSFPLAY_N163_OPTION0,   //serial multiplexing (more accurate sound for 6+ channels)
+        NSFPLAY_N163_OPTION1,   //Read-Only phase (for old NSFs that overwrite phase every frame)
+        NSFPLAY_N163_OPTION2,   //Limit wavelength (for old NSFs that do not set the high bits)
+    
+        NSFPLAY_VRC7_OPTION0,   //Replace VRC7 with YM2413 (OPLL)
     
         MDZ_SETTINGS_FAMILY_OMPT,
         OMPT_MasterVolume,
@@ -293,8 +319,8 @@ typedef struct {
     MDZ_SETTINGS_TYPE type;
     char *label;
     char *description;
-    char family;
-    char sub_family;
+    unsigned short int family;
+    unsigned short int sub_family;
     void (*callback)(id);
     union {
         t_setting_slider mdz_slider;

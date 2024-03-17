@@ -73,7 +73,9 @@ namespace xgm
     Amplifier amp[NES_DEVICE_MAX];       // アンプ
     RateConverter rconv;
     DCFilter dcf;                        // 最終出力段に掛ける直流フィルタ
+    DCFilter dcf_voices[19];                        // 最終出力段に掛ける直流フィルタ
     Filter lpf;                          // 最終出力に掛けるローパスフィルタ
+    Filter lpf_voices[19];                          // 最終出力に掛けるローパスフィルタ
     ILoopDetector *ld;                   // ループ検出器
     CPULogger *logcpu;                   // Logs CPU to file
 

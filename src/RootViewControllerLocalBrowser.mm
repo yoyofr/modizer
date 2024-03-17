@@ -673,7 +673,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     end_time=clock();
 #ifdef LOAD_PROFILE
-    NSLog(@"rootviewLB : %d",end_time-start_time);
+    NSLog(@"rootviewLB : %ul",end_time-start_time);
 #endif
     
 }
@@ -851,6 +851,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 
 -(void)listLocalFiles {
     NSString *file,*cpath;
+    NSURL *fileURL;
     NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
     NSMutableArray *filetype_extAMIGA=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AMIGA];
     NSMutableArray *all_multisongstype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_SUBSONGS];
@@ -1536,29 +1537,58 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
         }
     } else {
-        //        clock_t start_time,end_time;
-        //        start_time=clock();
+                clock_t start_time,end_time;
+                start_time=clock();
         NSError *error;
         NSRange rdir;
-        NSArray *dirContent;//
+        NSMutableArray *dirContent=[NSMutableArray array];//
         BOOL isDir;
         
+        //List all entries
+        NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
+        NSDirectoryEnumerator *directoryEnumerator =
+        [mFileMngr enumeratorAtURL:directoryURL
+        includingPropertiesForKeys:@[NSURLPathKey, NSURLIsDirectoryKey]
+                           options:NSDirectoryEnumerationSkipsHiddenFiles|(mShowSubdir?0:NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+                      errorHandler:nil];
+                    
+        /*for (NSURL *fileURL in directoryEnumerator) {
+            [dirContent addObject:fileURL];
+        }*/
+        dirContent=[directoryEnumerator allObjects];
+//            end_time=clock();
+//            NSLog(@"detail0 : %ul",end_time-start_time);
+//            start_time=end_time;
         
-        if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
-        else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
+        
+        //if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+        //else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
         
         //NSArray *sortedDirContent = [dirContent sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
-            NSString *str1=[(NSString *)obj1 lastPathComponent];
-            NSString *str2=[(NSString *)obj2 lastPathComponent];
+            
+            NSString *str1;//[(NSString *)obj1 lastPathComponent];
+            [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLNameKey error:nil];
+            NSString *str2;//[(NSString *)obj2 lastPathComponent];
+            [(NSURL*)obj1 getResourceValue:&str2 forKey:NSURLNameKey error:nil];
             return [str1 caseInsensitiveCompare:str2];
         }];
         
-        for (file in sortedDirContent) {
+        for (fileURL in sortedDirContent) {
             //check if dir
             //rdir.location=NSNotFound;
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-            [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            
+            //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            NSNumber *isDirectory = nil;
+            [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+            [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+            rdir=[file rangeOfString:cpath];
+            if (rdir.location!=NSNotFound) {
+                file=[file substringFromIndex:(rdir.location+rdir.length+1)];
+            }
+            isDir=[isDirectory boolValue];
+            
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
@@ -1624,9 +1654,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 }
             }
         }
-        //        end_time=clock();
-        //        NSLog(@"detail1 : %d",end_time-start_time);
-        //        start_time=end_time;
+//        end_time=clock();
+//        NSLog(@"detail1 : %ul",end_time-start_time);
+//        start_time=end_time;
         
         
         if (local_nb_entries) {
@@ -1667,15 +1697,25 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         }
                     }
                 
-                //                end_time=clock();
-                //                NSLog(@"detail2 : %d",end_time-start_time);
-                //                start_time=end_time;
+//                                end_time=clock();
+//                                NSLog(@"detail2 : %ul",end_time-start_time);
+//                                start_time=end_time;
                 // Second check count for each section
-                for (file in sortedDirContent) {
+                for (fileURL in sortedDirContent) {
                     if (shouldStop) break;
                     //rdir.location=NSNotFound;
                     // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-                    [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    NSNumber *isDirectory = nil;
+                    [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+                    [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+                    rdir=[file rangeOfString:cpath];
+                    if (rdir.location!=NSNotFound) {
+                        file=[file substringFromIndex:(rdir.location+rdir.length+1)];
+                    }
+                    isDir=[isDirectory boolValue];
+                    
+                    
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
@@ -1721,7 +1761,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             extension = (NSString *)[temparray_filepath lastObject];
                             //[temparray_filepath removeLastObject];
                             file_no_ext=[temparray_filepath firstObject];
-                            
                             
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
@@ -1769,12 +1808,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     
                                     local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                     
-                                    local_entries[index][local_entries_count[index]].rating=0;
-                                    local_entries[index][local_entries_count[index]].playcount=0;
-                                    local_entries[index][local_entries_count[index]].song_length=0;
-                                    local_entries[index][local_entries_count[index]].songs=0;
-                                    local_entries[index][local_entries_count[index]].channels_nb=0;
+                                    local_entries[index][local_entries_count[index]].rating=-1;
+                                    local_entries[index][local_entries_count[index]].playcount=-1;
+                                    local_entries[index][local_entries_count[index]].song_length=-1;
+                                    local_entries[index][local_entries_count[index]].songs=-1;
+                                    local_entries[index][local_entries_count[index]].channels_nb=-1;
                                     
+#if 0
                                     sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     
@@ -1800,7 +1840,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                         }
                                         sqlite3_finalize(stmt);
                                     } else NSLog(@"ErrSQL : %d",err);
-                                    
+#endif
                                     local_entries_count[index]++;
                                     
                                     if (local_nb_entries_limit) {
@@ -1812,8 +1852,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         }
                     }
                 }
-                //                end_time=clock();
-                //                NSLog(@"detail1 : %d",end_time-start_time);
+//                                end_time=clock();
+//                                NSLog(@"detail3 : %ul",end_time-start_time);
             }
         }
     }
@@ -3067,6 +3107,10 @@ static int shouldRestart=1;
                     pl->entries[pl->nb_entries].ratings=cur_local_entries[i][j].rating;
                     pl->entries[pl->nb_entries].playcounts=cur_local_entries[i][j].playcount;
                     pl->nb_entries++;
+                    if (pl->nb_entries>=MAX_PL_ENTRIES) {
+                        NSLog(@"max entries reached (%d)",MAX_PL_ENTRIES);
+                        break;
+                    }
                     
                     if (i<section) pos++;
                     else if ((i==(section))&&(j<indexPath.row)) pos++;

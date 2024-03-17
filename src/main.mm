@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
         //init stuff
         //***********************
         //settings
+                
         
         [SettingsGenViewController loadSettings];
         [SettingsGenViewController restoreSettings];

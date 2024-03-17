@@ -360,7 +360,15 @@ void NSFPlayer::SetPlayFreq (double r)
 	lpf.SetRate(rate);
 	lpf.Reset();
 	dcf.SetRate(rate);
-	dcf.Reset(); 
+	dcf.Reset();
+    //YOYOFR
+    for (int i=0;i<19;i++) {
+        lpf_voices[i].SetRate(rate);
+        lpf_voices[i].Reset();
+        dcf_voices[i].SetRate(rate);
+        dcf_voices[i].Reset();
+    }
+    //YOYOFR
 	DEBUG_OUT("rate: %f\n",rate);
 }
 
@@ -470,6 +478,9 @@ void NSFPlayer::SetPlayFreq (double r)
     fader.Tick(0);
     for (int i=0; i < (quality+1); ++i) fader.Render(b); // warm up rconv/render with enough sample to reach a steady state
     dcf.SetLevel(b); // DC filter will use the current DC level as its starting state
+      //YOYOFR
+      for (int i=0;i<19;i++) dcf_voices[i].SetLevel(b); // DC filter will use the current DC level as its starting state
+      //YOYOFR
   }
 
   void NSFPlayer::DetectSilent ()
@@ -723,53 +734,196 @@ void NSFPlayer::SetPlayFreq (double r)
 
       UpdateInfo();
         
-        
         //TODO:  MODIZER changes start / YOYOFR
+        INT32 buf_voices[2];
+        buf_voices[0]=apu->GetOut(0);
+        buf_voices[1]=apu->GetOut(1);
+        dcf_voices[0].FastRender(buf_voices);
+        lpf_voices[0].FastRender(buf_voices);
+        
             m_voice_currentChannel=0; //APU - square 1
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (apu->GetOut(0)*m_genMasterVol)>>11 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>12 );
             m_voice_currentChannel++; //APU - square 2
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (apu->GetOut(1)*m_genMasterVol)>>11 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>12 );
+        
+        buf_voices[0]=dmc->GetOut(0);
+        buf_voices[1]=dmc->GetOut(1);
+        dcf_voices[1].FastRender(buf_voices);
+        lpf_voices[1].FastRender(buf_voices);
+        
             m_voice_currentChannel++; //APU - triangle
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(0)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
             m_voice_currentChannel++; //APU - noise
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(1)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>13 );
+        
+        buf_voices[0]=dmc->GetOut(2);
+        buf_voices[1]=0;
+        dcf_voices[2].FastRender(buf_voices);
+        lpf_voices[2].FastRender(buf_voices);
+        
             m_voice_currentChannel++; //APU - dmc
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (dmc->GetOut(2)*m_genMasterVol)>>13 );
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
             m_voice_currentChannel++;
             
             if (nsf->use_fds) {
-                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (fds->GetOut()*m_genMasterVol)>>12 );
+                
+                buf_voices[0]=fds->GetOut();
+                buf_voices[1]=0;
+                dcf_voices[3].FastRender(buf_voices);
+                lpf_voices[3].FastRender(buf_voices);
+                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>12 );
                 m_voice_currentChannel++;
             }
             if (nsf->use_fme7) {
-                for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (fme7->GetOut(j)*m_genMasterVol)>>10 );
-                    m_voice_currentChannel++;
-                }
+                buf_voices[0]=fme7->GetOut(0);
+                buf_voices[1]=fme7->GetOut(1);
+                dcf_voices[4].FastRender(buf_voices);
+                lpf_voices[4].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=fme7->GetOut(2);
+                buf_voices[1]=0;
+                dcf_voices[5].FastRender(buf_voices);
+                lpf_voices[5].FastRender(buf_voices);
+                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                
             }
             if (nsf->use_mmc5) {
-                for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (mmc5->GetOut(j)*m_genMasterVol)>>10 );
-                    m_voice_currentChannel++;
-                }
+                
+                buf_voices[0]=mmc5->GetOut(0);
+                buf_voices[1]=mmc5->GetOut(1);
+                dcf_voices[6].FastRender(buf_voices);
+                lpf_voices[6].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=mmc5->GetOut(2);
+                buf_voices[1]=0;
+                dcf_voices[7].FastRender(buf_voices);
+                lpf_voices[7].FastRender(buf_voices);
+                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                                
             }
             if (nsf->use_n106) {
-                for (int j=0;j<8;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (n106->GetOut(j)*m_genMasterVol)>>15 );
-                    m_voice_currentChannel++;
-                }
+                buf_voices[0]=(n106->GetOut(0))>>5;
+                buf_voices[1]=(n106->GetOut(1))>>5;
+                dcf_voices[8].FastRender(buf_voices);
+                lpf_voices[8].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=(n106->GetOut(2))>>5;
+                buf_voices[1]=(n106->GetOut(3))>>5;
+                dcf_voices[9].FastRender(buf_voices);
+                lpf_voices[9].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=(n106->GetOut(4))>>5;
+                buf_voices[1]=(n106->GetOut(5))>>5;
+                dcf_voices[10].FastRender(buf_voices);
+                lpf_voices[10].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=(n106->GetOut(6))>>5;
+                buf_voices[1]=(n106->GetOut(7))>>5;
+                dcf_voices[11].FastRender(buf_voices);
+                lpf_voices[11].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>11 );
+                m_voice_currentChannel++;
             }
             if (nsf->use_vrc6) {
-                for (int j=0;j<3;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (vrc6->GetOut(j)*m_genMasterVol)>>10 );
-                    m_voice_currentChannel++;
-                }
+                buf_voices[0]=vrc6->GetOut(0);
+                buf_voices[1]=vrc6->GetOut(1);
+                dcf_voices[12].FastRender(buf_voices);
+                lpf_voices[12].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=vrc6->GetOut(2);
+                buf_voices[1]=0;
+                dcf_voices[13].FastRender(buf_voices);
+                lpf_voices[13].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>10 );
+                m_voice_currentChannel++;
             }
             if (nsf->use_vrc7) {
-                for (int j=0;j<9;j++) {
-                    m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (vrc7->GetOut(j)*m_genMasterVol)>>13 );
-                    m_voice_currentChannel++;
-                }
+                buf_voices[0]=vrc7->GetOut(0);
+                buf_voices[1]=vrc7->GetOut(1);
+                dcf_voices[14].FastRender(buf_voices);
+                lpf_voices[14].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=vrc7->GetOut(2);
+                buf_voices[1]=vrc7->GetOut(3);
+                dcf_voices[15].FastRender(buf_voices);
+                lpf_voices[15].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=vrc7->GetOut(4);
+                buf_voices[1]=vrc7->GetOut(5);
+                dcf_voices[16].FastRender(buf_voices);
+                lpf_voices[16].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=vrc7->GetOut(6);
+                buf_voices[1]=vrc7->GetOut(7);
+                dcf_voices[17].FastRender(buf_voices);
+                lpf_voices[17].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[1]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
+                
+                buf_voices[0]=vrc7->GetOut(8);
+                buf_voices[1]=0;
+                dcf_voices[18].FastRender(buf_voices);
+                lpf_voices[18].FastRender(buf_voices);
+                                                                
+                m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (buf_voices[0]*m_genMasterVol)>>13 );
+                m_voice_currentChannel++;
             }
             
             /*if (nsfData->use_fds) numChannels++;
@@ -900,6 +1054,13 @@ void NSFPlayer::SetPlayFreq (double r)
 
       dcf.SetParam(270,(*config)["HPF"]);
       lpf.SetParam(4700.0,(*config)["LPF"]);
+        
+        //YOYOFR
+        for (int i=0;i<19;i++) {
+            lpf_voices[i].SetParam(4700.0,(*config)["LPF"]);
+            dcf_voices[i].SetParam(270,(*config)["HPF"]);
+        }
+        //YOYOFR
 
       //DEBUG_OUT("dcf: %3d > %f\n", (*config)["HPF"].GetInt(), dcf.GetFactor());
       //DEBUG_OUT("lpf: %3d > %f\n", (*config)["LPF"].GetInt(), lpf.GetFactor());

@@ -273,13 +273,11 @@ void optNSFPLAYChangedC(id param) {
         if (settings[i].label) {
             
             str=[NSString stringWithFormat:@"%s",settings[i].label];
-            //NSLog(@"restore settings: %@",str);
             int j=settings[i].family;
             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
                 str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
                 j=settings[j].family;
             }
-            //NSLog(@"got: %@",str);
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -584,15 +582,40 @@ void optNSFPLAYChangedC(id param) {
     //NSFPLAY
     /////////////////////////////////////
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
-    settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
-    settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
-    settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
-    
+    settings[NSFPLAY_Quality].detail.mdz_slider.slider_value=10;
     settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value=112;
     settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value=164;
     settings[NSFPLAY_Region].detail.mdz_switch.switch_value=0;
-    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value=0;
     settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[NSFPLAY_APU_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_APU_OPTION1].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_APU_OPTION2].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_APU_OPTION3].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_APU_OPTION4].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[NSFPLAY_DMC_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION1].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION2].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION3].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_DMC_OPTION4].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION5].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION6].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION7].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_DMC_OPTION8].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
+    settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value=2000;
+    settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value=0;
+    settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value=0;
+    
+    
     
     
     
@@ -1661,6 +1684,15 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
+    settings[NSFPLAY_Quality].label=(char*)"Quality";
+    settings[NSFPLAY_Quality].description=(char*)"Oversampling. Min=0, default: 10";
+    settings[NSFPLAY_Quality].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_Quality].sub_family=0;
+    settings[NSFPLAY_Quality].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_Quality].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_Quality].detail.mdz_slider.slider_min_value=0;
+    settings[NSFPLAY_Quality].detail.mdz_slider.slider_max_value=40;
+    
     settings[NSFPLAY_LowPass_Filter_Strength].label=(char*)"LP filter";
     settings[NSFPLAY_LowPass_Filter_Strength].description=(char*)"Min=off, default: 112";
     settings[NSFPLAY_LowPass_Filter_Strength].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
@@ -1695,6 +1727,148 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[5]=(char*)"5";
     settings[NSFPLAY_Region].detail.mdz_switch.switch_labels[6]=(char*)"6";
     
+    settings[NSFPLAY_ForceIRQ].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_ForceIRQ].label=(char*)"Force IRQ";
+    settings[NSFPLAY_ForceIRQ].description=(char*)"Forces IRQ capability for all NSFs, not just NSF2";
+    settings[NSFPLAY_ForceIRQ].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_ForceIRQ].sub_family=0;
+    settings[NSFPLAY_ForceIRQ].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_APU_OPTION0].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_APU_OPTION0].label=(char*)"APU unmute on reset";
+    settings[NSFPLAY_APU_OPTION0].description=NULL;
+    settings[NSFPLAY_APU_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_APU_OPTION0].sub_family=0;
+    settings[NSFPLAY_APU_OPTION0].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_APU_OPTION1].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_APU_OPTION1].label=(char*)"APU phase reset";
+    settings[NSFPLAY_APU_OPTION1].description=NULL;
+    settings[NSFPLAY_APU_OPTION1].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_APU_OPTION1].sub_family=0;
+    settings[NSFPLAY_APU_OPTION1].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_APU_OPTION2].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_APU_OPTION2].label=(char*)"APU non linear mixing";
+    settings[NSFPLAY_APU_OPTION2].description=NULL;
+    settings[NSFPLAY_APU_OPTION2].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_APU_OPTION2].sub_family=0;
+    settings[NSFPLAY_APU_OPTION2].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_APU_OPTION3].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_APU_OPTION3].label=(char*)"APU swap duty 1/2";
+    settings[NSFPLAY_APU_OPTION3].description=NULL;
+    settings[NSFPLAY_APU_OPTION3].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_APU_OPTION3].sub_family=0;
+    settings[NSFPLAY_APU_OPTION3].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_APU_OPTION4].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_APU_OPTION4].label=(char*)"APU Initialize sweep unmute";
+    settings[NSFPLAY_APU_OPTION4].description=NULL;
+    settings[NSFPLAY_APU_OPTION4].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_APU_OPTION4].sub_family=0;
+    settings[NSFPLAY_APU_OPTION4].callback=&optNSFPLAYChangedC;
+        
+    settings[NSFPLAY_DMC_OPTION0].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION0].label=(char*)"DMC enable $4011 writes";
+    settings[NSFPLAY_DMC_OPTION0].description=NULL;
+    settings[NSFPLAY_DMC_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION0].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION0].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION1].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION1].label=(char*)"DMC enable periodic noise";
+    settings[NSFPLAY_DMC_OPTION1].description=NULL;
+    settings[NSFPLAY_DMC_OPTION1].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION1].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION1].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION2].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION2].label=(char*)"DMC unmute on reset";
+    settings[NSFPLAY_DMC_OPTION2].description=NULL;
+    settings[NSFPLAY_DMC_OPTION2].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION2].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION2].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION3].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION3].label=(char*)"DMC anti clicking";
+    settings[NSFPLAY_DMC_OPTION3].description=NULL;
+    settings[NSFPLAY_DMC_OPTION3].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION3].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION3].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION4].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION4].label=(char*)"DMC non linear mixer";
+    settings[NSFPLAY_DMC_OPTION4].description=NULL;
+    settings[NSFPLAY_DMC_OPTION4].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION4].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION4].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION5].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION5].label=(char*)"DMC randomize noise on reset";
+    settings[NSFPLAY_DMC_OPTION5].description=NULL;
+    settings[NSFPLAY_DMC_OPTION5].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION5].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION5].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION6].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION6].label=(char*)"DMC mute triangle on pitch 0";
+    settings[NSFPLAY_DMC_OPTION6].description=(char*)"prevents high frequency aliasing";
+    settings[NSFPLAY_DMC_OPTION6].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION6].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION6].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION7].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION7].label=(char*)"DMC rand. triangle";
+    settings[NSFPLAY_DMC_OPTION7].description=(char*)"randomize triangle on reset";
+    settings[NSFPLAY_DMC_OPTION7].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION7].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION7].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_DMC_OPTION8].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_DMC_OPTION8].label=(char*)"DMC reverse bits";
+    settings[NSFPLAY_DMC_OPTION8].description=(char*)"reverse bits of DPCM sample bytes";
+    settings[NSFPLAY_DMC_OPTION8].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_DMC_OPTION8].sub_family=0;
+    settings[NSFPLAY_DMC_OPTION8].callback=&optNSFPLAYChangedC;
+        
+    settings[NSFPLAY_MMC5_OPTION0].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_MMC5_OPTION0].label=(char*)"MMC5 non linear mixing";
+    settings[NSFPLAY_MMC5_OPTION0].description=NULL;
+    settings[NSFPLAY_MMC5_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_MMC5_OPTION0].sub_family=0;
+    settings[NSFPLAY_MMC5_OPTION0].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_MMC5_OPTION1].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_MMC5_OPTION1].label=(char*)"MMC5 Phase reset";
+    settings[NSFPLAY_MMC5_OPTION1].description=(char*)"Reset phase counter after write $5003 and $5007";
+    settings[NSFPLAY_MMC5_OPTION1].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_MMC5_OPTION1].sub_family=0;
+    settings[NSFPLAY_MMC5_OPTION1].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_FDS_OPTION0].label=(char*)"FDS LP filter";
+    settings[NSFPLAY_FDS_OPTION0].description=(char*)"cutoff frequency (0=off, 2000=default)";
+    settings[NSFPLAY_FDS_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_FDS_OPTION0].sub_family=0;
+    settings[NSFPLAY_FDS_OPTION0].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_FDS_OPTION0].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_min_value=100;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_max_value=10000;
+    
+    settings[NSFPLAY_FDS_OPTION1].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_FDS_OPTION1].label=(char*)"FDS reset \"phase\"";
+    settings[NSFPLAY_FDS_OPTION1].description=(char*)"$4085 \"resets\" modular phase";
+    settings[NSFPLAY_FDS_OPTION1].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_FDS_OPTION1].sub_family=0;
+    settings[NSFPLAY_FDS_OPTION1].callback=&optNSFPLAYChangedC;
+    
+    settings[NSFPLAY_FDS_OPTION2].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_FDS_OPTION2].label=(char*)"FDS write protect";
+    settings[NSFPLAY_FDS_OPTION2].description=(char*)"write protect $8000-DFFF";
+    settings[NSFPLAY_FDS_OPTION2].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_FDS_OPTION2].sub_family=0;
+    settings[NSFPLAY_FDS_OPTION2].callback=&optNSFPLAYChangedC;
+            
     settings[NSFPLAY_VRC7_Patch].type=MDZ_SWITCH;
     settings[NSFPLAY_VRC7_Patch].label=(char*)"VRC7 Patches";
     settings[NSFPLAY_VRC7_Patch].description=(char*)"0 - VRC7 set by Nuke.KYT 3/15/2019\n\
@@ -1723,13 +1897,14 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[8]=(char*)"8";
     settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_labels[9]=(char*)"9";
     
+    settings[NSFPLAY_VRC7_OPTION0].type=MDZ_BOOLSWITCH;
+    settings[NSFPLAY_VRC7_OPTION0].label=(char*)"VRC7 Replace with OPLL";
+    settings[NSFPLAY_VRC7_OPTION0].description=NULL;
+    settings[NSFPLAY_VRC7_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
+    settings[NSFPLAY_VRC7_OPTION0].sub_family=0;
+    settings[NSFPLAY_VRC7_OPTION0].callback=&optNSFPLAYChangedC;
+    settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value=1;
     
-    settings[NSFPLAY_ForceIRQ].type=MDZ_BOOLSWITCH;
-    settings[NSFPLAY_ForceIRQ].label=(char*)"Force IRQ";
-    settings[NSFPLAY_ForceIRQ].description=(char*)"Forces IRQ capability for all NSFs, not just NSF2";
-    settings[NSFPLAY_ForceIRQ].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
-    settings[NSFPLAY_ForceIRQ].sub_family=0;
-    settings[NSFPLAY_ForceIRQ].callback=&optNSFPLAYChangedC;
     
     settings[NSFPLAY_N163_OPTION0].type=MDZ_BOOLSWITCH;
     settings[NSFPLAY_N163_OPTION0].label=(char*)"N163 Serial Multiplex mixing";
@@ -1839,7 +2014,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_Maxloop].sub_family=0;
     settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     

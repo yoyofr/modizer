@@ -6964,15 +6964,42 @@ typedef struct {
     
     (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
     (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
-    
-    
+        
     (*nsfPlayerConfig)["REGION"]=settings[NSFPLAY_Region].detail.mdz_switch.switch_value;
-    (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
-    (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;    
+    (*nsfPlayerConfig)["QUALITY"]=settings[NSFPLAY_Quality].detail.mdz_slider.slider_value;
     
-    (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value; //N163 hardware accurate serial multiplexing
-    (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value; //N163 OPT_PHASE_READ_ONLY
-    (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value; //N163 OPT_LIMIT_WAVELENGTH
+    (*nsfPlayerConfig)["APU1_OPTION0"]=settings[NSFPLAY_APU_OPTION0].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU1_OPTION1"]=settings[NSFPLAY_APU_OPTION1].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU1_OPTION2"]=settings[NSFPLAY_APU_OPTION2].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU1_OPTION3"]=settings[NSFPLAY_APU_OPTION3].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU1_OPTION4"]=settings[NSFPLAY_APU_OPTION4].detail.mdz_boolswitch.switch_value;
+    
+    (*nsfPlayerConfig)["APU2_OPTION0"]=settings[NSFPLAY_DMC_OPTION0].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION1"]=settings[NSFPLAY_DMC_OPTION1].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION2"]=settings[NSFPLAY_DMC_OPTION2].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION3"]=settings[NSFPLAY_DMC_OPTION3].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION4"]=settings[NSFPLAY_DMC_OPTION4].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION5"]=settings[NSFPLAY_DMC_OPTION5].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION6"]=settings[NSFPLAY_DMC_OPTION6].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION7"]=settings[NSFPLAY_DMC_OPTION7].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["APU2_OPTION8"]=settings[NSFPLAY_DMC_OPTION8].detail.mdz_boolswitch.switch_value;    
+    
+    (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value;
+    
+    (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value;
+    (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
+    
+    (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
+    
+    (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
+    (*nsfPlayerConfig)["VRC7_OPTION0"]=settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value;
+    
+    
     
     nsfPlayer->SetConfig(nsfPlayerConfig);
     
@@ -7081,11 +7108,11 @@ typedef struct {
         modizChipsetType[modizChipsetCount]=NES_FDS;
         modizChipsetVoicesCount[modizChipsetCount]=1;
         snprintf(modizChipsetName[modizChipsetCount],16,"FDS");
-        for (int i=numChannels;i<numChannels+1;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         snprintf(modizVoicesName[numChannels],MODIZ_VOICE_NAME_MAX_CHAR,"FDS");
-        numChannels++;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
         
         
@@ -7094,13 +7121,13 @@ typedef struct {
         strcat(mod_message,"Mapper...: FME7\n");
         modizChipsetStartVoice[modizChipsetCount]=numChannels;
         modizChipsetType[modizChipsetCount]=NES_FME7;
-        modizChipsetVoicesCount[modizChipsetCount]=3;
+        modizChipsetVoicesCount[modizChipsetCount]=modizChipsetVoicesCount[modizChipsetCount];
         snprintf(modizChipsetName[modizChipsetCount],16,"5B");
         for (int i=numChannels;i<numChannels+3;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
             snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"5B:%d",i);
         }
-        numChannels+=3;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (nsfData->use_mmc5) {
@@ -7109,13 +7136,13 @@ typedef struct {
         modizChipsetType[modizChipsetCount]=NES_MMC5;
         modizChipsetVoicesCount[modizChipsetCount]=3;
         snprintf(modizChipsetName[modizChipsetCount],16,"MMC5");
-        for (int i=numChannels;i<numChannels+3;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         snprintf(modizVoicesName[numChannels+0],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:S0");
         snprintf(modizVoicesName[numChannels+1],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:S1");
         snprintf(modizVoicesName[numChannels+2],MODIZ_VOICE_NAME_MAX_CHAR,"MMC5:PCM");
-        numChannels+=3;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (nsfData->use_n106) {
@@ -7124,12 +7151,12 @@ typedef struct {
         modizChipsetType[modizChipsetCount]=NES_N106;
         modizChipsetVoicesCount[modizChipsetCount]=8;
         snprintf(modizChipsetName[modizChipsetCount],16,"N163");
-        for (int i=numChannels;i<numChannels+8;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
             snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"N163:%d",i);
             
         }
-        numChannels+=8;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (nsfData->use_vrc6) {
@@ -7138,13 +7165,13 @@ typedef struct {
         modizChipsetType[modizChipsetCount]=NES_VRC6;
         modizChipsetVoicesCount[modizChipsetCount]=3;
         snprintf(modizChipsetName[modizChipsetCount],16,"VRC6");
-        for (int i=numChannels;i<numChannels+3;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
         }
         snprintf(modizVoicesName[numChannels+0],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:S0");
         snprintf(modizVoicesName[numChannels+1],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:S1");
         snprintf(modizVoicesName[numChannels+2],MODIZ_VOICE_NAME_MAX_CHAR,"VRC6:SAW");
-        numChannels+=3;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (nsfData->use_vrc7) {
@@ -7153,11 +7180,11 @@ typedef struct {
         modizChipsetType[modizChipsetCount]=NES_VRC7;
         modizChipsetVoicesCount[modizChipsetCount]=9;
         snprintf(modizChipsetName[modizChipsetCount],16,"VRC7");
-        for (int i=numChannels;i<numChannels+9;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
             snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"VRC7:%d",i);
         }
-        numChannels+=9;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     
@@ -8206,10 +8233,11 @@ char* loadRom(const char* path, size_t romSize)
         modizChipsetType[modizChipsetCount]=KSS_Y8950;
         modizChipsetVoicesCount[modizChipsetCount]=15;
         snprintf(modizChipsetName[modizChipsetCount],16,"Y8950");
-        for (int i=numChannels;i<numChannels+1;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"Y8950:%d",i-numChannels+1);
         }
-        numChannels+=15;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (kssplay->kss->fmpac && !kssplay->device_mute[KSS_DEVICE_OPLL]) {
@@ -8218,10 +8246,11 @@ char* loadRom(const char* path, size_t romSize)
         modizChipsetType[modizChipsetCount]=KSS_YM2413;
         modizChipsetVoicesCount[modizChipsetCount]=14;
         snprintf(modizChipsetName[modizChipsetCount],16,"YM2413");
-        for (int i=numChannels;i<numChannels+1;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"YM2413:%d",i-numChannels+1);
         }
-        numChannels+=14;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     if (!kssplay->device_mute[KSS_DEVICE_PSG]) {
@@ -8231,10 +8260,12 @@ char* loadRom(const char* path, size_t romSize)
             modizChipsetType[modizChipsetCount]=KSS_SN76489;
             modizChipsetVoicesCount[modizChipsetCount]=4;
             snprintf(modizChipsetName[modizChipsetCount],16,"SN76489");
-            for (int i=numChannels;i<numChannels+1;i++) {
+            for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
                 m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+                snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"SN76489:%d",i-numChannels+1);
             }
-            numChannels+=4;
+            
+            numChannels+=modizChipsetVoicesCount[modizChipsetCount];
             modizChipsetCount++;
         } else {
             strcat(mod_message,"PSG,");
@@ -8242,10 +8273,11 @@ char* loadRom(const char* path, size_t romSize)
             modizChipsetType[modizChipsetCount]=KSS_PSG;
             modizChipsetVoicesCount[modizChipsetCount]=3;
             snprintf(modizChipsetName[modizChipsetCount],16,"PSG");
-            for (int i=numChannels;i<numChannels+1;i++) {
+            for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
                 m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+                snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"PSG:%d",i-numChannels+1);
             }
-            numChannels+=3;
+            numChannels+=modizChipsetVoicesCount[modizChipsetCount];
             modizChipsetCount++;
         }
     }
@@ -8255,10 +8287,11 @@ char* loadRom(const char* path, size_t romSize)
         modizChipsetType[modizChipsetCount]=KSS_SCC;
         modizChipsetVoicesCount[modizChipsetCount]=5;
         snprintf(modizChipsetName[modizChipsetCount],16,"SCC");
-        for (int i=numChannels;i<numChannels+1;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
+            snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"SCC:%d",i-numChannels+1);
         }
-        numChannels+=5;
+        numChannels+=modizChipsetVoicesCount[modizChipsetCount];
         modizChipsetCount++;
     }
     
@@ -12712,14 +12745,41 @@ extern bool icloud_available;
     if (nsfPlayerConfig) {
         (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
         (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
-        
+            
         (*nsfPlayerConfig)["REGION"]=settings[NSFPLAY_Region].detail.mdz_switch.switch_value;
-        (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
         (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["QUALITY"]=settings[NSFPLAY_Quality].detail.mdz_slider.slider_value;
         
-        (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value; //N163 hardware accurate serial multiplexing
-        (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value; //N163 OPT_PHASE_READ_ONLY
-        (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value; //N163 OPT_LIMIT_WAVELENGTH
+        (*nsfPlayerConfig)["APU1_OPTION0"]=settings[NSFPLAY_APU_OPTION0].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU1_OPTION1"]=settings[NSFPLAY_APU_OPTION1].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU1_OPTION2"]=settings[NSFPLAY_APU_OPTION2].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU1_OPTION3"]=settings[NSFPLAY_APU_OPTION3].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU1_OPTION4"]=settings[NSFPLAY_APU_OPTION4].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["APU2_OPTION0"]=settings[NSFPLAY_DMC_OPTION0].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION1"]=settings[NSFPLAY_DMC_OPTION1].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION2"]=settings[NSFPLAY_DMC_OPTION2].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION3"]=settings[NSFPLAY_DMC_OPTION3].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION4"]=settings[NSFPLAY_DMC_OPTION4].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION5"]=settings[NSFPLAY_DMC_OPTION5].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION6"]=settings[NSFPLAY_DMC_OPTION6].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION7"]=settings[NSFPLAY_DMC_OPTION7].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["APU2_OPTION8"]=settings[NSFPLAY_DMC_OPTION8].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["N163_OPTION0"]=settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value;
+        (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
+        
+        (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
+        (*nsfPlayerConfig)["VRC7_OPTION0"]=settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value;
+        
         nsfPlayer->Notify(-1);
     }
 }

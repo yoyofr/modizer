@@ -1767,13 +1767,34 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         NSRange rdir;
         NSArray *dirContent;//
         BOOL isDir;
-        if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
-        else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
-        for (file in dirContent) {
+        NSURL *fileURL;
+        //if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+        //else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
+        
+        NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
+        NSDirectoryEnumerator *directoryEnumerator =
+        [mFileMngr enumeratorAtURL:directoryURL
+        includingPropertiesForKeys:@[NSURLPathKey, NSURLIsDirectoryKey]
+                           options:NSDirectoryEnumerationSkipsHiddenFiles|(mShowSubdir?0:NSDirectoryEnumerationSkipsSubdirectoryDescendants)
+                      errorHandler:nil];
+                    
+        dirContent=[directoryEnumerator allObjects];
+                                
+        for (fileURL in dirContent) {
             //check if dir
             //rdir.location=NSNotFound;
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-            [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            
+            NSNumber *isDirectory = nil;
+            [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+            [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+            rdir=[file rangeOfString:cpath];
+            if (rdir.location!=NSNotFound) {
+                file=[file substringFromIndex:(rdir.location+rdir.length+1)];
+            }
+            isDir=[isDirectory boolValue];
+            
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
@@ -1878,11 +1899,21 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 //                NSLog(@"detail2 : %d",end_time-start_time);
                 //                start_time=end_time;
                 // Second check count for each section
-                for (file in dirContent) {
+                for (fileURL in dirContent) {
                     if (shouldStop) break;
                     //rdir.location=NSNotFound;
                     // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-                    [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    
+                    NSNumber *isDirectory = nil;
+                    [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+                    [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+                    rdir=[file rangeOfString:cpath];
+                    if (rdir.location!=NSNotFound) {
+                        file=[file substringFromIndex:(rdir.location+rdir.length+1)];
+                    }
+                    isDir=[isDirectory boolValue];
+                    
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
@@ -1966,13 +1997,13 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                                     
                                     local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                     
-                                    local_entries[index][local_entries_count[index]].rating=0;
-                                    local_entries[index][local_entries_count[index]].playcount=0;
-                                    local_entries[index][local_entries_count[index]].song_length=0;
-                                    local_entries[index][local_entries_count[index]].songs=0;
-                                    local_entries[index][local_entries_count[index]].channels_nb=0;
+                                    local_entries[index][local_entries_count[index]].rating=-1;
+                                    local_entries[index][local_entries_count[index]].playcount=-1;
+                                    local_entries[index][local_entries_count[index]].song_length=-1;
+                                    local_entries[index][local_entries_count[index]].songs=-1;
+                                    local_entries[index][local_entries_count[index]].channels_nb=-1;
                                     
-                                    snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
+                                    /*snprintf(sqlStatement,sizeof(sqlStatement),"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     if (err==SQLITE_OK){
                                         while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1991,7 +2022,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                                         }
                                         sqlite3_finalize(stmt);
                                     } else NSLog(@"ErrSQL : %d",err);
-                                    
+                                    */
                                     local_entries_count[index]++;
                                     
                                     if (local_nb_entries_limit) {
@@ -2105,6 +2136,10 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
                 playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
                 playlist->nb_entries++;
+                if (playlist->nb_entries>=MAX_PL_ENTRIES) {
+                    NSLog(@"max entries reached (%d)",MAX_PL_ENTRIES);
+                    break;
+                }
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -2152,6 +2187,10 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
                 playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
                 playlist->nb_entries++;
+                if (playlist->nb_entries>=MAX_PL_ENTRIES) {
+                    NSLog(@"max entries reached (%d)",MAX_PL_ENTRIES);
+                    break;
+                }
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
@@ -3675,6 +3714,12 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                         [self renamePlaylist];
                     }];
                     [alertC addAction:renameAction];
+                    
+                    UIAlertAction* savetoNewAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save as a new playlist",@"") style:UIAlertActionStyleDefault
+                                                                         handler:^(UIAlertAction * action) {
+                        [self saveToNewPlaylist];
+                    }];
+                    [alertC addAction:savetoNewAction];
                     
                     UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
                                                                        handler:^(UIAlertAction * action) {
