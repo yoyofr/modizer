@@ -205,7 +205,7 @@ update_output (SCCKSS * scc)
 
 static inline int16_t 
 mix_output(SCCKSS * scc) {
-    
+    scc->out=0;
     //TODO:  MODIZER changes start / YOYOFR
     for (int i=0;i<5;i++)
         if (!(generic_mute_mask&((int64_t)1<<(i+15+14+4+3)))) scc->out += scc->ch_out[i];
