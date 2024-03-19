@@ -2511,6 +2511,7 @@ void optNSFPLAYChangedC(id param) {
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);

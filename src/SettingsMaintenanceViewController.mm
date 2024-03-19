@@ -81,6 +81,7 @@ extern pthread_mutex_t db_mutex;
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);

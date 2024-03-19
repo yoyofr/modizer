@@ -52,8 +52,11 @@ public:
 	
 	void clear();
 	
+    //YOYOFR: make it public to adjust track if needed
+    blargg_vector<entry_t> entries;
+    //YOYOFR
 private:
-	blargg_vector<entry_t> entries;
+	
 	blargg_vector<char> data;
 	int first_error_;
 	info_t info_;

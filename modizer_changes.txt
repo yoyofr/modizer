@@ -12,6 +12,7 @@ Todo/Requested:
 - Todo: keep download queue when exit program and restore at next launch
 - Todo: add PDX/MDX to keyboard visualizer
 - Todo: local browser : capacity to 'list all' sorted by fullpath
+- Todo: allmods/asma -> dynamic update ?
 
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
@@ -54,6 +55,7 @@ missing seek support:
 - [PLAYER] MDX/PDX now support seek
 - [PLAYER] Timidity custom soundfont support: will load sf2 files present in same directory/archive as the mid files (trying first same name as the mid file and if not found, will take first one in same dir/archive)
 - [UI] Searches are now regular expression based
+- [UI] Local browser loading time optimized
 - [DB] MODLAND updated to latest version
 - [DB] ASMA updated to latest version
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony

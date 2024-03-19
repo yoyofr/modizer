@@ -442,6 +442,23 @@ blargg_err_t M3u_Playlist::parse_()
 	// Treat first comment as title only if another field is also specified
 	if ( !(info_.artist [0] | info_.composer [0] | info_.date [0] | info_.engineer [0] | info_.ripping [0] | info_.sequencer [0] | info_.tagging [0] | info_.copyright[0]) )
 		info_.title = "";
+    
+    //YOYOFR
+    int min_track=count,max_track=0;
+    for (int i=0;i<count;i++) {
+        if (entries[i].track>max_track) max_track=entries[i].track;
+        if (entries[i].track<min_track) min_track=entries[i].track;
+    }
+    //TODO: add another global var / max_track to check if max_track>=songnum from original file
+    if ((min_track==1)/*&&(max_track>=nsfData->GetSongNum())*/) {
+        for (int i=0;i<count;i++) {
+            //printf("type: %s\n",entries[i].type);
+            if (strcmp(entries[i].type,"NSF")==0) entries[i].track--;
+            else if (strcmp(entries[i].type,"nsf")==0) entries[i].track--;
+        }
+    }
+    //
+    
 	
 	return entries.resize( count );
 }

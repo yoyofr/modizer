@@ -386,7 +386,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableClientState(GL_COLOR_ARRAY);
     
 //    glLineWidth(2.0f*mScaleFactor);
-    glLineWidth(2.0f*mScaleFactor);
+    glLineWidth(1.0f*mScaleFactor);
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     

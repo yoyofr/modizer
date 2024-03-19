@@ -86,6 +86,7 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 
 #include "MiniPlayerImplementTableView.h"
 
+#include "AlertsCommonFunctions.h"
 
 -(NSString*) getFullPathForFilePath:(NSString*)filePath {
     NSString *fullFilePath;
@@ -655,6 +656,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
@@ -667,9 +669,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     
+    
     [super viewDidLoad];
     renameFile=0;
     createFolder=0;
+    
+    
     
     end_time=clock();
 #ifdef LOAD_PROFILE
@@ -855,7 +860,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
     NSMutableArray *filetype_extAMIGA=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AMIGA];
     NSMutableArray *all_multisongstype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_SUBSONGS];
-    NSMutableArray *archivetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_BROWSABLEARCHIVE];
+    NSMutableArray *archivetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_ARCHIVE];
     
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -1541,14 +1546,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 start_time=clock();
         NSError *error;
         NSRange rdir;
-        NSMutableArray *dirContent=[NSMutableArray array];//
+        NSArray *dirContent;//=[NSMutableArray array];//
         BOOL isDir;
         
         //List all entries
         NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
         NSDirectoryEnumerator *directoryEnumerator =
         [mFileMngr enumeratorAtURL:directoryURL
-        includingPropertiesForKeys:@[NSURLPathKey, NSURLIsDirectoryKey]
+        includingPropertiesForKeys:@[NSURLPathKey, NSURLNameKey, NSURLIsDirectoryKey]
                            options:NSDirectoryEnumerationSkipsHiddenFiles|(mShowSubdir?0:NSDirectoryEnumerationSkipsSubdirectoryDescendants)
                       errorHandler:nil];
                     
@@ -1568,9 +1573,15 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
             
             NSString *str1;//[(NSString *)obj1 lastPathComponent];
-            [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLNameKey error:nil];
             NSString *str2;//[(NSString *)obj2 lastPathComponent];
-            [(NSURL*)obj1 getResourceValue:&str2 forKey:NSURLNameKey error:nil];
+            
+            if (mShowSubdir==2) { //use path
+                [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
+                [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+            } else { //use filename
+                [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLNameKey error:nil];
+                [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLNameKey error:nil];
+            }
             return [str1 caseInsensitiveCompare:str2];
         }];
         
@@ -1583,10 +1594,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             NSNumber *isDirectory = nil;
             [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
             [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+                        
+            
             rdir=[file rangeOfString:cpath];
             if (rdir.location!=NSNotFound) {
                 file=[file substringFromIndex:(rdir.location+rdir.length+1)];
             }
+            
             isDir=[isDirectory boolValue];
             
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
@@ -1643,7 +1657,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                         
                         if (found)  {
-                            const char *str=[[file lastPathComponent] UTF8String];
+                            const char *str;
+                            if (mShowSubdir==2) str=[file UTF8String];
+                            else str=[[file lastPathComponent] UTF8String];
                             int index=0;
                             if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                             if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
@@ -1783,7 +1799,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     const char *str;
                                     char tmp_str[1024];//,*tmp_convstr;
                                     int other_encoding=0;
-                                    str=[[file lastPathComponent] UTF8String];
+                                    if (mShowSubdir==2) str=[file UTF8String];
+                                    else str=[[file lastPathComponent] UTF8String];
+                                    
                                     if ([extension caseInsensitiveCompare:@"mdx"]==NSOrderedSame ) {
                                         [[file lastPathComponent] getFileSystemRepresentation:tmp_str maxLength:1024];
                                         //tmp_convstr=mdx_make_sjis_to_syscharset(tmp_str);
@@ -1966,23 +1984,27 @@ static int shouldRestart=1;
         mSearch=1;
     }
     
-    [self fillKeys];
-    [tableView reloadData];
-    [self hideWaiting];
+//    [self fillKeys];
+//    [tableView reloadData];
+//    [self hideWaiting];
     
     [super viewWillAppear:animated];
     
-    [self hideWaiting];
+//    [self hideWaiting];
     
     //[tableView reloadData];
     //[self.view setNeedsLayout];
     //[self.view layoutIfNeeded];
     //[tableView reloadData];
     //[self flushMainLoop];
+    
+    
 }
 
 -(void) refreshViewAfterDownload {
-    //    if (mShowSubdir==0) {
+    
+    //do not force refresh when download complete, can block UI
+    return;
     
     //TODO: review how to manage -> generic virtual class ?
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
@@ -2040,12 +2062,17 @@ static int shouldRestart=1;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self hideWaiting];
+//    [self hideWaiting];
+    
     /*[tableView setNeedsLayout];
      [tableView layoutSubviews];
      [tableView layoutIfNeeded];
      [tableView reloadData];*/
     forceReloadCells=false;
+    
+    [self fillKeys];
+    [tableView reloadData];
+    [self hideWaiting];
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
@@ -2075,6 +2102,52 @@ static int shouldRestart=1;
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    
+    
+    if ([detailViewController not_expected_version]==1) {
+        NSLog(@"change of version");
+        
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Modizer v%d.%d",@""),VERSION_MAJOR,VERSION_MINOR]
+                                           message:NSLocalizedString(@"\
+Due to internal changes, settings will be reseted to default and database will be cleaned.\n\
+As a consequence, some entries might disappear from existing playlist.\n\
+\n\
+",@"")
+                                           preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
+            handler:^(UIAlertAction * action) {
+            
+            [self updateWaitingTitle:NSLocalizedString(@"Cleaning DB & \nreseting settings",@"")];
+            [self updateWaitingDetail:NSLocalizedString(@"please wait",@"")];
+                
+            [self showWaiting];
+            [self flushMainLoop];
+                
+            DBHelper::cleanDB();
+            
+            //remove settings from userpref
+            NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+            [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+            //
+            //load default
+            [SettingsGenViewController applyDefaultSettings];
+            [detailViewController settingsChanged:(int)SETTINGS_ALL];
+            
+            [self hideWaiting];
+            
+            }];
+        [alertC addAction:closeAction];
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
+            [self presentViewController:alertC animated:YES completion:nil];
+        } else { //if iPad
+            alertC.modalPresentationStyle = UIModalPresentationPopover;
+            alertC.popoverPresentationController.sourceView = self.view;
+            alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
+            alertC.popoverPresentationController.permittedArrowDirections=0;
+            [self presentViewController:alertC animated:YES completion:nil];
+        }
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -2254,6 +2327,7 @@ static int shouldRestart=1;
         } else{
             idx=0;
             while ( !fex_done( fex ) ) {
+                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                 
                 if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
                     
@@ -2281,6 +2355,7 @@ static int shouldRestart=1;
                                 fex_read( fex, archive_data, 64*1024*1024);
                                 fwrite(archive_data,64*1024*1024,1,f);
                                 arc_size-=64*1024*1024;
+                                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                             } else {
                                 fex_read( fex, archive_data, arc_size );
                                 fwrite(archive_data,arc_size,1,f);
@@ -2721,8 +2796,22 @@ static int shouldRestart=1;
     // Set up the cell...
     if (indexPath.section==1){
         if (indexPath.row==0) {
-            cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
-            bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
+            switch (mShowSubdir) {
+                case 0:
+                    cellValue=NSLocalizedString(@"DisplayAll_MainKey","");
+                    bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",NSLocalizedString(@"DisplayAll_SubKey",""),(search_local?search_local_nb_entries:local_nb_entries)];
+                    break;
+                case 1:
+                    cellValue=NSLocalizedString(@"DisplayAllPath_MainKey","");
+                    bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",NSLocalizedString(@"DisplayAllPath_SubKey",""),(search_local?search_local_nb_entries:local_nb_entries)];
+                    break;
+                case 2:
+                    cellValue=NSLocalizedString(@"DisplayDir_MainKey","");
+                    bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",NSLocalizedString(@"DisplayDir_SubKey",""),(search_local?search_local_nb_entries:local_nb_entries)];
+                    break;
+            }
+            
+            
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
@@ -3302,7 +3391,7 @@ static int shouldRestart=1;
                 if (mSearchText==nil) donothing=1;
             }
             if (!donothing) {
-                mShowSubdir^=1;
+                mShowSubdir=(mShowSubdir+1)%3;
                 shouldFillKeys=1;
                 
                 [self updateWaitingTitle:@""];
@@ -3475,7 +3564,7 @@ static int shouldRestart=1;
     CGRect frame;
     if (mPopupAnimation) return;
     mPopupAnimation=1;
-    infoMsgView.layer.zPosition=0xFFFF;
+    infoMsgView.layer.zPosition=MAXFLOAT;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;

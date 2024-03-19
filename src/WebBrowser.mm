@@ -600,7 +600,7 @@ static UIAlertView *alertChooseName;
 
 -(void) openPopup:(NSString *)msg {
 	CGRect frame;
-    infoDownloadView.layer.zPosition=0xFFFF;
+    infoDownloadView.layer.zPosition=MAXFLOAT;
     infoDownloadLbl.text=[NSString stringWithString:msg];
 	if (mPopupAnimation) return;
 	mPopupAnimation=1;	
@@ -1184,6 +1184,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);

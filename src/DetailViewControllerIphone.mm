@@ -186,6 +186,8 @@ static int display_length_mode=0;
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
 
+@synthesize not_expected_version;
+
 -(void) refreshCurrentVC {
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     if ([vc respondsToSelector:@selector(refreshMiniplayer)]) [vc performSelector:@selector(refreshMiniplayer)];
@@ -4041,8 +4043,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 -(void)loadSettings:(int)safe_mode{
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;
-    int not_expected_version;
+    NSNumber *valNb;    
     
     [prefs synchronize];
     
@@ -4236,6 +4237,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             mPlaylist_pos=0;
             mPlaylist_size=0;
         }
+    }
+    
+    
+    if (not_expected_version) {
+        
     }
     
     [self updateAllSettingsAfterChange];
@@ -5028,6 +5034,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
@@ -5298,7 +5305,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     } else [self loadSettings:0];
     
     for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
-    
     
     end_time=clock();
 #ifdef LOAD_PROFILE

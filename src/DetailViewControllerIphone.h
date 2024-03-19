@@ -71,6 +71,8 @@ enum {
     bool darkMode;
     bool forceReloadCells;
     
+    int not_expected_version;
+    
     UITableView *alertTableView;
     
     //EQ
@@ -207,6 +209,8 @@ enum {
 @property bool bShowVC,bShowEQ;
 @property bool bRSactive;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
+
+@property int not_expected_version;
 
 -(IBAction)pushedAddToPl;
 -(IBAction)pushedRating5;

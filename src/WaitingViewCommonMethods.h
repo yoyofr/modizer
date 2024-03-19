@@ -45,6 +45,15 @@
 }
 -(void) showWaiting{
     waitingView.hidden=FALSE;
+    [self.view bringSubviewToFront:waitingView];
+    [waitingView setNeedsLayout];
+    [waitingView layoutIfNeeded];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+    /*[NSThread sleepForTimeInterval:0.1f];
+    [self flushMainLoop];
+    [NSThread sleepForTimeInterval:0.1f];
+    [self flushMainLoop];*/
 }
 -(void) hideWaiting{
     waitingView.hidden=TRUE;    

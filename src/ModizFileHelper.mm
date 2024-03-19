@@ -200,7 +200,7 @@
             NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
             NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
             NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-            NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
+            NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
             NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
@@ -382,7 +382,7 @@
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
-    NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
+    NSArray *filetype_extNSFPLAY=(no_aux_file?[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
@@ -488,11 +488,30 @@
             if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
         }
-    if (!found)
+    if (!found) {
+        //        for (int i=0;i<[filetype_extNSFPLAY count];i++) {
+        //            if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {found=MMP_NSFPLAY;break;}
+        //            if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {found=MMP_NSFPLAY;break;}
+        //        }
         for (int i=0;i<[filetype_extNSFPLAY count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {found=MMP_NSFPLAY;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {found=MMP_NSFPLAY;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
+                NSArray *singlefile=[SUPPORTED_FILETYPE_NSFPLAY_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_NSFPLAY;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
+                NSArray *singlefile=[SUPPORTED_FILETYPE_NSFPLAY_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_NSFPLAY;break;
+            }
         }
+    }
     if (!found)
         for (int i=0;i<[filetype_extPIXEL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {found=MMP_PIXEL;break;}

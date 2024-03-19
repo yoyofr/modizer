@@ -44,8 +44,12 @@
 "DisplayDir_MainKey"="Lister/Dossier";
 "DisplayDir_SubKey"="Tout:";
 
-"DisplayAll_MainKey"="Lister tout";
+"DisplayAll_MainKey"="Lister tout trié par nom";
 "DisplayAll_SubKey"="Dossier courant:";
+
+"DisplayAllPath_MainKey"="Lister tout trié par chemin";
+"DisplayAllPath_SubKey"="All:";
+
 
 "Formats/Artists/Files"="Formats/Artistes/Fichiers";
 "Artists/Formats/Files"="Artistes/Formats/Fichiers";

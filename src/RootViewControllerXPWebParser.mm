@@ -222,6 +222,7 @@
     // Waiting view
     /////////////////////////////////////
     waitingView = [[WaitingView alloc] init];
+    waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
@@ -687,7 +688,7 @@
     CGRect frame;
     if (mPopupAnimation) return;
     mPopupAnimation=1;
-    infoMsgView.layer.zPosition=0xFFFF;
+    infoMsgView.layer.zPosition=MAXFLOAT;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
