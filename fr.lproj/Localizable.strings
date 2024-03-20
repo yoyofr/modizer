@@ -41,14 +41,14 @@
 "GetAllEntries_MainKey"="Tout télécharger";
 "GetAllEntries_SubKey"="Limité à 256 téléchargements.";
 
-"DisplayDir_MainKey"="Lister/Dossier";
-"DisplayDir_SubKey"="Tout:";
-
 "DisplayAll_MainKey"="Lister tout trié par nom";
 "DisplayAll_SubKey"="Dossier courant:";
 
+"DisplayDir_MainKey"="Lister/Dossier";
+"DisplayDir_SubKey"="Tout trié par chemin:";
+
 "DisplayAllPath_MainKey"="Lister tout trié par chemin";
-"DisplayAllPath_SubKey"="All:";
+"DisplayAllPath_SubKey"="Tout trié par nom:";
 
 
 "Formats/Artists/Files"="Formats/Artistes/Fichiers";

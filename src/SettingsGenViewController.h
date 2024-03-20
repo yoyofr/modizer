@@ -63,6 +63,7 @@ enum MDZ_SETTINGS {
     GLOB_Panning,
     GLOB_PanningValue,
     GLOB_DefaultLength,
+    GLOB_AudioLatency,
     GLOB_CoverFlow,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,

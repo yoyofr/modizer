@@ -22,11 +22,13 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate,UIScrollViewDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
+    
+    UIRefreshControl *refreshControl;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -85,6 +87,7 @@
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) UIViewController *childController;
+@property (nonatomic, retain) UIRefreshControl *refreshControl;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
@@ -98,7 +101,10 @@
 @property (nonatomic, retain) UIAlertView *alertRename;
 
 -(IBAction)goPlayer;
+
+-(void) refreshViewReloadFiles;
 -(void) refreshViewAfterDownload;
+
 -(void)listLocalFiles;
 -(void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
 -(void)createSamplesFromPackage:(BOOL)forceCreate;

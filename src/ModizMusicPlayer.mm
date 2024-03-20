@@ -1799,12 +1799,18 @@ static int tim_output_data(char *buf, int32 nbytes) {
         g_playing=0;
         return 0;
     }
-    while (buffer_ana_flag[buffer_ana_gen_ofs]) {
+    
+    int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+    if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+    
+    while ((buffer_ana_flag[buffer_ana_gen_ofs])||(diff_ana_ofs>=SOUND_BUFFER_NB/2)) {
         [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
         if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
             g_playing=0;
             return 0;
         }
+        diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+        if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
     }
     
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
@@ -2157,7 +2163,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mLoadModuleStatus;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail;
 @synthesize m_voicesDataAvail;
-@synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern,nextPattern,prevPattern;//,playOffset;
+@synthesize genRow,genPattern,playRow,playPattern,nextPattern,prevPattern;
 @synthesize genVolData,playVolData;
 //GSF
 @synthesize optGSFsoundLowPass;
@@ -2359,7 +2365,6 @@ void propertyListenerCallback (void                   *inUserData,              
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
-        
         buffer_ana_flag=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         buffer_ana=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
         buffer_ana_cpy=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
@@ -2378,6 +2383,8 @@ void propertyListenerCallback (void                   *inUserData,              
             m_voice_buff_accumul_temp[i]=(signed int*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
             m_voice_buff_accumul_temp_cnt[i]=(unsigned char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*2);
         }
+        
+        
         for (int j=0;j<SOUND_BUFFER_NB;j++) {
             m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
@@ -2447,8 +2454,6 @@ void propertyListenerCallback (void                   *inUserData,              
         
         genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
         playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
-        //playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
-        //
         
         //XMP
         xmp_ctx=NULL;
@@ -2839,17 +2844,22 @@ void propertyListenerCallback (void                   *inUserData,              
                 bGlobalSeekProgress=0;
             }
             
+            //take into account audio latency for output device
+            
+            int tgt_ofs=(buffer_ana_play_ofs-[self getLatencyInBuffer:settings[GLOB_AudioLatency].detail.mdz_slider.slider_value])%SOUND_BUFFER_NB;//-;
+            if (tgt_ofs<0) tgt_ofs+=SOUND_BUFFER_NB;
+            
             if (mPatternDataAvail) {//Modplug
-                playPattern[buffer_ana_play_ofs]=genPattern[buffer_ana_play_ofs];
-                playRow[buffer_ana_play_ofs]=genRow[buffer_ana_play_ofs];
-                prevPattern[buffer_ana_play_ofs]=genPrevPattern[buffer_ana_play_ofs];
-                nextPattern[buffer_ana_play_ofs]=genNextPattern[buffer_ana_play_ofs];
-                memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
+                playPattern[buffer_ana_play_ofs]=genPattern[tgt_ofs];
+                playRow[buffer_ana_play_ofs]=genRow[tgt_ofs];
+                prevPattern[buffer_ana_play_ofs]=genPrevPattern[tgt_ofs];
+                nextPattern[buffer_ana_play_ofs]=genNextPattern[tgt_ofs];
+                memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
             }
             if (mPlayType==MMP_TIMIDITY) {//Timidity
-                memcpy(tim_notes_cpy[buffer_ana_play_ofs],tim_notes[buffer_ana_play_ofs],DEFAULT_VOICES*4);
-                tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[buffer_ana_play_ofs];
+                memcpy(tim_notes_cpy[buffer_ana_play_ofs],tim_notes[tgt_ofs],DEFAULT_VOICES*4);
+                tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[tgt_ofs];
             }
             
             iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
@@ -2903,8 +2913,10 @@ void propertyListenerCallback (void                   *inUserData,              
                     }
                 } else memcpy((char*)mBuffer->mAudioData,buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             }
-            memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
-            memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+
+            memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+            
+            memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             
             if (bGlobalEndReached && buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
                 //iCurrentTime=0;
@@ -2950,16 +2962,37 @@ void propertyListenerCallback (void                   *inUserData,              
             AudioQueueStop( mAudioQueue, FALSE );
         }
     } else {
-        buffer_ana_play_ofs++;
-        if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
+        //buffer_ana_play_ofs++;
+        //if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
     }
     return 0;
 }
+
+-(int) getLatencyInBuffer:(double)latency {
+    if (latency==0) {
+        AVAudioSession *session=[AVAudioSession sharedInstance];
+        latency=session.outputLatency;
+    }
+    double buffer_length=(double)(SOUND_BUFFER_SIZE_SAMPLE)/(double)(PLAYBACK_FREQ);
+
+    int buffer_to_compensate=int(latency/buffer_length);
+    
+    //NSLog(@"buffer to compensate: %d",buffer_to_compensate);
+    
+    if (buffer_to_compensate>=SOUND_BUFFER_NB/2) buffer_to_compensate=SOUND_BUFFER_NB/2; //take some contingency / some fx reading ahead buffer, such as oscilloMultiple
+    //if (buffer_to_compensate<2) buffer_to_compensate=2; //take some contingency / avoid having FX using voice_data that can be updated in the middle of the FX
+    
+    //NSLog(@"buffer to compensate adjusted: %d",buffer_to_compensate);
+    
+    return buffer_to_compensate;
+}
+
 -(int) getCurrentPlayedBufferIdx {
-    //buffer_ana_play_ofs-1 is the last one enqueued, so with +1 it should be the one playing right one.
-    //take some contingency in case it is updated just after    
-    int idx=(buffer_ana_play_ofs+4);
-    if (idx<0) idx+=SOUND_BUFFER_NB;
+    /*int adj=-1-[self getLatencyInBuffer];
+    adj=-1;*/
+    
+    int idx=(buffer_ana_play_ofs+1);//-[self getLatencyInBuffer]);
+    while (idx<0) idx+=SOUND_BUFFER_NB;
     return idx%SOUND_BUFFER_NB;
 }
 
@@ -3797,10 +3830,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
         
-        
+        //int cptyo=0;
         while (1) {
+            
+//            if (cptyo++==1024)  {
+//                cptyo=0;
+//                AVAudioSession *session=[AVAudioSession sharedInstance];
+//                NSLog(@"latency: %f / %d",session.outputLatency*1000,[self getLatencyInBuffer:0]);
+//                
+//            }
             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             if (bGlobalIsPlaying) {
+                
+                int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+                if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+                                                                
                 bGlobalSoundGenInProgress=1;
                 if ( !bGlobalEndReached && mPlayType) {
                     int nbBytes=0;
@@ -3875,7 +3919,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         mQueueIsBeingStopped = FALSE;
                         bGlobalAudioPause=2;
                         bGlobalEndReached=1;
-                    } else if (buffer_ana_flag[buffer_ana_gen_ofs]==0) {
+                    } else if ((buffer_ana_flag[buffer_ana_gen_ofs]==0)&&(diff_ana_ofs<((SOUND_BUFFER_NB/2)-1))) {
+                        
+                        //NSLog(@"gen %d play %d diff %d",buffer_ana_gen_ofs,buffer_ana_play_ofs,diff_ana_ofs);
+                        
                         if (mNeedSeek==1) { //SEEK
                             mNeedSeek=2;  //taken into account
                             

@@ -41,7 +41,7 @@ static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 extern int MIDIFX_OFS;
 
 
-#define MAX_BARS 2048
+#define MAX_BARS 2048*2
 typedef struct {
     unsigned char startidx,note,instr,size;
 } t_data_bar2draw;
@@ -146,7 +146,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     static char first_call=1;
     
     //snd_data_idx--;
-    //snd_data_idx-=OSCILLO_BUFFER_NB-1;
+    //snd_data_idx-=OSCILLO_BUFFER_NB;
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
     

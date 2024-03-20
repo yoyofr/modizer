@@ -431,6 +431,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    settings[GLOB_AudioLatency].detail.mdz_slider.slider_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
@@ -786,6 +787,16 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
+    
+    settings[GLOB_AudioLatency].type=MDZ_SWITCH;
+    settings[GLOB_AudioLatency].label=(char*)"Audio latency";
+    settings[GLOB_AudioLatency].description=(char*)"0=auto, delay rounded to a multiple of audio buffer size";
+    settings[GLOB_AudioLatency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_AudioLatency].sub_family=0;
+    settings[GLOB_AudioLatency].callback=&optGLOBALChangedC;
+    settings[GLOB_AudioLatency].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_AudioLatency].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_AudioLatency].detail.mdz_slider.slider_max_value=1000*(SOUND_BUFFER_NB/2)*SOUND_BUFFER_SIZE_SAMPLE/DEFAULT_PLAYBACK_FREQ;
     
     /*settings[GLOB_PlaybackFrequency].type=MDZ_SWITCH;
      settings[GLOB_PlaybackFrequency].label=(char*)"Playback Frequency";

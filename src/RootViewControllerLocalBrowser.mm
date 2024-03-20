@@ -53,6 +53,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 @synthesize mFileMngr;
 @synthesize detailViewController,tableView;
+@synthesize refreshControl;
 @synthesize sBar;
 @synthesize list;
 @synthesize keys;
@@ -674,6 +675,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     renameFile=0;
     createFolder=0;
     
+    
+    // Initialize the refresh control.
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    self.refreshControl.backgroundColor = [UIColor purpleColor];
+    self.refreshControl.tintColor = [UIColor whiteColor];
+    [self.refreshControl addTarget:self
+                            action:@selector(refreshViewReloadFiles)
+                  forControlEvents:UIControlEventValueChanged];
+    
+    tableView.refreshControl=refreshControl;
     
     
     end_time=clock();
@@ -1542,8 +1553,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
         }
     } else {
-                clock_t start_time,end_time;
-                start_time=clock();
+        clock_t start_time,end_time;
+        start_time=clock();
         NSError *error;
         NSRange rdir;
         NSArray *dirContent;//=[NSMutableArray array];//
@@ -1556,14 +1567,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         includingPropertiesForKeys:@[NSURLPathKey, NSURLNameKey, NSURLIsDirectoryKey]
                            options:NSDirectoryEnumerationSkipsHiddenFiles|(mShowSubdir?0:NSDirectoryEnumerationSkipsSubdirectoryDescendants)
                       errorHandler:nil];
-                    
+        
         /*for (NSURL *fileURL in directoryEnumerator) {
-            [dirContent addObject:fileURL];
-        }*/
+         [dirContent addObject:fileURL];
+         }*/
         dirContent=[directoryEnumerator allObjects];
-//            end_time=clock();
-//            NSLog(@"detail0 : %ul",end_time-start_time);
-//            start_time=end_time;
+        //            end_time=clock();
+        //            NSLog(@"detail0 : %ul",end_time-start_time);
+        //            start_time=end_time;
         
         
         //if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
@@ -1594,7 +1605,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             NSNumber *isDirectory = nil;
             [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
             [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
-                        
+            
             
             rdir=[file rangeOfString:cpath];
             if (rdir.location!=NSNotFound) {
@@ -1670,9 +1681,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 }
             }
         }
-//        end_time=clock();
-//        NSLog(@"detail1 : %ul",end_time-start_time);
-//        start_time=end_time;
+        //        end_time=clock();
+        //        NSLog(@"detail1 : %ul",end_time-start_time);
+        //        start_time=end_time;
         
         
         if (local_nb_entries) {
@@ -1713,9 +1724,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         }
                     }
                 
-//                                end_time=clock();
-//                                NSLog(@"detail2 : %ul",end_time-start_time);
-//                                start_time=end_time;
+                //                                end_time=clock();
+                //                                NSLog(@"detail2 : %ul",end_time-start_time);
+                //                                start_time=end_time;
                 // Second check count for each section
                 for (fileURL in sortedDirContent) {
                     if (shouldStop) break;
@@ -1870,8 +1881,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         }
                     }
                 }
-//                                end_time=clock();
-//                                NSLog(@"detail3 : %ul",end_time-start_time);
+                //                                end_time=clock();
+                //                                NSLog(@"detail3 : %ul",end_time-start_time);
             }
         }
     }
@@ -1948,49 +1959,55 @@ static int shouldRestart=1;
         [self hideMiniPlayer];
     }
     
-    if (keys) {
-        keys=nil;
-    }
-    if (list) {
-        list=nil;
-    }
+    
+    /////////////
+    //shouldFillKeys=1;
+    
     if (childController) {
         childController = nil;
     }
     
-    //Reset rating if applicable (ensure updated value)
-    if (local_nb_entries) {
-        for (int i=0;i<local_nb_entries;i++) {
-            local_entries_data[i].rating=-1;
+    if (shouldFillKeys) {
+        if (keys) {
+            keys=nil;
+        }
+        if (list) {
+            list=nil;
+        }
+        
+        //Reset rating if applicable (ensure updated value)
+        if (local_nb_entries) {
+            for (int i=0;i<local_nb_entries;i++) {
+                local_entries_data[i].rating=-1;
+            }
+        }
+        if (search_local_nb_entries) {
+            for (int i=0;i<search_local_nb_entries;i++) {
+                search_local_entries_data[i].rating=-1;
+            }
+        }
+        
+        
+        [self updateWaitingTitle:@""];
+        [self updateWaitingDetail:@""];
+        [self hideWaitingCancel];
+        [self showWaiting];
+        [self flushMainLoop];
+        
+        if (mSearch) {
+            mSearch=0;
+            [self listLocalFiles];
+            mSearch=1;
         }
     }
-    if (search_local_nb_entries) {
-        for (int i=0;i<search_local_nb_entries;i++) {
-            search_local_entries_data[i].rating=-1;
-        }
-    }
-    /////////////
-    shouldFillKeys=1;
     
-    [self updateWaitingTitle:@""];
-    [self updateWaitingDetail:@""];
-    [self hideWaitingCancel];
-    [self showWaiting];
-    [self flushMainLoop];
-    
-    if (mSearch) {
-        mSearch=0;
-        [self listLocalFiles];
-        mSearch=1;
-    }
-    
-//    [self fillKeys];
-//    [tableView reloadData];
-//    [self hideWaiting];
+    //    [self fillKeys];
+    //    [tableView reloadData];
+    //    [self hideWaiting];
     
     [super viewWillAppear:animated];
     
-//    [self hideWaiting];
+    //    [self hideWaiting];
     
     //[tableView reloadData];
     //[self.view setNeedsLayout];
@@ -2001,16 +2018,10 @@ static int shouldRestart=1;
     
 }
 
--(void) refreshViewAfterDownload {
-    
-    //do not force refresh when download complete, can block UI
-    return;
-    
+-(void) refreshViewReloadFiles {
     //TODO: review how to manage -> generic virtual class ?
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        
-        
         shouldFillKeys=1;
         [self updateWaitingTitle:@""];
         [self updateWaitingDetail:@""];
@@ -2029,11 +2040,19 @@ static int shouldRestart=1;
             shouldFillKeys=1;
             [self fillKeys];   //2nd filter for drawing
         }
+        [self.refreshControl endRefreshing];
         [tableView reloadData];
         
         [self hideWaiting];
+        
+        
     }
-    //}
+}
+
+-(void) refreshViewAfterDownload {
+    
+    //do not force refresh when download complete, can block UI
+    //[self refreshViewReloadFiles];
 }
 
 -(void)modizerIsLaunched {
@@ -2070,9 +2089,11 @@ static int shouldRestart=1;
      [tableView reloadData];*/
     forceReloadCells=false;
     
-    [self fillKeys];
-    [tableView reloadData];
-    [self hideWaiting];
+    if (shouldFillKeys) {
+        [self fillKeys];
+        [tableView reloadData];
+        [self hideWaiting];
+    }
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
@@ -2990,6 +3011,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
             
+            if (mShowSubdir==2) {  //if in sort by fullpath mode, indicate path in bottom label
+                NSString *strtmp=cur_local_entries[section][indexPath.row].fullpath;
+                NSRange rdir=[strtmp rangeOfString:currentPath];
+                if (rdir.location!=NSNotFound) {
+                    strtmp=[strtmp substringFromIndex:(rdir.location+rdir.length+1)];
+                }
+                bottomStr=[NSString stringWithFormat:@"%@|%@",bottomStr,[strtmp stringByDeletingLastPathComponent]];
+            }
+            
             /*if (!cur_local_entries[section][indexPath.row].playcount)
              bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played0time];
              else if (cur_local_entries[section][indexPath.row].playcount==1)
@@ -3740,6 +3770,17 @@ As a consequence, some entries might disappear from existing playlist.\n\
                                                   toViewController:(UIViewController *)toVC
 {
     return [[TTFadeAnimator alloc] init];
+}
+
+#pragma mark - UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    static int flag=0;
+    if (scrollView.contentOffset.y>=0) flag=0;
+    if ((scrollView.contentOffset.y<-80.0)&&(!refreshControl.refreshing)&&(flag==0)) {
+        [refreshControl beginRefreshing];
+        flag=1;
+        [refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+    }
 }
 
 @end

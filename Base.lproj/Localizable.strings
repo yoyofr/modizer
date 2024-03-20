@@ -40,15 +40,14 @@
 "GetAllEntries_MainKey"="Get all missing entries";
 "GetAllEntries_SubKey"="Limited to 256 first missing entries.";
 
-"DisplayDir_MainKey"="List/Directory";
-"DisplayDir_SubKey"="All:";
-
-"DisplayAll_MainKey"="List all order by name";
+"DisplayAll_MainKey"="List all ordered by name";
 "DisplayAll_SubKey"="Current dir:";
 
-"DisplayAllPath_MainKey"="List all order by path";
-"DisplayAllPath_SubKey"="All:";
+"DisplayDir_MainKey"="List/Directory";
+"DisplayDir_SubKey"="All ordered by path:";
 
+"DisplayAllPath_MainKey"="List all ordered by path";
+"DisplayAllPath_SubKey"="All ordered by name:";
 
 "Formats/Artists/Files"="Formats/Artists/Files";
 "Artists/Formats/Files"="Artists/Formats/Files";

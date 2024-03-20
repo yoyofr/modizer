@@ -210,7 +210,7 @@ extern "C" {
     //
 	//Modplug stuff
 	
-	int *genRow,*genPattern,*genPrevPattern,*genNextPattern,*playRow,*playPattern,*prevPattern,*nextPattern;//,*playOffset,*genOffset;
+	int *genRow,*genPattern,*genPrevPattern,*genNextPattern,*playRow,*playPattern,*prevPattern,*nextPattern;
     unsigned char *genVolData,*playVolData;
 	char *mp_data;
 	int numPatterns,numSamples,numInstr;
@@ -458,5 +458,6 @@ extern "C" {
 -(void) setm_voicesStatus:(bool)active index:(unsigned int)channel;
 -(void) vgmStream_ChangeToSub:(int) subsong;
 
+-(int) getLatencyInBuffer:(double)latency;
 
 @end
