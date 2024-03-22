@@ -1,8 +1,8 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
- * Copyright 2009-2023 VICE Project
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2009-2024 VICE Project
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000 Simon White
  *
@@ -76,6 +76,9 @@ void Tod::write(uint_least8_t reg, uint8_t data)
         break;
     case HOURS:  // Time Of Day clock hour
         data &= 0x9f; // force bits 6-5 = 0
+        // Flip AM/PM on hour 12 on the rising edge of the comparator
+        if (((data & 0x1f) == 0x12) && !(crb & 0x80))
+            data ^= 0x80;
         break;
     }
 
@@ -110,9 +113,10 @@ void Tod::write(uint_least8_t reg, uint8_t data)
 
         if (clock[reg] != data)
         {
+            // see https://sourceforge.net/p/vice-emu/bugs/1988/
             // Flip AM/PM on hour 12 on the rising edge of the comparator
-            if ((reg == HOURS) && ((data & 0x1f) == 0x12))
-                data ^= 0x80;
+            //if ((reg == HOURS) && ((data & 0x1f) == 0x12))
+            //    data ^= 0x80;
 
             changed = true;
             clock[reg] = data;

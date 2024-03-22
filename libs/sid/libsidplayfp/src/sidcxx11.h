@@ -44,6 +44,7 @@
 #  define nullptr    0
 #  define override
 #  define final
+#  define constexpr const
 #  define unique_ptr auto_ptr
 #  define DEFAULT {}
 #  define DELETE {}

@@ -38,7 +38,7 @@ class bufferPos
 public:
     bufferPos(int i) : pos(i) {}
     void operator()(sidemu *s) { s->bufferpos(pos); }
-    
+
 private:
     int pos;
 };
@@ -55,7 +55,7 @@ public:
             dest[j] = src[j];
         }
     }
-    
+
 private:
     int pos;
     int samples;
@@ -74,12 +74,12 @@ void Mixer::resetBufs()
 void Mixer::doMix()
 {
     short *buf = m_sampleBuffer + m_sampleIndex;
-    
+
     // extract buffer info now that the SID is updated.
     // clock() may update bufferpos.
     // NB: if more than one chip exists, their bufferpos is identical to first chip's.
     const int sampleCount = m_chips.front()->bufferpos();
-    
+
     int i = 0;
     while (i < sampleCount)
     {
@@ -93,7 +93,7 @@ void Mixer::doMix()
         {
             break;
         }
-        
+
         // This is a crude boxcar low-pass filter to
         // reduce aliasing during fast forward.
         for (size_t k = 0; k < m_buffers.size(); k++)
@@ -104,13 +104,13 @@ void Mixer::doMix()
             {
                 sample += buffer[j];
             }
-            
+
             m_iSamples[k] = sample / m_fastForwardFactor;
         }
-        
+
         // increment i to mark we ate some samples, finish the boxcar thing.
         i += m_fastForwardFactor;
-        
+
         const unsigned int channels = m_stereo ? 2 : 1;
         for (unsigned int ch = 0; ch < channels; ch++)
         {
@@ -120,7 +120,7 @@ void Mixer::doMix()
             m_sampleIndex++;
         }
     }
-    
+
     // move the unhandled data to start of buffer, if any.
     const int samplesLeft = sampleCount - i;
     std::for_each(m_buffers.begin(), m_buffers.end(), bufferMove(i, samplesLeft));
@@ -130,17 +130,17 @@ void Mixer::doMix()
 void Mixer::begin(short *buffer, uint_least32_t count)
 {
     // sanity checks
-    
+
     // don't allow odd counts for stereo playback
     if (m_stereo && (count & 1))
         throw badBufferSize();
-    
+
     // TODO short buffers make the emulator crash, should investigate why
     //      in the meantime set a reasonable lower bound of 5ms
     const uint_least32_t lowerBound = m_sampleRate / (m_stereo ? 100 : 200);
     if (count && (count < lowerBound))
         throw badBufferSize();
-    
+
     m_sampleIndex  = 0;
     m_sampleCount  = count;
     m_sampleBuffer = buffer;
@@ -150,19 +150,19 @@ void Mixer::updateParams()
 {
     switch (m_buffers.size())
     {
-        case 1:
-            m_mix[0] = m_stereo ? &Mixer::stereo_OneChip : &Mixer::mono<1>;
-            if (m_stereo) m_mix[1] = &Mixer::stereo_OneChip;
-            break;
-        case 2:
-            m_mix[0] = m_stereo ? &Mixer::stereo_ch1_TwoChips : &Mixer::mono<2>;
-            if (m_stereo) m_mix[1] = &Mixer::stereo_ch2_TwoChips;
-            break;
-        case 3:
-            m_mix[0] = m_stereo ? &Mixer::stereo_ch1_ThreeChips : &Mixer::mono<3>;
-            if (m_stereo) m_mix[1] = &Mixer::stereo_ch2_ThreeChips;
-            break;
-    }
+    case 1:
+        m_mix[0] = m_stereo ? &Mixer::stereo_OneChip : &Mixer::mono<1>;
+        if (m_stereo) m_mix[1] = &Mixer::stereo_OneChip;
+        break;
+    case 2:
+        m_mix[0] = m_stereo ? &Mixer::stereo_ch1_TwoChips : &Mixer::mono<2>;
+        if (m_stereo) m_mix[1] = &Mixer::stereo_ch2_TwoChips;
+        break;
+    case 3:
+        m_mix[0] = m_stereo ? &Mixer::stereo_ch1_ThreeChips : &Mixer::mono<3>;
+        if (m_stereo) m_mix[1] = &Mixer::stereo_ch2_ThreeChips;
+        break;
+     }
 }
 
 void Mixer::clearSids()
@@ -177,9 +177,9 @@ void Mixer::addSid(sidemu *chip)
     {
         m_chips.push_back(chip);
         m_buffers.push_back(chip->buffer());
-        
+
         m_iSamples.resize(m_buffers.size());
-        
+
         if (m_mix.size() > 0)
             updateParams();
     }
@@ -190,9 +190,9 @@ void Mixer::setStereo(bool stereo)
     if (m_stereo != stereo)
     {
         m_stereo = stereo;
-        
+
         m_mix.resize(m_stereo ? 2 : 1);
-        
+
         updateParams();
     }
 }
@@ -206,7 +206,7 @@ bool Mixer::setFastForward(int ff)
 {
     if (ff < 1 || ff > 32)
         return false;
-    
+
     m_fastForwardFactor = ff;
     return true;
 }
@@ -216,7 +216,7 @@ void Mixer::setVolume(int_least32_t left, int_least32_t right)
     m_volume.clear();
     m_volume.push_back(left);
     m_volume.push_back(right);
-    
+
     m_scale.clear();
     m_scale.push_back(left  == VOLUME_MAX ? &Mixer::noScale : &Mixer::scale);
     m_scale.push_back(right == VOLUME_MAX ? &Mixer::noScale : &Mixer::scale);

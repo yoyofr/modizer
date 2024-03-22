@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -52,6 +52,14 @@ public:
         MOS6581,       ///< Old SID (MOS 6581)
         MOS8580        ///< New SID (CSG 8580/MOS 6582)
     } sid_model_t;
+
+    /// SID combined waveforms strength
+    typedef enum
+    {
+        AVERAGE,
+        WEAK,
+        STRONG
+    } sid_cw_t;
 
     /// CIA chip model
     typedef enum

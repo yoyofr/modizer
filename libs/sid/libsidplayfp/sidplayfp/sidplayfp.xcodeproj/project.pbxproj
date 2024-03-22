@@ -201,7 +201,6 @@
 		33A961E7140E0E9C007F22F5 /* libsidplayfp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsidplayfp.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		33A961EA140E0E9C007F22F5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		59BE8ABC2600063B00414A42 /* sidplayfp-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "sidplayfp-Prefix.pch"; sourceTree = "<group>"; };
-		59BE8AC826000D8000414A42 /* psiddrv.a65 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = psiddrv.a65; sourceTree = "<group>"; };
 		59BE8AC926000D8000414A42 /* sidmemory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sidmemory.h; sourceTree = "<group>"; };
 		59BE8ACA26000D8000414A42 /* psiddrv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = psiddrv.cpp; sourceTree = "<group>"; };
 		59BE8ACB26000D8000414A42 /* reloc65.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reloc65.cpp; sourceTree = "<group>"; };
@@ -453,7 +452,6 @@
 				59BE8B0726000D8000414A42 /* player.cpp */,
 				59BE8BDB26000D8000414A42 /* player.h */,
 				59BE8B0826000D8000414A42 /* poweron.bin */,
-				59BE8AC826000D8000414A42 /* psiddrv.a65 */,
 				59BE8C1126000D8000414A42 /* psiddrv.bin */,
 				59BE8ACA26000D8000414A42 /* psiddrv.cpp */,
 				59BE8C1226000D8000414A42 /* psiddrv.h */,

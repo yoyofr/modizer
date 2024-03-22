@@ -172,6 +172,7 @@ private:
 
     int_least32_t stereo_ch1_ThreeChips() const { return (C1*m_iSamples[0] + C2*m_iSamples[1]) / SCALE_FACTOR; }
     int_least32_t stereo_ch2_ThreeChips() const { return (C2*m_iSamples[1] + C1*m_iSamples[2]) / SCALE_FACTOR; }
+
 public:
     /**
      * Create a new mixer.
