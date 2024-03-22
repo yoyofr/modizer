@@ -218,6 +218,7 @@ enum MDZ_SETTINGS {
         VGMPLAY_PreferJTAG,
         VGMPLAY_YMF262Emulator,
         VGMPLAY_YM2612Emulator,
+        VGMPLAY_QSoundEmulator,
         VGMPLAY_NUKEDOPN2_Option,
     
         MDZ_SETTINGS_FAMILY_VGMSTREAM,

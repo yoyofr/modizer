@@ -684,6 +684,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
     
     
@@ -2194,7 +2195,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(VGMPLAY_YM2612Emulator)
     settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;
-    settings[VGMPLAY_YM2612Emulator].label=(char*)"YM2612 Type";
+    settings[VGMPLAY_YM2612Emulator].label=(char*)"YM2612 emu";
     settings[VGMPLAY_YM2612Emulator].description=NULL;
     settings[VGMPLAY_YM2612Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YM2612Emulator].sub_family=0;
@@ -2205,6 +2206,19 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
+    
+    SETTINGS_ID_DEF(VGMPLAY_QSoundEmulator)
+    settings[VGMPLAY_QSoundEmulator].type=MDZ_SWITCH;
+    settings[VGMPLAY_QSoundEmulator].label=(char*)"QSound emu";
+    settings[VGMPLAY_QSoundEmulator].description=NULL;
+    settings[VGMPLAY_QSoundEmulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_QSoundEmulator].sub_family=0;
+    settings[VGMPLAY_QSoundEmulator].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value_nb=2;
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels[0]=(char*)"CTR";
+    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
     
     SETTINGS_ID_DEF(VGMPLAY_NUKEDOPN2_Option)
     settings[VGMPLAY_NUKEDOPN2_Option].type=MDZ_SWITCH;
@@ -2223,7 +2237,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(VGMPLAY_YMF262Emulator)
     settings[VGMPLAY_YMF262Emulator].type=MDZ_SWITCH;
-    settings[VGMPLAY_YMF262Emulator].label=(char*)"YMF262 Type";
+    settings[VGMPLAY_YMF262Emulator].label=(char*)"YMF262 emu";
     settings[VGMPLAY_YMF262Emulator].description=NULL;
     settings[VGMPLAY_YMF262Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YMF262Emulator].sub_family=0;

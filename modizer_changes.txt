@@ -33,8 +33,6 @@ missing seek support:
   - UADE
 
 => midi viewer: adapt color or bar size / volume of the played note? 
-=> add launch popup with last changes (ex: regexp for Searches)
-=> check why waiting pop-up not always visible (for ex when seeking or loading a large compressed file) 
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 => HC /PSF2 fadeout for oscillo

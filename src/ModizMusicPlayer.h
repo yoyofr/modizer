@@ -202,11 +202,6 @@ extern "C" {
 	Music_Emu* gme_emu;
 	//
     //VGMPLAY stuff
-    unsigned int optVGMPLAY_maxloop;
-    unsigned char optVGMPLAY_ym2612emulator;
-    unsigned char optVGMPLAY_NukedOPNoption;
-    unsigned char optVGMPLAY_ymf262emulator;
-    bool optVGMPLAY_preferJapTag;
     //
 	//Modplug stuff
 	
@@ -235,8 +230,6 @@ extern "C" {
 @property Music_Emu* gme_emu;
 //SID
 //VGMPLAY
-@property unsigned int optVGMPLAY_maxloop;
-@property bool optVGMPLAY_preferJapTag;
 //Modplug stuff
 @property openmpt_module_ext *ompt_mod;
 @property ModPlug_Settings mp_settings;

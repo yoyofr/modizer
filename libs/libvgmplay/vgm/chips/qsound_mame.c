@@ -31,6 +31,11 @@
 
 ***************************************************************************/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //#include "emu.h"
 #include "mamedef.h"
 #ifdef _DEBUG
@@ -370,6 +375,23 @@ void qsoundm_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	if (! chip->sample_rom_length)
 		return;
 
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=16+3;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
 	for (i=0; i<QSOUND_CHANNELS; i++, pC++)
 	{
 		if (pC->enabled && ! pC->Muted)
@@ -398,6 +420,21 @@ void qsoundm_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 								pC->address = pC->end - pC->loop;
 							
 							pC->address &= 0xffff;
+                            
+                            //TODO:  MODIZER changes start / YOYOFR
+                            if (m_voice_ofs>=0) {
+                                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                                
+                                if (ofs_end>ofs_start)
+                                    for (;;) {
+                                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                        if (ofs_start>=ofs_end) break;
+                                    }
+                                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                            }
+                            //TODO:  MODIZER changes end / YOYOFR
 						}
 						else
 						{
@@ -405,6 +442,22 @@ void qsoundm_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 							//pC->enabled = 0;
 							pC->address --;	// ensure that old ripped VGMs still work
 							pC->step_ptr += 0x1000;
+                            
+                            //TODO:  MODIZER changes start / YOYOFR
+                            if (m_voice_ofs>=0) {
+                                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr*(j+1));
+                                
+                                if (ofs_end>ofs_start)
+                                    for (;;) {
+                                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                        if (ofs_start>=ofs_end) break;
+                                    }
+                                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                            }
+                            //TODO:  MODIZER changes end / YOYOFR
+                            
 							break;
 						}
 					}
@@ -414,6 +467,22 @@ void qsoundm_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 				sample = chip->sample_rom[offset];
 				*pOutL++ += ((sample * pC->lvol * pC->vol) >> 14);
 				*pOutR++ += ((sample * pC->rvol * pC->vol) >> 14);
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                    
+                    if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((sample * (pC->lvol+pC->rvol) * pC->vol) >> 21) );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 		}
 	}

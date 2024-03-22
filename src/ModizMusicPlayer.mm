@@ -663,7 +663,7 @@ const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x0E, 0x09+5, 0x09+5, 0x09, 0x17, 0x2F, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
-    0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
+    0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10+3,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
 };
@@ -672,7 +672,7 @@ const UINT8 vgmREALCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x0E, 0x09+5, 0x06+5, 0x09, 0x12+5, 0x2A, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
-    0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
+    0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10+3,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
 };
@@ -2154,7 +2154,6 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize gme_emu;
 //SID
 //VGMPLAY stuff
-@synthesize optVGMPLAY_maxloop,optVGMPLAY_preferJapTag;
 //Modplug stuff
 @synthesize mp_settings;
 @synthesize ompt_mod;
@@ -2558,15 +2557,6 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //ASAP
         asap = ASAP_New();
-        //
-        
-        //VGMPLAY
-        optVGMPLAY_maxloop = 2;
-        optVGMPLAY_ym2612emulator=0;
-        optVGMPLAY_ymf262emulator=0;
-        optVGMPLAY_NukedOPNoption=0;
-        optVGMPLAY_preferJapTag=false;
-        
         //
         
         //HC
@@ -10046,16 +10036,19 @@ int vgmGetFileLength()
     NSString *vgm_base_path = [[NSBundle mainBundle] resourcePath];
     AppPaths[0]=strdup([[NSString stringWithFormat:@"%@/",vgm_base_path] UTF8String]);
     // load configuration file here
-    ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
-    ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
+    ChipOpts[0].YM2612.EmuCore=settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value;
+    ChipOpts[1].YM2612.EmuCore=settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value;
     
-    ChipOpts[0].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
-    ChipOpts[1].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
+    ChipOpts[0].YMF262.EmuCore=settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value;
+    ChipOpts[1].YMF262.EmuCore=settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value;
     
-    ChipOpts[0].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
-    ChipOpts[1].YM2612.SpecialFlags|=(optVGMPLAY_NukedOPNoption<<3);
+    ChipOpts[0].YM2612.SpecialFlags|=(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value<<3);
+    ChipOpts[1].YM2612.SpecialFlags|=(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value<<3);
     
-    VGMMaxLoop=optVGMPLAY_maxloop;
+    ChipOpts[0].QSound.EmuCore=settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value;
+    ChipOpts[1].QSound.EmuCore=settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value;
+    
+    VGMMaxLoop=settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
     if (mLoopMode==1) VGMMaxLoop=-1;
     
     VGMPlay_Init2();
@@ -10185,6 +10178,8 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"GA20")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"QSound")==0) {
+                m_voicesDataAvail=1;
             }
         }
     }
@@ -10193,19 +10188,19 @@ int vgmGetFileLength()
     else m_genNumVoicesChannels=0;
     
     sprintf(mod_message+strlen(mod_message),"\nAuthor......: %s\nGame........: %s\nSystem......: %s\nTitle.......: %s\nRelease Date: %s\nCreator.....: %s\nNotes.......: %s\n",
-            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
-            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
-            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
-            [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
+            [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
             [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
             [[self wcharToNS:VGMTag.strCreator] UTF8String],
             [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
-    artist=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
-    album=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
+    artist=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
+    album=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)];
     if ([album length]==0) album=[filePath lastPathComponent];
     
-    mod_title=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
+    mod_title=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)];
     if (mod_title && ([mod_title length]==0)) mod_title=nil;
     
     //NSLog(@"loop: %d\n",VGMMaxLoopM);
@@ -10219,7 +10214,7 @@ int vgmGetFileLength()
     mod_subsongs=1;
     
     sprintf(mod_name,"");
-    if (GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %s",[[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String]);
+    if (GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %s",[[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String]);
     if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
     [self mmp_updateDBStatsAtLoad];
@@ -13058,21 +13053,6 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 //VGMPLAY
 ///////////////////////////
--(void) optVGMPLAY_MaxLoop:(unsigned int)val {
-    optVGMPLAY_maxloop=val;
-}
--(void) optVGMPLAY_NUKEDOPNoption:(unsigned char)val{
-    optVGMPLAY_NukedOPNoption=val;
-}
--(void) optVGMPLAY_YM2612emulator:(unsigned char)val {
-    optVGMPLAY_ym2612emulator=val;
-}
--(void) optVGMPLAY_YMF262emulator:(unsigned char)val {
-    optVGMPLAY_ymf262emulator=val;
-}
--(void) optVGMPLAY_PreferedJTag:(bool)val {
-    optVGMPLAY_preferJapTag=val;
-}
 
 ///////////////////////////
 //VGMSTREAM
