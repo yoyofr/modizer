@@ -45,11 +45,13 @@
 }
 -(void) showWaiting{
     waitingView.hidden=FALSE;
-    [self.view bringSubviewToFront:waitingView];
+    waitingView.layer.zPosition=MAXFLOAT;
     [waitingView setNeedsLayout];
     [waitingView layoutIfNeeded];
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    [self.view bringSubviewToFront:waitingView];
+    /*[self.view setNeedsLayout];
+    [self.view layoutIfNeeded];*/
+    
     /*[NSThread sleepForTimeInterval:0.1f];
     [self flushMainLoop];
     [NSThread sleepForTimeInterval:0.1f];

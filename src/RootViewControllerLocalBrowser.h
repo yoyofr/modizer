@@ -22,13 +22,13 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate,UIScrollViewDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate,UIScrollViewDelegate,NSFileManagerDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
     
-    UIRefreshControl *refreshControl;
+    //UIRefreshControl *refreshControl;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -87,7 +87,7 @@
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) UIViewController *childController;
-@property (nonatomic, retain) UIRefreshControl *refreshControl;
+//@property (nonatomic, retain) UIRefreshControl *refreshControl;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 

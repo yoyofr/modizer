@@ -53,7 +53,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 @synthesize mFileMngr;
 @synthesize detailViewController,tableView;
-@synthesize refreshControl;
 @synthesize sBar;
 @synthesize list;
 @synthesize keys;
@@ -424,10 +423,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             //NSLog(@"rename %@ to %@",curPath,tgtPath);
             
             NSError *err;
+            mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                 NSLog(@"Issue %d while renaming file %@",err.code,curPath);
-                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                [removeAlert show];
+                //UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                //[removeAlert show];
             } else {
                 cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
                 
@@ -677,14 +677,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     
     // Initialize the refresh control.
-    self.refreshControl = [[UIRefreshControl alloc] init];
-    self.refreshControl.backgroundColor = [UIColor purpleColor];
-    self.refreshControl.tintColor = [UIColor whiteColor];
-    [self.refreshControl addTarget:self
+    self.tableView.refreshControl = [[UIRefreshControl alloc] init];
+    self.tableView.refreshControl.backgroundColor = [UIColor purpleColor];
+    self.tableView.refreshControl.tintColor = [UIColor whiteColor];
+    [self.tableView.refreshControl addTarget:self
                             action:@selector(refreshViewReloadFiles)
                   forControlEvents:UIControlEventValueChanged];
     
-    tableView.refreshControl=refreshControl;
+    //tableView.refreshControl=refreshControl;
     
     
     end_time=clock();
@@ -881,8 +881,12 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     int local_entries_index,local_nb_entries_limit;
     int browseType;
     int shouldStop=0;
-    
+    static bool no_reentrant=false;
     NSRange r;
+        
+    if (no_reentrant) return;
+    no_reentrant=true;
+    
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     search_local=0;
     
@@ -925,6 +929,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 }
             }
         }
+        no_reentrant=false;
         return;
     }
     
@@ -1596,10 +1601,19 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             return [str1 caseInsensitiveCompare:str2];
         }];
         
+        int file_idx=0;
+        int file_cnt=[sortedDirContent count];
         for (fileURL in sortedDirContent) {
             //check if dir
             //rdir.location=NSNotFound;
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+            
+            /*file_idx++;
+            if ((file_idx&127)==0)
+            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                //Run UI Updates
+                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",file_idx,file_cnt]];
+            });*/
             
             //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
             NSNumber *isDirectory = nil;
@@ -1892,7 +1906,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         pthread_mutex_unlock(&db_mutex);
     }
     
-    
+    no_reentrant=false;
     return;
 }
 
@@ -1959,7 +1973,6 @@ static int shouldRestart=1;
         [self hideMiniPlayer];
     }
     
-    
     /////////////
     //shouldFillKeys=1;
     
@@ -1988,17 +2001,17 @@ static int shouldRestart=1;
         }
         
         
-        [self updateWaitingTitle:@""];
-        [self updateWaitingDetail:@""];
-        [self hideWaitingCancel];
-        [self showWaiting];
-        [self flushMainLoop];
-        
-        if (mSearch) {
-            mSearch=0;
-            [self listLocalFiles];
-            mSearch=1;
-        }
+////        [self updateWaitingTitle:@""];
+////        [self updateWaitingDetail:@""];
+////        [self hideWaitingCancel];
+////        [self showWaiting];
+////        [self flushMainLoop];
+//        
+//        if (mSearch) {
+//            mSearch=0;
+//            [self listLocalFiles];
+//            mSearch=1;
+//        }
     }
     
     //    [self fillKeys];
@@ -2019,33 +2032,67 @@ static int shouldRestart=1;
 }
 
 -(void) refreshViewReloadFiles {
-    //TODO: review how to manage -> generic virtual class ?
+    
+    //if (self.tableView.refreshControl.refreshing) return;
+    
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        shouldFillKeys=1;
+        
+        if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
+                
+        [self hideWaitingCancel];
         [self updateWaitingTitle:@""];
         [self updateWaitingDetail:@""];
-        [self hideWaitingCancel];
+                        
         [self showWaiting];
         [self flushMainLoop];
+        [NSThread sleepForTimeInterval:0.1f];
+        [self flushMainLoop];
         
-        int old_mSearch=mSearch;
-        NSString *old_mSearchText=mSearchText;
-        mSearch=0;
-        mSearchText=nil;
-        [self fillKeys];   //1st load eveything
-        mSearch=old_mSearch;
-        mSearchText=old_mSearchText;
-        if (mSearch) {
-            shouldFillKeys=1;
-            [self fillKeys];   //2nd filter for drawing
-        }
-        [self.refreshControl endRefreshing];
-        [tableView reloadData];
+        shouldFillKeys=1;
         
-        [self hideWaiting];
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            //Background Thread
+            int old_mSearch=mSearch;
+            NSString *old_mSearchText=mSearchText;
+            mSearch=0;
+            mSearchText=nil;
+            
+            [self fillKeys];   //1st load eveything
+            
+            mSearch=old_mSearch;
+            mSearchText=old_mSearchText;
+            if (mSearch) {
+                shouldFillKeys=1;
+                [self fillKeys];   //2nd filter for drawing
+            }
+            
+            
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                //Run UI Updates
+                [self.tableView.refreshControl endRefreshing];
+                [self hideWaiting];
+                [self.tableView reloadData];
+            });
+        });
         
-        
+//        int old_mSearch=mSearch;
+//        NSString *old_mSearchText=mSearchText;
+//        mSearch=0;
+//        mSearchText=nil;
+//        [self fillKeys];   //1st load eveything
+//        mSearch=old_mSearch;
+//        mSearchText=old_mSearchText;
+//        if (mSearch) {
+//            shouldFillKeys=1;
+//            [self fillKeys];   //2nd filter for drawing
+//        }
+                        
+//        [tableView reloadData];
+//        
+//        [self.refreshControl endRefreshing];
+//        
+//        [self hideWaiting];
     }
 }
 
@@ -2065,17 +2112,30 @@ static int shouldRestart=1;
         [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
         [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
         [self showWaiting];
-        [self flushMainLoop];
-        [self flushMainLoop];
         shouldRestart=0;
         
-        [detailViewController play_restart];
-        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
         
-        //self.view.alpha=1.0f;
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            //Background Thread
+            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                //Run UI Updates
+                [detailViewController play_restart];
+            });
+            
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                //Run UI Updates
+                [self hideWaiting];
+                self.view.userInteractionEnabled = YES;
+            });
+        });
         
-        [self hideWaiting];
-        self.view.userInteractionEnabled = YES;
+//        detailViewController.no_hud_mode=true;
+//        [detailViewController play_restart];
+//        [detailViewController play_restart];
+//        detailViewController.no_hud_mode=false;
+        
+//        [self hideWaiting];
+//        self.view.userInteractionEnabled = YES;
     }
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
@@ -2089,11 +2149,13 @@ static int shouldRestart=1;
      [tableView reloadData];*/
     forceReloadCells=false;
     
-    if (shouldFillKeys) {
+    if (shouldFillKeys) [self refreshViewReloadFiles];
+    
+    /*if (shouldFillKeys) {
         [self fillKeys];
         [tableView reloadData];
         [self hideWaiting];
-    }
+    }*/
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
@@ -2463,7 +2525,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             //NSLog(@"Pasting: %@ to %@",sourcePath,destPath);
             
-            
+            mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
                 NSLog(@"Issue %d while moving: %@",err.code,cutpaste_filesrcpath);
                 UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -2665,6 +2727,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     SESlideTableViewCell *cell;
     
+    
     if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
@@ -2675,8 +2738,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+            if (self.tableView.refreshControl.isRefreshing==false)
+                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         } else {
@@ -2770,8 +2834,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+            
+            if (self.tableView.refreshControl.isRefreshing==false)
+                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
             
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
@@ -2813,6 +2879,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
     bottomImageView.image=nil;
     
     cell.accessoryType = UITableViewCellAccessoryNone;
+    
+    //if refresh in prg, wait a bit...
+    if (self.tableView.refreshControl.isRefreshing) return cell;
     
     // Set up the cell...
     if (indexPath.section==1){
@@ -3198,6 +3267,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
+    if (tableView.refreshControl.isRefreshing) return;
+    
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
@@ -3327,7 +3398,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    if (tableView.refreshControl.isRefreshing) return;
+    
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    
+    
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
@@ -3379,6 +3455,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
+    if (tableView.refreshControl.isRefreshing) return;
+    
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;
@@ -3411,6 +3489,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     NSString *cellValue;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
+    if (tabView.refreshControl.isRefreshing) return;
+    
     int section=indexPath.section-2;
     
     
@@ -3422,11 +3502,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
             }
             if (!donothing) {
                 mShowSubdir=(mShowSubdir+1)%3;
-                shouldFillKeys=1;
                 
+                [self refreshViewReloadFiles];
+                
+                /*[self hideWaitingCancel];
                 [self updateWaitingTitle:@""];
                 [self updateWaitingDetail:@""];
-                [self hideWaitingCancel];
+                
                 [self showWaiting];
                 [self flushMainLoop];
                 
@@ -3444,7 +3526,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 }
                 [tabView reloadData];
                 
-                [self hideWaiting];
+                [self hideWaiting];*/
             }
         }else {
             if (icloud_available) {
@@ -3773,7 +3855,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
 }
 
 #pragma mark - UIScrollViewDelegate
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+/*- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     static int flag=0;
     if (scrollView.contentOffset.y>=0) flag=0;
     if ((scrollView.contentOffset.y<-80.0)&&(!refreshControl.refreshing)&&(flag==0)) {
@@ -3781,6 +3863,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
         flag=1;
         [refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
     }
+}*/
+
+- (BOOL)fileManager:(NSFileManager *)fileManager shouldMoveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath {
+    return YES;
+}
+
+- (BOOL)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error movingItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath {
+    return YES;
 }
 
 @end

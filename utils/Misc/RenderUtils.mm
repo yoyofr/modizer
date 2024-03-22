@@ -122,8 +122,9 @@ static signed char *prev_snd_dataStereo;
 static int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 
-static CFont *mOscilloFont=NULL;
+static CFont *mOscilloFont[3]={NULL,NULL,NULL};
 static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
+static int mVoicesName_FontSize;
 
 #define FX_OSCILLO_MAXROWS 16
 #include "ModizerVoicesData.h"
@@ -173,30 +174,41 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         }
         memcpy(prev_snd_data,cur_snd_data,OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
         
-        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++)
+        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
             snd_data_ofs[i]=max_ofs/2;
+            mVoicesName[i]=NULL;
+        }
+        mVoicesName_FontSize=-1;
         
         first_call=0;
     }
     
-    if (!mOscilloFont) {
+    if (!mOscilloFont[0]) {
         NSString *fontPath;
-        if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
-        mOscilloFont = new CFont([fontPath cStringUsingEncoding:1]);
+        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        mOscilloFont[0] = new CFont([fontPath cStringUsingEncoding:1]);
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+        mOscilloFont[1] = new CFont([fontPath cStringUsingEncoding:1]);
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
+        mOscilloFont[2] = new CFont([fontPath cStringUsingEncoding:1]);
     }
     
-    if (mOscilloFont && voices_label)
+    if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
     for (int i=0;i<num_voices;i++) {
         if (mVoicesName[i]) {
-            if (strcmp(mVoicesName[i]->mText,voices_label+i*32)) {
+            if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
                 //not the same, reset string
                 delete mVoicesName[i];
                 mVoicesName[i]=NULL;
             }
         }
-        if (!mVoicesName[i]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont,mScaleFactor);
+        if (!mVoicesName[i]) {
+            mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
+        }
     }
+    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
@@ -352,7 +364,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             //draw label if specified
             if (voices_label&&mVoicesName[cur_voices]) {
                 glPushMatrix();
-                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont->maxCharHeight/mScaleFactor), 0.0f);
+                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]->maxCharHeight/mScaleFactor), 0.0f);
                 mVoicesName[cur_voices]->Render(255);
                 glPopMatrix();
             }
@@ -386,7 +398,15 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableClientState(GL_COLOR_ARRAY);
     
 //    glLineWidth(2.0f*mScaleFactor);
-    glLineWidth(1.0f*mScaleFactor);
+    switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
+        case 0:glLineWidth(0.5f*mScaleFactor);
+            break;
+        case 1:glLineWidth(1.0f*mScaleFactor);
+            break;
+        case 2:glLineWidth(2.0f*mScaleFactor);
+            break;
+    }
+    
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     
@@ -480,13 +500,6 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
         first_call=0;
     }
     
-    if (!mOscilloFont) {
-        NSString *fontPath;
-        if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking12" ofType: @"fnt"];
-        mOscilloFont = new CFont([fontPath cStringUsingEncoding:1]);
-    }
-            
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
     int xofs=(ww-columns_width*columns_nb)/2;
@@ -648,7 +661,14 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-    glLineWidth(2.0f*mScaleFactor);
+    switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
+        case 0:glLineWidth(0.5f*mScaleFactor);
+            break;
+        case 1:glLineWidth(1.0f*mScaleFactor);
+            break;
+        case 2:glLineWidth(2.0f*mScaleFactor);
+            break;
+    }
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     

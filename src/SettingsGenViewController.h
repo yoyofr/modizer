@@ -237,7 +237,9 @@ enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
         MDZ_SETTINGS_FAMILY_OSCILLO,
         OSCILLO_ShowLabel,
+        OSCILLO_LabelFontSize,
         OSCILLO_ShowGrid,
+        OSCILLO_LINE_Width,
         OSCILLO_MONO_COLOR,
         OSCILLO_MULTI_COLOR01,
         OSCILLO_MULTI_COLOR02,
@@ -269,10 +271,6 @@ enum MDZ_SETTINGS {
     GLOB_FX4,
     GLOB_FX5,
     GLOB_FXRandom,
-    
-
-    
-    
     
     MAX_SETTINGS
 };
@@ -318,6 +316,7 @@ typedef struct {
 typedef struct {
 //common fields
     MDZ_SETTINGS_TYPE type;
+    const char *setting_id;
     char *label;
     char *description;
     unsigned short int family;
@@ -364,7 +363,7 @@ typedef struct {
 
 @public
     IBOutlet DetailViewControllerIphone *detailViewController;
-    char current_family;
+    int current_family;
 }
 
 @property (nonatomic,retain) IBOutlet TPKeyboardAvoidingTableView *tableView;

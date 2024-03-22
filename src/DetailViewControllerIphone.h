@@ -116,7 +116,7 @@ enum {
 	
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
-
+    
     UIView *labelTopView;
     CBAutoScrollLabel *labelModuleName,*labelSub,*labelArtist;
 

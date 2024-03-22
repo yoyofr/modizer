@@ -11,7 +11,6 @@ Todo/Requested:
 
 - Todo: keep download queue when exit program and restore at next launch
 - Todo: add PDX/MDX to keyboard visualizer
-- Todo: local browser : capacity to 'list all' sorted by fullpath
 - Todo: allmods/asma -> dynamic update ?
 
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
@@ -23,7 +22,6 @@ Todo/Requested:
 - TODO: implement libarchive & dcom fex (might impact DB stats / archive entries)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
-- TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
 
 - libs not generating oscilloscope output:
   - ASAP: waiting feedback from Piotr

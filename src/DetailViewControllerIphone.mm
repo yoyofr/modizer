@@ -1889,6 +1889,7 @@ int recording=0;
         [self showWaitingLoading];
         
         [self play_loadArchiveModule];
+        
         [self hideWaiting];
         [self refreshCurrentVC];
     } else {
@@ -6460,6 +6461,9 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x02) {
                     switch (viewTapHelpShow_SubStart) {
+                        case SUBMENU3_START://11: //Oscillo
+                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=0;
+                            break;
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
                             [self updateFont];
@@ -6468,6 +6472,9 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x12) {
                     switch (viewTapHelpShow_SubStart) {
+                        case SUBMENU3_START://11: //Oscillo
+                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=1;
+                            break;
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
                             [self updateFont];
@@ -6476,6 +6483,9 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x22) {
                     switch (viewTapHelpShow_SubStart) {
+                        case SUBMENU3_START://11: //Oscillo
+                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=2;
+                            break;
                         case SUBMENU4_START://14: //MOD Pattern
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
                             [self updateFont];
@@ -7228,6 +7238,11 @@ extern "C" int current_sample;
                     active_idx=1<<settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
                     if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
                     if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
+                    switch (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value) {
+                        case 0:active_idx|=1<<8;break;
+                        case 1:active_idx|=1<<9;break;
+                        case 2:active_idx|=1<<10;break;
+                    }
                     break;
                 case SUBMENU4_START: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
@@ -7278,6 +7293,22 @@ extern "C" int current_sample;
                     glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[10]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[4]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[5]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
+                    viewTapInfoStr[6]->Render(128+(fadelev/2));
                     glPopMatrix();
                 }
                     break;

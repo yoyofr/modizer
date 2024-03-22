@@ -3008,12 +3008,17 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
         return;
     }
     
-    while (buffer_ana_flag[buffer_ana_gen_ofs]) {
+    int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+    if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+    
+    while ((buffer_ana_flag[buffer_ana_gen_ofs])||(diff_ana_ofs>=SOUND_BUFFER_NB/2)) {
         [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
         if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
             mdx_stop();
             return;
         }
+        diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+        if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
     }
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     if (len<to_fill) {
@@ -3103,12 +3108,18 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         g_playing=0;
         return;
     }
-    while (buffer_ana_flag[buffer_ana_gen_ofs]) {
+    
+    int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+    if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+    
+    while ((buffer_ana_flag[buffer_ana_gen_ofs])||(diff_ana_ofs>=SOUND_BUFFER_NB/2)) {
         [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
         if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
             g_playing=0;
             return;
         }
+        diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+        if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
     }
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     if (lBytes<to_fill) {
@@ -3224,11 +3235,16 @@ void gsf_update(unsigned char* pSound,int lBytes) {
 //invoked by secondary UADE thread, in charge of receiving sound data
 int uade_audio_play(char *pSound,int lBytes,int song_end) {
     do {
-        while (buffer_ana_flag[buffer_ana_gen_ofs]) {
+        int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+        if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+        
+        while ((buffer_ana_flag[buffer_ana_gen_ofs])||(diff_ana_ofs>=SOUND_BUFFER_NB/2)) {
             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
                 return 0;
             }
+            diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+            if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
         }
         int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
         

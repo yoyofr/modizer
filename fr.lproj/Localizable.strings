@@ -50,7 +50,6 @@
 "DisplayAllPath_MainKey"="Lister tout trié par chemin";
 "DisplayAllPath_SubKey"="Tout trié par nom:";
 
-
 "Formats/Artists/Files"="Formats/Artistes/Fichiers";
 "Artists/Formats/Files"="Artistes/Formats/Fichiers";
 "Artists/Files"="Artistes/Fichiers";
@@ -312,3 +311,6 @@
 "Resume position on launch"="Reprise position de lecture au démarrage";
 "Default length"="Durée par défaut";
 "NSFPLAY Default length"="NSFPLAY durée par défaut";
+
+/*Launch popup*/
+"Cleaning DB & \nreseting settings"="Nettoyage de la DB & \nréinitialisation des réglages";
