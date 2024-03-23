@@ -64,7 +64,7 @@ extern char *getcwd(char *buf, size_t size);
 #endif /* HAVE_STRNCASECMP */
 
 #ifndef HAVE_MKSTEMP
-extern int mkstemp(char *template);
+extern int mkstemp(char *_template);
 #endif /* HAVE_MKSTEMP */
 
 #ifndef HAVE_SYS_STAT_H

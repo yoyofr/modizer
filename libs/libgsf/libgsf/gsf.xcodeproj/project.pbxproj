@@ -25,7 +25,6 @@
 		CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC912FEF0F4007064CB /* GBA.cpp */; settings = {COMPILER_FLAGS = "-O1"; }; };
 		CCB6EAF212FEF0F5007064CB /* GBA.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACA12FEF0F4007064CB /* GBA.h */; };
 		CCB6EAF312FEF0F5007064CB /* GBAinline.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACB12FEF0F4007064CB /* GBAinline.h */; };
-		CCB6EAF412FEF0F5007064CB /* getopt1.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EACC12FEF0F4007064CB /* getopt1.c */; };
 		CCB6EAF512FEF0F5007064CB /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EACD12FEF0F4007064CB /* Globals.cpp */; };
 		CCB6EAF612FEF0F5007064CB /* Globals.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACE12FEF0F4007064CB /* Globals.h */; };
 		CCB6EAF712FEF0F5007064CB /* interp.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACF12FEF0F4007064CB /* interp.h */; };
@@ -321,7 +320,6 @@
 				CCB6EAEA12FEF0F5007064CB /* resamplesubs.c in Sources */,
 				CCB6EAEF12FEF0F5007064CB /* bios.cpp in Sources */,
 				CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */,
-				CCB6EAF412FEF0F5007064CB /* getopt1.c in Sources */,
 				CCB6EAF512FEF0F5007064CB /* Globals.cpp in Sources */,
 				CCB6EAF812FEF0F5007064CB /* memgzio.c in Sources */,
 				CCB6EAFC12FEF0F5007064CB /* psftag.c in Sources */,

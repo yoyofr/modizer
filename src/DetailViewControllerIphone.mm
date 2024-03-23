@@ -1008,7 +1008,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     //VGMPLAY
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {                
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
     }
     
     /////////////////////
@@ -1043,12 +1043,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optGME_Fade:settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000];
         [mplayer optGME_Ratio:settings[GME_RATIO].detail.mdz_slider.slider_value
                     isEnabled:settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value];
-        [mplayer optGME_EQ:settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value bass:settings[GME_EQ_BASS].detail.mdz_slider.slider_value];
-        [mplayer optGME_FX:settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value
-                  surround:settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value
-                      echo:settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value
-                    stereo:settings[GME_FX_PANNING].detail.mdz_slider.slider_value];
-        [mplayer optGME_IgnoreSilence:settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value];
+        [mplayer optGME_Update];                
     }
     
     /////////////////////
@@ -2841,7 +2836,7 @@ int recording=0;
     }
     
     if (cover_img==nil) {
-        cover_img=[self fexGetArchiveCover:[self getFullFilePath:filePath]];
+        cover_img=[self getArchiveCover:[self getFullFilePath:filePath]];
     }
     
     if (cover_img) {
@@ -4039,7 +4034,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 -(void)loadSettings:(int)safe_mode{
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;    
+    NSNumber *valNb;
     
     [prefs synchronize];
     
@@ -4188,7 +4183,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                         }
                         ofs=0;
                     }
-                                                            
+                    
                     while (fdata[ofs]) {
                         str[ofs_str++]=fdata[ofs];
                         if (ofs_str>=1024) break;
@@ -4351,123 +4346,98 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     return machine;
 }
 
--(UIImage*) fexGetArchiveCover:(NSString *)filepath {
+-(UIImage*) getArchiveCover:(NSString *)filepath {
     UIImage *res_image=nil;
-    
-    fex_type_t type;
-    fex_t* fex;
     const char *path=[filepath UTF8String];
+    struct archive *a;
+    struct archive_entry *entry;
+    int r;
     
-    //NSLog(@"%s",path);
-    
-    /* Determine file's type */
-    if (fex_identify_file( &type, path )) {
-        //NSLog(@"fex cannot determine type of %s",path);
-    }
-    /* Only open files that fex can handle */
-    if ( type != NULL ) {
-        if (fex_open_type( &fex, path, type )) {
-            //NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
-        } else{
-            while ( !fex_done( fex ) ) {
-                NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                //NSLog(@"%@",strFilename);
-                bool found_img=false;
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
-                    //PNG detected
-                    found_img=true;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
-                    //JPG detected
-                    found_img=true;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
-                    //JPEG detected
-                    found_img=true;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
-                    //GIF detected
-                    found_img=true;
-                }
-                
-                if (found_img) {
-                    char *data_ptr;
-                    fex_data(fex,(const void**)&data_ptr);
-                    if (data_ptr) {
-                        long long size_data=fex_size(fex);
-                        //NSLog(@"read img data, size: %d",size_data);
-                        res_image=[UIImage imageWithData:[NSData dataWithBytes:data_ptr length:size_data]];
-                        break;
-                    }
-                }
-                
-                
-                if (fex_next( fex )) {
-                    NSLog(@"Error during fex scanning");
+    a = archive_read_new();
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    archive_read_support_format_all(a);
+    r = archive_read_open_filename(a, [filepath UTF8String], 10240); // Note 1
+    if (r == ARCHIVE_OK) {
+        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+            NSString *strFilename=[ModizFileHelper getCorrectFileName:[filepath UTF8String] archive:a entry:entry];
+            //NSLog(@"%@",strFilename);
+            bool found_img=false;
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
+                //PNG detected
+                found_img=true;
+            }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
+                //JPG detected
+                found_img=true;
+            }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
+                //JPEG detected
+                found_img=true;
+            }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
+                //GIF detected
+                found_img=true;
+            }
+            
+            if (found_img) {
+                char *data_ptr;
+                int data_size=archive_entry_size(entry);
+                data_ptr=(char*)malloc(data_size);
+                if (data_ptr) {
+                    r=archive_read_data(a,data_ptr,data_size);
+                    //NSLog(@"read img data, size: %d",size_data);
+                    if (r==ARCHIVE_OK) res_image=[UIImage imageWithData:[NSData dataWithBytes:data_ptr length:data_size]];
+                    free(data_ptr);
                     break;
                 }
             }
-            fex_close( fex );
         }
-        fex=NULL;
     }
-    
-    //res_image=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
+    r = archive_read_free(a);  // Note 3
     
     return res_image;
 }
 
--(int) fexScanArchiveForCover:(const char *)path {
-    fex_type_t type;
-    fex_t* fex;
+-(int) scanArchiveForCover:(const char *)path {
+    struct archive *a;
+    struct archive_entry *entry;
+    int r;
+    int ret=0;
     
-    //NSLog(@"%s",path);
-    
-    /* Determine file's type */
-    if (fex_identify_file( &type, path )) {
-        NSLog(@"fex cannot determine type of %s",path);
-    }
-    /* Only open files that fex can handle */
-    if ( type != NULL ) {
-        if (fex_open_type( &fex, path, type )) {
-            //NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
-        } else{
-            while ( !fex_done( fex ) ) {
-                NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                //NSLog(@"%@",strFilename);
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
-                    //PNG detected
-                    fex_close(fex);
-                    return 1;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
-                    //JPG detected
-                    fex_close(fex);
-                    return 2;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
-                    //JPEG detected
-                    fex_close(fex);
-                    return 3;
-                }
-                if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
-                    //GIF detected
-                    fex_close(fex);
-                    return 4;
-                }
-                
-                if (fex_next( fex )) {
-                    NSLog(@"Error during fex scanning");
-                    break;
-                }
+    a = archive_read_new();
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    archive_read_support_format_all(a);
+    r = archive_read_open_filename(a, path, 10240); // Note 1
+    if (r == ARCHIVE_OK) {
+        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+            NSString *strFilename=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
+            //NSLog(@"%@",strFilename);
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
+                //PNG detected
+                ret=1;
+                break;
             }
-            fex_close( fex );
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
+                //JPG detected
+                ret=2;
+                break;
+            }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
+                //JPEG detected
+                ret=3;
+                break;
+            }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
+                //GIF detected
+                ret=4;
+                break;
+            }
         }
-        fex = NULL;
-    } else {
-        //NSLog( @"Skipping unsupported archive: %s\n", path );
+        r = archive_read_free(a);  // Note 3
     }
-    return 0;
+    return ret;
 }
 
 
@@ -4510,7 +4480,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     else if ([fileMngr fileExistsAtPath:pathCoverImgJPEG]) mPlaylist[index].cover_flag=10;
     else if ([fileMngr fileExistsAtPath:pathCoverImgPNG]) mPlaylist[index].cover_flag=11;
     else if ([fileMngr fileExistsAtPath:pathCoverImgGIF]) mPlaylist[index].cover_flag=12;
-    else if ([self fexScanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=13;
+    else if ([self scanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=13;
     
     //[fileMngr release];
 }
@@ -7526,7 +7496,7 @@ extern "C" int current_sample;
         else if (mPlaylist[index].cover_flag==11) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
         else if (mPlaylist[index].cover_flag==12) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];if (mPlaylist[index].cover_flag==13) {
             //NSLog(@"embedded img in archive");
-            img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
+            img=[self getArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
         }
         //NSLog(@"got idx %d %d %@",index,mPlaylist[index].cover_flag,coverFilePath);
         if (coverFilePath) img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];

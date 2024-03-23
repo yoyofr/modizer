@@ -1,6 +1,7 @@
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
+
 // NES FDS sound chip emulator
 
-// $package
 #ifndef NES_FDS_APU_H
 #define NES_FDS_APU_H
 
@@ -12,7 +13,6 @@ public:
 	// setup
 	void set_tempo( double );
 	enum { osc_count = 1 };
-	void set_output( Blip_Buffer* buf );
 	void volume( double );
 	void treble_eq( blip_eq_t const& eq ) { synth.treble_eq( eq ); }
 	
@@ -29,11 +29,6 @@ public:
 	void write_( unsigned addr, int data );
 	BLARGG_DISABLE_NOTHROW
 	
-	void set_output( int index, Blip_Buffer* center,
-			Blip_Buffer* left_ignored = NULL, Blip_Buffer* right_ignored = NULL );
-	BLARGG_DEPRECATED_TEXT( enum { start_addr = 0x4040 }; )
-	BLARGG_DEPRECATED_TEXT( enum { end_addr = 0x4092 }; )
-	BLARGG_DEPRECATED_TEXT( enum { reg_count = end_addr - start_addr + 1 }; )
 	void osc_output( int, Blip_Buffer* );
 private:
 	enum { wave_size       = 0x40 };
@@ -66,7 +61,7 @@ private:
 	// synthesis
 	blip_time_t last_time;
 	Blip_Buffer* output_;
-	Blip_Synth_Fast synth;
+	Blip_Synth<blip_med_quality,1> synth;
 	
 	// allow access to registers by absolute address (i.e. 0x4080)
 	unsigned char& regs( unsigned addr ) { return regs_ [addr - io_addr]; }
@@ -79,13 +74,11 @@ inline void Nes_Fds_Apu::volume( double v )
 	synth.volume( 0.14 / master_vol_max / vol_max / wave_sample_max * v );
 }
 
-inline void Nes_Fds_Apu::set_output( Blip_Buffer* b )
+inline void Nes_Fds_Apu::osc_output( int i, Blip_Buffer* buf )
 {
-	output_ = b;
-}
-
-inline void Nes_Fds_Apu::set_output( int i, Blip_Buffer* buf, Blip_Buffer*, Blip_Buffer* )
-{
+#ifdef NDEBUG
+	(void) i;
+#endif
 	assert( (unsigned) i < osc_count );
 	output_ = buf;
 }
@@ -131,7 +124,7 @@ inline int Nes_Fds_Apu::read( blip_time_t time, unsigned addr )
 inline Nes_Fds_Apu::Nes_Fds_Apu()
 {
 	lfo_tempo = lfo_base_tempo;
-	set_output( NULL );
+	osc_output( 0, NULL );
 	volume( 1.0 );
 	reset();
 }

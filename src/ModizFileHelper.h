@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 #import "ModizerConstants.h"
+#include "archive.h"
+#include "archive_entry.h"
 
 @interface ModizFileHelper : NSObject {
 
@@ -20,10 +22,16 @@
 +(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file;
 +(int) isPlayableFile:(NSString*)file;
 +(int) isSingleFileType:(NSString*)_filePath;
++(int) scanarchive:(const char *)path;
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath;
++(BOOL) addSkipBackupAttributeToItemAtPath:(NSString*)path;
++(void) updateFilesDoNotBackupAttributes;
 
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath;
+
++(NSString*) getCorrectFileName:(const char*)archiveFilename archive:(struct archive *)a entry:(struct archive_entry *)entry;
 
 @end
 

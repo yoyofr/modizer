@@ -40,7 +40,7 @@
 #include <libgen.h>	// basename 
 #endif
 #ifndef HAVE_BASENAME
-#include "libc68.h"
+//#include "libc68.h"
 #endif
 
 /* libsc68 emulators includes */

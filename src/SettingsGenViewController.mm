@@ -579,12 +579,10 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_RATIO].detail.mdz_slider.slider_value=1;
     settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
     settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
+    settings[GME_EQ_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
-    settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
-    settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
-    settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
-    settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0;
+    settings[GME_STEREO_PANNING].detail.mdz_slider.slider_value=0.7;
     
     /////////////////////////////////////
     //GSF
@@ -1684,6 +1682,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_RATIO].detail.mdz_slider.slider_min_value=0.1;
     settings[GME_RATIO].detail.mdz_slider.slider_max_value=5;
     
+    SETTINGS_ID_DEF(GME_EQ_ONOFF)
+    settings[GME_EQ_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[GME_EQ_ONOFF].label=(char*)"Equalizer";
+    settings[GME_EQ_ONOFF].description=NULL;
+    settings[GME_EQ_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_EQ_ONOFF].sub_family=0;
+    settings[GME_EQ_ONOFF].callback=&optGMEChangedC;
+    
     SETTINGS_ID_DEF(GME_EQ_BASS)
     settings[GME_EQ_BASS].label=(char*)"Bass";
     settings[GME_EQ_BASS].description=NULL;
@@ -1691,7 +1697,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_EQ_BASS].sub_family=0;
     settings[GME_EQ_BASS].callback=&optGMEChangedC;
     settings[GME_EQ_BASS].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_min_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_max_value=4.2;
     
@@ -1702,47 +1707,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_EQ_TREBLE].sub_family=0;
     settings[GME_EQ_TREBLE].callback=&optGMEChangedC;
     settings[GME_EQ_TREBLE].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_min_value=-50;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_max_value=5;
     
-    SETTINGS_ID_DEF(GME_FX_ONOFF)
-    settings[GME_FX_ONOFF].type=MDZ_BOOLSWITCH;
-    settings[GME_FX_ONOFF].label=(char*)"Post FX";
-    settings[GME_FX_ONOFF].description=NULL;
-    settings[GME_FX_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_FX_ONOFF].sub_family=0;
-    settings[GME_FX_ONOFF].callback=&optGMEChangedC;
-    settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
-    
-    SETTINGS_ID_DEF(GME_FX_SURROUND)
-    settings[GME_FX_SURROUND].type=MDZ_BOOLSWITCH;
-    settings[GME_FX_SURROUND].label=(char*)"Surround";
-    settings[GME_FX_SURROUND].description=NULL;
-    settings[GME_FX_SURROUND].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_FX_SURROUND].sub_family=0;
-    settings[GME_FX_SURROUND].callback=&optGMEChangedC;
-    settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
-    
-    SETTINGS_ID_DEF(GME_FX_ECHO)
-    settings[GME_FX_ECHO].type=MDZ_BOOLSWITCH;
-    settings[GME_FX_ECHO].label=(char*)"Echo";
-    settings[GME_FX_ECHO].description=NULL;
-    settings[GME_FX_ECHO].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_FX_ECHO].sub_family=0;
-    settings[GME_FX_ECHO].callback=&optGMEChangedC;
-    settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
-    
-    SETTINGS_ID_DEF(GME_FX_PANNING)
-    settings[GME_FX_PANNING].label=(char*)"Panning";
-    settings[GME_FX_PANNING].description=NULL;
-    settings[GME_FX_PANNING].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_FX_PANNING].sub_family=0;
-    settings[GME_FX_PANNING].callback=&optGMEChangedC;
-    settings[GME_FX_PANNING].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0.5;
-    settings[GME_FX_PANNING].detail.mdz_slider.slider_min_value=0;
-    settings[GME_FX_PANNING].detail.mdz_slider.slider_max_value=1;
+    SETTINGS_ID_DEF(GME_STEREO_PANNING)
+    settings[GME_STEREO_PANNING].label=(char*)"Panning";
+    settings[GME_STEREO_PANNING].description=NULL;
+    settings[GME_STEREO_PANNING].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_STEREO_PANNING].sub_family=0;
+    settings[GME_STEREO_PANNING].callback=&optGMEChangedC;
+    settings[GME_STEREO_PANNING].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_STEREO_PANNING].detail.mdz_slider.slider_min_value=0;
+    settings[GME_STEREO_PANNING].detail.mdz_slider.slider_max_value=1;
     
     /////////////////////////////////////
     //GSF

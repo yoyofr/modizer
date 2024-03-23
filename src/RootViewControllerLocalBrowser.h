@@ -11,7 +11,10 @@
 #import <sqlite3.h>
 #import "DBHelper.h"
 #import "RootViewControllerStruct.h"
-#import "fex.h"
+
+#import "archive.h"
+#import "archive_entry.h"
+
 #import "CMPopTipView.h"
 
 #import "MiniPlayerVC.h"

@@ -1,3 +1,5 @@
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
+
 // Konami VRC7 sound chip emulator
 
 #ifndef NES_VRC7_APU_H
@@ -18,7 +20,7 @@ public:
 	void treble_eq( blip_eq_t const& );
 	void set_output( Blip_Buffer* );
 	enum { osc_count = 6 };
-	void set_output( int index, Blip_Buffer* );
+	void osc_output( int index, Blip_Buffer* );
 	void end_frame( blip_time_t );
 	void save_snapshot( vrc7_snapshot_t* ) const;
 	void load_snapshot( vrc7_snapshot_t const& );
@@ -34,15 +36,17 @@ private:
 	// noncopyable
 	Nes_Vrc7_Apu( const Nes_Vrc7_Apu& );
 	Nes_Vrc7_Apu& operator = ( const Nes_Vrc7_Apu& );
-
+	
 	struct Vrc7_Osc
 	{
-		BOOST::uint8_t regs [3];
+		uint8_t regs [3];
 		Blip_Buffer* output;
 		int last_amp;
 	};
-
+	
 	Vrc7_Osc oscs [osc_count];
+	uint8_t kon;
+	uint8_t inst [8];
 	void* opll;
 	int addr;
 	blip_time_t next_time;
@@ -51,7 +55,7 @@ private:
 		int last_amp;
 	} mono;
 	
-	Blip_Synth_Fast synth;
+	Blip_Synth<blip_med_quality,1> synth;
 	
 	void run_until( blip_time_t );
 	void output_changed();
@@ -59,13 +63,13 @@ private:
 
 struct vrc7_snapshot_t
 {
-	BOOST::uint8_t latch;
-	BOOST::uint8_t inst [8];
-	BOOST::uint8_t regs [6] [3];
-	BOOST::uint8_t delay;
+	uint8_t latch;
+	uint8_t inst [8];
+	uint8_t regs [6] [3];
+	uint8_t delay;
 };
 
-inline void Nes_Vrc7_Apu::set_output( int i, Blip_Buffer* buf )
+inline void Nes_Vrc7_Apu::osc_output( int i, Blip_Buffer* buf )
 {
 	assert( (unsigned) i < osc_count );
 	oscs [i].output = buf;

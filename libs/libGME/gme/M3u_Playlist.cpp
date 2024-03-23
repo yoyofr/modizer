@@ -1,7 +1,9 @@
-// Game_Music_Emu $vers. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "M3u_Playlist.h"
 #include "Music_Emu.h"
+
+#include <string.h>
 
 /* Copyright (C) 2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -20,9 +22,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 blargg_err_t Gme_File::load_m3u_( blargg_err_t err )
 {
+	require( raw_track_count_ ); // file must be loaded first
+	
 	if ( !err )
 	{
-		require( raw_track_count_ ); // file must be loaded first
 		if ( playlist.size() )
 			track_count_ = playlist.size();
 		
@@ -45,11 +48,11 @@ blargg_err_t Gme_File::load_m3u_( blargg_err_t err )
 	return err;
 }
 
-blargg_err_t Gme_File::load_m3u( const char path [] ) { return load_m3u_( playlist.load( path ) ); }
+blargg_err_t Gme_File::load_m3u( const char* path ) { return load_m3u_( playlist.load( path ) ); }
 
 blargg_err_t Gme_File::load_m3u( Data_Reader& in )  { return load_m3u_( playlist.load( in ) ); }
 
-gme_err_t gme_load_m3u( Music_Emu* me, const char path [] ) { return me->load_m3u( path ); }
+gme_err_t gme_load_m3u( Music_Emu* me, const char* path ) { return me->load_m3u( path ); }
 
 gme_err_t gme_load_m3u_data( Music_Emu* me, const void* data, long size )
 {
@@ -57,9 +60,11 @@ gme_err_t gme_load_m3u_data( Music_Emu* me, const void* data, long size )
 	return me->load_m3u( in );
 }
 
+
+
 static char* skip_white( char* in )
 {
-	while ( unsigned (*in - 1) <= ' ' - 1 )
+	while ( *in == ' ' )
 		in++;
 	return in;
 }
@@ -148,6 +153,23 @@ static char* parse_int_( char* in, int* out )
 	return in;
 }
 
+static char* parse_mil_( char* in, int* out )
+{
+	int n = 0;
+	int x = 100;
+	while ( 1 )
+	{
+		unsigned d = from_dec( *in );
+		if ( d > 9 )
+			break;
+		in++;
+		n += d * x;
+		x /= 10;
+		*out = n;
+	}
+	return in;
+}
+
 static char* parse_int( char* in, int* out, int* result )
 {
 	return next_field( parse_int_( in, out ), result );
@@ -203,12 +225,13 @@ static char* parse_time_( char* in, int* out )
 				*out = *out * 60 + n;
 		}
 		*out *= 1000;
+
 		if ( *in == '.' )
 		{
 			n = -1;
-			in = parse_int_( in + 1, &n );
+			in = parse_mil_( in + 1, &n );
 			if ( n >= 0 )
-				*out = *out + n; 
+				*out += n;
 		}
 	}
 	return in;
@@ -285,7 +308,7 @@ static int parse_line( char* in, M3u_Playlist::entry_t& entry )
 		in = parse_time_( in, &entry.loop );
 		if ( entry.loop >= 0 )
 		{
-			entry.intro = entry.length - entry.loop;
+			entry.intro = 0;
 			if ( *in == '-' ) // trailing '-' means that intro length was specified 
 			{
 				in++;
@@ -321,7 +344,7 @@ static void parse_comment( char* in, M3u_Playlist::info_t& info, char *& last_co
 		if ( *text )
 		{
 			*in = 0;
-			     if ( !strcmp( "Composer" , field ) ) info.composer  = text;
+				 if ( !strcmp( "Composer" , field ) ) info.composer  = text;
 			else if ( !strcmp( "Engineer" , field ) ) info.engineer  = text;
 			else if ( !strcmp( "Ripping"  , field ) ) info.ripping   = text;
 			else if ( !strcmp( "Tagging"  , field ) ) info.tagging   = text;
@@ -344,16 +367,15 @@ static void parse_comment( char* in, M3u_Playlist::info_t& info, char *& last_co
 		const char* text = skip_white( in );
 		if ( *text )
 		{
-			char saved = *in;
 			*in = 0;
-			     if ( !strcmp( "TITLE" ,    field ) ) info.title     = text;
-			else if ( !strcmp( "ARTIST",    field ) ) info.artist    = text;
-			else if ( !strcmp( "DATE",      field ) ) info.date      = text;
-			else if ( !strcmp( "COMPOSER",  field ) ) info.composer  = text;
+				 if ( !strcmp( "TITLE"    , field ) ) info.title     = text;
+			else if ( !strcmp( "ARTIST"   , field ) ) info.artist    = text;
+			else if ( !strcmp( "DATE"     , field ) ) info.date      = text;
+			else if ( !strcmp( "COMPOSER" , field ) ) info.composer  = text;
 			else if ( !strcmp( "SEQUENCER", field ) ) info.sequencer = text;
-			else if ( !strcmp( "ENGINEER",  field ) ) info.engineer  = text;
-			else if ( !strcmp( "RIPPER",    field ) ) info.ripping   = text;
-			else if ( !strcmp( "TAGGER",    field ) ) info.tagging   = text;
+			else if ( !strcmp( "ENGINEER" , field ) ) info.engineer  = text;
+			else if ( !strcmp( "RIPPER"   , field ) ) info.ripping   = text;
+			else if ( !strcmp( "TAGGER"   , field ) ) info.tagging   = text;
 			else
 				text = 0;
 			if ( text )
@@ -361,7 +383,6 @@ static void parse_comment( char* in, M3u_Playlist::info_t& info, char *& last_co
 				last_comment_value = (char*)text;
 				return;
 			}
-			*in = saved;
 		}
 	}
 	else if ( last_comment_value )
@@ -410,7 +431,7 @@ blargg_err_t M3u_Playlist::parse_()
 		while ( *in != CR && *in != LF )
 		{
 			if ( !*in )
-				return blargg_err_file_type;
+				return "Not an m3u playlist";
 			in++;
 		}
 		if ( in [0] == CR && in [1] == LF ) // treat CR,LF as a single line
@@ -437,28 +458,10 @@ blargg_err_t M3u_Playlist::parse_()
 		else last_comment_value = 0;
 	}
 	if ( count <= 0 )
-		return blargg_err_file_type;
+		return "Not an m3u playlist";
 	
-	// Treat first comment as title only if another field is also specified
-	if ( !(info_.artist [0] | info_.composer [0] | info_.date [0] | info_.engineer [0] | info_.ripping [0] | info_.sequencer [0] | info_.tagging [0] | info_.copyright[0]) )
+	if ( !(info_.composer [0] | info_.engineer [0] | info_.ripping [0] | info_.tagging [0]) )
 		info_.title = "";
-    
-    //YOYOFR
-    int min_track=count,max_track=0;
-    for (int i=0;i<count;i++) {
-        if (entries[i].track>max_track) max_track=entries[i].track;
-        if (entries[i].track<min_track) min_track=entries[i].track;
-    }
-    //TODO: add another global var / max_track to check if max_track>=songnum from original file
-    if ((min_track==1)/*&&(max_track>=nsfData->GetSongNum())*/) {
-        for (int i=0;i<count;i++) {
-            //printf("type: %s\n",entries[i].type);
-            if (strcmp(entries[i].type,"NSF")==0) entries[i].track--;
-            else if (strcmp(entries[i].type,"nsf")==0) entries[i].track--;
-        }
-    }
-    //
-    
 	
 	return entries.resize( count );
 }
@@ -467,7 +470,10 @@ blargg_err_t M3u_Playlist::parse()
 {
 	blargg_err_t err = parse_();
 	if ( err )
-		clear_();
+	{
+		entries.clear();
+		data.clear();
+	}
 	return err;
 }
 
@@ -478,7 +484,7 @@ blargg_err_t M3u_Playlist::load( Data_Reader& in )
 	return parse();
 }
 
-blargg_err_t M3u_Playlist::load( const char path [] )
+blargg_err_t M3u_Playlist::load( const char* path )
 {
 	GME_FILE_READER in;
 	RETURN_ERR( in.open( path ) );

@@ -1,4 +1,4 @@
-// Game_Music_Emu $vers. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "Nes_Fds_Apu.h"
 
@@ -14,6 +14,8 @@ License along with this module; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
+
+#include <string.h>
 
 int const fract_range = 65536;
 

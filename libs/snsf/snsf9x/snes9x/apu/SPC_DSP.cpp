@@ -908,7 +908,7 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     int64_t ofs_start=m_voice_current_ptr[current_voice];
     int64_t ofs_end=m_voice_current_ptr[current_voice]+(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000;
     for (;;) {
-        m_voice_buff[current_voice][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>6);
+        m_voice_buff[current_voice][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>7);
         ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         if (ofs_start>=ofs_end) break;
     }

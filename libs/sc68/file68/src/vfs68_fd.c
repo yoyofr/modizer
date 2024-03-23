@@ -59,6 +59,8 @@ extern void setAsyncLoadNotReady();
 # endif
 #endif
 
+#include <fcntl.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>

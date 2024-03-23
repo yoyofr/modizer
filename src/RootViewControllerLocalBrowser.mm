@@ -95,18 +95,6 @@ static char **browser_sidtune_title,**browser_sidtune_name;
     return fullFilePath;
 }
 
-- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
-{
-    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    //  NSString *documentsDirectory = [paths objectAtIndex:0];
-    const char* filePath = [path fileSystemRepresentation];
-    
-    const char* attrName = "com.apple.MobileBackup";
-    u_int8_t attrValue = 1;
-    
-    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
-    return result == 0;
-}
 
 -(void) getDBVersion:(int*)major minor:(int*)minor {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -279,26 +267,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
 }
 
--(void) updateFilesDoNotBackupAttributes {
-    NSError *error;
-    NSArray *dirContent;
-    int result;
-    //BOOL isDir;
-    NSFileManager *fileManager = [[NSFileManager alloc] init];
-    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"];
-    NSString *file;
-    const char* attrName = "com.apple.MobileBackup";
-    u_int8_t attrValue = 1;
-    
-    dirContent=[fileManager subpathsOfDirectoryAtPath:cpath error:&error];
-    for (file in dirContent) {
-        //NSLog(@"%@",file);
-        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
-        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
-        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
-    }
-    fileManager=nil;
-}
 // Creates a writable copy of the bundled default database in the application Documents directory.
 - (void) createSamplesFromPackage:(BOOL)forceCreate {
     BOOL success;
@@ -318,8 +286,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [fileManager removeItemAtPath:samplesDocPath error:&error];
     [fileManager copyItemAtPath:samplesPkgPath toPath:samplesDocPath error:&error];
     //update 'Do Not Backup' flag for directory & content (not sure it is required for the latest,...)
-    [self addSkipBackupAttributeToItemAtPath:samplesDocPath];
-    [self updateFilesDoNotBackupAttributes];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:samplesDocPath];
+    [ModizFileHelper updateFilesDoNotBackupAttributes];
     
     //[fileManager release];
     fileManager=nil;
@@ -461,7 +429,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
-                [self addSkipBackupAttributeToItemAtPath:newPath];
+                [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
                 
                 if (mSearch) {
                     mSearch=0;
@@ -1351,41 +1319,38 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 }
             }
         }
-    } else if (browseType==1) { //FEX Archive (zip,7z,rar,rsn)
-        fex_type_t ftype;
-        fex_t* fex;
-        const char *path=[cpath UTF8String];
-        /* Determine file's type */
-        if (fex_identify_file( &ftype, path)) {
-            NSLog(@"fex cannot determine type of %s",path);
-        }
-        /* Only open files that fex can handle */
-        if ( ftype != NULL ) {
-            if (strcmp(fex_type_name(ftype),"file")!=0) {
-                if (fex_open_type( &fex, path, ftype )) {
-                    NSLog(@"cannot fex open : %s",path);
-                } else {
+    } else if (browseType==1) { //Archive
+        struct archive *a;
+        struct archive_entry *entry;
+        int r;
+
+        a = archive_read_new();
+        archive_read_support_filter_all(a);
+        archive_read_support_format_raw(a);
+        archive_read_support_format_all(a);
+        r = archive_read_open_filename(a, [cpath UTF8String], 16384); // Note 1
+        if (r == ARCHIVE_OK) {
                     int is_rsn=0;
                     NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
                     if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
                     
-                    while ( !fex_done( fex ) ) {
-                        file=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                        NSString *extension;// = [[file pathExtension] uppercaseString];
-                        NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                            
+                        
+                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                        
+                        NSString *extension;
+                        NSString *file_no_ext;
                         
                         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                         extension = (NSString *)[temparray_filepath lastObject];
-                        //[temparray_filepath removeLastObject];
                         file_no_ext=[temparray_filepath firstObject];
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            //if (r.location != NSNotFound) {
                             if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                /*if(r.location== 0)*/ filtered=0;
+                                filtered=0;
                             }
                         }
                         if (!filtered) {
@@ -1404,18 +1369,12 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             }
                         }
                         
-                        if (fex_next( fex )) {
-                            NSLog(@"Error during fex scanning");
-                            break;
-                        }
+                        archive_read_data_skip(a);  // Note 2
                     }
-                    fex_close( fex );
-                }
-            }
-            fex = NULL;
         } else {
             //NSLog( @"Skipping unsupported archive: %s\n", path );
         }
+        r = archive_read_free(a);  // Note 3
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
@@ -1453,28 +1412,31 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             local_entries_count[i]=0;
                         }
                     }
-                if (fex_open_type( &fex, path, ftype )) {
-                    NSLog(@"cannot fex open : %s",path);
-                } else {
+                
+                
+                a = archive_read_new();
+                archive_read_support_filter_all(a);
+                archive_read_support_format_raw(a);
+                archive_read_support_format_all(a);
+                r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
+                if (r == ARCHIVE_OK) {
                     int arc_counter=0;
-                    while ( !fex_done( fex ) ) {
-                        file=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                        
                         NSString *extension;// = [[file pathExtension] uppercaseString];
                         NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
                         
                         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                         extension = (NSString *)[temparray_filepath lastObject];
-                        //[temparray_filepath removeLastObject];
                         file_no_ext=[temparray_filepath firstObject];
                         
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
                             filtered=1;
-                            //NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                            //if (r.location != NSNotFound) {
                             if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                /*if(r.location== 0)*/ filtered=0;
+                                filtered=0;
                             }
                         }
                         if (!filtered) {
@@ -1546,14 +1508,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 }
                             }
                         }
-                        if (fex_next( fex )) {
-                            NSLog(@"Error during fex scanning");
-                            break;
-                        }
+                        archive_read_data_skip(a);  // Note 2
                     }
-                    fex_close( fex );
                 }
-                fex = NULL;
+                r = archive_read_free(a);  // Note 3
             }
             
         }
@@ -2390,128 +2348,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
 //*****************************************
 //Archive management
 
-
--(void) fex_extractToPath:(const char *)archivePath path:(const char *)extractPath {
-    fex_type_t type;
-    fex_t* fex;
-    int arc_size;
-    FILE *f;
-    NSString *extractFilename,*extractPathFile;
-    NSError *err;
-    int idx;
-    /* Determine file's type */
-    if (fex_identify_file( &type, archivePath )) {
-        NSLog(@"fex cannot determine type of %s",archivePath);
-    }
-    /* Only open files that fex can handle */
-    if ( type != NULL ) {
-        if (fex_open_type( &fex, archivePath, type )) {
-            NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
-        } else{
-            idx=0;
-            while ( !fex_done( fex ) ) {
-                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-                
-                if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
-                    
-                    fex_stat(fex);
-                    arc_size=fex_size(fex);
-                    extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
-                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];
-                    
-                    //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
-                    
-                    
-                    //1st create path if not existing yet
-                    [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
-                    [self addSkipBackupAttributeToItemAtPath:extractPathFile];
-                    
-                    //2nd extract file
-                    f=fopen([extractFilename fileSystemRepresentation],"wb");
-                    if (!f) {
-                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
-                    } else {
-                        char *archive_data;
-                        archive_data=(char*)malloc(64*1024*1024); //buffer
-                        while (arc_size) {
-                            if (arc_size>64*1024*1024) {
-                                fex_read( fex, archive_data, 64*1024*1024);
-                                fwrite(archive_data,64*1024*1024,1,f);
-                                arc_size-=64*1024*1024;
-                                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-                            } else {
-                                fex_read( fex, archive_data, arc_size );
-                                fwrite(archive_data,arc_size,1,f);
-                                arc_size=0;
-                            }
-                        }
-                        free(archive_data);
-                        fclose(f);
-                        
-                        NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                        
-                        if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
-                            idx++;
-                        }
-                        if (fex_next( fex )) {
-                            NSLog(@"Error during fex scanning");
-                            break;
-                        }
-                    }
-                } else {
-                    if (fex_next( fex )) {
-                        NSLog(@"Error during fex scanning");
-                        break;
-                    }
-                }
-            }
-            fex_close( fex );
-        }
-        fex = NULL;
-    } else {
-        //NSLog( @"Skipping unsupported archive: %s\n", archivePath );
-    }
-}
-
-
--(int) fex_scanarchive:(const char *)path {
-    fex_type_t type;
-    fex_t* fex;
-    int found=0;
-    /* Determine file's type */
-    if (fex_identify_file( &type, path )) {
-        NSLog(@"fex cannot determine type of %s",path);
-    }
-    /* Only open files that fex can handle */
-    if ( type != NULL ) {
-        if (strcmp(fex_type_name(type),"file")!=0) {
-            if (fex_open_type( &fex, path, type )) {
-                NSLog(@"cannot fex open : %s / type : %d",path,type);
-            } else{
-                while ( !fex_done( fex ) ) {
-                    if ([ModizFileHelper isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
-                        //NSLog(@"file : %s",fex_name(fex));
-                        found++;
-                    }
-                    if (fex_next( fex )) {
-                        NSLog(@"Error during fex scanning");
-                        break;
-                    }
-                }
-                fex_close( fex );
-            }
-            fex = NULL;
-        } else {
-            //just standard file, no archive
-            fex = NULL;
-        }
-    } else {
-        NSLog( @"Skipping unsupported archive: %s\n", path );
-    }
-    return found;
-}
-
-
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
     
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
@@ -2591,10 +2427,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 NSString *filePath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
                 NSString *tgtPath;
                 tgtPath=[self getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
-                int files_found=[self fex_scanarchive:[filePath UTF8String]];
+                int files_found=[ModizFileHelper scanarchive:[filePath UTF8String]];
                 if (files_found) {
                     //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
-                    [self fex_extractToPath:[filePath UTF8String] path:[tgtPath UTF8String]];
+                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String]];
                     if (mSearch) {
                         mSearch=0;
                         [self listLocalFiles];

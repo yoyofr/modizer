@@ -1109,7 +1109,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extEUP count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
-    NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
     NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
     NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
@@ -1576,61 +1576,62 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 }
             }
         }
-    } else if (browseType==1) { //FEX Archive (zip,7z,rar,rsn)
-        fex_type_t type;
-        fex_t* fex;
-        const char *path=[cpath UTF8String];
-        /* Determine file's type */
-        if (fex_identify_file( &type, path)) {
-            NSLog(@"fex cannot determine type of %s",path);
-        }
-        /* Only open files that fex can handle */
-        if ( type != NULL ) {
-            if (fex_open_type( &fex, path, type )) {
-                NSLog(@"cannot fex open : %s",path);
-            } else {
-                while ( !fex_done( fex ) ) {
-                    file=[NSString stringWithUTF8String:(const char*)fex_name(fex)];
-                    NSString *extension = [[file pathExtension] uppercaseString];
+    } else if (browseType==1) {  //Archive
+        struct archive *a;
+        struct archive_entry *entry;
+        int r;
+
+        a = archive_read_new();
+        archive_read_support_filter_all(a);
+        archive_read_support_format_raw(a);
+        archive_read_support_format_all(a);
+        r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
+        if (r == ARCHIVE_OK) {
+                    int is_rsn=0;
+                    NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
+                    if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
                     
-                    NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
-                    
-                    int filtered=0;
-                    if ((mSearch)&&([mSearchText length]>0)) {
-                        filtered=1;
-                        //                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        //                        if (r.location != NSNotFound) {
-                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                            /*if(r.location== 0)*/ filtered=0;
-                        }
-                    }
-                    if (!filtered) {
-                        int found=0;
+                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                            
                         
-                        if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                        else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
                         
-                        if (found)  {
-                            const char *str=[[file lastPathComponent] UTF8String];
-                            int index=0;
-                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                            local_entries_count[index]++;
-                            local_nb_entries++;
+                        NSString *extension;
+                        NSString *file_no_ext;
+                        
+                        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                        extension = (NSString *)[temparray_filepath lastObject];
+                        file_no_ext=[temparray_filepath firstObject];
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                filtered=0;
+                            }
                         }
+                        if (!filtered) {
+                            int found=0;
+                            
+                            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+                            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                            
+                            if (found)  {
+                                const char *str=[[file lastPathComponent] UTF8String];
+                                int index=0;
+                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                                local_entries_count[index]++;
+                                local_nb_entries++;
+                            }
+                        }
+                        
+                        archive_read_data_skip(a);  // Note 2
                     }
-                    
-                    if (fex_next( fex )) {
-                        NSLog(@"Error during fex scanning");
-                        break;
-                    }
-                }
-                fex_close( fex );
-            }
-            fex = NULL;
         } else {
             //NSLog( @"Skipping unsupported archive: %s\n", path );
         }
+        r = archive_read_free(a);  // Note 3
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
@@ -1666,12 +1667,16 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                             local_entries_count[i]=0;
                         }
                     }
-                if (fex_open_type( &fex, path, type )) {
-                    NSLog(@"cannot fex open : %s",path);
-                } else {
+                a = archive_read_new();
+                archive_read_support_filter_all(a);
+                archive_read_support_format_raw(a);
+                archive_read_support_format_all(a);
+                r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
+                if (r == ARCHIVE_OK) {
                     int arc_counter=0;
-                    while ( !fex_done( fex ) ) {
-                        file=[NSString stringWithUTF8String:(const char*)fex_name(fex)];
+                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                        
                         NSString *extension = [[file pathExtension] uppercaseString];
                         NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                         
@@ -1750,16 +1755,11 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                                 }
                             }
                         }
-                        if (fex_next( fex )) {
-                            NSLog(@"Error during fex scanning");
-                            break;
-                        }
+                        archive_read_data_skip(a);  // Note 2
                     }
-                    fex_close( fex );
                 }
-                fex = NULL;
+                r = archive_read_free(a);  // Note 3
             }
-            
         }
     } else {
         //        clock_t start_time,end_time;

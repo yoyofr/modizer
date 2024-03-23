@@ -154,15 +154,8 @@ extern "C" {
     int kssOptLoopNb;
 	//GME
 	int optGMEFadeOut;
-    int optGMEIgnoreSilence;
     float optGMERatio;
     bool optGMEEnableRatio;
-    char optGMEFXon;
-    char optGMEFXSurround;
-    double optGMEFXEcho;
-    double optGMEFXStereo;
-    double optGMEEQTreble;
-    double optGMEEQBass;
     //GSF
     char optGSFsoundLowPass;
     char optGSFsoundEcho;
@@ -388,10 +381,8 @@ extern "C" {
 -(void) optHC_ResampleQuality:(unsigned int)val;
 
 -(void) optGME_Fade:(int)fade;
--(void) optGME_IgnoreSilence:(int)ignoreSilence;
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
--(void) optGME_EQ:(double)treble bass:(double)bass;
--(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
+-(void) optGME_Update;
 
 -(void) optGSF_UpdateParam;
 

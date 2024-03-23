@@ -7,8 +7,9 @@
 
 #import "ModizFileHelper.h"
 
-//FEX
-#include "fex.h"
+#include <sys/sysctl.h>
+#include <sys/xattr.h>
+
 //GME
 #include "gme.h"
 //SID2
@@ -74,28 +75,26 @@
 
 +(bool) isABrowsableArchive:(NSString*)cpath {
     bool ret=false;
-    fex_type_t type;
-    fex_t* fex;
     
-    NSArray *filetypes_ext=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
+    NSArray *filetypes_ext=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     if ([filetypes_ext indexOfObject:[[cpath pathExtension] uppercaseString]]==NSNotFound) return ret;
     
-    /* Determine file's type */
-    if (fex_identify_file( &type, [cpath UTF8String] )) {
-        NSLog(@"fex cannot determine type of %@",cpath);
+    struct archive *a = archive_read_new();
+    struct archive_entry *entry;
+    int r;
+    
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    archive_read_support_format_all(a);
+    r = archive_read_open_filename(a, [cpath UTF8String], 16384);
+        
+    if (r==ARCHIVE_OK) {
+        ret=true;
+    } else {
+        NSLog( @"Skipping unsupported archive: %s\n", [cpath UTF8String] );
     }
-    /* Only open files that fex can handle */
-    if ( type != NULL ) {
-        if (strcmp(fex_type_name(type),"file")!=0) {
-            if (fex_open_type( &fex, [cpath UTF8String], type )) {
-                NSLog(@"cannot fex open : %s / type : %d",[cpath UTF8String],type);
-            } else {
-                ret=true;
-                fex_close( fex );
-            }
-        }
-    }
-    fex=NULL;
+    r = archive_read_free(a);
+        
     return ret;
 }
 
@@ -289,7 +288,7 @@
             break;
         }
         case FTYPE_BROWSABLEARCHIVE: {
-            NSArray *filetype_extArchive=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
+            NSArray *filetype_extArchive=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
             filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extArchive count]];
             [filetype_ext addObjectsFromArray:filetype_extArchive];
             break;
@@ -739,6 +738,147 @@
         if ([tmp_path count]==0) return NULL;
     }
     return [tmp_path componentsJoinedByString:@"/"];
+}
+
++(NSString*) getCorrectFileName:(const char*)archiveFilename archive:(struct archive *)a entry:(struct archive_entry *)entry {
+    NSString *file;
+    if (archive_format(a) == ARCHIVE_FORMAT_RAW) {
+        file=[[[NSString stringWithUTF8String:archiveFilename] lastPathComponent] stringByDeletingPathExtension];
+    } else {
+        file=[NSString stringWithUTF8String:archive_entry_pathname(entry)];        
+        if (file==nil) {
+            file=[NSString stringWithCString:archive_entry_pathname(entry) encoding:NSISOLatin1StringEncoding];
+            if (file==nil) file=[NSString stringWithFormat:@"%s",archive_entry_pathname(entry)];
+        }
+    }
+    return file;
+}
+
++(int) scanarchive:(const char *)path {
+    int found=0;
+    struct archive *a = archive_read_new();
+    struct archive_entry *entry;
+    int r;
+    
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    archive_read_support_format_all(a);
+    r = archive_read_open_filename(a, path, 16384);
+        
+    if (r==ARCHIVE_OK) {
+        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+            if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:path archive:a entry:entry] no_aux_file:1]) {
+                found++;
+            }
+        }
+    } else {
+        NSLog( @"Skipping unsupported archive: %s\n", path );
+    }
+    r = archive_read_free(a);
+    return found;
+}
+
++(BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path {
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
++(void) updateFilesDoNotBackupAttributes {
+    NSError *error;
+    NSArray *dirContent;
+    int result;
+    //BOOL isDir;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"];
+    NSString *file;
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    dirContent=[fileManager subpathsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        //NSLog(@"%@",file);
+        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
+        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+    }
+    fileManager=nil;
+}
+
+
+
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath {
+    int r;
+    FILE *f;
+    NSString *extractFilename,*extractPathFile;
+    NSError *err;
+    int idx;
+    
+    struct archive *a = archive_read_new();
+    struct archive_entry *entry;
+            
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    archive_read_support_format_all(a);
+    r = archive_read_open_filename(a, archivePath, 16384);
+    
+        if (r==ARCHIVE_OK) {
+            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+            
+            idx=0;
+            for (;;) {
+                r = archive_read_next_header(a, &entry);
+                
+                if (r == ARCHIVE_EOF) break;
+                if (r != ARCHIVE_OK) {
+                    NSLog(@"archive_read_next_header() %s", archive_error_string(a));
+                    break;
+                }
+                
+                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                
+                
+                
+                if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:0]) {
+                    
+                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry]];
+                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];
+                    
+                    //1st create path if not existing yet
+                    [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
+                    [ModizFileHelper addSkipBackupAttributeToItemAtPath:extractPathFile];
+                    
+                    //2nd extract file
+                    f=fopen([extractFilename fileSystemRepresentation],"wb");
+                    if (!f) {
+                        NSLog(@"Cannot open %s to extract %s",extractFilename,archivePath);
+                    } else {
+                      const void *buff;
+                      size_t size;
+                      la_int64_t offset;
+
+                        for (;;) {
+                            r = archive_read_data_block(a, &buff, &size, &offset);
+                            if (r == ARCHIVE_EOF) break;
+                            if (r < ARCHIVE_OK) break;
+                            fwrite(buff,size,1,f);
+                        }
+                              
+                        fclose(f);
+                        
+                        if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:1]) {
+                            idx++;
+                        }
+                    }
+                }
+            }
+            
+        }
+    archive_read_free(a);
 }
 
 
