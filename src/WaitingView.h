@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WaitingView : UIView {
-    UILabel *lblDetail,*lblTitle;    
+    UILabel *lblDetail,*lblTitle;
+    UIProgressView *progressView;
     bool btnStopCurrentActionPending;
     BButton *btnStopCurrentAction;
 }
@@ -19,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)setDetail:(NSString*)text;
 
 -(void)setTitle:(NSString*)text;
+
+-(void)setProgress:(double)prg;
 
 -(void)hideCancel;
 
@@ -29,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(bool) isCancelPending;
 
 -(void) resetCancelStatus;
+
+-(void)hideProgress;
+
+-(void)showProgress;
 
 
 @end

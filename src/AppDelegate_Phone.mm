@@ -23,6 +23,10 @@
 
 extern volatile t_settings settings[MAX_SETTINGS];
 
+//GLOBAL VAR
+void *ProgressObserverContext = &ProgressObserverContext;
+//
+
 //#import <AVFoundation/AVFoundation.h>
 //#import <AudioToolbox/AudioToolbox.h>
 #include <sys/xattr.h>
@@ -45,28 +49,6 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
-
-/*
-@interface MyClass : NSObject
-- (void)updateMainLoopObjC;
-@end
-
-@implementation MyClass
-- (void)updateMainLoopObjC {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-}
-extern "C" void updateMainLoopC(void) {
-    @autoreleasepool {
-        MyClass *obj = [[MyClass alloc] init];
-        IMP methodIMP = [obj methodForSelector:@selector(updateMainLoopObjC)];
-        void (*functionPointer)(id, SEL) = (void (*)(id, SEL))methodIMP;
-
-        // Then call it:
-        functionPointer(obj, @selector(updateMainLoopObjC));
-    }
-}
-@end*/
-
 
 @implementation AppDelegate_Phone
 

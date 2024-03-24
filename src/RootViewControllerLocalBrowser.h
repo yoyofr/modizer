@@ -41,6 +41,8 @@
     
 	WaitingView *waitingView;
     
+    NSProgress *extractProgress;
+    
     UIAlertView *alertRename;
     int renameFile,renameSec,renameIdx;
     int createFolder;
@@ -94,6 +96,10 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
+@property (nonatomic, retain) NSProgress *extractProgress;
+
+@property (nonatomic, retain) WaitingView *waitingView;
+
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
@@ -124,5 +130,7 @@
 -(int) loadUserList:(int)pl_id  labels:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
 -(int) getLocalFilesCount;
 -(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
+
+- (void) cancelPushed;
 
 @end

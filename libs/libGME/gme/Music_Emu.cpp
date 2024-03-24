@@ -314,6 +314,11 @@ static int int_log( blargg_long x, int step, int unit )
 	return ((unit - fraction) + (fraction >> 1)) >> shift;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void Music_Emu::handle_fade( long out_count, sample_t* out )
 {
 	for ( int i = 0; i < out_count; i += fade_block_size )
@@ -331,6 +336,14 @@ void Music_Emu::handle_fade( long out_count, sample_t* out )
 			*io = sample_t ((*io * gain) >> shift);
 			++io;
 		}
+        
+        //YOYOFR
+        //Handle fade for oscilloscope
+        for (int jj=0;jj<m_genNumVoicesChannels;jj++) {
+            int val=m_voice_buff[jj][((m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+i)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+            val=(val*gain)>>shift;
+            m_voice_buff[jj][((m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+i)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=val;
+        }
 	}
 }
 

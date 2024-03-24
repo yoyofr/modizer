@@ -1651,7 +1651,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_FADEOUT].type=MDZ_SLIDER_CONTINUOUS;
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
     settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
-    settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=5;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(GME_RATIO_ONOFF)
     settings[GME_RATIO_ONOFF].type=MDZ_BOOLSWITCH;
@@ -2261,9 +2261,8 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Fadeouttime].sub_family=0;
     settings[VGMSTREAM_Fadeouttime].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=5;
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_min_value=0;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=30;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(VGMSTREAM_ResampleQuality)
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";

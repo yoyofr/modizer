@@ -132,6 +132,8 @@ extern "C" {
     NSString *mod_loadmodule_filepath; //filepath given as param of LoadModule
     NSString *mod_currentext;
     NSString *artist,*album;
+    
+    NSProgress *extractProgress;
 
 	//Player status
 	int bGlobalAudioPause;
@@ -152,8 +154,7 @@ extern "C" {
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
     //KSS
     int kssOptLoopNb;
-	//GME
-	int optGMEFadeOut;
+	//GME	
     float optGMERatio;
     bool optGMEEnableRatio;
     //GSF
@@ -207,6 +208,7 @@ extern "C" {
 	AudioQueueBufferRef *mBuffers;
 	int mQueueIsBeingStopped;
 };
+@property (nonatomic, retain) NSProgress *extractProgress;
 @property NSString *artist,*album;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
@@ -380,7 +382,6 @@ extern "C" {
 
 -(void) optHC_ResampleQuality:(unsigned int)val;
 
--(void) optGME_Fade:(int)fade;
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
 -(void) optGME_Update;
 

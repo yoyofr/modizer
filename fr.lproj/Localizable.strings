@@ -314,3 +314,6 @@
 
 /*Launch popup*/
 "Cleaning DB & \nreseting settings"="Nettoyage de la DB & \nréinitialisation des réglages";
+
+/*Waiting View*/
+"Cancelling..."="Annulation...";

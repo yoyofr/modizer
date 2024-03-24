@@ -76,8 +76,40 @@
         // center align
         [self addConstraint:[NSLayoutConstraint constraintWithItem:btnStopCurrentAction attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
         [self addConstraint:[NSLayoutConstraint constraintWithItem:btnStopCurrentAction attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-4]];
+        
+        
+        progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+        progressView.progressTintColor = [UIColor colorWithRed:200.0/255 green:200.0/255 blue:255.0/255 alpha:1.0];
+        [[progressView layer]setFrame:CGRectMake(0, 0,128, 10)];
+        //[[progressView layer]setBorderColor:[UIColor whiteColor].CGColor];
+        progressView.trackTintColor = [UIColor colorWithRed:40.0/255 green:40.0/255 blue:80.0/255 alpha:1.0];
+        [progressView setProgress:(float)(0) animated:NO];  ///15
+
+        //[[progressView layer]setCornerRadius:progressView.frame.size.width / 2];
+        //[[progressView layer]setBorderWidth:1];
+        //[[progressView layer]setCornerRadius:10];
+        //[[progressView layer]setMasksToBounds:TRUE];
+        //progressView.clipsToBounds = YES;
+        
+        [self addSubview:progressView];
+        progressView.translatesAutoresizingMaskIntoConstraints = false;
+        progressView.hidden=true;
+        
+        views = NSDictionaryOfVariableBindings(progressView);
+        // width constraint
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[progressView(128)]" options:0 metrics:nil views:views]];
+        // height constraint
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[progressView(10)]" options:0 metrics:nil views:views]];
+        // center align
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:progressView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:progressView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-44]];
+        
     }
     return self;
+}
+
+-(void)setProgress:(double)prg {
+    [progressView setProgress:prg animated:YES];
 }
 
 -(void)setDetail:(NSString*)text {
@@ -98,9 +130,33 @@
     btnStopCurrentAction.hidden=false;
 }
 
+-(void)hideProgress {
+    progressView.hidden=true;
+}
+
+-(void)showProgress {
+    [progressView setProgress:0 animated:NO];
+    progressView.hidden=false;
+}
+
+- (UIViewController *) firstAvailableUIViewController {
+    UIResponder *responder = [self nextResponder];
+    while (responder != nil) {
+        if ([responder isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)responder;
+        }
+        responder = [responder nextResponder];
+    }
+    return nil;
+}
+
 -(void) pushedCancel {
-    NSLog(@"cancel");
+    //    NSLog(@"cancel");
     btnStopCurrentActionPending=true;
+    UIViewController *vc=[self firstAvailableUIViewController];
+    if ([vc respondsToSelector:@selector(cancelPushed)]) {
+        [vc performSelector:@selector(cancelPushed)];
+    }
 }
 
 -(bool) isCancelPending {

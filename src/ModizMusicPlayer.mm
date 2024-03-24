@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 12/06/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+extern void *ProgressObserverContext;
 
 #import <AVFAudio/AVAudioSession.h>
 
@@ -2465,7 +2466,6 @@ void propertyListenerCallback (void                   *inUserData,              
         
         
         //GME specific
-        optGMEFadeOut=1000;
         //
         // ADPLUG specific
         mADPLUGopltype=0;
@@ -2580,6 +2580,9 @@ void propertyListenerCallback (void                   *inUserData,              
         
         // define initial gain
         nvdsp_initialGain = 0.0f;
+        
+        //NSProgress for archive extract
+        extractProgress = nil;
         
         // init PeakingFilters
         // You'll later need to be able to set the gain for these (as the sliders change)
@@ -4118,7 +4121,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (mPlayType==MMP_GME) {   //GME
                                 bGlobalSeekProgress=-1;
                                 gme_seek(gme_emu,mNeedSeekTime);
-                                //gme_set_fade_msecs( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 2s before end
                             }
                             if (mPlayType==MMP_OPENMPT) { //MODPLUG
                                 bGlobalSeekProgress=-1;
@@ -4756,9 +4758,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode==1) iModuleLength=-1;
                                 
                                 if (iModuleLength>0) {
-                                    if (iModuleLength>optGMEFadeOut) gme_set_fade_msecs( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
+                                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ); //Fade 1s before end
                                     else gme_set_fade_msecs( gme_emu, iModuleLength/2, iModuleLength/2 );
-                                } else gme_set_fade_msecs( gme_emu, 1<<30,optGMEFadeOut );
+                                } else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 );
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
                                 
@@ -5843,8 +5845,66 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 
 //*****************************************
 //Archive management
+
+static bool extractDone;
+- (void) observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context
+{
+    if (context == ProgressObserverContext) {
+        NSProgress *progress = object;
+        
+        if ([progress isCancelled]) {
+            NSLog(@"cancelled");
+            extractDone=true;
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+//                [waitingView resetCancelStatus];
+//                [self hideWaiting];
+//                [self hideWaitingProgress];
+//                [self.tableView setUserInteractionEnabled:true];
+            }];
+        }
+        
+        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
+        if (progress.fractionCompleted>=1.0f) extractDone=true;
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
+            //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+            //[self.waitingView setProgress:progress.fractionCompleted];
+            if (progress.fractionCompleted>=1.0f) {
+                //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
+//                [self hideWaiting];
+//                [self hideWaitingProgress];
+//                [self.tableView setUserInteractionEnabled:true];
+            }
+        }];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+
 -(void) extractToPath:(const char *)archivePath path:(const char *)extractPath isRestarting:(bool)isRestarting {
-    
+    [ModizFileHelper scanarchive:archivePath filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
+        
+    if (!isRestarting) {
+        extractProgress = [NSProgress progressWithTotalUnitCount:1];
+        extractProgress.cancellable = YES;
+        extractProgress.pausable = NO;
+        extractDone=false;
+        
+        [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress];
+        while (extractDone==false) {
+            [NSThread sleepForTimeInterval:0.1f];
+            //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+            
+            NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+            [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+        }
+    }
+#if 0
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
     int r;
@@ -5860,74 +5920,64 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     archive_read_support_format_all(a);
     r = archive_read_open_filename(a, archivePath, 16384);
     
-        if (r==ARCHIVE_OK) {
-            mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-            //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-            idx=0;idxAll=0;
-            for (;;) {
-                r = archive_read_next_header(a, &entry);
+    if (r==ARCHIVE_OK) {
+        mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+        //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+        idx=0;idxAll=0;
+        for (;;) {
+            r = archive_read_next_header(a, &entry);
+            
+            if (r == ARCHIVE_EOF) break;
+            if (r != ARCHIVE_OK) {
+                NSLog(@"archive_read_next_header() %s", archive_error_string(a));
+                break;
+            }
+            
+            NSString *tmp_filename=[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry];
+            
+            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:0]) {
                 
-                if (r == ARCHIVE_EOF) break;
-                if (r != ARCHIVE_OK) {
-                    NSLog(@"archive_read_next_header() %s", archive_error_string(a));
-                    break;
-                }
+                extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
+                extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                 
-                NSString *tmp_filename=[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry];
-                
-                if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:0]) {
+                if (!isRestarting) {
+                    //1st create path if not existing yet
+                    [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
+                    [self addSkipBackupAttributeToItemAtPath:extractPathFile];
                     
-                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
-                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];
-                    
-                    if (!isRestarting) {
-                        //1st create path if not existing yet
-                        [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
-                        [self addSkipBackupAttributeToItemAtPath:extractPathFile];
-                        
-                        //2nd extract file
-                        f=fopen([extractFilename fileSystemRepresentation],"wb");
-                        if (!f) {
-                            NSLog(@"Cannot open %@ to extract %@",extractFilename,extractPathFile);
-                        } else {
-                            const void *buff;
-                            size_t size;
-                            la_int64_t offset;
-                            
-                            //idxAll++;
-                            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                            mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idx,mdz_ArchiveFilesCnt]))
-                            
-                            [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-                            
-                            NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                            [invo start];
-                            cancelExtract=false;
-                            [invo.result getValue:&cancelExtract];
-                            if (cancelExtract) {
-                                mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                fclose(f);
-                                break;
-                            }
-                            
-                            for (;;) {
-                                r = archive_read_data_block(a, &buff, &size, &offset);
-                                if (r == ARCHIVE_EOF) break;
-                                if (r < ARCHIVE_OK) break;
-                                fwrite(buff,size,1,f);
-                            }
-                                  
-                            fclose(f);
-                                                        
-                            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
-                                mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                                strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
-                                
-                                idx++;
-                            }
-                        }
+                    //2nd extract file
+                    f=fopen([extractFilename fileSystemRepresentation],"wb");
+                    if (!f) {
+                        NSLog(@"Cannot open %@ to extract %@",extractFilename,extractPathFile);
                     } else {
-                        //restarting, skip extract
+                        const void *buff;
+                        size_t size;
+                        la_int64_t offset;
+                        
+                        //idxAll++;
+                        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idx,mdz_ArchiveFilesCnt]))
+                        
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        
+                        NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                        [invo start];
+                        cancelExtract=false;
+                        [invo.result getValue:&cancelExtract];
+                        if (cancelExtract) {
+                            mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                            fclose(f);
+                            break;
+                        }
+                        
+                        for (;;) {
+                            r = archive_read_data_block(a, &buff, &size, &offset);
+                            if (r == ARCHIVE_EOF) break;
+                            if (r < ARCHIVE_OK) break;
+                            fwrite(buff,size,1,f);
+                        }
+                        
+                        fclose(f);
                         
                         if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
@@ -5936,34 +5986,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             idx++;
                         }
                     }
+                } else {
+                    //restarting, skip extract
+                    
+                    if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
+                        mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
+                        strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
+                        
+                        idx++;
+                    }
                 }
-            }
-        }
-    r = archive_read_free(a);
-}
-
--(void) scanarchive:(const char *)path {
-    struct archive *a = archive_read_new();
-    struct archive_entry *entry;
-    int r;
-    
-    archive_read_support_filter_all(a);
-    archive_read_support_format_raw(a);
-    archive_read_support_format_all(a);
-    r = archive_read_open_filename(a, path, 16384);
-    
-    if (r==ARCHIVE_OK) {
-        mdz_IsArchive=1;
-        mdz_ArchiveFilesCnt=0;
-        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-            NSString *tmp_filename=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
-            
-            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
-                mdz_ArchiveFilesCnt++;
             }
         }
     }
     r = archive_read_free(a);
+#endif
 }
 
 -(NSString*) getArcEntryFilename:(const char *)path index:(int)idx {
@@ -10559,7 +10596,10 @@ int vgmGetFileLength()
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
-        if (iModuleLength>optGMEFadeOut) gme_set_fade_msecs( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
+        if (iModuleLength>0) {
+            if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ); //Fade 1s before end
+            else gme_set_fade_msecs( gme_emu, iModuleLength/2, iModuleLength/2 );
+        } else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 );
         //            else gme_set_fade_msecs( gme_emu, 1<<30);
         
         iCurrentTime=0;
@@ -10774,9 +10814,13 @@ extern bool icloud_available;
             strcpy(archive_filename,mod_filename);
             
             if (found==1) { //Archive
-                [self scanarchive:[filePath UTF8String]];
+                                
+                [ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:&mdz_ArchiveFilesCnt];
+                
                 //NSLog(@"scan done");
                 if (mdz_ArchiveFilesCnt) {
+                    mdz_IsArchive=1;
+                    
                     FILE *f;
                     f = fopen([filePath UTF8String], "rb");
                     if (f == NULL) {
@@ -10804,17 +10848,25 @@ extern bool icloud_available;
                         
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         
-                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
+                        //mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Extracting",@""))
                         mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
+                        mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
                         
                         
-                            [self extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting];
+                        //[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
+                        [self extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting];
+                                                
+                        //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
                         
-                        mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+//                        futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+//                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
                         
                     } else {
                     }
@@ -11611,8 +11663,8 @@ extern bool icloud_available;
                 }
                 //Loop
                 if (mLoopMode==1) iModuleLength=-1;
-                if (iModuleLength>optGMEFadeOut) gme_set_fade_msecs( gme_emu, iModuleLength-optGMEFadeOut ,optGMEFadeOut); //Fade 1s before end
-                else gme_set_fade_msecs( gme_emu, 1<<30,optGMEFadeOut);
+                if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000); //Fade 1s before end
+                else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000);
                 mod_message_updated=2;
             }
             gme_seek(gme_emu,startPos);
@@ -12708,10 +12760,6 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 // GME
 ///////////////////////////
--(void) optGME_Fade:(int)fade {
-    optGMEFadeOut=fade;
-}
-
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled {
     optGMERatio = ratio;
     if(gme_emu) {

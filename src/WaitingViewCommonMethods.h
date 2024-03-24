@@ -10,6 +10,8 @@
 
 -(void) flushMainLoop {
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+    NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
 }
 
 -(void) showWaitingLoading{
@@ -43,6 +45,19 @@
 -(void) showWaitingCancel {
     [waitingView showCancel];
 }
+
+-(void) setProgressWaiting:(NSNumber*)progress {
+    [waitingView setProgress:[progress doubleValue]];
+}
+
+-(void) hideWaitingProgress {
+    [waitingView hideProgress];
+}
+-(void) showWaitingProgress {
+    [waitingView showProgress];
+}
+
+
 -(void) showWaiting{
     waitingView.hidden=FALSE;
     waitingView.layer.zPosition=MAXFLOAT;

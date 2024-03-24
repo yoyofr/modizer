@@ -1039,8 +1039,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     //GME
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {
-        [mplayer optGME_Fade:settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000];
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {        
         [mplayer optGME_Ratio:settings[GME_RATIO].detail.mdz_slider.slider_value
                     isEnabled:settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value];
         [mplayer optGME_Update];                

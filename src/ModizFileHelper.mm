@@ -5,6 +5,8 @@
 //  Created by Yohann Magnien David on 07/03/2024.
 //
 
+extern void *ProgressObserverContext;
+
 #import "ModizFileHelper.h"
 
 #include <sys/sysctl.h>
@@ -15,6 +17,9 @@
 //SID2
 #include "sidplayfp/SidTune.h"
 #include "sidplayfp/SidTuneInfo.h"
+
+//UnrarKIT
+#import "UnrarKit.h"
 
 
 @implementation ModizFileHelper
@@ -56,7 +61,7 @@
     NSArray *filetypes_ext=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     if ([filetypes_ext indexOfObject:[[cpath pathExtension] uppercaseString]]==NSNotFound) return ret;
     
-    return true;
+    //return true;
     
     SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
     
@@ -78,6 +83,23 @@
     
     NSArray *filetypes_ext=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     if ([filetypes_ext indexOfObject:[[cpath pathExtension] uppercaseString]]==NSNotFound) return ret;
+    
+    //Specific case for RAR files as libarchive is buggy for them and UnrarKIT is used instead
+    if ( ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RAR"]) ||
+        ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RSN"]) ) {
+        NSError *error = nil;
+        URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
+        if (!archive) {
+            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            return false;
+        }
+        NSArray *filesInArchive = [archive listFilenames:&error];
+        if (!filesInArchive) {
+            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            return false;
+        }
+        return true;
+    }
     
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
@@ -754,11 +776,48 @@
     return file;
 }
 
-+(int) scanarchive:(const char *)path {
++(int) scanarchive:(const char *)path filesList_ptr:(char***)filesList_ptr filesCount_ptr:(int*)filesCount_ptr {
     int found=0;
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
     int r;
+    
+    //Specific case for RAR files as libarchive is buggy for them and UnrarKIT is used instead
+    NSString *cpath=[NSString stringWithUTF8String:path];
+    if ( ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RAR"]) ||
+        ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RSN"]) ) {
+        NSError *error = nil;
+        URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
+        if (!archive) {
+            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            return 0;
+        }
+        NSArray *filesInArchive = [archive listFilenames:&error];
+        if (!filesInArchive) {
+            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            return 0;
+        }
+        NSString *file;
+        NSMutableArray *filesList=[[NSMutableArray alloc] init];
+        for (file in filesInArchive) {
+            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1]) {
+                found++;
+                [filesList addObject:file];
+            }
+        }
+        if (filesCount_ptr) *filesCount_ptr=found;
+        if (filesList_ptr) {
+            *filesList_ptr=(char**)malloc(found*sizeof(char*));
+            int i=0;
+            for (file in filesList) {
+                (*filesList_ptr)[i]=(char*)malloc(strlen([file fileSystemRepresentation])+1);
+                strcpy((*filesList_ptr)[i],[file fileSystemRepresentation]);
+                i++;
+            }
+        }
+        
+        return found;
+    }
     
     archive_read_support_filter_all(a);
     archive_read_support_format_raw(a);
@@ -766,11 +825,27 @@
     r = archive_read_open_filename(a, path, 16384);
         
     if (r==ARCHIVE_OK) {
+        NSMutableArray *filesList=[[NSMutableArray alloc] init];
+        NSString *file;
         while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-            if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:path archive:a entry:entry] no_aux_file:1]) {
+            file=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
+            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1]) {
                 found++;
+                [filesList addObject:file];
             }
         }
+        if (filesCount_ptr) *filesCount_ptr=found;
+        
+        if (filesList_ptr) {
+            *filesList_ptr=(char**)malloc(found*sizeof(char*));
+            int i=0;
+            for (file in filesList) {
+                (*filesList_ptr)[i]=(char*)malloc(strlen([file fileSystemRepresentation])+1);
+                strcpy((*filesList_ptr)[i],[file fileSystemRepresentation]);
+                i++;
+            }
+        }
+        
     } else {
         NSLog( @"Skipping unsupported archive: %s\n", path );
     }
@@ -809,43 +884,111 @@
     fileManager=nil;
 }
 
-
-
-+(void) extractToPath:(const char *)archivePath path:(const char *)extractPath {
-    int r;
-    FILE *f;
-    NSString *extractFilename,*extractPathFile;
-    NSError *err;
-    int idx;
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress{
+    //Specific case for RAR files as libarchive is buggy for them and UnrarKIT is used instead
+    NSString *cpath=[NSString stringWithUTF8String:archivePath];
+    if ( ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RAR"]) ||
+        ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RSN"]) ) {
+        NSError *error = nil;
+        URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
+        if (!archive) {
+            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            return;
+        }
+        NSArray *filesInArchive = [archive listFilenames:&error];
+                
+        [extractProgress setTotalUnitCount:[filesInArchive count]];
+        NSString *observedSelector = NSStringFromSelector(@selector(fractionCompleted));
+        [extractProgress addObserver:caller
+                              forKeyPath:observedSelector
+                                 options:NSKeyValueObservingOptionInitial
+                                 context:ProgressObserverContext];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            NSError *error;
+            
+            [extractProgress becomeCurrentWithPendingUnitCount:[filesInArchive count]];
+            
+            [archive extractFilesTo:[NSString stringWithUTF8String:extractPath] overwrite:YES error:&error];
+            if (error) {
+                NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            }
+            [extractProgress removeObserver:caller
+                                     forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                                        context:ProgressObserverContext];
+            [extractProgress resignCurrent];
+            
+//            dispatch_sync(dispatch_get_main_queue(), ^(void){
+//                //Run UI Updates
+//            });
+            
+        });
+        
+        return;
+    }
     
+    //1st get total files nb in archive
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
-            
+    int r;
+    int files_nb=0;
     archive_read_support_filter_all(a);
     archive_read_support_format_raw(a);
     archive_read_support_format_all(a);
     r = archive_read_open_filename(a, archivePath, 16384);
+    if (r!=ARCHIVE_OK) return;
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        files_nb++;
+    }
+    archive_read_free(a);
     
+    [extractProgress setTotalUnitCount:files_nb];
+    
+                
+    NSString *observedSelector = NSStringFromSelector(@selector(fractionCompleted));
+    [extractProgress addObserver:caller
+                          forKeyPath:observedSelector
+                             options:NSKeyValueObservingOptionInitial
+                             context:ProgressObserverContext];
+    
+    NSString *archivePathNS=[NSString stringWithUTF8String:archivePath];
+    NSString *extractPathNS=[NSString stringWithUTF8String:extractPath];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        struct archive *a = archive_read_new();
+        struct archive_entry *entry;
+        int r;
+        NSError *err;
+        
+        archive_read_support_filter_all(a);
+        archive_read_support_format_raw(a);
+        archive_read_support_format_all(a);
+        r = archive_read_open_filename(a, [archivePathNS UTF8String], 16384);
+        
+        
         if (r==ARCHIVE_OK) {
-            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+            FILE *f;
+            int r;
+            NSString *extractFilename,*extractPathFile;
             
-            idx=0;
+            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                        
+            [extractProgress becomeCurrentWithPendingUnitCount:files_nb];
+            
+            int idx=0;
+            int cpt=0;
             for (;;) {
                 r = archive_read_next_header(a, &entry);
                 
+                                
                 if (r == ARCHIVE_EOF) break;
                 if (r != ARCHIVE_OK) {
                     NSLog(@"archive_read_next_header() %s", archive_error_string(a));
                     break;
                 }
                 
-                [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-                
-                
-                
-                if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:0]) {
+                if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:[archivePathNS UTF8String] archive:a entry:entry] no_aux_file:0]) {
                     
-                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry]];
+                    extractFilename=[NSString stringWithFormat:@"%@/%@",extractPathNS,[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry]];
                     extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                     
                     //1st create path if not existing yet
@@ -855,19 +998,23 @@
                     //2nd extract file
                     f=fopen([extractFilename fileSystemRepresentation],"wb");
                     if (!f) {
-                        NSLog(@"Cannot open %s to extract %s",extractFilename,archivePath);
+                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePathNS);
                     } else {
-                      const void *buff;
-                      size_t size;
-                      la_int64_t offset;
-
+                        const void *buff;
+                        size_t size;
+                        la_int64_t offset;
+                        
                         for (;;) {
+                            if ([extractProgress isCancelled]) {
+                                break;
+                            }
+                            
                             r = archive_read_data_block(a, &buff, &size, &offset);
                             if (r == ARCHIVE_EOF) break;
                             if (r < ARCHIVE_OK) break;
                             fwrite(buff,size,1,f);
                         }
-                              
+                        
                         fclose(f);
                         
                         if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:1]) {
@@ -875,10 +1022,27 @@
                         }
                     }
                 }
+                //update NSProgress
+                cpt++;
+                [extractProgress setCompletedUnitCount:cpt];
+                if ([extractProgress isCancelled]) {
+                    break;
+                }
             }
             
+            [extractProgress removeObserver:caller
+                                     forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
+                                        context:ProgressObserverContext];
+            [extractProgress resignCurrent];
+            
+            NSLog(@"over");
         }
-    archive_read_free(a);
+        archive_read_free(a);
+        
+        
+    });
+    
+    return;
 }
 
 

@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+extern void *ProgressObserverContext;
+
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -61,6 +63,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize mSearchText;
 @synthesize popTipView;
 @synthesize alertRename;
+@synthesize waitingView;
 
 #pragma mark -
 #pragma mark Search functiçns
@@ -498,8 +501,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     childController=nil;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
-    
-    
+
+    extractProgress = nil;
+
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     self.navigationController.delegate = self;
@@ -927,7 +931,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     for (int i=0;i<27;i++) local_entries_count[i]=0;
     
     // First check count for each section
-    cpath=[self getFullPathForFilePath:  currentPath];
+    cpath=[self getFullPathForFilePath:currentPath];
     //NSLog(@"%@\n%@",cpath,currentPath);
     //Check if it is a directory or an archive
     BOOL isDirectory;
@@ -1796,10 +1800,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     local_entries[index][local_entries_count[index]].type=1;
                                     //check if Archive file
                                     if ([archivetype_ext indexOfObject:extension]!=NSNotFound) { //check if really an archive
-                                        if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
+                                        //if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
+                                        local_entries[index][local_entries_count[index]].type=2|16;  //16 is to flag them as to check before displaying entry in tabiew
                                     } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
-                                        if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
-                                        else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
+                                        local_entries[index][local_entries_count[index]].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
+                                        //if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
+                                        //else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
+                                            
                                     }
                                     
                                     if (other_encoding) {
@@ -2196,7 +2203,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
-    [self hideWaiting];
+    //[self hideWaiting];
     [self hideMiniPlayer];
     /*if (childController) {
      [childController viewDidDisappear:FALSE];
@@ -2419,6 +2426,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 [self updateWaitingTitle:NSLocalizedString(@"Extracting",@"")];
                 [self updateWaitingDetail:@""];
                 [self showWaitingCancel];
+                [self showWaitingProgress];
                 [self showWaiting];
                 [self flushMainLoop];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
@@ -2427,22 +2435,27 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 NSString *filePath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
                 NSString *tgtPath;
                 tgtPath=[self getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
-                int files_found=[ModizFileHelper scanarchive:[filePath UTF8String]];
+                int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
                 if (files_found) {
                     //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
-                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String]];
+                    
+                    extractProgress = [NSProgress progressWithTotalUnitCount:1];
+                    extractProgress.cancellable = YES;
+                    extractProgress.pausable = NO;
+                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress];
                     if (mSearch) {
                         mSearch=0;
                         [self listLocalFiles];
                         mSearch=1;
                     }
                     [self listLocalFiles];
+                    [self.tableView setUserInteractionEnabled:false];
                     //[self.tableView reloadData];
                 } else {
                     UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [cannotExtractAlert show];
                 }
-                [self hideWaiting];
+                //[self hideWaiting];
                 break;
             }
         }
@@ -2574,9 +2587,16 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-            if (self.tableView.refreshControl.isRefreshing==false)
+            if (self.tableView.refreshControl.isRefreshing==false) {
+                
+                if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
+                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
+                    else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
+                }
+                
                 if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
                     [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                }
             }
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         } else {
@@ -2672,6 +2692,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
             
             if (self.tableView.refreshControl.isRefreshing==false)
+                
+                if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
+                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
+                    else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
+                }
+                
                 if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
                     [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
@@ -2842,6 +2868,18 @@ As a consequence, some entries might disappear from existing playlist.\n\
         } else  { //file
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             //archive file ?
+            
+            if (cur_local_entries[section][indexPath.row].type&16) { //need to confirm if true archive or multisong
+                if ((cur_local_entries[section][indexPath.row].type&15)==2) { //need to confirm if true archive
+                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=2;
+                    else cur_local_entries[section][indexPath.row].type=1;
+                } else if ((cur_local_entries[section][indexPath.row].type&15)==3) { //need to confirm if true multisong
+                    if ([ModizFileHelper isGMEFileWithSubsongs:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
+                    else if ([ModizFileHelper isSidFileWithSubsongs:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
+                    else cur_local_entries[section][indexPath.row].type=1;
+                }
+            }
+            
             if ((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3)) {
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -3708,5 +3746,48 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldProceedAfterError:(NSError *)error movingItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath {
     return YES;
 }
+
+
+
+- (void) cancelPushed {
+    if (extractProgress) {
+        [extractProgress cancel];
+        [waitingView hideCancel];
+        [waitingView hideProgress];
+        [waitingView setDetail:NSLocalizedString(@"Cancelling...",@"")];
+    }
+}
+
+- (void) observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context
+{
+    if (context == ProgressObserverContext) {
+        NSProgress *progress = object;
+        
+        if ([progress isCancelled]) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [waitingView resetCancelStatus];
+                [self hideWaiting];
+                [self hideWaitingProgress];
+                [self.tableView setUserInteractionEnabled:true];
+                [self refreshViewReloadFiles];
+            }];
+        }
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self.waitingView setProgress:progress.fractionCompleted];
+            if (progress.fractionCompleted>=1.0f) {
+                [self hideWaiting];
+                [self hideWaitingProgress];
+                [self.tableView setUserInteractionEnabled:true];
+                [self refreshViewReloadFiles];
+            }
+        }];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
 
 @end

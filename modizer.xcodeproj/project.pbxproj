@@ -896,6 +896,7 @@
 		CCEB4E012BAE00ED004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
 		CCEB59052BAF1D18004831C6 /* liblzma.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB59032BAF1CD5004831C6 /* liblzma.tbd */; };
+		CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB5A492BB01040004831C6 /* libUnrarKIT.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -1147,6 +1148,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCEB46ED2BADF7A7004831C6;
 			remoteInfo = libarchive;
+		};
+		CCEB5A482BB01040004831C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCEB5A382BB0103F004831C6;
+			remoteInfo = UnrarKIT;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2594,6 +2602,7 @@
 		CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		CCEB59032BAF1CD5004831C6 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
 		CCEB59042BAF1CF2004831C6 /* liblzma.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.5.tbd; path = usr/lib/liblzma.5.tbd; sourceTree = SDKROOT; };
+		CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnrarKIT.xcodeproj; path = UnrarKIT/UnrarKIT.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -2638,6 +2647,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */,
 				CCEB59052BAF1D18004831C6 /* liblzma.tbd in Frameworks */,
 				CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */,
 				CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */,
@@ -3367,6 +3377,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */,
 				CCEB46F92BADF7A7004831C6 /* libarchive.xcodeproj */,
 				CCE8D74B2B8F11340076D8C0 /* Animation */,
 				591CA879264850D300168C7E /* AsyncImageView */,
@@ -4905,6 +4916,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCEB5A452BB0103F004831C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCEB5A492BB01040004831C6 /* libUnrarKIT.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCFA9ADC1AC75830007C658A /* WebTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -5148,6 +5167,10 @@
 				{
 					ProductGroup = 59392A0A25CF5E03009281DC /* Products */;
 					ProjectRef = 59392A0925CF5E03009281DC /* uade.xcodeproj */;
+				},
+				{
+					ProductGroup = CCEB5A452BB0103F004831C6 /* Products */;
+					ProjectRef = CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */;
 				},
 				{
 					ProductGroup = 59BF550E2628ED5D0064EF5E /* Products */;
@@ -5411,6 +5434,13 @@
 			fileType = archive.ar;
 			path = liblibarchive.a;
 			remoteRef = CCEB46FD2BADF7A7004831C6 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCEB5A492BB01040004831C6 /* libUnrarKIT.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libUnrarKIT.a;
+			remoteRef = CCEB5A482BB01040004831C6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -6098,6 +6128,10 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/utils",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6136,6 +6170,10 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/utils",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6272,6 +6310,8 @@
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
 					libs,
+					utils/UnrarKIT/Classes,
+					utils/UnrarKIT/Libraries/unrar,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6387,6 +6427,8 @@
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
 					libs,
+					utils/UnrarKIT/Classes,
+					utils/UnrarKIT/Libraries/unrar,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6502,6 +6544,8 @@
 					"libs/libnsfplay/nsfplay-master/xgm/player/nsf",
 					"libs/libnsfplay/nsfplay-master/xgm/devices/Sound/legacy",
 					libs,
+					utils/UnrarKIT/Classes,
+					utils/UnrarKIT/Libraries/unrar,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6521,6 +6565,10 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/utils",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
