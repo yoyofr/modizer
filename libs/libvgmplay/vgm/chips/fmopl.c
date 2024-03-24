@@ -1003,13 +1003,45 @@ if (m_voice_ofs>=0) { \
 \
     if ((ofs_end)>(ofs_start)) \
     for (;;) { \
-            m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
         ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
         if (ofs_start>=ofs_end) break; \
     } \
-    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT); \
-    m_voice_current_ptr[m_voice_ofs+channel]=ofs_end; \
 }
+
+#define MDZ_OUTPUT_ADD(val,channel) \
+if (m_voice_ofs>=0) { \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end)>(ofs_start)) \
+    for (;;) { \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=(m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+LIMIT8((val)>>5))>>1;  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+}
+
+#define MDZ_SKIP(channel) \
+if (m_voice_ofs>=0) { \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end)>(ofs_start)) \
+    for (;;) { \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+}
+
+#define MDZ_ADVANCE \
+for (int ii=0;ii<m_total_channels;ii++) {\
+int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ii]+smplIncr); \
+while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT); \
+m_voice_current_ptr[m_voice_ofs+ii]=ofs_end; \
+}
+
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -1022,8 +1054,11 @@ INLINE void OPL_CALC_CH( FM_OPL *OPL, OPL_CH *CH )
 	unsigned int env;
 	signed int out;
 
-	if (CH->Muted)
-		return;
+    //YOYOFR
+    if (CH->Muted) {
+        MDZ_SKIP(cur_channel)
+        return;
+    }
 
 	OPL->phase_modulation = 0;
 
@@ -1046,8 +1081,9 @@ INLINE void OPL_CALC_CH( FM_OPL *OPL, OPL_CH *CH )
 	env = volume_calc(SLOT);
     if( env < ENV_QUIET ) {
 		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable);
+        //YOYOFR
         MDZ_OUTPUT(op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable),cur_channel)
-    }
+    } else MDZ_SKIP(cur_channel)
 }
 
 /*
@@ -1092,7 +1128,8 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	OPL_SLOT *SLOT;
 	signed int out;
 	unsigned int env;
-
+    char wrote7,wrote8; //YOYOFR
+    wrote7=wrote8=0;
 
 	/* Bass Drum (verified on real YM3812):
       - depends on the channel 6 'connect' register:
@@ -1125,8 +1162,12 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	SLOT++;
 	env = volume_calc(SLOT);
     if( env < ENV_QUIET && ! OPL->MuteSpc[0] ) {
-		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 1), 6+0)
+        if (CH[6].Muted) {            
+            MDZ_SKIP(6+0)
+        } else {
+                OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
+                MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 1), 6+0)
+        }
     }
 
 
@@ -1194,9 +1235,13 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 			if (noise)
 				phase = 0xd0>>2;
 		}
-
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 1), 6+4)
+        if (CH[7].Muted) {
+            MDZ_SKIP(6+1)
+        } else {
+            wrote7=1;
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
+            MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 1), 6+1)
+        }
 	}
 
 	/* Snare Drum (verified on real YM3812) */
@@ -1217,15 +1262,28 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		if (noise)
 			phase ^= 0x100;
 
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
+        if (CH[7].Muted) {
+            MDZ_SKIP(6+1)
+        } else {
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
+            if (wrote7) {
+                MDZ_OUTPUT_ADD((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
+            } else {
+                MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
+            }
+        }
 	}
 
 	/* Tom Tom (verified on real YM3812) */
 	env = volume_calc(SLOT8_1);
     if( env < ENV_QUIET && ! OPL->MuteSpc[2] ) {
-		OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 1), 6+2)
+        if (CH[8].Muted) {
+            MDZ_SKIP(6+2)
+        } else {
+            wrote8=1;
+            OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
+            MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 1), 6+2)
+        }
     }
 
 	/* Top Cymbal (verified on real YM3812) */
@@ -1253,8 +1311,16 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		if (res2)
 			phase = 0x300;
 
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+3)
+        if (CH[8].Muted) {
+            MDZ_SKIP(6+2)
+        } else {
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
+            if (wrote8) {
+                MDZ_OUTPUT_ADD((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+2)
+            } else {
+                MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+2)
+            }
+        }
 	}
 }
 
@@ -2507,7 +2573,6 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int outp[5];
     m_voice_ofs=-1;
     int m_total_channels=9+5;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
@@ -2578,6 +2643,8 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		bufR[i] = lt;
 
 		advance(OPL);
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }
@@ -2717,6 +2784,23 @@ void y8950_update_one(void *chip, OPLSAMPLE **buffer, int length)
 	YM_DELTAT	*DELTAT = OPL->deltat;
 	OPLSAMPLE	*bufL = buffer[0];
 	OPLSAMPLE	*bufR = buffer[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=9;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for( i=0; i < length ; i++ )
 	{
@@ -2732,17 +2816,26 @@ void y8950_update_one(void *chip, OPLSAMPLE **buffer, int length)
 			YM_DELTAT_ADPCM_CALC(DELTAT);
 
 		/* FM part */
+        cur_channel=0;
 		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
 		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
 		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
 		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
 		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
 		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
 
 		if(!rhythm)
 		{
+            cur_channel=6;
 			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
 			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
 			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
 		}
 		else		/* Rhythm part */
@@ -2769,6 +2862,8 @@ void y8950_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		bufR[i] = lt;
 
 		advance(OPL);
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }

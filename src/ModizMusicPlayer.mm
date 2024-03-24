@@ -660,7 +660,7 @@ extern char* AppPaths[8];
  "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x0E, 0x09+5, 0x09+5, 0x09, 0x17, 0x2F, 0x0C, 0x08,
+    0x0E, 0x09+5, 0x09, 0x09, 0x17, 0x2F, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10+3,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
@@ -2904,7 +2904,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 //iCurrentTime=0;
                 bGlobalAudioPause=2;
                 bGlobalEndReached=0;
-                for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=0xFFFFFFFF^0x4;
+                for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=~0x4;
             }
             
             buffer_ana_flag[buffer_ana_play_ofs]=0;
@@ -10066,9 +10066,12 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"QSound")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"Y8950")==0) {
+                m_voicesDataAvail=1;
             }
+            
             /*
-             "Y8950",  "YMF271","RF5C164", "Pokey","SCSP", "WSwan","SAA1099", "ES5503", "ES5506", "X1-010"*/
+             "YMF271","RF5C164", "Pokey","SCSP", "WSwan","SAA1099", "ES5503", "ES5506", "X1-010"*/
             
             
         }
@@ -13573,31 +13576,31 @@ extern "C" void adjust_amplification(void);
             //NSLog(@"chip %d voice %d mask %08X",chipIdx,voiceIdx,current_mask);
             switch (modizChipsetType[chipIdx]) {
                 case NES_APU:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<voiceIdx);
+                    if (active) current_mask&=~(1<<voiceIdx);
                     else current_mask|=(1<<voiceIdx);
                     break;
                 case NES_FDS:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<5);
+                    if (active) current_mask&=~(1<<5);
                     else current_mask|=(1<<5);
                     break;
                 case NES_MMC5:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+6));
+                    if (active) current_mask&=~(1<<(voiceIdx+6));
                     else current_mask|=(1<<(voiceIdx+6));
                     break;
                 case NES_FME7:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+9));
+                    if (active) current_mask&=~(1<<(voiceIdx+9));
                     else current_mask|=(1<<(voiceIdx+9));
                     break;
                 case NES_VRC6:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+12));
+                    if (active) current_mask&=~(1<<(voiceIdx+12));
                     else current_mask|=(1<<(voiceIdx+12));
                     break;
                 case NES_VRC7:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+15));
+                    if (active) current_mask&=~(1<<(voiceIdx+15));
                     else current_mask|=(1<<(voiceIdx+15));
                     break;
                 case NES_N106:
-                    if (active) current_mask&=0xFFFFFFFF^(1<<(voiceIdx+21));
+                    if (active) current_mask&=~(1<<(voiceIdx+21));
                     else current_mask|=(1<<(voiceIdx+21));
                     break;
             }
@@ -13617,20 +13620,20 @@ extern "C" void adjust_amplification(void);
             break;
         case MMP_V2M:
             if (active) generic_mute_mask|=1<<channel;
-            else generic_mute_mask&=0xFFFFFFFF^(1<<channel);
+            else generic_mute_mask&=~(1<<channel);
             break;
         case MMP_PIXEL:
             if (pixel_organya_mode) {
                 if (!active) organya_mute_mask|=1<<channel;
-                else organya_mute_mask&=0xFFFFFFFF^1<<channel;
+                else organya_mute_mask&=~1<<channel;
             } else {
                 if (!active) pixel_pxtn->mute_mask|=1<<channel;
-                else pixel_pxtn->mute_mask&=0xFFFFFFFF^1<<channel;
+                else pixel_pxtn->mute_mask&=~1<<channel;
             }
             break;
         case MMP_UADE:
             if (active) HC_voicesMuteMask1|=1<<channel;
-            else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+            else HC_voicesMuteMask1&=~(1<<channel);
             break;
         case MMP_HC:
             if ((HC_type==1)||(HC_type==2)) {//PSF1 and PSF2}
@@ -13646,15 +13649,15 @@ extern "C" void adjust_amplification(void);
                     if (channel<32) HC_voicesMuteMask1|=1<<channel;
                     else HC_voicesMuteMask2|=1<<(channel-32);
                 } else {
-                    if (channel<32) HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
-                    else HC_voicesMuteMask2&=0xFFFFFFFF^(1<<(channel-32));
+                    if (channel<32) HC_voicesMuteMask1&=~(1<<channel);
+                    else HC_voicesMuteMask2&=~(1<<(channel-32));
                 }
             } else if (HC_type==0x23) { //SNSF
                 if (active) HC_voicesMuteMask1|=1<<channel;
-                else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+                else HC_voicesMuteMask1&=~(1<<channel);
             } else if (HC_type==0x41) { //QSF
                 if (active) HC_voicesMuteMask1|=1<<channel;
-                else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+                else HC_voicesMuteMask1&=~(1<<channel);
             }
             break;
         case MMP_GSF:
@@ -13731,32 +13734,32 @@ extern "C" void adjust_amplification(void);
                     //
                     switch (vgmplay_activeChips[i]) {
                         case 0: //SN76496: 4voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1|=1<<(channel-idx);
                             break;
                         case 1: //VRC7 or YM2413
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1|=1<<(channel-idx);
                             break;
                         case 2: //YM2612:  6voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<(channel-idx);
                             if ((channel-idx)==5) {
                                 //update dac channel as well, seems when dac channel 6 is linked to fm 4
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<6);
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=~(1<<6);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<6;
                             }
                             break;
                         case 3: //YM2151: 8voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1|=1<<(channel-idx);
                             break;
                         case 4: //Sega PCM: 16voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1|=1<<(channel-idx);
                             break;
                         case 5: //RF5C68
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1|=1<<(channel-idx);
                             break;
                         case 6: {//YM2203
@@ -13764,10 +13767,10 @@ extern "C" void adjust_amplification(void);
                             // chnmute3, 3bits -> yyy y:ay 3ch
                             int voice=channel-idx;
                             if (voice<3) {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=~(1<<voice);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1|=(1<<voice);
                             } else {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=0xFFFFFFFF^(1<<(voice-3));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=~(1<<(voice-3));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3|=(1<<(voice-3));
                             }
                             break;
@@ -13777,13 +13780,13 @@ extern "C" void adjust_amplification(void);
                             // chnmute3, 3bits -> yyy y:ay 3ch
                             int voice=channel-idx;
                             if (voice<6) {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=~(1<<voice);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1|=(1<<voice);
                             } else if (voice<13) {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=0xFFFFFFFF^(1<<(voice-6));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=~(1<<(voice-6));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2|=(1<<(voice-6));
                             } else {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=~(1<<(voice-13));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
                             }
                             break;
@@ -13804,150 +13807,150 @@ extern "C" void adjust_amplification(void);
                             }
                             
                             if (voice<6) { //FM
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute1&=~(1<<voice);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute1|=(1<<voice);
                             } else if (voice<6+7) {  //ADPCM & Delta
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute2&=0xFFFFFFFF^(1<<(voice-6));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute2&=~(1<<(voice-6));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute2|=(1<<(voice-6));
                             } else { //AY chip
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute3&=~(1<<(voice-13));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute3|=(1<<(voice-13));
                             }
                             break;
                         }
                         case 9: //YM3812: 9voices+5perc
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0A: //YM3526
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0B: //Y8950
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0C: //YMF262
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0D: //YMF278B:47voices:23(ymf262)+24pcm(wave table) fm: 18 channels + 5 drums pcm: 24 channels
                             //  mute1: dddddffffffffffffffffff
                             //  mute2: pppppppppppppppppppppppp
                             if (channel-idx<23) {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=~(1<<(channel-idx));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1|=(1<<(channel-idx));
                             } else {
-                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2&=0xFFFFFFFF^(1<<(channel-idx-23));
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2&=~(1<<(channel-idx-23));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2|=(1<<(channel-idx-23));
                             }
                             break;
                         case 0x0E: //YMF271
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x0F: //YMZ280B
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x10: //RF5C164
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x11: //PWM
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x12: //AY8910
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x13: //GameBoy
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x14: //NES APU: 5voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x15: //MultiPCM
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x16: //UPD7759
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x17: //OKIM6258: 1voice
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x18: //OKIM6295: 4voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x19: //K051649: 5voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1A: //K054539
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1B: //HuC6280
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1C: //C140: 24voices
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1D: //k053260
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1E: //pokey
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x1F: //qsound
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x20: //SCSP
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x21: //WSAN
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x22: //VSU
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x23: //SAA1099
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x24: //ES5503
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x25: //ES5506
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x26: //X1_010
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x27: //C352
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x28: //X1_010
-                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1|=1<<(channel-idx);
                             break;
                         default:
