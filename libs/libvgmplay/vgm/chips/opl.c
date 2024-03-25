@@ -1258,6 +1258,41 @@ if (ofs_end>ofs_start)     \
 }     \
 /*TODO:  MODIZER changes end / YOYOFR*/     \
 	}
+
+#define CHANVAL_OUT_ADD(chn,channel,shift)                                \
+    if (OPL->adlibreg[0x105]&1) {                        \
+        outbufl[i] += chanval*cptr[chn].left_pan;        \
+        outbufr[i] += chanval*cptr[chn].right_pan;    \
+/*TODO:  MODIZER changes start / YOYOFR */    \
+if (m_voice_ofs>=0) {     \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
+if (ofs_end>ofs_start)     \
+    for (;;) {     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=((int)(m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)])+LIMIT8(((chanval*(cptr[chn].left_pan+cptr[chn].right_pan))>>shift)))>>1;     \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;     \
+        if (ofs_start>=ofs_end) break;     \
+    }     \
+}     \
+/*TODO:  MODIZER changes end / YOYOFR*/     \
+    } else {                                        \
+        outbufl[i] += chanval;                        \
+        outbufr[i] += chanval;                        \
+/*TODO:  MODIZER changes start / YOYOFR */    \
+if (m_voice_ofs>=0) {     \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
+if (ofs_end>ofs_start)     \
+    for (;;) {     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=((int)(m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)])+LIMIT8((chanval>>shift)))>>1;     \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;     \
+        if (ofs_start>=ofs_end) break;     \
+    }     \
+}     \
+/*TODO:  MODIZER changes end / YOYOFR*/     \
+    }
+
+
 #else
 #define CHANVAL_OUT(chn,channel,shift)								\
 	outbufl[i] += chanval;							\
@@ -1266,14 +1301,31 @@ if (ofs_end>ofs_start)     \
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
-if (ofs_end>ofs_start)     \
-    for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chanval>>(shift+1)));     \
-        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;     \
-        if (ofs_start>=ofs_end) break;     \
-    }     \
-}     \
+    if (ofs_end>ofs_start)     \
+        for (;;) {     \
+            m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chanval>>(shift+1)));     \
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;     \
+            if (ofs_start>=ofs_end) break;     \
+        }     \
+}
 /*TODO:  MODIZER changes end / YOYOFR*/
+
+#define CHANVAL_OUT_ADD(chn,channel,shift)                                \
+    outbufl[i] += chanval;                            \
+    outbufr[i] += chanval;                            \
+/*TODO:  MODIZER changes start / YOYOFR */    \
+if (m_voice_ofs>=0) {     \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
+    if (ofs_end>ofs_start)     \
+        for (;;) {     \
+            m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=((int)(m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)])+LIMIT8((chanval>>(shift+1))))>>1;     \
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;     \
+            if (ofs_start>=ofs_end) break;     \
+        }     \
+}
+/*TODO:  MODIZER changes end / YOYOFR*/
+
 #endif
 
 
@@ -1425,7 +1477,9 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 						operator_output(&cptr[9],0,tremval1[i]);
 						
 						chanval = cptr[9].cval*2;
-						CHANVAL_OUT(0,max_channel+0,6)
+                        if (! (OPL->MuteChn[6]) ) {
+                            CHANVAL_OUT(0,6,6)
+                        }
 					}
 				}
 			}
@@ -1473,7 +1527,9 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 						operator_output(&cptr[9],cptr[0].cval*FIXEDPT,tremval2[i]);
 						
 						chanval = cptr[9].cval*2;
-						CHANVAL_OUT(0,max_channel+0,6)
+                        if (! (OPL->MuteChn[6]) ) {
+                            CHANVAL_OUT(0,6,6)
+                        }
 					}
 				}
 			}
@@ -1506,7 +1562,9 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 					opfuncs[cptr[0].op_state](&cptr[0]);		//TomTom
 					operator_output(&cptr[0],0,tremval3[i]);
 					chanval = cptr[0].cval*2;
-					CHANVAL_OUT(0,max_channel+2,6)
+                    if (! (OPL->MuteChn[8]) ) {
+                        CHANVAL_OUT(0,8,6)
+                    }
 				}
 			}
 
@@ -1595,11 +1653,17 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 					CHANVAL_OUT(8,0)*/
                     
                     chanval = (OPL->op[7].cval)*2;
-                    CHANVAL_OUT(7,max_channel+4,6)
+                    if (! (OPL->MuteChn[7]) ) {
+                        CHANVAL_OUT(7,7,6)
+                    }
                     chanval = (OPL->op[7+9].cval)*2;
-                    CHANVAL_OUT(7,max_channel+1,6)
+                    if (! (OPL->MuteChn[7]) ) {
+                        CHANVAL_OUT_ADD(7,7,6)
+                    }
                     chanval = OPL->op[8+9].cval*2;
-                    CHANVAL_OUT(8,max_channel+3,6)
+                    if (! (OPL->MuteChn[8]) ) {
+                        CHANVAL_OUT_ADD(8,8,6)
+                    }
 				}
 			}
 		}

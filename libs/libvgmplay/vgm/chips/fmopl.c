@@ -1162,7 +1162,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	SLOT++;
 	env = volume_calc(SLOT);
     if( env < ENV_QUIET && ! OPL->MuteSpc[0] ) {
-        if (CH[6].Muted) {            
+        if (CH[6].Muted) {
             MDZ_SKIP(6+0)
         } else {
                 OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
@@ -2439,6 +2439,23 @@ void ym3812_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		refresh_eg(OPL);
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=9;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	for( i=0; i < length ; i++ )
 	{
@@ -2449,17 +2466,26 @@ void ym3812_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		advance_lfo(OPL);
 
 		/* FM part */
+        cur_channel=0;
 		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
 		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
 		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
 		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
 		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
 		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
 
 		if(!rhythm)
 		{
+            cur_channel=6;
 			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
 			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
 			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
 		}
 		else		/* Rhythm part */
@@ -2486,6 +2512,8 @@ void ym3812_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		bufR[i] = lt;
 
 		advance(OPL);
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }
@@ -2574,7 +2602,7 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     m_voice_ofs=-1;
-    int m_total_channels=9+5;
+    int m_total_channels=9;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;

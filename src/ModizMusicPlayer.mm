@@ -659,8 +659,8 @@ extern char* AppPaths[8];
  "SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
  "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x0E, 0x09+5, 0x09, 0x09, 0x17, 0x2F, 0x0C, 0x08,
+{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
+    0x0E, 0x09, 0x09, 0x09, 0x17, 0x2F, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10+3,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
@@ -668,8 +668,8 @@ const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 };
 
 const UINT8 vgmREALCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x0E, 0x09+5, 0x06+5, 0x09, 0x12+5, 0x2A, 0x0C, 0x08,
+{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
+    0x0E, 0x09, 0x06, 0x09, 0x12+5, 0x2A, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10+3,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
@@ -5874,6 +5874,8 @@ static bool extractDone;
             //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
             //[self.waitingView setProgress:progress.fractionCompleted];
             if (progress.fractionCompleted>=1.0f) {
+                mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
                 //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
 //                [self hideWaiting];
 //                [self hideWaitingProgress];
@@ -9932,6 +9934,9 @@ int vgmGetFileLength()
     ChipOpts[0].YM2612.EmuCore=settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value;
     ChipOpts[1].YM2612.EmuCore=settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value;
     
+    ChipOpts[0].YM3812.EmuCore=settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value;
+    ChipOpts[1].YM3812.EmuCore=settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value;
+    
     ChipOpts[0].YMF262.EmuCore=settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value;
     ChipOpts[1].YMF262.EmuCore=settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value;
     
@@ -10068,10 +10073,12 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"Y8950")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"WSwan")==0) {
+                m_voicesDataAvail=1;
             }
             
             /*
-             "YMF271","RF5C164", "Pokey","SCSP", "WSwan","SAA1099", "ES5503", "ES5506", "X1-010"*/
+             "YMF271","RF5C164", "Pokey","SCSP","SAA1099", "ES5503", "ES5506", "X1-010"*/
             
             
         }
@@ -13921,7 +13928,7 @@ extern "C" void adjust_amplification(void);
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1|=1<<(channel-idx);
                             break;
-                        case 0x21: //WSAN
+                        case 0x21: //WSWAN
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1&=~(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1|=1<<(channel-idx);
                             break;

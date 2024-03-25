@@ -682,6 +682,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
     
@@ -2182,6 +2183,19 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
+    
+    SETTINGS_ID_DEF(VGMPLAY_YM3812Emulator)
+    settings[VGMPLAY_YM3812Emulator].type=MDZ_SWITCH;
+    settings[VGMPLAY_YM3812Emulator].label=(char*)"YM3812 emu";
+    settings[VGMPLAY_YM3812Emulator].description=NULL;
+    settings[VGMPLAY_YM3812Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_YM3812Emulator].sub_family=0;
+    settings[VGMPLAY_YM3812Emulator].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb=2;
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBOX";
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
     
     SETTINGS_ID_DEF(VGMPLAY_QSoundEmulator)
     settings[VGMPLAY_QSoundEmulator].type=MDZ_SWITCH;
