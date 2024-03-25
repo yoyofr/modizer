@@ -5900,10 +5900,11 @@ static bool extractDone;
         [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress];
         while (extractDone==false) {
             [NSThread sleepForTimeInterval:0.1f];
-            //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-            
             NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-            [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+            [[NSRunLoop mainRunLoop] runUntilDate:futureDate];
+            
+            //NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+            //[[NSRunLoop currentRunLoop] runUntilDate:futureDate];
         }
     }
 #if 0
@@ -10864,9 +10865,9 @@ extern bool icloud_available;
                         mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
                         mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                        //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                         NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+                        [[NSRunLoop mainRunLoop] runUntilDate:futureDate];
+//                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
                         
                         
                         //[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];

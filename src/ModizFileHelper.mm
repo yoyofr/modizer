@@ -827,7 +827,9 @@ extern void *ProgressObserverContext;
     if (r==ARCHIVE_OK) {
         NSMutableArray *filesList=[[NSMutableArray alloc] init];
         NSString *file;
-        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        for (;;) {
+            r=archive_read_next_header(a, &entry);
+            if ((r!=ARCHIVE_OK)&&(r!=ARCHIVE_WARN)) break;
             file=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
             if ([ModizFileHelper isAcceptedFile:file no_aux_file:1]) {
                 found++;

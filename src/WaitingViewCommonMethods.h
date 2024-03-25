@@ -10,8 +10,8 @@
 
 -(void) flushMainLoop {
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-    NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+//    NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+//    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
 }
 
 -(void) showWaitingLoading{
