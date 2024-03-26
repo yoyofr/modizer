@@ -59,6 +59,7 @@ enum MDZ_SETTINGS {
     //GLOB_PlaybackFrequency,
     GLOB_SearchRegExp,
     GLOB_ResumeOnStart,
+    GLOB_NoScreenAutoLock,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,

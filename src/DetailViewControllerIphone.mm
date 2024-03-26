@@ -907,6 +907,9 @@ static float movePinchScale,movePinchScaleOld;
     //GLOBAL
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GLOBAL)) {
+        //reset idle timer to settings value
+        [[UIApplication sharedApplication] setIdleTimerDisabled:settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value];
+        
         [mplayer optGLOB_Panning:settings[GLOB_Panning].detail.mdz_boolswitch.switch_value];
         [mplayer optGLOB_PanningValue:settings[GLOB_PanningValue].detail.mdz_slider.slider_value];
         switch (settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value) {
@@ -4716,6 +4719,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mPaused=1;
     mScaleFactor=1.0f;
     
+    //reset idle timer to settings value
+    [[UIApplication sharedApplication] setIdleTimerDisabled:settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value];
+    
     isRecordingScreen=RS_NOT_RECORDING;
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
@@ -7830,6 +7836,9 @@ extern "C" int current_sample;
             } else {
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING;
+                
+                //remove idle timer
+                [[UIApplication sharedApplication] setIdleTimerDisabled:true];
             }
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
@@ -7851,6 +7860,9 @@ extern "C" int current_sample;
             } else {
                 isRecordingScreen=RS_RECORDING;
                 bRSactive=true;
+                
+                //remove idle timer
+                [[UIApplication sharedApplication] setIdleTimerDisabled:true];
             }
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
@@ -7872,6 +7884,9 @@ extern "C" int current_sample;
             } else {
                 isRecordingScreen=RS_RECORDING_AND_STOP;
                 bRSactive=true;
+                
+                //remove idle timer
+                [[UIApplication sharedApplication] setIdleTimerDisabled:true];
             }
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
@@ -7899,6 +7914,9 @@ extern "C" int current_sample;
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING_FS;
                 [self restartCurrent];
+                
+                //remove idle timer
+                [[UIApplication sharedApplication] setIdleTimerDisabled:true];
             }
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
@@ -7926,6 +7944,9 @@ extern "C" int current_sample;
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING_AND_STOP_FS;
                 [self restartCurrent];
+                
+                //remove idle timer
+                [[UIApplication sharedApplication] setIdleTimerDisabled:true];
             }
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
             [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
@@ -7947,6 +7968,9 @@ extern "C" int current_sample;
                                          NSError * error) {
         isRecordingScreen=RS_NOT_RECORDING;
         bRSactive=false;
+        //reset idle timer to settings value
+        [[UIApplication sharedApplication] setIdleTimerDisabled:settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value];
+        
         [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
         [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         if(error)
@@ -7970,6 +7994,9 @@ didStopRecordingWithError:(NSError *)error
  previewViewController:(RPPreviewViewController *)previewViewController {
     
     isRecordingScreen=false;
+    //reset idle timer to settings value
+    [[UIApplication sharedApplication] setIdleTimerDisabled:settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value];
+    
     
     if(error) {
         NSLog(@"Error= %@",error.localizedDescription);

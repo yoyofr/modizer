@@ -2006,6 +2006,7 @@ static int shouldRestart=1;
         if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
                 
         [self hideWaitingCancel];
+        [self hideWaitingProgress];
         [self updateWaitingTitle:@""];
         [self updateWaitingDetail:@""];
                         
@@ -2074,6 +2075,7 @@ static int shouldRestart=1;
         //self.view.alpha=0.5f;
         
         [self hideWaitingCancel];
+        [self hideWaitingProgress];
         [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
         [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
         [self showWaiting];
@@ -3096,6 +3098,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     [self updateWaitingTitle:@""];
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
+    [self hideWaitingProgress];
     [self showWaiting];
     [self flushMainLoop];
     if (detailViewController.mPlaylist_size) {
@@ -3150,6 +3153,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     [self updateWaitingTitle:@""];
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
+    [self hideWaitingProgress];
     [self showWaiting];
     [self flushMainLoop];
     
@@ -3284,6 +3288,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     [self updateWaitingTitle:@""];
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
+    [self hideWaitingProgress];
     [self showWaiting];
     [self flushMainLoop];
     
@@ -3407,6 +3412,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 [self updateWaitingTitle:@""];
                 [self updateWaitingDetail:@""];
                 [self hideWaitingCancel];
+                [self hideWaitingProgress];
                 [self showWaiting];
                 [self flushMainLoop];
                 
@@ -3443,6 +3449,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [self updateWaitingTitle:@""];
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
+            [self hideWaitingProgress];
             [self showWaiting];
             [self flushMainLoop];
             
@@ -3471,6 +3478,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [self updateWaitingTitle:@""];
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
+            [self hideWaitingProgress];
             [self showWaiting];
             [self flushMainLoop];
             
@@ -3498,11 +3506,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
             //				[childController autorelease];
         } else {  //File selected
             
-            [self updateWaitingTitle:@""];
-            [self updateWaitingDetail:@""];
-            [self hideWaitingCancel];
-            [self showWaiting];
-            [self flushMainLoop];
+//            [self updateWaitingTitle:@""];
+//            [self updateWaitingDetail:@""];
+//            [self hideWaitingCancel];
+//            [self hideWaitingProgress];
+//            [self showWaiting];
+//            [self flushMainLoop];
             
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
@@ -3531,7 +3540,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 }
             }
             
-            [self hideWaiting];
+            //[self hideWaiting];
             
             
         }

@@ -5859,29 +5859,45 @@ static bool extractDone;
             NSLog(@"cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
 //                [waitingView resetCancelStatus];
 //                [self hideWaiting];
 //                [self hideWaitingProgress];
 //                [self.tableView setUserInteractionEnabled:true];
             }];
         }
-        
-        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
+#if DEBUG_MODIZER
+        NSLog(@"extract progress: %lf",progress.fractionCompleted);
+#endif
         if (progress.fractionCompleted>=1.0f) extractDone=true;
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            //Run UI Updates
             UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
             mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
-            //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-            //[self.waitingView setProgress:progress.fractionCompleted];
             if (progress.fractionCompleted>=1.0f) {
-                mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-                mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
+                //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
                 //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
-//                [self hideWaiting];
-//                [self hideWaitingProgress];
-//                [self.tableView setUserInteractionEnabled:true];
             }
-        }];
+        });
+                            
+//        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+//            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+//            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
+//            //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+//            //[self.waitingView setProgress:progress.fractionCompleted];
+//            if (progress.fractionCompleted>=1.0f) {
+//                mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+//                mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
+//                //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
+////                [self hideWaiting];
+////                [self hideWaitingProgress];
+////                [self.tableView setUserInteractionEnabled:true];
+//            }
+//        }];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
@@ -5900,7 +5916,7 @@ static bool extractDone;
         [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress];
         while (extractDone==false) {
             [NSThread sleepForTimeInterval:0.1f];
-            NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
+            NSDate* futureDate = [NSDate dateWithTimeInterval:0.1f sinceDate:[NSDate date]];
             [[NSRunLoop mainRunLoop] runUntilDate:futureDate];
             
             //NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
@@ -10865,15 +10881,12 @@ extern bool icloud_available;
                         mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
                         mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                        NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-                        [[NSRunLoop mainRunLoop] runUntilDate:futureDate];
-//                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
-                        
                         
                         //[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
                         [self extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting];
                                                 
-                        //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
                         
                         //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 //                        futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];

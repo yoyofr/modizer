@@ -455,6 +455,7 @@ void optNSFPLAYChangedC(id param) {
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
@@ -834,6 +835,15 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ResumeOnStart].callback=&optGLOBALChangedC;
     settings[GLOB_ResumeOnStart].type=MDZ_BOOLSWITCH;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
+    
+    SETTINGS_ID_DEF(GLOB_NoScreenAutoLock)
+    settings[GLOB_NoScreenAutoLock].label=(char*)"Disable screen auto lock";
+    settings[GLOB_NoScreenAutoLock].description=NULL;
+    settings[GLOB_NoScreenAutoLock].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_NoScreenAutoLock].sub_family=0;
+    settings[GLOB_NoScreenAutoLock].callback=&optGLOBALChangedC;
+    settings[GLOB_NoScreenAutoLock].type=MDZ_BOOLSWITCH;
+    settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_SearchRegExp)
     settings[GLOB_SearchRegExp].label=(char*)"Search: simplified regexp ('.'->'\\.', '*'->'.*')";

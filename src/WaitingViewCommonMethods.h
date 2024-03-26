@@ -9,34 +9,39 @@
 #define WaitingViewCommonMethods_h
 
 -(void) flushMainLoop {
+    NSDate* futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
+    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+    futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-//    NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-//    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+    
 }
 
 -(void) showWaitingLoading{
     [waitingView hideCancel];
     [waitingView setDetail:@""];
     [waitingView setTitle:NSLocalizedString(@"Loading","")];
-    waitingView.hidden=FALSE;
-    [self flushMainLoop];
+    [self showWaiting];
+    //waitingView.hidden=FALSE;
+    //[self flushMainLoop];
 }
 
 -(void) showWaitingBlank{
     [waitingView hideCancel];
     [waitingView setDetail:@""];
     [waitingView setTitle:@""];
-    waitingView.hidden=FALSE;
-    [self flushMainLoop];
+    [self showWaiting];
+//    waitingView.hidden=FALSE;
+//    [self flushMainLoop];
 }
 
 -(void) showWaitingWithCancel {
     [waitingView showCancel];
     [waitingView setDetail:@""];
     [waitingView setTitle:@""];
-    waitingView.hidden=FALSE;
     [waitingView resetCancelStatus];
-    [self flushMainLoop];
+    [self showWaiting];
+//    waitingView.hidden=FALSE;
+//    [self flushMainLoop];
 }
 
 -(void) hideWaitingCancel {
@@ -61,16 +66,19 @@
 -(void) showWaiting{
     waitingView.hidden=FALSE;
     waitingView.layer.zPosition=MAXFLOAT;
+    [self.view bringSubviewToFront:waitingView];
+    
+    
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+    
+    [self flushMainLoop];
+    
     [waitingView setNeedsLayout];
     [waitingView layoutIfNeeded];
-    [self.view bringSubviewToFront:waitingView];
-    /*[self.view setNeedsLayout];
-    [self.view layoutIfNeeded];*/
     
-    /*[NSThread sleepForTimeInterval:0.1f];
     [self flushMainLoop];
-    [NSThread sleepForTimeInterval:0.1f];
-    [self flushMainLoop];*/
+    
 }
 -(void) hideWaiting{
     waitingView.hidden=TRUE;    
