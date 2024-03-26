@@ -10,6 +10,7 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
+static int kss_silence_threshold=0x50;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -258,6 +259,14 @@ KSSPLAY *KSSPLAY_new(uint32_t rate, uint32_t nch, uint32_t bps) {
     DCF_reset(kssplay->dcf[i], rate);
     // DCF_disable(kssplay->dcf[i]);
   }
+    
+    //YOYOFR
+    for (int k=0;k<41;k++) {
+        kssplay->rcf[k+2] = RCF_new();
+        RCF_disable(kssplay->rcf[k+2]);
+        kssplay->dcf[k+2] = DCF_new();
+        DCF_reset(kssplay->dcf[k+2], rate);
+    }
 
   return kssplay;
 }
@@ -324,15 +333,29 @@ void KSSPLAY_set_device_pan(KSSPLAY *kssplay, KSS_DEVICE device, int32_t pan) {
 void KSSPLAY_set_dcf(KSSPLAY *kssplay, int enable) {
   kssplay->dcf[0]->enable = enable;
   kssplay->dcf[1]->enable = enable;
+    //YOYOFR
+    for (int k=0;k<41;k++) {
+        kssplay->dcf[k+2]->enable = enable;
+    }
 }
 
 void KSSPLAY_set_rcf(KSSPLAY *kssplay, uint32_t r, uint32_t c) {
   if (r != 0 && c != 0) {
     RCF_reset(kssplay->rcf[0], kssplay->rate, (double)r, (double)c / 1.0e9);
     RCF_reset(kssplay->rcf[1], kssplay->rate, (double)r, (double)c / 1.0e9);
+      
+      //YOYOFR
+      for (int k=0;k<41;k++) {
+          RCF_reset(kssplay->rcf[k+2], kssplay->rate, (double)r, (double)c / 1.0e9);
+      }
   } else {
     RCF_disable(kssplay->rcf[0]);
     RCF_disable(kssplay->rcf[1]);
+      
+      //YOYOFR
+      for (int k=0;k<41;k++) {
+          RCF_disable(kssplay->rcf[k+2]);
+      }
   }
 }
 
@@ -358,6 +381,11 @@ void KSSPLAY_delete(KSSPLAY *kssplay) {
       RCF_delete(kssplay->rcf[i]);
       DCF_delete(kssplay->dcf[i]);
     }
+      //YOYOFR
+      for (int k=0;k<41;k++) {
+          RCF_delete(kssplay->rcf[k+2]);
+          DCF_delete(kssplay->dcf[k+2]);
+      }
     free(kssplay);
   }
 }
@@ -559,6 +587,7 @@ static inline void calc_mono(KSSPLAY *kssplay, int16_t *buf, uint32_t length) {
       kssplay->silent = 0;
     }
 
+      //YOYOFR
     d = fader(kssplay, DCF_calc(kssplay->dcf[0], d));
     buf[i] = compress(RCF_calc(kssplay->rcf[0], d));
   }
@@ -666,8 +695,13 @@ static inline void calc_stereo(KSSPLAY *kssplay, int16_t *buf, uint32_t length) 
     }
 
     /* Check silent span */
-    if (kssplay->lastout[0] == ch[0] && kssplay->lastout[1] == ch[1]) {
-      kssplay->silent++;
+    //YOYOFR: add some flexibility
+    if ( (abs((kssplay->lastout[0]-ch[0]))<=kss_silence_threshold) &&
+         (abs((kssplay->lastout[1]-ch[1]))<=kss_silence_threshold)
+        ) {
+        kssplay->lastout[0] = ch[0];
+        kssplay->lastout[1] = ch[1];
+        kssplay->silent++;
     } else {
       kssplay->lastout[0] = ch[0];
       kssplay->lastout[1] = ch[1];
@@ -706,6 +740,32 @@ static inline void calc_stereo(KSSPLAY *kssplay, int16_t *buf, uint32_t length) 
     buf[(i << 1)] = compress(RCF_calc(kssplay->rcf[0], ch[0]));
     buf[(i << 1) + 1] = compress(RCF_calc(kssplay->rcf[1], ch[1]));
   }
+    
+        
+    for (int jj=0;jj<m_genNumVoicesChannels;jj++) {
+        int64_t ofs_start=m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        for (int i=0;i<length;i++) {
+            int val=m_voice_buff[jj][(i+ofs_start)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
+            val=DCF_calc(kssplay->dcf[2+jj], val);
+            
+            //apply fade
+            if (kssplay->fade_flag == KSSPLAY_FADE_OUT) {
+              if (kssplay->fade > kssplay->fade_step) {
+                //kssplay->fade -= kssplay->fade_step;
+                val=((int32_t)(val * (kssplay->fade >> FADE_BASE_BIT)) >> FADE_BIT);
+              } else {
+                  val=0;
+              }
+            } else if (kssplay->fade_flag == KSSPLAY_FADE_END) {
+                val=0;
+            } else {
+            }
+            
+            //apply rcf
+            val=compress(RCF_calc(kssplay->rcf[2+jj], val));
+            m_voice_buff[jj][(i+ofs_start)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(val);
+        }
+    }
 }
 
 void KSSPLAY_calc(KSSPLAY *kssplay, int16_t *buf, uint32_t length) {
@@ -746,7 +806,7 @@ int KSSPLAY_get_loop_count(KSSPLAY *kssplay) {
 }
 
 int KSSPLAY_get_stop_flag(KSSPLAY *kssplay) {
-  if (kssplay->silent_limit != 0 && (kssplay->silent * 1000 / kssplay->rate > kssplay->silent_limit)) {
+  if (kssplay->silent_limit != 0 && ((kssplay->silent * 1000 / kssplay->rate) > kssplay->silent_limit)) {
     return 1;
   }
   return kssplay->vm->IO[STOPIO];

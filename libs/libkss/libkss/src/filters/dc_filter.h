@@ -10,10 +10,12 @@ extern "C" {
 typedef struct _tagDCF {
   uint32_t enable;
   double weight;
+    //YOYOFR
   double in, out;
 } DCF;
 
 DCF *DCF_new(void);
+//YOYOFR
 int32_t DCF_calc(DCF *, int32_t data);
 void DCF_delete(DCF *);
 void DCF_reset(DCF *, double rate);

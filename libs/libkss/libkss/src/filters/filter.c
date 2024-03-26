@@ -61,10 +61,10 @@ void FIR_reset(FIR *fir, uint32_t sam, uint32_t cut, uint32_t N) {
   }
 }
 
-int32_t FIR_calc(FIR *fir, int32_t data) {
+int32_t  FIR_calc(FIR *fir, int32_t data) {
   uint32_t i, M = fir->M;
   double s;
-
+    
   /* assert(fir); */
   if (fir->M == 0)
     return data;

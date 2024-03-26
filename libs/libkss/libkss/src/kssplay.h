@@ -45,9 +45,9 @@ struct tagKSSPLAY {
   int32_t device_pan[KSS_DEVICE_MAX];
   uint32_t device_type[KSS_DEVICE_MAX];
   FIR *device_fir[2][KSS_DEVICE_MAX];
-  RCF *rcf[2];
-  DCF *dcf[2];
-  uint32_t lastout[2];
+  RCF *rcf[2+41]; //YOYOFR, max 41 voices
+  DCF *dcf[2+41]; //YOYOFR, max 41 voices
+  int32_t lastout[2]; //YOYOFR
 
   uint32_t fade;
   uint32_t fade_step;
