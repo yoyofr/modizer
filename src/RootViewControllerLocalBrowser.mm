@@ -494,6 +494,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     start_time=clock();
     childController=nil;
     
+    cutpaste_initiated=0;
+    
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
 
     extractProgress = nil;
@@ -2109,6 +2111,13 @@ static int shouldRestart=1;
      [tableView layoutIfNeeded];
      [tableView reloadData];*/
     forceReloadCells=false;
+    
+    //check if a pending cut/paste exists
+    if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
+            //file has been moved, force reload
+            shouldFillKeys=1;            
+            cutpaste_initiated=0;
+    }
     
     if (shouldFillKeys) [self refreshViewReloadFiles];
     

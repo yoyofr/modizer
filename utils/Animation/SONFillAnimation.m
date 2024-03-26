@@ -250,6 +250,10 @@
     if (!transformAnimation) transformAnimation = [CABasicAnimation animation];
     if (!shadeAnimation) shadeAnimation = [CABasicAnimation animation];
     
+//    transformAnimation.timingFunction=[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+//    shadeAnimation.timingFunction=[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    
+    
     transformAnimation.duration = self.duration;
     transformAnimation.fillMode = kCAFillModeForwards;
     transformAnimation.removedOnCompletion = NO;

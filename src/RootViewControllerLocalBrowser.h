@@ -31,6 +31,8 @@
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
     
+    int cutpaste_initiated;
+    
     //UIRefreshControl *refreshControl;
     
     MiniPlayerVC *miniplayerVC;

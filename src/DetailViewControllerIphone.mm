@@ -1298,6 +1298,11 @@ static float movePinchScale,movePinchScaleOld;
         NSString *album=mplayer.album;
         NSString *title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         
+        if (is_macOS) {
+            if (mIsPlaying) infoCenter.playbackState=MPNowPlayingPlaybackStatePlaying;
+            else infoCenter.playbackState=MPNowPlayingPlaybackStatePaused;
+        }
+        
         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                      title,
                                      MPMediaItemPropertyTitle,

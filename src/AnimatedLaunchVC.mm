@@ -82,23 +82,28 @@
     }
     
     
-    animation.duration = 0.3f;
+    animation.duration = 0.5f;
     animation.xDelay = 0.02f;
     animation.yDelay = 0.04f;
     animation.animateToHide=YES;
     animation.disableShadeAnimation = NO;
+            
 
     
     CABasicAnimation *tAnimation1 = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
     tAnimation1.fromValue = [NSNumber numberWithFloat:1.0];
-    tAnimation1.toValue = [NSNumber numberWithFloat:0.5];
+    tAnimation1.toValue = [NSNumber numberWithFloat:0.25];
     CABasicAnimation *tAnimation2 = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     tAnimation2.fromValue = [NSNumber numberWithFloat:RADIAN(0)];
-    tAnimation2.toValue = [NSNumber numberWithFloat:RADIAN(45)];
+    tAnimation2.toValue = [NSNumber numberWithFloat:RADIAN((90+45))];
     CABasicAnimation *tAnimation3 = [CABasicAnimation animationWithKeyPath:@"opacity"];
     tAnimation3.fromValue = [NSNumber numberWithFloat:1.0];
     tAnimation3.toValue = [NSNumber numberWithFloat:0.0];
     CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
+    
+    groupAnimation.timingFunction=[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    
+            
     [groupAnimation setAnimations:[NSArray arrayWithObjects:tAnimation1, tAnimation2, tAnimation3, nil]];
     self.animation.transformAnimation = groupAnimation;
     
