@@ -27,6 +27,7 @@
 +(BOOL) addSkipBackupAttributeToItemAtPath:(NSString*)path;
 +(void) updateFilesDoNotBackupAttributes;
 
++(NSString*) getFullPathForFilePath:(NSString*)filePath;
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath;

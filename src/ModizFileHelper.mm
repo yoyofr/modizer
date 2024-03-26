@@ -6,6 +6,9 @@
 //
 
 extern void *ProgressObserverContext;
+extern NSURL *icloudURL;
+extern bool icloud_available;
+
 
 #import "ModizFileHelper.h"
 
@@ -724,6 +727,13 @@ extern void *ProgressObserverContext;
     }
     
     return found;
+}
+
++(NSString*) getFullPathForFilePath:(NSString*)filePath {
+    NSString *fullFilePath;
+    if (icloud_available && ([filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:filePath];
+    else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:filePath];
+    return fullFilePath;
 }
 
 

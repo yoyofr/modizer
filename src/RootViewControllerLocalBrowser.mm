@@ -91,12 +91,6 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 
 #include "AlertsCommonFunctions.h"
 
--(NSString*) getFullPathForFilePath:(NSString*)filePath {
-    NSString *fullFilePath;
-    if (icloud_available && ([filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:filePath];
-    else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:filePath];
-    return fullFilePath;
-}
 
 
 -(void) getDBVersion:(int*)major minor:(int*)minor {
@@ -387,8 +381,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             NSString *curPath,*tgtPath;
             
-            curPath=[self getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
-            tgtPath=[self getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+            curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+            tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
             
             tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
             //NSLog(@"rename %@ to %@",curPath,tgtPath);
@@ -424,7 +418,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
             
             NSString *newPath;
-            newPath=[[self getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
+            newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
             
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
@@ -931,7 +925,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     for (int i=0;i<27;i++) local_entries_count[i]=0;
     
     // First check count for each section
-    cpath=[self getFullPathForFilePath:currentPath];
+    cpath=[ModizFileHelper getFullPathForFilePath:currentPath];
     //NSLog(@"%@\n%@",cpath,currentPath);
     //Check if it is a directory or an archive
     BOOL isDirectory;
@@ -2364,8 +2358,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
             //Paste file or dir
             //NSLog(@"Pasting: %@",cutpaste_filesrcpath);
             
-            NSString *sourcePath=[self getFullPathForFilePath:cutpaste_filesrcpath];
-            NSString *destPath=[[self getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
+            NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:cutpaste_filesrcpath];
+            NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
             NSError *err;
             
             //NSLog(@"Pasting: %@ to %@",sourcePath,destPath);
@@ -2434,9 +2428,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                 
-                NSString *filePath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+                NSString *filePath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
                 NSString *tgtPath;
-                tgtPath=[self getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
+                tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
                 int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
                 if (files_found) {
                     //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
@@ -2490,7 +2484,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //delete entry
         t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
         int section=indexPath.section-2;
-        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
         NSError *err;
         
         if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
@@ -2592,7 +2586,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
             if (self.tableView.refreshControl.isRefreshing==false) {
                 
                 if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
-                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
+                    
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
                 
@@ -2696,7 +2691,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             if (self.tableView.refreshControl.isRefreshing==false)
                 
                 if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
-                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
                 
@@ -2873,11 +2868,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             if (cur_local_entries[section][indexPath.row].type&16) { //need to confirm if true archive or multisong
                 if ((cur_local_entries[section][indexPath.row].type&15)==2) { //need to confirm if true archive
-                    if ([ModizFileHelper isABrowsableArchive:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=2;
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=2;
                     else cur_local_entries[section][indexPath.row].type=1;
                 } else if ((cur_local_entries[section][indexPath.row].type&15)==3) { //need to confirm if true multisong
-                    if ([ModizFileHelper isGMEFileWithSubsongs:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
-                    else if ([ModizFileHelper isSidFileWithSubsongs:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
+                    if ([ModizFileHelper isGMEFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
+                    else if ([ModizFileHelper isSidFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
                     else cur_local_entries[section][indexPath.row].type=1;
                 }
             }
@@ -2994,7 +2989,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         //delete entry
         int section=indexPath.section-2;
-        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
         NSError *err;
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
@@ -3041,7 +3036,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     int section=indexPath.section-2;
     if (section>=0) {
-        NSString *fullpath=[self getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
         BOOL res;
         NSFileManager *myMngr=[[NSFileManager alloc] init];
         res=[myMngr isDeletableFileAtPath:fullpath];
@@ -3607,7 +3602,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 NSFileManager *fileManager=[[NSFileManager alloc] init];
                 
                 NSString *str=[NSString stringWithFormat:@"%@\n%@",cur_local_entries[csection][crow].label,cur_local_entries[csection][crow].fullpath];
-                dict=[fileManager attributesOfItemAtPath:[self getFullPathForFilePath:cur_local_entries[csection][crow].fullpath] error:&err];
+                dict=[fileManager attributesOfItemAtPath:[ModizFileHelper getFullPathForFilePath:cur_local_entries[csection][crow].fullpath] error:&err];
                 if (dict) {
                     str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
                 }

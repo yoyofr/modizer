@@ -2757,6 +2757,7 @@ int recording=0;
     [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath style:0];
 }
 
+//for archive cover
 -(NSString*) getFullFilePath:(NSString *)_filePath {
     NSString *fullFilePath;
     

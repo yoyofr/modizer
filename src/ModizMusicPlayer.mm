@@ -8215,7 +8215,7 @@ char* loadRom(const char* path, size_t romSize)
     KSSPLAY_set_device_quality(kssplay, EDSC_SCC, 1);
     KSSPLAY_set_device_quality(kssplay, EDSC_OPLL, 1);
     
-    KSSPLAY_set_master_volume(kssplay, 32);
+    KSSPLAY_set_master_volume(kssplay, 64);
     
     KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
     KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
