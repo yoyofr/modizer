@@ -2068,8 +2068,12 @@ int recording=0;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     mPlaylist[mPlaylist_pos].mPlaylistCount++;
+        
     
-    [self showWaitingLoading];
+    
+    
+    [self requestLoadNewFile:filePath fname:fileName arcidx:-1 subsong:-1];
+    return true;
     
     if ([self play_module:filePath fname:fileName subsong:subsong]==FALSE) {
         [self remove_from_playlist:mPlaylist_pos];
@@ -2861,6 +2865,414 @@ int recording=0;
         cover_viewBG.hidden=TRUE;
     }
 }
+
+
+-(void) cancelPushed {
+#if DEBUG_MODIZER
+    NSLog(@"detailedview cancelPushed");
+#endif
+    if (loadRequestInProgress) {
+        mplayer.extractPendingCancel=true;
+        [waitingView hideCancel];
+        [waitingView resetCancelStatus];
+        [waitingView hideProgress];
+        [waitingView setDetail:NSLocalizedString(@"Cancelling...",@"")];
+    }
+}
+
+
+-(void) loadNewFileCancelled {
+#if DEBUG_MODIZER
+    NSLog(@"load cancelled");
+#endif
+    //[self hideWaiting];
+    
+    loadRequestInProgress=0;
+}
+
+-(void) loadNewFileFailed:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
+#if DEBUG_MODIZER
+    NSLog(@"load failed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
+#endif
+    loadRequestInProgress=0;
+    
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+    [self hideWaiting];
+    
+    [self remove_from_playlist:mPlaylist_pos];
+    
+    [self hideWaiting];
+    [self refreshCurrentVC];
+    ///////////////////////////////////////////////////
+    // Update miniplayer
+    ///////////////////////////////////////////////////
+    vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
+    
+    if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
+        NSString *alertMsg;
+        alertCannotPlay_displayed=1;
+        [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
+        
+        [self play_curEntry:-1];
+        
+    } else {
+        
+        [self play_curEntry:-1];
+    }
+}
+
+-(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
+#if DEBUG_MODIZER
+    NSLog(@"load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
+#endif
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+    [self hideWaiting];
+    
+    loadRequestInProgress=0;
+    
+    //fix issue with OMPT settings reset after load
+    [self settingsChanged:(int)SETTINGS_ALL];
+    
+    [self checkForCover:filePath];
+    
+    //[self checkAvailableCovers:mPlaylist_pos];
+    mPlaylist[mPlaylist_pos].cover_flag=-1;
+    
+    current_selmode=ARCSUB_MODE_NONE;
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+    if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
+    else btnShowSubSong.hidden=true;
+    if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
+    else btnShowArcList.hidden=true;
+    if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
+    else btnShowVoices.hidden=true;
+    
+    alertCannotPlay_displayed=0;
+    //Visiulization stuff
+    startChan=0;
+    movePx=movePy=movePxOld=movePyOld=0;
+    movePx2=movePy2=movePx2Old=movePy2Old=0;
+    movePinchScale=movePinchScaleOld=0;
+    sliderProgressModuleEdit=0;
+    sliderProgressModuleChanged=0;
+    
+    //Is OGLView visible ?
+    [self checkGLViewCanDisplay];
+    
+    //Restart management
+    if (mRestart) {
+        //mRestart=0;
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
+        else self.playBar.hidden=NO;
+        
+        [self updateBarPos];
+        [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
+        if (mPlayingPosRestart) {
+            mPlayingPosRestart=0;
+        } else sliderProgressModule.value=0;
+        [mplayer Pause:YES];
+        mIsPlaying=YES;
+        mPaused=1;
+    } else {
+        //random mode & multi song ?
+        if ((mShuffle==1)&&(subsong<0)) {
+            /*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
+             mOnlyCurrentSubEntry=1;
+             }*/
+            if ([mplayer isMultiSongs]) {
+                mOnlyCurrentSubEntry|=2;
+                mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+            }
+        } else if (mShuffle==2) {
+            if (!(mOnlyCurrentSubEntry&1))
+                if ([mplayer isMultiSongs]) mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+        }
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
+        else self.pauseBar.hidden=NO;
+        [self updateBarPos];
+        //mRestart=0;
+        [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
+        if (mPlayingPosRestart) {
+            mPlayingPosRestart=0;
+        } else sliderProgressModule.value=0;
+        mIsPlaying=YES;
+        mPaused=0;
+        
+    }
+    
+    mRestart_sub=0;
+    mRestart_arc=0;
+    //set volume (if applicable)
+    [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
+    
+    
+    
+    
+    
+    //Update song info if required
+    labelModuleName.hidden=NO;
+    if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
+    else labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+    lblCurrentSongCFlow.text=labelModuleName.text;
+    self.navigationItem.titleView=labelModuleName;
+    self.navigationItem.title=labelModuleName.text;
+    
+    
+    
+    labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
+    if ([mplayer getSongLength]>0) {
+        if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        sliderProgressModule.enabled=YES;
+        labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+    } else {
+        if (display_length_mode) display_length_mode=0;
+        sliderProgressModule.enabled=FALSE;
+        labelModuleLength.text=@"--:--";
+    }
+    
+    [self updateStats:fileName filePath:filePath playcount_inc:(mRestart==0)];
+    if (!mRestart) {//UPDATE Google Application
+        if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
+        
+    }
+    [self showRating:[self getCurrentRating]];
+    
+    
+    if (coverflow.hidden==NO) {
+        btnPlayCFlow.hidden=YES;
+        btnPauseCFlow.hidden=NO;
+        btnPrevCFlow.hidden=NO;
+        btnNextCFlow.hidden=NO;
+        
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+            btnPrevSubCFlow.hidden=NO;
+            btnNextSubCFlow.hidden=NO;
+        } else {
+            btnPrevSubCFlow.hidden=YES;
+            btnNextSubCFlow.hidden=YES;
+        }
+    }
+    
+    if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
+        if (coverflow.hidden==FALSE) {
+            if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
+            if (coverflow.currentIndex!=mPlaylist_pos) {
+                coverflow_pos=mPlaylist_pos;
+                [coverflow setCurrentIndex:mPlaylist_pos];
+                //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
+            }
+        } else coverflow_needredraw=1;
+    }
+    
+    labelTime.text=@"00:00";
+    if (mplayer.numChannels) {
+        if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
+        else labelNumChannels.text=[NSString stringWithFormat:@"%d channels",mplayer.numChannels];
+    } else labelNumChannels.text=[NSString stringWithFormat:@""];
+    
+    labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
+    labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
+    textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
+    [self adjustTextMessageFont];
+    
+    [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
+    
+    
+    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    
+    
+    if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
+    else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
+    
+    [self updMediaCenter];
+    
+    //Activate timer for play infos
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+    
+    if (nowplayingPL) {
+        NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+        [nowplayingPL.tableView reloadData];
+        nowplayingPL.currentPlayedEntry=mPlaylist_pos;
+        [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    }
+    mRestart=0;
+        
+}
+
+-(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
+    int arcidx_filepath=-1;
+    int subsong_filepath=-1;
+    NSString *filePathClean=[ModizFileHelper getFullCleanFilePath:filePath arcidx_ptr:&arcidx_filepath subsong_ptr:&subsong_filepath];
+    if (filePathClean==nil) return -1;
+    
+    mOnlyCurrentSubEntry=0;
+    mOnlyCurrentEntry=0;
+    if (arcidx_filepath>=0) {
+        arcidx=arcidx_filepath;
+        mOnlyCurrentEntry|=1;
+        
+    }
+    if (subsong_filepath>=0) {
+        subsong=subsong_filepath;
+        mOnlyCurrentSubEntry|=1;
+    }
+    filePath=filePathClean;
+    
+    if (mRestart) {
+        arcidx=mRestart_arc;
+        subsong=mRestart_sub;
+    } else {
+        mRestart_arc=arcidx;
+        mRestart_sub=subsong;
+    }
+    
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    
+    mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
+    mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
+    mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
+    mdz_safe_execute_sel(vc,@selector(showWaitingLoading),nil)
+    [self showWaitingLoading];
+    [self showWaitingProgress];
+    
+    mSendStatTimer=0;
+    shouldRestart=0;
+    
+    if (loadRequestInProgress) return -3; //no reentrant
+    if (!filePath) return -1;
+    if (!fileName) return -1;
+    
+    loadRequestInProgress=1;
+    
+    if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
+    
+    // if already playing, stop
+    if (repeatingTimer) {
+        [repeatingTimer invalidate];
+        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+        [mplayer Stop];
+    }
+    mShouldUpdateInfos=1;
+    // load module
+    
+    //ensure any settings changes to be taken into account before loading next file
+    [self settingsChanged:(int)SETTINGS_ALL];
+    
+    if (mShuffle==1) {
+        mOnlyCurrentSubEntry|=2;
+        mOnlyCurrentEntry|=2;
+    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        int retcode;
+        if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                        defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                        defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                        defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                        defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                       defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                        defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
+            
+            //error while loading
+            //if it is an archive, try to load next entry until end or valid one reached
+            if ( [mplayer isArchive] &&
+                !mOnlyCurrentSubEntry &&
+                !mOnlyCurrentEntry ) {
+                
+                do {
+                    if ([mplayer selectNextArcEntry]<0) break;
+                    mRestart_arc=[mplayer getArcIndex];
+                    retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                               defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                               defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                               defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                               defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                              defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                               defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                    if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
+                } while (retcode);
+            }
+            
+            if (retcode) {
+                //Wasn't able to load, fail
+                NSLog(@"Issue in LoadModule %@",filePath);
+                mRestart=0;
+                mRestart_sub=0;
+                mRestart_arc=0;
+                if (mplayer_error_msg[0]==0) snprintf(mplayer_error_msg,sizeof(mplayer_error_msg),"%s",[filePath UTF8String]);
+                if (retcode==-99) mLoadIssueMessage=0;
+                else mLoadIssueMessage=3;
+                
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    [self loadNewFileFailed:filePath fname:fileName arcidx:arcidx subsong:subsong];
+                }];
+                return;
+            }
+        }
+        
+        //loaded successfully, check if shuffle is active
+        if ((mShuffle==1)&&[mplayer isArchive]) {
+            [mplayer Stop]; //deallocate relevant items
+            
+            if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
+            
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+                //error while loading
+                
+                do {
+                    if ([mplayer selectNextArcEntry]<0) {
+                        retcode=-1;
+                        break;
+                    } else {
+                        mRestart_arc=[mplayer getArcIndex];
+                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
+                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
+                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
+                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
+                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
+                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
+                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                    }
+                } while (retcode);
+                
+                if (retcode) {
+                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    if (retcode==-99) mLoadIssueMessage=0;
+                    else mLoadIssueMessage=4;
+                    
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [self loadNewFileFailed:filePath fname:fileName arcidx:arcidx subsong:subsong];
+                    }];
+                    return;
+                }
+            }
+        }
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self loadNewFileCompleted:filePath fname:fileName arcidx:arcidx subsong:subsong];
+        }];
+    });
+    
+}
+
 
 
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName subsong:(int)subsong {
@@ -4567,6 +4979,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     start_time=clock();
     [super viewDidLoad];
     
+    loadRequestInProgress=0;
     //NSLocale* locale = [NSLocale autoupdatingCurrentLocale];
     //located_country=[NSString stringWithString:locale.countryCode];
     
@@ -5484,10 +5897,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     NOTES_DISPLAY_TOPMARGIN=(mFontHeight/mScaleFactor)*2+8+6;
 }
 - (void)viewWillAppear:(BOOL)animated {
-    
-    
-    
-    
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
     
@@ -8014,13 +8423,11 @@ didStopRecordingWithError:(NSError *)error
 
 /* @abstract Called when the view controller is finished. */
 - (void)previewControllerDidFinish:(RPPreviewViewController *)previewController {
-    NSLog(@"previewControllerDidFinish");
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 /* @abstract Called when the view controller is finished and returns a set of activity types that the user has completed on the recording. The built in activity types are listed in UIActivity.h. */
 - (void)previewController:(RPPreviewViewController *)previewController didFinishWithActivityTypes:(NSSet <NSString *> *)activityTypes {
-    NSLog(@"previewController");
 }
 
 

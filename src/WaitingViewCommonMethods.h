@@ -17,7 +17,8 @@
 }
 
 -(void) showWaitingLoading{
-    [waitingView hideCancel];
+    [waitingView resetCancelStatus];
+    [waitingView showCancel];
     [waitingView setDetail:@""];
     [waitingView setTitle:NSLocalizedString(@"Loading","")];
     [self showWaiting];

@@ -181,6 +181,8 @@ enum {
 	
 	t_plPlaylist_entry *mPlaylist;
 	int	mPlaylist_pos,mPlaylist_size;
+    
+    int loadRequestInProgress;
 	
 	int mShuffle;
     int mShouldUpdateInfos;
@@ -370,5 +372,11 @@ enum {
 
 - (void)StartRecording;
 - (void)StopRecording;
+
+-(void) loadNewFileCancelled;
+-(void) loadNewFileFailed:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
+-(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
+-(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
+
 
 @end

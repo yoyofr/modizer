@@ -29,6 +29,7 @@
 
 +(NSString*) getFullPathForFilePath:(NSString*)filePath;
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
++(NSString *)getFullCleanFilePath:(NSString*)filePath arcidx_ptr:(int*)arcidx_ptr subsong_ptr:(int*)subsong_ptr;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath;
 

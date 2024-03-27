@@ -1960,36 +1960,8 @@ static int shouldRestart=1;
                 search_local_entries_data[i].rating=-1;
             }
         }
-        
-        
-////        [self updateWaitingTitle:@""];
-////        [self updateWaitingDetail:@""];
-////        [self hideWaitingCancel];
-////        [self showWaiting];
-////        [self flushMainLoop];
-//        
-//        if (mSearch) {
-//            mSearch=0;
-//            [self listLocalFiles];
-//            mSearch=1;
-//        }
     }
-    
-    //    [self fillKeys];
-    //    [tableView reloadData];
-    //    [self hideWaiting];
-    
     [super viewWillAppear:animated];
-    
-    //    [self hideWaiting];
-    
-    //[tableView reloadData];
-    //[self.view setNeedsLayout];
-    //[self.view layoutIfNeeded];
-    //[tableView reloadData];
-    //[self flushMainLoop];
-    
-    
 }
 
 -(void) refreshViewReloadFiles {
@@ -2037,24 +2009,6 @@ static int shouldRestart=1;
                 [self.tableView reloadData];
             });
         });
-        
-//        int old_mSearch=mSearch;
-//        NSString *old_mSearchText=mSearchText;
-//        mSearch=0;
-//        mSearchText=nil;
-//        [self fillKeys];   //1st load eveything
-//        mSearch=old_mSearch;
-//        mSearchText=old_mSearchText;
-//        if (mSearch) {
-//            shouldFillKeys=1;
-//            [self fillKeys];   //2nd filter for drawing
-//        }
-                        
-//        [tableView reloadData];
-//        
-//        [self.refreshControl endRefreshing];
-//        
-//        [self hideWaiting];
     }
 }
 
@@ -2104,54 +2058,18 @@ static int shouldRestart=1;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-//    [self hideWaiting];
-    
-    /*[tableView setNeedsLayout];
-     [tableView layoutSubviews];
-     [tableView layoutIfNeeded];
-     [tableView reloadData];*/
     forceReloadCells=false;
     
     //check if a pending cut/paste exists
     if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
             //file has been moved, force reload
-            shouldFillKeys=1;            
+            shouldFillKeys=1;
             cutpaste_initiated=0;
     }
     
     if (shouldFillKeys) [self refreshViewReloadFiles];
     
-    /*if (shouldFillKeys) {
-        [self fillKeys];
-        [tableView reloadData];
-        [self hideWaiting];
-    }*/
-    
     [super viewDidAppear:animated];
-    //[tableView reloadData];
-    //[[self navigationController] setNavigationBarHidden:NO animated:NO];
-    
-    //    if (shouldRestart) {
-    //
-    //        self.view.userInteractionEnabled = NO;
-    //        //self.view.alpha=0.5f;
-    //
-    //        [self hideWaitingCancel];
-    //        [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
-    //        [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
-    //        [self showWaiting];
-    //        [self flushMainLoop];
-    //        [self flushMainLoop];
-    //        shouldRestart=0;
-    //
-    //        [detailViewController play_restart];
-    //        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
-    //
-    //        //self.view.alpha=1.0f;
-    //
-    //        [self hideWaiting];
-    //        self.view.userInteractionEnabled = YES;
-    //    }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
@@ -3099,12 +3017,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 
 -(IBAction)goPlayer {
-    [self updateWaitingTitle:@""];
-    [self updateWaitingDetail:@""];
-    [self hideWaitingCancel];
-    [self hideWaitingProgress];
-    [self showWaiting];
-    [self flushMainLoop];
+//    [self updateWaitingTitle:@""];
+//    [self updateWaitingDetail:@""];
+//    [self hideWaitingCancel];
+//    [self hideWaitingProgress];
+//    [self showWaiting];
+    
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
@@ -3137,7 +3055,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
-    [self hideWaiting];
+//    [self hideWaiting];
 }
 
 #pragma mark -
@@ -3510,12 +3428,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
             //				[childController autorelease];
         } else {  //File selected
             
-//            [self updateWaitingTitle:@""];
-//            [self updateWaitingDetail:@""];
-//            [self hideWaitingCancel];
-//            [self hideWaitingProgress];
-//            [self showWaiting];
-//            [self flushMainLoop];
+            [self updateWaitingTitle:@""];
+            [self updateWaitingDetail:@""];
+            [self showWaitingCancel];
+            [self showWaitingProgress];
+            [self showWaiting];
             
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {

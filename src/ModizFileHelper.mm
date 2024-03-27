@@ -1057,5 +1057,53 @@ extern bool icloud_available;
     return;
 }
 
++(NSString *)getFullCleanFilePath:(NSString*)filePath arcidx_ptr:(int*)arcidx_ptr subsong_ptr:(int*)subsong_ptr {
+    //check if arcidx (@%d) or subsong (?%d) are specified in filePath
+    const char *tmp_str;
+    NSString *ext=[[filePath componentsSeparatedByString:@"."] lastObject];
+    if (ext) tmp_str=[ext UTF8String];
+    else return nil;
+    
+    NSString *filePathTmp=[filePath stringByDeletingPathExtension];
+    NSString *extClean=nil;
+    
+    char tmp_str_copy[1024];
+    int found_arc=0;
+    int arc_index=-1;
+    int found_sub=0;
+    int sub_index=-1;
+    int i=0;
+    
+    while (tmp_str[i]) {
+        if (found_arc) {
+            arc_index=arc_index*10+tmp_str[i]-'0';
+        }
+        if (found_sub) {
+            sub_index=sub_index*10+tmp_str[i]-'0';
+        }
+        if (tmp_str[i]=='@') {
+            found_arc=1;
+            arc_index=0;
+            memcpy(tmp_str_copy,tmp_str,i);
+            tmp_str_copy[i]=0;
+            if (!extClean) extClean=[NSString stringWithUTF8String:tmp_str_copy];
+        }
+        if (tmp_str[i]=='?') {
+            found_sub=1;
+            sub_index=0;
+            memcpy(tmp_str_copy,tmp_str,i);
+            tmp_str_copy[i]=0;
+            if (!extClean) extClean=[NSString stringWithUTF8String:tmp_str_copy];
+        }
+        i++;
+    }
+    if ((found_arc==0)&&(found_sub==0)) filePathTmp=[NSString stringWithString:filePath];
+    else filePathTmp=[NSString stringWithFormat:@"%@.%@",filePathTmp,extClean];
+    
+    if (found_arc) *arcidx_ptr=arc_index;
+    if (found_sub) *subsong_ptr=sub_index;
+    return filePathTmp;
+}
+
 
 @end

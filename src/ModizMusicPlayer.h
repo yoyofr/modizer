@@ -134,6 +134,8 @@ extern "C" {
     NSString *artist,*album;
     
     NSProgress *extractProgress;
+    bool extractDone;
+    bool extractPendingCancel;
 
 	//Player status
 	int bGlobalAudioPause;
@@ -210,6 +212,7 @@ extern "C" {
 };
 @property (nonatomic, retain) NSProgress *extractProgress;
 @property NSString *artist,*album;
+@property bool extractPendingCancel;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 @property int optForceMono;

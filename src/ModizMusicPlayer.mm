@@ -2137,6 +2137,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize artist,album;
+@synthesize extractPendingCancel;
 @synthesize detailViewControllerIphone;
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @synthesize mod_currentfile,mod_currentext;
@@ -5846,7 +5847,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 //*****************************************
 //Archive management
 
-static bool extractDone;
 - (void) observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
@@ -5856,10 +5856,10 @@ static bool extractDone;
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
-            NSLog(@"cancelled");
+            NSLog(@"modizemusicplayer extract cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                 //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
                 //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
 //                [waitingView resetCancelStatus];
@@ -5904,7 +5904,8 @@ static bool extractDone;
 }
 
 
--(void) extractToPath:(const char *)archivePath path:(const char *)extractPath isRestarting:(bool)isRestarting {
+-(int) extractToPath:(const char *)archivePath path:(const char *)extractPath isRestarting:(bool)isRestarting {
+    int ret=0;
     [ModizFileHelper scanarchive:archivePath filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
         
     if (!isRestarting) {
@@ -5912,17 +5913,19 @@ static bool extractDone;
         extractProgress.cancellable = YES;
         extractProgress.pausable = NO;
         extractDone=false;
+        extractPendingCancel=false;
         
         [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress];
         while (extractDone==false) {
-            [NSThread sleepForTimeInterval:0.1f];
-            NSDate* futureDate = [NSDate dateWithTimeInterval:0.1f sinceDate:[NSDate date]];
-            [[NSRunLoop mainRunLoop] runUntilDate:futureDate];
-            
-            //NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-            //[[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+            [NSThread sleepForTimeInterval:0.01f];
+            if ([self extractPendingCancel]) {
+                extractPendingCancel=false;
+                [extractProgress cancel];
+                ret=-1;
+            }
         }
     }
+    return ret;
 #if 0
     struct archive *a = archive_read_new();
     struct archive_entry *entry;
@@ -10872,26 +10875,18 @@ extern bool icloud_available;
                     
                     
                     if (found==1) { //Archive
-                        
-                        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                        
-                        //mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
-                        mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Extracting",@""))
-                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
-                        mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
-                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
-                        mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                        
-                        //[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
-                        [self extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting];
-                                                
-                        mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-                        mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
-                        
-                        //[[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-//                        futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
-//                        [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
-                        
+                        if ([self extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting]) {
+                            //issue
+                            if (mdz_ArchiveFilesCnt) {
+                                for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
+                                    mdz_safe_free(mdz_ArchiveFilesList[i])
+                                }
+                                mdz_safe_free(mdz_ArchiveFilesList)
+                                mdz_ArchiveFilesCnt=0;
+                            }
+                            no_reentrant=false;
+                            return -2;
+                        }
                     } else {
                     }
                     mdz_currentArchiveIndex=0;
@@ -10972,7 +10967,10 @@ extern bool icloud_available;
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
     
-    if (filePath==NULL) return -1;
+    if (filePath==NULL) {
+        no_reentrant=false;
+        return -1;
+    }
     
     for (int i=0;i<[filetype_extNSFPLAY count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
@@ -12108,8 +12106,10 @@ extern bool icloud_available;
     bGlobalAudioPause=0;
     
     if (mPlayType==MMP_GME) {
-        gme_delete( gme_emu );
-        gme_emu=NULL;
+        if (gme_emu) {
+            gme_delete( gme_emu );
+            gme_emu=NULL;
+        }
     }
     if (mPlayType==MMP_XMP) {
         if (xmp_ctx) xmp_end_player(xmp_ctx);
@@ -12296,7 +12296,10 @@ extern bool icloud_available;
         sc68_close(sc68);
     }
     if (mPlayType==MMP_MDXPDX) { //MDX
-        mdx_close(mdx,pdx);
+        if (mdx) {
+            mdx_close(mdx,pdx);
+            mdx=NULL;pdx=NULL;
+        }
     }
     if (mPlayType==MMP_GSF) { //GSF
         GSFClose();
