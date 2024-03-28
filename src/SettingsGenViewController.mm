@@ -1992,8 +1992,8 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_FDS_OPTION0].sub_family=0;
     settings[NSFPLAY_FDS_OPTION0].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_FDS_OPTION0].type=MDZ_SLIDER_DISCRETE;
-    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_min_value=100;
-    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_max_value=10000;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_min_value=0;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_max_value=20000;
     
     SETTINGS_ID_DEF(NSFPLAY_FDS_OPTION1)
     settings[NSFPLAY_FDS_OPTION1].type=MDZ_BOOLSWITCH;

@@ -261,9 +261,10 @@ UINT32 NES_FDS::Render (INT32 b[2])
     v = rc_out;
 
     // output mix
-    INT32 m = mask ? 0 : v;
+    INT32 m = mask ? 0 : v;    
     b[0] = (m * sm[0]) >> 7;
     b[1] = (m * sm[1]) >> 7;
+    
     
     //YOYOFR
     outOscillo=(m * (sm[0]+sm[1])) >> 8;

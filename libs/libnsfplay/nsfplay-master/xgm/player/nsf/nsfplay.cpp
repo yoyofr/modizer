@@ -271,7 +271,7 @@ namespace xgm
     if (nsf->use_fds)
     {
       bool write_enable = (config->GetDeviceOption(FDS, NES_FDS::OPT_WRITE_PROTECT).GetInt() == 0);
-      bool multichip = 
+      bool multichip =
         nsf->use_mmc5 ||
         nsf->use_vrc6 ||
         nsf->use_vrc7 ||
@@ -314,53 +314,53 @@ namespace xgm
     // stack above.
 
     cpu.SetMemory (&stack);
-	cpu.SetNESMemory (&mem);
+    cpu.SetNESMemory (&mem);
   }
 
 void NSFPlayer::SetPlayFreq (double r)
 {
-	rate = r;
+    rate = r;
 
-	int region = GetRegion(nsf->regn, nsf->regn_pref);
-	bool pal = (region == REGION_PAL);
-	dmc->SetPal(pal);
+    int region = GetRegion(nsf->regn, nsf->regn_pref);
+    bool pal = (region == REGION_PAL);
+    dmc->SetPal(pal);
 
-	int quality = config->GetValue("QUALITY").GetInt();
+    int quality = config->GetValue("QUALITY").GetInt();
 
-	double clock;
-	switch (region)
-	{
-		default:
-		case REGION_NTSC:
-			clock = config->GetValue("NTSC_BASECYCLES").GetInt();
-			break;
-		case REGION_PAL:
-			clock = config->GetValue("PAL_BASECYCLES").GetInt();
-			break;
-		case REGION_DENDY:
-			clock = config->GetValue("DENDY_BASECYCLES").GetInt();
-			break;
-	}
-	double oversample = rate * quality;
-	if (oversample > clock) oversample = clock;
-	if (oversample < rate) oversample = rate;
+    double clock;
+    switch (region)
+    {
+        default:
+        case REGION_NTSC:
+            clock = config->GetValue("NTSC_BASECYCLES").GetInt();
+            break;
+        case REGION_PAL:
+            clock = config->GetValue("PAL_BASECYCLES").GetInt();
+            break;
+        case REGION_DENDY:
+            clock = config->GetValue("DENDY_BASECYCLES").GetInt();
+            break;
+    }
+    double oversample = rate * quality;
+    if (oversample > clock) oversample = clock;
+    if (oversample < rate) oversample = rate;
 
-	for (int i = 0; i < NES_DEVICE_MAX; i++)
-	{
-		sc[i]->SetClock(clock);
-		sc[i]->SetRate(oversample);
-	}
-	rconv.SetClock(oversample);
-	rconv.SetRate(rate);
-	rconv.SetFastSkip(config->GetValue("FAST_SEEK")!=0);
+    for (int i = 0; i < NES_DEVICE_MAX; i++)
+    {
+        sc[i]->SetClock(clock);
+        sc[i]->SetRate(oversample);
+    }
+    rconv.SetClock(oversample);
+    rconv.SetRate(rate);
+    rconv.SetFastSkip(config->GetValue("FAST_SEEK")!=0);
 
-	mixer.Reset();
-	rconv.Reset();
-	fader.Reset();
-	lpf.SetRate(rate);
-	lpf.Reset();
-	dcf.SetRate(rate);
-	dcf.Reset();
+    mixer.Reset();
+    rconv.Reset();
+    fader.Reset();
+    lpf.SetRate(rate);
+    lpf.Reset();
+    dcf.SetRate(rate);
+    dcf.Reset();
     //YOYOFR
     for (int i=0;i<19;i++) {
         lpf_voices[i].SetRate(rate);
@@ -369,7 +369,7 @@ void NSFPlayer::SetPlayFreq (double r)
         dcf_voices[i].Reset();
     }
     //YOYOFR
-	DEBUG_OUT("rate: %f\n",rate);
+    DEBUG_OUT("rate: %f\n",rate);
 }
 
   void NSFPlayer::SetChannels(int channels)
@@ -415,7 +415,7 @@ void NSFPlayer::SetPlayFreq (double r)
     SetPlayFreq (rate);
     // 全てのコンフィグレーションを適用
     config->Notify (-1);
-    // バスをリセット 
+    // バスをリセット
     stack.Reset ();
     // CPUリセットは必ずバスより後（重要）
     cpu.Reset ();

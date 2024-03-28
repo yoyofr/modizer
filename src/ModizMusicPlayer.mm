@@ -6970,8 +6970,8 @@ typedef struct {
     (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
     (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
     
-    (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
-    (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["MMC5_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
+    (*nsfPlayerConfig)["MMC5_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
     
     (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
     (*nsfPlayerConfig)["VRC7_OPTION0"]=settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value;
@@ -12714,8 +12714,8 @@ extern bool icloud_available;
         (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
         (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
         
-        (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
-        (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["MMC5_OPTION0"]=settings[NSFPLAY_MMC5_OPTION0].detail.mdz_boolswitch.switch_value;
+        (*nsfPlayerConfig)["MMC5_OPTION1"]=settings[NSFPLAY_MMC5_OPTION1].detail.mdz_boolswitch.switch_value;
         
         (*nsfPlayerConfig)["VRC7_PATCH"]=settings[NSFPLAY_VRC7_Patch].detail.mdz_switch.switch_value;
         (*nsfPlayerConfig)["VRC7_OPTION0"]=settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value;
