@@ -53,9 +53,8 @@
 
 -(void) adjustViewForMiniplayer:(NSNumber*)value {
     self.textView.frame=CGRectMake(0,self.textView.frame.origin.y,self.textView.frame.size.width,self.textView.frame.size.height-value.floatValue);
+    NSLog(@"%lf %lf",self.textView.frame.size.height,value.floatValue);
 }
-
-
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
