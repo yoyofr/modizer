@@ -151,6 +151,7 @@ static int display_length_mode=0;
 
 @synthesize btnAddToPl;
 @synthesize mLoopMode;
+@synthesize waitingView;
 @synthesize cover_img,default_cover;
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize bShowVC,bShowEQ;
@@ -1356,8 +1357,10 @@ static float movePinchScale,movePinchScaleOld;
 
 
 - (IBAction)sliderProgressModuleValueChanged:(id)sender {
-    int curTime;
+    int64_t curTime;
     if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    
+    NSLog(@"initiate seek: %lld",curTime);
     [mplayer Seek:curTime];
     
     
@@ -1543,8 +1546,7 @@ static float movePinchScale,movePinchScaleOld;
         labelSeeking.hidden=FALSE;
         labelSeeking.text=NSLocalizedString(@"Seeking",@"");
     } else {
-        labelSeeking.hidden=TRUE;
-        //[self hideWaiting];
+        labelSeeking.hidden=TRUE;        
     }
     
     if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
@@ -2880,16 +2882,6 @@ int recording=0;
     }
 }
 
-
--(void) loadNewFileCancelled {
-#if DEBUG_MODIZER
-    NSLog(@"load cancelled");
-#endif
-    //[self hideWaiting];
-    
-    loadRequestInProgress=0;
-}
-
 -(void) loadNewFileFailed:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
 #if DEBUG_MODIZER
     NSLog(@"load failed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
@@ -2897,7 +2889,7 @@ int recording=0;
     loadRequestInProgress=0;
     
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-    mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+    //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
     [self hideWaiting];
     
     [self remove_from_playlist:mPlaylist_pos];
@@ -2927,8 +2919,8 @@ int recording=0;
 #if DEBUG_MODIZER
     NSLog(@"load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
 #endif
-    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-    mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+    //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
     [self hideWaiting];
     
     loadRequestInProgress=0;
@@ -3139,15 +3131,12 @@ int recording=0;
         mRestart_sub=subsong;
     }
     
-    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-    
-    mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-    mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
-    mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
-    mdz_safe_execute_sel(vc,@selector(showWaitingLoading),nil)
-    [self showWaitingLoading];
+    //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    //mdz_safe_execute_sel(vc,@selector(showWaitingProgress),nil)
+    //mdz_safe_execute_sel(vc,@selector(showWaitingLoading),nil)
     [self showWaitingProgress];
-    
+    [self showWaitingLoading];
+        
     mSendStatTimer=0;
     shouldRestart=0;
     
@@ -5426,6 +5415,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     waitingView = [[WaitingView alloc] init];
     waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
+    waitingView.hidden=TRUE;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
@@ -8107,9 +8097,13 @@ extern "C" int current_sample;
     UILabel *topLabel;
     
     
+    if (forceReloadCells) {
+        while ([tabView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,SELECTOR_TABVIEWCELL_HEIGHT);

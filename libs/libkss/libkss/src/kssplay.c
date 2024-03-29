@@ -785,7 +785,9 @@ void KSSPLAY_calc_silent(KSSPLAY *kssplay, uint32_t length) {
     process_vm(kssplay);
   }
   kssplay->decoded_length += length;
-  LPDETECT_update(kssplay->vm->lpde, kssplay->decoded_length * 1000 / kssplay->rate, 30 * 1000, 1000);
+    
+    //YOYOFR: don't update as we don't compute sample
+  //LPDETECT_update(kssplay->vm->lpde, kssplay->decoded_length * 1000 / kssplay->rate, 30 * 1000, 1000);
 
   if (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_OUT) {
     if (kssplay->fade > kssplay->fade_step * length) {
@@ -795,6 +797,9 @@ void KSSPLAY_calc_silent(KSSPLAY *kssplay, uint32_t length) {
       kssplay->fade_flag = KSSPLAY_FADE_END;
     }
   }
+    
+    /* YOYOFR reset detection counter  */
+      kssplay->silent = 0;
 }
 
 int KSSPLAY_get_loop_count(KSSPLAY *kssplay) {

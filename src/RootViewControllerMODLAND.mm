@@ -2102,7 +2102,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
     NSString *nbFiles=NSLocalizedString(@"%d files.",@"");	
-    NSString *nb1File=NSLocalizedString(@"1 file.",@"");	
+    NSString *nb1File=NSLocalizedString(@"1 file.",@"");
+    
+    if (forceReloadCells) {
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
     
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];

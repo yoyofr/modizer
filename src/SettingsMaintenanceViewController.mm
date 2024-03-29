@@ -316,8 +316,13 @@ extern pthread_mutex_t db_mutex;
     UILabel *topLabel;
     BButton *btn;
     
+    if (forceReloadCells) {
+        while ([tabView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
+    
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,self.view.frame.size.width,50);

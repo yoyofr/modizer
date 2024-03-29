@@ -2715,10 +2715,16 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
         }
     }
     
+    if (forceReloadCells) {
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier_withAction]) {}
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
+    
     if (allow_delete) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier_withAction];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         if (!allow_delete) {
             cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
             cell.delegate=self;

@@ -69,7 +69,7 @@
 	NSString *mCurrentFilePath,*mCurrentFilename,*mCurrentFTPpath,*mCurrentURLFilename;
 	int mCurrentFileSize,mCurrentUsePrimaryAction;
     unsigned char mCurrentIsMODLAND;
-	int mCurrentDownloadedBytes;
+	int64_t mCurrentDownloadedBytes;
 	
 	IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 	IBOutlet UIProgressView *downloadPrgView;

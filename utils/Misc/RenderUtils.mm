@@ -418,7 +418,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         //draw frame
         count=0;
         glLineWidth(1.0f*mScaleFactor);
-        colR=64;colG=64;colB=64;
+        colR=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>16)&0xFF;
+        colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
+        colB=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>0)&0xFF;
         //top
         pts[count++] = LineVertex(0, hh-1,colR,colG,colB,colA);
         pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);

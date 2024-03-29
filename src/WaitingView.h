@@ -16,6 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
     bool btnStopCurrentActionPending;
     BButton *btnStopCurrentAction;
 }
+@property (nonatomic,retain) UILabel *lblDetail,*lblTitle;
+@property (nonatomic,retain) UIProgressView *progressView;
+@property (nonatomic,retain) BButton *btnStopCurrentAction;
+@property bool btnStopCurrentActionPending;
 
 -(void)setDetail:(NSString*)text;
 

@@ -50,9 +50,7 @@ int gesture_move_file_min_trans;
     labelTime_mode=0;
 }
 
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-    darkMode=false;
-    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+- (void)refreshViewDarkmode {
     if (darkMode) [mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
     else [mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
     
@@ -85,23 +83,30 @@ int gesture_move_file_min_trans;
     }
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    darkMode=false;
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        
+    [self refreshViewDarkmode];
+}
+
 -(void) pushedGoPlayer {
     detailVC.view.frame=self.view.frame;
     [self.parentViewController performSelector:@selector(goPlayer)];
 }
 
 -(void) swipeRight:(bool)prevFile {
-    [self.parentViewController performSelector:@selector(showWaitingLoading)];
+    //[self.parentViewController performSelector:@selector(showWaitingLoading)];
     if (prevFile) [detailVC playPrev];
     else [detailVC playPrevSub];
-    [self.parentViewController performSelector:@selector(hideWaiting)];
+    //[self.parentViewController performSelector:@selector(hideWaiting)];
 }
 
 -(void) swipeLeft:(bool)nextFile {
-    [self.parentViewController performSelector:@selector(showWaitingLoading)];
+    //[self.parentViewController performSelector:@selector(showWaitingLoading)];
     if (nextFile) [detailVC playNext];
     else [detailVC playNextSub];
-    [self.parentViewController performSelector:@selector(hideWaiting)];
+    //[self.parentViewController performSelector:@selector(hideWaiting)];
 }
 
 -(void) pushedPlay {
@@ -339,12 +344,57 @@ int gesture_move_file_min_trans;
     [self refreshCoverLabels];
 }
 
+
+- (UIViewController *)visibleViewController:(UIViewController *)rootViewController
+{
+    if ([rootViewController isKindOfClass:[UITabBarController class]])
+    {
+        UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
+        
+        return [self visibleViewController:selectedViewController];
+    }
+    if ([rootViewController isKindOfClass:[UINavigationController class]])
+    {
+        UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
+        
+        return [self visibleViewController:lastViewController];
+    }
+    
+    if (rootViewController.presentedViewController == nil)
+    {
+        return rootViewController;
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]])
+    {
+        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
+        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
+        
+        return [self visibleViewController:lastViewController];
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
+    {
+        UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
+        UIViewController *selectedViewController = tabBarController.selectedViewController;
+        
+        return [self visibleViewController:selectedViewController];
+    }
+    
+    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
+    
+    return [self visibleViewController:presentedViewController];
+}
+
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    //issue when checking minivc directly, so check visible viewcontroller instead
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     darkMode=false;
-    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+    if (vc.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+    
     //Background color
+    
     if (darkMode) [mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
     else [mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
     

@@ -23,7 +23,7 @@
 +(int) isPlayableFile:(NSString*)file;
 +(int) isSingleFileType:(NSString*)_filePath;
 +(int) scanarchive:(const char *)path filesList_ptr:(char***)filesList_ptr filesCount_ptr:(int*)filesCount_ptr ;
-+(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress;
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress context:(void*)context;
 +(BOOL) addSkipBackupAttributeToItemAtPath:(NSString*)path;
 +(void) updateFilesDoNotBackupAttributes;
 

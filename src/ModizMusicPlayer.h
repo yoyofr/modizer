@@ -284,14 +284,14 @@ extern "C" {
 
 -(BOOL) isPlaying;
 
--(void) Seek:(int)seek_time;
+-(void) Seek:(int64_t)seek_time;
 -(int) isSeeking;
 -(bool) isPaused;
 -(BOOL) isEndReached;
 -(void) Stop;
 -(void) Pause:(BOOL)paused;
 -(void) Play;
--(void) PlaySeek:(int)startPos subsong:(int)subsong;
+-(void) PlaySeek:(int64_t)startPos subsong:(int)subsong;
 
 
 -(void) updateCurSubSongPlayed:(int)idx;

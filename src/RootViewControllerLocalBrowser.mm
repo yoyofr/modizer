@@ -6,7 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-extern void *ProgressObserverContext;
+extern void *ExtractProgressObserverContext;
+extern void *LoadingProgressObserverContext;
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
@@ -63,7 +64,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize mSearchText;
 @synthesize popTipView;
 @synthesize alertRename;
-@synthesize waitingView;
+@synthesize waitingView,waitingViewExtract,waitingViewPlayer;
 
 #pragma mark -
 #pragma mark Search functiçns
@@ -497,9 +498,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     cutpaste_initiated=0;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
-
+    
     extractProgress = nil;
-
+    
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     self.navigationController.delegate = self;
@@ -627,6 +628,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     waitingView = [[WaitingView alloc] init];
     waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
+    waitingView.hidden=TRUE;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
@@ -637,6 +639,34 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
+    waitingViewExtract = [[WaitingView alloc] init];
+    waitingViewExtract.layer.zPosition=MAXFLOAT;
+    [self.view addSubview:waitingViewExtract];
+    waitingViewExtract.hidden=TRUE;
+    
+    views = NSDictionaryOfVariableBindings(waitingViewExtract);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingViewExtract(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewExtract(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    
+    waitingViewPlayer = [[WaitingView alloc] init];
+    waitingViewPlayer.layer.zPosition=MAXFLOAT;
+    [self.view addSubview:waitingViewPlayer];
+    waitingViewPlayer.hidden=TRUE;
+    
+    views = NSDictionaryOfVariableBindings(waitingViewPlayer);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    
     
     
     [super viewDidLoad];
@@ -646,14 +676,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     // Initialize the refresh control.
     self.tableView.refreshControl = [[UIRefreshControl alloc] init];
-    self.tableView.refreshControl.backgroundColor = [UIColor purpleColor];
+    self.tableView.refreshControl.backgroundColor = [UIColor clearColor];
     self.tableView.refreshControl.tintColor = [UIColor whiteColor];
     [self.tableView.refreshControl addTarget:self
-                            action:@selector(refreshViewReloadFiles)
-                  forControlEvents:UIControlEventValueChanged];
+                                      action:@selector(refreshViewReloadFiles)
+                            forControlEvents:UIControlEventValueChanged];
+    
     
     //tableView.refreshControl=refreshControl;
-    
     
     end_time=clock();
 #ifdef LOAD_PROFILE
@@ -851,7 +881,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     int shouldStop=0;
     static bool no_reentrant=false;
     NSRange r;
-        
+    
     if (no_reentrant) return;
     no_reentrant=true;
     
@@ -1323,54 +1353,54 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         struct archive *a;
         struct archive_entry *entry;
         int r;
-
+        
         a = archive_read_new();
         archive_read_support_filter_all(a);
         archive_read_support_format_raw(a);
         archive_read_support_format_all(a);
         r = archive_read_open_filename(a, [cpath UTF8String], 16384); // Note 1
         if (r == ARCHIVE_OK) {
-                    int is_rsn=0;
-                    NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-                    if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
-                    
-                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-                            
-                        
-                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
-                        
-                        NSString *extension;
-                        NSString *file_no_ext;
-                        
-                        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
-                        extension = (NSString *)[temparray_filepath lastObject];
-                        file_no_ext=[temparray_filepath firstObject];
-                        
-                        int filtered=0;
-                        if ((mSearch)&&([mSearchText length]>0)) {
-                            filtered=1;
-                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                filtered=0;
-                            }
-                        }
-                        if (!filtered) {
-                            int found=0;
-                            
-                            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
-                            
-                            if (found)  {
-                                const char *str=[[file lastPathComponent] UTF8String];
-                                int index=0;
-                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                local_entries_count[index]++;
-                                local_nb_entries++;
-                            }
-                        }
-                        
-                        archive_read_data_skip(a);  // Note 2
+            int is_rsn=0;
+            NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
+            if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
+            
+            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                
+                
+                file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                
+                NSString *extension;
+                NSString *file_no_ext;
+                
+                NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                extension = (NSString *)[temparray_filepath lastObject];
+                file_no_ext=[temparray_filepath firstObject];
+                
+                int filtered=0;
+                if ((mSearch)&&([mSearchText length]>0)) {
+                    filtered=1;
+                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                        filtered=0;
                     }
+                }
+                if (!filtered) {
+                    int found=0;
+                    
+                    if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+                    else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                    
+                    if (found)  {
+                        const char *str=[[file lastPathComponent] UTF8String];
+                        int index=0;
+                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                        local_entries_count[index]++;
+                        local_nb_entries++;
+                    }
+                }
+                
+                archive_read_data_skip(a);  // Note 2
+            }
         } else {
             //NSLog( @"Skipping unsupported archive: %s\n", path );
         }
@@ -1567,11 +1597,11 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
             
             /*file_idx++;
-            if ((file_idx&127)==0)
-            dispatch_sync(dispatch_get_main_queue(), ^(void){
-                //Run UI Updates
-                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",file_idx,file_cnt]];
-            });*/
+             if ((file_idx&127)==0)
+             dispatch_sync(dispatch_get_main_queue(), ^(void){
+             //Run UI Updates
+             [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",file_idx,file_cnt]];
+             });*/
             
             //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
             NSNumber *isDirectory = nil;
@@ -1802,7 +1832,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                         local_entries[index][local_entries_count[index]].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
                                         //if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
                                         //else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
-                                            
+                                        
                                     }
                                     
                                     if (other_encoding) {
@@ -1875,11 +1905,15 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     bool oldmode=darkMode;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-    if (oldmode!=darkMode) forceReloadCells=true;
+    if (oldmode!=darkMode) {
+        forceReloadCells=true;
+        
+        [self addRefreshView];
+    }
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     [self.tableView reloadData];
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    //[[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
 }
 
 static int shouldRestart=1;
@@ -1888,8 +1922,10 @@ static int shouldRestart=1;
     return UIStatusBarStyleDefault;
 }
 
+
 -(void) viewWillAppear:(BOOL)animated {
     //static int firstcall=0;
+    [super viewWillAppear:animated];
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
         if (@available(iOS 14.0, *)) {
@@ -1906,24 +1942,20 @@ static int shouldRestart=1;
             }
         }
     
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-    [self.sBar setBarStyle:UIBarStyleDefault];
-    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
-    
-    [self.navigationController setNeedsStatusBarAppearanceUpdate];
-    
-    self.navigationController.delegate = self;
-    
     bool oldmode=darkMode;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
+    
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     
+    [self.sBar setBarStyle:UIBarStyleDefault];
     
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    self.navigationController.delegate = self;
+    //[[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     [[self navigationController] setNavigationBarHidden:NO animated:YES];
+    [self.navigationController setNeedsStatusBarAppearanceUpdate];
     
     
     if ([detailViewController mPlaylist_size]>0) {
@@ -1936,6 +1968,23 @@ static int shouldRestart=1;
     
     /////////////
     //shouldFillKeys=1;
+    
+    [waitingViewPlayer resetCancelStatus];
+    waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+    waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+    waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+    waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+    waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+    waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+    
+    //    [waitingViewPlayer.progressView setObservedProgress:detailViewController.mplayer.extractProgress];
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView addObserver:self
+                                       forKeyPath:observedSelector
+                                          options:NSKeyValueObservingOptionInitial
+                                          context:LoadingProgressObserverContext];
+    
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
     
     if (childController) {
         childController = nil;
@@ -1961,7 +2010,9 @@ static int shouldRestart=1;
             }
         }
     }
-    [super viewWillAppear:animated];
+    
+    //creating view for extending background color
+    [self addRefreshView];
 }
 
 -(void) refreshViewReloadFiles {
@@ -1972,16 +2023,16 @@ static int shouldRestart=1;
     else {
         
         if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
-                
+        
         [self hideWaitingCancel];
         [self hideWaitingProgress];
         [self updateWaitingTitle:@""];
         [self updateWaitingDetail:@""];
-                        
+        
         [self showWaiting];
-        [self flushMainLoop];
-        [NSThread sleepForTimeInterval:0.1f];
-        [self flushMainLoop];
+        //        [self flushMainLoop];
+        //        [NSThread sleepForTimeInterval:0.1f];
+        //        [self flushMainLoop];
         
         shouldFillKeys=1;
         
@@ -2046,54 +2097,57 @@ static int shouldRestart=1;
             });
         });
         
-//        detailViewController.no_hud_mode=true;
-//        [detailViewController play_restart];
-//        [detailViewController play_restart];
-//        detailViewController.no_hud_mode=false;
+        //        detailViewController.no_hud_mode=true;
+        //        [detailViewController play_restart];
+        //        [detailViewController play_restart];
+        //        detailViewController.no_hud_mode=false;
         
-//        [self hideWaiting];
-//        self.view.userInteractionEnabled = YES;
+        //        [self hideWaiting];
+        //        self.view.userInteractionEnabled = YES;
     }
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
     forceReloadCells=false;
     
     //check if a pending cut/paste exists
     if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
-            //file has been moved, force reload
-            shouldFillKeys=1;
-            cutpaste_initiated=0;
+        //file has been moved, force reload
+        shouldFillKeys=1;
+        cutpaste_initiated=0;
     }
     
     if (shouldFillKeys) [self refreshViewReloadFiles];
     
-    [super viewDidAppear:animated];
+    
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    
+    //[[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     
     
     if ([detailViewController not_expected_version]==1) {
         NSLog(@"change of version");
         
         UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Modizer v%d.%d",@""),VERSION_MAJOR,VERSION_MINOR]
-                                           message:NSLocalizedString(@"\
+                                                                        message:NSLocalizedString(@"\
 Due to internal changes, settings will be reseted to default and database will be cleaned.\n\
 As a consequence, some entries might disappear from existing playlist.\n\
 \n\
 ",@"")
-                                           preferredStyle:UIAlertControllerStyleAlert];
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
         UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
-            handler:^(UIAlertAction * action) {
+                                                            handler:^(UIAlertAction * action) {
             
             [self updateWaitingTitle:NSLocalizedString(@"Cleaning DB & \nreseting settings",@"")];
             [self updateWaitingDetail:NSLocalizedString(@"please wait",@"")];
-                
+            
             [self showWaiting];
             [self flushMainLoop];
-                
+            
             DBHelper::cleanDB();
             
             //remove settings from userpref
@@ -2106,7 +2160,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [self hideWaiting];
             
-            }];
+        }];
         [alertC addAction:closeAction];
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
@@ -2131,6 +2185,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
     /*if (childController) {
      [childController viewDidDisappear:FALSE];
      }*/
+    
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView removeObserver:self
+                                          forKeyPath:observedSelector
+                                             context:LoadingProgressObserverContext];
+    
     [super viewDidDisappear:animated];
 }
 
@@ -2216,16 +2279,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
         topLabel.text=lbl;
         
         [customView addSubview: topLabel];
-        
-        /*UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
-         buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
-         buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
-         buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
-         //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
-         buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 24);
-         
-         [buttonLabel setTitle:lbl forState:UIControlStateNormal];
-         [customView addSubview: buttonLabel];*/
         
         return customView;
     }
@@ -2346,12 +2399,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 break;
             }
             case 2:{//extract
-                [self updateWaitingTitle:NSLocalizedString(@"Extracting",@"")];
-                [self updateWaitingDetail:@""];
-                [self showWaitingCancel];
-                [self showWaitingProgress];
-                [self showWaiting];
-                [self flushMainLoop];
+                [waitingViewExtract setTitle:NSLocalizedString(@"Extracting",@"")];
+                [waitingViewExtract setDetail:@""];
+                [waitingViewExtract showCancel];
+                [waitingViewExtract showProgress];
+                waitingViewExtract.hidden=false;
+                //[self showWaiting];
+                //[self flushMainLoop];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                 
@@ -2361,18 +2415,19 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
                 if (files_found) {
                     //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
-                    
+                    [self.tableView setUserInteractionEnabled:false];
+                    [self.navigationItem setHidesBackButton:YES animated:YES];
                     extractProgress = [NSProgress progressWithTotalUnitCount:1];
                     extractProgress.cancellable = YES;
                     extractProgress.pausable = NO;
-                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress];
+                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext];
                     if (mSearch) {
                         mSearch=0;
                         [self listLocalFiles];
                         mSearch=1;
                     }
                     [self listLocalFiles];
-                    [self.tableView setUserInteractionEnabled:false];
+                    
                     //[self.tableView reloadData];
                 } else {
                     UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -2499,11 +2554,18 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     SESlideTableViewCell *cell;
     
+    if (forceReloadCells) {
+        while ([tabView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        while ([tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader]) {}
+        forceReloadCells=false;
+    }
     
     if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    if ((cell == nil)||(forceReloadCells)) {
+    
+    
+    if ((cell == nil)) {
         if (indexPath.section>1) {
             cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
             cell.delegate = self;
@@ -2621,9 +2683,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
-                
-                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+            
+            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
             
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
@@ -3017,11 +3079,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 
 -(IBAction)goPlayer {
-//    [self updateWaitingTitle:@""];
-//    [self updateWaitingDetail:@""];
-//    [self hideWaitingCancel];
-//    [self hideWaitingProgress];
-//    [self showWaiting];
+    //    [self updateWaitingTitle:@""];
+    //    [self updateWaitingDetail:@""];
+    //    [self hideWaitingCancel];
+    //    [self hideWaitingProgress];
+    //    [self showWaiting];
     
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
@@ -3055,7 +3117,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
-//    [self hideWaiting];
+    //    [self hideWaiting];
 }
 
 #pragma mark -
@@ -3071,7 +3133,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
-        
+    
     [self updateWaitingTitle:@""];
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
@@ -3307,27 +3369,27 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 [self refreshViewReloadFiles];
                 
                 /*[self hideWaitingCancel];
-                [self updateWaitingTitle:@""];
-                [self updateWaitingDetail:@""];
-                
-                [self showWaiting];
-                [self flushMainLoop];
-                
-                
-                int old_mSearch=mSearch;
-                NSString *old_mSearchText=mSearchText;
-                mSearch=0;
-                mSearchText=nil;
-                [self fillKeys];   //1st load eveything
-                mSearch=old_mSearch;
-                mSearchText=old_mSearchText;
-                if (mSearch) {
-                    shouldFillKeys=1;
-                    [self fillKeys];   //2nd filter for drawing
-                }
-                [tabView reloadData];
-                
-                [self hideWaiting];*/
+                 [self updateWaitingTitle:@""];
+                 [self updateWaitingDetail:@""];
+                 
+                 [self showWaiting];
+                 [self flushMainLoop];
+                 
+                 
+                 int old_mSearch=mSearch;
+                 NSString *old_mSearchText=mSearchText;
+                 mSearch=0;
+                 mSearchText=nil;
+                 [self fillKeys];   //1st load eveything
+                 mSearch=old_mSearch;
+                 mSearchText=old_mSearchText;
+                 if (mSearch) {
+                 shouldFillKeys=1;
+                 [self fillKeys];   //2nd filter for drawing
+                 }
+                 [tabView reloadData];
+                 
+                 [self hideWaiting];*/
             }
         }else {
             if (icloud_available) {
@@ -3428,11 +3490,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
             //				[childController autorelease];
         } else {  //File selected
             
-            [self updateWaitingTitle:@""];
-            [self updateWaitingDetail:@""];
-            [self showWaitingCancel];
-            [self showWaitingProgress];
-            [self showWaiting];
+            //            [self updateWaitingTitle:@""];
+            //            [self updateWaitingDetail:@""];
+            //            [self showWaitingCancel];
+            //            [self showWaitingProgress];
+            //            [self showWaiting];
             
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
@@ -3579,6 +3641,60 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     // Relinquish ownership any cached data, images, etc. that aren't in use.
 }
+
+-(void) addRefreshView {
+    const int TAG_REFRESHVIEW=100;
+    
+    UIView *refreshBackgroundView=[self.tableView viewWithTag:TAG_REFRESHVIEW];
+    if (refreshBackgroundView) {
+        [refreshBackgroundView removeFromSuperview];
+    }
+    
+    CGRect frame = CGRectMake(0,0,self.tableView.bounds.size.width,200);
+    frame.origin.y = -frame.size.height;
+    refreshBackgroundView = [[UIView alloc]initWithFrame:frame];
+    refreshBackgroundView.tag=TAG_REFRESHVIEW;
+    refreshBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    if (darkMode) {
+        refreshBackgroundView.backgroundColor=[UIColor blackColor];
+        self.tableView.refreshControl.tintColor = [UIColor whiteColor];
+    } else {
+        refreshBackgroundView.backgroundColor=[UIColor whiteColor];
+        self.tableView.refreshControl.tintColor = [UIColor blackColor];
+    }
+    
+    /*float red_col[3]={235/255.0f,235/255.0f,110/255.0f};
+     float green_col[3]={80/255.0f,80/255.0f,40/255.0f};
+     float blue_col[3]={193/255.0f,193/255.0f,110/255.0f};
+     
+     CAGradientLayer *gradient = [CAGradientLayer layer];
+     gradient.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 6.0);
+     gradient.colors=@[(id)[UIColor colorWithRed:red_col[0] green:green_col[0] blue:blue_col[0] alpha:1].CGColor,
+     (id)[UIColor colorWithRed:red_col[1] green:green_col[1] blue:blue_col[1] alpha:1].CGColor,                                                   ];
+     
+     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];
+     
+     gradient = [CAGradientLayer layer];
+     gradient.frame = CGRectMake(0.0, 6.0, tableView.bounds.size.width, 88.0);
+     gradient.colors=@[(id)[UIColor colorWithRed:red_col[1] green:green_col[1] blue:blue_col[1] alpha:1].CGColor,                                                   (id)[UIColor colorWithRed:red_col[2] green:green_col[2] blue:blue_col[2] alpha:1].CGColor];
+     
+     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];
+     
+     gradient = [CAGradientLayer layer];
+     gradient.frame = CGRectMake(0.0, 94.0, tableView.bounds.size.width, 6.0);
+     float base_col;
+     if (darkMode) base_col=0;
+     else base_col=1;
+     gradient.colors=@[(id)[UIColor colorWithRed:red_col[2] green:green_col[2] blue:blue_col[2] alpha:1].CGColor,
+     (id)[UIColor colorWithRed:base_col green:base_col blue:base_col alpha:1].CGColor];
+     
+     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];*/
+    
+    
+    [self.tableView insertSubview:refreshBackgroundView atIndex:0];
+}
+
 - (void)viewDidUnload {
     // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
     // For example: self.myOutlet = nil;;
@@ -3587,6 +3703,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (void)dealloc {
     [waitingView removeFromSuperview];
     waitingView=nil;
+    [waitingViewExtract removeFromSuperview];
+    waitingViewExtract=nil;
     
     //[currentPath release];
     if (mSearchText) {
@@ -3660,14 +3778,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 #pragma mark - UIScrollViewDelegate
 /*- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    static int flag=0;
-    if (scrollView.contentOffset.y>=0) flag=0;
-    if ((scrollView.contentOffset.y<-80.0)&&(!refreshControl.refreshing)&&(flag==0)) {
-        [refreshControl beginRefreshing];
-        flag=1;
-        [refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
-    }
-}*/
+ static int flag=0;
+ if (scrollView.contentOffset.y>=0) flag=0;
+ if ((scrollView.contentOffset.y<-80.0)&&(!refreshControl.refreshing)&&(flag==0)) {
+ [refreshControl beginRefreshing];
+ flag=1;
+ [refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
+ }
+ }*/
 
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldMoveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath {
     return YES;
@@ -3682,10 +3800,32 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (void) cancelPushed {
     if (extractProgress) {
         [extractProgress cancel];
+        [waitingViewExtract hideCancel];
+        [waitingViewExtract hideProgress];
+        [waitingViewExtract setDetail:NSLocalizedString(@"Cancelling...",@"")];
+    } else {
+        
+        NSLog(@"cancel pushed");
+        
         [waitingView hideCancel];
-        [waitingView hideProgress];
-        [waitingView setDetail:NSLocalizedString(@"Cancelling...",@"")];
+        [waitingViewExtract hideCancel];
+        
+        [waitingViewPlayer hideCancel];
+        [waitingViewPlayer hideProgress];
+        [waitingViewPlayer setDetail:NSLocalizedString(@"Cancelling...",@"")];
+        [waitingViewPlayer layoutIfNeeded];
+        
+        detailViewController.mplayer.extractPendingCancel=true;
+        /*[detailViewController hideWaitingCancel];
+         [detailViewController hideWaitingProgress];
+         [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+         */
+        
     }
+}
+
+-(void) updateLoadingInfos: (NSTimer *) theTimer {
+    [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath
@@ -3693,27 +3833,42 @@ As a consequence, some entries might disappear from existing playlist.\n\
                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
                        context:(void *)context
 {
-    if (context == ProgressObserverContext) {
+    if (context == ExtractProgressObserverContext) {
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [waitingView resetCancelStatus];
-                [self hideWaiting];
-                [self hideWaitingProgress];
+                [self.waitingViewExtract resetCancelStatus];
+                self.waitingViewExtract.hidden=TRUE;
+                [self.waitingViewExtract hideProgress];
                 [self.tableView setUserInteractionEnabled:true];
+                [self.navigationItem setHidesBackButton:NO animated:YES];
                 [self refreshViewReloadFiles];
             }];
         }
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self.waitingView setProgress:progress.fractionCompleted];
+            [self.waitingViewExtract setProgress:progress.fractionCompleted];
             if (progress.fractionCompleted>=1.0f) {
-                [self hideWaiting];
-                [self hideWaitingProgress];
+                self.waitingViewExtract.hidden=TRUE;
+                [self.waitingViewExtract hideProgress];
                 [self.tableView setUserInteractionEnabled:true];
+                [self.navigationItem setHidesBackButton:NO animated:YES];
                 [self refreshViewReloadFiles];
             }
         }];
+    } else if (context==LoadingProgressObserverContext){
+        WaitingView *wv = object;
+        if (wv.hidden==false) {
+            [waitingViewPlayer resetCancelStatus];
+            waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+            waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+            waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+            waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+            waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+            waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+        }
+        waitingViewPlayer.hidden=wv.hidden;
+        
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }

@@ -186,11 +186,29 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         [self hideMiniPlayer];
     }
     
-    [self hideWaiting];
+    //[self hideWaiting];
+    waitingView.hidden=detailViewController.waitingView.hidden;
+    waitingView.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+    waitingView.progressView.progress=detailViewController.waitingView.progressView.progress;
+    waitingView.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+    waitingView.lblTitle.text=detailViewController.waitingView.lblTitle.text;
+    waitingView.lblDetail.text=detailViewController.waitingView.lblDetail.text;
     
     [self.tableView reloadData];
     collectionViewController=nil;
 }
+
+- (void) cancelPushed {
+    detailViewController.mplayer.extractPendingCancel=true;
+    [detailViewController hideWaitingCancel];
+    [detailViewController hideWaitingProgress];
+    [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+        
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+}
+
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -339,11 +357,18 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     UILabel *bottomLabel;
     int cell_category=0;
     
+    
     NSString *CellIdentifier = [NSString stringWithFormat:@"Cell%d",cell_category];
+    
+    if (forceReloadCells) {
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     //NSLog(@"indexpath: %d %d %d/ %@ / %08X",indexPath.section,indexPath.row,cell_category,CellIdentifier,(void*)cell);
-    if ((cell==nil)||forceReloadCells) {
+    if (cell==nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
@@ -523,13 +548,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Navigation logic may go here. Create and push another view controller.
-    /*
-     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-     // ...
-     // Pass the selected object to the new view controller.
-     [self.navigationController pushViewController:detailViewController animated:YES];
-     [detailViewController release];
-     */
+    
     switch (indexPath.section) {
         case 0: {//collection
             switch (indexPath.row) {

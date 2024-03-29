@@ -1753,8 +1753,13 @@ static NSFileManager *mFileMngr;
     UILabel *bottomLabel;
     UIButton *actionView;
     
+    if (forceReloadCells) {
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         [cell setBackgroundColor:[UIColor clearColor]];

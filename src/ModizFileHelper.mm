@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien David on 07/03/2024.
 //
 
-extern void *ProgressObserverContext;
+extern void *ExtractProgressObserverContext;
 extern NSURL *icloudURL;
 extern bool icloud_available;
 
@@ -896,7 +896,7 @@ extern bool icloud_available;
     fileManager=nil;
 }
 
-+(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress{
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress context:(void*)context {
     //Specific case for RAR files as libarchive is buggy for them and UnrarKIT is used instead
     NSString *cpath=[NSString stringWithUTF8String:archivePath];
     if ( ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RAR"]) ||
@@ -914,7 +914,7 @@ extern bool icloud_available;
         [extractProgress addObserver:caller
                               forKeyPath:observedSelector
                                  options:NSKeyValueObservingOptionInitial
-                                 context:ProgressObserverContext];
+                                 context:context];
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
             NSError *error;
@@ -927,7 +927,7 @@ extern bool icloud_available;
             }
             [extractProgress removeObserver:caller
                                      forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                                        context:ProgressObserverContext];
+                                        context:context];
             [extractProgress resignCurrent];
             
 //            dispatch_sync(dispatch_get_main_queue(), ^(void){
@@ -961,7 +961,7 @@ extern bool icloud_available;
     [extractProgress addObserver:caller
                           forKeyPath:observedSelector
                              options:NSKeyValueObservingOptionInitial
-                             context:ProgressObserverContext];
+                             context:context];
     
     NSString *archivePathNS=[NSString stringWithUTF8String:archivePath];
     NSString *extractPathNS=[NSString stringWithUTF8String:extractPath];
@@ -1044,7 +1044,7 @@ extern bool icloud_available;
             
             [extractProgress removeObserver:caller
                                      forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
-                                        context:ProgressObserverContext];
+                                        context:context];
             [extractProgress resignCurrent];
             
             NSLog(@"over");

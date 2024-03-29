@@ -24,7 +24,8 @@
 extern volatile t_settings settings[MAX_SETTINGS];
 
 //GLOBAL VAR
-void *ProgressObserverContext = &ProgressObserverContext;
+void *ExtractProgressObserverContext = &ExtractProgressObserverContext;
+void *LoadingProgressObserverContext = &LoadingProgressObserverContext;
 //
 
 //#import <AVFoundation/AVFoundation.h>
@@ -257,13 +258,13 @@ pthread_mutex_t play_mutex;
     animatedLaunchVC.localBrowserVC=rootViewControlleriPhone;
     
     [modizerWin addSubview:[animatedLaunchVC view]];
+    
     //[self pushViewController:animatedLaunchVC animated:YES];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setNumberOfLines:2];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
     
-                
-	return YES;
+    return YES;
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {

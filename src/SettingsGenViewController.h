@@ -240,6 +240,7 @@ enum MDZ_SETTINGS {
         OSCILLO_ShowLabel,
         OSCILLO_LabelFontSize,
         OSCILLO_ShowGrid,
+        OSCILLO_GRID_COLOR,
         OSCILLO_LINE_Width,
         OSCILLO_MONO_COLOR,
         OSCILLO_MULTI_COLOR01,
@@ -294,6 +295,7 @@ typedef struct {
     //unsigned int slider_value_nb;
     float slider_min_value;
     float slider_max_value;
+    char slider_digits; //100:percentage, 60:time, 1:1 digit, 2:2 digits
 } t_setting_slider;
 
 typedef struct {

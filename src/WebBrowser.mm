@@ -6,6 +6,8 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+static void *WBProgressObserverContext = &WBProgressObserverContext;
+
 #define EMPTY_PAGE @"<html><head><title>Modizer Web Browser</title>\
 <meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" /></head>\
 <body style='background-color:#eee;color:#111;'><div align=\"CENTER\">Loading...</div></body></html>"
@@ -642,26 +644,32 @@ static UIAlertView *alertChooseName;
                      ofObject:(id)object
                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
                       context:(void *)context{
-    
-    if ([keyPath isEqualToString:NSStringFromSelector(@selector(estimatedProgress))]
-        && object == self.webView) {
-        [self.progressIndicator setAlpha:1.0f];
-        BOOL animated = self.webView.estimatedProgress > self.progressIndicator.progress;
-        [self.progressIndicator setProgress:self.webView.estimatedProgress
-                              animated:animated];
-        
-        if (self.webView.estimatedProgress >= 1.0f) {
-            [UIView animateWithDuration:0.3f
-                                  delay:0.3f
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 [self.progressIndicator setAlpha:0.0f];
-                             }
-                             completion:^(BOOL finished) {
-                                 [self.progressIndicator setProgress:0.0f animated:NO];
-                             }];
+    if (context==WBProgressObserverContext) {
+        if ([keyPath isEqualToString:NSStringFromSelector(@selector(estimatedProgress))]
+            && object == self.webView) {
+            [self.progressIndicator setAlpha:1.0f];
+            BOOL animated = self.webView.estimatedProgress > self.progressIndicator.progress;
+            [self.progressIndicator setProgress:self.webView.estimatedProgress
+                                       animated:animated];
+            
+            if (self.webView.estimatedProgress >= 1.0f) {
+                [UIView animateWithDuration:0.3f
+                                      delay:0.3f
+                                    options:UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                    [self.progressIndicator setAlpha:0.0f];
+                }
+                                 completion:^(BOOL finished) {
+                    [self.progressIndicator setProgress:0.0f animated:NO];
+                }];
+            }
+        } else {
+            [super observeValueForKeyPath:keyPath
+                                     ofObject:object
+                                       change:change
+                                      context:context];
         }
-    }else{
+    } else {
         [super observeValueForKeyPath:keyPath
                              ofObject:object
                                change:change
@@ -1298,7 +1306,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.webView addObserver:self
                        forKeyPath:NSStringFromSelector(@selector(estimatedProgress))
                           options:0
-                          context:nil];
+                          context:WBProgressObserverContext];
 
 
 	

@@ -11,7 +11,8 @@
 #include <iostream>
 
 #import "SettingsGenViewController.h"
-#import "MNEValueTrackingSlider.h"
+//#import "MNEValueTrackingSlider.h"
+#import "OBSlider.h"
 
 #import "Reachability.h"
 #include <ifaddrs.h>
@@ -293,35 +294,35 @@ void optNSFPLAYChangedC(id param) {
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_boolswitch.switch_value=[valNb intValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_boolswitch.switch_value=[valNb intValue];
                     break;
                 case MDZ_SWITCH:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_switch.switch_value=[valNb intValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_switch.switch_value=[valNb intValue];
                     if (settings[i].detail.mdz_switch.switch_value<0) settings[i].detail.mdz_switch.switch_value=0;
                     if (settings[i].detail.mdz_switch.switch_value>settings[i].detail.mdz_switch.switch_value_nb) settings[i].detail.mdz_switch.switch_value=settings[i].detail.mdz_switch.switch_value_nb-1;
                     break;
                 case MDZ_SLIDER_DISCRETE:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
                     if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
                     if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
                     if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
                     if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
                     if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
                     if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
                 case MDZ_TEXTBOX:
                     str=[prefs objectForKey:str];
-                    if (str!=nil) {
+                    if ((str!=nil)&&([str isKindOfClass:[NSString class]])) {
                         if (settings[i].detail.mdz_textbox.text) free(settings[i].detail.mdz_textbox.text);
                         settings[i].detail.mdz_textbox.text=(char*)malloc(strlen([str UTF8String])+1);
                         strcpy(settings[i].detail.mdz_textbox.text,[str UTF8String]);
@@ -332,7 +333,7 @@ void optNSFPLAYChangedC(id param) {
                     break;
                 case MDZ_COLORPICKER:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_color.rgb=[valNb intValue];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_color.rgb=[valNb intValue];
                     if (settings[i].detail.mdz_color.rgb<0) settings[i].detail.mdz_color.rgb=0;
                     if (settings[i].detail.mdz_color.rgb>0xFFFFFF) settings[i].detail.mdz_color.rgb=0xFFFFFF;
                     break;
@@ -422,6 +423,8 @@ void optNSFPLAYChangedC(id param) {
             break;
     }
     
+    if ((color_idx<0)||(color_idx==1)) settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb=0x404040;
+    
     for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
         CGFloat hue=start_pos+i*mul_factor;
         while (hue>1.0) hue-=1.0f;
@@ -430,7 +433,7 @@ void optNSFPLAYChangedC(id param) {
         CGFloat red,green,blue;
         [col getRed:&red green:&green blue:&blue alpha:NULL];
         CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
-        if ((color_idx<0)||(color_idx==(i+1))) settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        if ((color_idx<0)||(color_idx==(i+2))) settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
     }
 }
 
@@ -624,7 +627,9 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_N163_OPTION0].detail.mdz_boolswitch.switch_value=1;
     settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value=0;
     settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value=0;
-    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value=2000;
+    if (settings[NSFPLAY_FDS_OPTION0].detail.mdz_msgbox.text) free(settings[NSFPLAY_FDS_OPTION0].detail.mdz_msgbox.text);
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_msgbox.text=(char*)malloc(strlen("2000")+1);
+    strcpy(settings[NSFPLAY_FDS_OPTION0].detail.mdz_msgbox.text,"2000");
     settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value=0;
     settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value=0;
     settings[NSFPLAY_VRC7_OPTION0].detail.mdz_boolswitch.switch_value=0;
@@ -802,7 +807,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].sub_family=0;
     settings[GLOB_PanningValue].callback=&optGLOBALChangedC;
     settings[GLOB_PanningValue].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_PanningValue].detail.mdz_slider.slider_digits=100;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
     
@@ -813,17 +818,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].sub_family=0;
     settings[GLOB_DefaultLength].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_digits=60;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
         
     SETTINGS_ID_DEF(GLOB_AudioLatency)
     settings[GLOB_AudioLatency].type=MDZ_SWITCH;
-    settings[GLOB_AudioLatency].label=(char*)"Audio latency";
+    settings[GLOB_AudioLatency].label=(char*)"Audio latency in ms";
     settings[GLOB_AudioLatency].description=(char*)"0=auto, delay rounded to a multiple of audio buffer size";
     settings[GLOB_AudioLatency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_AudioLatency].sub_family=0;
     settings[GLOB_AudioLatency].callback=&optGLOBALChangedC;
     settings[GLOB_AudioLatency].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_AudioLatency].detail.mdz_slider.slider_digits=0;
     settings[GLOB_AudioLatency].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_AudioLatency].detail.mdz_slider.slider_max_value=1000*(SOUND_BUFFER_NB/2)*SOUND_BUFFER_SIZE_SAMPLE/DEFAULT_PLAYBACK_FREQ;
     
@@ -1237,7 +1244,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].sub_family=0;
     settings[GLOB_FXAlpha].callback=&optVISUChangedC;
     settings[GLOB_FXAlpha].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_digits=100;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
     
@@ -1505,6 +1512,14 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_ShowGrid].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[OSCILLO_ShowGrid].sub_family=0;
     
+    SETTINGS_ID_DEF(OSCILLO_GRID_COLOR)
+    settings[OSCILLO_GRID_COLOR].label=(char*)"Grid color";
+    settings[OSCILLO_GRID_COLOR].description=NULL;
+    settings[OSCILLO_GRID_COLOR].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_GRID_COLOR].sub_family=0;
+    settings[OSCILLO_GRID_COLOR].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_GRID_COLOR].type=MDZ_COLORPICKER;
+    
     SETTINGS_ID_DEF(OSCILLO_LINE_Width)
     settings[OSCILLO_LINE_Width].type=MDZ_SWITCH;
     settings[OSCILLO_LINE_Width].label=(char*)"Oscillo line width";
@@ -1610,7 +1625,7 @@ void optNSFPLAYChangedC(id param) {
     settings[OMPT_MasterVolume].sub_family=0;
     settings[OMPT_MasterVolume].callback=&optOMPTChangedC;
     settings[OMPT_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
-    settings[OMPT_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_MasterVolume].detail.mdz_slider.slider_digits=100;
     settings[OMPT_MasterVolume].detail.mdz_slider.slider_min_value=0;
     settings[OMPT_MasterVolume].detail.mdz_slider.slider_max_value=1;
     
@@ -1637,7 +1652,7 @@ void optNSFPLAYChangedC(id param) {
     settings[OMPT_StereoSeparation].sub_family=0;
     settings[OMPT_StereoSeparation].callback=&optOMPTChangedC;
     settings[OMPT_StereoSeparation].type=MDZ_SLIDER_CONTINUOUS;
-    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_digits=100;
     settings[OMPT_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[OMPT_StereoSeparation].detail.mdz_slider.slider_max_value=1;
     
@@ -1654,13 +1669,13 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GME].sub_family=MDZ_SETTINGS_FAMILY_GME;
     
     SETTINGS_ID_DEF(GME_FADEOUT)
-    settings[GME_FADEOUT].label=(char*)"Fade out";
+    settings[GME_FADEOUT].label=(char*)"Fade out time";
     settings[GME_FADEOUT].description=NULL;
     settings[GME_FADEOUT].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_FADEOUT].sub_family=0;
     settings[GME_FADEOUT].callback=&optGMEChangedC;
-    settings[GME_FADEOUT].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_FADEOUT].type=MDZ_SLIDER_DISCRETE;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_digits=0;
     settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
     settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=10;
     
@@ -1689,7 +1704,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_RATIO].sub_family=0;
     settings[GME_RATIO].callback=&optGMEChangedC;
     settings[GME_RATIO].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO].detail.mdz_slider.slider_digits=1;
     settings[GME_RATIO].detail.mdz_slider.slider_min_value=0.1;
     settings[GME_RATIO].detail.mdz_slider.slider_max_value=5;
     
@@ -1708,6 +1723,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_EQ_BASS].sub_family=0;
     settings[GME_EQ_BASS].callback=&optGMEChangedC;
     settings[GME_EQ_BASS].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_EQ_BASS].detail.mdz_slider.slider_digits=1;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_min_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_max_value=4.2;
     
@@ -1718,6 +1734,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_EQ_TREBLE].sub_family=0;
     settings[GME_EQ_TREBLE].callback=&optGMEChangedC;
     settings[GME_EQ_TREBLE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_digits=1;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_min_value=-50;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_max_value=5;
     
@@ -1728,6 +1745,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_STEREO_PANNING].sub_family=0;
     settings[GME_STEREO_PANNING].callback=&optGMEChangedC;
     settings[GME_STEREO_PANNING].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_STEREO_PANNING].detail.mdz_slider.slider_digits=100;
     settings[GME_STEREO_PANNING].detail.mdz_slider.slider_min_value=0;
     settings[GME_STEREO_PANNING].detail.mdz_slider.slider_max_value=1;
     
@@ -1799,6 +1817,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_DefaultLength].sub_family=0;
     settings[NSFPLAY_DefaultLength].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
+    settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_digits=60;
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
@@ -1809,6 +1828,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_Quality].sub_family=0;
     settings[NSFPLAY_Quality].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_Quality].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_Quality].detail.mdz_slider.slider_digits=0;
     settings[NSFPLAY_Quality].detail.mdz_slider.slider_min_value=0;
     settings[NSFPLAY_Quality].detail.mdz_slider.slider_max_value=40;
     
@@ -1819,6 +1839,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_LowPass_Filter_Strength].sub_family=0;
     settings[NSFPLAY_LowPass_Filter_Strength].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_LowPass_Filter_Strength].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_digits=0;
     settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_min_value=0;
     settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_max_value=400;
     
@@ -1829,6 +1850,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_HighPass_Filter_Strength].sub_family=0;
     settings[NSFPLAY_HighPass_Filter_Strength].callback=&optNSFPLAYChangedC;
     settings[NSFPLAY_HighPass_Filter_Strength].type=MDZ_SLIDER_DISCRETE;
+    settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_digits=0;
     settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_min_value=0;
     settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_max_value=256;
     
@@ -1986,14 +2008,15 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_MMC5_OPTION1].callback=&optNSFPLAYChangedC;
     
     SETTINGS_ID_DEF(NSFPLAY_FDS_OPTION0)
-    settings[NSFPLAY_FDS_OPTION0].label=(char*)"FDS LP filter";
-    settings[NSFPLAY_FDS_OPTION0].description=(char*)"cutoff frequency (0=off, 2000=default)";
+    settings[NSFPLAY_FDS_OPTION0].label=(char*)"FDS LP filter in Hz";
+    settings[NSFPLAY_FDS_OPTION0].description=(char*)"Cutoff frequency (0Hz=off, 2000Hz=default)";
     settings[NSFPLAY_FDS_OPTION0].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_FDS_OPTION0].sub_family=0;
     settings[NSFPLAY_FDS_OPTION0].callback=&optNSFPLAYChangedC;
-    settings[NSFPLAY_FDS_OPTION0].type=MDZ_SLIDER_DISCRETE;
-    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_min_value=0;
-    settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_max_value=20000;
+    settings[NSFPLAY_FDS_OPTION0].type=MDZ_TEXTBOX;
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_textbox.text=(char*)malloc(strlen("2000")+1);
+    settings[NSFPLAY_FDS_OPTION0].detail.mdz_textbox.max_width_char=6;
+    strcpy(settings[NSFPLAY_FDS_OPTION0].detail.mdz_textbox.text,"2000");
     
     SETTINGS_ID_DEF(NSFPLAY_FDS_OPTION1)
     settings[NSFPLAY_FDS_OPTION1].type=MDZ_BOOLSWITCH;
@@ -2093,7 +2116,7 @@ void optNSFPLAYChangedC(id param) {
     settings[TIM_Polyphony].sub_family=0;
     settings[TIM_Polyphony].callback=&optTIMIDITYChangedC;
     settings[TIM_Polyphony].type=MDZ_SLIDER_DISCRETE;
-    settings[TIM_Polyphony].detail.mdz_slider.slider_value=128;
+    settings[TIM_Polyphony].detail.mdz_slider.slider_digits=0;
     settings[TIM_Polyphony].detail.mdz_slider.slider_min_value=64;
     settings[TIM_Polyphony].detail.mdz_slider.slider_max_value=256;
     
@@ -2104,7 +2127,7 @@ void optNSFPLAYChangedC(id param) {
     settings[TIM_Amplification].sub_family=0;
     settings[TIM_Amplification].callback=&optTIMIDITYChangedC;
     settings[TIM_Amplification].type=MDZ_SLIDER_DISCRETE;
-    settings[TIM_Amplification].detail.mdz_slider.slider_value=100;
+    settings[TIM_Amplification].detail.mdz_slider.slider_digits=0;
     settings[TIM_Amplification].detail.mdz_slider.slider_min_value=10;
     settings[TIM_Amplification].detail.mdz_slider.slider_max_value=400;
     
@@ -2168,6 +2191,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_Maxloop].sub_family=0;
     settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_digits=0;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     
@@ -2274,7 +2298,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Maxloop].sub_family=0;
     settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_digits=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
     
@@ -2285,6 +2309,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Fadeouttime].sub_family=0;
     settings[VGMSTREAM_Fadeouttime].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_digits=0;
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_min_value=0;
     settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=10;
     
@@ -2521,6 +2546,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_GainValue].callback=&optUADEChangedC;
     settings[UADE_GainValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
+    settings[UADE_GainValue].detail.mdz_slider.slider_digits=100;
     settings[UADE_GainValue].detail.mdz_slider.slider_min_value=0;
     settings[UADE_GainValue].detail.mdz_slider.slider_max_value=1;
     
@@ -2540,7 +2566,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_PanValue].sub_family=0;
     settings[UADE_PanValue].callback=&optUADEChangedC;
     settings[UADE_PanValue].type=MDZ_SLIDER_CONTINUOUS;
-    settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
+    settings[UADE_PanValue].detail.mdz_slider.slider_digits=100;
     settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
     settings[UADE_PanValue].detail.mdz_slider.slider_max_value=1;
     
@@ -2611,9 +2637,9 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_MasterVolume].sub_family=0;
     settings[XMP_MasterVolume].callback=&optXMPChangedC;
     settings[XMP_MasterVolume].type=MDZ_SLIDER_DISCRETE;
+    settings[XMP_MasterVolume].detail.mdz_slider.slider_digits=100;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_min_value=0;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_max_value=200;
-    settings[XMP_MasterVolume].detail.mdz_slider.slider_value=100;
     
     SETTINGS_ID_DEF(XMP_StereoSeparation)
     settings[XMP_StereoSeparation].label=(char*)"Stereo Separation";
@@ -2622,9 +2648,9 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_StereoSeparation].sub_family=0;
     settings[XMP_StereoSeparation].callback=&optXMPChangedC;
     settings[XMP_StereoSeparation].type=MDZ_SLIDER_DISCRETE;
+    settings[XMP_StereoSeparation].detail.mdz_slider.slider_digits=100;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_max_value=100;
-    settings[XMP_StereoSeparation].detail.mdz_slider.slider_value=100;
     
     SETTINGS_ID_DEF(XMP_Interpolation)
     settings[XMP_Interpolation].type=MDZ_SWITCH;
@@ -2858,15 +2884,17 @@ void optNSFPLAYChangedC(id param) {
     
     //NSLog(@"reset: %s",settings[cur_settings_idx[indexPath.section]].label);
     int colidx=-1;
-    if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Mono color")==0) colidx=0;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 1")==0) colidx=1;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 2")==0) colidx=2;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 3")==0) colidx=3;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 4")==0) colidx=4;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 5")==0) colidx=5;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 6")==0) colidx=6;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 7")==0) colidx=7;
-    else if (strcmp(settings[cur_settings_idx[indexPath.section]].label,"Multi color | System 8")==0) colidx=8;
+    if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MONO_COLOR")==0) colidx=0;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_GRID_COLOR")==0) colidx=1;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR01")==0) colidx=2;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR02")==0) colidx=3;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR03")==0) colidx=4;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR04")==0) colidx=5;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR05")==0) colidx=6;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR06")==0) colidx=7;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR07")==0) colidx=8;
+    else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_COLOR08")==0) colidx=9;
+    
     
     if (colidx>=0) {
         [SettingsGenViewController oscilloGenSystemColor:0 color_idx:colidx];
@@ -2992,18 +3020,52 @@ void optNSFPLAYChangedC(id param) {
     }
     if (refresh) [tableView reloadData];
 }
-- (void)sliderChanged:(MNEValueTrackingSlider*)sender {
+
+-(void)sliderUpdateLabelValue:(UILabel *)lblValue digits:(char)digits value:(double)value {
+    switch (digits) {
+        case 0:
+            lblValue.text=[NSString stringWithFormat:@"%.0lf",value];
+            break;
+        case 1:
+            lblValue.text=[NSString stringWithFormat:@"%.1lf",value];
+            break;
+        case 2:
+            lblValue.text=[NSString stringWithFormat:@"%.2lf",value];
+            break;
+        case 60:
+            lblValue.text=[NSString stringWithFormat:@"%2d:%.2d",(int)(value/60),(int)(value)%60];
+            break;
+        case 100:
+            lblValue.text=[NSString stringWithFormat:@"%2d%%",(int)(value*100)];
+            break;
+        default:
+            lblValue.text=[NSString stringWithFormat:@"%.2lf",value];
+            break;
+    }
+}
+
+- (void)sliderChanged:(OBSlider*)sender {
     //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((MNEValueTrackingSlider*)sender).value;
+    settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
     
     if (settings[cur_settings_idx[indexPath.section]].callback) {
         settings[cur_settings_idx[indexPath.section]].callback(self);
     }
-    //    if (OPTION(video_fskip)==10) [((MNEValueTrackingSlider*)sender) setValue:10 sValue:@"AUTO"];
+    
+    UIView *masterView=[sender superview];
+    UIView *v;
+    for (v in [masterView subviews]) {
+        if ([v isKindOfClass:[UILabel class]]) {
+            UILabel *lblValue=(UILabel *)v;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:((OBSlider*)sender).value];
+        }
+    }
+    //    if (OPTION(video_fskip)==10) [(((OBSlider*)sender) setValue:10 sValue:@"AUTO"];
     //    [tableView reloadData];
 }
 
@@ -3069,14 +3131,17 @@ void optNSFPLAYChangedC(id param) {
     UISegmentedControl *segconview;
     UITextField *txtfield;
     NSMutableArray *tmpArray;
-    MNEValueTrackingSlider *sliderview;
+    OBSlider *sliderview;
     UIButton *resetBtn;
     UITapGestureRecognizer *tapLabelDesc;
     
-    
+    if (forceReloadCells) {
+        while ([tabView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
@@ -3232,17 +3297,28 @@ void optNSFPLAYChangedC(id param) {
                                                 
         }
             break;
-        case MDZ_SLIDER_CONTINUOUS:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+        case MDZ_SLIDER_CONTINUOUS:{
+            UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
+            accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
+            lblValue.font=[[lblValue font] fontWithSize:12];
+            
+            
+            sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-            sliderview.integerMode=0;
+            sliderview.continuous=true;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
-            cell.accessoryView = sliderview;
+            
+            [accview addSubview:lblValue];
+            [accview addSubview:sliderview];
+            cell.accessoryView = accview;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value];
             
             if (settings[cur_settings_idx[indexPath.section]].description) {
                 tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
@@ -3250,17 +3326,29 @@ void optNSFPLAYChangedC(id param) {
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
             break;
-        case MDZ_SLIDER_DISCRETE:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
+        }
+        case MDZ_SLIDER_DISCRETE: {
+            
+            UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
+            accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
+            lblValue.font=[[lblValue font] fontWithSize:12];
+            
+            sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-            sliderview.integerMode=1;
+            sliderview.continuous=false;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
-            cell.accessoryView = sliderview;
+            
+            [accview addSubview:lblValue];
+            [accview addSubview:sliderview];
+            cell.accessoryView = accview;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value];
             
             if (settings[cur_settings_idx[indexPath.section]].description) {
                 tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
@@ -3268,17 +3356,28 @@ void optNSFPLAYChangedC(id param) {
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
             break;
-        case MDZ_SLIDER_DISCRETE_TIME:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+        }
+        case MDZ_SLIDER_DISCRETE_TIME:{
+            UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
+            accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
+            lblValue.font=[[lblValue font] fontWithSize:12];
+            
+            sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-            sliderview.integerMode=2;
+            sliderview.continuous=false;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
-            cell.accessoryView = sliderview;
+            
+            [accview addSubview:lblValue];
+            [accview addSubview:sliderview];
+            cell.accessoryView = accview;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value];
             
             if (settings[cur_settings_idx[indexPath.section]].description) {
                 tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
@@ -3286,6 +3385,7 @@ void optNSFPLAYChangedC(id param) {
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
             break;
+        }
         case MDZ_TEXTBOX: {
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             txtfield.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
@@ -3355,9 +3455,16 @@ void optNSFPLAYChangedC(id param) {
             //UIControlState
             [resetBtn setTitle:@"Reset" forState:UIControlStateNormal];
             [resetBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-            resetBtn.backgroundColor=[UIColor lightGrayColor];
-            resetBtn.layer.borderColor = [UIColor whiteColor].CGColor;
-            resetBtn.layer.borderWidth = 1.0f;
+            if (darkMode) {
+                resetBtn.backgroundColor=[UIColor darkGrayColor];
+                resetBtn.layer.borderColor = [UIColor grayColor].CGColor;
+            }
+            else {
+                resetBtn.backgroundColor=[UIColor lightGrayColor];
+                resetBtn.layer.borderColor = [UIColor grayColor].CGColor;
+            }
+            
+            resetBtn.layer.borderWidth = 0.5f;
             resetBtn.layer.cornerRadius = 10.0f;
             
             
@@ -3365,8 +3472,9 @@ void optNSFPLAYChangedC(id param) {
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[resetBtn.description componentsSeparatedByString:@";"] firstObject]];
             
             int icon_posx=tabView.bounds.size.width-2-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
-            icon_posx-=32+32+80;
-            resetBtn.frame = CGRectMake(icon_posx,10,80,32);
+            icon_posx-=32+32+60;
+            resetBtn.frame = CGRectMake(icon_posx,14,60,28);
+            resetBtn.titleLabel.font=[resetBtn.titleLabel.font fontWithSize:14];
             
             resetBtn.enabled=YES;
             resetBtn.hidden=NO;

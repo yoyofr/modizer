@@ -211,6 +211,7 @@ enum {
 @property bool bShowVC,bShowEQ;
 @property bool bRSactive;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
+@property (retain,nonatomic) WaitingView *waitingView;
 
 @property int not_expected_version;
 
@@ -354,11 +355,13 @@ enum {
 
 -(void)showWaitingCancel;
 -(void)hideWaitingCancel;
+-(void) hideWaitingProgress;
 -(void)showWaiting;
 -(void)flushMainLoop;
 -(void) updateWaitingDetail:(NSString *)text;
 -(void) updateWaitingTitle:(NSString *)text;
 -(void)hideWaiting;
+-(void) setProgressWaiting:(NSNumber*)progress;
 
 - (UIViewController *)visibleViewController:(UIViewController *)rootViewController;
 
@@ -373,7 +376,6 @@ enum {
 - (void)StartRecording;
 - (void)StopRecording;
 
--(void) loadNewFileCancelled;
 -(void) loadNewFileFailed:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 -(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;

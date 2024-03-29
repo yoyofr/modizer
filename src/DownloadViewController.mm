@@ -349,10 +349,46 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)_updateStatus:(NSString *)statusString {
-	if (mCurrentFileSize) {
-		downloadLabelSize.text=[NSString stringWithFormat:@"%dKB/%dKB",mCurrentDownloadedBytes/1024,mCurrentFileSize/1024];
-		downloadPrgView.progress=(float)mCurrentDownloadedBytes/(float)mCurrentFileSize;
-	} else downloadLabelSize.text=[NSString stringWithFormat:@"%dKB",mCurrentDownloadedBytes/1024];
+    static NSDate *lastDate=nil;
+    NSDate *currentDate;
+    int64_t last_progress=0;
+    int64_t current_progress;
+    static double speed=0;
+    
+    if (mCurrentFileSize) {
+        
+        currentDate=[NSDate date];
+        current_progress=mCurrentDownloadedBytes;
+        // check if new file, if so reset
+        if (last_progress>=current_progress) {
+            lastDate=nil;
+            speed=0;
+        }
+        
+        if (lastDate==nil) {
+            //starting point
+            lastDate=currentDate;
+            last_progress=current_progress;
+        } else {
+            double time_passed=[currentDate timeIntervalSinceDate:lastDate];
+            if (time_passed>=0.5f) {
+                lastDate=currentDate;
+                
+                speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
+            }
+        }
+        
+        if (mCurrentFileSize>1*1024*1024) {
+            if (speed>0) downloadLabelSize.text=[NSString stringWithFormat:@"%.1lfMB / %.1lfMB - %.3f Mo/s",(double)mCurrentDownloadedBytes/(1024*1024),(double)mCurrentFileSize/(1024*1024),speed];
+            else downloadLabelSize.text=[NSString stringWithFormat:@"%.1lfMB / %.1lfMB - n/a MB/s",(double)mCurrentDownloadedBytes/(1024*1024),(double)mCurrentFileSize/(1024*1024)];
+        } else {
+            if (speed>0) downloadLabelSize.text=[NSString stringWithFormat:@"%dKB / %dKB - %.3f Mo/s",mCurrentDownloadedBytes>>10,mCurrentFileSize>>10,speed];
+            else downloadLabelSize.text=[NSString stringWithFormat:@"%dKB / %dKB - n/a Mo/s",mCurrentDownloadedBytes>>10,mCurrentFileSize>>10];
+        }
+        
+        downloadPrgView.progress=(float)mCurrentDownloadedBytes/(float)mCurrentFileSize;
+    } else downloadLabelSize.text=[NSString stringWithFormat:@"%dKB",mCurrentDownloadedBytes/1024];
+    
 	[downloadLabelSize setNeedsDisplay];
 	[downloadPrgView setNeedsDisplay];
 }
@@ -1135,6 +1171,62 @@ static NSFileManager *mFileMngr;
 	[self checkNextQueuedItem];
 }
 
+- (void)requestFinishedD:(NSArray *)arr_data {
+    NSString *fileName;
+    NSError *err;
+    NSString *localPath;
+    
+    NSData *fileData=[arr_data objectAtIndex:0];
+    NSString *suggested_filename=[arr_data objectAtIndex:1];
+    
+    fileName=mCurrentURLFilename;
+    if (fileName==nil) fileName=[NSString stringWithString:suggested_filename];
+        
+    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
+    else {
+        if (mURLIsMODLAND[0]) {
+            localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
+        } else {
+            localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
+        }
+    }
+    [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [fileData writeToFile:localPath atomically:NO];
+    
+    [self addSkipBackupAttributeToItemAtPath:localPath];
+    
+    if (mURLIsMODLAND[0]) {
+        if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
+            if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
+                NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                [array_label addObject:mCurrentURLFilename];
+                [array_path addObject:mURLFilePath[0]];
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                
+            } else {
+                if (mURLIsMODLAND[0]==1) {
+                    [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
+                }
+            }
+        }
+        //refresh view which potentially list the file as not downloaded
+        [onlineVC refreshViewAfterDownload];
+        [searchViewController refreshViewAfterDownload];
+        [moreVC refreshViewAfterDownload];
+        [rootViewController refreshViewAfterDownload];
+        //TODO: playlist
+    } else [self checkIfShouldAddFile:localPath fileName:fileName];
+    //Remove file if it is not part of accepted one
+    
+    [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
+    
+    [self updateToNextURL];
+    mGetURLInProgress=0;
+    [self checkNextQueuedItem];
+}
+
+
 - (void)requestFailed {
 	if (lCancelURL) {
 		lCancelURL=0;
@@ -1147,6 +1239,40 @@ static NSFileManager *mFileMngr;
 }
 
 -(void)updateHTTPProgress:(NSProgress*)downloadProgress{
+    static NSDate *lastDate=nil;
+    NSDate *currentDate;
+    int64_t last_progress=0;
+    int64_t current_progress;
+    static double speed=0;
+    
+    currentDate=[NSDate date];
+    current_progress=[downloadProgress completedUnitCount];
+    // check if new file, if so reset
+    if (last_progress>=current_progress) {
+        lastDate=nil;
+        speed=0;
+    }
+    
+    if (lastDate==nil) {
+        //starting point
+        lastDate=currentDate;
+        last_progress=current_progress;
+    } else {
+        double time_passed=[currentDate timeIntervalSinceDate:lastDate];
+        if (time_passed>=0.5f) {
+            lastDate=currentDate;
+
+            speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
+        }
+    }
+    
+    if ([downloadProgress completedUnitCount]>1*1024*1024) {
+        if (speed>0) downloadLabelSize.text=[NSString stringWithFormat:@"%.1lfMB / %.1lfMB - %.3f Mo/s",(double)[downloadProgress completedUnitCount]/(1024*1024),(double)[downloadProgress totalUnitCount]/(1024*1024),speed];
+        else downloadLabelSize.text=[NSString stringWithFormat:@"%.1lfMB / %.1lfMB - n/a MB/s",(double)[downloadProgress completedUnitCount]/(1024*1024),(double)[downloadProgress totalUnitCount]/(1024*1024)];
+    } else {
+        if (speed>0) downloadLabelSize.text=[NSString stringWithFormat:@"%dKB / %dKB - %.3f Mo/s",[downloadProgress completedUnitCount]>>10,[downloadProgress totalUnitCount]>>10,speed];
+        else downloadLabelSize.text=[NSString stringWithFormat:@"%dKB / %dKB - n/a Mo/s",[downloadProgress completedUnitCount]>>10,[downloadProgress totalUnitCount]>>10];
+    }
     downloadPrgView.progress=[downloadProgress fractionCompleted];
 }
 
@@ -1174,6 +1300,8 @@ static NSFileManager *mFileMngr;
     NSURL *URL = [NSURL URLWithString:mURL[0]];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     
+    
+#if 0
     NSURLSessionDataTask *dataTask = [AFmanager dataTaskWithRequest:request
         uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
     }
@@ -1190,8 +1318,66 @@ static NSFileManager *mFileMngr;
                 [self performSelectorOnMainThread:@selector(requestFinished:) withObject:data waitUntilDone:YES];
             }
     }];
-    
     [dataTask resume];
+#endif
+    
+    NSURLSessionDownloadTask *downloadTask = [AFmanager downloadTaskWithRequest:request 
+                                            progress:^(NSProgress * _Nonnull downloadProgress) {
+        [self performSelectorOnMainThread:@selector(updateHTTPProgress:) withObject:downloadProgress waitUntilDone:YES];
+        
+    } 
+                                        destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+        
+        NSString *fileName=mCurrentURLFilename;
+        if (fileName==nil) fileName=[NSString stringWithString:[response suggestedFilename]];
+        NSString *localPath;
+            
+        if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
+        else {
+            if (mURLIsMODLAND[0]) {
+                localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
+            } else {
+                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
+            }
+        }
+        return [NSURL fileURLWithPath:localPath];
+    } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
+        NSLog(@"File downloaded to: %@", filePath);
+        
+        [self addSkipBackupAttributeToItemAtPath:[filePath path]];
+        
+        if (mURLIsMODLAND[0]) {
+            if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
+                if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
+                    NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                    NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                    [array_label addObject:mCurrentURLFilename];
+                    [array_path addObject:mURLFilePath[0]];
+                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                    
+                } else {
+                    if (mURLIsMODLAND[0]==1) {
+                        [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
+                    }
+                }
+            }
+            //refresh view which potentially list the file as not downloaded
+            [onlineVC refreshViewAfterDownload];
+            [searchViewController refreshViewAfterDownload];
+            [moreVC refreshViewAfterDownload];
+            [rootViewController refreshViewAfterDownload];
+            //TODO: playlist
+        } else [self checkIfShouldAddFile:[filePath path] fileName:[[filePath path] lastPathComponent]];
+        //Remove file if it is not part of accepted one
+        
+        [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
+        
+        [self updateToNextURL];
+        mGetURLInProgress=0;
+        [self checkNextQueuedItem];
+    }];
+    [downloadTask resume];
+    
 }
 
 - (void)startReceiveCurrentFTPEntry {
@@ -1295,9 +1481,14 @@ static NSFileManager *mFileMngr;
     UILabel *bottomLabel;
     
 //	BButton *lCancelButton;
+    
+    if (forceReloadCells) {
+        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
+        forceReloadCells=false;
+    }
 	
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if ((cell == nil)||forceReloadCells) {
+    if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);

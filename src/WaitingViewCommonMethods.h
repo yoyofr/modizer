@@ -9,11 +9,11 @@
 #define WaitingViewCommonMethods_h
 
 -(void) flushMainLoop {
-    NSDate* futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
+    /*NSDate* futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
     [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
     futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-    
+    */
 }
 
 -(void) showWaitingLoading{
@@ -70,15 +70,15 @@
     [self.view bringSubviewToFront:waitingView];
     
     
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    //[self.view setNeedsLayout];
+    //[self.view layoutIfNeeded];
     
-    [self flushMainLoop];
+    //[self flushMainLoop];
     
-    [waitingView setNeedsLayout];
-    [waitingView layoutIfNeeded];
+    //[waitingView setNeedsLayout];
+    //[waitingView layoutIfNeeded];
     
-    [self flushMainLoop];
+    //[self flushMainLoop];
     
 }
 -(void) hideWaiting{

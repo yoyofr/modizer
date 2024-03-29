@@ -8,6 +8,11 @@
 #import "WaitingView.h"
 
 @implementation WaitingView
+@synthesize lblDetail,lblTitle;
+@synthesize btnStopCurrentAction;
+@synthesize progressView;
+@synthesize btnStopCurrentActionPending;
+
 
 - (instancetype)init
 {

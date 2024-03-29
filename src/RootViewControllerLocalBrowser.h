@@ -41,7 +41,8 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
     
-	WaitingView *waitingView;
+	WaitingView *waitingView,*waitingViewExtract,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     NSProgress *extractProgress;
     
@@ -100,7 +101,7 @@
 
 @property (nonatomic, retain) NSProgress *extractProgress;
 
-@property (nonatomic, retain) WaitingView *waitingView;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewExtract,*waitingViewPlayer;
 
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;

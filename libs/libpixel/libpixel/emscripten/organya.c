@@ -543,7 +543,7 @@ static int get_samples(char *buf,int samplesNb)
         //printf("voice sample rate null\n");
     }
     if (samplesNb!=1024) {
-        printf("okok\n");
+        //printf("okok\n");
     }
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR

@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 12/06/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-extern void *ProgressObserverContext;
+extern void *LoadingProgressObserverContext;
 
 #import <AVFAudio/AVAudioSession.h>
 
@@ -3374,6 +3374,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_currentsub=us->cur_subsong;
                         
                         iCurrentTime=0;
+                        mNeedSeek=0;bGlobalSeekProgress=0;
                         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                         
                         //Loop
@@ -3925,32 +3926,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mNeedSeek==1) { //SEEK
                             mNeedSeek=2;  //taken into account
                             
-                            //get the current viewcontroller from mainthread
-                            __block UIViewController *vc;
-                            NSOperationQueue *myQueue = [NSOperationQueue mainQueue];
-                            [myQueue addOperationWithBlock:^{
-                                // Background work
-                                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                                    // Main thread work (UI usually)
-                                    vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                                }];
-                            }];
-                            
-                            [myQueue waitUntilAllOperationsAreFinished];
-                            
-                            mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                            mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
-                            mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Seeking",@""))
-                            mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
-                            mdz_safe_execute_sel(vc,@selector(flushMainLoop),nil)
+                            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                //Run UI Updates
+                                [detailViewControllerIphone showWaitingCancel];
+                                [detailViewControllerIphone hideWaitingProgress];
+                                [detailViewControllerIphone showWaiting];
+                                [detailViewControllerIphone updateWaitingTitle:NSLocalizedString(@"Seeking",@"")];
+                                [detailViewControllerIphone updateWaitingDetail:@""];
+                            });
                             
                             if (mPlayType==MMP_KSS) { //KSS
                                 int64_t mStartPosSamples;
                                 bGlobalSeekProgress=-1;
                                 
-                                mTgtSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 
-                                if (mCurrentSamples > mTgtSamples) {
+                                if (mCurrentSamples > mSeekSamples) {
                                     mCurrentSamples=0;
                                     if (m3uReader.size()) {
                                         KSSPLAY_reset(kssplay, m3uReader[mod_currentsub].track, 0);
@@ -3970,33 +3961,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 mStartPosSamples=mCurrentSamples;
                                 
-                                while ((mTgtSamples - mCurrentSamples) > SOUND_BUFFER_SIZE_SAMPLE) {
+                                while ((mSeekSamples - mCurrentSamples) > SOUND_BUFFER_SIZE_SAMPLE) {
                                     KSSPLAY_calc_silent(kssplay, SOUND_BUFFER_SIZE_SAMPLE);
                                     //KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mTgtSamples-mStartPosSamples)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                                        mTgtSamples=mCurrentSamples;
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
+                                        mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
-                                if ((mTgtSamples - mCurrentSamples) > 0)
+                                if ((mSeekSamples - mCurrentSamples) > 0)
                                 {
-                                    KSSPLAY_calc_silent(kssplay, mTgtSamples - mCurrentSamples);
-                                    //KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], mTgtSamples - mCurrentSamples);
+                                    KSSPLAY_calc_silent(kssplay, mSeekSamples - mCurrentSamples);
+                                    //KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], mSeekSamples - mCurrentSamples);
                                     
-                                    mCurrentSamples=mTgtSamples;
+                                    mCurrentSamples=mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",100]))
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",100])];
+                                    });
                                 }
                             }
                             if (mPlayType==MMP_V2M) { //V2M
@@ -4032,13 +4025,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool cancelSeek=false;
-                                    [invo.result getValue:&cancelSeek];
-                                    if (cancelSeek) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4051,14 +4044,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4085,14 +4076,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=(nbBytes/4)*32;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",
-                                                                                              (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool cancelSeek=false;
-                                    [invo.result getValue:&cancelSeek];
-                                    if (cancelSeek) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",
+                                                                                          (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4105,19 +4095,19 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=(nbBytes/4);
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ]))
-                                    
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",
+                                                                                          (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
                                 }
                                 mSIDSeekInProgress=0;
+                                                                
                             }
                             if (mPlayType==MMP_GME) {   //GME
                                 bGlobalSeekProgress=-1;
@@ -4126,7 +4116,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (mPlayType==MMP_OPENMPT) { //MODPLUG
                                 bGlobalSeekProgress=-1;
                                 openmpt_module_set_position_seconds(openmpt_module_ext_get_module(ompt_mod), (double)(mNeedSeekTime)/1000.0f );
-                                
                             }
                             if (mPlayType==MMP_XMP) { //XMP
                                 bGlobalSeekProgress=-1;
@@ -4161,13 +4150,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4178,13 +4166,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples = mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4207,13 +4194,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4226,13 +4212,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples = mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4264,13 +4249,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     if (mCurrentSamples>=mSeekSamples) break;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4308,13 +4292,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4342,13 +4325,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4398,13 +4380,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4429,13 +4410,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     eup_pcm.write_pos=0;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mCurrentSamples;
                                         break;
                                     }
@@ -4486,13 +4466,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     iCurrentTime=hc_currentSample*1000/hc_sample_rate;
                                     
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=hc_currentSample;
                                         break;
                                     }
@@ -4525,13 +4504,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     hc_currentSample = mSeekSamples;
                                     iCurrentTime=hc_currentSample*1000/hc_sample_rate;
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=hc_currentSample;
                                         break;
                                     }
@@ -4553,13 +4531,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xSFPlayer->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=xSFPlayer->currentSample;
                                         break;
                                     }
@@ -4570,13 +4547,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xSFPlayer->currentSample = mSeekSamples;
                                     iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=xSFPlayer->currentSample;
                                         break;
                                     }
@@ -4602,21 +4578,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
                                     iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->sample_rate);
                                     
-                                    mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",(mVGMSTREAM_decode_pos_samples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1)]))
-                                    NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                                    [invo start];
-                                    bool result=false;
-                                    [invo.result getValue:&result];
-                                    if (result) {
-                                        mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mVGMSTREAM_decode_pos_samples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
                                         mSeekSamples=mVGMSTREAM_decode_pos_samples;
                                         break;
                                     }
                                 }
                             }
                             
-                            mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
-                            mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                [detailViewControllerIphone hideWaiting];
+                                [detailViewControllerIphone hideWaitingCancel];
+                            });
                         }
                         if (moveToSubSong) {
                             mod_currentsub=moveToSubSongIndex;
@@ -4641,6 +4618,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 mCurrentSamples=0;
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 [self iPhoneDrv_PlayRestart];
                                 
@@ -4659,6 +4637,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iModuleLength=hvl_GetPlayTime(hvl_song);
                                 if (mLoopMode) iModuleLength=-1;
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 [self iPhoneDrv_PlayRestart];
                                 while (mod_message_updated) {
@@ -4671,6 +4650,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 iModuleLength=adPlugPlayer->songlength();
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (adPlugPlayer->update()) opl_towrite=(int)(PLAYBACK_FREQ*1.0f/adPlugPlayer->getrefresh());
                                 
@@ -4688,7 +4668,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 iModuleLength=xmp_mi->seq_data[mod_currentsub].duration;
                                 iCurrentTime=0;
-                                
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 [self iPhoneDrv_PlayRestart];
                                 
@@ -4702,6 +4682,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             } else if (mPlayType==MMP_VGMSTREAM) {
                                 [self vgmStream_ChangeToSub:mod_currentsub];
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
@@ -4717,7 +4698,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                                 iCurrentTime=0;
                                 //numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));  //should not change in a subsong
-                                
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
@@ -4764,6 +4745,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 );
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 while (mod_message_updated) {
                                     //wait
@@ -4789,6 +4771,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 mod_name[0]=0;
                                 if (sidtune_name) {
@@ -4822,6 +4805,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
@@ -4871,6 +4855,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode) iModuleLength=-1;
                                 //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (info.title[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.title);
                                 else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
@@ -4899,6 +4884,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
                                 
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 mCurrentSamples=0;
                                 m_voice_current_sample=0;
                                 iModuleLength=info.playerTickCount*1000/info.playerTickRate;
@@ -4929,6 +4915,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 nsfPlayer->Reset();
                                 
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 mCurrentSamples=0;
                                 
                                 if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
@@ -4959,6 +4946,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
                                 iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
@@ -5852,32 +5840,28 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
                        context:(void *)context
 {
-    if (context == ProgressObserverContext) {
+    if (context == LoadingProgressObserverContext) {
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
-            NSLog(@"modizemusicplayer extract cancelled");
+            //NSLog(@"modizemusicplayer extract cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-                //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
-//                [waitingView resetCancelStatus];
-//                [self hideWaiting];
-//                [self hideWaitingProgress];
-//                [self.tableView setUserInteractionEnabled:true];
+
             }];
         }
 #if DEBUG_MODIZER
-        NSLog(@"extract progress: %lf",progress.fractionCompleted);
+        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
 #endif
         if (progress.fractionCompleted>=1.0f) extractDone=true;
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
             //Run UI Updates
-            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
+//            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+//            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
+            [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithDouble:progress.fractionCompleted]];
             if (progress.fractionCompleted>=1.0f) {
+                [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithDouble:1]];
                 //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
                 //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
                 //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
@@ -5915,7 +5899,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         extractDone=false;
         extractPendingCancel=false;
         
-        [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress];
+        [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress context:LoadingProgressObserverContext];
         while (extractDone==false) {
             [NSThread sleepForTimeInterval:0.01f];
             if ([self extractPendingCancel]) {
@@ -6966,7 +6950,7 @@ typedef struct {
     (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value;
     (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value;
     
-    (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value;
+    (*nsfPlayerConfig)["FDS_OPTION0"]=atoi(settings[NSFPLAY_FDS_OPTION0].detail.mdz_textbox.text);
     (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
     (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
     
@@ -11633,6 +11617,7 @@ extern bool icloud_available;
     bGlobalSoundHasStarted=0;
     iCurrentTime=0;
     bGlobalAudioPause=0;
+    mNeedSeek=0;bGlobalSeekProgress=0;
     [self iPhoneDrv_PlayStart];
     bGlobalEndReached=0;
     bGlobalIsPlaying=1;
@@ -11647,7 +11632,7 @@ extern bool icloud_available;
     
     pthread_mutex_unlock(&play_mutex);
 }
--(void) PlaySeek:(int)startPos subsong:(int)subsong {
+-(void) PlaySeek:(int64_t)startPos subsong:(int)subsong {
     if (mPlayType!=MMP_TIMIDITY) { //hack for timidity : iModuleLength is unknown at this stage
         if (startPos>iModuleLength-SEEK_START_MARGIN_FROM_END) {
             startPos=iModuleLength-SEEK_START_MARGIN_FROM_END;
@@ -12710,7 +12695,7 @@ extern bool icloud_available;
         (*nsfPlayerConfig)["N163_OPTION1"]=settings[NSFPLAY_N163_OPTION1].detail.mdz_boolswitch.switch_value;
         (*nsfPlayerConfig)["N163_OPTION2"]=settings[NSFPLAY_N163_OPTION2].detail.mdz_boolswitch.switch_value;
         
-        (*nsfPlayerConfig)["FDS_OPTION0"]=settings[NSFPLAY_FDS_OPTION0].detail.mdz_slider.slider_value;
+        (*nsfPlayerConfig)["FDS_OPTION0"]=atoi(settings[NSFPLAY_FDS_OPTION0].detail.mdz_textbox.text);
         (*nsfPlayerConfig)["FDS_OPTION1"]=settings[NSFPLAY_FDS_OPTION1].detail.mdz_boolswitch.switch_value;
         (*nsfPlayerConfig)["FDS_OPTION2"]=settings[NSFPLAY_FDS_OPTION2].detail.mdz_boolswitch.switch_value;
         
@@ -12983,7 +12968,10 @@ extern "C" void adjust_amplification(void);
 -(void) setLoopInf:(int)val {
     mLoopMode=val;
 }
--(void) Seek:(int) seek_time {
+-(void) Seek:(int64_t) seek_time {
+    NSLog(@"mdz need seek: %lld - %d - %lld",mNeedSeekTime,[self isSeeking],iModuleLength);
+    if ([self isSeeking]) return;
+    
     if ((mPlayType==MMP_UADE) ||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
@@ -12995,8 +12983,10 @@ extern "C" void adjust_amplification(void);
         if (seek_time<0) seek_time=0;
     }
     
-    iCurrentTime=mNeedSeekTime=seek_time;
+    mNeedSeekTime=seek_time;
+    iCurrentTime=mNeedSeekTime;
     mNeedSeek=1;
+    
 }
 
 //*****************************************
