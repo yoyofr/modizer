@@ -9454,62 +9454,51 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
 
 -(int) mmp_v2mLoad:(NSString*)filePath extension:(NSString*)extension {  //V2M
     mPlayType=MMP_V2M;
-    //FILE *f;
+    FILE *f;
     
-    //    f=fopen([filePath UTF8String],"rb");
-    //    if (f==NULL) {
-    //        NSLog(@"V2M Cannot open file %@",filePath);
-    //        mPlayType=0;
-    //        return -1;
-    //    }
-    //    fseek(f,0L,SEEK_END);
-    //    mp_datasize=ftell(f);
-    //    mp_data=(char*)malloc(mp_datasize);
-    //    fseek(f,0L,SEEK_SET);
-    //    fread(mp_data, 1, mp_datasize, f);
-    //    fclose(f);
-    
-    
-    struct archive *a = archive_read_new();
-    struct archive_entry *entry;
-    int r;
-            
-    archive_read_support_filter_all(a);
-    archive_read_support_format_raw(a);
-    archive_read_support_format_all(a);
-    r = archive_read_open_filename(a, [filePath UTF8String], 16384);
+    if ([[extension uppercaseString] isEqualToString:@"V2MZ"]) {
+        //GZIP compressed
+        f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"V2M Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,-4,SEEK_END);
+        fread(&mp_datasize,1,4,f);
+        mp_data=(char*)malloc(mp_datasize);
+        fclose(f);
         
-    if (r!=ARCHIVE_OK) {
-        NSLog(@"Error: %s",archive_error_string(a));
+        gzFile gzf;
+        gzf=gzopen([filePath UTF8String],"rb");
+        if (gzf==NULL) {
+            NSLog(@"V2M Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        gzread(gzf,mp_data,mp_datasize);
+        gzclose(gzf);
+    } else {
+        //Normal V2M file
+        f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"V2M Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,0,SEEK_END);
+        mp_datasize=ftell(f);
+        mp_data=(char*)malloc(mp_datasize);
+        fseek(f,0,SEEK_SET);
+        fread(mp_data,1,mp_datasize,f);
+        fclose(f);
+    }
+    
+    if (!mp_datasize) {
+        NSLog(@"V2M: issue with file format %@",filePath);
         mPlayType=0;
-        archive_read_free(a);
         return -1;
     }
-    
-    /* Scan archive headers */
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-        /* Get file size and allocate space for it */
-        mp_datasize = archive_entry_size(entry);
-        mp_data = (char*) malloc( mp_datasize );
-        if ( mp_data == NULL ) {
-            //error( "Out of memory" );
-            NSLog(@"v2mLoad: out of memory, cannot allocated: %d",mp_datasize);
-            archive_read_free(a);
-            mPlayType=0;
-            return -1;
-        }
-        
-        /* Read rest of data */
-        r=archive_read_data(a,mp_data,mp_datasize);
-        if (r!=ARCHIVE_OK) {
-            NSLog(@"Error: %s",archive_error_string(a));
-            archive_read_free(a);
-            mPlayType=0;
-            return -1;
-        }
-    }
-    
-    archive_read_free(a);
     
     //prepare the tune
     mp_data=(char*)v2m_check_and_convert((unsigned char*)mp_data,(unsigned int*)&mp_datasize);

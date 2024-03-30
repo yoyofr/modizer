@@ -42,16 +42,16 @@ missing seek support:
 ---
 - [UI] Downloads management improved, max queue is now 16384 and pending items are saved when exiting app
 - [DB] Online collection loading optimized
-- [UI] Better threads management to improve responsiveness
+- [UI] Improved threads management to improve global application responsiveness
 - [UI] Replaykit implemented to record video
 - [PLAYER] WebSID re-added following request. Now possible to choose default SID player between sidplayfp & WebSID
 - [PLAYER] Issue with shuffle modes fixed 
-- [PLAYER] ADPLUG updated to latest version (2024/02/24)
+- [PLAYER] ADPLUG updated to latest version
 - [PLAYER] LIBKSS updated to latest version
 - [PLAYER] VGMPlay: NukedOPN2 options supported
 - [PLAYER] VGMStream bug fixed / FFMpeg usage (opus file now working)
-- [PLAYER] PMDMini now support seek
-- [PLAYER] MDX/PDX now support seek
+- [PLAYER] PMDMini now supports seek
+- [PLAYER] MDX/PDX now supports seek
 - [PLAYER] Timidity custom soundfont support: will load sf2 files present in same directory/archive as the mid files (trying first same name as the mid file and if not found, will take first one in same dir/archive)
 - [UI] Searches are now regular expression based
 - [UI] Local browser loading time optimized

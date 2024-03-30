@@ -106,6 +106,20 @@
 				<string>com.yoyofr.modizer.sc68</string>
 			</array>
 		</dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>Atarisound File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.atarisound</string>
+            </array>
+        </dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -152,6 +166,20 @@
             <key>CFBundleTypeIconFile</key>
             <string>AppStore512.png</string>
             <key>CFBundleTypeName</key>
+            <string>EUPPHONY File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.eup</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
             <string>PxTone File</string>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
@@ -190,6 +218,48 @@
 				<string>com.yoyofr.modizer.gme</string>
 			</array>
 		</dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>NSF File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.nsf</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>V2M File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.v2m</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>MSX File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.msx</string>
+            </array>
+        </dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -419,8 +489,6 @@
 					<string>PPM</string>
 					<string>MMCMP</string>
 					<string>MPTM</string>
-					<string>V2M</string>
-					<string>V2MZ</string>
 				</array>
 			</dict>
 		</dict>
@@ -438,13 +506,23 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
+                    <string>7z</string>
+                    <string>gz</string>
 					<string>zip</string>
-					<string>7z</string>
 					<string>rar</string>
 					<string>rsn</string>
-					<string>gz</string>
 					<string>lzh</string>
 					<string>lha</string>
+                    <string>pax</string>
+                    <string>tar</string>
+                    <string>cpio</string>
+                    <string>iso</string>
+                    <string>mtree</string>
+                    <string>ar</string>
+                    <string>xar</string>
+                    <string>cab</string>
+                    <string>warc</string>
+                    <string>bz2</string>
 				</array>
 			</dict>
 		</dict>
@@ -465,6 +543,24 @@
 				</array>
 			</dict>
 		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>V2M File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.v2m</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>v2m</string>
+                    <string>v2mz</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -498,6 +594,13 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>sid</string>
+                    <string>str</string>
+                    <string>mus</string>
+                    <string>c64</string>
+                    <string>prg</string>
+                    <string>p00</string>
+                    <string>rsid</string>
+                    <string>psid</string>                    
 				</array>
 			</dict>
 		</dict>
@@ -532,10 +635,26 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>sc68</string>
-					<string>sndh</string>
 				</array>
 			</dict>
 		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>Atarisound File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.atarisound</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>sndh</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -606,6 +725,23 @@
                 <string>public.data</string>
             </array>
             <key>UTTypeDescription</key>
+            <string>EUPHONY File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.eup</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>eup</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
             <string>PxTone File</string>
             <key>UTTypeIdentifier</key>
             <string>com.yoyofr.modizer.pxtone</string>
@@ -652,18 +788,51 @@
 					<string>gbs</string>
 					<string>gym</string>
 					<string>hes</string>
-					<string>kss</string>
-					<string>nsf</string>
-					<string>nsfe</string>
-					<string>sap</string>
 					<string>sfm</string>
 					<string>sgc</string>
 					<string>spc</string>
-					<string>vgm</string>
-					<string>vgz</string>
 				</array>
 			</dict>
 		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>NSF File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.nsf</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>nsf</string>
+                    <string>nsfe</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>MSX File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.msx</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>kss</string>
+                    <string>mgs</string>
+                    <string>opx</string>
+                    <string>mpk</string>
+                    <string>mbm</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -696,7 +865,6 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>AST</string>
-					<string>AHX</string>
 					<string>THX</string>
 					<string>ADPCM</string>
 					<string>AMC</string>
@@ -974,7 +1142,6 @@
 					<string>SPL</string>
 					<string>SC</string>
 					<string>SCT</string>
-					<string>PSF</string>
 					<string>SFX</string>
 					<string>SFX13</string>
 					<string>TW</string>
@@ -1137,7 +1304,6 @@
 					<string>AFS2</string>
 					<string>AGSC</string>
 					<string>AHV</string>
-					<string>AHX</string>
 					<string>AI</string>
 					<string>AIF</string>
 					<string>AIF-LOOP</string>
@@ -1240,7 +1406,6 @@
 					<string>DMSG</string>
 					<string>DS2</string>
 					<string>DSB</string>
-					<string>DSF</string>
 					<string>DSP</string>
 					<string>DSPW</string>
 					<string>DTK</string>
@@ -1274,7 +1439,6 @@
 					<string>GIN</string>
 					<string>GMS</string>
 					<string>GSB</string>
-					<string>GSF</string>
 					<string>GTD</string>
 					<string>GWM</string>
 					<string>H4M</string>
@@ -1436,7 +1600,6 @@
 					<string>PONA</string>
 					<string>POS</string>
 					<string>PS2STM</string>
-					<string>PSF</string>
 					<string>PSH</string>
 					<string>PSND</string>
 					<string>PSW</string>
@@ -1466,7 +1629,6 @@
 					<string>SAB</string>
 					<string>SAD</string>
 					<string>SAF</string>
-					<string>SAP</string>
 					<string>SB0</string>
 					<string>SB1</string>
 					<string>SB2</string>
