@@ -31,7 +31,8 @@
 	CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	WaitingView *waitingView;
+	WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     NSFileManager *mFileMngr;
 	
@@ -96,6 +97,7 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 @property int mDetailPlayerMode,currentPlayedEntry;
 

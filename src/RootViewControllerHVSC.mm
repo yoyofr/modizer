@@ -280,6 +280,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     waitingView = [[WaitingView alloc] init];
     waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
+    waitingView.hidden=TRUE;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
@@ -289,6 +290,20 @@ extern volatile t_settings settings[MAX_SETTINGS];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    
+    waitingViewPlayer = [[WaitingView alloc] init];
+    waitingViewPlayer.layer.zPosition=MAXFLOAT;
+    [self.view addSubview:waitingViewPlayer];
+    waitingViewPlayer.hidden=TRUE;
+    
+    views = NSDictionaryOfVariableBindings(waitingViewPlayer);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
 	
 	[super viewDidLoad];
 	
@@ -1414,6 +1429,24 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (list) {
         list=nil;
     }
+    
+    [waitingViewPlayer resetCancelStatus];
+    waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+    waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+    waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+    waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+    waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+    waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+    
+    //    [waitingViewPlayer.progressView setObservedProgress:detailViewController.mplayer.extractProgress];
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView addObserver:self
+                                       forKeyPath:observedSelector
+                                          options:NSKeyValueObservingOptionInitial
+                                          context:LoadingProgressObserverContext];
+    
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
+    
     if (childController) {
         childController = NULL;
     } 
@@ -1472,9 +1505,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
-    /*if (childController) {
-        [childController viewDidDisappear:FALSE];
-    }*/
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView removeObserver:self
+                                          forKeyPath:observedSelector
+                                             context:LoadingProgressObserverContext];
     [super viewDidDisappear:animated];
 }
 
@@ -2430,6 +2467,48 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                   toViewController:(UIViewController *)toVC
 {
     return [[TTFadeAnimator alloc] init];
+}
+
+#pragma mark - LoadingView related stuff
+
+- (void) cancelPushed {
+    detailViewController.mplayer.extractPendingCancel=true;
+    [detailViewController setCancelStatus:true];
+    [detailViewController hideWaitingCancel];
+    [detailViewController hideWaitingProgress];
+    [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+        
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+}
+
+-(void) updateLoadingInfos: (NSTimer *) theTimer {
+    [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
+}
+
+
+- (void) observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context
+{
+    if (context==LoadingProgressObserverContext){
+        WaitingView *wv = object;
+        if (wv.hidden==false) {
+            [waitingViewPlayer resetCancelStatus];
+            waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+            waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+            waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+            waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+            waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+            waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+        }
+        waitingViewPlayer.hidden=wv.hidden;
+        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 

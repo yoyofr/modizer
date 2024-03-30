@@ -79,7 +79,8 @@ typedef struct {
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
@@ -126,6 +127,7 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;
 @property (nonatomic, retain) IBOutlet UILabel *searchLabel;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction)goPlayer;
 

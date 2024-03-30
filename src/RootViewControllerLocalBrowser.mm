@@ -6,9 +6,6 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-extern void *ExtractProgressObserverContext;
-extern void *LoadingProgressObserverContext;
-
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -1976,8 +1973,7 @@ static int shouldRestart=1;
     waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
     waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
     waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
-    
-    //    [waitingViewPlayer.progressView setObservedProgress:detailViewController.mplayer.extractProgress];
+        
     NSString *observedSelector = NSStringFromSelector(@selector(hidden));
     [detailViewController.waitingView addObserver:self
                                        forKeyPath:observedSelector
@@ -3795,7 +3791,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     return YES;
 }
 
-
+#pragma mark - LoadingView related stuff
 
 - (void) cancelPushed {
     if (extractProgress) {
@@ -3867,6 +3863,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
+
 
 
 @end

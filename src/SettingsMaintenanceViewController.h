@@ -16,7 +16,8 @@
 
 @interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate,UIAlertViewDelegate> {
     IBOutlet UITableView *tableView;
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -32,6 +33,7 @@
 @property (nonatomic,retain) IBOutlet UITableView *tableView;
 @property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic,retain) RootViewControllerLocalBrowser *rootVC;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction) goPlayer;
 -(void) updateMiniPlayer;

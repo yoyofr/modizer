@@ -54,7 +54,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     volatile int mPopupAnimation;
 
-    NSTimer *repeatingTimer;
+    
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -65,6 +65,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int popTipViewRow,popTipViewSection;
     
     WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     IBOutlet UITableView *tableView;
     
     IBOutlet UISearchBar *sBar;

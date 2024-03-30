@@ -30,7 +30,9 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
+    
     IBOutlet UITableView *tableView;
     
     IBOutlet UISearchBar *sBar;
@@ -94,6 +96,7 @@
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction)goPlayer;
 

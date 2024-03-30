@@ -14,6 +14,8 @@
 #define STATISTICS_URL @"http://localhost:8080"
 //#define STATISTICS_URL @"https://modizerdb.appspot.com"
 
+extern void *ExtractProgressObserverContext;
+extern void *LoadingProgressObserverContext;
 
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}

@@ -347,7 +347,8 @@ typedef struct {
     
     NSMutableDictionary *dictActionBtn;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -374,6 +375,7 @@ typedef struct {
 
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 + (void) loadSettings;
 + (void) restoreSettings;

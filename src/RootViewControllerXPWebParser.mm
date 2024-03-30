@@ -264,7 +264,7 @@ extern void *LoadingProgressObserverContext;
 }
 
 -(void) fillKeys {
-    //to be implemented in each parser    
+    //to be implemented in each parser
     
     //call fillKeyCompleted at the end
     dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -388,10 +388,6 @@ extern void *LoadingProgressObserverContext;
 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
-    /*if (childController) {
-     [childController viewDidDisappear:FALSE];
-     }*/
-    
     [repeatingTimer invalidate];
     repeatingTimer = nil;
     
@@ -839,17 +835,18 @@ extern void *LoadingProgressObserverContext;
     return [[TTFadeAnimator alloc] init];
 }
 
+#pragma mark - LoadingView related stuff
+
 - (void) cancelPushed {
-    [waitingViewPlayer hideCancel];
-    [waitingViewPlayer hideProgress];
-    [waitingViewPlayer setDetail:NSLocalizedString(@"Cancelling...",@"")];
-    
     detailViewController.mplayer.extractPendingCancel=true;
     [detailViewController setCancelStatus:true];
     [detailViewController hideWaitingCancel];
     [detailViewController hideWaitingProgress];
     [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
-
+        
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
 }
 
 -(void) updateLoadingInfos: (NSTimer *) theTimer {
@@ -858,9 +855,9 @@ extern void *LoadingProgressObserverContext;
 
 
 - (void) observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
-                       context:(void *)context
+                       ofObject:(id)object
+                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                        context:(void *)context
 {
     if (context==LoadingProgressObserverContext){
         WaitingView *wv = object;

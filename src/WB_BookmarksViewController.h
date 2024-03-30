@@ -23,7 +23,9 @@
     NSString *builtin_URL[MAX_BUILTIN_URL];
 	NSString *builtin_URL_name[MAX_BUILTIN_URL];
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
+
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
@@ -42,6 +44,7 @@
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIToolbar *toolBar;
 @property (nonatomic, retain) WebBrowser *webBrowser;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction) closeBookmarks;
 -(IBAction) editBookmarks;

@@ -28,7 +28,8 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	WaitingView *waitingView;
+	WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
 	
     IBOutlet UITableView *tableView;
 
@@ -90,6 +91,7 @@
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;

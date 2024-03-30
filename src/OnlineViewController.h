@@ -29,7 +29,8 @@
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tableView;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -48,6 +49,7 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) UIViewController *collectionViewController;
 @property (nonatomic) int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 
 -(IBAction) goPlayer;

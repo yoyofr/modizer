@@ -41,7 +41,8 @@
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
     
     bool darkMode;
     bool forceReloadCells;

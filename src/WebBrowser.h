@@ -29,7 +29,9 @@
 	IBOutlet DownloadViewController *downloadViewController;
 	IBOutlet DetailViewControllerIphone *detailViewController;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
+    
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
@@ -55,6 +57,7 @@
 @property (nonatomic,retain) IBOutlet UITextField *addressTestField;
 @property (nonatomic,retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction) goPlayer;
 -(void) updateMiniPlayer;

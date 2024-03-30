@@ -669,6 +669,19 @@ static UIAlertView *alertChooseName;
                                        change:change
                                       context:context];
         }
+    } else if (context==LoadingProgressObserverContext){
+        WaitingView *wv = object;
+        if (wv.hidden==false) {
+            [waitingViewPlayer resetCancelStatus];
+            waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+            waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+            waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+            waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+            waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+            waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+        }
+        waitingViewPlayer.hidden=wv.hidden;
+        
     } else {
         [super observeValueForKeyPath:keyPath
                              ofObject:object
@@ -1194,6 +1207,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     waitingView = [[WaitingView alloc] init];
     waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
+    waitingView.hidden=TRUE;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
@@ -1207,6 +1221,19 @@ didFinishNavigation:(WKNavigation *)navigation {
     views = NSDictionaryOfVariableBindings(addressTestField);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addressTestField(32)]" options:0 metrics:nil views:views]];
     //adressfield
+    
+    waitingViewPlayer = [[WaitingView alloc] init];
+    waitingViewPlayer.layer.zPosition=MAXFLOAT;
+    [self.view addSubview:waitingViewPlayer];
+    
+    views = NSDictionaryOfVariableBindings(waitingViewPlayer);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     addressTestField.translatesAutoresizingMaskIntoConstraints=false;
     progressIndicator.translatesAutoresizingMaskIntoConstraints=false;
@@ -1323,8 +1350,16 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     return YES;
 }
 
--(void)viewDidDisappear:(BOOL)animated{
+- (void)viewDidDisappear:(BOOL)animated {
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView removeObserver:self
+                                          forKeyPath:observedSelector
+                                             context:LoadingProgressObserverContext];
     [super viewDidDisappear:animated];
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1389,6 +1424,25 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     [self.view addConstraint:bottomConstraint];
     
     [self hideWaiting];
+    
+    [waitingViewPlayer resetCancelStatus];
+    waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+    waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+    waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+    waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+    waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+    waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+    
+    //    [waitingViewPlayer.progressView setObservedProgress:detailViewController.mplayer.extractProgress];
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView addObserver:self
+                                       forKeyPath:observedSelector
+                                          options:NSKeyValueObservingOptionInitial
+                                          context:LoadingProgressObserverContext];
+    
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
+ 
+    
     [super viewWillAppear:animated];
 }
 // Override to allow orientations other than the default portrait orientation.
@@ -1421,7 +1475,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 - (void)dealloc {
     [waitingView removeFromSuperview];
+    [waitingViewPlayer removeFromSuperview];
     waitingView=nil;
+    waitingViewPlayer=nil;
     
 	[self saveBookmarks];
     //if (lastURL) [lastURL release];
@@ -1431,6 +1487,24 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         custom_URL_name[i]=nil;
 	}	
     //[super dealloc];
+}
+
+#pragma mark - LoadingView related stuff
+
+- (void) cancelPushed {
+    detailViewController.mplayer.extractPendingCancel=true;
+    [detailViewController setCancelStatus:true];
+    [detailViewController hideWaitingCancel];
+    [detailViewController hideWaitingProgress];
+    [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+        
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+}
+
+-(void) updateLoadingInfos: (NSTimer *) theTimer {
+    [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
 }
 
 

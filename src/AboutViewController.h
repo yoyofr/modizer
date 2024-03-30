@@ -22,7 +22,8 @@
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
+    NSTimer *repeatingTimer;
 }
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UITextView *textView;
