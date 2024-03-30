@@ -181,10 +181,10 @@ static inline void sample_backend(int left1,int left2, int right1,int right2) //
     int64_t ofs_end=m_voice_current_ptr[0]+(int64_t)(44100)*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
     
     for (;;) {
-        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left1>>7);
-        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left2>>7);
-        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right1>>7);
-        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right2>>7);
+        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left1>>6);
+        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(left2>>6);
+        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right1>>6);
+        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(right2>>6);
         ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         if (ofs_start>=ofs_end) break;
     }
@@ -294,10 +294,10 @@ static void sample16si_sinc_handler (void)
     int64_t ofs_end=m_voice_current_ptr[0]+(int64_t)(44100)*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
     
     for (;;) {
-        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[0]>>7);
-        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[3]>>7);
-        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[1]>>7);
-        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[2]>>7);
+        m_voice_buff[0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[0]>>6);
+        m_voice_buff[3][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[3]>>6);
+        m_voice_buff[1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[1]>>6);
+        m_voice_buff[2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8(datas[2]>>6);
         ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         if (ofs_start>=ofs_end) break;
     }

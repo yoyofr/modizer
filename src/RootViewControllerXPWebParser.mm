@@ -5,13 +5,13 @@
 //  Created by Yohann Magnien on 10/03/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
-
+extern void *LoadingProgressObserverContext;
 
 #import "RootViewControllerXPWebParser.h"
 
 
 @implementation RootViewControllerXPWebParser
-
+@synthesize repeatingTimer;
 @synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize downloadViewController;
@@ -224,6 +224,7 @@
     waitingView = [[WaitingView alloc] init];
     waitingView.layer.zPosition=MAXFLOAT;
     [self.view addSubview:waitingView];
+    //waitingView.hidden=TRUE;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
@@ -234,6 +235,20 @@
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
+    waitingViewPlayer = [[WaitingView alloc] init];
+    waitingViewPlayer.layer.zPosition=MAXFLOAT;
+    [self.view addSubview:waitingViewPlayer];
+    waitingViewPlayer.hidden=TRUE;
+    
+    views = NSDictionaryOfVariableBindings(waitingViewPlayer);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    
     [super viewDidLoad];
     
     end_time=clock();
@@ -242,8 +257,19 @@
 #endif
 }
 
+-(void) fillKeysCompleted {
+    //called when fillKeys has finished
+    [self hideWaiting];
+    [tableView reloadData];
+}
+
 -(void) fillKeys {
-    //to be implemented in each parser
+    //to be implemented in each parser    
+    
+    //call fillKeyCompleted at the end
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -300,14 +326,33 @@
     }
     /////////////
     
+    [waitingViewPlayer resetCancelStatus];
+    waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+    waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+    waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+    waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+    waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+    waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+    
+    //    [waitingViewPlayer.progressView setObservedProgress:detailViewController.mplayer.extractProgress];
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView addObserver:self
+                                       forKeyPath:observedSelector
+                                          options:NSKeyValueObservingOptionInitial
+                                          context:LoadingProgressObserverContext];
+    
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
+    
     [super viewWillAppear:animated];
     
 }
 -(void) refreshViewAfterDownload {
     if (childController) [(RootViewControllerXPWebParser*)childController refreshViewAfterDownload];
     else {
-        [self fillKeys];
-        [tableView reloadData];
+        //will trigger a background task
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            [self fillKeys];
+        });
     }
 }
 
@@ -329,13 +374,13 @@
         [self showWaiting];
         [self flushMainLoop];
         
-        [self fillKeys];
-        [tableView reloadData];
-        
-        [self hideWaiting];
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            [self fillKeys];
+        });
     } else {
-        [self fillKeys];
-        [tableView reloadData];
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            [self fillKeys];
+        });
     }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
@@ -346,6 +391,15 @@
     /*if (childController) {
      [childController viewDidDisappear:FALSE];
      }*/
+    
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    
+    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
+    [detailViewController.waitingView removeObserver:self
+                                          forKeyPath:observedSelector
+                                             context:LoadingProgressObserverContext];
+    
     [super viewDidDisappear:animated];
 }
 
@@ -477,8 +531,9 @@
     else mSearch=1;
     if (mSearch) shouldFillKeys=1;
     search_dbWEB=0;
-    [self fillKeys];
-    [tableView reloadData];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        [self fillKeys];
+    });
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     //if (mSearchText) [mSearchText release];
@@ -489,9 +544,9 @@
     [searchBar resignFirstResponder];
     //shouldFillKeys=1;
     search_dbWEB=0;
-    [self fillKeys];
-    
-    [tableView reloadData];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        [self fillKeys];
+    });
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
@@ -734,6 +789,9 @@
 - (void)dealloc {
     [waitingView removeFromSuperview];
     waitingView=nil;
+    
+    [waitingViewPlayer removeFromSuperview];
+    waitingViewPlayer=nil;
     if (mSearchText) {
         mSearchText=nil;
     }
@@ -779,6 +837,47 @@
                                                   toViewController:(UIViewController *)toVC
 {
     return [[TTFadeAnimator alloc] init];
+}
+
+- (void) cancelPushed {
+    [waitingViewPlayer hideCancel];
+    [waitingViewPlayer hideProgress];
+    [waitingViewPlayer setDetail:NSLocalizedString(@"Cancelling...",@"")];
+    
+    detailViewController.mplayer.extractPendingCancel=true;
+    [detailViewController setCancelStatus:true];
+    [detailViewController hideWaitingCancel];
+    [detailViewController hideWaitingProgress];
+    [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+
+}
+
+-(void) updateLoadingInfos: (NSTimer *) theTimer {
+    [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
+}
+
+
+- (void) observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context
+{
+    if (context==LoadingProgressObserverContext){
+        WaitingView *wv = object;
+        if (wv.hidden==false) {
+            [waitingViewPlayer resetCancelStatus];
+            waitingViewPlayer.hidden=detailViewController.waitingView.hidden;
+            waitingViewPlayer.btnStopCurrentAction.hidden=detailViewController.waitingView.btnStopCurrentAction.hidden;
+            waitingViewPlayer.progressView.progress=detailViewController.waitingView.progressView.progress;
+            waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
+            waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
+            waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+        }
+        waitingViewPlayer.hidden=wv.hidden;
+        
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 

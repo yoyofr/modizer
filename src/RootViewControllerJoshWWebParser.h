@@ -15,6 +15,8 @@
 @interface RootViewControllerJoshWWebParser : RootViewControllerXPWebParser <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 @public
     NSString *mWebBaseDir;
+    NSData  *urlData[27];
+    int data_cnt;
     
 }
 

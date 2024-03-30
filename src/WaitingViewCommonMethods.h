@@ -9,11 +9,11 @@
 #define WaitingViewCommonMethods_h
 
 -(void) flushMainLoop {
-    /*NSDate* futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
+    NSDate* futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
     [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
     futureDate = [NSDate dateWithTimeInterval:0.01f sinceDate:[NSDate date]];
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-    */
+    
 }
 
 -(void) showWaitingLoading{
@@ -96,6 +96,11 @@
 -(void) updateWaitingTitle:(NSString *)text {
     [waitingView setTitle:text];
 }
+
+-(void) setCancelStatus:(bool)status {
+    [waitingView setCancelStatus:status];
+}
+
 
 
 #endif /* WaitingViewCommonMethods_h */

@@ -3804,22 +3804,16 @@ As a consequence, some entries might disappear from existing playlist.\n\
         [waitingViewExtract hideProgress];
         [waitingViewExtract setDetail:NSLocalizedString(@"Cancelling...",@"")];
     } else {
-        
-        NSLog(@"cancel pushed");
-        
-        [waitingView hideCancel];
-        [waitingViewExtract hideCancel];
-        
         [waitingViewPlayer hideCancel];
         [waitingViewPlayer hideProgress];
         [waitingViewPlayer setDetail:NSLocalizedString(@"Cancelling...",@"")];
-        [waitingViewPlayer layoutIfNeeded];
         
         detailViewController.mplayer.extractPendingCancel=true;
-        /*[detailViewController hideWaitingCancel];
-         [detailViewController hideWaitingProgress];
-         [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
-         */
+        [detailViewController setCancelStatus:true];
+        [detailViewController hideWaitingCancel];
+        [detailViewController hideWaitingProgress];
+        [detailViewController updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+         
         
     }
 }

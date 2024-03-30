@@ -3929,7 +3929,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             dispatch_sync(dispatch_get_main_queue(), ^(void){
                                 //Run UI Updates
                                 [detailViewControllerIphone showWaitingCancel];
-                                [detailViewControllerIphone hideWaitingProgress];
+                                [detailViewControllerIphone showWaitingProgress];
                                 [detailViewControllerIphone showWaiting];
                                 [detailViewControllerIphone updateWaitingTitle:NSLocalizedString(@"Seeking",@"")];
                                 [detailViewControllerIphone updateWaitingDetail:@""];
@@ -3970,7 +3970,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -3988,7 +3988,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",100])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                 }
                             }
@@ -4028,7 +4028,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4046,7 +4046,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     SidSnapshot::record();
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4078,8 +4078,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",
-                                                                                          (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4097,8 +4096,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",
-                                                                                          (mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples+1) ])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4152,7 +4150,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4168,7 +4166,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4196,7 +4194,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4214,7 +4212,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4251,7 +4249,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4294,7 +4292,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4327,7 +4325,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4382,7 +4380,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4412,7 +4410,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mCurrentSamples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4468,7 +4466,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(hc_currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4506,7 +4504,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(hc_currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(hc_currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4533,7 +4531,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4549,7 +4547,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(xSFPlayer->currentSample-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];
@@ -4580,7 +4578,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
-                                        [detailViewControllerIphone updateWaitingDetail:([NSString stringWithFormat:@"%lld%%",(mVGMSTREAM_decode_pos_samples-mStartPosSamples)*100/(mSeekSamples-mStartPosSamples)])];
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mVGMSTREAM_decode_pos_samples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
                                         [detailViewControllerIphone resetCancelStatus];

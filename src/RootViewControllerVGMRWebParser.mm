@@ -132,6 +132,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             else [self fillKeysWithWEBSource];
         }
     }
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
 }
 
 -(void) fillKeysWithRepoCateg {
@@ -444,9 +447,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             }
             
             for (int i=0;i<pageNb;i++) {
-                [self flushMainLoop];
-                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
-                [self flushMainLoop];
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
+                });
                 
                 if (i>0) {
                     url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i+1]];
@@ -454,7 +457,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     
                     //ensure thread has finished
                     dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
-                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
+                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //30s timeout
                     semaphore=nil;
                     //get NSData
                     urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
@@ -716,9 +719,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
         for (int i=0;i<pageNb;i++) {
-            [self flushMainLoop];
-            [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
-            [self flushMainLoop];
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
+            });
             
             if (i>0) {
                 url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i]];

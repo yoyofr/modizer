@@ -353,15 +353,18 @@ enum {
 -(bool) isCancelPending;
 -(void) resetCancelStatus;
 
+-(void) cancelPushed;
 -(void)showWaitingCancel;
 -(void)hideWaitingCancel;
--(void) hideWaitingProgress;
+-(void)hideWaitingProgress;
+-(void) showWaitingProgress;
 -(void)showWaiting;
 -(void)flushMainLoop;
--(void) updateWaitingDetail:(NSString *)text;
--(void) updateWaitingTitle:(NSString *)text;
+-(void)updateWaitingDetail:(NSString *)text;
+-(void)updateWaitingTitle:(NSString *)text;
 -(void)hideWaiting;
 -(void) setProgressWaiting:(NSNumber*)progress;
+-(void) setCancelStatus:(bool)status;
 
 - (UIViewController *)visibleViewController:(UIViewController *)rootViewController;
 

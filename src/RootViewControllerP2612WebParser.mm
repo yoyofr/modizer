@@ -146,6 +146,9 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
             else [self fillKeysWithWEBSource];
         }
     }
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
 }
 
 -(void) fillKeysWithRepoCateg {

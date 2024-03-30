@@ -31,15 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)showCancel;
 
--(void) pushedCancel;
+-(void)pushedCancel;
 
--(bool) isCancelPending;
+-(bool)isCancelPending;
 
--(void) resetCancelStatus;
+-(void)resetCancelStatus;
 
 -(void)hideProgress;
 
 -(void)showProgress;
+
+-(void) setCancelStatus:(bool)status;
 
 
 @end

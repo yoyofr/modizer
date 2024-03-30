@@ -18,6 +18,7 @@
 #import "RootViewControllerPlaylist.h"
 #import "SettingsGenViewController.h"
 #import "CarPlayAndRemoteManagement.h"
+#import "DownloadViewController.h"
 
 #import "ModizFileHelper.h"
 
@@ -53,7 +54,7 @@ pthread_mutex_t play_mutex;
 
 @implementation AppDelegate_Phone
 
-@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
+@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
 @synthesize cpMngt;
 
 
@@ -337,6 +338,7 @@ pthread_mutex_t play_mutex;
 - (void)applicationWillTerminate:(UIApplication *)application {
     [SettingsGenViewController backupSettings];
 	[detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
 
@@ -372,6 +374,7 @@ pthread_mutex_t play_mutex;
     // Ensure that settings are saved if closed by OS after resigning active
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
 
@@ -386,6 +389,7 @@ pthread_mutex_t play_mutex;
 		  (settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==0) ) {
 		//exit app if not playing anything
         [detailViewControlleriPhone updateFlagOnExit];
+        [downloadVC backupDownloadList];
 		exit(0);
 	}
 }
@@ -399,6 +403,7 @@ pthread_mutex_t play_mutex;
 	NSLog(@"received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
 	//[super didReceiveMemoryWarning];
 }
 

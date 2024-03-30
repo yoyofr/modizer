@@ -453,28 +453,28 @@ void CSoundFile::CreateStereoMix(int count)
 				chn.nLOfs = -*(pbufmax - 1);
                 
                 //TODO:  MODIZER changes start / YOYOFR
-                int chn_idx=m_PlayState.ChnMix[nChn];
-                if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
-                    for (int ii=0;ii<nSmpCount;ii++)
-                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]-=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>19 );
-                    
+                for (int ii=0;ii<nSmpCount;ii++) {
+                    m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE-1)]=(pbuffer[ii*2]+pbuffer[ii*2+1]);
                 }
                 //TODO:  MODIZER changes end / YOYOFR
-
+                
 #ifdef MPT_BUILD_DEBUG
-				SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
+				//SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
 #endif
 				MixFuncTable::Functions[functionNdx | (chn.nRampLength ? MixFuncTable::ndxRamp : 0)](chn, m_Resampler, pbuffer, nSmpCount);
 #ifdef MPT_BUILD_DEBUG
-				MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
+				//MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
 #endif
-
+                                
                 //TODO:  MODIZER changes start / YOYOFR
-                if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
-                    for (int ii=0;ii<nSmpCount;ii++)
-                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>19 );
-                    
-                }
+                int chn_idx=m_PlayState.ChnMix[nChn];
+                    if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
+                        int val;
+                        for (int ii=0;ii<nSmpCount;ii++) {
+                            val=(pbuffer[ii*2]+pbuffer[ii*2+1])-m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (val>>19) );
+                        }
+                    }
                 //TODO:  MODIZER changes end / YOYOFR
                 
 				chn.nROfs += *(pbufmax - 2);

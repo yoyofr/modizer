@@ -155,6 +155,10 @@
     return nil;
 }
 
+-(void) setCancelStatus:(bool)status {
+    btnStopCurrentActionPending=status;
+}
+
 -(void) pushedCancel {
     //    NSLog(@"cancel");
     btnStopCurrentActionPending=true;

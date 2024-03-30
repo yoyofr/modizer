@@ -46,7 +46,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @class DownloadViewController;
 
 
-@interface RootViewControllerXPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerXPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,NSURLSessionDelegate> {
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;
@@ -54,7 +54,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     volatile int mPopupAnimation;
 
-
+    NSTimer *repeatingTimer;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -64,7 +64,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
     
-    WaitingView *waitingView;
+    WaitingView *waitingView,*waitingViewPlayer;
     IBOutlet UITableView *tableView;
     
     IBOutlet UISearchBar *sBar;
@@ -116,7 +116,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
-
+@property (nonatomic, retain) NSTimer *repeatingTimer;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
@@ -131,6 +131,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) refreshViewAfterDownload;
 
 -(void) checkCreate:(NSString *)filePath;
+
+-(void) fillKeysCompleted;
 
 -(void)updateMiniPlayer;
 

@@ -6,6 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define PARSER_TIMEOUT 30 //in seconds
 
 #import "RootViewControllerJoshWWebParser.h"
 
@@ -76,6 +77,9 @@
             else [self fillKeysWithWEBSource];
         }
     }
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
 }
 
 -(void) fillKeysWithRepoCateg {
@@ -380,6 +384,14 @@
     }
 }
 
+-(void) fillUrlData:(NSData*)data idx:(int) idx {
+    urlData[idx]=[NSData dataWithData:data];
+    data_cnt++;
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",data_cnt]];
+    });
+}
+
 -(void) fillKeysWithWEBSource {
     int dbWEB_entries_index;
     int index,previndex;
@@ -448,22 +460,62 @@
     //Browse page
     //Download html data
     NSURL *url;
-    NSData  *urlData;
+//    NSData  *urlData[27];
     TFHpple * doc;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we[27];
     int we_nb[27];
+    
+    
+    //1st get the data
+    data_cnt=0;
     for (int i=0;i<27;i++) {
         we_nb[i]=0;
-        [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",i+1]];
-        [self flushMainLoop];
-        
         if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",mWebBaseURL]];
         else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",mWebBaseURL,'a'+i-1]];
-        urlData = [NSData dataWithContentsOfURL:url];
         
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            NSData *reqData = [NSData dataWithContentsOfURL:url];
+            
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                [self fillUrlData:reqData idx:i];
+            });
+        });
+    }
+    
+    NSDate *start_date=[NSDate date];
+    bool timeout_msg=false;
+    while (data_cnt<27) {
+        [NSThread sleepForTimeInterval:0.1f];
+        NSDate *now=[NSDate date];
+        if ([now timeIntervalSinceDate:start_date]>PARSER_TIMEOUT) {
+            //timeout, probably issue on network
+            if (!timeout_msg) {
+                timeout_msg=true;
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self updateWaitingDetail:NSLocalizedString(@"Timeout",@"")];
+                });
+            }
+        }
+        if ([now timeIntervalSinceDate:start_date]>(PARSER_TIMEOUT+2)) {
+            //timeout, probably issue on network
+            return;
+        }
+    }
+    
+    for (int i=0;i<27;i++) {
+        we_nb[i]=0;
+        /*dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",i+1]];
+        });*/
+        
+//        if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",mWebBaseURL]];
+//        else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",mWebBaseURL,'a'+i-1]];
+//        
+        //urlData = [NSData dataWithContentsOfURL:url];
+        
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData[i]];
         
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"];
         NSArray *arr_text=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/following-sibling::text()[1]"];

@@ -2868,7 +2868,6 @@ int recording=0;
     }
 }
 
-
 -(void) cancelPushed {
 #if DEBUG_MODIZER
     NSLog(@"detailedview cancelPushed");
@@ -4527,33 +4526,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     }
     
     if (mPlaylist_size) {
-        //        NSMutableArray *fileNames,*filePaths;
-        //
-        //        fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
-        //        filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
-        //
-        //        if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
-        //            for (int i=0;i<mPlaylist_size;i++) {
-        //                mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-        //                mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-        //            }
-        //        }
-        //FILE *f;
         gzFile f;
-        //f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
         f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
         if (f) {
-            //fseek(f,0,SEEK_END);
-            //gzseek(f,0,SEEK_END);
-            //int64_t fsize=ftell(f);
-            //int64_t fsize=gztell(f);
-            //fseek(f,0,SEEK_SET);
-            //gzseek(f,0,SEEK_SET);
             int fsize=1<<16;
             char *fdata=(char *)malloc(fsize);
             char str[1024];
             if (fdata) {
-                //fread(fdata,1,fsize,f);
                 int available_bytes=gzread(f,fdata,fsize);
                 int ofs=0;
                 int ofs_str=0;
@@ -4629,8 +4608,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                 }
             }
             free(fdata);
-            gzclose(f);
-            //fclose(f);
+            gzclose(f);            
         } else {
             mRestart_sub=0;
             mRestart_arc=0;
@@ -4689,32 +4667,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [prefs setObject:valNb forKey:@"PlayingPos"];
     
     if (mPlaylist_size) {
-        //FILE *f;
         gzFile f;
-        //f=fopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
         f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
         if (f) {
             for (int i=0;i<mPlaylist_size;i++) {
                 const char *str=[mPlaylist[i].mPlaylistFilename UTF8String];
-                //fwrite(str,1,strlen(str)+1,f);
-                gzwrite(f,str,strlen(str)+1);
+                gzwrite(f,str,(int)(strlen(str)+1));
                 str=[mPlaylist[i].mPlaylistFilepath UTF8String];
-                //fwrite(str,1,strlen(str)+1,f);
-                gzwrite(f,str,strlen(str)+1);
+                gzwrite(f,str,(int)(strlen(str)+1));
             }
-            //fclose(f);
             gzclose(f);
         }
-        //        NSMutableArray *fileNames,*filePaths;
-        //        fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-        //        filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-        //        for (int i=0;i<mPlaylist_size;i++) {
-        //            [fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
-        //            [filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
-        //        }
-        //
-        //        [prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
-        //        [prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
     }
     
     

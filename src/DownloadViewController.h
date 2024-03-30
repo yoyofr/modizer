@@ -20,7 +20,7 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
-#define MAX_DOWNLOAD_QUEUE 256
+#define MAX_DOWNLOAD_QUEUE 16384
 
 #define STATUS_STOPPED 0
 #define STATUS_DOWNLOADING 1
@@ -53,9 +53,7 @@
 	
 	NSString *mFilePath[MAX_DOWNLOAD_QUEUE],*mFTPFilename[MAX_DOWNLOAD_QUEUE],*mFTPpath[MAX_DOWNLOAD_QUEUE],*mFTPhost[MAX_DOWNLOAD_QUEUE];
 	int mFileSize[MAX_DOWNLOAD_QUEUE],mUsePrimaryAction[MAX_DOWNLOAD_QUEUE];
-	int mFTPDownloaded[MAX_DOWNLOAD_QUEUE];
 	unsigned char mIsMODLAND[MAX_DOWNLOAD_QUEUE];
-    unsigned char mStatus[MAX_DOWNLOAD_QUEUE];
 	
 	volatile int mFTPAskCancel;
 	
@@ -119,6 +117,9 @@
 - (void)_stopReceiveWithStatus:(NSString *)statusString status:(int)status;
 
 -(void) updateMiniPlayer;
+
+- (void)backupDownloadList;
+- (int)restoreDownloadList;
 
 //-(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 //-(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;

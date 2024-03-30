@@ -18,6 +18,7 @@
 @class myTabBarController;
 @class CarPlayAndRemoteManagement;
 @class AnimatedLaunchVC;
+@class DownloadViewController;
 
 @interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
     AnimatedLaunchVC *animatedLaunchVC;
@@ -29,6 +30,7 @@
 	IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
     IBOutlet RootViewControllerPlaylist *playlistVC;
+    IBOutlet DownloadViewController *downloadVC;
     
     CarPlayAndRemoteManagement *cpMngt;
 	
@@ -41,6 +43,7 @@
 @property (nonatomic, retain) IBOutlet RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet myTabBarController *tabBarController;
+@property (nonatomic, retain) IBOutlet DownloadViewController *downloadVC;
 @property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
 
 -(void) batteryChanged:(NSNotification*)notification;

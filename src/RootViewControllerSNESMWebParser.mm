@@ -144,6 +144,9 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             else [self fillKeysWithWEBSource];
         }
     }
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
 }
 
 -(void) fillKeysWithRepoCateg {
@@ -534,9 +537,9 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         }
         
         for (int i=0;i<pageNb;i++) {
-            [self flushMainLoop];
-            [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
-            [self flushMainLoop];
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
+            });
             
             if (i>0) {
                 url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i+1]];
@@ -544,7 +547,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 
                 //ensure thread has finished
                 dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
-                dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
+                dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //30s timeout
                 semaphore=nil;
                 //get NSData
                 urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
@@ -704,8 +707,8 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             }
         }
         else {
-            if (wef->entries_nb>1) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d Packs",wef->entries_nb];
-            else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"1 Pack"];
+            //if (wef->entries_nb>1) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d Packs",wef->entries_nb];
+            //else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"1 Pack"];
             dbWEB_entries[index][dbWEB_entries_count[index]].entries_nb=wef->entries_nb;
         }
         
@@ -1003,9 +1006,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self showWaiting];
-    [self flushMainLoop];
-    
     {
         t_WEB_browse_entry **cur_db_entries;
         cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
@@ -1042,10 +1042,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         }
         
     }
-    
-    [self hideWaiting];
-    
-    
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
     //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
@@ -1054,10 +1050,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
-    
-    [self showWaiting];
-    [self flushMainLoop];
-    
     
     t_WEB_browse_entry **cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
@@ -1088,7 +1080,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             }
         }
     }
-    [self hideWaiting];
 }
 
 #pragma mark -

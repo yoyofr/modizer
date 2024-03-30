@@ -36,25 +36,122 @@ static NSFileManager *mFileMngr;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
 @synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth,moreVC;
 
-/* NOT Implemented yet
+#define DOWNLOAD_BKP_WRITE_STR(a) \
+if (a) str=[a UTF8String]; \
+else str=""; \
+str_len=(int)(strlen(str)+1); \
+gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
+
 - (void)backupDownloadList {
-    
+    [self suspend]; //1st, suspend any ongoing download
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"wb");
+    if (f) {
+        gzwrite(f,&mFTPDownloadQueueDepth,sizeof(mFTPDownloadQueueDepth));
+        for (int i=0;i<mFTPDownloadQueueDepth;i++) {
+            const char *str;
+            int str_len;
+            
+            DOWNLOAD_BKP_WRITE_STR(mFilePath[i])
+            DOWNLOAD_BKP_WRITE_STR(mFTPFilename[i])
+            DOWNLOAD_BKP_WRITE_STR(mFTPpath[i])
+            DOWNLOAD_BKP_WRITE_STR(mFTPhost[i])
+            
+            gzwrite(f,&mFileSize[i],sizeof(mFileSize[i]));
+            gzwrite(f,&mUsePrimaryAction[i],sizeof(mUsePrimaryAction[i]));
+            gzwrite(f,&mIsMODLAND[i],sizeof(mIsMODLAND[i]));
+        }
+        
+        gzwrite(f,&mURLDownloadQueueDepth,sizeof(mURLDownloadQueueDepth));
+        for (int i=0;i<mURLDownloadQueueDepth;i++) {
+            const char *str;
+            int str_len;
+            
+            DOWNLOAD_BKP_WRITE_STR(mURL[i])
+            DOWNLOAD_BKP_WRITE_STR(mURLFilename[i])
+            DOWNLOAD_BKP_WRITE_STR(mURLFilePath[i])
+            
+            gzwrite(f,&mURLIsMODLAND[i],sizeof(mURLIsMODLAND[i]));
+            gzwrite(f,&mURLFilesize[i],sizeof(mURLFilesize[i]));
+            gzwrite(f,&mURLUsePrimaryAction[i],sizeof(mURLUsePrimaryAction[i]));
+            gzwrite(f,&mURLIsImage[i],sizeof(mURLIsImage[i]));
+        }
+        gzclose(f);
+    }
 }
 
-- (void)restoreDownloadList {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *str,*valStr;
-    
-	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
-        str=[NSString stringWithFormat:@"DownSlot#%d",i];
-        valStr=[prefs objectForKey:str];
-        if (valStr!=nil) {
+#define DOWNLOAD_BKP_READ_VAL(a) \
+        if (gzread(f,&a,sizeof(a))!=sizeof(a)) {\
+            NSLog(@"gzread error val");\
+            gzclose(f);\
+            return -5;\
+        }
+#define DOWNLOAD_BKP_READ_STR(a) \
+            if (gzread(f,&str_len,sizeof(str_len))!=sizeof(str_len)) { \
+                NSLog(@"gzread error FTP entry %d",i); \
+                gzclose(f); \
+                return -2; \
+            } \
+            if (str_len>=sizeof(str)) { \
+                NSLog(@"gzread error too long str (%d) for entry %d",str_len,i); \
+                gzclose(f); \
+                return -3; \
+            } \
+            if (gzread(f,str,str_len)!=str_len) { \
+                NSLog(@"gzread error str for FTP entry %d",i); \
+                gzclose(f); \
+                return -4; \
+            } \
+            a=[NSString stringWithUTF8String:str];
+
+
+- (int)restoreDownloadList {
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"rb");
+    if (f) {
+        char str[4096];
+        int str_len;
+        
+        DOWNLOAD_BKP_READ_VAL(mFTPDownloadQueueDepth)
+        if (mFTPDownloadQueueDepth>MAX_DOWNLOAD_QUEUE) {
+            NSLog(@"Error FTP queue too high %d/%d",mFTPDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
+            gzclose(f);
+            return -1;
+        }
+        for (int i=0;i<mFTPDownloadQueueDepth;i++) {
+            
+            DOWNLOAD_BKP_READ_STR(mFilePath[i])
+            DOWNLOAD_BKP_READ_STR(mFTPFilename[i])
+            DOWNLOAD_BKP_READ_STR(mFTPpath[i])
+            DOWNLOAD_BKP_READ_STR(mFTPhost[i])
+        
+            DOWNLOAD_BKP_READ_VAL(mFileSize[i])
+            DOWNLOAD_BKP_READ_VAL(mUsePrimaryAction[i])
+            DOWNLOAD_BKP_READ_VAL(mIsMODLAND[i])
             
         }
+        
+        DOWNLOAD_BKP_READ_VAL(mURLDownloadQueueDepth)
+        if (mURLDownloadQueueDepth>MAX_DOWNLOAD_QUEUE) {
+            NSLog(@"Error URL queue too high %d/%d",mURLDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
+            gzclose(f);
+            return -1;
+        }
+        for (int i=0;i<mURLDownloadQueueDepth;i++) {
+            DOWNLOAD_BKP_READ_STR(mURL[i])
+            DOWNLOAD_BKP_READ_STR(mURLFilename[i])
+            DOWNLOAD_BKP_READ_STR(mURLFilePath[i])
+            
+            DOWNLOAD_BKP_READ_VAL(mURLIsMODLAND[i])
+            DOWNLOAD_BKP_READ_VAL(mURLFilesize[i])
+            DOWNLOAD_BKP_READ_VAL(mURLUsePrimaryAction[i])
+            DOWNLOAD_BKP_READ_VAL(mURLIsImage[i])
+        }
+        
+        gzclose(f);
     }
-
+    return 0;
 }
-*/
 
 #include "MiniPlayerImplementTableView.h"
 
@@ -226,7 +323,6 @@ static NSFileManager *mFileMngr;
 	tableView.rowHeight=40;
 	
 	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
-		mFTPDownloaded[i]=0;
 		mFilePath[i]=nil;
 		mFTPFilename[i]=nil;
 		mURLFilename[i]=nil;
@@ -239,7 +335,6 @@ static NSFileManager *mFileMngr;
         mURLIsMODLAND[i]=0;
         mURLUsePrimaryAction[i]=0;
 		mIsMODLAND[i]=0;
-        mStatus[i]=0;
 	}
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
@@ -250,6 +345,10 @@ static NSFileManager *mFileMngr;
     self.navigationItem.rightBarButtonItem = item;
     
     self.tableView.editing=TRUE;
+    
+    [self restoreDownloadList];
+    barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+    [self checkNextQueuedItem];
     
     [super viewDidLoad];
 	end_time=clock();
@@ -998,7 +1097,7 @@ static NSFileManager *mFileMngr;
 	} else return -1;
 }
 
--(void)checkNextQueuedItem {
+- (void)checkNextQueuedItem {
 	
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) {
 		btnCancel.enabled=YES;
@@ -1018,7 +1117,7 @@ static NSFileManager *mFileMngr;
 	
 }
 
--(void) addDownloadedURLtoPlayer:(NSString*)_filename filepath:(NSString*)_filepath forcenoplay:(int)fnp {
+- (void) addDownloadedURLtoPlayer:(NSString*)_filename filepath:(NSString*)_filepath forcenoplay:(int)fnp {
 	switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
 		case 0://do nothing
 			break;
@@ -1036,8 +1135,7 @@ static NSFileManager *mFileMngr;
 	}
 }
 
-
--(void) addDownloadedDIRtoPlayer:(NSString*)_path shortPath:(NSString*)_shortPath{
+- (void) addDownloadedDIRtoPlayer:(NSString*)_path shortPath:(NSString*)_shortPath{
 	NSDirectoryEnumerator *dirEnum;
 	NSDictionary *fileAttributes;
 	NSString *file;
@@ -1116,124 +1214,15 @@ static NSFileManager *mFileMngr;
     }
 }
 
-- (void)requestFinished:(NSArray *)arr_data {
-	NSString *fileName;
-	NSError *err;
-    NSString *localPath;
-    
-    NSData *fileData=[arr_data objectAtIndex:0];
-    NSString *suggested_filename=[arr_data objectAtIndex:1];
-    
-	fileName=mCurrentURLFilename;
-    if (fileName==nil) fileName=[NSString stringWithString:suggested_filename];
-		
-    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
-    else {
-        if (mURLIsMODLAND[0]) {
-            localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
-        } else {
-            localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
-        }
-    }
-	[mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
-	[fileData writeToFile:localPath atomically:NO];
-	
-    [self addSkipBackupAttributeToItemAtPath:localPath];
-	
-    if (mURLIsMODLAND[0]) {
-        if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
-            if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
-                NSMutableArray *array_label = [[NSMutableArray alloc] init];
-                NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                [array_label addObject:mCurrentURLFilename];
-                [array_path addObject:mURLFilePath[0]];
-                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                
-            } else {
-                if (mURLIsMODLAND[0]==1) {
-                    [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
-                }
-            }
-        }
-        //refresh view which potentially list the file as not downloaded
-        [onlineVC refreshViewAfterDownload];
-        [searchViewController refreshViewAfterDownload];
-        [moreVC refreshViewAfterDownload];
-        [rootViewController refreshViewAfterDownload];
-        //TODO: playlist
-    } else [self checkIfShouldAddFile:localPath fileName:fileName];
-	//Remove file if it is not part of accepted one
-    
-    [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
-	
-	[self updateToNextURL];
-	mGetURLInProgress=0;
-	[self checkNextQueuedItem];
-}
-
-- (void)requestFinishedD:(NSArray *)arr_data {
-    NSString *fileName;
-    NSError *err;
-    NSString *localPath;
-    
-    NSData *fileData=[arr_data objectAtIndex:0];
-    NSString *suggested_filename=[arr_data objectAtIndex:1];
-    
-    fileName=mCurrentURLFilename;
-    if (fileName==nil) fileName=[NSString stringWithString:suggested_filename];
-        
-    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
-    else {
-        if (mURLIsMODLAND[0]) {
-            localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
-        } else {
-            localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
-        }
-    }
-    [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
-    [fileData writeToFile:localPath atomically:NO];
-    
-    [self addSkipBackupAttributeToItemAtPath:localPath];
-    
-    if (mURLIsMODLAND[0]) {
-        if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
-            if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
-                NSMutableArray *array_label = [[NSMutableArray alloc] init];
-                NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                [array_label addObject:mCurrentURLFilename];
-                [array_path addObject:mURLFilePath[0]];
-                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                
-            } else {
-                if (mURLIsMODLAND[0]==1) {
-                    [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
-                }
-            }
-        }
-        //refresh view which potentially list the file as not downloaded
-        [onlineVC refreshViewAfterDownload];
-        [searchViewController refreshViewAfterDownload];
-        [moreVC refreshViewAfterDownload];
-        [rootViewController refreshViewAfterDownload];
-        //TODO: playlist
-    } else [self checkIfShouldAddFile:localPath fileName:fileName];
-    //Remove file if it is not part of accepted one
-    
-    [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
-    
-    [self updateToNextURL];
-    mGetURLInProgress=0;
-    [self checkNextQueuedItem];
-}
-
-
 - (void)requestFailed {
+    bool moveToNext=true;
 	if (lCancelURL) {
+        if (lCancelURL==2) moveToNext=false; //Suspended
 		lCancelURL=0;
 	} else {
         [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
 	}
-	[self updateToNextURL];
+    if (moveToNext) [self updateToNextURL];
 	mGetURLInProgress=0;
 	[self checkNextQueuedItem];
 }
@@ -1301,27 +1290,7 @@ static NSFileManager *mFileMngr;
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     
     
-#if 0
-    NSURLSessionDataTask *dataTask = [AFmanager dataTaskWithRequest:request
-        uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-    }
-        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-        
-        [self performSelectorOnMainThread:@selector(updateHTTPProgress:) withObject:downloadProgress waitUntilDone:YES];
-        
-    }
-        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-            if (error) {
-                [self performSelectorOnMainThread:@selector(requestFailed) withObject:nil waitUntilDone:YES];
-            } else {
-                NSArray *data=[NSArray arrayWithObjects:responseObject,[response suggestedFilename],nil];
-                [self performSelectorOnMainThread:@selector(requestFinished:) withObject:data waitUntilDone:YES];
-            }
-    }];
-    [dataTask resume];
-#endif
-    
-    NSURLSessionDownloadTask *downloadTask = [AFmanager downloadTaskWithRequest:request 
+    NSURLSessionDownloadTask *downloadTask = [AFmanager downloadTaskWithRequest:request
                                             progress:^(NSProgress * _Nonnull downloadProgress) {
         [self performSelectorOnMainThread:@selector(updateHTTPProgress:) withObject:downloadProgress waitUntilDone:YES];
         
@@ -1342,42 +1311,46 @@ static NSFileManager *mFileMngr;
         }
         return [NSURL fileURLWithPath:localPath];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
-        NSLog(@"File downloaded to: %@", filePath);
-        
-        [self addSkipBackupAttributeToItemAtPath:[filePath path]];
-        
-        if (mURLIsMODLAND[0]) {
-            if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
-                if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
-                    NSMutableArray *array_label = [[NSMutableArray alloc] init];
-                    NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                    [array_label addObject:mCurrentURLFilename];
-                    [array_path addObject:mURLFilePath[0]];
-                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                    
-                } else {
-                    if (mURLIsMODLAND[0]==1) {
-                        [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
+        if (error) {
+            NSLog(@"URL file download error for %@, error: %d %@", filePath,error.code,error.localizedDescription);
+            [self requestFailed];
+        } else {
+            NSLog(@"File downloaded to: %@", filePath);
+            
+            [self addSkipBackupAttributeToItemAtPath:[filePath path]];
+            
+            if (mURLIsMODLAND[0]) {
+                if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
+                    if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
+                        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                        NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                        [array_label addObject:mCurrentURLFilename];
+                        [array_path addObject:mURLFilePath[0]];
+                        [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                        
+                    } else {
+                        if (mURLIsMODLAND[0]==1) {
+                            [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
+                        }
                     }
                 }
-            }
-            //refresh view which potentially list the file as not downloaded
-            [onlineVC refreshViewAfterDownload];
-            [searchViewController refreshViewAfterDownload];
-            [moreVC refreshViewAfterDownload];
-            [rootViewController refreshViewAfterDownload];
-            //TODO: playlist
-        } else [self checkIfShouldAddFile:[filePath path] fileName:[[filePath path] lastPathComponent]];
-        //Remove file if it is not part of accepted one
-        
-        [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
-        
-        [self updateToNextURL];
-        mGetURLInProgress=0;
-        [self checkNextQueuedItem];
+                //refresh view which potentially list the file as not downloaded
+                [onlineVC refreshViewAfterDownload];
+                [searchViewController refreshViewAfterDownload];
+                [moreVC refreshViewAfterDownload];
+                [rootViewController refreshViewAfterDownload];
+                //TODO: playlist
+            } else [self checkIfShouldAddFile:[filePath path] fileName:[[filePath path] lastPathComponent]];
+            //Remove file if it is not part of accepted one
+            
+            [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
+            
+            [self updateToNextURL];
+            mGetURLInProgress=0;
+            [self checkNextQueuedItem];
+        }
     }];
     [downloadTask resume];
-    
 }
 
 - (void)startReceiveCurrentFTPEntry {
@@ -1621,19 +1594,10 @@ static NSFileManager *mFileMngr;
         mUsePrimaryAction[fromIndexPath.row]=mUsePrimaryAction[toIndexPath.row];
         mUsePrimaryAction[toIndexPath.row]=tmpI;
         
-        tmpI=mFTPDownloaded[fromIndexPath.row];
-        mFTPDownloaded[fromIndexPath.row]=mFTPDownloaded[toIndexPath.row];
-        mFTPDownloaded[toIndexPath.row]=tmpI;
-        
         unsigned char tmpC;
         tmpC=mIsMODLAND[fromIndexPath.row];
         mIsMODLAND[fromIndexPath.row]=mIsMODLAND[toIndexPath.row];
-        mIsMODLAND[toIndexPath.row]=tmpC;
-        
-        tmpC=mStatus[fromIndexPath.row];
-        mStatus[fromIndexPath.row]=mStatus[toIndexPath.row];
-        mStatus[toIndexPath.row]=tmpC;
-        
+        mIsMODLAND[toIndexPath.row]=tmpC;                        
     } else { //HTTP
         NSString *tmpS;
         tmpS=mURL[fromIndexPath.row];
