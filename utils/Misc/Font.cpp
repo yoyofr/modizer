@@ -19,11 +19,17 @@
 
 CCharacterData::CCharacterData()
 {
+    buffer=NULL;
 }
 
 CCharacterData::~CCharacterData()
 {
-	delete [] buffer;
+//	delete [] buffer;
+}
+
+void CCharacterData::Unalloc() {
+    if (buffer) delete [] buffer;
+    buffer=NULL;
 }
 
 void CCharacterData::Load(FILE *fontFile)
@@ -118,6 +124,7 @@ CFont::CFont(const std::string &fontFilename)
             if (maxCharWidth<mCharacterData[i].screenWidth) maxCharWidth=mCharacterData[i].screenWidth;
             if (maxCharHeight<mCharacterData[i].screenHeight) maxCharWidth=mCharacterData[i].screenHeight;
 		}
+        fclose(fontFile);
 
 		// We add a little extra space around all characters to avoid one
 		// character bleeding into another.
@@ -233,10 +240,16 @@ CFont::CFont(const std::string &fontFilename)
 		glBindTexture(GL_TEXTURE_2D, 0);
 		
 		delete [] textureData;
+        
 	}
+    
 }
 
 CFont::~CFont()
 {
-	delete [] mCharacterData;
+//	delete [] mCharacterData;
+    for (int i=0;i<256;i++) {
+        mCharacterData[i].Unalloc();
+    }
+    delete [] mCharacterData;
 }

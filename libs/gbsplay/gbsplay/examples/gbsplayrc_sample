@@ -1,0 +1,27 @@
+#
+# Example gbsplay configuration file
+#
+endian = n             # native endian
+fadeout = 3            # seconds
+loop = 0
+output_plugin = oss
+rate = 48000           # this is a comment
+refresh_delay = 33     # milliseconds
+silence_timeout = 2    # seconds
+subsong_gap = 2        # seconds
+subsong_timeout = 120  # seconds
+verbosity=0            # should work without whitespace too
+
+# '\' can be used as escape and tabs are whitespace
+
+subsong_timeout \
+	= \ # whee
+	\1\2\0
+
+# this works too, but you probably should not rely on that
+subsong_timeout
+
+=
+
+200
+

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <algorithm>
 
+
 /* Copyright (C) 2003-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either
@@ -157,10 +158,18 @@ void Gb_Apu::run_until( blip_time_t end_time )
 					playing = -1;
 				switch ( i )
 				{
-				case 0: square1.run( last_time, time, playing ); break;
-				case 1: square2.run( last_time, time, playing ); break;
-				case 2: wave   .run( last_time, time, playing ); break;
-				case 3: noise  .run( last_time, time, playing ); break;
+				case 0: 
+                        square1.run( last_time, time, playing );
+                        break;
+				case 1:
+                        square2.run( last_time, time, playing );
+                        break;
+				case 2:
+                        wave   .run( last_time, time, playing );
+                        break;
+				case 3:
+                        noise  .run( last_time, time, playing );
+                        break;
 				}
 			}
 		}
@@ -228,17 +237,20 @@ void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 			Gb_Osc& osc = *oscs [i];
 			int amp = osc.last_amp;
 			osc.last_amp = 0;
-			if ( amp && osc.enabled && osc.output )
-				other_synth.offset( time, -amp, osc.output );
+            if ( amp && osc.enabled && osc.output ) {
+                other_synth.offset( time, -amp, osc.output );
+            }
 		}
 		
-		if ( wave.outputs [3] )
-			other_synth.offset( time, 30, wave.outputs [3] );
+        if ( wave.outputs [3] ) {
+            other_synth.offset( time, 30, wave.outputs [3] );
+        }
 		
 		update_volume();
 		
-		if ( wave.outputs [3] )
+        if ( wave.outputs [3] ) {
 			other_synth.offset( time, -30, wave.outputs [3] );
+        }
 		
 		// oscs will update with new amplitude when next run
 	}
@@ -260,8 +272,10 @@ void Gb_Apu::write_register( blip_time_t time, unsigned addr, int data )
 			{
 				int amp = osc.last_amp;
 				osc.last_amp = 0;
-				if ( amp && old_output )
-					other_synth.offset( time, -amp, old_output );
+                if ( amp && old_output ) {
+                    other_synth.offset( time, -amp, old_output );
+                }
+                
 			}
 		}
 		

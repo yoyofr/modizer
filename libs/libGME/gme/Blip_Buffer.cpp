@@ -184,6 +184,7 @@ void Blip_Buffer::remove_samples( long count )
 		long remain = samples_avail() + blip_buffer_extra_;
 		memmove( buffer_, buffer_ + count, remain * sizeof *buffer_ );
 		memset( buffer_ + remain, 0, count * sizeof *buffer_ );
+        
 	}
 }
 
@@ -400,8 +401,8 @@ long Blip_Buffer::read_samples( blip_sample_t* BLIP_RESTRICT out, long max_sampl
 	long count = samples_avail();
 	if ( count > max_samples )
 		count = max_samples;
-	
-	if ( count )
+    
+    if ( count )
 	{
 		int const bass = BLIP_READER_BASS( *this );
 		BLIP_READER_BEGIN( reader, *this );
@@ -443,8 +444,8 @@ void Blip_Buffer::mix_samples( blip_sample_t const* in, long count )
 		assert( 0 );
 		return;
 	}
-	
-	buf_t_* out = buffer_ + (offset_ >> BLIP_BUFFER_ACCURACY) + blip_widest_impulse_ / 2;
+    
+    buf_t_* out = buffer_ + (offset_ >> BLIP_BUFFER_ACCURACY) + blip_widest_impulse_ / 2;
 	
 	int const sample_shift = blip_sample_bits - 16;
 	int prev = 0;

@@ -11,7 +11,7 @@ struct Gb_Osc
 {
 	enum { trigger = 0x80 };
 	enum { len_enabled_mask = 0x40 };
-	
+	    
 	Blip_Buffer* outputs [4]; // NULL, right, left, center
 	Blip_Buffer* output;
 	int output_select;
@@ -43,7 +43,7 @@ struct Gb_Square : Gb_Env
 	enum { shift_mask  = 0x07 };
 	
 	typedef Blip_Synth<blip_good_quality,1> Synth;
-	Synth const* synth;
+	Synth const* synth;    
 	int sweep_delay;
 	int sweep_freq;
 	int phase;

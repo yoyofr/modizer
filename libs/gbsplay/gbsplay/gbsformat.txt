@@ -1,0 +1,20 @@
+
+MAIN HEADER FIELDS
+
+Offset Size Description
+====== ==== ==========================
+  00     3  Identifier string ("GBS")
+  03     1  Version (1)
+  04     1  Number of songs (1-255)
+  05     1  First song (usually 1)
+  06     2  Load address ($400-$7fff)
+  08     2  Init address ($400-$7fff)
+  0a     2  Play address ($400-$7fff)
+  0c     2  Stack pointer
+  0e     1  Timer modulo  (see TIMING)
+  0f     1  Timer control (see TIMING)
+  10    32  Game Title string
+  30    32  Author string
+  50    32  Copyright string
+  70     n  Code and Data (see RST VECTORS)
+

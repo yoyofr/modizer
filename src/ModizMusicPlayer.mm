@@ -19,6 +19,7 @@ extern pthread_mutex_t play_mutex;
 int64_t iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
+int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 
 int mod_total_length;
 
@@ -99,6 +100,12 @@ static char websid_sound_started;
 static int16_t** websid_scope_buffers;
 static const char **websid_info;
 
+//GBSPLAY
+extern "C" {
+#include "gbs_player.h"
+#include "gbs_internal.h"
+struct gbs *gbs;
+}
 
 //SID2
 #include "sidplayfp/sidplayfp.h"
@@ -504,6 +511,9 @@ static int mSingleSubMode;
 #define DEFAULT_NSFNSFPLAY 0
 #define DEFAULT_NSFGME 1
 
+#define DEFAULT_GBSGBSPLAY 0
+#define DEFAULT_GBSGME 1
+
 #define DEFAULT_KSSLIBKSS 0
 #define DEFAULT_KSSGME 1
 
@@ -511,7 +521,6 @@ static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
-static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultKSSPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER;
 
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -972,6 +981,7 @@ extern int soundInterpolation;
 
 float decode_pos_ms; // current decoding position, in milliseconds
 int seek_needed; // if != -1, it is the point that the decode thread should seek to, in ms.
+int64_t seek_tgtSamples;
 
 static int g_playing = 0;
 
@@ -2141,7 +2151,6 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize detailViewControllerIphone;
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @synthesize mod_currentfile,mod_currentext;
-@synthesize mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 @synthesize mPlayType;
 @synthesize mp_datasize;
 @synthesize optForceMono;
@@ -3086,6 +3095,105 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
     
 }
 
+extern "C" {
+    
+    static void gbs_stepcallback(struct gbs *gbs, cycles_t cycles, const struct gbs_channel_status chan[], void *priv) {
+        sound_step(cycles, chan);
+    }
+    
+    long gbs_mdz_nextsubsong(struct gbs* const gbs, void *priv) {
+        return false;
+    }
+
+    
+    void gbs_update(unsigned char* pSound,int lBytes) {
+        if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
+            g_playing=0;
+            return;
+        }
+        
+        if (mNeedSeek==2) {
+            if (seek_tgtSamples>mCurrentSamples) {
+                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                return;
+            } else {
+                seek_needed=-1;
+            }
+        }
+        
+        int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+        if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+        
+        while ((buffer_ana_flag[buffer_ana_gen_ofs])||(diff_ana_ofs>=SOUND_BUFFER_NB/2)) {
+            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+            if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
+                g_playing=0;
+                return;
+            }
+            diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+            if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+        }
+        int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
+        if (lBytes<to_fill) {
+            memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);
+            
+            buffer_ana_subofs+=lBytes;
+            
+        } else {
+            memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
+            
+            lBytes-=to_fill;
+            buffer_ana_subofs=0;
+            
+            buffer_ana_flag[buffer_ana_gen_ofs]=1;
+            
+            //copy voice data for oscillo view
+            for (int j=0;j<4;j++) {
+//                int val=m_voice_buff[j][(-1+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
+//                
+//                for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+//                    m_voice_buff[j][(i+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=val;
+//                }
+                
+                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
+                }
+            }
+            
+            
+            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+            iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+            
+            
+            if ((mNeedSeek==2)&&(seek_needed==-1)) {
+                mNeedSeek=3;
+                buffer_ana_flag[buffer_ana_gen_ofs]|=2;
+            }
+            
+            buffer_ana_gen_ofs++;
+            if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
+            
+            if (lBytes>=SOUND_BUFFER_SIZE_SAMPLE*2*2) {
+                NSLog(@"*****************\n*****************\n***************");
+            } else if (lBytes) {
+                while (buffer_ana_flag[buffer_ana_gen_ofs]) {
+                    [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+                    if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
+                        g_playing=0;
+                        return;
+                    }
+                }
+                
+                memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)pSound)+to_fill,lBytes);
+                
+                buffer_ana_subofs=lBytes;
+            }
+        }
+    }
+}
+
+
 void gsf_update(unsigned char* pSound,int lBytes) {
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
         g_playing=0;
@@ -3869,6 +3977,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     } else if (mPlayType==MMP_GSF) {  //Special case : GSF
                         int counter=0;
                         [NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
+                        intr = 0;
+                        tim_finished=0;
                         gsf_loop();
                         AudioQueueStop( mAudioQueue, FALSE );
                         while ([self isEndReached]==NO) {
@@ -3881,6 +3991,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         mQueueIsBeingStopped = FALSE;
                         bGlobalEndReached=1;
                         bGlobalAudioPause=2;
+                        tim_finished=1;
                     } else if (mPlayType==MMP_UADE) {  //Special case : UADE
                         int counter=0;
                         [self uade_playloop];
@@ -3919,6 +4030,89 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         mQueueIsBeingStopped = FALSE;
                         bGlobalAudioPause=2;
                         bGlobalEndReached=1;
+                    } else if (mPlayType==MMP_GBS) {  //Special case : GBS
+                        int counter=0;
+                        int quit=0;
+                        intr = 0;
+                        tim_finished=0;
+                        while (g_playing&&(!quit)) {
+                            if (mNeedSeek==1) {
+                                seek_needed=mNeedSeekTime;
+                                seek_tgtSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                bGlobalSeekProgress=-1;
+                                mNeedSeek=2;
+                                
+                                if (seek_tgtSamples<mCurrentSamples) {
+                                    if (m3uReader.size()) gbs_init(gbs,m3uReader[mod_currentsub].track);
+                                    else  gbs_init(gbs,mod_currentsub);
+                                    mCurrentSamples=0;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                }
+                            }
+                            if (!step_emulation(gbs)) {
+                                quit = 1;
+                                //break;
+                            }
+                            if (quit||( (iModuleLength>0)&&(iCurrentTime>iModuleLength))) {
+                                if (mSingleSubMode==0) {
+                                    if ([self playNextSub]<0) {
+                                        //stop
+                                    } else {
+                                        moveToSubSong=2;
+                                        quit = 0;
+                                    }
+                                }
+                            }
+                            if (moveToSubSong) {
+                                mod_currentsub=moveToSubSongIndex;
+                                
+                                if (m3uReader.size()) {
+                                    gbs_init(gbs,m3uReader[mod_currentsub].track);
+                                    iModuleLength=m3uReader[mod_currentsub].length;
+                                    if (iModuleLength<=0) {
+                                        const struct gbs_status *status = gbs_get_status(gbs);
+                                        iModuleLength=(status->subsong_len)*1000/1024;
+                                    }
+                                    if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+                                    gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+                                } else {
+                                    gbs_init(gbs,mod_currentsub);
+                                    const struct gbs_status *status = gbs_get_status(gbs);
+                                    iModuleLength=(status->subsong_len)*1000/1024;
+                                    mod_title=[NSString stringWithUTF8String:status->songtitle];
+                                    gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+                                }
+                                
+                                mCurrentSamples=0;
+                                iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
+                                
+                                [self iPhoneDrv_PlayRestart];
+                                
+                                
+                                
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                
+                                mod_message_updated=2;
+                                
+                                moveToSubSong=0;
+                            }
+                            if (intr) break;
+                        }
+                        
+                        AudioQueueStop( mAudioQueue, FALSE );
+                        while ([self isEndReached]==NO) {
+                            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+                            counter++;
+                            if (counter*DEFAULT_WAIT_TIME_MS>2) break;
+                        }
+                        AudioQueueStop( mAudioQueue, TRUE );
+                        AudioQueueReset( mAudioQueue );
+                        mQueueIsBeingStopped = FALSE;
+                        bGlobalEndReached=1;
+                        bGlobalAudioPause=2;
+                        tim_finished=1;
                     } else if ((buffer_ana_flag[buffer_ana_gen_ofs]==0)&&(diff_ana_ofs<((SOUND_BUFFER_NB/2)-1))) {
                         
                         //NSLog(@"gen %d play %d diff %d",buffer_ana_gen_ofs,buffer_ana_play_ofs,diff_ana_ofs);
@@ -4961,6 +5155,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         if (mPlayType==MMP_GME) {  //GME
                             nbBytes=0;
+                            m_voice_current_system=-1;
                             if (gme_track_ended(gme_emu)) {
                                 //NSLog(@"Track ended : %d",iCurrentTime);
                                 if (mLoopMode==1) {
@@ -4985,6 +5180,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                                             m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                                            //m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                         
@@ -6972,6 +7168,7 @@ typedef struct {
     f=fopen(plfile,"rb");
     if (!f) {
         plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".M3U"] UTF8String];
+        f=fopen(plfile,"rb");
     }
     m3uReader.clear();
     if (f) {
@@ -7310,6 +7507,162 @@ typedef struct {
     if (mLoopMode) iModuleLength=-1;
     return 0;
 }
+
+-(int) mmp_gbsLoad:(NSString*)filePath {  //GBS
+    mPlayType=MMP_GBS;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"GBS Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    
+    int argc;
+    char *argv[3];
+    argv[0]=strdup("gbsplay");
+    argv[1]=strdup([filePath UTF8String]);
+    argv[2]=NULL;
+    
+    argc = 2;
+    gbs = common_init(argc, argv);
+    if (!gbs) {
+        NSLog(@"GBS Cannot open file %@",filePath);
+        mPlayType=0;
+        return -2;
+    }
+    gbs_set_nextsubsong_cb(gbs, gbs_mdz_nextsubsong,NULL);
+    
+    free(argv[0]);
+    free(argv[1]);
+    
+    /* init additional callbacks */
+    if (sound_step)
+        gbs_set_step_callback(gbs, gbs_stepcallback, NULL);
+
+    /* precalculate lookup tables */
+//    precalc_notes();
+//    precalc_vols();
+    
+    //Get metadata from GBS file
+    const struct gbs_metadata *metadata=gbs_get_metadata(gbs);
+    const struct gbs_status *status = gbs_get_status(gbs);
+    
+    //check if a m3u playlist exists
+    const char *plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".m3u"] UTF8String];
+    f=fopen(plfile,"rb");
+    if (!f) {
+        plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".M3U"] UTF8String];
+        f=fopen(plfile,"rb");
+    }
+    m3uReader.clear();
+    if (f) {
+        fclose(f);
+        m3uReader.load(plfile);
+    }
+    
+    if (m3uReader.size()) {
+        mod_subsongs=m3uReader.size();
+        mod_minsub=0;
+        mod_maxsub=m3uReader.size()-1;
+        mod_currentsub=0;
+    } else {
+        mod_subsongs=status->songs;
+        mod_minsub=0;
+        mod_maxsub=mod_subsongs-1;
+        mod_currentsub=status->defaultsong-1;
+        if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+        if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    }
+    
+    if (mod_subsongs>1) {
+        mod_total_length=0;
+        for (int i=0;i<mod_subsongs;i++) {
+            int subsong_length=0;
+            if (m3uReader.size()) subsong_length=m3uReader[i].length;
+            if (subsong_length<=0) {
+                gbs_init(gbs, mod_currentsub);
+                status = gbs_get_status(gbs);
+                subsong_length=(status->subsong_len)*1000/1024;
+            }
+            
+            mod_total_length+=subsong_length;
+            
+            int song_length;
+            NSString *filePathMain;
+            NSString *fileName=[self getSubTitle:i];
+            
+            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+            
+            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
+            
+            if (i==mod_subsongs-1) {// Global file stats update
+                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
+            }
+        }
+    } else {
+        [self mmp_updateDBStatsAtLoad];
+    }
+    
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+    
+    if (m3uReader.info().title) {
+        if (m3uReader.info().title[0]) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader.info().title);
+    } else if (metadata->title[0]) snprintf(mod_name,sizeof(mod_name)," %s",metadata->title);
+    
+    if (m3uReader.info().artist) {
+        if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
+    } else artist=[NSString stringWithUTF8String:metadata->author];
+    
+    if (m3uReader.size()) {
+        gbs_init(gbs, m3uReader[mod_currentsub].track);
+        iModuleLength=m3uReader[mod_currentsub].length;
+        if (iModuleLength<=0) {
+            status = gbs_get_status(gbs);
+            iModuleLength=(status->subsong_len)*1000/1024;
+        }
+        if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+        gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+    } else {
+        gbs_init(gbs, mod_currentsub);
+        status = gbs_get_status(gbs);
+        iModuleLength=(status->subsong_len)*1000/1024;
+        
+        mod_title=[NSString stringWithUTF8String:status->songtitle];
+        
+        gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+    }
+    
+    
+    
+    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    
+    iCurrentTime=0;
+    mCurrentSamples=0;
+    
+    numChannels=4;
+    m_voicesDataAvail=1;
+    m_genNumVoicesChannels=numChannels;
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+    }
+    
+    //Loop
+    if (mLoopMode) iModuleLength=-1;
+    
+    seek_needed=-1;
+    g_playing=1;
+    return 0;
+}
+
+
 
 -(int) mmp_pixelLoad:(NSString*)filePath {  //PxTone Collage & Organya
     mPlayType=MMP_PIXEL;
@@ -8143,6 +8496,7 @@ char* loadRom(const char* path, size_t romSize)
     f=fopen(plfile,"rb");
     if (!f) {
         plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".M3U"] UTF8String];
+        f=fopen(plfile,"rb");
     }
     m3uReader.clear();
     if (f) {
@@ -10708,7 +11062,7 @@ extern bool icloud_available;
     }
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultKSSPLAYER:(int)defaultKSSPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
+-(int) LoadModule:(NSString*)_filePath archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
@@ -10717,6 +11071,7 @@ extern bool icloud_available;
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
     NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
@@ -10736,7 +11091,9 @@ extern bool icloud_available;
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-    
+    char mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER;
+    char mdz_defaultKSSPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER,mdz_defaultGBSPLAYER;
+
     NSString *extension;
     NSString *file_no_ext;
     NSString *filePath;
@@ -10760,6 +11117,15 @@ extern bool icloud_available;
     
     [self iPhoneDrv_LittlePlayStart];
     
+    mdz_defaultMODPLAYER=settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultSAPPLAYER=settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultVGMPLAYER=settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultNSFPLAYER=settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultGBSPLAYER=settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultKSSPLAYER=settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultMIDIPLAYER=settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultSIDPLAYER=settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value;
+    
     if (archiveMode==0) {
         //extension = [_filePath pathExtension];
         //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
@@ -10774,14 +11140,9 @@ extern bool icloud_available;
         //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         filePath=[self getFullFilePath:_filePath];
         
+        
+        
         mdz_IsArchive=0;
-        mdz_defaultMODPLAYER=defaultMODPLAYER;
-        mdz_defaultSAPPLAYER=defaultSAPPLAYER;
-        mdz_defaultVGMPLAYER=defaultVGMPLAYER;
-        mdz_defaultNSFPLAYER=defaultNSFPLAYER;
-        mdz_defaultKSSPLAYER=defaultKSSPLAYER;
-        mdz_defaultMIDIPLAYER=defaultMIDIPLAYER;
-        mdz_defaultSIDPLAYER=defaultSIDPLAYER;
         mNeedSeek=0;
         mod_message_updated=0;
         mod_subsongs=1;
@@ -10979,6 +11340,17 @@ extern bool icloud_available;
         //            break;
         //        }
     }
+    for (int i=0;i<[filetype_extGBS count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {
+            if (mdz_defaultGBSPLAYER==DEFAULT_GBSGBSPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_GBS]];
+            break;
+        }
+        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {
+        //            [available_player addObject:[NSNumber numberWithInt:MMP_GBS]];
+        //            break;
+        //        }
+    }
+    
     for (int i=0;i<[filetype_extGME count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
             bool is_vgm=false;
@@ -11003,43 +11375,18 @@ extern bool icloud_available;
             if ([extension caseInsensitiveCompare:@"KSS"]==NSOrderedSame) {
                 is_kss=true;
             }
+            bool is_gbs=false;
+            if ([extension caseInsensitiveCompare:@"GBS"]==NSOrderedSame) {
+                is_gbs=true;
+            }
             if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
                 (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
                 (is_kss && (mdz_defaultKSSPLAYER==DEFAULT_KSSGME)) ||
-                (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
+                (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME)) ||
+                (is_gbs && (mdz_defaultGBSPLAYER==DEFAULT_GBSGME)) ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
-        //            bool is_vgm=false;
-        //            for (int j=0;j<[filetype_extVGM count];j++)
-        //                if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:j]]==NSOrderedSame) {
-        //                    is_vgm=true;
-        //                    break;
-        //                }
-        //            bool is_sap=false;
-        //            for (int j=0;j<[filetype_extASAP count];j++)
-        //                if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:j]]==NSOrderedSame) {
-        //                    is_sap=true;
-        //                    break;
-        //                }
-        //            bool is_nsf=false;
-        //            for (int j=0;j<[filetype_extNSFPLAY count];j++)
-        //                if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:j]]==NSOrderedSame) {
-        //                    is_nsf=true;
-        //                    break;
-        //                }
-        //            bool is_kss=false;
-        //            if ([file_no_ext caseInsensitiveCompare:@"KSS"]==NSOrderedSame) {
-        //                is_kss=true;
-        //            }
-        //            if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
-        //                (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ||
-        //                (is_kss && (mdz_defaultKSSPLAYER==DEFAULT_KSSGME)) ||
-        //                (is_nsf && (mdz_defaultNSFPLAYER==DEFAULT_NSFGME))  ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
-        //            else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
-        //            break;
-        //        }
     }
     
     for (int i=0;i<[filetype_extMDX count];i++) {
@@ -11398,6 +11745,9 @@ extern bool icloud_available;
                 break;
             case MMP_PT3:
                 retval=[self mmp_pt3Load:filePath];
+                break;
+            case MMP_GBS:
+                retval=[self mmp_gbsLoad:filePath];
                 break;
             case MMP_NSFPLAY:
                 retval=[self mmp_nsfplayLoad:filePath];
@@ -11923,6 +12273,40 @@ extern bool icloud_available;
             [self Play];
             iCurrentTime=startPos;
             break;
+        case MMP_GBS:  //GBS
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            if (m3uReader.size()) {
+                gbs_init(gbs, m3uReader[mod_currentsub].track);
+                iModuleLength=m3uReader[mod_currentsub].length;
+                if (iModuleLength<=0) {
+                    const struct gbs_status *status = gbs_get_status(gbs);
+                    iModuleLength=(int64_t)(status->subsong_len)*1000/1024;
+                }
+                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                
+                gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+                
+                if (mLoopMode) iModuleLength=-1;
+                if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+            } else {
+                gbs_init(gbs, mod_currentsub);
+                const struct gbs_status *status = gbs_get_status(gbs);
+                iModuleLength=(int64_t)(status->subsong_len)*1000/1024;
+                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                
+                gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+                
+                if (mLoopMode) iModuleLength=-1;
+                mod_title=[NSString stringWithUTF8String:status->songtitle];
+            }
+            
+            if (startPos) [self Seek:startPos];
+            [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
+            [self Play];
+            iCurrentTime=startPos;
+            break;
         case MMP_PIXEL:  //PxTone & Orgaya
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
@@ -12058,12 +12442,10 @@ extern bool icloud_available;
     [self iPhoneDrv_PlayStop];
     
     if (mPlayType==MMP_TIMIDITY) { //Timidity
-        //NSLog(@"Tim wait for stop");
         intr = 1;
         while (!tim_finished) {
             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
         }
-        //NSLog(@"Tim stopped");
     }
     
     /*bGlobalIsPlaying=0;
@@ -12263,6 +12645,15 @@ extern bool icloud_available;
         if (pt3_music_buf) free(pt3_music_buf);
         pt3_music_buf=NULL;
     }
+    if (mPlayType==MMP_GBS) { //GBS
+        /* stop sound */
+        intr = 1;
+        while (!tim_finished) {
+            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+        }
+        if (gbs) common_cleanup(gbs);
+        gbs=NULL;
+    }
     if (mPlayType==MMP_SC68) {//SC68
         sc68_stop(sc68);
         sc68_close(sc68);
@@ -12274,12 +12665,14 @@ extern bool icloud_available;
         }
     }
     if (mPlayType==MMP_GSF) { //GSF
+        intr = 1;
+        while (!tim_finished) {
+            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+        }
         GSFClose();
     }
     if (mPlayType==MMP_ASAP) { //ASAP
         free(ASAP_module);
-    }
-    if (mPlayType==MMP_TIMIDITY) { //VGM
     }
     if (mPlayType==MMP_PMDMINI) { //PMD
         pmd_stop();
@@ -12379,6 +12772,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_ATARISOUND) return @"ATARISOUND";
     if (mPlayType==MMP_PT3) return @"PT3 Player";
+    if (mPlayType==MMP_GBS) return @"GBSPlay";
     if (mPlayType==MMP_NSFPLAY) return @"NSFPLAY";
     if (mPlayType==MMP_PIXEL) return @"PxTone/Organya";
     if (mPlayType==MMP_SC68) return @"SC68";
@@ -12483,7 +12877,12 @@ extern bool icloud_available;
         if (kss->info) {
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:kss->info[subsong].title encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
-    } else if (mPlayType==MMP_ATARISOUND) {
+    } else if (mPlayType==MMP_GBS) {
+        if (m3uReader.size()-1>=subsong) {
+            return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        }
+        return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
+    }else if (mPlayType==MMP_ATARISOUND) {
         SndhFile::SubSongInfo info;
         atariSndh.GetSubsongInfo(subsong,info);
         const char *str=info.musicSubTitle;
@@ -12543,6 +12942,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
     if (mPlayType==MMP_PT3) return @"PT3";
+    if (mPlayType==MMP_GBS) return @"GBS";
     if (mPlayType==MMP_NSFPLAY) {
         if (nsfData->is_nsfe) return @"NSFe";
         return @"NSF";

@@ -1,0 +1,2 @@
+Captured from pin60 (left output) @262144Hz, 8-bit unsigned, 0V@0, 5V@255
+(Excerpt from pokemon blue intro)

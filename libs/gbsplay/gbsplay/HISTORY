@@ -1,0 +1,510 @@
+
+gbsplay HISTORY
+
+
+2024/xx/xx  -  unreleased
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- gbs core:
+  - fix noise channel LSFR for more faithful drumtracks in most ROMs
+  - fix generated MIDI files being ~1.5% too slow
+
+- gbsplay
+  - fix display of unknown version number (gbsplay -V)
+
+Enhancements:
+
+- build process
+  - display version number during configure
+
+
+2024/02/04  -  0.0.96
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- build process:
+  - fix build errors of devdsp plugout on FreeBSD
+
+Enhancements:
+
+- gbsplay:
+  - add PipeWire plugout
+  - add application and filename to audio stream metadata
+    (currently works with PipeWire, PulseAudio and with SDL2 depending
+     on the configured audio backend)
+
+- build process:
+  - add automated build pipeline for FreeBSD (arm64)
+
+
+2024/01/25  -  0.0.95
+~~~~~~~~~~~~~~~~~~~~~
+
+(entries marked with (*) are present in version 0.0.95 but were
+ missing in the HISTORY file released with version 0.0.95)
+
+Bugfixes:
+
+- gbsplay:
+  - fix octaves in note display during playback
+  - fix segfaults on status display for files other than .gbs
+  - don't set up the terminal if stdout is redirected
+  - fix duplicate handling of keystrokes
+  - dsound plugout:
+    - fix buffer handling (fixes choppy and too fast playback)
+  - MIDI plugouts:
+    - fix notes getting out of sync from accumulated rounding errors
+    - fix 'sound off' (NR52) to affect all channels instead of channel 2 only
+    - fix octaves of exported notes (not perfect since wave data on channel 3
+      could contain repetitions resulting in higher octaves)
+  - stdout plugout:
+    - fix newline conversion of binary data on MINGW
+
+- gbs core:
+  - fix envelope volume in channel retrigger
+  - fix off-by-one error in gbhw_io_peek (fixes verbose WAVE display)
+  - fix sign extension bug in byte swapping (fixes endian change via -E)
+  - fix small memory leak from impulse buffer
+  - fix missing sound with ROMs using ugetab's VBlank timing
+  - fix hex dump endianess in debug output
+  - fix possible duplicate free() on zlib compressed data
+  - always use 64 bits for cycle counter (fixes overflow issues on MINGW32)
+  - free ROM buffer on exit
+
+- libgbs:
+  - install libgbs.h alongside the shared library to make it usable
+
+- build process:
+  - don't run depend.sh before config.mk is included
+  - only enable i18n if it really works
+  - only build with -fstack-* protections if they really work
+  - fix Windows builds on MSYS2, MINGW32 and MINGW64
+  - fix library path detection on macOS
+  - fix SDL2 detection
+  - (*) fix dist target in Makefile
+
+- documentation:
+  - fix typos in manpage
+
+Removals:
+
+- gbsplay:
+  - remove unmaintained splint annotations
+  - remove regparm optimizations
+  - remove usleep() usage, use nanosleep() instead (it's more POSIX)
+
+- gbsxmms:
+  - finally remove XMMS plugin sourcecode that has been declared broken in 2008
+
+Enhancements:
+
+- gbsplay:
+  - add SDL2 plugout
+  - remove unneeded dsound3d dependency from dsound plugin
+  - add WAV writer plugout
+  - add VGM writer plugout
+  - support channel mute in MIDI output plugins
+  - suppress unneeded endian changes between player routine and audio plugouts
+  - allow repetition of single subsongs (gbsplay -L)
+  - loop mode can be changed interactively (use the 'l' key)
+  - display pause status when playback is paused
+  - display '99:99' as remaining time when no subsong timeout is set
+  - enforce minimum subsong timeout when playing actual ROMS
+    (otherwise gbsplay might quit before the bootrom beep is played)
+  - (*) implement our own rand() function to keep shuffle tests stable on MSYS
+
+- gbs core:
+  - transparent decompression of gzip-compressed files
+  - basic VGM file playback support
+  - implement DIV register emulation
+  - add example ROM source using SDCC (see examples/sdcc)
+  - increase impulse data resolution
+  - support different cartridge types like MBC1 and MBC3 in ROM mapper
+  - don't limit rombank range in the gbs mapper
+  - remove home-grown extended header support for GBS files
+  - add support for dumped ROMs (no controls, first song only)
+
+- libgbs:
+  - clean up libgbs (still ongoing, so no 1.0.0 yet)
+  - support reentrancy to render multiple files simultaneously
+    (test cases to prove this is working are still missing)
+  - generate pkg-config configuration
+  - install API documentation (needs doxygen)
+
+- xgbsplay:
+  - add simple X11 frontend (configure --with-xgbsplay)
+  - and replace it by a better looking xcb/cairo frontend
+    (dig through the sources before commit 840f89460 to
+     get the initial simple X11 frontend v1)
+
+- gbs2gb:
+  - experimental tool to convert .gbs files to .gb ROMs
+
+- build process:
+  - depend on bash 3.x for configure script
+  - add automated build pipelines for Linux, macOS and
+    Windows (MSYS2, MINGW32, MINGW64 and CygWin)
+    - test for successful builds
+    - test plugout configuration
+    - test some configure options
+    - test install and uninstall targets
+    - calculate code coverage
+  - use command -v instead of homegrown which replacement
+  - add tests to catch regressions in file writer plugouts
+  - add verbose build mode (configure --build-verbose)
+
+- documentation:
+  - the mailing list is gone, please contact us on GitHub
+  - update INSTALL.md instructions and information
+  - convert README and INSTALL to Markdown format
+  - add shiny build status badges to README.md
+
+
+2020/06/26  -  0.0.94
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- gbsplay:
+  - cpu emulation fixes:
+    - RLCA/RLA/RRCA/RRA did not set ZF
+    - fix botched SBC zero flag handling
+    - fix slight bug in ADC/SBC
+    - fix INC/DEC SP, CP A and half-carry flag in DEC
+    - fix PUSH/POP AF
+    - fix cycle timing for conditional branches
+    - fix cycle timing for LD HLSP/LD SPHL and 16bit ALU ops
+    - halt with global interrupt flag disabled can still be interrupted
+  - fix error on midi plugout where a write to the file could occur
+    before the file was opened
+  - fix garbled screen on exit in verbose mode (gbsplay -v)
+  - fix status display: respect channel in left/right total volume
+  - fix impulse generator: generate a header file at compile-time
+  - restore mute settings after every apu_reset
+
+- build process:
+  - fix test target during parallel builds (make -j)
+  - support building with MSYS2
+  - fix ShellCheck warnings
+
+Removals:
+
+- ditz bug tracker issues removed, use the issue tracker on the github
+  project page instead: https://github.com/mmitch/gbsplay/issues
+
+Enhancements:
+
+- gbsplay:
+  - more accurate sound and other HW emulation:
+    - calculate LFSR correctly
+    - play first nibble on DAC-channel from fresh buffer
+    - correct noise channel speed
+    - use more DMG-like DC-offsets
+    - more accurate cpu cycle accounting
+    - remove DC offset from DAC-channel
+    - more accurate channel gating
+    - support read-back of timer registers and NR52
+    - fix length counter and trigger logic
+    - improved sequencer correctness
+    - volume envelope is only clocked when channel is running
+    - support reading the scanline counter
+  - show text written to link port (only if text detected, for test roms)
+  - show register contents in verbose mode (gbsplay -v)
+  - add basic GBR file support
+  - basic support for plain GB roms
+  - support ugetab int vector extension (gbs spec 1.04u)
+  - add 'iodumper' plugout for testing
+  - add support for blargg-gb-tests debug output
+  - midi exporter:
+    - track DAC and running status for channel 1-3
+    - fix channel trigger handling
+    - call note_off/note_on when volume changes between zero/non-zero
+    - export portamenti as separate notes
+    - honor APU reset (stop all notes)
+    - end pending notes when closing track
+    - emit pan control messages
+  - new alternative midi exporter
+  - enable new gcc compiler warnings
+  - clarified GPL version as "GPL v1 or later"
+
+- build process:
+  - add V=1 make option for verbose compiling ("make V=1")
+  - add gbsplay mime entry to install step and run update-mime-database
+  - add gbsplay.desktop file in install step
+
+Documentation:
+
+- describe plugouts in manpage
+- updated contact info
+- adhere to the common manpage styleguide, see
+  - man-pages(7)
+  - https://liw.fi/manpages/
+
+
+2015/08/23  -  0.0.93
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- build process:
+  - configure now fails when a requested feature is not available
+  - run checksum test only on x86 architectures
+
+Removals:
+
+- ditz bug tracker issues removed, use the issue tracker on the github
+  project page instead: https://github.com/mmitch/gbsplay/issues
+
+Enhancements:
+
+- build process:
+  - configure now fails when a requested feature is not available
+  - run checksum test only on x86 architectures
+  - add dsound plugin to configure --help
+  - enable regparm on x86_64
+  - include all the files in tarball
+
+
+2015/06/19  -  0.0.92
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- fix player jump bug in Wizardry Gaiden
+- fix switched byte order in plugout_midi
+  (caused huge delays between notes)
+- fix crash on files with too many subsongs
+
+Enhancements:
+
+- gbsplay
+  - add PulseAudio plugout
+  - add DirectSound plugout
+  - plugout_midi: output voices to different channels
+  - plugout_alsa: support suspend/resume
+
+- gbsinfo:
+  - also display default subsong
+
+- contrib:
+  - better bash completion rules
+
+- build process:
+  - fix build with GCC 5
+  - add cross-compiling support
+  - handle CFLAGS/LDFLAGS for autotools compatibility
+  - don't fail test target when a key is pressed
+  - simpler/better/more unit tests
+
+
+2008/08/15  -  0.0.91
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- remove possible garbage sounds on songchange
+
+Removals:
+
+- gbsxmms:
+  As it is currently broken and propably won't be fixed soon,
+  building of the XMMS plugin is now disabled by default.
+  If you want to try to fix it, use 'configure --with-xmmsplugin'
+
+Enhancements:
+
+- gbsplay
+  - more accurate handling of channel 3 and master volume
+  - add MIDI plugout
+
+- contrib:
+  - clarify license of gbs2ogg.sh (it's GPL'ed)
+  - add (unfinished) bash completion script for gbsplay and gbsinfo
+
+- build process:
+  - installation of contrib scripts is optional
+  - gbsplay test run is optional
+  - remove bashishms from configure script
+
+
+2008/06/21  -  0.0.9  (the Still Alive release)
+~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- muted channel settings were lost on subsong change
+
+Enhancements:
+
+- gbsplay:
+  - allow channel mute on gbsplay startup
+  - add ALSA plugout
+
+
+2006/01/21  -  0.0.8
+~~~~~~~~~~~~~~~~~~~~
+
+Enhancements:
+
+- code optimizations
+  - use long instead of int where possible, better on 64bit archs
+  - use const where possible
+
+- gbsplay:
+  - use blipbuffer-like sound generation (better quality)
+  - optimizations to channel 2 (interpolation, dc offset)
+  - NAS output honors requested endianess
+  - translation fixes
+
+- build process:
+  - add regression test
+  - better autotools compatibility (needs fewer tweaks in ebuild)
+  - fix tar call in dist target for tar versions > 1.14
+  - optimize symbol hash tables
+  - use -fpic instead of -fPIC
+  - better error message when CC is undefined
+
+
+2004/07/16  -  0.0.7
+~~~~~~~~~~~~~~~~~~~~
+
+Enhancements:
+
+- gbsplay:
+  - don't use random() for noise, emulate the original Gameboy
+    behaviour
+  - support more verbosity levels than just "quiet"
+
+
+2004/04/26  -  0.0.6
+~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- fix make errors on CygWin
+- fix "make dist" on FreeBSD
+- fix path errors in configure script
+
+Enhancements:
+
+- code optimizations (using regparm where available)
+
+- include example song "Nightmode" by Laxity
+
+- gbsplay:
+  - include a NAS driver
+  - repeat mode for infinite playmode
+  - set screen refresh rate (refresh_delay)
+  - include a sound output plugin architecture
+
+- gbsinfo:
+  - add --help option
+
+- build process:
+  - print error on non-existing configure options
+  - print additional diagnostic messages during configure
+  - enable building of a shared library
+  - some Solaris and FreeBSD bugfixes
+
+
+2004/01/16  -  0.0.5
+~~~~~~~~~~~~~~~~~~~~
+- build process:
+  - fix broken Cygwin build
+  - more standards compliant configure script
+
+
+2003/12/28  -  0.0.4
+~~~~~~~~~~~~~~~~~~~~
+- gbsplay:
+  - changed -z and -Z description
+  - output endianess can be selected
+  - shuffled playlists are reproducible over playlist boundaries
+  - redraw screen after SIGSTOP/SIGCONT
+  - allow -1 as subsong (plays default subsong)
+  - improved buffer handling
+
+- gbsxmms:
+  - fix GTK critical error and xmms segfault when closing xmms
+  - builds on FreeBSD
+
+- gbsinfo:
+  - change output to an even more script friendly format
+
+- gbs2ogg.sh:
+  - dump songs in desired length and with fadeout
+  - fix path to gbsinfo
+
+- internationalization:
+  - gettext support for gbsplay and gbsinfo
+  - German translation
+
+- build process:
+  - remove all files on uninstall
+  - fixes for non-GNU find(1)
+  - fixes for non-Debian mktemp(1)
+  - rebuild only changed files
+
+
+2003/12/07  -  0.0.3
+~~~~~~~~~~~~~~~~~~~~
+- support other architectures than Linux/i386:
+  - fix some endian issues
+  - fix some c type issues
+
+- gbsplay:
+  - fix display of help text
+  - add pause/play
+  - add fadeout
+  - add gap between subsongs
+  - add channel mute
+
+- gbsinfo:
+  - change output to a more script friendly format
+
+- gbsxmms:
+  - fix deadlock during seek
+
+- gbs2ogg.sh:
+  - new script to convert .gbs to .ogg
+
+- documentation:
+  - add info about GBS format
+  - mention Esc key to quit gbsplay
+
+- build process:
+  - generate versioned manpages
+  - generate versioned directory in archive
+  - no need for zlib any more
+  - don't check dependencies for 'clean' and 'distclean' targets
+
+
+2003/09/21  -  0.0.2
+~~~~~~~~~~~~~~~~~~~~
+- gbsplay bugfixes:
+  - don't go haywire on startup when start_at_subsong is out-of-bounds
+  - don't exit with out-of-bounds error after playing the last song
+
+- xmms-gbs bugfixes:
+  - fix seeking of previous subsong
+
+- build process bugfixes:
+  - delete all temporary files created by configure
+
+- gbsplay new features:
+  - add shuffle and random playmode
+  - no need to press return for keyboard commands to take effect
+  - stop after playing a given subsong
+  - honor SIGSTOP and SIGCONT signals
+
+- build process new features:
+  - detect working C compiler
+  - detect zlib existence
+
+
+2003/09/12  -  0.0.1
+~~~~~~~~~~~~~~~~~~~~
+- Initial public release.

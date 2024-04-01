@@ -2071,10 +2071,7 @@ int recording=0;
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     mPlaylist[mPlaylist_pos].mPlaylistCount++;
         
-    
-    
-    
-    [self requestLoadNewFile:filePath fname:fileName arcidx:-1 subsong:-1];
+    [self requestLoadNewFile:filePath fname:fileName arcidx:-1 subsong:subsong];
     return true;
     
     if ([self play_module:filePath fname:fileName subsong:subsong]==FALSE) {
@@ -2538,14 +2535,7 @@ int recording=0;
     }
     // load module
     
-    if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                    defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                    defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value
-                         archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+    if ((retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
         //error while loading
         
         if ( [mplayer isArchive] &&
@@ -2556,13 +2546,7 @@ int recording=0;
                 if ([mplayer selectNextArcEntry]<0) break;
                 
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                           defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                           defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                           defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                           defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                          defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                           defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
             } while (retcode);
         }
         
@@ -2580,13 +2564,7 @@ int recording=0;
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
             
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+            if ((retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
                     !mOnlyCurrentSubEntry &&
@@ -2595,13 +2573,7 @@ int recording=0;
                     do {
                         if ([mplayer selectNextArcEntry]<0) break;
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                        retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     } while (retcode);
                     
                 }
@@ -2665,7 +2637,7 @@ int recording=0;
         }
         [mplayer PlaySeek:mPlayingPosRestart subsong:(mRestart_sub>=0?mRestart_sub:mplayer.mod_currentsub)];
     } else {
-        [mplayer PlaySeek:mPlayingPosRestart subsong:0];
+        [mplayer PlaySeek:mPlayingPosRestart subsong:mplayer.mod_currentsub];
     }
     sliderProgressModule.value=0;
     mIsPlaying=YES;
@@ -3166,13 +3138,7 @@ int recording=0;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         int retcode;
-        if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                        defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                        defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                        defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                        defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                       defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                        defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
+        if ((retcode=[mplayer LoadModule:filePath archiveMode:0 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
             
             //error while loading
             //if it is an archive, try to load next entry until end or valid one reached
@@ -3183,13 +3149,7 @@ int recording=0;
                 do {
                     if ([mplayer selectNextArcEntry]<0) break;
                     mRestart_arc=[mplayer getArcIndex];
-                    retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                               defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                               defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                               defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                               defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                              defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                               defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                    retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
                 } while (retcode);
             }
@@ -3217,13 +3177,7 @@ int recording=0;
             
             if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
             
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+            if ((retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 
                 do {
@@ -3232,13 +3186,7 @@ int recording=0;
                         break;
                     } else {
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                        retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     }
                 } while (retcode);
                 
@@ -3340,13 +3288,7 @@ int recording=0;
     }
     
     
-    if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                    defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                    defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                    defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                    defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                   defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                    defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
+    if ((retcode=[mplayer LoadModule:filePathTmp archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {
         
         //error while loading
         //if it is an archive, try to load next entry until end or valid one reached
@@ -3357,13 +3299,7 @@ int recording=0;
             do {
                 if ([mplayer selectNextArcEntry]<0) break;
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                           defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                           defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                           defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                           defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                          defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                           defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                retcode=[mplayer LoadModule:filePathTmp archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
         }
@@ -3386,13 +3322,7 @@ int recording=0;
             
             if (!(mOnlyCurrentEntry&1)) mRestart_arc=arc4random()%[mplayer getArcEntriesCnt]; //do not shuffle if arc entry was part of filename
             
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                            defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                            defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                            defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                            defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                           defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                            defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
+            if ((retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle])) {
                 //error while loading
                 
                 do {
@@ -3401,13 +3331,7 @@ int recording=0;
                         break;
                     } else {
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value
-                                   defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value
-                                   defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value
-                                   defaultNSFPLAYER:settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value
-                                   defaultKSSPLAYER:settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value
-                                  defaultMIDIPLAYER:settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value
-                                   defaultSIDPLAYER:settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
+                        retcode=[mplayer LoadModule:filePathTmp archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
                     }
                 } while (retcode);
                 
@@ -4977,6 +4901,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
+    //Font
+    mFont=NULL;
+    mFontPath=NULL;
+    mFontMenu=NULL;
+    mFontMenuPath=NULL;
+    
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
@@ -5806,9 +5736,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)updateFont{
     NSString *fontPath;
     
-    if (mFont) delete mFont;
-    mFont=NULL;
-    
     mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
     switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
         case 0:
@@ -5826,6 +5753,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     }
     
     fontPath = [[NSBundle mainBundle] pathForResource: [NSString stringWithFormat:@"%s%d",fontName[mCurrentFontIdx],mCurrentFontSize] ofType: @"fnt"];
+    
     if (!fontPath) {
         mCurrentFontIdx=0;
         mCurrentFontSize=16;
@@ -5837,11 +5765,21 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             return;
         }
     }
+    
+//    int loadFont=0;
+//    if (mFontPath==NULL) loadFont=1;
+//    else if ([mFontPath isEqualToString:fontPath]==false) loadFont=1;
+//    
+//    if (loadFont==0) return;
+        
+    if (mFont) delete mFont;
+    
     mFont = new CFont([fontPath cStringUsingEncoding:1]);
     if (!mFont) {
         NSLog(@"Issue with mFont init");
         return;
     }
+    mFontPath=[NSString stringWithString:fontPath];
     
     mFontWidth= mFont->maxCharWidth;
     mFontHeight= mFont->maxCharHeight;
@@ -7759,6 +7697,8 @@ extern "C" int current_sample;
         delete mFontMenu;
         mFontMenu=NULL;
     }
+    mFontPath=NULL;
+    mFontMenuPath=NULL;
     
     [super viewDidDisappear:animated];
 }

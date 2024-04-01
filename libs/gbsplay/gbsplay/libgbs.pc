@@ -1,0 +1,5 @@
+Name: libgbs
+Description: The Gameboy sound player library
+Version: ish
+Cflags: -I/usr/local/include/libgbs/libgbs
+Libs: -L/usr/local/lib -lgbs -lm

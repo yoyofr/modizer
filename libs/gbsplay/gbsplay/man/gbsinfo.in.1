@@ -1,0 +1,33 @@
+.\" This manpage 2003-2020 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" Licensed under GNU GPL v1 or, at your option, any later version.
+.TH "GBSINFO" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
+.SH "NAME"
+gbsinfo \- display Gameboy sound file information
+.SH "SYNOPSIS"
+.B gbsinfo
+.RB [ -h | -V ]
+.I gbs\-file
+.SH "DESCRIPTION"
+gbsinfo displays information about a Gameboy module dump
+(.GBS format).
+.SH "OPTIONS"
+.TP
+.B \-h
+Display short help and exit.
+.TP
+.B \-V
+Display version number and exit.
+.TP
+.I gbs\-file
+The sound file to read.
+Must be in uncompressed .GBS format.
+.SH "BUGS"
+If you encounter bugs, please report them via
+.I https://github.com/mmitch/gbsplay/issues
+.SH "AUTHORS"
+gbsinfo was written by Tobias Diedrich <\fIranma+gbsplay@tdiedrich.de\fP>
+(with contributions from others, see README.md).
+.SH "COPYRIGHT"
+gbsinfo is licensed under GNU GPL v1 or, at your option, any later version.
+.SH "SEE ALSO"
+.BR gbsplay (1)

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="audio/prs.gbs">
+    <comment>Gameboy GBS rom image</comment>
+    <acronym>GBS</acronym>
+    <expanded-acronym>Gameboy sound</expanded-acronym>
+    <magic>
+      <!-- http://ocremix.org/info/GBS_Format_Specification -->
+      <match type="big32"    offset="0" value="0x47425301"/>
+      <match type="little32" offset="0" value="0x01534247"/>
+    </magic>
+    <glob pattern="*.gbs"/>
+  </mime-type>
+</mime-info>

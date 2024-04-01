@@ -1,0 +1,130 @@
+sed: 1: "1{s/^.*  -  //;s/ .*//;p}": extra characters at the end of p command
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:6:5: error: use of undeclared identifier 'not'
+    not windows, fail compile
+    ^
+1 error generated.
+Undefined symbols for architecture arm64:
+  "_inflateInit_", referenced from:
+      _main in cc-5a6576.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'sys/soundcard.h' file not found
+#include <sys/soundcard.h>
+         ^~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'sys/soundcard.h' file not found
+#include <sys/soundcard.h>
+         ^~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'sys/soundcard.h' file not found
+#include <sys/soundcard.h>
+         ^~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'alsa/asoundlib.h' file not found
+#include <alsa/asoundlib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'alsa/asoundlib.h' file not found
+#include <alsa/asoundlib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'alsa/asoundlib.h' file not found
+#include <alsa/asoundlib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'alsa/asoundlib.h' file not found
+#include <alsa/asoundlib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:1:10: fatal error: 'windows.h' file not found
+#include <windows.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:1:10: fatal error: 'windows.h' file not found
+#include <windows.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:1:10: fatal error: 'windows.h' file not found
+#include <windows.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:1:10: fatal error: 'windows.h' file not found
+#include <windows.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'spa/support/plugin.h' file not found
+#include <spa/support/plugin.h>
+         ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'spa/support/plugin.h' file not found
+#include <spa/support/plugin.h>
+         ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'spa/support/plugin.h' file not found
+#include <spa/support/plugin.h>
+         ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'spa/support/plugin.h' file not found
+#include <spa/support/plugin.h>
+         ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'spa/support/plugin.h' file not found
+#include <spa/support/plugin.h>
+         ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'pulse/simple.h' file not found
+#include <pulse/simple.h>
+         ^~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'pulse/simple.h' file not found
+#include <pulse/simple.h>
+         ^~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'pulse/simple.h' file not found
+#include <pulse/simple.h>
+         ^~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'audio/audiolib.h' file not found
+#include <audio/audiolib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'audio/audiolib.h' file not found
+#include <audio/audiolib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'audio/audiolib.h' file not found
+#include <audio/audiolib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'audio/audiolib.h' file not found
+#include <audio/audiolib.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'SDL.h' file not found
+#include <SDL.h>
+         ^~~~~~~
+1 error generated.
+Undefined symbols for architecture arm64:
+  "_SDL_Init", referenced from:
+      _main in cc-491aa6.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ld: library 'SDL2' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'libintl.h' file not found
+#include <libintl.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'libintl.h' file not found
+#include <libintl.h>
+         ^~~~~~~~~~~
+1 error generated.
+/var/folders/nn/2khtblg14614r83hd2rmpdn00000gn/T//configure.WIgl8uIV8v/cc.c:2:10: fatal error: 'libintl.h' file not found
+#include <libintl.h>
+         ^~~~~~~~~~~
+1 error generated.
+error: unknown warning option '-Wswitch-unreachable' [-Werror,-Wunknown-warning-option]
+ld: unknown options: -z 
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ld: unknown options: -z 
+clang: error: linker command failed with exit code 1 (use -v to see invocation)

@@ -127,7 +127,6 @@ extern "C" {
 	unsigned int mPlayType;
 	int mp_datasize,numChannels;
     int mLoopMode; //0:off, 1:infinite
-    int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
     NSString *mod_currentfile;  //file being loaded
     NSString *mod_loadmodule_filepath; //filepath given as param of LoadModule
     NSString *mod_currentext;
@@ -214,7 +213,6 @@ extern "C" {
 @property NSString *artist,*album;
 @property bool extractPendingCancel;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
-@property int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 @property int optForceMono;
 @property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
@@ -311,7 +309,7 @@ extern "C" {
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
 //-(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER defaultNSFPLAYER:(int)defaultNSFPLAYER defaultKSSPLAYER:(int)defaultKSSPLAYER defaultMIDIPLAYER:(int)defaultMIDIPLAYER defaultSIDPLAYER:(int)defaultSIDPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
+-(int) LoadModule:(NSString*)_filePath archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;

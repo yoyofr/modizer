@@ -454,6 +454,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
@@ -966,7 +967,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
@@ -980,7 +980,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultSAPPlayer].sub_family=0;
     settings[GLOB_DefaultSAPPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
@@ -993,7 +992,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSIDPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultSIDPlayer].sub_family=0;
     settings[GLOB_DefaultSIDPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_labels[0]=(char*)"sidplayfp";
@@ -1006,7 +1004,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultVGMPlayer].sub_family=0;
     settings[GLOB_DefaultVGMPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
@@ -1019,11 +1016,22 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultNSFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultNSFPlayer].sub_family=0;
     settings[GLOB_DefaultNSFPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"NSFPLAY";
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    SETTINGS_ID_DEF(GLOB_DefaultGBSPlayer)
+    settings[GLOB_DefaultGBSPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultGBSPlayer].label=(char*)"Default GBS player";
+    settings[GLOB_DefaultGBSPlayer].description=NULL;
+    settings[GLOB_DefaultGBSPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultGBSPlayer].sub_family=0;
+    settings[GLOB_DefaultGBSPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_labels[0]=(char*)"GBSPLAY";
+    settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     SETTINGS_ID_DEF(GLOB_DefaultKSSPlayer)
     settings[GLOB_DefaultKSSPlayer].type=MDZ_SWITCH;
@@ -1032,7 +1040,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultKSSPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultKSSPlayer].sub_family=0;
     settings[GLOB_DefaultKSSPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_labels[0]=(char*)"LIBKSS";
@@ -1045,7 +1052,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultMIDIPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultMIDIPlayer].sub_family=0;
     settings[GLOB_DefaultMIDIPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_labels[0]=(char*)"Timidity";
@@ -1058,7 +1064,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_PriorityOMPT].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[ADPLUG_PriorityOMPT].sub_family=0;
     settings[ADPLUG_PriorityOMPT].callback=&optADPLUGChangedC;
-    settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value=1;
     settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value_nb=2;
     settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";

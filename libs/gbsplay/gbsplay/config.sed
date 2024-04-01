@@ -1,0 +1,1 @@
+s/%%%VERSION%%%/ish/g

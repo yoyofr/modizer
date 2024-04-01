@@ -136,6 +136,7 @@ extern bool icloud_available;
             NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
             NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
             NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+            NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
             NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
             NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
             NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
@@ -163,6 +164,7 @@ extern bool icloud_available;
                           [filetype_extATARISOUND count]+
                           [filetype_extSC68 count]+
                           [filetype_extPT3 count]+
+                          [filetype_extGBS count]+
                           [filetype_extNSFPLAY count]+
                           [filetype_extPIXEL count]+
                           [filetype_extUADE count]+
@@ -189,6 +191,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
             [filetype_ext addObjectsFromArray:filetype_extSC68];
             [filetype_ext addObjectsFromArray:filetype_extPT3];
+            [filetype_ext addObjectsFromArray:filetype_extGBS];
             [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
             [filetype_ext addObjectsFromArray:filetype_extPIXEL];
             [filetype_ext addObjectsFromArray:filetype_extUADE];
@@ -224,6 +227,7 @@ extern bool icloud_available;
             NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
             NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
             NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+            NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
             NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
             NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","];
@@ -251,6 +255,7 @@ extern bool icloud_available;
                           [filetype_extATARISOUND count]+
                           [filetype_extSC68 count]+
                           [filetype_extPT3 count]+
+                          [filetype_extGBS count]+
                           [filetype_extNSFPLAY count]+
                           [filetype_extPIXEL count]+
                           [filetype_extUADE count]+
@@ -277,6 +282,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
             [filetype_ext addObjectsFromArray:filetype_extSC68];
             [filetype_ext addObjectsFromArray:filetype_extPT3];
+            [filetype_ext addObjectsFromArray:filetype_extGBS];
             [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
             [filetype_ext addObjectsFromArray:filetype_extPIXEL];
             [filetype_ext addObjectsFromArray:filetype_extUADE];
@@ -326,6 +332,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","]];
+            [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","]];
@@ -406,6 +413,7 @@ extern bool icloud_available;
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
+    NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
     NSArray *filetype_extNSFPLAY=(no_aux_file?[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
@@ -511,6 +519,11 @@ extern bool icloud_available;
         for (int i=0;i<[filetype_extPT3 count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {found=MMP_PT3;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extGBS count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {found=MMP_GBS;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {found=MMP_GBS;break;}
         }
     if (!found) {
         //        for (int i=0;i<[filetype_extNSFPLAY count];i++) {

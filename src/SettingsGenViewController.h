@@ -80,6 +80,7 @@ enum MDZ_SETTINGS {
     GLOB_DefaultSIDPlayer,
     GLOB_DefaultVGMPlayer,
     GLOB_DefaultNSFPlayer,
+    GLOB_DefaultGBSPlayer,
     GLOB_DefaultKSSPlayer,
     GLOB_DefaultMIDIPlayer,
     ADPLUG_PriorityOMPT,

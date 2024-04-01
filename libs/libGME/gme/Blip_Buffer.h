@@ -349,7 +349,7 @@ inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t t
 	delta *= impl.delta_factor;
 	blip_long* BLIP_RESTRICT buf = blip_buf->buffer_ + (time >> BLIP_BUFFER_ACCURACY);
 	int phase = (int) (time >> (BLIP_BUFFER_ACCURACY - BLIP_PHASE_BITS) & (blip_res - 1));
-
+    
 #if BLIP_BUFFER_FAST
 	blip_long left = buf [0] + delta;
 	
@@ -441,7 +441,7 @@ inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t t
 		blip_long t1 = *imp * delta + buf [rev + 1];
 		buf [rev    ] = t0;
 		buf [rev + 1] = t1;
-	#endif
+#endif
 	
 #endif
 }

@@ -1,0 +1,313 @@
+.\" This manpage 2003-2024 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" Licensed under GNU GPL v1 or, at your option, any later version.
+.TH "GBSPLAY" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
+.SH "NAME"
+gbsplay \- Gameboy sound player
+.SH "SYNOPSIS"
+.B gbsplay
+.RI [ options ]
+.I gbs\-file
+.RI [ start\-subsong " [" stop\-subsong "] ]"
+.SH "DESCRIPTION"
+.B gbsplay
+emulates the sound hardware of the Nintendo Gameboy.
+It is able to play the sounds from a Gameboy module dump (.GBS format) over
+.I /dev/dsp
+and other sound drivers.
+.SH "OPTIONS"
+.TP
+.BI -E " endian"
+Set endianness to \fIendian\fP.
+Valid values are \fBb\fP, \fBl\fP and \fBn\fP for
+big, little and native endian respectively.
+.TP
+.BI -f " fadeout\-time"
+Set fadeout time to \fIfadeout\-time\fP seconds.
+Instead of cutting the subsong off hard, do a soft fadeout.
+Default value is 3 seconds.
+.TP
+.BI -g " subsong\-gap"
+Set subsong gap to \fIsubsong\-gap\fP seconds.
+Before playing the next subsong after the subsong timeout,
+\fIsubsong\-gap\fP seconds of silence will be played.
+Default value is 2 seconds.
+.TP
+.B -h
+Display short help and exit.
+.TP
+.BI -H " filter"
+Set output high-pass type to \fIfilter\fP.
+Valid values are
+.BR dmg " (Gameboy Classic),"
+.BR cgb " (Gameboy Color) and"
+.BR off " (no filter)."
+Default value is dmg.
+.TP
+.B -l
+Set loop mode to
+.B range
+(see \fILOOP MODES\fP below).
+.TP
+.B -L
+Set loop mode to
+.B single
+(see \fILOOP MODES\fP below).
+.TP
+.BI -o " plugin"
+Select sound output plugin \fIplugin\fP.
+Select \fBlist\fP to view a list of all available output plugins.
+Default value depends on compilation options.
+.TP
+.B -q
+Be quieter, reduce verbosity.
+Can be applied multiple times.
+Default verbosity is 3.
+.TP
+.BI -r " samplerate"
+Set the samplerate to \fIsamplerate\fP Hz.
+Default value is 44100Hz.
+.TP
+.BI -R " refresh\-delay"
+Set the refresh delay to \fIrefresh\-delay\fP milliseconds.
+Larger values will lower CPU usage, but things as subsong changes,
+fadeouts, reactions to keypresses and the on\-screen display
+will be delayed.
+Default value is 33 milliseconds.
+.TP
+.BI -t " subsong\-timeout"
+Set subsong timeout to \fIsubsong\-timeout\fP seconds.
+When a subsong has been played for the given time,
+the player will skip to the next subsong.
+A timeout of 0 seconds disables automatic subsong changes.
+Default value is 120 seconds.
+.TP
+.BI -T " silence\-timeout"
+Set silence timeout to \fIsilence\-timeout\fP seconds.
+When a subsong contains silence for the given time,
+the player will skip to the next subsong.
+Default value is 2 seconds.
+.TP
+.B -v
+Increase verbosity, print more information.
+Can be applied multiple times.
+Default verbosity is 3.
+.TP
+.B -V
+Display version number and exit.
+.TP
+.B -z
+Play subsongs in shuffle mode.
+Every subsong will be played once in random order.
+.TP
+.B -Z
+Play subsongs in random mode.
+Like shuffle mode (\fI-z\fP), but a subsong can be played multiple times.
+.TP
+.B -1
+Mute channel 1 on start.
+.TP
+.B -2
+Mute channel 2 on start.
+.TP
+.B -3
+Mute channel 3 on start.
+.TP
+.B -4
+Mute channel 4 on start.
+.TP
+.I gbs\-file
+The sound file to play.
+Must be in uncompressed .GBS format.
+.TP
+.I start\-subsong
+The subsong from the sound file to play first.
+If not specified, the default song declared in the sound file will be played
+unless shuffle (\fI-z\fP) or random mode (\fI-Z\fP) are active.
+An out\-of\-bounds number will be clipped to the possible range of subsongs.
+.TP
+.I stop\-subsong
+The last subsong to be played.
+See \fILOOP MODES\fP below for further details.
+.SH "KEYBOARD CONTROL"
+.B gbsplay
+supports basic keyboard control.
+The following commands are recognized:
+.TP
+.B p
+Skip to the previous subsong.
+.TP
+.B n
+Skip to the next subsong.
+.TP
+.BR q " or " Esc
+Quit \fBgbsplay\fP.
+.TP
+.B Space
+Toggle play/pause.
+.TP
+.B 1
+Mute/unmute channel 1.
+.TP
+.B 2
+Mute/unmute channel 2.
+.TP
+.B 3
+Mute/unmute channel 3.
+.TP
+.B 4
+Mute/unmute channel 4.
+.SH "LOOP MODES"
+.B gbsplay
+supports different loop modes that govern what happens when a subsong has finished playing.
+The default loop mode is
+.BR none .
+When multiple loop modes are set,
+the last mode set wins.
+The term
+.I first subsong
+refers to the parameter
+.I start\-subsong
+if it is set,
+or the first subsong in the file otherwise.
+The term
+.I next subsong
+refers to next subsong in numerical order
+unless shuffle mode
+.RI ( -z )
+or random mode
+.RI ( -Z )
+are active.
+The term
+.I last subsong
+refers to the parameter
+.I stop\-subsong
+if it is set and not out-of-bounds,
+or the last subsong in the file otherwise.
+.TP
+.B none
+When a subsong has finished playing,
+the next subsong will start to play.
+When the last subsong has finished playing,
+.B gbsplay
+will exit.
+.TP
+.B range
+When a subsong has finished playing,
+the next subsong will start to play.
+When the last subsong has finished playing,
+the fist subsong will start to play again.
+.TP
+.B single
+When a subsong has finished playing,
+the same subsong will start to play again.
+The
+.I stop\-subsong
+parameter will be ignored as no subsong change can occur.
+The 
+.I subsong\-timeout
+parameter will be ignored as well,
+allowing the selected subsong to play endlessly without any forced restarts.
+.SH "OUTPUT PLUGINS"
+Output plugins are sometimes called \fIplugouts\fP because that's shorter,
+so don't be confused.
+Not all of the plugins listed here may be available,
+see `\fIgbsplay\ -o\ list\fP'.
+.TP
+.B alsa
+Use the ALSA sound driver for sound output.
+.TP
+.B altmidi
+Alternative implementation of the MIDI output plugin
+(see \fImidi\fP below).
+Should export more accurate note off events
+(the length register is taken into account),
+but generated MIDI files will be more complicated and fine grained
+and probably not suitable for editing or printing a score.
+.TP
+.B devdsp
+Use the OSS sound driver for sound output via \fI/dev/dsp\fP.
+.TP
+.B dsound
+Use the DirectSound sound driver for sound output on Microsoft Windows.
+.TP
+.B iodumper
+Dump IO calls to the Gameboy sound hardware to stdout.
+This reduces the verbosity to 0 (see \fI-q\fP)
+because stdout is used for the dumped data.
+.TP
+.B midi
+Write a simple MIDI conversion of the song
+into a separate file per subsong.
+The files are called \fIgbsplay-%d.mid\fP,
+where \fI%d\fP is replaced with the subsong number.
+The files are created in the current working directory
+and existing files are silently overwritten.
+Only channels 1 to 3 are converted to MIDI,
+because channel 4 contains noise data
+that can't be converted into MIDI note events.
+Every GBS channel is exported to a separate MIDI channel.
+When multiple voices share a channel,
+they will not be separated in the output.
+The conversion is rather basic and complicated GBS files
+using tricks and hacks will not be converted properly.
+.TP
+.B nas
+Use the NAS sound driver for sound output to a Network Audio Server.
+.TP
+.B pipewire
+Use the PipeWire sound driver for sound output.
+.TP
+.B pulse
+Use the Pulseaudio sound driver for sound output.
+.TP
+.B sdl
+Use SDL sound driver for sound output.
+On Microsoft Windows, libSDL might use the \fIwasapi\fP audio backend
+by default which can result in choppy sound.  To fix this, set the
+environment variable \fISDL_AUDIODRIVER\fP to \fIdirectsound\fP to
+select a different libSDL audio backend (or switch to the \fIdsound\fP
+plugout instead).
+.TP
+.B stdout
+Dump the raw audio stream to stdout.
+This reduces the verbosity to 0 (see \fI-q\fP)
+because stdout is used for the dumped data.
+The raw audio is always stereo (2 channels), 16 bit signed PCM.
+Sample rate and endianness can be set via \fI-r\fP and \fI-E\fP.
+.TP
+.B vgm
+Write separate VGM files for every subsong.
+The files are called \fIgbsplay-%d.vgm\fP,
+where \fI%d\fP is replaced with the subsong number.
+The files are created in the current working directory
+and existing files are silently overwritten.
+.TP
+.B wav
+Write separate WAV files (RIFF WAVE) for every subsong.
+The files are called \fIgbsplay-%d.wav\fP,
+where \fI%d\fP is replaced with the subsong number.
+The files are created in the current working directory
+and existing files are silently overwritten.
+The output is always encoded as stereo (2 channels), 16 bit signed PCM
+in little endian (the \fI-E\fP switch is ignored).
+Sample rate can be set via \fI-r\fP.
+.SH "FILES"
+.TP
+.I /etc/gbsplayrc
+Default location of the global configuration file.
+.TP
+.I ~/.gbsplayrc
+User configuration file.
+.SH "BUGS"
+If you encounter bugs, please report them via
+.I https://github.com/mmitch/gbsplay/issues
+.SH "AUTHORS"
+.B gbsplay
+was written by Tobias Diedrich <\fIranma+gbsplay@tdiedrich.de\fP>
+(with contributions from others, see README.md).
+.SH "COPYRIGHT"
+.B gbsplay
+is licensed under GNU GPL v1 or, at your option, any later version.
+.SH "SEE ALSO"
+.BR gbsinfo (1),
+.BR gbsplayrc (5)

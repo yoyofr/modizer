@@ -156,6 +156,7 @@ enum {
 	NSTimer *repeatingTimer;        
 	
 	CFont *mFont,*mFontMenu;
+    NSString *mFontPath,*mFontMenuPath;
     int mFontWidth,mFontHeight;
     int mCurrentFontSize;
     int mCurrentFontIdx;

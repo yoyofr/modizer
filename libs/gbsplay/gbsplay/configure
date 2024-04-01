@@ -1,0 +1,1367 @@
+#!/usr/bin/env bash
+#
+# vim:set ts=4 et:
+#
+# generate config.mk for gbsplay Makefile
+#
+# 2003-2024 (C) by Christian Garbs <mitch@cgarbs.de>
+#                  Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+#
+# Licensed under GNU GPL v1 or, at your option, any later version.
+#
+
+## initialize interpreter parameters
+
+set -u # bail on use of uninitialized variables
+trap 'exit_trap' EXIT
+
+## initialize variables
+
+EXTRA_ALL=
+EXTRA_INSTALL=
+EXTRA_SRCS=
+EXTRA_UNINSTALL=
+EXTRA_I18NFLAGS=
+CC="${CC-gcc}" # use gcc by default
+CONFIGURE_FLAGS="${CONFIGURE_FLAGS- }"
+CFLAGS="${CFLAGS-}"
+LDFLAGS="${LDFLAGS-}"
+HOSTCC="$CC"
+HOSTOS=$(uname)
+HOSTARCH=$(uname -m)
+BUILDCC="$HOSTCC"
+BUILDOS="$HOSTOS"
+BUILDARCH="$HOSTARCH"
+TMPDIR=${TMPDIR-/tmp}
+
+package=gbsplay
+prefix=/usr/local
+exec_prefix=
+bindir=
+libdir=
+mandir=
+docdir=
+localedir=
+mimedir=
+appdir=
+includedir=
+pkgconfigdir=
+sysconfdir=
+buildalias=
+hostalias=
+windows_build=
+windows_libprefix=
+
+## define sane environment
+unset LC_ALL LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY \
+      LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE      \
+      LC_MEASUREMENT LC_IDENTIFICATION
+LANG=C
+export LANG
+
+## set default version number to unknown
+# will be overwritten on git build or tar.gz export using 'make dist'
+VERSION=unknown
+
+##### begin of subroutines
+
+exit_trap()
+{
+    EXIT_CODE=$?
+    test $EXIT_CODE -ne 0 && tail config.err
+    exit $EXIT_CODE
+}
+
+## die with error
+die()
+{
+    test -n "$1" && echo "$1"
+    rm -rf "$TEMPDIR"
+    exit 1
+}
+
+## check for presense of include files
+check_include()
+{
+    local include="$1"
+    local includedirs="${2-} /usr/local/include /opt/local/include"
+    local extraline="${3-}"
+    local includename="$(echo "$include" | sed -e 's@[/\.-]@_@g')"
+    eval "value=\${have_${includename}-}"
+    test -z "$value" || return
+
+    local flags=""
+    for dir in "" $includedirs; do
+        msg="checking for $include"
+        test -z "$dir" || msg="$msg in $dir"
+        test -z "$dir" || flags="-I$dir"
+        if cc_check "$msg" "have_$includename" "$flags" ok <<EOF; then
+$extraline
+#include <$include>
+int main(int argc, char **argv) {
+    return 0;
+}
+EOF
+            eval "include_${includename}_path=\"$dir \""
+            return 0
+        fi
+    done
+    return 1
+}
+
+## find library path needed for lib
+find_lib()
+{
+    local INFILE="$TEMPDIR/fl.c"
+    local lib="$1"
+    local libname="$(echo "$lib" | sed -e 's@[/\.-]@_@g')"
+    local libdirs="${2-} /usr/local/lib /opt/local/lib"
+
+    cat > "$INFILE"
+
+    eval "val=\"\${lib${libname}_path-}\""
+    if [ ! -z "$val" ]; then
+        return 0
+    else
+        for dir in "" $libdirs; do
+            msg="looking for -l$lib"
+            flags="-l$lib"
+            test -z "$dir" || msg="$msg in $dir"
+            test -z "$dir" || flags="$flags -L$dir"
+            if cc_check "$msg" "" "$flags" ok < "$INFILE"; then
+                eval "lib${libname}_path=\"$dir \""
+                return 0
+            fi
+        done
+    fi
+    return 1
+}
+
+## remove duplicate flags
+remove_dupes()
+{
+    local flags="$1"
+    local newflags=""
+    for i in $flags; do
+        local dupe=0
+        for j in $newflags; do
+            test "$i" = "$j" && dupe=1
+        done
+        if [ $dupe -eq 0 ]; then
+            newflags="$(test -z "$newflags" || printf "%s " "$newflags")$i"
+        fi
+    done
+    echo "$newflags"
+}
+
+append_nodupe()
+{
+    local varname="$1"
+    local dupe=0
+
+    while [ -n "${2-}" ]; do
+        eval "flags=\"\$$varname\""
+        local append="$2"
+
+        if [ -n "$flags" ]; then
+            for i in $flags; do
+                test "$i" = "$append" && dupe=1
+            done
+        fi
+
+        if [ $dupe -eq 0 ]; then
+            if [ -z "$flags" ]; then
+                eval "${varname}=\"$append\""
+            else
+                eval "${varname}=\"$flags $append\""
+            fi
+        fi
+        shift
+    done
+}
+
+## check for needed extra libraries and library paths for a lib
+check_libs()
+{
+    local INFILE="$TEMPDIR/cl.c"
+    local OUTFILE="$TEMPDIR/cl"
+    local checklib="$1"
+    local libname="$(echo "$checklib" | sed -e 's@[/\.-]@_@g' -e 's/ //g')"
+    local extralibs="${checklib} ${2-}"
+    local extralibdirs="${3-}"
+    local name="${4-}"
+    local extraflags="${5-}"
+    local msg="${6-$checklib}"
+    local cflags="$CFLAGS $LDFLAGS"
+
+    # don't let -pedantic mess with our checks
+    cflags="$(sed -E 's/-pedantic ?//g'<<<"$cflags")"
+
+    eval "lib${libname}_flags="
+
+    cat > "$INFILE"
+
+    cc_check "checking if we need additional libs for $msg" "" "$extraflags" "no" "yes" < "$INFILE"
+    test $? -eq 0 && return 0
+
+    for extralib in $extralibs; do
+        local libname="$(echo "$extralib" | sed -e 's@[/\.-]@_@g')"
+        find_lib "$extralib" "$extralibdirs" < "$INFILE"
+        test $? -ne 0 && return 1
+        eval "val=\"\$lib${libname}_path\""
+        if [ "$val" != " " ]; then
+            append_nodupe extraflags "-L$val"
+        fi
+    done
+
+    local minerrs=$($BUILDCC -o "$OUTFILE" "$INFILE" $cflags $extraflags 2>&1 | wc -l)
+    for extralib in $extralibs; do
+        local errs=$($BUILDCC -o "$OUTFILE" "$INFILE" $cflags "-l$extralib" $extraflags 2>&1 | wc -l)
+        if [ "$errs" -lt "$minerrs" ]; then
+            minerrs=$errs
+            append_nodupe extraflags "-l$extralib"
+        fi
+    done
+
+    if [ "$minerrs" -ne 0 ]; then
+	echo "...but it still won't compile cleanly"
+        # log the default result to config.err
+        (
+            echo "minerrs: $minerrs > 0"
+            cat "$INFILE"
+            $BUILDCC -o "$OUTFILE" "$INFILE" $cflags "-l$checklib" $extraflags
+        ) 1>&2
+        return 1
+    fi
+
+    eval "lib${libname}_flags=\"$extraflags\""
+    return 0
+}
+
+## generalized 'does it compile' check
+cc_check()
+{
+    local INFILE="$TEMPDIR/cc.c"
+    local OUTFILE="$TEMPDIR/cc"
+    local name="$1"
+    local varname="$2"
+    local flags="$CFLAGS $LDFLAGS ${3-}"
+    local okmsg="${4-ok}"
+    local errmsg="${5-not found}"
+
+    test "$name" && printf "%s:  " "$name"
+
+    cat > "$INFILE"
+
+    if "$BUILDCC" -o "$OUTFILE" "$INFILE" $flags; then
+        test "$name" && echo "$okmsg"
+        test "$varname" && eval "$varname=yes"
+        return 0
+    else
+        test "$name" && echo "$errmsg"
+        test "$varname" && eval "$varname=no"
+        return 1
+    fi
+}
+
+cc_has_flag()
+{
+    local flag="$1"
+    cc_check "checking if cc supports ${flag}" "" "${flag} -Werror" yes no <<EOF
+int main(int argc, char **argv) { return 0; }
+EOF
+}
+
+need_include() {
+    if ! check_include "$1"; then
+        die "Could not find $1, which is needed for compilation."
+    fi
+}
+
+## config.h helper
+have_x() {
+    local localvar="have_$(echo $1 | tr A-Z a-z)"
+    eval "result=\$$localvar"
+    if [ "$result" = "yes" ]; then
+        echo "#define HAVE_$1 1"
+    else
+        echo "/* #undef HAVE_$1 */"
+    fi
+}
+
+plugout_x() {
+    local localvar="use_$(echo $1 | tr A-Z a-z)"
+    eval "result=\$$localvar"
+    if [ "$result" = "yes" ]; then
+        echo "#define PLUGOUT_$1 1"
+    else
+        echo "/* #undef PLUGOUT_$1 */"
+    fi
+}
+
+use_x() {
+    local localvar="use_$(echo $1 | tr A-Z a-z)"
+    eval "result=\$$localvar"
+    if [ "$result" = "yes" ]; then
+        echo "#define USE_$1 1"
+    else
+        echo "/* #undef USE_$1 */"
+    fi
+}
+
+# set variable to default value if empty
+# really the same as $var="${var-$default}"
+setdefault()
+{
+    eval "value=\$$1"
+    if [ -z "$value" ]; then
+        eval "$1=$2"
+    fi
+}
+
+# check if $1 is a known feature
+isknown()
+{
+    for i in $OPTS; do
+        if [ "$i" = "$1" ]; then
+            return 0
+        fi
+    done
+
+    if [ "${1#use_}" != "$1" ]; then
+        echo "unknown feature '${1#use_}'"
+    elif [ "${1#build_}" != "$1" ]; then
+        echo "unknown module '${1#build_}'"
+    else
+        echo "unknown option '$2'"
+    fi
+    echo
+    return 1
+}
+
+# list enabled $1 (modules, features)
+# of type $2 (build, use)
+printoptional()
+{
+    printf "%s %s:" "${3-optional}" "$1"
+    for i in $OPTS; do
+        eval "val=\$$i"
+        if [ "${i#${2}_}" != "$i" ]; then
+            if [ "$val" = "yes" ]; then
+                printf " +%s" "${i#${2}_}"
+            elif [ "$val" = "no" ]; then
+                printf " -%s" "${i#${2}_}"
+            fi
+        fi
+    done
+    echo
+}
+
+# remember state of use_$1
+remember_use()
+{
+    eval "remembered=\$use_$1"
+}
+
+# check state of use_$1 against remembered state
+# error out if option was requested but can't be satisfied after checks
+recheck_use()
+{
+    eval "val=\$use_$1"
+    if [ "$remembered" = 'yes' ] && [ "$val" != 'yes' ]; then
+        die "error: --enable-$1 was requested but is not available"
+    fi
+}
+
+# parse option $1
+parseoption()
+{
+    case $1 in
+    --prefix=*)
+        prefix="${1#--prefix=}"
+        ;;
+    --exec-prefix=*)
+        exec_prefix="${1#--exec-prefix=}"
+        ;;
+    --bindir=*)
+        bindir="${1#--bindir=}"
+        ;;
+    --mandir=*)
+        mandir="${1#--mandir=}"
+        ;;
+    --docdir=*)
+        docdir="${1#--docdir=}"
+        ;;
+    --localedir=*)
+        localedir="${1#--localedir=}"
+        ;;
+    --mimedir=*)
+        mimedir="${1#--mimedir=}"
+        ;;
+    --appdir=*)
+        appdir="${1#--appdir=}"
+        ;;
+    --includedir=*)
+        includedir="${1#--includedir=}"
+        ;;
+    --pkgconfigdir=*)
+        pkgconfigdir="${1#--pkgconfigdir=}"
+        ;;
+    --sysconfdir=*)
+        sysconfdir="${1#--sysconfdir=}"
+        ;;
+    --infodir=*)
+        infodir="${1#--infodir=}"
+        ;;
+    --datadir=*)
+        datadir="${1#--datadir=}"
+        ;;
+    --localstatedir=*)
+        localstatedir="${1#--localstatedir=}"
+        ;;
+    --host=*)
+        hostalias="${1#--host=}"
+        HOSTCC="${hostalias}-${CC}"
+        ;;
+    --build=*)
+        buildalias="${1#--build=}"
+        BUILDCC="${buildalias}-${CC}"
+        ;;
+    --have-*)
+        eval "have_${1#--have-}=yes"
+        isknown "have_${1#--have-}" "$1" || usage 1
+        ;;
+    --donthave-*)
+        eval "have_${1#--donthave-}=no"
+        isknown "have_${1#--donthave-}" "$1" || usage 1
+        ;;
+    --enable-*)
+        eval "use_${1#--enable-}=yes"
+        isknown "use_${1#--enable-}" || usage 1
+        ;;
+    --disable-*)
+        eval "use_${1#--disable-}=no"
+        isknown "use_${1#--disable-}" || usage 1
+        ;;
+    --with-*)
+        eval "build_${1#--with-}=yes"
+        isknown "build_${1#--with-}" || usage 1
+        ;;
+    --without-*)
+        eval "build_${1#--without-}=no"
+        isknown "build_${1#--without-}" || usage 1
+        ;;
+    CFLAGS=*)
+        CFLAGS="${1#CFLAGS=}"
+        ;;
+    LDFLAGS=*)
+        LDFLAGS="${1#LDFLAGS=}"
+        ;;
+    --help)
+        usage 0
+        ;;
+    *)
+        echo "unknown option '$1'"
+        echo
+        usage 1
+        ;;
+    esac
+}
+##### end of subroutines
+
+## enable logging of errors
+
+ERRORLOG=config.err
+exec 2> $ERRORLOG
+
+## find a path for tmp directory
+
+TMPPATH="/tmp"
+if [ "$TMPDIR" ]; then
+    TMPPATH="$TMPDIR"
+fi
+
+if [ ! -d "$TMPPATH" ]; then
+    TMPPATH="."
+fi
+
+## generate tmp directory
+
+BASENAME="$(basename "$0")"
+if command -v mktemp >/dev/null; then
+    TEMPDIR="$(mktemp -d "$TMPPATH/$BASENAME.XXXXXXXXXX")"
+    RESULT=$?
+else
+    TEMPDIR="$TMPPATH/$BASENAME.$$"
+    mkdir "$TEMPDIR"
+    RESULT=$?
+fi
+if [ $RESULT -ne 0 ]; then
+    echo "can't create temporary directory at <$TMPPATH>!"
+    exit 1;
+fi
+
+usage()
+{
+    cat<<EOF
+Usage: $0 [OPTION]...
+
+Configuration:
+  --help                 display this help and exit
+
+Installation directories:
+  --prefix=PREFIX        install architecture-independent files in PREFIX
+                         [/usr/local]
+  --exec-prefix=EPREFIX  install architecture-dependent files in EPREFIX
+                         [PREFIX]
+  --bindir=BINDIR        install binaries in BINDIR
+                         [EPREFIX/bin]
+  --libdir=BINDIR        install binaries in LIBDIR
+                         [EPREFIX/lib]
+  --mandir=MANDIR        install manpages in MANDIR
+                         [PREFIX/man]
+  --docdir=DOCDIR        install documentation in DOCDIR
+                         [PREFIX/share/doc/$package]
+  --sysconfdir=SCONFDIR  look for system-wide configuration file in SCONFDIR
+                         [/etc]
+
+Optional Features:
+  --disable-i18n         omit libintl support
+  --disable-hardening    disable hardening flags
+  --disable-zlib         disable transparent gzip decompression
+  --enable-debug         build with debug code
+  --enable-sharedlibgbs  build libgbs as a shared library
+  --enable-verbosebuild  give verbose output during build
+
+Optional Modules:
+  --with-xgbsplay        build graphical frontend xgbsplay
+  --without-contrib      don't install contrib scripts
+  --without-test         don't test gbsplay output during build
+
+Output Plugins:
+  --disable-alsa         omit ALSA sound output plugin
+  --disable-devdsp       omit /dev/dsp sound output plugin
+  --disable-dsound       omit Direct Sound output plugin
+  --disable-iodumper     omit iodumper plugin
+  --disable-midi         omit MIDI file writer plugin
+  --disable-altmidi      omit alternative MIDI file writer plugin
+  --disable-nas          omit NAS sound output plugin
+  --disable-pipewire     omit PipeWire sound output plugin
+  --disable-pulse        omit PulseAudio sound output plugin
+  --disable-sdl          omit SDL sound output plugin
+  --disable-stdout       omit stdout file writer plugin
+  --disable-vgm          omit VGM file writer plugin
+  --disable-wav          omit WAV file writer plugin
+EOF
+    exit "$1"
+}
+
+OPTS=""
+OPTS="${OPTS} build_contrib"
+OPTS="${OPTS} build_test"
+OPTS="${OPTS} build_xgbsplay"
+OPTS="${OPTS} use_alsa"
+OPTS="${OPTS} use_debug"
+OPTS="${OPTS} use_devdsp"
+OPTS="${OPTS} use_dsound"
+OPTS="${OPTS} use_hardening"
+OPTS="${OPTS} use_i18n"
+OPTS="${OPTS} use_iodumper"
+OPTS="${OPTS} use_midi"
+OPTS="${OPTS} use_altmidi"
+OPTS="${OPTS} use_nas"
+OPTS="${OPTS} use_pipewire"
+OPTS="${OPTS} use_pulse"
+OPTS="${OPTS} use_sdl"
+OPTS="${OPTS} use_sharedlibgbs"
+OPTS="${OPTS} use_stdout"
+OPTS="${OPTS} use_vgm"
+OPTS="${OPTS} use_wav"
+OPTS="${OPTS} use_verbosebuild"
+OPTS="${OPTS} use_zlib"
+for OPT in $OPTS; do
+    eval "${OPT}="
+done
+
+## load user config
+if [ -f config.conf ]; then
+    printf "loading config.conf... "
+    while read -r line; do
+        parseoption "$line"
+    done < config.conf
+    echo ok
+fi
+
+## flags from CONFIGURE_FLAGS env (for travis-ci)
+for flag in ${CONFIGURE_FLAGS}; do
+    parseoption "$flag"
+done
+
+## commandline flags
+while [ "${1-}" ]; do
+    parseoption "$1"
+    shift
+done
+
+case "$BUILDOS" in
+    Linux)
+        if {    [ "$BUILDARCH" = "i386"   ]  \
+             || [ "$BUILDARCH" = "i486"   ]  \
+             || [ "$BUILDARCH" = "i586"   ]  \
+             || [ "$BUILDARCH" = "i686"   ]  \
+             || [ "$BUILDARCH" = "x86_64" ]; \
+           }; then
+            setdefault build_test yes
+        else
+            # expected test failures:
+            # MD5 sum mismatch due to floating point discrepancies in libimpulse
+            setdefault build_test no
+        fi
+        ;;
+
+    Darwin)
+        setdefault build_test yes
+        append_nodupe CFLAGS "-D_DARWIN_C_SOURCE=1"
+        ;;
+
+    MSYS_*)
+        setdefault build_test yes
+        ;;
+
+    MINGW32_*|MINGW64_*)
+        # known test failure:
+        # - util.c does not test-compile properly
+        # - srand(0) in test_shuffle() in util.c gives a different order
+        setdefault build_test no
+        ;;
+
+    *)
+        setdefault build_test no
+        ;;
+esac
+
+## more defaults
+setdefault build_xgbsplay no
+setdefault build_contrib yes
+## disable test when cross-compiling
+if [ -n "$buildalias" ] && [ "$buildalias" != "$hostalias" ]; then
+    build_test=no
+fi
+
+# determine version that is built
+
+if [ -f .git/HEAD ]; then
+    # from git if the build happens in a repository
+    VERSION=$(git describe --tags)
+elif [ "$VERSION" = unknown ]; then
+    # get a rough version number based on HISTORY file
+    VERSION="$(
+	grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2}  -  [0-9]+.[0-9]+.[0-9]+' HISTORY \
+	    | sed -n '1{s/^.*  -  //;s/ .*//;p}'
+	)ish"
+fi
+echo "configure gbsplay $VERSION"
+
+## check for C compiler
+
+printf "checking for working compiler:  "
+INFILE="$TEMPDIR/cc.c"
+OUTFILE="$TEMPDIR/cc"
+
+cat > "$INFILE" <<EOF
+int main(int argc, char **argv) {
+    return 0;
+}
+EOF
+$BUILDCC -o "$OUTFILE" "$INFILE" $CFLAGS $LDFLAGS
+RESULT=$?
+if [ $RESULT -eq 0 ]; then
+    if [ "$buildalias" ] && [ "$buildalias" != "$hostalias" ]; then
+        echo "cross-compiling, skipping execute check"
+    else
+        if [ -s "$OUTFILE" ]; then
+            if "$OUTFILE"; then
+                echo "ok"
+            else
+                die "can't execute generated code"
+            fi
+        else
+            die "no code generated"
+        fi
+    fi
+else
+    die "error executing '$BUILDCC'"
+fi
+
+## check for windows environment
+
+# see http://msys2.org/wiki/Porting/
+cc_check "checking if target is windows" windows_build "" yes no <<EOF
+int main(int argc, char **argv)
+{
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+    return 0;
+#else
+    not windows, fail compile
+#endif
+}
+EOF
+if [ "$windows_build" = yes ]; then
+  # stack-protector has some bugs on Windows
+  setdefault use_hardening no
+  # don't look for audio libs that are unavailable on Windows
+  setdefault use_alsa no
+  setdefault use_nas no
+  setdefault use_pipewire no
+  setdefault use_pulse no
+  if cc_check "" "" "" <<EOF; then
+int main(int argc, char **argv)
+{
+#if defined(__MSYS__)
+    return 0;
+#else
+    not msys, fail compile
+#endif
+}
+EOF
+    windows_libprefix=msys2
+  elif cc_check "" "" "" <<EOF; then
+int main(int argc, char **argv)
+{
+#if defined(__CYGWIN__)
+    return 0;
+#else
+    not cygwin, fail compile
+#endif
+}
+EOF
+    windows_libprefix=cyg
+  else
+    # mingw
+    windows_libprefix=lib
+  fi
+else
+  # not windows
+  setdefault use_hardening yes
+fi
+
+## check for various headers
+
+need_include inttypes.h
+
+if [ "$use_zlib" != no ]; then
+    remember_use zlib
+    check_include zlib.h
+    retval1=$?
+    retval2=1
+    if [ $retval1 -eq 0 ]; then
+        check_libs "z" <<EOF
+#include <zlib.h>
+int main(int argc, char** argv) {
+    z_stream strm = {0};
+    inflateInit(&strm);
+    return 0;
+}
+EOF
+        retval2=$?
+    fi
+    use_zlib=no
+    if [ "$retval1" -eq 0 ] && [ "$retval2" -eq 0 ]; then
+        use_zlib="$have_zlib_h"
+        append_nodupe LDFLAGS "-lz"
+    fi
+    recheck_use zlib
+fi
+
+if [ "$use_devdsp" != no ]; then
+    remember_use devdsp
+    check_include sys/soundcard.h
+    use_devdsp="$have_sys_soundcard_h"
+    # this check is needed for FreeBSD but it only works when the C11 flags are used
+    C11_FLAGS="-D_XOPEN_SOURCE=500 -D_POSIX_C_SOURCE=200809L"
+    if [ "$have_sys_soundcard_h" = yes ]; then
+	if ! cc_check "checking if we need additional flags for sys/soundcard.h" "" "$C11_FLAGS" "no" "yes" <<EOF; then
+#include <sys/soundcard.h>
+int main(int argc, char **argv)
+{
+    #ifdef OPEN_SOUND_SYSTEM
+    return 0;
+    #else
+    return 1;
+    #endif
+}
+EOF
+
+            if cc_check "checking if we need __BSD_VISIBLE for sys/soundcard.h" "" "$C11_FLAGS -D__BSD_VISIBLE" "yes" "no" <<EOF; then
+#include <sys/soundcard.h>
+int main(int argc, char **argv)
+{
+    #ifdef OPEN_SOUND_SYSTEM
+    return 0;
+    #else
+    return 1;
+    #endif
+}
+EOF
+                append_nodupe CFLAGS "-D__BSD_VISIBLE"
+	    else
+		echo "no way found to make sys/soundcard.h work"
+	        use_devdsp=no
+	    fi
+	fi
+    fi
+    recheck_use devdsp
+fi
+
+if [ "$use_alsa" != no ]; then
+    remember_use alsa
+    check_include alsa/asoundlib.h
+    use_alsa="$have_alsa_asoundlib_h"
+    cc_check "checking for ESTRPIPE support" have_estrpipe <<EOF
+#include <errno.h>
+#include <alsa/asoundlib.h>
+int main(int argc, char **argv)
+{
+    if (ESTRPIPE == 0)
+        return 1;  /* Never reached. */
+    return 0;
+}
+EOF
+    recheck_use alsa
+fi
+
+if [ "$use_dsound" != no ]; then
+    remember_use dsound
+    check_include dsound.h /usr/include/w32api "#include <windows.h>"
+    retval1=$?
+    retval2=1
+    if [ $retval1 -eq 0 ]; then
+        check_libs dsound <<EOF
+#include <windows.h>
+#include <dsound.h>
+int main(int argc, char** argv) {
+    LPDIRECTSOUND8 lp;
+    HRESULT hr = DirectSoundCreate8(NULL, &lp, NULL);
+    if (SUCCEEDED(hr)) IDirectSound8_Release(lp);
+    return 0;
+}
+EOF
+        retval2=$?
+    fi
+    use_dsound=no
+    if [ "$retval1" -eq 0 ] && [ "$retval2" -eq 0 ]; then
+        use_dsound="$have_dsound_h"
+    fi
+    recheck_use dsound
+fi
+
+if [ "$use_pipewire" != no ]; then
+    remember_use pipewire
+
+    pipewire_version='libpipewire-0.3'
+    if command -v pkg-config >/dev/null && pkg-config ${pipewire_version}; then
+	pipewire_have_pkg_config=yes
+    else
+	pipewire_have_pkg_config=no
+    fi
+
+    if [ "$pipewire_have_pkg_config" = yes ]; then
+	pipewire_include_flags="$(pkg-config --cflags-only-I ${pipewire_version})"
+	pipewire_cflags="$(pkg-config --cflags-only-other ${pipewire_version})"
+    else
+	pipewire_include_flags='-I/usr/include/pipewire-0.3 -I/usr/include/spa-0.2'
+	pipewire_cflags=''
+    fi
+    pipewire_include_path="$(sed -e 's/^-I//' -e 's/ -I/ /g' <<<"${pipewire_include_flags}")"
+
+    check_include spa/support/plugin.h "$pipewire_include_path"
+    if [ "$have_spa_support_plugin_h" = yes ]; then
+	append_nodupe CFLAGS "-I${include_spa_support_plugin_h_path}"
+	check_include pipewire/pipewire.h "$pipewire_include_path"
+	if [ "$have_pipewire_pipewire_h" = yes ]; then
+	    append_nodupe CFLAGS "-I${include_pipewire_pipewire_h_path} ${pipewire_cflags}"
+
+	    if [ "$pipewire_have_pkg_config" = yes ]; then
+		pipewire_ldpath_flags="$(pkg-config --libs-only-L ${pipewire_version})"
+		pipewire_libname_flags="$(pkg-config --libs-only-l ${pipewire_version})"
+		pipewire_ldflags="$(pkg-config --libs-only-other ${pipewire_version})"
+	    else
+		pipewire_ldpath_flags=''
+		pipewire_libname_flags='-lpipewire-0.3'
+		pipewire_ldflags=''
+	    fi
+	    pipewire_ldpath="$(sed -e 's/^-L//' -e 's/ -L/ /g' <<<"${pipewire_ldpath_flags}")"
+	    pipewire_libname="${pipewire_libname_flags#*-l}"
+
+            check_libs "${pipewire_libname}" "" "${pipewire_ldpath}" "" "${pipewire_ldflags}" <<EOF
+#include <pipewire/pipewire.h>
+int main(int argc, char **argv) {
+    pw_init(0, NULL);
+    pw_deinit();
+    return 0;
+}
+EOF
+            if [ "$?" -eq 0 ]; then
+		use_pipewire=yes
+            fi
+	fi
+    fi
+
+    recheck_use pipewire
+fi
+
+if [ "$use_pulse" != no ]; then
+    remember_use pulse
+    check_include pulse/simple.h
+    use_pulse="$have_pulse_simple_h"
+    recheck_use pulse
+fi
+
+if [ "$use_nas" != no ]; then
+    remember_use nas
+    check_include audio/audiolib.h "/usr/X11R6/include"
+    retval1=$?
+    retval2=1
+    if [ $retval1 -eq 0 ]; then
+        check_libs audio "X11 Xt m" "/usr/X11R6/lib /usr/X11/lib /usr/lib/X11" <<EOF
+int main(int argc, char **argv) { return 0; }
+EOF
+        retval2=$?
+    fi
+    use_nas=no
+    if [ "$retval1" -eq 0 ] && [ "$retval2" -eq 0 ]; then
+        if [ "$include_audio_audiolib_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_audio_audiolib_h_path"
+        fi
+        use_nas=yes
+    fi
+    recheck_use nas
+fi
+
+if [ "$use_sdl" != no ]; then
+    remember_use sdl
+
+    if command -v sdl2-config >/dev/null; then
+        sdl2_include_path="$(sdl2-config --cflags)"
+        sdl2_include_path="${sdl2_include_path#*-I}"
+        sdl2_include_path="${sdl2_include_path%% -*}"
+    else
+        sdl2_include_path='/usr/include/SDL2 /usr/local/include/SDL2 /opt/local/include/SDL2 /opt/homebrew/include/SDL2'
+    fi
+
+    check_include SDL.h "$sdl2_include_path" "#define SDL_MAIN_HANDLED"
+    if [ "$have_SDL_h" = yes ]; then
+        if [ "$include_SDL_h_path" != ' ' ]; then
+            append_nodupe CFLAGS "-I$include_SDL_h_path"
+        fi
+        if command -v sdl2-config >/dev/null; then
+            sdl2_lib_path="$(sdl2-config --libs)"
+            sdl2_lib_path="${sdl2_lib_path#*-L}"
+            sdl2_lib_path="${sdl2_lib_path%% -*}"
+        else
+            sdl2_lib_path="/usr/lib /usr/local/lib /opt/local/lib /opt/homebrew/lib"
+        fi
+        check_libs SDL2 "" "$sdl2_lib_path" <<EOF
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+int main(int argc, char **argv) {
+    SDL_Init(0);
+    return 0;
+}
+EOF
+        if [ "$?" -eq 0 ]; then
+            use_sdl=yes
+        fi
+    fi
+
+    recheck_use sdl
+fi
+
+# plugout_stdout produces garbage if stdout writes in text mode and converts LF to CRLF
+if [ "$use_stdout" != no ]; then
+    remember_use stdout
+    printf "checking if stdout converts line endings:  "
+    cc_check "" "" <<EOF
+#include <stdio.h>
+int main(int argc, char **argv) {
+    fputs("\n", stdout);
+    return 0;
+}
+EOF
+    bytes_written="$("$TEMPDIR/cc" | wc -c)"
+    if [ "$bytes_written" -eq 1 ]; then
+	echo "no"
+    else
+	echo "yes"
+	# LF/CRLF conversion should only happen on Windows and setmode() should be available to fix it
+	if cc_check "checking for setmode() in fcntl.h" have_setmode <<EOF; then
+#include <fcntl.h>
+#include <unistd.h>
+int main(int argc, char **argv) {
+    return setmode(STDOUT_FILENO, O_BINARY);
+}
+EOF
+            have_setmode=yes
+	else
+	    have_setmode=no
+	    use_stdout=no
+	fi
+    fi
+    recheck_use stdout
+fi
+
+if [ "$use_i18n" != no ]; then
+    remember_use i18n
+    check_include locale.h
+    check_include libintl.h
+
+    ## check for gettext
+
+    printf "checking for gettext tools:  "
+    have_xgettext=yes
+    for i in xgettext msgmerge msgfmt msgen; do
+        if ! command -v $i >/dev/null; then
+            test "$have_xgettext" = "yes" && echo "not ok"
+            have_xgettext=no
+            echo "$i is missing"
+        fi
+    done
+    test "$have_xgettext" = "yes" && echo "ok"
+
+    use_i18n=no
+    if [ "$have_locale_h" = "yes" ] && [ "$have_libintl_h" = "yes" ]; then
+        if [ "$include_locale_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_locale_h_path"
+            EXTRA_I18NFLAGS="$EXTRA_I18NFLAGS -I$include_locale_h_path"
+        fi
+        if [ "$include_libintl_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_libintl_h_path"
+            EXTRA_I18NFLAGS="$EXTRA_I18NFLAGS -I$include_libintl_h_path"
+        fi
+
+        check_libs intl "" "" "" "$EXTRA_I18NFLAGS" <<EOF
+#include <libintl.h>
+int main(int argc, char **argv)
+{
+    bindtextdomain("foo", "bar");
+    textdomain("foo");
+    gettext("msg");
+    return 0;
+}
+EOF
+        if [ $? -eq 0 ]; then
+            use_i18n=yes
+            if [ "$libintl_flags" != "" ]; then
+                append_nodupe LDFLAGS "$libintl_flags"
+            fi
+        fi
+    fi
+    recheck_use i18n
+fi
+
+printf "checking for doxygen:  "
+if command -v doxygen >/dev/null; then
+    echo "ok"
+    have_doxygen=yes
+else
+    echo "not found"
+    have_doxygen=no
+fi
+
+## can xgbsplay be built?
+
+if [ "$build_xgbsplay" != "no" ]; then
+    ## check for XCB
+
+    check_include xcb/xcb.h \
+    && check_include xcb/xcb_icccm.h "" "#include <xcb/xcb.h>" \
+    && check_include "cairo/cairo-xcb.h"
+    retval1=$?
+    retval2=1
+    if [ $retval1 -eq 0 ]; then
+        check_libs xcb <<EOF
+#include <xcb/xcb.h>
+#include <stdio.h>
+int main(int argc, char **argv) {
+  printf("%d\n", xcb_connect != NULL);
+  return 0;
+}
+EOF
+        retval2=$?
+        check_libs xcb-icccm <<EOF
+#include <xcb/xcb.h>
+#include <xcb/xcb_icccm.h>
+#include <stdio.h>
+int main(int argc, char **argv) {
+  printf("%d\n", xcb_icccm_set_wm_name != NULL);
+  return 0;
+}
+EOF
+        retval3=$?
+        check_libs cairo <<EOF
+#include <xcb/xcb.h>
+#include <cairo/cairo-xcb.h>
+#include <stdio.h>
+int main(int argc, char **argv) {
+  printf("%d\n", cairo_create != NULL);
+  return 0;
+}
+EOF
+        retval4=$?
+
+        # combine returncodes for next if block
+        if [ $retval3 -ne 0 ] || [ $retval4 -ne 0 ]; then
+            retval2=1
+        fi
+    fi
+    if [ $retval1 -eq 0 ] && [ $retval2 -eq 0 ]; then
+        if [ "$include_xcb_xcb_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_xcb_xcb_h_path"
+        fi
+        if [ "$include_xcb_xcb_icccm_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_xcb_xcb_icccm_h_path"
+        fi
+        if [ "$include_cairo_cairo_xcb_h_path" != " " ]; then
+            append_nodupe CFLAGS "-I$include_cairo_cairo_xcb_h_path"
+        fi
+        EXTRA_INSTALL="$EXTRA_INSTALL xgbsplay"
+        EXTRA_UNINSTALL="$EXTRA_UNINSTALL xgbsplay"
+    else
+        build_xgbsplay=no
+    fi
+fi
+
+## enable a slightly more modern c dialect (C11 or C17)
+
+if cc_has_flag "-std=c17"; then
+    # C17 only has bugfixes and is otherwise identical to C11
+    append_nodupe CFLAGS "-std=c17"
+else
+    if cc_has_flag "-std=c11"; then
+        append_nodupe CFLAGS "-std=c11"
+    fi
+fi
+
+## check compiler features
+
+if cc_has_flag "-Wdeclaration-after-statement"; then
+    append_nodupe CFLAGS "-Wdeclaration-after-statement"
+fi
+if cc_has_flag "-Wvla"; then
+    append_nodupe CFLAGS "-Wvla"
+fi
+if cc_has_flag "-Wimplicit-fallthrough"; then
+    append_nodupe CFLAGS "-Wimplicit-fallthrough"
+fi
+if cc_has_flag "-Wswitch-unreachable"; then
+    append_nodupe CFLAGS "-Wswitch-unreachable"
+fi
+
+if [ "$use_hardening" != "no" ]; then
+    append_nodupe CFLAGS -D_FORTIFY_SOURCE=2
+    if cc_has_flag "-Wl,-z,relro"; then
+        append_nodupe LDFLAGS "-Wl,-z,relro"
+    fi
+
+    if cc_has_flag "-Wl,-z,now"; then
+        append_nodupe LDFLAGS "-Wl,-z,now"
+    fi
+
+    if cc_has_flag "-Wl,-pie"; then
+        append_nodupe LDFLAGS "-Wl,-pie"
+    elif cc_has_flag "-pie"; then
+        append_nodupe LDFLAGS "-pie"
+    fi
+
+    if cc_has_flag "-fstack-protector-strong" \
+       && cc_check "checking if -fstack-protector-strong actually works" "" "-fstack-protector-strong" "yes" "no" <<EOF; then
+int main(int argc, char **argv)
+{
+    char buf[65536];
+    return 0;
+}
+EOF
+        append_nodupe CFLAGS "-fstack-protector-strong"
+        append_nodupe LDFLAGS "-fstack-protector-strong"
+    elif cc_has_flag "-fstack-protector" \
+       && cc_check "checking if working -fstack-protector actually works" "" "-fstack-protector" "yes" "no" <<EOF; then
+int main(int argc, char **argv)
+{
+    char buf[65536];
+    return 0;
+}
+EOF
+        append_nodupe CFLAGS "-fstack-protector"
+        append_nodupe LDFLAGS "-fstack-protector"
+        append_nodupe CFLAGS "--param=ssp-buffer-size=4"
+    fi
+    if cc_has_flag "-fstack-clash-protection" \
+       && cc_check "checking if -fstack-clash-protection actually works" "" "-fstack-clash-protection" "yes" "no" <<EOF; then
+int main(int argc, char **argv)
+{
+    char buf[65536];
+    return 0;
+}
+EOF
+        append_nodupe CFLAGS "-fstack-clash-protection"
+        append_nodupe LDFLAGS "-fstack-clash-protection"
+    fi
+fi
+
+## set variables we have no test for to default values if not set
+
+setdefault exec_prefix  "$prefix"
+setdefault bindir       "$exec_prefix/bin"
+setdefault libdir       "$exec_prefix/lib"
+setdefault mandir       "$prefix/man"
+setdefault docdir       "$prefix/share/doc/$package"
+setdefault localedir    "$prefix/share/locale"
+setdefault mimedir      "$prefix/share/mime"
+setdefault appdir       "$prefix/share/applications"
+setdefault includedir   "$prefix/include/libgbs"
+setdefault pkgconfigdir "$prefix/share/pkgconfig"
+setdefault sysconfdir   "/etc"
+
+setdefault use_sharedlibgbs no
+setdefault use_verbosebuild no
+setdefault use_debug no
+
+setdefault use_midi yes
+setdefault use_altmidi yes
+setdefault use_stdout yes
+setdefault use_vgm yes
+setdefault use_wav yes
+setdefault use_iodumper yes
+
+printoptional modules build
+printoptional features use
+
+append_nodupe CFLAGS -Wall -fsigned-char
+
+if [ "$use_debug" = "yes" ]; then
+    append_nodupe CFLAGS -g3
+else
+    append_nodupe CFLAGS -Os -pipe -fomit-frame-pointer
+fi
+
+EXTRA_CFLAGS="$CFLAGS"
+EXTRA_LDFLAGS="$LDFLAGS"
+echo "EXTRA_CFLAGS=$EXTRA_CFLAGS"
+echo "EXTRA_LDFLAGS=$EXTRA_LDFLAGS"
+
+## generate pkg-config configuration
+# can't be done in Makefile because $DESTDIR would show up in the paths
+
+cat > libgbs.pc << __EOF__
+Name: libgbs
+Description: The Gameboy sound player library
+Version: ${VERSION}
+Cflags: -I${includedir}/libgbs
+Libs: -L${libdir} -lgbs -lm
+__EOF__
+
+## write configuration
+
+(
+    set +u  # Allow uninitialised vars here
+    while read -r var; do
+        eval "echo \"$var := \$$var\""
+    done << __EOF__
+EXTRA_ALL
+EXTRA_CFLAGS
+EXTRA_INSTALL
+EXTRA_LDFLAGS
+EXTRA_SRCS
+EXTRA_UNINSTALL
+VERSION
+prefix
+exec_prefix
+bindir
+libdir
+mandir
+docdir
+localedir
+mimedir
+appdir
+includedir
+pkgconfigdir
+sysconfdir
+CC
+BUILDCC
+HOSTCC
+build_contrib
+build_test
+build_xgbsplay
+have_doxygen
+have_xgettext
+use_i18n
+use_sharedlibgbs
+use_verbosebuild
+windows_build
+windows_libprefix
+libaudio_flags
+libpipewire_0_3_flags
+libSDL2_flags
+__EOF__
+    echo plugout_alsa := $use_alsa
+    echo plugout_devdsp := $use_devdsp
+    echo plugout_dsound := $use_dsound
+    echo plugout_iodumper := $use_iodumper
+    echo plugout_midi := $use_midi
+    echo plugout_altmidi := $use_altmidi
+    echo plugout_nas := $use_nas
+    echo plugout_pipewire := $use_pipewire
+    echo plugout_pulse := $use_pulse
+    echo plugout_sdl := $use_sdl
+    echo plugout_stdout := $use_stdout
+    echo plugout_vgm := $use_vgm
+    echo plugout_wav := $use_wav
+    echo configured := yes
+) > config.mk
+
+(
+    set +u  # Allow uninitialised vars here
+    echo "#ifndef _CONFIG_H_"
+    echo "#define GBS_VERSION \"$VERSION\""
+    echo "#define LOCALE_PREFIX \"$localedir\""
+    echo "#define SYSCONF_PREFIX \"$sysconfdir\""
+    plugout_x ALSA
+    plugout_x DEVDSP
+    plugout_x DSOUND
+    plugout_x IODUMPER
+    plugout_x MIDI
+    plugout_x ALTMIDI
+    plugout_x NAS
+    plugout_x PIPEWIRE
+    plugout_x PULSE
+    plugout_x STDOUT
+    plugout_x SDL
+    plugout_x VGM
+    plugout_x WAV
+    use_x I18N
+    use_x ZLIB
+    have_x ESTRPIPE
+    have_x SETMODE
+    echo "#endif"
+) > config.h
+
+(
+    echo "s/%%%VERSION%%%/$VERSION/g"
+) > config.sed
+
+# show configuration if verbose
+
+if [ "$use_verbosebuild" = yes ]; then
+    for file in config.mk config.h config.sed libgbs.pc; do
+        echo
+        echo "content of generated $file:"
+        echo "--------"
+        cat $file
+        echo "--------"
+    done
+fi
+
+## end
+
+rm -rf "$TEMPDIR"
+test -s $ERRORLOG || rm $ERRORLOG
