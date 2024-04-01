@@ -124,7 +124,7 @@ u8 soundBuffer[6][735];
 #endif
 //u16 soundFinalWave[1470];
 u16 soundFinalWave[2304];
-int soundBufferLen = 576;
+int soundBufferLen = 512*2*2;//576;
 int soundBufferTotalLen = 14700;
 int soundQuality = 1;
 #ifndef NO_INTERPOLATION

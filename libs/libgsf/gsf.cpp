@@ -252,7 +252,7 @@ void setupSound(void)
     soundQuality = 1;
     GSFsndSamplesPerSec = 44100;
     //soundBufferLen = 1470*2;
-	soundBufferLen = 576*2*2;
+          soundBufferLen = 512*2*2;//576*2*2;
     //soundBufferTotalLen = 14700*2;
 	//soundBufferTotalLen = 576*2*10*2;
   }

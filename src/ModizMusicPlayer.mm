@@ -4073,7 +4073,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         const struct gbs_status *status = gbs_get_status(gbs);
                                         iModuleLength=(status->subsong_len)*1000/1024;
                                     }
-                                    if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+                                    if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
                                     gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
                                 } else {
                                     gbs_init(gbs,mod_currentsub);
@@ -4798,16 +4798,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
                                         else iModuleLength=optGENDefaultLength;
                                     }
-                                    if (iModuleLength<1000) iModuleLength=1000;
-                                    if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
                                 } else {
                                     KSSPLAY_reset(kssplay, mod_currentsub, 0);
                                     if (kss->info) {
                                         iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                        if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
                                     } else iModuleLength=optGENDefaultLength;
-                                    if (iModuleLength<1000) iModuleLength=1000;
                                 }
+                                
+                                if (m3uReader.size()) {
+                                    if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+                                } else {
+                                    if (kss->info) {
+                                        if (kss->info[mod_currentsub].title[0]) mod_title=[NSString stringWithUTF8String:kss->info[mod_currentsub].title];
+                                    }
+                                }
+                                
                                 mCurrentSamples=0;
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
@@ -5117,16 +5122,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
-                                if (m3uReader.size()) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader[mod_currentsub-mod_minsub].name);
-                                else {
-                                    const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-                                    if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-                                    else {
-                                        const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-                                        if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-                                        snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
-                                    }
-                                }
+                                // song info
+                                if (m3uReader.size()) {
+                                    mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+                                } else mod_title=[NSString stringWithUTF8String:nsfData->GetTitleString("%L",mod_currentsub)];
                                                                                                 
                                 while (mod_message_updated) {
                                     usleep(1);
@@ -6541,7 +6540,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 -(int) mmp_gsfLoad:(NSString*)filePath {  //GSF
     mPlayType=MMP_GSF;
     FILE *f;
-    char length_str[256], fade_str[256], title_str[256];
+    char length_str[256], fade_str[256], title_str[256], game_str[256];
     char tmp_str[256];
     char *tag;
     
@@ -6591,24 +6590,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     psftag_readfromfile((void*)tag, [filePath UTF8String]);
     
-    //BOLD(); printf("Filename: "); NORMAL();
-    //printf("%s\n", basename(argv[fi]));
-    //BOLD(); printf("Channels: "); NORMAL();
-    //printf("%d\n", sndNumChannels);
-    //BOLD(); printf("Sample rate: "); NORMAL();
-    //printf("%d\n", GSFsndSamplesPerSec);
-    
     sprintf(mod_message,"\n");
-    
-    /*		sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nPSF By:\t%s\nCopyright:\t%s\n",
-     (pi->game?pi->game:""),
-     (pi->title?pi->title:""),
-     (pi->artist?pi->artist:""),
-     (pi->year?pi->year:""),
-     (pi->genre?pi->genre:""),
-     (pi->psfby?pi->psfby:""),
-     (pi->copyright?pi->copyright:""));
-     */
     
     if (!psftag_getvar(tag, "title", title_str, sizeof(title_str)-1)) {
         //BOLD(); printf("Title: "); NORMAL();
@@ -6623,11 +6605,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         artist=[NSString stringWithUTF8String:tmp_str];
     }
     
-    if (!psftag_getvar(tag, "game", tmp_str, sizeof(tmp_str)-1)) {
+    if (!psftag_getvar(tag, "game", game_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Game: "); NORMAL();
         //printf("%s\n", tmp_str);
-        sprintf(mod_message,"%sGame.......: %s\n",mod_message,tmp_str);
-        album=[NSString stringWithFormat:@"%s",tmp_str];
+        sprintf(mod_message,"%sGame.......: %s\n",mod_message,game_str);
+        album=[NSString stringWithFormat:@"%s",game_str];
     }
     
     if (!psftag_getvar(tag, "year", tmp_str, sizeof(tmp_str)-1)) {
@@ -6693,8 +6675,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     m_voicesDataAvail=1;
     
     mod_name[0]=0;
-    if (title_str)
-        if (title_str[0]) sprintf(mod_name," %s",title_str);
+    if (game_str[0]) sprintf(mod_name," %s",game_str);
+    
+    if (title_str[0]) mod_title=[NSString stringWithUTF8String:title_str];
     
     if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
@@ -7250,15 +7233,14 @@ typedef struct {
     } else nsfPlayer->SetSong(mod_currentsub-mod_minsub);
     
     // song info
-    const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-    if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-    else {
-        const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-        if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-        snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
-    }
-    mod_title=[NSString stringWithUTF8String:nsfData->GetTitleString("%T",mod_currentsub)];
+    if (m3uReader.size()) {
+        mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+    } else mod_title=[NSString stringWithUTF8String:nsfData->GetTitleString("%L",mod_currentsub)];
     
+    const char *nsfe_name=nsfData->GetTitleString("%T",mod_currentsub);
+    if (nsfe_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_name);
+    else snprintf(mod_name,sizeof(mod_name)," %s",[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+        
     artist=[NSString stringWithUTF8String:nsfData->artist];
     
     numChannels=0;
@@ -7628,7 +7610,7 @@ typedef struct {
             status = gbs_get_status(gbs);
             iModuleLength=(status->subsong_len)*1000/1024;
         }
-        if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+        if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
         gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
     } else {
         gbs_init(gbs, mod_currentsub);
@@ -8528,6 +8510,14 @@ char* loadRom(const char* path, size_t romSize)
     if (m3uReader.info().title)
         if (m3uReader.info().title[0]) sprintf(mod_name," %s",m3uReader.info().title);
     
+    if (m3uReader.size()) {
+        if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+    } else {
+        if (kss->info) {
+            if (kss->info[mod_currentsub].title[0]) mod_title=[NSString stringWithUTF8String:kss->info[mod_currentsub].title];
+        }
+    }
+    
     if (m3uReader.info().artist)
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
     
@@ -8539,12 +8529,10 @@ char* loadRom(const char* path, size_t romSize)
             else iModuleLength=optGENDefaultLength;
         }
         if (iModuleLength<1000) iModuleLength=1000;
-        if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
     } else {
         KSSPLAY_reset(kssplay, mod_currentsub, 0);
         if (kss->info) {
             iModuleLength=kss->info[mod_currentsub].time_in_ms;
-            if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
         }
         else iModuleLength=optGENDefaultLength;
         if (iModuleLength<1000) iModuleLength=1000;
@@ -12074,8 +12062,6 @@ extern bool icloud_available;
                     else iModuleLength=optGENDefaultLength;
                 }
                 if (iModuleLength<1000) iModuleLength=1000;
-                if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
-                
                 if (mLoopMode) iModuleLength=-1;
                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                 else mFadeSamplesStart=1<<30;
@@ -12083,7 +12069,6 @@ extern bool icloud_available;
                 KSSPLAY_reset(kssplay, mod_currentsub, 0);
                 if (kss->info) {
                     iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                    if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
                 } else iModuleLength=optGENDefaultLength;
                 if (iModuleLength<1000) iModuleLength=1000;
                 
@@ -12091,6 +12076,15 @@ extern bool icloud_available;
                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                 else mFadeSamplesStart=1<<30;
             }
+            
+            if (m3uReader.size()) {
+                if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+            } else {
+                if (kss->info) {
+                    if (kss->info[mod_currentsub].title[0]) mod_title=[NSString stringWithUTF8String:kss->info[mod_currentsub].title];
+                }
+            }
+            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -12211,16 +12205,10 @@ extern bool icloud_available;
             nsfPlayer->Reset();
             
             
-            if (m3uReader.size()) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader[mod_currentsub-mod_minsub].name);
-            else {
-                const char *nsfe_title=nsfData->GetTitleString("%L",mod_currentsub);
-                if (nsfe_title[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_title);
-                else {
-                    const char *nsf_title=nsfData->GetTitleString("%T",mod_currentsub);
-                    if (nsf_title[0]==0) nsf_title=[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String];
-                    snprintf(mod_name,sizeof(mod_name)," %s",nsf_title);
-                }
-            }
+            // song info
+            if (m3uReader.size()) {
+                mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+            } else mod_title=[NSString stringWithUTF8String:nsfData->GetTitleString("%L",mod_currentsub)];
             
             if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
             else iModuleLength=nsfPlayer->GetLength();
@@ -12289,7 +12277,7 @@ extern bool icloud_available;
                 gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
                 
                 if (mLoopMode) iModuleLength=-1;
-                if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub].name];
+                if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
             } else {
                 gbs_init(gbs, mod_currentsub);
                 const struct gbs_status *status = gbs_get_status(gbs);

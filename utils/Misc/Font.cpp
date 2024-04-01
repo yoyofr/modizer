@@ -28,7 +28,7 @@ CCharacterData::~CCharacterData()
 }
 
 void CCharacterData::Unalloc() {
-    if (buffer) delete [] buffer;
+    if (buffer!=NULL) delete [] buffer;
     buffer=NULL;
 }
 

@@ -194,7 +194,7 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_PT3 @"PT3"
 
-#define SUPPORTED_FILETYPE_GBS @"GBS,GBR"
+#define SUPPORTED_FILETYPE_GBS @"GBS,GBR" //GB removed as it requires Gameboy BIOS + quite limited (no capacity to interact)
 
 #define SUPPORTED_FILETYPE_NSFPLAY_WITHEXTFILE @"NSF,NSFE"
 #define SUPPORTED_FILETYPE_NSFPLAY @"NSF,NSFE"
