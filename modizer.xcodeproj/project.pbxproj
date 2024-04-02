@@ -847,7 +847,7 @@
 		CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC541BB2B89DD1800E97EC1 /* libadplug.a */; };
 		CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC543DB2B89E83400E97EC1 /* libbinio.a */; };
 		CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */; };
-		CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */; };
+		CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */; settings = {ATTRIBUTES = (Required, ); }; };
 		CCC544422B8BFCDD00E97EC1 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442F2B8BFC9900E97EC1 /* libavutil.xcframework */; };
 		CCC544432B8BFCDD00E97EC1 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544312B8BFC9900E97EC1 /* libswresample.xcframework */; };
 		CCC544462B8BFD0700E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCC5442E2B8BFC9900E97EC1 /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };

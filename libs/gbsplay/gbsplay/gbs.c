@@ -493,6 +493,12 @@ long gbs_toggle_mute(struct gbs* const gbs, long channel) {
 	return gbs->gbhw.ch[channel].mute ^= 1;
 }
 
+//YOYOFR
+long gbs_toggle_setmute(struct gbs* const gbs, long channel,long muteval) {
+    return (gbs->gbhw.ch[channel].mute = muteval);
+}
+//YOYOFR
+
 static void gbs_free(struct gbs* const gbs)
 {
 	gbhw_cleanup(&gbs->gbhw);

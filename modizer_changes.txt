@@ -40,6 +40,7 @@ missing seek support:
 
 3.6
 ---
+- [PLAYER] New player for Gameboy GBS file, GBSPLAY. Support oscilloscope FX & voices muting
 - [UI] Downloads management improved, max queue is now 16384 and pending items are saved when exiting app
 - [DB] Online collection loading optimized
 - [UI] Improved threads management to improve global application responsiveness

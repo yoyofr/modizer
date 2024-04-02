@@ -205,6 +205,7 @@ long gbs_set_filter(struct gbs* const gbs, enum gbs_filter_type type);
 void gbs_set_loop_mode(struct gbs* const gbs, enum gbs_loop_mode mode);
 void gbs_cycle_loop_mode(struct gbs* const gbs);
 long gbs_toggle_mute(struct gbs* const gbs, long channel);
+long gbs_toggle_setmute(struct gbs* const gbs, long channel,long muteval); //YOYOFR
 void gbs_close(struct gbs* const gbs);
 long gbs_write(const struct gbs* const gbs, const char* const name);
 

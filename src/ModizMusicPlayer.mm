@@ -7635,6 +7635,15 @@ typedef struct {
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[i/3];
     }
+    modizChipsetCount=0;
+    modizChipsetStartVoice[modizChipsetCount]=0;
+    modizChipsetVoicesCount[modizChipsetCount]=numChannels;
+    snprintf(modizChipsetName[modizChipsetCount],16,"PSG");
+    snprintf(modizVoicesName[0],MODIZ_VOICE_NAME_MAX_CHAR,"Square 0");
+    snprintf(modizVoicesName[1],MODIZ_VOICE_NAME_MAX_CHAR,"Square 1");
+    snprintf(modizVoicesName[2],MODIZ_VOICE_NAME_MAX_CHAR,"Wave");
+    snprintf(modizVoicesName[3],MODIZ_VOICE_NAME_MAX_CHAR,"Noise");
+    modizChipsetCount++;
     
     //Loop
     if (mLoopMode) iModuleLength=-1;
@@ -9747,7 +9756,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         else if (keys[x]=="game") album=[NSString stringWithUTF8String:tags[keys[x]].c_str()];
         else if (keys[x]=="title") mod_title=[NSString stringWithUTF8String:tags[keys[x]].c_str()];
     }
-    if (mod_title) sprintf(mod_name," %s",[mod_title UTF8String]);
+    if (album) sprintf(mod_name," %s",[album UTF8String]);
     
     int fadeInMS=xSFFile->GetFadeMS(xSFPlayer->fadeInMS);
     xSFPlayer->fadeInMS=fadeInMS;
@@ -13436,6 +13445,7 @@ extern "C" void adjust_amplification(void);
         case MMP_PIXEL:
         case MMP_EUP:
         case MMP_PT3:
+        case MMP_GBS:
         case MMP_2SF:
         case MMP_V2M:
         case MMP_GSF:
@@ -13462,9 +13472,8 @@ extern "C" void adjust_amplification(void);
         case MMP_TIMIDITY:
             return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(m_voice_channel_mapping[channel])];
         case MMP_KSS:
+        case MMP_GBS:
         case MMP_NSFPLAY: {
-            /*int chipIdx=[self getSystemForVoice:channel];
-            return [NSString stringWithFormat:@"%d-%s",channel-modizChipsetStartVoice[chipIdx]+1,modizChipsetName[chipIdx]];*/
             return [NSString stringWithFormat:@"%s",modizVoicesName[channel]];
         }
         case MMP_2SF:
@@ -13551,6 +13560,7 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemsNb {
     switch (mPlayType) {
         case MMP_KSS:
+        case MMP_GBS:
         case MMP_NSFPLAY:
             return modizChipsetCount;
         case MMP_HC:
@@ -13596,6 +13606,7 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
         case MMP_KSS:
+        case MMP_GBS:
         case MMP_NSFPLAY:
             return [NSString stringWithFormat:@"%s",modizChipsetName[systemIdx]];
         case MMP_2SF:
@@ -13658,6 +13669,7 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
         case MMP_NSFPLAY:
+        case MMP_GBS:
         case MMP_KSS:
             for (int i=0;i<modizChipsetCount;i++) {
                 if ((voiceIdx>=modizChipsetStartVoice[i])&&(voiceIdx<modizChipsetStartVoice[i]+modizChipsetVoicesCount[i])) return i;
@@ -13714,6 +13726,7 @@ extern "C" void adjust_amplification(void);
     int tmp;
     switch (mPlayType) {
         case MMP_KSS:
+        case MMP_GBS:
         case MMP_NSFPLAY:
             tmp=0;
             for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
@@ -13866,6 +13879,7 @@ extern "C" void adjust_amplification(void);
             else for (int i=6;i<14;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_KSS:
+        case MMP_GBS:
         case MMP_NSFPLAY:
             for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
             break;
@@ -13957,6 +13971,9 @@ extern "C" void adjust_amplification(void);
                     break;
             }
         }
+            break;
+        case MMP_GBS:
+            gbs_toggle_setmute(gbs,channel,!active); //YOYOFR
             break;
         case MMP_NSFPLAY: {
             int chipIdx=[self getSystemForVoice:channel];
