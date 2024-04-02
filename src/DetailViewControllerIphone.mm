@@ -1083,6 +1083,15 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     /////////////////////
+    //GBSPLAY
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GBSPLAY)) {
+        [mplayer optGBSPLAY_UpdateParam];
+    }
+    
+    
+    
+    /////////////////////
     //TIMIDITY
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_TIMIDITY)) {
@@ -7368,9 +7377,9 @@ extern "C" int current_sample;
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
@@ -7382,12 +7391,12 @@ extern "C" int current_sample;
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen);
+                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 break;
         }
     }

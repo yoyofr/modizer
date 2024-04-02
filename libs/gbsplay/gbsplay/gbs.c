@@ -360,7 +360,6 @@ void gbs_set_sound_callback(struct gbs* const gbs, gbs_sound_cb fn, void *priv)
 long gbs_set_filter(struct gbs* const gbs, enum gbs_filter_type type) {
 	return gbhw_set_filter(&gbs->gbhw, type);
 }
-
 static long gbs_nextsubsong(struct gbs* const gbs)
 {
 	if (gbs->nextsubsong_cb != NULL) {
@@ -496,6 +495,9 @@ long gbs_toggle_mute(struct gbs* const gbs, long channel) {
 //YOYOFR
 long gbs_toggle_setmute(struct gbs* const gbs, long channel,long muteval) {
     return (gbs->gbhw.ch[channel].mute = muteval);
+}
+void gbs_set_default_length(struct gbs* const gbs, long length) {
+    gbs->subsong_timeout=length;
 }
 //YOYOFR
 

@@ -901,7 +901,6 @@ extern volatile int intr;
 
 
 static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
-
 static int optNSFPLAYDefaultLength=SONG_DEFAULT_LENGTH;
 
 bool tim_force_soundfont;
@@ -4053,7 +4052,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 quit = 1;
                                 //break;
                             }
-                            if (quit||( (iModuleLength>0)&&(iCurrentTime>iModuleLength))) {
+                            if (quit/*||( (iModuleLength>0)&&(iCurrentTime>iModuleLength))*/) {
                                 if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) {
                                         //stop
@@ -4074,13 +4073,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         iModuleLength=(status->subsong_len)*1000/1024;
                                     }
                                     if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
-                                    gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+                                    gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 
+                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                                                  settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 } else {
                                     gbs_init(gbs,mod_currentsub);
                                     const struct gbs_status *status = gbs_get_status(gbs);
                                     iModuleLength=(status->subsong_len)*1000/1024;
                                     mod_title=[NSString stringWithUTF8String:status->songtitle];
-                                    gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+                                    gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
+                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                                                  settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 }
                                 
                                 mCurrentSamples=0;
@@ -7520,6 +7523,8 @@ typedef struct {
     }
     gbs_set_nextsubsong_cb(gbs, gbs_mdz_nextsubsong,NULL);
     
+    [self optGBSPLAY_UpdateParam];
+        
     free(argv[0]);
     free(argv[1]);
     
@@ -7611,7 +7616,9 @@ typedef struct {
             iModuleLength=(status->subsong_len)*1000/1024;
         }
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
-        gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+        gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
+                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                      settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout
     } else {
         gbs_init(gbs, mod_currentsub);
         status = gbs_get_status(gbs);
@@ -7619,7 +7626,9 @@ typedef struct {
         
         mod_title=[NSString stringWithUTF8String:status->songtitle];
         
-        gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+        gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
+                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                      settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
     }
     
     
@@ -7652,8 +7661,6 @@ typedef struct {
     g_playing=1;
     return 0;
 }
-
-
 
 -(int) mmp_pixelLoad:(NSString*)filePath {  //PxTone Collage & Organya
     mPlayType=MMP_PIXEL;
@@ -12283,7 +12290,9 @@ extern bool icloud_available;
                 }
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
-                gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000, 5,0,2);
+                gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
+                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                              settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 if (mLoopMode) iModuleLength=-1;
                 if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
@@ -12293,7 +12302,9 @@ extern bool icloud_available;
                 iModuleLength=(int64_t)(status->subsong_len)*1000/1024;
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
-                gbs_configure(gbs,mod_currentsub,iModuleLength/1000, 5,0,2);
+                gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
+                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                              settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 if (mLoopMode) iModuleLength=-1;
                 mod_title=[NSString stringWithUTF8String:status->songtitle];
@@ -13043,6 +13054,18 @@ extern bool icloud_available;
     soundEcho = optGSFsoundEcho;
 }
 
+///////////////////////////
+//GBSPlay
+///////////////////////////
+-(void) optGBSPLAY_UpdateParam {
+    if (gbs==NULL) return;
+    switch (settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value) {
+        case 0:gbs_set_filter(gbs,FILTER_OFF);break;
+        case 1:gbs_set_filter(gbs,FILTER_DMG);break;
+        case 2:gbs_set_filter(gbs,FILTER_CGB);break;
+    }
+    gbs_set_default_length(gbs,settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_value);
+}
 ///////////////////////////
 //NSFPlay
 ///////////////////////////

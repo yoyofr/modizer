@@ -209,6 +209,13 @@ void optOMPTChangedC(id param) {
 void optXMPChangedC(id param) {
     [param optXMPChanged];
 }
+//GBSPLAY
+-(void) optGBSPLAYChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_GBSPLAY];
+}
+void optGBSPLAYChangedC(id param) {
+    [param optGBSPLAYChanged];
+}
 //SID
 -(void) optSIDChanged {
     [detailViewController settingsChanged:(int)SETTINGS_SID];
@@ -577,6 +584,14 @@ void optNSFPLAYChangedC(id param) {
     settings[TIM_Reverb].detail.mdz_boolswitch.switch_value=1;
     settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
     settings[TIM_Resample].detail.mdz_switch.switch_value=1;
+    
+    /////////////////////////////////////
+    //GBSPLAY
+    /////////////////////////////////////
+    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value=1;
+    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value=5;
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //GME
@@ -1696,7 +1711,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GME_IGNORESILENCE)
     settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
-    settings[GME_IGNORESILENCE].label=(char*)"Ignore Silence";
+    settings[GME_IGNORESILENCE].label=(char*)"Silence detection";
     settings[GME_IGNORESILENCE].description=NULL;
     settings[GME_IGNORESILENCE].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_IGNORESILENCE].sub_family=0;
@@ -2623,7 +2638,61 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels[0]=(char*)"Stereo";
     settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels[1]=(char*)"Surround";
     
+    /////////////////////////////////////
+    //GBSPLAY
+    /////////////////////////////////////
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_GBSPLAY)
+    settings[MDZ_SETTINGS_FAMILY_GBSPLAY].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GBSPLAY].label=(char*)"GBSPLAY";
+    settings[MDZ_SETTINGS_FAMILY_GBSPLAY].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GBSPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_GBSPLAY].sub_family=MDZ_SETTINGS_FAMILY_GBSPLAY;
     
+    SETTINGS_ID_DEF(GBSPLAY_DefaultLength)
+    settings[GBSPLAY_DefaultLength].label=(char*)"Default length";
+    settings[GBSPLAY_DefaultLength].description=NULL;
+    settings[GBSPLAY_DefaultLength].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
+    settings[GBSPLAY_DefaultLength].sub_family=0;
+    settings[GBSPLAY_DefaultLength].callback=&optGBSPLAYChangedC;
+    settings[GBSPLAY_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
+    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_digits=60;
+    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
+    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
+    
+    SETTINGS_ID_DEF(GBSPLAY_Fadeouttime)
+    settings[GBSPLAY_Fadeouttime].label=(char*)"Fade out time";
+    settings[GBSPLAY_Fadeouttime].description=NULL;
+    settings[GBSPLAY_Fadeouttime].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
+    settings[GBSPLAY_Fadeouttime].sub_family=0;
+    settings[GBSPLAY_Fadeouttime].callback=&optGBSPLAYChangedC;
+    settings[GBSPLAY_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
+    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_digits=0;
+    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_min_value=0;
+    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_max_value=10;
+    
+    SETTINGS_ID_DEF(GBSPLAY_SilenceTimeout)
+    settings[GBSPLAY_SilenceTimeout].label=(char*)"Silence detection";
+    settings[GBSPLAY_SilenceTimeout].description=(char*)"Will skip song if nothing is played for specified duration (0=off)";
+    settings[GBSPLAY_SilenceTimeout].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
+    settings[GBSPLAY_SilenceTimeout].sub_family=0;
+    settings[GBSPLAY_SilenceTimeout].callback=&optGBSPLAYChangedC;
+    settings[GBSPLAY_SilenceTimeout].type=MDZ_SLIDER_DISCRETE;
+    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_digits=0;
+    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_min_value=2;
+    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_max_value=30;
+    
+    SETTINGS_ID_DEF(GBSPLAY_HPFilterType)
+    settings[GBSPLAY_HPFilterType].type=MDZ_SWITCH;
+    settings[GBSPLAY_HPFilterType].label=(char*)"Highpass filter type";
+    settings[GBSPLAY_HPFilterType].description=NULL;
+    settings[GBSPLAY_HPFilterType].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
+    settings[GBSPLAY_HPFilterType].sub_family=0;
+    settings[GBSPLAY_HPFilterType].callback=&optGBSPLAYChangedC;
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value_nb=3;
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_labels=(char**)malloc(settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_labels[1]=(char*)"DMG";
+    settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_labels[2]=(char*)"CGB";
     
     
     /////////////////////////////////////
@@ -2670,7 +2739,6 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Near.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Spl.";
-    settings[XMP_Interpolation].detail.mdz_switch.switch_value=1;
         
     SETTINGS_ID_DEF(XMP_Amplification)
     settings[XMP_Amplification].type=MDZ_SWITCH;
@@ -3092,6 +3160,7 @@ void optNSFPLAYChangedC(id param) {
     //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
+    
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
@@ -3109,9 +3178,39 @@ void optNSFPLAYChangedC(id param) {
             [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:((OBSlider*)sender).value];
         }
     }
-    //    if (OPTION(video_fskip)==10) [(((OBSlider*)sender) setValue:10 sValue:@"AUTO"];
-    //    [tableView reloadData];
 }
+
+- (void)sliderTouchUp:(OBSlider*)sender {
+    static bool noreentrant=false;
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    if ((settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==0)||
+        (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==60)||
+        (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100) ){
+        ((OBSlider*)sender).value=round(((OBSlider*)sender).value);
+    }
+/*
+    settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
+    
+    if (settings[cur_settings_idx[indexPath.section]].callback) {
+        settings[cur_settings_idx[indexPath.section]].callback(self);
+    }
+    
+    UIView *masterView=[sender superview];
+    UIView *v;
+    for (v in [masterView subviews]) {
+        if ([v isKindOfClass:[UILabel class]]) {
+            UILabel *lblValue=(UILabel *)v;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:((OBSlider*)sender).value];
+        }
+    }*/
+}
+
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
@@ -3380,12 +3479,14 @@ void optNSFPLAYChangedC(id param) {
             
             sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-            sliderview.continuous=false;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpOutside];
+            
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             
             [accview addSubview:lblValue];
@@ -3409,12 +3510,15 @@ void optNSFPLAYChangedC(id param) {
             
             sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-            sliderview.continuous=false;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+            
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpOutside];
+            
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             
             [accview addSubview:lblValue];

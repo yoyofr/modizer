@@ -37,6 +37,7 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_GLOBAL,
     SETTINGS_VISU,
     SETTINGS_ADPLUG,
+    SETTINGS_GBSPLAY,
     SETTINGS_GME,
     SETTINGS_GSF,
     SETTINGS_HC,
@@ -109,6 +110,12 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_ADPLUG,
         ADPLUG_OplType,
         ADPLUG_StereoSurround,
+    
+        MDZ_SETTINGS_FAMILY_GBSPLAY,
+        GBSPLAY_DefaultLength,
+        GBSPLAY_Fadeouttime,
+        GBSPLAY_HPFilterType,
+        GBSPLAY_SilenceTimeout,
     
         MDZ_SETTINGS_FAMILY_GME,
         GME_FADEOUT,
