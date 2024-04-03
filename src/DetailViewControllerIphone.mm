@@ -924,7 +924,8 @@ static float movePinchScale,movePinchScaleOld;
             if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
                 labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
             } else {
-                labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+                if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+                else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
             }
             lblCurrentSongCFlow.text=labelModuleName.text;
         }
@@ -1306,7 +1307,10 @@ static float movePinchScale,movePinchScaleOld;
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
-        NSString *title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        NSString *title;
+        
+        if ([mplayer getModFileTitle]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        else title=[NSString stringWithFormat:@"%@",[mplayer getModName]];
         
         if (is_macOS) {
             if (mIsPlaying) infoCenter.playbackState=MPNowPlayingPlaybackStatePlaying;
@@ -1466,7 +1470,10 @@ static float movePinchScale,movePinchScaleOld;
         if (mpl_upd>=2) {
             if (mpl_upd==2) {
                 if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value==0) {
-                    labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+                    {
+                        if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+                        else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+                    }
                     lblCurrentSongCFlow.text=labelModuleName.text;
                 }
             }
@@ -2657,7 +2664,8 @@ int recording=0;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
         labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
     } else {
-        labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
     
@@ -2990,19 +2998,16 @@ int recording=0;
     //set volume (if applicable)
     [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
     
-    
-    
-    
-    
     //Update song info if required
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
-    else labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+    else {
+        if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+    }
     lblCurrentSongCFlow.text=labelModuleName.text;
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
-    
-    
     
     labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
     if ([mplayer getSongLength]>0) {
@@ -3453,7 +3458,10 @@ int recording=0;
     //Update song info if required
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
-    else labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+    else {
+        if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+    }
     lblCurrentSongCFlow.text=labelModuleName.text;
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;

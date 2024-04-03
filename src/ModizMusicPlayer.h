@@ -258,6 +258,7 @@ extern "C" {
 
 -(NSString*) getModMessage;
 -(NSString*) getModFileTitle;
+-(NSString*) getModFileTitleOrNull;
 -(NSString*) getModName;
 -(NSString*) getModType;
 -(NSString*) getPlayerName;

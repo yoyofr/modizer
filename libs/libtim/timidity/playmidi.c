@@ -5125,7 +5125,7 @@ static void play_midi_prescan(MidiEvent *ev) {
                 {
                     case ME_NOTEON:
                         note_on_prescan(ev);
-                        
+                        //YOYOFR
                         ch_found=false;
                         for (int ii=0;ii<ch_idx;ii++) {
                             if (ch_used[ii]==ch) {
@@ -5143,6 +5143,7 @@ static void play_midi_prescan(MidiEvent *ev) {
                                 ch_idx--;
                             }
                         }
+                        //YOYOFR
                         break;
                         
                     case ME_NOTEOFF:
@@ -5221,12 +5222,13 @@ static void play_midi_prescan(MidiEvent *ev) {
 #endif
         ev++;
     }
-    
+    //YOYOFR
 /*    printf("max ch: %d\n",ch_idx); //YOYOFR
     for (int ii=0;ii<ch_idx;ii++) {
         printf("%d ch %d\n",ii,ch_used[ii]);        
     }*/
     m_genNumVoicesChannels=ch_idx;
+    //YOYOFR
     
     /* calculate compensation ratio */
     if (0 < mainvolume_max && mainvolume_max < 0x7f) {

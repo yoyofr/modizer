@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA747D9F0F9514B9006C5449 /* gme_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* gme_Prefix.pch */; };
-		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		CCEB593A2BAF42A1004831C6 /* Data_Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCEB59062BAF429F004831C6 /* Data_Reader.cpp */; };
 		CCEB593B2BAF42A1004831C6 /* Blip_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCEB59072BAF429F004831C6 /* Blip_Buffer.cpp */; };
 		CCEB593C2BAF42A1004831C6 /* blargg_endian.h in Headers */ = {isa = PBXBuildFile; fileRef = CCEB59082BAF429F004831C6 /* blargg_endian.h */; };
@@ -129,8 +127,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AA747D9E0F9514B9006C5449 /* gme_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gme_Prefix.pch; sourceTree = "<group>"; };
-		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CCEB59062BAF429F004831C6 /* Data_Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Data_Reader.cpp; sourceTree = "<group>"; };
 		CCEB59072BAF429F004831C6 /* Blip_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Blip_Buffer.cpp; sourceTree = "<group>"; };
 		CCEB59082BAF429F004831C6 /* blargg_endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_endian.h; sourceTree = "<group>"; };
@@ -264,7 +260,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,27 +278,9 @@
 			isa = PBXGroup;
 			children = (
 				CC6BDE4E12FF3B7C0035A210 /* gme */,
-				32C88DFF0371C24200C91783 /* Other Sources */,
-				0867D69AFE84028FC02AAC07 /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
 			name = libgme;
-			sourceTree = "<group>";
-		};
-		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		32C88DFF0371C24200C91783 /* Other Sources */ = {
-			isa = PBXGroup;
-			children = (
-				AA747D9E0F9514B9006C5449 /* gme_Prefix.pch */,
-			);
-			name = "Other Sources";
 			sourceTree = "<group>";
 		};
 		CC6BDE4E12FF3B7C0035A210 /* gme */ = {
@@ -516,7 +493,6 @@
 				CCEB59E02BAF42B4004831C6 /* Nes_Namco_Apu.h in Headers */,
 				CCEB5A0A2BAF42B4004831C6 /* Ym2612_Emu.h in Headers */,
 				CCEB59622BAF42A1004831C6 /* Gym_Emu.h in Headers */,
-				AA747D9F0F9514B9006C5449 /* gme_Prefix.pch in Headers */,
 				CCEB59FD2BAF42B4004831C6 /* Spc_Cpu.h in Headers */,
 				CCEB59572BAF42A1004831C6 /* Data_Reader.h in Headers */,
 				CCEB59E82BAF42B4004831C6 /* Music_Emu.h in Headers */,
