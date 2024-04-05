@@ -1069,8 +1069,26 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
 				case 3:
 					FetchPSGData(chan, &data);
 			}
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_current_systemSub>=0) {
+                int i=m_voice_current_systemSub;
+                m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=LIMIT8(((spumuldiv7(data, chan->vol) >> chan->datashift)>>8));
+                m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+            
+            
 			SPU_Mix(SPU, chan, data, CHANNELS);
-		}
+        } else {
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_current_systemSub>=0) {
+                int i=m_voice_current_systemSub;
+                m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+        }
 
 		switch (FORMAT)
 		{
@@ -1224,15 +1242,16 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 					mix[1] += submix[i * 2 + 1];
 				}
 			}
-			else
-				chanout[i] = submix[i * 2] = submix[i * 2 + 1] = 0;
+            else {
+                chanout[i] = submix[i * 2] = submix[i * 2 + 1] = 0;
+            }
             
-            //TODO:  MODIZER changes start / YOYOFR
-            if (outputToMix) m_voice_buff[i][m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((chanout[i]>>8));
-            else m_voice_buff[i][m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-            m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            //TODO:  MODIZER changes end / YOYOFR
+//            //TODO:  MODIZER changes start / YOYOFR
+//            if (outputToMix) m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=LIMIT8(((chanout[i])>>8));
+//            else m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=0;
+//            m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            //TODO:  MODIZER changes end / YOYOFR
 		} // foreach channel
 
 		int32_t mixout[] = { mix[0], mix[1] };
@@ -1373,6 +1392,7 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 // ENTER
 static void SPU_MixAudio(bool actuallyMix, SPU_struct *SPU, int length)
 {
+    if( SPU==NULL) return; //YOYOFR
 	if (actuallyMix)
 	{
 		memset(&SPU->sndbuf[0], 0, length * 4 * 2);
@@ -1382,10 +1402,15 @@ static void SPU_MixAudio(bool actuallyMix, SPU_struct *SPU, int length)
 	// we used to use master enable here, and do nothing if audio is disabled.
 	// now, master enable is emulated better..
 	// but for a speed optimization we will still do it
-	if (!SPU->regs.masteren)
-		return;
+    if (!SPU->regs.masteren) {
+        return;
+    }
 
 	bool advanced = CommonSettings.spu_advanced;
+    
+    //YOYOFR
+    m_voice_current_systemSub=-1;
+    //YOYOFR
 
 	// branch here so that slow computers don't have to take the advanced (slower) codepath.
 	// it remainds to be seen exactly how much slower it is
@@ -1398,9 +1423,18 @@ static void SPU_MixAudio(bool actuallyMix, SPU_struct *SPU, int length)
 		for (int i = 0; i < 16; ++i)
 		{
 			channel_struct *chan = &SPU->channels[i];
+            
+            //YOYOFR
+            m_voice_current_systemSub=i;
+            //YOYOFR
 
-			if (chan->status != CHANSTAT_PLAY)
-				continue;
+            if (chan->status != CHANSTAT_PLAY) {
+                //YOYOFR
+                m_voice_current_ptr[i]+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)*(int64_t)(length);
+                if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                //YOYOFR
+                continue;
+            }
 
 			SPU->bufpos = 0;
 			SPU->buflength = length;

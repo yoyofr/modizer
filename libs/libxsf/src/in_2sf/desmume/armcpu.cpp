@@ -139,7 +139,7 @@ uint32_t armcpu_switchMode(armcpu_t *armcpu, uint8_t mode)
 			armcpu->SPSR_und = armcpu->SPSR;
 			break;
 		default:
-			printf("switchMode: WRONG mode %02X\n",mode);
+			//printf("switchMode: WRONG mode %02X\n",mode);
 	}
 
 	switch (mode)

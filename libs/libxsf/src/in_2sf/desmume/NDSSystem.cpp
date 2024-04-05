@@ -857,8 +857,10 @@ static void PrepareBiosARM7()
 	{
 		// read arm7 bios from inputfile and flag it if it succeeds
 		FILE *arm7inf = fopen(CommonSettings.ARM7BIOS, "rb");
-		if (fread(MMU.ARM7_BIOS, 1, 16384, arm7inf) == 16384)
-			NDS_ARM7.BIOS_loaded = true;
+        if (arm7inf) {
+            if (fread(MMU.ARM7_BIOS, 1, 16384, arm7inf) == 16384)
+                NDS_ARM7.BIOS_loaded = true;
+        }
 		fclose(arm7inf);
 	}
 
@@ -906,7 +908,7 @@ static void PrepareBiosARM9()
 	NDS_ARM9.BIOS_loaded = false;
 	if (CommonSettings.UseExtBIOS)
 	{
-		// read arm9 bios from inputfile and flag it if it succeeds
+		// read arm9 bios from inputfile and flag it if it succeeds        
 		FILE *arm9inf = fopen(CommonSettings.ARM9BIOS, "rb");
 		if (fread(MMU.ARM9_BIOS, 1, 4096, arm9inf) == 4096)
 			NDS_ARM9.BIOS_loaded = true;

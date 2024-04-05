@@ -11,7 +11,7 @@
 #include "XSFConfig.h"
 #include "convert.h"
 #include "desmume/NDSSystem.h"
-#include "desmume/version.h"
+//#include "desmume/version.h"
 
 
 class XSFConfig_2SF : public XSFConfig

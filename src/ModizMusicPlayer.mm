@@ -2447,7 +2447,6 @@ void propertyListenerCallback (void                   *inUserData,              
         mdz_currentArchiveIndex=0;
         //Timidity
         
-        
         //OMPT specific
         genPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         genRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
@@ -5405,13 +5404,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
                             
+                            int diff=(m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-(m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            if (diff<0) diff+=SOUND_BUFFER_SIZE_SAMPLE*4;
+                            //NSLog(@"2sf: %d %d %d",diff,m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
-                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+0*(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                        m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
                                     }
+                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    
+                                    int64_t ofs_end=m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    int64_t extra_size=ofs_end-SOUND_BUFFER_SIZE_SAMPLE;
+                                    if (extra_size>0) {
+                                        memmove(m_voice_buff[j],m_voice_buff[j]+SOUND_BUFFER_SIZE_SAMPLE,extra_size);
+                                        if (extra_size<=SOUND_BUFFER_SIZE_SAMPLE) memset(m_voice_buff[j]+SOUND_BUFFER_SIZE_SAMPLE,0,extra_size);
+                                        else memset(m_voice_buff[j]+extra_size,0,extra_size-(extra_size-SOUND_BUFFER_SIZE_SAMPLE));
+                                        m_voice_current_ptr[j]=extra_size<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    } else m_voice_current_ptr[j]=0;
                                 }
-                                
                             }
                             
                             //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
@@ -9707,7 +9720,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return 0;
 }
 
-
 -(int) mmp_2sfLoad:(NSString*)filePath extension:(NSString*)extension {  //2SF
     mPlayType=MMP_2SF;
     FILE *f;
@@ -10182,10 +10194,15 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     if (HC_type==0x21) {
         sprintf(mod_name,"");
         
+//        if (usf_info_data->inf_title)
+//            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
         if (usf_info_data->inf_title)
-            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
+            if (usf_info_data->inf_title[0]) mod_title=[NSString stringWithUTF8String:usf_info_data->inf_title];
         
-        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+        
+        if (usf_info_data->inf_game)
+            if (usf_info_data->inf_game[0]) snprintf(mod_name, sizeof(mod_name), " %s",usf_info_data->inf_game);
         
         sprintf(mod_message,"Game.......:\t%s\nTitle......:\t%s\nArtist.....:\t%s\nYear.......:\t%s\nGenre......:\t%s\nRipper.....:\t%s\nCopyright..:\t%s\nTrack......:\t%s\nSample rate: %dHz\nLength: %ds\n",
                 (usf_info_data->inf_game?usf_info_data->inf_game:""),
@@ -10199,7 +10216,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
                 hc_sample_rate,
                 iModuleLength/1000);
         
-        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
+//        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
         
         if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
         if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
@@ -10217,9 +10234,12 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
             NSString *tmpstr=[NSString stringWithFormat:@"%@%*.*s: %@\n",key,padLen,padLen,padding,value];
             strcat(mod_message,[tmpstr UTF8String]);
             
-            if ([key isEqualToString:@"album"]&&([value length]>0)) {
+            if ([key isEqualToString:@"title"]&&([value length]>0)) {
                 mod_title=[NSString stringWithString:value];
+            }
+            if ([key isEqualToString:@"album"]&&([value length]>0)) {
                 album=[NSString stringWithString:value];
+                snprintf(mod_name,sizeof(mod_name)," %s",[album UTF8String]);
             }
             if ([key isEqualToString:@"artist"]&&([value length]>0)) {
                 artist=[NSString stringWithString:value];

@@ -287,7 +287,7 @@ extern struct TCommonSettings
 		strcpy(this->ARM9BIOS, "biosnds9.bin");
 		strcpy(this->ARM7BIOS, "biosnds7.bin");
 		strcpy(this->Firmware, "firmware.bin");
-		NDS_FillDefaultFirmwareConfigData(&this->InternalFirmConf);
+        NDS_FillDefaultFirmwareConfigData(&this->InternalFirmConf);
 
 		for (int i = 0; i < 16; ++i)
 			this->spu_muteChannels[i] = false;
@@ -302,13 +302,13 @@ extern struct TCommonSettings
 	}
 
 	bool UseExtBIOS;
-	char ARM9BIOS[256];
-	char ARM7BIOS[256];
+	char ARM9BIOS[1024];
+	char ARM7BIOS[1024];
 	bool SWIFromBIOS;
 	bool PatchSWI3;
 
 	bool UseExtFirmware;
-	char Firmware[256];
+	char Firmware[1024];
 	bool BootFromFirmware;
 	struct NDS_fw_config_data InternalFirmConf;
 

@@ -78,7 +78,7 @@ bool XSFPlayer::FillBuffer(std::vector<uint8_t> &buf, unsigned &samplesWritten)
 			auto trueBufShort = reinterpret_cast<int16_t *>(&trueBuffer[0]);
 			std::copy_n(&trueBufShort[0], bufsize << 1, &bufLong[0]);
 		}
-		if (detectSilence || skipSilenceOnStartSec)
+		if (0*detectSilence || 0*skipSilenceOnStartSec)
 		{
 			unsigned skipOffset = 0;
 			for (unsigned ofs = 0; ofs < remain; ++ofs)
