@@ -410,7 +410,6 @@ extern bool icloud_available;
     return 0;
 }
 
-
 +(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file {
     NSArray *filetype_extMDX=(no_aux_file?[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_MDX_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@"."];
@@ -777,7 +776,6 @@ extern bool icloud_available;
     return fullFilePath;
 }
 
-
 +(NSString *)getFullCleanFilePath:(NSString*)filePath {
     NSRange r=[filePath rangeOfString:@"?"];
     if (r.location != NSNotFound) {
@@ -803,7 +801,7 @@ extern bool icloud_available;
 
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath {
     NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-    //special case: iCloud    
+    //special case: iCloud
     if (icloud_available&& icloudURL) {
         if ([filePath containsString:[icloudURL path]]) {
             return [tmp_path componentsJoinedByString:@"/"];

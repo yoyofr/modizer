@@ -859,6 +859,17 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     }
 }
 
+static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
+    char *strA,*strB;
+    int res;
+    strA=*((char**)entryA);
+    strB=*((char**)entryB);
+    res=strcmp(strA,strB);
+    if (res<0) return -1;
+    if (res==0) return 0;
+    return 1;
+}
+
 
 -(void)listLocalFiles {
     NSString *file,*cpath;
@@ -1347,24 +1358,41 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             }
         }
     } else if (browseType==1) { //Archive
-        struct archive *a;
-        struct archive_entry *entry;
-        int r;
+//        struct archive *a;
+//        struct archive_entry *entry;
+//        int r;
         
-        a = archive_read_new();
-        archive_read_support_filter_all(a);
-        archive_read_support_format_raw(a);
-        archive_read_support_format_all(a);
-        r = archive_read_open_filename(a, [cpath UTF8String], 16384); // Note 1
-        if (r == ARCHIVE_OK) {
+        
+                
+        char **archive_entries;
+        int archive_entries_count;
+        int found=[ModizFileHelper scanarchive:[cpath UTF8String] filesList_ptr:&archive_entries filesCount_ptr:&archive_entries_count];
+        int file_idx=0;
+        
+        
+        
+//        a = archive_read_new();
+//        archive_read_support_filter_all(a);
+//        archive_read_support_format_raw(a);
+//        archive_read_support_format_all(a);
+//        r = archive_read_open_filename(a, [cpath UTF8String], 16384); // Note 1
+//        if (r == ARCHIVE_OK) {
+        if (found) {
+            
+            //sort the file list
+            qsort(archive_entries, archive_entries_count, sizeof(char*), &qsort_CompareArcEntries);
+            
+            
             int is_rsn=0;
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
             if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
             
-            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+//            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+            while (file_idx<found) {
                 
                 
-                file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+//                file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                file=[NSString stringWithUTF8String:archive_entries[file_idx]];
                 
                 NSString *extension;
                 NSString *file_no_ext;
@@ -1396,12 +1424,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     }
                 }
                 
-                archive_read_data_skip(a);  // Note 2
+                //archive_read_data_skip(a);  // Note 2
+                file_idx++;
             }
         } else {
             //NSLog( @"Skipping unsupported archive: %s\n", path );
         }
-        r = archive_read_free(a);  // Note 3
+//        r = archive_read_free(a);  // Note 3
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
@@ -1441,15 +1470,19 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     }
                 
                 
-                a = archive_read_new();
-                archive_read_support_filter_all(a);
-                archive_read_support_format_raw(a);
-                archive_read_support_format_all(a);
-                r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
-                if (r == ARCHIVE_OK) {
+//                a = archive_read_new();
+//                archive_read_support_filter_all(a);
+//                archive_read_support_format_raw(a);
+//                archive_read_support_format_all(a);
+//                r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
+//                if (r == ARCHIVE_OK) {
+                file_idx=0;
+                if (found) {
                     int arc_counter=0;
-                    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-                        file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                    //while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+                    while (file_idx<found) {
+                        //file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
+                        file=[NSString stringWithUTF8String:archive_entries[file_idx]];
                         
                         NSString *extension;// = [[file pathExtension] uppercaseString];
                         NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
@@ -1535,10 +1568,11 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 }
                             }
                         }
-                        archive_read_data_skip(a);  // Note 2
+//                        archive_read_data_skip(a);  // Note 2
+                        file_idx++;
                     }
                 }
-                r = archive_read_free(a);  // Note 3
+                //r = archive_read_free(a);  // Note 3
             }
             
         }
