@@ -803,13 +803,20 @@ extern bool icloud_available;
 
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath {
     NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-    for (;;) {
-        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-            break;
+    //special case: iCloud    
+    if (icloud_available&& icloudURL) {
+        if ([filePath containsString:[icloudURL path]]) {
+            return [tmp_path componentsJoinedByString:@"/"];
         }
-        [tmp_path removeObjectAtIndex:0];
-        if ([tmp_path count]==0) return NULL;
     }
+    
+        for (;;) {
+            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                break;
+            }
+            [tmp_path removeObjectAtIndex:0];
+            if ([tmp_path count]==0) return NULL;
+        }
     return [tmp_path componentsJoinedByString:@"/"];
 }
 

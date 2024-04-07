@@ -2011,6 +2011,15 @@ static int shouldRestart=1;
     [self addRefreshView];
 }
 
+-(void) resetCachedStats {
+    for (int i=0;i<local_nb_entries;i++) {
+        local_entries_data[i].rating=-1;
+    }
+    for (int i=0;i<search_local_nb_entries;i++) {
+        search_local_entries_data[i].rating=-1;
+    }
+}
+
 -(void) refreshViewReloadFiles {
     
     //if (self.tableView.refreshControl.refreshing) return;
@@ -2270,7 +2279,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         if (darkMode) topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
         else topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:20];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;
         topLabel.text=lbl;
         
@@ -2620,7 +2630,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;
         
         //
@@ -2636,7 +2647,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                   ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         bottomLabel.opaque=TRUE;
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
@@ -2664,6 +2676,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
+        
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+        
+        bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         
         [cell removeAllLeftButtons];
         [cell removeAllRightButtons];
@@ -2868,10 +2886,24 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 
                 secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 
-                [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
-                [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
-                [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-                [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                if (settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value) {
+                    if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                        [secActionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                        [secActionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
+                        [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                        [secActionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    } else {
+                        [secActionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
+                        [secActionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
+                        [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                        [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    }
+                } else {
+                    [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
+                    [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
+                    [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                    [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                }
                 [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
                 
                 secActionView.enabled=YES;
@@ -3184,10 +3216,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
             pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
             [detailViewController play_listmodules:pl start_index:0];
-            
-            cur_local_entries[section][indexPath.row].rating=-1;
-            [detailViewController play_listmodules:pl start_index:0];
-            
+                        
             [tableView reloadData];
             
             free(pl);
@@ -3453,7 +3482,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [self hideWaiting];
             //				[childController autorelease];
-        } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
+        } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton||settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value)) { //Archive selected or multisongs: display files inside
+            
             
             [self updateWaitingTitle:@""];
             [self updateWaitingDetail:@""];
@@ -3506,22 +3536,16 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
-                cur_local_entries[section][indexPath.row].rating=-1;
-                
-                [tabView reloadData];
                 
                 free(pl);
                 
             } else {
                 if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
-                    
-                    [tabView reloadData];
+                                    
                 }
             }
             
             //[self hideWaiting];
-            
-            
         }
     }
     
@@ -3856,6 +3880,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
             waitingViewPlayer.progressView.hidden=detailViewController.waitingView.progressView.hidden;
             waitingViewPlayer.lblTitle.text=[NSString stringWithString:detailViewController.waitingView.lblTitle.text];
             waitingViewPlayer.lblDetail.text=[NSString stringWithString:detailViewController.waitingView.lblDetail.text];
+            
+            
+        } else {
+            if (waitingViewPlayer.hidden==false) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    [self resetCachedStats];
+                    [self.tableView reloadData];
+                }];
+            }
         }
         waitingViewPlayer.hidden=wv.hidden;
         
@@ -3863,7 +3896,5 @@ As a consequence, some entries might disappear from existing playlist.\n\
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
-
-
 
 @end

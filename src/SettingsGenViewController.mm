@@ -466,9 +466,13 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
+    
+    settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value=0;
+        
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
@@ -879,6 +883,31 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_SearchRegExp].type=MDZ_BOOLSWITCH;
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     
+    SETTINGS_ID_DEF(GLOB_ArcMultiDefaultAction)
+    settings[GLOB_ArcMultiDefaultAction].type=MDZ_SWITCH;
+    settings[GLOB_ArcMultiDefaultAction].label=(char*)"Multi default action";
+    settings[GLOB_ArcMultiDefaultAction].description=(char*)"Default action when selecting an archive or a multisong file";
+    settings[GLOB_ArcMultiDefaultAction].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_ArcMultiDefaultAction].sub_family=0;
+    settings[GLOB_ArcMultiDefaultAction].callback=&optGLOBALChangedC;
+    settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels[0]=(char*)"Play";
+    settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels[1]=(char*)"Browse";
+    
+    SETTINGS_ID_DEF(GLOB_TruncateNameMode)
+    settings[GLOB_TruncateNameMode].type=MDZ_SWITCH;
+    settings[GLOB_TruncateNameMode].label=(char*)"Long name truncate";
+    settings[GLOB_TruncateNameMode].description=NULL;
+    settings[GLOB_TruncateNameMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_TruncateNameMode].sub_family=0;
+    settings[GLOB_TruncateNameMode].callback=&optGLOBALChangedC;
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_labels[0]=(char*)"Head";
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_labels[1]=(char*)"Mid.";
+    settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_labels[2]=(char*)"Tail";
+    
     SETTINGS_ID_DEF(GLOB_TitleFilename)
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
@@ -904,7 +933,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_BackgroundMode].sub_family=0;
     settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -918,7 +946,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_EnqueueMode].sub_family=0;
     settings[GLOB_EnqueueMode].callback=&optGLOBALChangedC;
-    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[0]=(char*)"First";
@@ -932,7 +959,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_PlayEnqueueAction].sub_family=0;
     settings[GLOB_PlayEnqueueAction].callback=&optGLOBALChangedC;
-    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[0]=(char*)"Play";
@@ -946,7 +972,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_AfterDownloadAction].sub_family=0;
     settings[GLOB_AfterDownloadAction].callback=&optGLOBALChangedC;
-    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[0]=(char*)"Nothing";
@@ -1118,7 +1143,6 @@ void optNSFPLAYChangedC(id param) {
     settings[FTP_ONOFF].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_ONOFF].callback=&optFTPSwitchChanged;
     settings[FTP_ONOFF].sub_family=0;
-    settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
     settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb=2;
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Stop";
@@ -1194,7 +1218,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_MODLAND_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_MODLAND_URL].callback=&optONLINESwitchChanged;
     settings[ONLINE_MODLAND_URL].sub_family=0;
-    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value=0;
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value_nb=4;
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
@@ -1218,7 +1241,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_HVSC_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_HVSC_URL].callback=&optONLINESwitchChanged;
     settings[ONLINE_HVSC_URL].sub_family=0;
-    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value=0;
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value_nb=4;
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
@@ -1241,7 +1263,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_ASMA_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_ASMA_URL].callback=&optONLINESwitchChanged;
     settings[ONLINE_ASMA_URL].sub_family=0;
-    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value=0;
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value_nb=4;
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
@@ -1296,7 +1317,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].description=NULL;
     settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXOscillo].sub_family=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1310,7 +1330,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSpectrum].description=NULL;
     settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXSpectrum].sub_family=0;
-    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1323,7 +1342,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern].description=NULL;
     settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern].sub_family=0;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=7;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1340,7 +1358,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].description=NULL;
     settings[GLOB_FXMODPattern_CurrentLineMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern_CurrentLineMode].sub_family=0;
-    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[0]=(char*)"Follow";
@@ -1352,7 +1369,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].description=NULL;
     settings[GLOB_FXMODPattern_Font].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern_Font].sub_family=0;
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)"Amiga";
@@ -1367,7 +1383,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].description=NULL;
     settings[GLOB_FXMODPattern_FontSize].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern_FontSize].sub_family=0;
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[0]=(char*)"10";
@@ -1381,7 +1396,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPattern].description=NULL;
     settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDIPattern].sub_family=0;
-    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1394,7 +1408,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPiano].description=NULL;
     settings[GLOB_FXPiano].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPiano].sub_family=0;
-    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1409,7 +1422,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoColorMode].description=NULL;
     settings[GLOB_FXPianoColorMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoColorMode].sub_family=0;
-    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels[0]=(char*)"Note";
@@ -1421,7 +1433,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].description=NULL;
     settings[GLOB_FX3DSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX3DSpectrum].sub_family=0;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1442,7 +1453,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX2].description=NULL;
     settings[GLOB_FX2].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX2].sub_family=0;
-    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FX2].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX2].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX2].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1455,7 +1465,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3].description=NULL;
     settings[GLOB_FX3].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX3].sub_family=0;
-    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FX3].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX3].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1476,7 +1485,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX5].description=NULL;
     settings[GLOB_FX5].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX5].sub_family=0;
-    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FX5].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX5].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX5].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1489,7 +1497,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXLOD].description=NULL;
     settings[GLOB_FXLOD].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXLOD].sub_family=0;
-    settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[0]=(char*)"Low";
@@ -1510,7 +1517,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].description=NULL;
     settings[GLOB_FXFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXFPS].sub_family=0;
-    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
@@ -1670,7 +1676,6 @@ void optNSFPLAYChangedC(id param) {
     settings[OMPT_Sampling].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[OMPT_Sampling].sub_family=0;
     settings[OMPT_Sampling].callback=&optOMPTChangedC;
-    settings[OMPT_Sampling].detail.mdz_switch.switch_value=0;
     settings[OMPT_Sampling].detail.mdz_switch.switch_value_nb=5;
     settings[OMPT_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[OMPT_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[OMPT_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Def.";
@@ -1800,7 +1805,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GSF_SOUNDQUALITY].family=MDZ_SETTINGS_FAMILY_GSF;
     settings[GSF_SOUNDQUALITY].sub_family=0;
     settings[GSF_SOUNDQUALITY].callback=&optGSFChangedC;
-    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb=3;
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels=(char**)malloc(settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[0]=(char*)"11Khz";
@@ -2199,7 +2203,6 @@ void optNSFPLAYChangedC(id param) {
     settings[TIM_Resample].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_Resample].sub_family=0;
     settings[TIM_Resample].callback=&optTIMIDITYChangedC;
-    settings[TIM_Resample].detail.mdz_switch.switch_value=1;
     settings[TIM_Resample].detail.mdz_switch.switch_value_nb=5;
     settings[TIM_Resample].detail.mdz_switch.switch_labels=(char**)malloc(settings[TIM_Resample].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[TIM_Resample].detail.mdz_switch.switch_labels[0]=(char*)"None";
@@ -2245,7 +2248,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YM2612Emulator].sub_family=0;
     settings[VGMPLAY_YM2612Emulator].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value_nb=3;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
@@ -2259,7 +2261,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM3812Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YM3812Emulator].sub_family=0;
     settings[VGMPLAY_YM3812Emulator].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb=2;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBOX";
@@ -2272,7 +2273,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_QSoundEmulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_QSoundEmulator].sub_family=0;
     settings[VGMPLAY_QSoundEmulator].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value_nb=2;
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels[0]=(char*)"CTR";
@@ -2285,7 +2285,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_NUKEDOPN2_Option].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_NUKEDOPN2_Option].sub_family=0;
     settings[VGMPLAY_NUKEDOPN2_Option].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb=4;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[0]=(char*)"2612 Filt.";
@@ -2300,7 +2299,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YMF262Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YMF262Emulator].sub_family=0;
     settings[VGMPLAY_YMF262Emulator].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb=2;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBox (AdLibEmu)";
@@ -2354,7 +2352,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_ResampleQuality].sub_family=0;
     settings[VGMSTREAM_ResampleQuality].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
-    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
@@ -2381,7 +2378,6 @@ void optNSFPLAYChangedC(id param) {
     settings[HC_ResampleQuality].family=MDZ_SETTINGS_FAMILY_HC;
     settings[HC_ResampleQuality].sub_family=0;
     settings[HC_ResampleQuality].callback=&optHCChangedC;
-    settings[HC_ResampleQuality].detail.mdz_switch.switch_value=0;
     settings[HC_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
     settings[HC_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[HC_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
@@ -2412,7 +2408,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_Engine].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_Engine].sub_family=0;
     settings[SID_Engine].callback=&optSIDChangedC;
-    settings[SID_Engine].detail.mdz_switch.switch_value=1;
     settings[SID_Engine].detail.mdz_switch.switch_value_nb=2;
     settings[SID_Engine].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Engine].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_Engine].detail.mdz_switch.switch_labels[0]=(char*)"ReSID";
@@ -2425,7 +2420,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_Interpolation].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_Interpolation].sub_family=0;
     settings[SID_Interpolation].callback=&optSIDChangedC;
-    settings[SID_Interpolation].detail.mdz_switch.switch_value=2;
     settings[SID_Interpolation].detail.mdz_switch.switch_value_nb=3;
     settings[SID_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Fast";
@@ -2495,7 +2489,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_CLOCK].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_CLOCK].sub_family=0;
     settings[SID_CLOCK].callback=&optSIDChangedC;
-    settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
     settings[SID_CLOCK].detail.mdz_switch.switch_value_nb=3;
     settings[SID_CLOCK].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_CLOCK].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_CLOCK].detail.mdz_switch.switch_labels[0]=(char*)"Auto";
@@ -2509,7 +2502,6 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_MODEL].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_MODEL].sub_family=0;
     settings[SID_MODEL].callback=&optSIDChangedC;
-    settings[SID_MODEL].detail.mdz_switch.switch_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_value_nb=3;
     settings[SID_MODEL].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_MODEL].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_MODEL].detail.mdz_switch.switch_labels[0]=(char*)"Auto";
@@ -2630,7 +2622,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_OplType].family=MDZ_SETTINGS_FAMILY_ADPLUG;
     settings[ADPLUG_OplType].sub_family=0;
     settings[ADPLUG_OplType].callback=&optADPLUGChangedC;
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=4;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[0]=(char*)"Woody";
@@ -2645,7 +2636,6 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_StereoSurround].family=MDZ_SETTINGS_FAMILY_ADPLUG;
     settings[ADPLUG_StereoSurround].sub_family=0;
     settings[ADPLUG_StereoSurround].callback=&optADPLUGChangedC;
-    settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value=1;
     settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value_nb=2;
     settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ADPLUG_StereoSurround].detail.mdz_switch.switch_labels[0]=(char*)"Stereo";
@@ -2766,7 +2756,6 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[3]=(char*)"3";
-    settings[XMP_Amplification].detail.mdz_switch.switch_value=1;
     
     /*settings[XMP_DSPLowPass].type=MDZ_BOOLSWITCH;
      settings[XMP_DSPLowPass].label=(char*)"Lowpass filter";

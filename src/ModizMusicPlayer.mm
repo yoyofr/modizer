@@ -4148,7 +4148,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                                   settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 }
                                 const struct gbs_metadata *metadata=gbs_get_metadata(gbs);
-                                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title..........: %s\nName...........:%s\nAuthor.........: %s\nCopyright......: %s\n",
+                                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nName.....:%s\nAuthor...: %s\nCopyright: %s\n",
                                          [mod_title UTF8String],mod_name,metadata->author,metadata->copyright);
                                 
                                 
@@ -12715,7 +12715,7 @@ extern bool icloud_available;
             }
         {
             const struct gbs_metadata *metadata=gbs_get_metadata(gbs);
-            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title..........: %s\nName...........:%s\nAuthor.........: %s\nCopyright......: %s\n",
+            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nName.....:%s\nAuthor...: %s\nCopyright: %s\n",
                      [mod_title UTF8String],mod_name,metadata->author,metadata->copyright);
         }
             

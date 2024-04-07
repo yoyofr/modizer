@@ -493,8 +493,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 
 - (void)_updateStatus:(NSString *)statusString {
     static NSDate *lastDate=nil;
+    static int64_t last_progress=0;
     NSDate *currentDate;
-    int64_t last_progress=0;
     int64_t current_progress;
     static double speed=0;
     
@@ -515,8 +515,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         } else {
             double time_passed=[currentDate timeIntervalSinceDate:lastDate];
             if (time_passed>=0.5f) {
-                lastDate=currentDate;
                 speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
+                lastDate=currentDate;
                 last_progress=current_progress;
             }
         }
@@ -1311,8 +1311,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 
 -(void)updateHTTPProgress:(NSProgress*)downloadProgress{
     static NSDate *lastDate=nil;
+    static int64_t last_progress=0;
     NSDate *currentDate;
-    int64_t last_progress=0;
     int64_t current_progress;
     static double speed=0;
     
@@ -1331,9 +1331,9 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
     } else {
         double time_passed=[currentDate timeIntervalSinceDate:lastDate];
         if (time_passed>=0.5f) {
-            lastDate=currentDate;
             speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
             last_progress=current_progress;
+            lastDate=currentDate;
         }
     }
     
