@@ -2543,7 +2543,7 @@ int recording=0;
     
     
     //ensure any settings changes to be taken into account before loading next file
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     if (mShuffle==1) {
         mOnlyCurrentSubEntry|=2;
@@ -2607,7 +2607,7 @@ int recording=0;
     }
     
     //fix issue with OMPT settings reset after load
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePath];
     
@@ -2914,7 +2914,7 @@ int recording=0;
     loadRequestInProgress=0;
     
     //fix issue with OMPT settings reset after load
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePath];
     
@@ -3143,7 +3143,7 @@ int recording=0;
     // load module
     
     //ensure any settings changes to be taken into account before loading next file
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     if (mShuffle==1) {
         mOnlyCurrentSubEntry|=2;
@@ -3294,7 +3294,7 @@ int recording=0;
     }
     
     //ensure any settings changes to be taken into account before loading next file
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     if (mShuffle==1) {
         mOnlyCurrentSubEntry|=2;
@@ -3365,7 +3365,7 @@ int recording=0;
     
     
     //fix issue with OMPT settings reset after load
-    [self settingsChanged:(int)SETTINGS_ALL];
+    //[self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePathTmp];
     
@@ -5790,8 +5790,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 //    if (loadFont==0) return;
         
     if (mFont) delete mFont;
+    mFont=NULL;
     
-    mFont = new CFont([fontPath cStringUsingEncoding:1]);
+    mFont = new CFont([fontPath UTF8String]);
     if (!mFont) {
         NSLog(@"Issue with mFont init");
         return;
@@ -5966,7 +5967,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     NSString *fontPath;
     if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
     else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-    mFontMenu = new CFont([fontPath cStringUsingEncoding:1]);
+    mFontMenu = new CFont([fontPath UTF8String]);
     if (!mFontMenu) {
         NSLog(@"Issue with mFont init");
         return;

@@ -710,6 +710,7 @@
 		CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE352A52B79704200E06DE1 /* liblibopenmpt-modizer.a */; };
 		CC4884AC2B7A609100BCFFCC /* 05-shuffleone-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */; };
 		CC4884AD2B7A609100BCFFCC /* 05-shuffleone-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */; };
+		CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4AF40D2BC09067006D7EFC /* libvio2sf.a */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC4F49D02B6FB728002A9309 /* c6416.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49C72B6FB728002A9309 /* c6416.fnt */; };
 		CC4F49D12B6FB728002A9309 /* tracking16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49C82B6FB728002A9309 /* tracking16.fnt */; };
@@ -1072,6 +1073,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC1638462B7CDF91003323FD;
 			remoteInfo = libnsfplay;
+		};
+		CC4AF40C2BC09067006D7EFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC4AF3FC2BC09067006D7EFC;
+			remoteInfo = vio2sf;
 		};
 		CC4F49F52B704F4D002A9309 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2198,6 +2206,7 @@
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green.png"; sourceTree = "<group>"; };
 		CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green@2x.png"; sourceTree = "<group>"; };
+		CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vio2sf.xcodeproj; path = vio2sf/vio2sf.xcodeproj; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC4F49C72B6FB728002A9309 /* c6416.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6416.fnt; sourceTree = "<group>"; };
 		CC4F49C82B6FB728002A9309 /* tracking16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking16.fnt; sourceTree = "<group>"; };
@@ -2656,6 +2665,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */,
 				CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */,
 				CCEB59052BAF1D18004831C6 /* liblzma.tbd in Frameworks */,
 				CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */,
@@ -3098,6 +3108,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */,
 				CCE8D74F2B929CDF0076D8C0 /* websid */,
 				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
 				CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */,
@@ -4358,6 +4369,14 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
+		CC4AF4092BC09067006D7EFC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC4AF40D2BC09067006D7EFC /* libvio2sf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC4F49F22B704F4C002A9309 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -5208,6 +5227,10 @@
 					ProjectRef = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
 				},
 				{
+					ProductGroup = CC4AF4092BC09067006D7EFC /* Products */;
+					ProjectRef = CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */;
+				},
+				{
 					ProductGroup = CC7BBD222B800AC600D8CAAE /* Products */;
 					ProjectRef = CC7BBD212B800AC600D8CAAE /* vorbis-openmpt.xcodeproj */;
 				},
@@ -5380,6 +5403,13 @@
 			fileType = archive.ar;
 			path = liblibnsfplay.a;
 			remoteRef = CC1638562B7CDF92003323FD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC4AF40D2BC09067006D7EFC /* libvio2sf.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvio2sf.a;
+			remoteRef = CC4AF40C2BC09067006D7EFC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC4F49F62B704F4D002A9309 /* liblibeupmini.a */ = {

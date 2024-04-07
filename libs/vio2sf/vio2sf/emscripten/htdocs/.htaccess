@@ -1,0 +1,6 @@
+<FilesMatch "\.(ico|pdf|jpg|jpeg|png|gif|js|css|eot|ttf|woff|woff2|wasm|svg|webp)$">
+  Header set Cache-Control "max-age=63072000, public"
+</FilesMatch>
+
+SetOutputFilter DEFLATE
+SetEnvIfNoCase Request_URI "\.(?:gif|jpe?g|png|webp)$" no-gzip

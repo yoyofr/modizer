@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type"
+      content="text/html; charset=utf-8">
+
+<!--
+ webDS: HTML5 Audio/JavaScript port of DeSmuME/2SF decoder.
+
+ Credits: 
+  * The visualization used on this page was strongly "inspired" by this demo:
+    http://html5-demos.appspot.com/static/webaudio/createMediaSourceElement.html
+
+ Copyright:
+	
+	DeSmuME v0.8.0 Copyright (C) 2006 yopyop Copyright (C) 2006-2007 DeSmuME team
+	
+	foo_input_2sf Copyright Christopher Snowhill
+	
+	web stuff Copyright (C) 2019 Juergen Wothke (backend_ds.js is distributed under the same GPL License 
+	used in DeSmuME, other licenses apply to the other components used on this example page.)
+-->
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<title>webDS - Nintendo DS music player</title>
+
+<meta name="description" content="JavaScript port of 2SF decoder; it supports formats: .2sf & .mini2sf ">
+<meta name="author" content="Juergen Wothke">
+<meta name="keywords" content="Web Audio API, HTML5, JavaScript, Nintendo DS">
+
+<link href="stdlib/common.css" rel="stylesheet" type="text/css">
+
+<link rel="image_src" href="screenshot.gif" />
+<meta property="og:image" content="http://www.wothke.ch/webDS/screenshot.gif" />
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+<link type="image/x-icon" href="favicon.ico" />
+
+<style>
+.drop {
+	position: relative;
+	width:300px;
+	height:300px;
+	-webkit-transform: translateX(50px) translateY(130px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+	-moz-transform: translateX(50px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+}
+</style>
+
+<script>
+	window.openDetails = false;
+
+	let allFilesLoadedCallback = function() {
+		$(function() {	// DOM also is loaded
+			try {
+				new Main().run();
+			}
+			catch (e) {
+				alert("fatal error: " + e);
+			}
+		});
+	}
+
+	/*
+	If HTML wasn't such a green banana joke, there would be a built-in feature to allow
+	to specify a simple "include dependencies" configuration in a human readable form... but
+	since this doesn't exist I am using https://github.com/muicss/loadjs as a poor man's
+	crutch (I somewhat enhanced that API with loadJsBundles)
+	*/
+	function loadJsBundles(e){const n=function(e,n,t){let s=n[0];loadjs(s,e);let r=n[1];if(void 0!==r&&null!=r)if("function"==typeof r){let n=function(){r()};loadjs.ready(e,{success:n})}else{let n=function(){t(r)};loadjs.ready(e,{success:n})}};for(const[t,s]of Object.entries(e))if("@onReady"==t){let e=s[0],n=function(){loadJsBundles(s[1])};loadjs.ready(e,{success:n})}else n(t,s,loadJsBundles)}loadjs=function(){var e=function(){},n={},t={},s={};function r(e,n){if(e){var r=s[e];if(t[e]=n,r)for(;r.length;)r[0](e,n),r.splice(0,1)}}function o(n,t){n.call&&(n={success:n}),t.length?(n.error||e)(t):(n.success||e)(n)}function c(n,t,s,r){var o,i,u=document,l=s.async,f=(s.numRetries||0)+1,a=s.before||e,d=n.replace(/[\?|#].*$/,""),h=n.replace(/^(css|img)!/,"");r=r||0,/(^css!|\.css$)/.test(d)?((i=u.createElement("link")).rel="stylesheet",i.href=h,(o="hideFocus"in i)&&i.relList&&(o=0,i.rel="preload",i.as="style")):/(^img!|\.(png|gif|jpg|svg|webp)$)/.test(d)?(i=u.createElement("img")).src=h:((i=u.createElement("script")).src=n,i.async=void 0===l||l),!(i.onload=i.onerror=i.onbeforeload=function(e){var u=e.type[0];if(o)try{i.sheet.cssText.length||(u="e")}catch(e){18!=e.code&&(u="e")}if("e"==u){if((r+=1)<f)return c(n,t,s,r)}else if("preload"==i.rel&&"style"==i.as)return i.rel="stylesheet";t(n,u,e.defaultPrevented)})!==a(n,i)&&u.head.appendChild(i)}function i(e,t,s){var i,u;if(t&&t.trim&&(i=t),u=(i?s:t)||{},i){if(i in n)throw"LoadJS";n[i]=!0}function l(n,t){!function(e,n,t){var s,r,o=(e=e.push?e:[e]).length,i=o,u=[];for(s=function(e,t,s){if("e"==t&&u.push(e),"b"==t){if(!s)return;u.push(e)}--o||n(u)},r=0;r<i;r++)c(e[r],s,t)}(e,(function(e){o(u,e),n&&o({success:n,error:t},e),r(i,e)}),u)}if(u.returnPromise)return new Promise(l);l()}return i.ready=function(e,n){return function(e,n){e=e.push?e:[e];var r,o,c,i=[],u=e.length,l=u;for(r=function(e,t){t.length&&i.push(e),--l||n(i)};u--;)o=e[u],(c=t[o])?r(o,c):(s[o]=s[o]||[]).push(r)}(e,(function(e){o(n,e)})),i},i.done=function(e){r(e,[])},i.reset=function(){n={},t={},s={}},i.isDefined=function(e){return e in n},i}();
+
+	loadJsBundles({
+		uiBundle:	[[
+						'stdlib/mini_controls.js',
+						'stdlib/analytics.js'
+						]],
+		jQueryBase: [[	'stdlib/jquery1.11.min.js'], {
+								jQueryBundle: [[	'stdlib/jquery.details.min.js',
+													'stdlib/mini_display.js',
+													]],
+						}],
+		playerBase: [[	'stdlib/scriptprocessor_player.min.js'], {
+								playerBundle: [[	'backend_ds.js'
+													]],
+							}],
+		"@onReady": [['uiBundle', 'jQueryBundle', 'playerBundle'], {
+								mainBundle: [['main.js'], allFilesLoadedCallback]
+							}]
+	});
+</script>
+</head>
+
+<body>
+<div class="tooltip" id="tooltip" alt= "This is a hobby project, but it costs not only time to regularily maintain this site but also money to pay for the internet service provider (etc). If you want to keep this site up and running.. or if you just like my work (see https://jwothke.wordpress.com/) and you'd like to see more of it in the future, please make a contribution. Thank you!"></div>
+
+<details>
+  <summary>What's this?</summary>
+  <div>
+  <h2>WebAudio port of '2SF decoder'</h2>
+  <p>Copyright (C) 2019 by Juergen Wothke  (The source code can be found <a href="https://bitbucket.org/wothke/webDS/" rel="noopener" target="_blank">here</a>.)</p>
+  <p>webDS is a JavaScript/HTML5 port of kode54's <a href="https://www.foobar2000.org/components/view/foo_input_vio2sf" rel="noopener" target="_blank">2SF decoder</a> a 
+  player for "Nintendo DS" music (based on DeSmuME).</p>
+ 
+  <p>Bring your own .mini2sf/.2sf files by dropping them onto the game console (you'll have to drop the .2sflib first - before 
+  dropping the song files that use it). Respective files can be found for example on 
+  <a href="http://ftp.modland.com/pub/modules/Nintendo%20DS%20Sound%20Format/" rel="noopener" target="_blank">modland.com</a>.</p>
+ 
+  <p>The audio is directly calculated within JavaScript by running the DeSmuME emulator and then played using
+  the WebAudio ScriptProcessorNode infrastructure.</p>
+
+  <p>This is one of about 30 music players that I have ported to the Web over the years. To hear them all
+  in action visit my <a href="http://www.wothke.ch/playmod/" rel="noopener" target="_blank">PlayMOD</a> page</p>
+ 
+  <p>Please use the below controls to navigate between the songs:</p>
+  <span id="controls"></span>
+ </div>
+</details>
+<section>
+  <div id="logo">
+		<!-- in new Chrome the SHIT reflections disapear dependig on the canvas height.. what a fucking joke -->
+		<div id="moz-reflect-logo"><canvas  id="logoCanvas"  width="270" height="100"></canvas></div>	
+  </div>
+  
+  <div id="spectrum" >
+		<!-- use "hight" greater than 80 and the fucking reflection is gone.. FUCK YOU IDIOTS -->
+		<div id="moz-reflect-spectrum"><canvas id="spectrumCanvas" width="800" height="80"></canvas></div>
+  </div>
+  <div id="drop" class="drop"><img src="ds.gif"/></div><!--see BasicPlayerControls-->
+  <div id="spinner"></div>
+</section>
+</body>
+</html>

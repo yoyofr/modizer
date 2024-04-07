@@ -24,11 +24,7 @@ CCharacterData::CCharacterData()
 
 CCharacterData::~CCharacterData()
 {
-//	delete [] buffer;
-}
-
-void CCharacterData::Unalloc() {
-    if (buffer!=NULL) delete [] buffer;
+	if (buffer) delete [] buffer;
     buffer=NULL;
 }
 
@@ -87,6 +83,8 @@ int CFont::GetHeightForTexture(int textureWidth, int charWidth, int charHeight)
 CFont::CFont(const std::string &fontFilename)
 {
 	FILE *fontFile = fopen(fontFilename.c_str(), "rb");
+    mCharacterData=NULL;
+    mTexId=0;
 	
 	if (fontFile)
 	{		
@@ -247,9 +245,8 @@ CFont::CFont(const std::string &fontFilename)
 
 CFont::~CFont()
 {
-//	delete [] mCharacterData;
-    for (int i=0;i<256;i++) {
-        mCharacterData[i].Unalloc();
-    }
-    delete [] mCharacterData;
+	if (mCharacterData) delete [] mCharacterData;
+    mCharacterData=NULL;
+    if (mTexId) glDeleteTextures(1,&mTexId);
+    mTexId=0;
 }

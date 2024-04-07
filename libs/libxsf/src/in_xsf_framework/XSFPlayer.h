@@ -27,10 +27,10 @@ protected:
 	XSFPlayer();
 	XSFPlayer(const XSFPlayer &xSFPLayer);
 public:
-    unsigned sampleRate, detectedSilenceSample, detectedSilenceSec, skipSilenceOnStartSec, lengthSample, fadeSample;
-    int lengthInMS, fadeInMS;
+    unsigned long long sampleRate, detectedSilenceSample, detectedSilenceSec, skipSilenceOnStartSec, lengthSample, fadeSample;
+    long long  lengthInMS, fadeInMS;
     
-    unsigned currentSample;
+    unsigned long long currentSample;
 	// These are not defined in XSFPlayer.cpp, they should be defined in your own player's source.  The Create functions should return a pointer to your player's class.
 	//static const char *WinampDescription;
 	//static const char *WinampExts;
@@ -40,8 +40,8 @@ public:
 	XSFPlayer &operator=(const XSFPlayer &xSFPlayer);
 	XSFFile *GetXSFFile() { return this->xSF.get(); }
 	const XSFFile *GetXSFFile() const { return this->xSF.get(); }
-	unsigned GetLengthInSamples() const { return this->lengthSample + this->fadeSample; }
-	unsigned GetSampleRate() const { return this->sampleRate; }
+	unsigned long long GetLengthInSamples() const { return this->lengthSample + this->fadeSample; }
+	unsigned long long GetSampleRate() const { return this->sampleRate; }
     void SetSampleRate(unsigned newSampleRate) { this->sampleRate = newSampleRate; }
 	void IgnoreVolume() { this->ignoreVolume = true; }
 	virtual bool Load();

@@ -281,6 +281,7 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	int infinite_loops;
 	int fade_out_wait;
 	int length_ms,master_volume;
+    
 	
 	__GETSELF;
 	
@@ -288,76 +289,17 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	
 	self->mdx = orig_mdx;
 	self->pdx = orig_pdx;
+    
+    mdx_parse_mml_ym2151_async_initialize(orig_mdx,orig_pdx);
+    while (mdx_parse_mml_ym2151_async(self)) {
+    }
+    length_ms=self->mdx->elapsed_time/1000;
+    mdx_parse_mml_ym2151_async_finalize(self);
 	
 	mdx_init_track_work_area_ym2151();
+    
+    return length_ms;
 	
-	/* start parsing */
-	
-	all_track_finished=FLAG_FALSE;
-	fade_out_wait=0;
-	master_volume=127;
-	
-	gettimeofday(&st, NULL);
-	srand((int)st.tv_usec%65536);
-	
-	while(all_track_finished==FLAG_FALSE) {
-		
-		if ( self->fade_out > 0 ) {
-			if ( fade_out_wait==0 ) { fade_out_wait = self->fade_out; }
-			fade_out_wait--;
-			if ( fade_out_wait==0 ) { master_volume--; }
-			if ( master_volume==0 ) { break; }
-		}
-		
-		all_track_finished=FLAG_TRUE;
-		infinite_loops = 32767; /* large enough */
-		for ( i=0 ; i<self->mdx->tracks ; i++ ) {
-			
-			if ( self->mdx->track[i].waiting_sync == FLAG_TRUE )
-			{ continue; }
-			
-			count = self->mdx->track[i].counter;
-			if ( count < 0 ) { continue; } /* this track has finished */
-			all_track_finished=FLAG_FALSE;
-			
-			self->mdx->track[i].gate--;
-			if ( self->mdx->track[i].gate == 0 ) { note_off( i ); }
-			
-			if ( i<8 ) {
-				ym2151_set_freq_volume( i ); /* do portament, lfo, detune */
-			}
-			
-			count--;
-			while ( count == 0 ) {
-				count=set_new_event( i );
-			}
-			
-			self->mdx->track[i].counter = count;
-			if ( infinite_loops > self->mdx->track[i].infinite_loop_times ) {
-				infinite_loops = self->mdx->track[i].infinite_loop_times;
-			}
-		}
-		
-		if ( self->mdx->max_infinite_loops > 0 ) {
-			if ( infinite_loops >= self->mdx->max_infinite_loops ) {
-				self->fade_out = self->mdx->fade_out_speed;
-			}
-		}
-		
-		/* timer count */
-		
-		self->mdx->total_count++;
-		self->mdx->elapsed_time += 1000*1024*(256 - self->mdx->tempo)/4000;
-		
-		st.tv_usec += 1000* 1024*(256 - self->mdx->tempo)/4000;
-		length_ms += 1024*(256 - self->mdx->tempo)/4000;
-		while ( st.tv_usec >= 1000*1000 ) {
-			st.tv_usec-=1000*1000;
-			st.tv_sec++;
-		}
-	}
-	
-	return length_ms;
 }
 
 

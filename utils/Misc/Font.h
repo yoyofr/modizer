@@ -21,9 +21,7 @@ public:
 	// Given an open file, load a character's worth of data
 	void Load(FILE *fontFile);
     
-    void Unalloc();
-	
-	// Refer to the README file that comes with Paul Nettle's Font generator
+    // Refer to the README file that comes with Paul Nettle's Font generator
 	// for details of these values.
 	int byteWidth;
 	int byteHeight;

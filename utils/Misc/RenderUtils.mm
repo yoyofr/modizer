@@ -188,11 +188,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
         //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        mOscilloFont[0] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[0] = new CFont([fontPath UTF8String]);
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-        mOscilloFont[1] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[1] = new CFont([fontPath UTF8String]);
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-        mOscilloFont[2] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[2] = new CFont([fontPath UTF8String]);
     }
     
     if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
@@ -520,11 +520,11 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
         //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
         //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        mOscilloFont[0] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[0] = new CFont([fontPath UTF8String]);
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-        mOscilloFont[1] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[1] = new CFont([fontPath UTF8String]);
         fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-        mOscilloFont[2] = new CFont([fontPath cStringUsingEncoding:1]);
+        mOscilloFont[2] = new CFont([fontPath UTF8String]);
     }
     
     if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)

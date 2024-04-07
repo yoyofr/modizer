@@ -1,0 +1,433 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC4AF43B2BC090B1006D7EFC /* arm_instructions.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF40E2BC090B1006D7EFC /* arm_instructions.c */; };
+		CC4AF43C2BC090B1006D7EFC /* armcpu.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4112BC090B1006D7EFC /* armcpu.c */; };
+		CC4AF43D2BC090B1006D7EFC /* barray.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4132BC090B1006D7EFC /* barray.c */; };
+		CC4AF43E2BC090B1006D7EFC /* bios.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4152BC090B1006D7EFC /* bios.c */; };
+		CC4AF43F2BC090B1006D7EFC /* cp15.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF41A2BC090B1006D7EFC /* cp15.c */; };
+		CC4AF4402BC090B1006D7EFC /* FIFO.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF41E2BC090B1006D7EFC /* FIFO.c */; };
+		CC4AF4412BC090B1006D7EFC /* GPU.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4202BC090B1006D7EFC /* GPU.c */; };
+		CC4AF4432BC090B1006D7EFC /* isqrt.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4232BC090B1006D7EFC /* isqrt.c */; };
+		CC4AF4442BC090B1006D7EFC /* matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4252BC090B1006D7EFC /* matrix.c */; };
+		CC4AF4452BC090B1006D7EFC /* mc.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4272BC090B1006D7EFC /* mc.c */; };
+		CC4AF4462BC090B1006D7EFC /* MMU.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF42A2BC090B1006D7EFC /* MMU.c */; };
+		CC4AF4472BC090B1006D7EFC /* NDSSystem.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF42C2BC090B1006D7EFC /* NDSSystem.c */; };
+		CC4AF4482BC090B1006D7EFC /* resampler.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF42F2BC090B1006D7EFC /* resampler.c */; };
+		CC4AF4492BC090B1006D7EFC /* vio2sf_SPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4322BC090B1006D7EFC /* vio2sf_SPU.cpp */; };
+		CC4AF44A2BC090B1006D7EFC /* state.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4342BC090B1006D7EFC /* state.c */; };
+		CC4AF44B2BC090B1006D7EFC /* thumb_instructions.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4362BC090B1006D7EFC /* thumb_instructions.c */; };
+		CC4AF4502BC0915C006D7EFC /* twosfplug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF44F2BC0915C006D7EFC /* twosfplug.cpp */; };
+		CC4AF4582BC09170006D7EFC /* psf2fs.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4522BC09170006D7EFC /* psf2fs.c */; };
+		CC4AF4592BC09170006D7EFC /* vio_psflib.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4542BC09170006D7EFC /* vio_psflib.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC4AF3FA2BC09067006D7EFC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC4AF3FC2BC09067006D7EFC /* libvio2sf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libvio2sf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC4AF40E2BC090B1006D7EFC /* arm_instructions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = arm_instructions.c; sourceTree = "<group>"; };
+		CC4AF40F2BC090B1006D7EFC /* arm_instructions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arm_instructions.h; sourceTree = "<group>"; };
+		CC4AF4102BC090B1006D7EFC /* ARM9.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARM9.h; sourceTree = "<group>"; };
+		CC4AF4112BC090B1006D7EFC /* armcpu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = armcpu.c; sourceTree = "<group>"; };
+		CC4AF4122BC090B1006D7EFC /* armcpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = armcpu.h; sourceTree = "<group>"; };
+		CC4AF4132BC090B1006D7EFC /* barray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = barray.c; sourceTree = "<group>"; };
+		CC4AF4142BC090B1006D7EFC /* barray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = barray.h; sourceTree = "<group>"; };
+		CC4AF4152BC090B1006D7EFC /* bios.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bios.c; sourceTree = "<group>"; };
+		CC4AF4162BC090B1006D7EFC /* bios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bios.h; sourceTree = "<group>"; };
+		CC4AF4172BC090B1006D7EFC /* bits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bits.h; sourceTree = "<group>"; };
+		CC4AF4182BC090B1006D7EFC /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		CC4AF41A2BC090B1006D7EFC /* cp15.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cp15.c; sourceTree = "<group>"; };
+		CC4AF41B2BC090B1006D7EFC /* cp15.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cp15.h; sourceTree = "<group>"; };
+		CC4AF41C2BC090B1006D7EFC /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		CC4AF41D2BC090B1006D7EFC /* dscard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dscard.h; sourceTree = "<group>"; };
+		CC4AF41E2BC090B1006D7EFC /* FIFO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FIFO.c; sourceTree = "<group>"; };
+		CC4AF41F2BC090B1006D7EFC /* FIFO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIFO.h; sourceTree = "<group>"; };
+		CC4AF4202BC090B1006D7EFC /* GPU.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GPU.c; sourceTree = "<group>"; };
+		CC4AF4212BC090B1006D7EFC /* GPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPU.h; sourceTree = "<group>"; };
+		CC4AF4232BC090B1006D7EFC /* isqrt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = isqrt.c; sourceTree = "<group>"; };
+		CC4AF4242BC090B1006D7EFC /* isqrt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = isqrt.h; sourceTree = "<group>"; };
+		CC4AF4252BC090B1006D7EFC /* matrix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = matrix.c; sourceTree = "<group>"; };
+		CC4AF4262BC090B1006D7EFC /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
+		CC4AF4272BC090B1006D7EFC /* mc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mc.c; sourceTree = "<group>"; };
+		CC4AF4282BC090B1006D7EFC /* mc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mc.h; sourceTree = "<group>"; };
+		CC4AF4292BC090B1006D7EFC /* mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mem.h; sourceTree = "<group>"; };
+		CC4AF42A2BC090B1006D7EFC /* MMU.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MMU.c; sourceTree = "<group>"; };
+		CC4AF42B2BC090B1006D7EFC /* MMU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMU.h; sourceTree = "<group>"; };
+		CC4AF42C2BC090B1006D7EFC /* NDSSystem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NDSSystem.c; sourceTree = "<group>"; };
+		CC4AF42D2BC090B1006D7EFC /* NDSSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDSSystem.h; sourceTree = "<group>"; };
+		CC4AF42E2BC090B1006D7EFC /* registers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = registers.h; sourceTree = "<group>"; };
+		CC4AF42F2BC090B1006D7EFC /* resampler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = resampler.c; sourceTree = "<group>"; };
+		CC4AF4302BC090B1006D7EFC /* resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resampler.h; sourceTree = "<group>"; };
+		CC4AF4312BC090B1006D7EFC /* spu_exports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spu_exports.h; sourceTree = "<group>"; };
+		CC4AF4322BC090B1006D7EFC /* vio2sf_SPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vio2sf_SPU.cpp; sourceTree = "<group>"; };
+		CC4AF4332BC090B1006D7EFC /* vio2sf_SPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vio2sf_SPU.h; sourceTree = "<group>"; };
+		CC4AF4342BC090B1006D7EFC /* state.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = state.c; sourceTree = "<group>"; };
+		CC4AF4352BC090B1006D7EFC /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
+		CC4AF4362BC090B1006D7EFC /* thumb_instructions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = thumb_instructions.c; sourceTree = "<group>"; };
+		CC4AF4372BC090B1006D7EFC /* thumb_instructions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thumb_instructions.h; sourceTree = "<group>"; };
+		CC4AF4392BC090B1006D7EFC /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		CC4AF44F2BC0915C006D7EFC /* twosfplug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = twosfplug.cpp; path = vio2sf/emscripten/twosfplug.cpp; sourceTree = "<group>"; };
+		CC4AF4512BC09170006D7EFC /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CC4AF4522BC09170006D7EFC /* psf2fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psf2fs.c; sourceTree = "<group>"; };
+		CC4AF4532BC09170006D7EFC /* psf2fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psf2fs.h; sourceTree = "<group>"; };
+		CC4AF4542BC09170006D7EFC /* vio_psflib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vio_psflib.c; sourceTree = "<group>"; };
+		CC4AF4552BC09170006D7EFC /* vio_psflib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vio_psflib.h; sourceTree = "<group>"; };
+		CC4AF4562BC09170006D7EFC /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC4AF3F92BC09067006D7EFC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC4AF3F32BC09067006D7EFC = {
+			isa = PBXGroup;
+			children = (
+				CC4AF44F2BC0915C006D7EFC /* twosfplug.cpp */,
+				CC4AF4572BC09170006D7EFC /* psflib */,
+				CC4AF43A2BC090B1006D7EFC /* desmume */,
+				CC4AF3FD2BC09067006D7EFC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC4AF3FD2BC09067006D7EFC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC4AF3FC2BC09067006D7EFC /* libvio2sf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC4AF43A2BC090B1006D7EFC /* desmume */ = {
+			isa = PBXGroup;
+			children = (
+				CC4AF40E2BC090B1006D7EFC /* arm_instructions.c */,
+				CC4AF4112BC090B1006D7EFC /* armcpu.c */,
+				CC4AF4132BC090B1006D7EFC /* barray.c */,
+				CC4AF4152BC090B1006D7EFC /* bios.c */,
+				CC4AF41A2BC090B1006D7EFC /* cp15.c */,
+				CC4AF41E2BC090B1006D7EFC /* FIFO.c */,
+				CC4AF4202BC090B1006D7EFC /* GPU.c */,
+				CC4AF4232BC090B1006D7EFC /* isqrt.c */,
+				CC4AF4252BC090B1006D7EFC /* matrix.c */,
+				CC4AF4272BC090B1006D7EFC /* mc.c */,
+				CC4AF42A2BC090B1006D7EFC /* MMU.c */,
+				CC4AF42C2BC090B1006D7EFC /* NDSSystem.c */,
+				CC4AF42F2BC090B1006D7EFC /* resampler.c */,
+				CC4AF4342BC090B1006D7EFC /* state.c */,
+				CC4AF4362BC090B1006D7EFC /* thumb_instructions.c */,
+				CC4AF4322BC090B1006D7EFC /* vio2sf_SPU.cpp */,
+				CC4AF40F2BC090B1006D7EFC /* arm_instructions.h */,
+				CC4AF4102BC090B1006D7EFC /* ARM9.h */,
+				CC4AF4122BC090B1006D7EFC /* armcpu.h */,
+				CC4AF4142BC090B1006D7EFC /* barray.h */,
+				CC4AF4162BC090B1006D7EFC /* bios.h */,
+				CC4AF4172BC090B1006D7EFC /* bits.h */,
+				CC4AF4182BC090B1006D7EFC /* config.h */,
+				CC4AF41B2BC090B1006D7EFC /* cp15.h */,
+				CC4AF41C2BC090B1006D7EFC /* debug.h */,
+				CC4AF41D2BC090B1006D7EFC /* dscard.h */,
+				CC4AF41F2BC090B1006D7EFC /* FIFO.h */,
+				CC4AF4212BC090B1006D7EFC /* GPU.h */,
+				CC4AF4242BC090B1006D7EFC /* isqrt.h */,
+				CC4AF4262BC090B1006D7EFC /* matrix.h */,
+				CC4AF4282BC090B1006D7EFC /* mc.h */,
+				CC4AF4292BC090B1006D7EFC /* mem.h */,
+				CC4AF42B2BC090B1006D7EFC /* MMU.h */,
+				CC4AF42D2BC090B1006D7EFC /* NDSSystem.h */,
+				CC4AF42E2BC090B1006D7EFC /* registers.h */,
+				CC4AF4302BC090B1006D7EFC /* resampler.h */,
+				CC4AF4312BC090B1006D7EFC /* spu_exports.h */,
+				CC4AF4332BC090B1006D7EFC /* vio2sf_SPU.h */,
+				CC4AF4352BC090B1006D7EFC /* state.h */,
+				CC4AF4372BC090B1006D7EFC /* thumb_instructions.h */,
+				CC4AF4392BC090B1006D7EFC /* types.h */,
+			);
+			name = desmume;
+			path = vio2sf/vio2sf/desmume;
+			sourceTree = "<group>";
+		};
+		CC4AF4572BC09170006D7EFC /* psflib */ = {
+			isa = PBXGroup;
+			children = (
+				CC4AF4512BC09170006D7EFC /* LICENSE */,
+				CC4AF4522BC09170006D7EFC /* psf2fs.c */,
+				CC4AF4532BC09170006D7EFC /* psf2fs.h */,
+				CC4AF4542BC09170006D7EFC /* vio_psflib.c */,
+				CC4AF4552BC09170006D7EFC /* vio_psflib.h */,
+				CC4AF4562BC09170006D7EFC /* README.txt */,
+			);
+			name = psflib;
+			path = vio2sf/psflib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC4AF3FB2BC09067006D7EFC /* vio2sf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC4AF4052BC09067006D7EFC /* Build configuration list for PBXNativeTarget "vio2sf" */;
+			buildPhases = (
+				CC4AF3F82BC09067006D7EFC /* Sources */,
+				CC4AF3F92BC09067006D7EFC /* Frameworks */,
+				CC4AF3FA2BC09067006D7EFC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = vio2sf;
+			productName = vio2sf;
+			productReference = CC4AF3FC2BC09067006D7EFC /* libvio2sf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC4AF3F42BC09067006D7EFC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					CC4AF3FB2BC09067006D7EFC = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = CC4AF3F72BC09067006D7EFC /* Build configuration list for PBXProject "vio2sf" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC4AF3F32BC09067006D7EFC;
+			productRefGroup = CC4AF3FD2BC09067006D7EFC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC4AF3FB2BC09067006D7EFC /* vio2sf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC4AF3F82BC09067006D7EFC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC4AF4472BC090B1006D7EFC /* NDSSystem.c in Sources */,
+				CC4AF4442BC090B1006D7EFC /* matrix.c in Sources */,
+				CC4AF43F2BC090B1006D7EFC /* cp15.c in Sources */,
+				CC4AF4492BC090B1006D7EFC /* vio2sf_SPU.cpp in Sources */,
+				CC4AF4502BC0915C006D7EFC /* twosfplug.cpp in Sources */,
+				CC4AF4402BC090B1006D7EFC /* FIFO.c in Sources */,
+				CC4AF4452BC090B1006D7EFC /* mc.c in Sources */,
+				CC4AF4582BC09170006D7EFC /* psf2fs.c in Sources */,
+				CC4AF43E2BC090B1006D7EFC /* bios.c in Sources */,
+				CC4AF4592BC09170006D7EFC /* vio_psflib.c in Sources */,
+				CC4AF4412BC090B1006D7EFC /* GPU.c in Sources */,
+				CC4AF43B2BC090B1006D7EFC /* arm_instructions.c in Sources */,
+				CC4AF44A2BC090B1006D7EFC /* state.c in Sources */,
+				CC4AF4432BC090B1006D7EFC /* isqrt.c in Sources */,
+				CC4AF4462BC090B1006D7EFC /* MMU.c in Sources */,
+				CC4AF43C2BC090B1006D7EFC /* armcpu.c in Sources */,
+				CC4AF43D2BC090B1006D7EFC /* barray.c in Sources */,
+				CC4AF4482BC090B1006D7EFC /* resampler.c in Sources */,
+				CC4AF44B2BC090B1006D7EFC /* thumb_instructions.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC4AF4032BC09067006D7EFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CC4AF4042BC09067006D7EFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC4AF4062BC09067006D7EFC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC4AF4072BC09067006D7EFC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC4AF3F72BC09067006D7EFC /* Build configuration list for PBXProject "vio2sf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4AF4032BC09067006D7EFC /* Debug */,
+				CC4AF4042BC09067006D7EFC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC4AF4052BC09067006D7EFC /* Build configuration list for PBXNativeTarget "vio2sf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC4AF4062BC09067006D7EFC /* Debug */,
+				CC4AF4072BC09067006D7EFC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC4AF3F42BC09067006D7EFC /* Project object */;
+}

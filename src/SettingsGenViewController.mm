@@ -463,6 +463,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
@@ -1059,6 +1060,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_labels[0]=(char*)"LIBKSS";
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    SETTINGS_ID_DEF(GLOB_Default2SFPlayer)
+    settings[GLOB_Default2SFPlayer].type=MDZ_SWITCH;
+    settings[GLOB_Default2SFPlayer].label=(char*)"Default 2SF player";
+    settings[GLOB_Default2SFPlayer].description=NULL;
+    settings[GLOB_Default2SFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_Default2SFPlayer].sub_family=0;
+    settings[GLOB_Default2SFPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"XSF";
+    settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"VIO2SF";
     
     SETTINGS_ID_DEF(GLOB_DefaultMIDIPlayer)
     settings[GLOB_DefaultMIDIPlayer].type=MDZ_SWITCH;
