@@ -567,6 +567,7 @@ struct gbs *common_init(int argc, char **argv)
 	//cfg_parse((const char*)usercfg, options);
 	free(usercfg);
 
+    optind=1;
 	parseopts(&argc, &argv);
 
 	select_plugin();
@@ -589,13 +590,15 @@ struct gbs *common_init(int argc, char **argv)
 	if (sound_open(&actual_endian, rate, &buf.bytes, metadata) != 0) {
 		fprintf(stderr, _("Could not open output plugin \"%s\"\n"),
 		        sound_name);
-		exit(1);
+        //exit(1);
+        return NULL;
 	}
 	if (requested_endian != PLUGOUT_ENDIAN_AUTOSELECT &&
 	    actual_endian != requested_endian) {
 		fprintf(stderr, _("Unsupported endian for output plugin \"%s\"\n"),
 		        sound_name);
-		exit(1);
+//		exit(1);
+        return NULL;
 	}
 	buf.data = malloc(buf.bytes);
 
@@ -611,7 +614,8 @@ struct gbs *common_init(int argc, char **argv)
 
 	gbs = gbs_open(argv[0]);
 	if (gbs == NULL) {
-		exit(1);
+		//exit(1);
+        return NULL;
 	}
 
 	if (sound_io)
@@ -621,7 +625,8 @@ struct gbs *common_init(int argc, char **argv)
 	gbs_configure_output(gbs, &buf, rate);
 	if (!gbs_set_filter(gbs, parse_filter(filter_type))) {
 		fprintf(stderr, _("Invalid filter type \"%s\"\n"), filter_type);
-		exit(1);
+		//exit(1);
+        return NULL;
 	}
 
 	/* sanitize commandline values */
