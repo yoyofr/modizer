@@ -483,7 +483,7 @@ static int sampleVolume,mInterruptShoudlRestart;
 //static volatile int genCurOffset,genCurOffsetCnt;
 static char str_name[1024];
 static char *stil_info;//[MAX_STIL_DATA_LENGTH];
-char *mod_message;//[8192+MAX_STIL_DATA_LENGTH];
+char *mod_message;//MAX_STIL_DATA_LENGTH*2
 static char mod_name[1024];
 static char mod_filename[1024];
 static NSString *mod_title,*mod_artist;
@@ -1922,11 +1922,11 @@ static int tim_output_data(char *buf, int32 nbytes) {
 }
 
 static int tim_acntl(int request, void *arg) {
-    //    NSLog(@"acntl: req %d",request);
+        //NSLog(@"acntl: req %d",request);
     
     switch (request){
         case PM_REQ_GETFRAGSIZ:
-            *((int *)arg) = 4096;
+            *((int *)arg) = SOUND_BUFFER_SIZE_SAMPLE*4;//4096;
             return 0;
             
         case PM_REQ_GETQSIZ:
@@ -1972,7 +1972,10 @@ static int tim_acntl(int request, void *arg) {
             return 0;
             
         case PM_REQ_PLAY_START:
-            //            NSLog(@"acntl: PM_REQ_PLAY_START");
+                        NSLog(@"acntl: PM_REQ_PLAY_START");
+            return 0;
+        case PM_REQ_PLAY_END:
+                        NSLog(@"acntl: PM_REQ_PLAY_END");
             return 0;
             
         case PM_REQ_FLUSH:
@@ -3129,7 +3132,7 @@ extern "C" {
         }
         
         if (mNeedSeek==2) {
-            if (seek_tgtSamples>mCurrentSamples) {
+            if (mCurrentSamples<seek_tgtSamples) {
                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                 iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                 return;
@@ -3178,8 +3181,6 @@ extern "C" {
             
             
             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
-            iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
-            
             buffer_ana_sample_ofs[buffer_ana_gen_ofs]=mCurrentSamples;
             
             if ((mNeedSeek==2)&&(seek_needed==-1)) {
@@ -4061,6 +4062,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         int quit=0;
                         intr = 0;
                         tim_finished=0;
+                        int64_t mStartPosSamples;
                         while (g_playing&&(!quit)) {
                             if (mNeedSeek==1) {
                                 seek_needed=mNeedSeekTime;
@@ -4074,6 +4076,36 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                 }
+                                mStartPosSamples=mCurrentSamples;
+                                
+                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    //Run UI Updates
+                                    [detailViewControllerIphone showWaitingCancel];
+                                    [detailViewControllerIphone showWaitingProgress];
+                                    [detailViewControllerIphone showWaiting];
+                                    [detailViewControllerIphone updateWaitingTitle:NSLocalizedString(@"Seeking",@"")];
+                                    [detailViewControllerIphone updateWaitingDetail:@""];
+                                });
+                            }
+                            if (mNeedSeek==2) {
+                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    //Run UI Updates
+                                    [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(seek_tgtSamples-mStartPosSamples)]];
+                                });
+                                if ([detailViewControllerIphone isCancelPending]) {
+                                    [detailViewControllerIphone resetCancelStatus];
+                                    //mSeekSamples=mCurrentSamples;
+                                    mNeedSeek=3;
+                                }
+                            }
+                            if (mNeedSeek==3) {
+                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    [detailViewControllerIphone hideWaiting];
+                                    [detailViewControllerIphone hideWaitingCancel];
+                                });
+                                mNeedSeek=0;
+                                bGlobalSeekProgress=0;
+                                seek_needed=-1;
                             }
                             if (!step_emulation(gbs)) {
                                 quit = 1;
@@ -6098,6 +6130,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 nbBytes*=2;
                             }
+                            mCurrentSamples+=nbBytes/4;
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
@@ -6798,7 +6831,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         TrackLength = optGENDefaultLength;
     }
     
-    
+    psftag_getraw(tag,mod_message,MAX_STIL_DATA_LENGTH*2-1);
     
     iModuleLength=TrackLength;
     

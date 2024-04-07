@@ -103,7 +103,7 @@
 
 /* type of floating point number */
 //typedef double FLOAT_T;
-typedef float FLOAT_T;
+typedef double FLOAT_T;
 
 
 /* A somewhat arbitrary frequency range. The low end of this will
