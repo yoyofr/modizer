@@ -516,8 +516,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
             double time_passed=[currentDate timeIntervalSinceDate:lastDate];
             if (time_passed>=0.5f) {
                 lastDate=currentDate;
-                
                 speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
+                last_progress=current_progress;
             }
         }
         
@@ -946,17 +946,29 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                         NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
-                        
-                        mFilePath[mFTPDownloadQueueDepth]=localPath;
-                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
-                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
-                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
-                        
-                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
-                        mFileSize[mFTPDownloadQueueDepth]=-1;
-                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
-                        
-                        mFTPDownloadQueueDepth++;
+                        //add only if file isn't existing already
+                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                            
+                            bool already_in=false;
+                            for (int j=0;j<mFTPDownloadQueueDepth;j++) {
+                                if ([mFTPpath[mFTPDownloadQueueDepth] isEqualToString:ftpPath]) {
+                                    already_in=true;
+                                    break;
+                                }
+                            }
+                            if (!already_in) {
+                                mFilePath[mFTPDownloadQueueDepth]=localPath;
+                                mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                                mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                                mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                                
+                                mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                                mFileSize[mFTPDownloadQueueDepth]=-1;
+                                mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                                
+                                mFTPDownloadQueueDepth++;
+                            }
+                        }
                     }
                     
                 }
@@ -975,17 +987,30 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                         NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
-                        
-                        mFilePath[mFTPDownloadQueueDepth]=localPath;
-                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
-                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
-                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
-                        
-                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
-                        mFileSize[mFTPDownloadQueueDepth]=-1;
-                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
-                        
-                        mFTPDownloadQueueDepth++;
+                        //add only if file isn't existing already
+                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                            
+                            bool already_in=false;
+                            for (int j=0;j<mFTPDownloadQueueDepth;j++) {
+                                if ([mFTPpath[mFTPDownloadQueueDepth] isEqualToString:ftpPath]) {
+                                    already_in=true;
+                                    break;
+                                }
+                            }
+                            if (!already_in) {
+                                
+                                mFilePath[mFTPDownloadQueueDepth]=localPath;
+                                mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                                mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                                mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                                
+                                mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                                mFileSize[mFTPDownloadQueueDepth]=-1;
+                                mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                                
+                                mFTPDownloadQueueDepth++;
+                            }
+                        }
                     }
                 }
                 r.location=NSNotFound;
@@ -1003,17 +1028,30 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                         NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
-                        
-                        mFilePath[mFTPDownloadQueueDepth]=localPath;
-                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
-                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
-                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
-                        
-                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
-                        mFileSize[mFTPDownloadQueueDepth]=-1;
-                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
-                        
-                        mFTPDownloadQueueDepth++;
+                        //add only if file isn't existing already
+                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                            
+                            bool already_in=false;
+                            for (int j=0;j<mFTPDownloadQueueDepth;j++) {
+                                if ([mFTPpath[mFTPDownloadQueueDepth] isEqualToString:ftpPath]) {
+                                    already_in=true;
+                                    break;
+                                }
+                            }
+                            if (!already_in) {
+                                
+                                mFilePath[mFTPDownloadQueueDepth]=localPath;
+                                mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                                mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                                mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                                
+                                mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                                mFileSize[mFTPDownloadQueueDepth]=-1;
+                                mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                                
+                                mFTPDownloadQueueDepth++;
+                            }
+                        }
                     }
                     
                     libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"pmb");
@@ -1294,8 +1332,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         double time_passed=[currentDate timeIntervalSinceDate:lastDate];
         if (time_passed>=0.5f) {
             lastDate=currentDate;
-
             speed=(double)(current_progress-last_progress)/(double)time_passed/(1024*1024);
+            last_progress=current_progress;
         }
     }
     

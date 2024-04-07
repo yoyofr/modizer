@@ -3858,7 +3858,10 @@ int64_t src_callback_hc(void *cb_data, float **data) {
                 hc_sample_data[i*2+1]=(int64_t)(hc_sample_data[i*2+1])*vol/hc_fadeLength;
                 
                 for (int jj=0;jj<m_genNumVoicesChannels;jj++) {
-                    m_voice_buff[jj][i]=(int)(m_voice_buff[jj][i])*vol/hc_fadeLength;
+                    int64_t val=m_voice_buff[jj]
+                        [(i+(m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                    m_voice_buff[jj]
+                    [(i+(m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=val*vol/hc_fadeLength;
                 }
                 
                 if (vol) vol--;
@@ -5620,10 +5623,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (opl_towrite>=SOUND_BUFFER_SIZE_SAMPLE) {
                                     written=SOUND_BUFFER_SIZE_SAMPLE;
                                     opl->update((short int *)(buffer_ana[buffer_ana_gen_ofs]),SOUND_BUFFER_SIZE_SAMPLE);
+                                    mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                     opl_towrite-=(SOUND_BUFFER_SIZE_SAMPLE);
                                 } else {
                                     written=opl_towrite;
                                     opl->update((short int *)(buffer_ana[buffer_ana_gen_ofs]),opl_towrite);
+                                    mCurrentSamples+=opl_towrite;
                                     opl_towrite=0;
                                 }
                                 
@@ -5633,6 +5638,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         if (mLoopMode==1) {
                                             opl_towrite=(int)(PLAYBACK_FREQ*1.0f/adPlugPlayer->getrefresh());
                                             adPlugPlayer->seek(0);
+                                            mCurrentSamples=0;
                                         }
                                     }
                                     
@@ -5642,10 +5648,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         while ((written<SOUND_BUFFER_SIZE_SAMPLE)&&opl_towrite) {
                                             if (opl_towrite>(SOUND_BUFFER_SIZE_SAMPLE-written)) {
                                                 opl->update(&dest[written*2],SOUND_BUFFER_SIZE_SAMPLE-written);
+                                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE-written;
                                                 opl_towrite-=SOUND_BUFFER_SIZE_SAMPLE-written;
                                                 written=SOUND_BUFFER_SIZE_SAMPLE;
                                             } else {
                                                 opl->update(&dest[written*2],opl_towrite);
+                                                mCurrentSamples+=opl_towrite;
                                                 written+=opl_towrite;
                                                 if (adPlugPlayer->update()) opl_towrite=(int)(PLAYBACK_FREQ*1.0f/adPlugPlayer->getrefresh());
                                                 else {
@@ -5660,6 +5668,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         }
                                     }
                                 }
+                                
                                 
                                 
                                 if (m_genNumVoicesChannels) {
@@ -7813,7 +7822,7 @@ typedef struct {
                       settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
         
     }
-    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title..........: %s\nName...........:%s\nAuthor.........: %s\nCopyright......: %s\n",
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nName.....:%s\nAuthor...: %s\nCopyright: %s\n",
              [mod_title UTF8String],mod_name,metadata->author,metadata->copyright);
     
     
@@ -12430,6 +12439,8 @@ extern bool icloud_available;
                 mod_currentsub=subsong;
             }
             adPlugPlayer->rewind(mod_currentsub-mod_minsub);
+            iModuleLength=adPlugPlayer->songlength();
+            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -13795,7 +13806,7 @@ extern "C" void adjust_amplification(void);
     NSLog(@"mdz need seek: %lld - %d - %lld",mNeedSeekTime,[self isSeeking],iModuleLength);
     if ([self isSeeking]) return;
     
-    if ((mPlayType==MMP_UADE) ||mNeedSeek) return;
+    if ((mPlayType==MMP_UADE) /*||mNeedSeek*/) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
