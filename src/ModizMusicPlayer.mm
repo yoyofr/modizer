@@ -472,6 +472,7 @@ int sid_v4;
 // GME M3U reader
 #include "../../libs/libGME/gme/M3u_Playlist.h"
 M3u_Playlist m3uReader;
+char m3uReader_adjofs;
 
 
 /* file types */
@@ -2840,6 +2841,11 @@ void propertyListenerCallback (void                   *inUserData,              
     return 1;
 }
 
+-(bool) isMidiLikeDataAvailable {
+    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)) return true;
+    return false;
+}
+
 -(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer {
     /* the real processing takes place in FillAudioBuffer */
     [self iPhoneDrv_FillAudioBuffer:mBuffer];
@@ -2873,7 +2879,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
             }
-            if (mPlayType==MMP_TIMIDITY) {//Timidity
+            if ([self isMidiLikeDataAvailable]) {//Midi like data for some FX (Piano, ...)
                 memcpy(tim_notes_cpy[buffer_ana_play_ofs],tim_notes[tgt_ofs],DEFAULT_VOICES*4);
                 tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[tgt_ofs];
             }
@@ -3178,6 +3184,27 @@ extern "C" {
                     m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
                 }
             }
+                        
+            
+            const struct gbs_status *status = gbs_get_status(gbs);
+            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+            for(int i = 0; i < 3; i++) {
+                long idx;
+                int vol;
+                if (status->ch[i].mute) continue;
+                if (status->ch[i].vol == 0) continue;
+                idx = (gbs_internal_api.midi_note(gbs, status->ch[i].div_tc, i) - C0MIDI);
+                if (idx < 0 || idx >= 0xFF) continue;
+                
+                vol=63;
+                tim_notes[buffer_ana_gen_ofs][i]=
+                (int)idx|
+                ((int)(i+1)<<8)|
+                ((int)vol<<16)|
+                ((int)(1<<1)<<24);
+            }
+            
+            tim_voicenb[buffer_ana_gen_ofs]=3;
             
             
             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
@@ -5236,7 +5263,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //subsong not supported
                             } else if (mPlayType==MMP_NSFPLAY) { //NSFPLAY
                                 if (m3uReader.size()) {
-                                    nsfPlayer->SetSong(m3uReader[mod_currentsub].track);
+                                    nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track-m3uReader_adjofs);
                                 } else nsfPlayer->SetSong(mod_currentsub);
                                 
                                 nsfPlayer->Reset();
@@ -6055,6 +6082,169 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for (int j=0;j<m_genNumVoicesChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
+                            
+                            //midi like notes data
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            int current_mask=(*nsfPlayerConfig)["MASK"];
+                            /*
+                             case NES_APU:
+                                 if (active) current_mask&=~(1<<voiceIdx);
+                                 else current_mask|=(1<<voiceIdx);
+                                 break;
+                             case NES_FDS:
+                                 if (active) current_mask&=~(1<<5);
+                                 else current_mask|=(1<<5);
+                                 break;
+                             case NES_MMC5:
+                                 if (active) current_mask&=~(1<<(voiceIdx+6));
+                                 else current_mask|=(1<<(voiceIdx+6));
+                                 break;
+                             case NES_FME7:
+                                 if (active) current_mask&=~(1<<(voiceIdx+9));
+                                 else current_mask|=(1<<(voiceIdx+9));
+                                 break;
+                             case NES_VRC6:
+                                 if (active) current_mask&=~(1<<(voiceIdx+12));
+                                 else current_mask|=(1<<(voiceIdx+12));
+                                 break;
+                             case NES_VRC7:
+                                 if (active) current_mask&=~(1<<(voiceIdx+15));
+                                 else current_mask|=(1<<(voiceIdx+15));
+                                 break;
+                             case NES_N106:
+                                 if (active) current_mask&=~(1<<(voiceIdx+21));
+                                 else current_mask|=(1<<(voiceIdx+21));
+                                 break;
+                             */
+                            int voices_idx=0;
+                            for(int i = 0; i < 2; i++) {
+                                xgm::ITrackInfo *info;
+                                info=nsfPlayer->apu->GetTrackInfo(i);
+                                int idx=info->GetNote(info->GetFreqHz())-12;
+                                if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    int vol=info->GetVolume();
+                                    tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                    (int)idx|
+                                    ((int)(voices_idx+1)<<8)|
+                                    ((int)vol<<16)|
+                                    ((int)(1<<1)<<24);
+                                }
+                                voices_idx++;
+                            }
+                            for(int i = 0; i < 3; i++) {
+                                xgm::ITrackInfo *info;
+                                info=nsfPlayer->dmc->GetTrackInfo(i);
+                                int idx=info->GetNote(info->GetFreqHz())-12;
+                                if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    int vol=info->GetMaxVolume();
+                                    //NSLog(@"got %d/%d for %d",idx,vol,i);
+                                    tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                    (int)idx|
+                                    ((int)(voices_idx+1)<<8)|
+                                    ((int)vol<<16)|
+                                    ((int)(1<<1)<<24);
+                                }
+                                voices_idx++;
+                            }
+                            if (nsfData->use_fds) {
+                                for(int i = 0; i < 1; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->fds->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            if (nsfData->use_mmc5) {
+                                for(int i = 0; i < 3; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->mmc5->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            
+                            if (nsfData->use_fme7) {
+                                for(int i = 0; i < 3; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->fme7->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            if (nsfData->use_vrc6) {
+                                for(int i = 0; i < 3; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->vrc6->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            if (nsfData->use_vrc7) {
+                                for(int i = 0; i < 9; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->vrc7->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            if (nsfData->use_n106) {
+                                for(int i = 0; i < 8; i++) {
+                                    xgm::ITrackInfo *info;
+                                    info=nsfPlayer->n106->GetTrackInfo(i);
+                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                        int vol=info->GetVolume();
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(voices_idx+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
                             if ((nbBytes==0)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
@@ -7345,6 +7535,7 @@ typedef struct {
         f=fopen(plfile,"rb");
     }
     m3uReader.clear();
+    m3uReader_adjofs=0;
     if (f) {
         fclose(f);
         m3uReader.load(plfile);
@@ -7357,6 +7548,13 @@ typedef struct {
     nsfPlayer->SetChannels(2);
     
     if (m3uReader.size()) {
+        //check min
+        int min_sub=255;
+        for (int i=0;i<m3uReader.size();i++) {
+            if (min_sub>m3uReader[i].track) min_sub=m3uReader[i].track;
+        }
+        if (min_sub>0) m3uReader_adjofs=1;
+        
         
         mod_subsongs=m3uReader.size();
         mod_minsub=0;
@@ -7370,7 +7568,7 @@ typedef struct {
     }
     
     if (m3uReader.size()) {
-        nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track);
+        nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track-m3uReader_adjofs);
     } else nsfPlayer->SetSong(mod_currentsub-mod_minsub);
     nsfPlayer->Reset();
     
@@ -7417,7 +7615,7 @@ typedef struct {
     }
     
     if (m3uReader.size()) {
-        nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track);
+        nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track-m3uReader_adjofs);
     } else nsfPlayer->SetSong(mod_currentsub-mod_minsub);
     
     // song info
@@ -7478,9 +7676,9 @@ typedef struct {
         strcat(mod_message,"Mapper...: FME7\n");
         modizChipsetStartVoice[modizChipsetCount]=numChannels;
         modizChipsetType[modizChipsetCount]=NES_FME7;
-        modizChipsetVoicesCount[modizChipsetCount]=modizChipsetVoicesCount[modizChipsetCount];
+        modizChipsetVoicesCount[modizChipsetCount]=3;
         snprintf(modizChipsetName[modizChipsetCount],16,"5B");
-        for (int i=numChannels;i<numChannels+3;i++) {
+        for (int i=numChannels;i<numChannels+modizChipsetVoicesCount[modizChipsetCount];i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[modizChipsetCount];
             snprintf(modizVoicesName[i],MODIZ_VOICE_NAME_MAX_CHAR,"5B:%d",i);
         }
@@ -12615,7 +12813,7 @@ extern bool icloud_available;
         case MMP_NSFPLAY:{
             mod_currentsub=subsong;
             if (m3uReader.size()) {
-                nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track);
+                nsfPlayer->SetSong(m3uReader[mod_currentsub-mod_minsub].track-m3uReader_adjofs);
             } else nsfPlayer->SetSong(mod_currentsub-mod_minsub);
             nsfPlayer->Reset();
             

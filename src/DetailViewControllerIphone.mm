@@ -6377,7 +6377,7 @@ extern "C" int current_sample;
     }
     
     
-    if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==MMP_TIMIDITY))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+    if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
         int moveRPx,moveRPy;
         int note_fx_linewidth;
         
@@ -7067,7 +7067,7 @@ extern "C" int current_sample;
         int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
         if (display_note_mode>=3) display_note_mode-=3;
         
-        if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
+        if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
             playerpos=[mplayer getCurrentGenBufferIdx];
             RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
             

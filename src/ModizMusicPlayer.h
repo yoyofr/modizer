@@ -448,5 +448,6 @@ extern "C" {
 -(void) vgmStream_ChangeToSub:(int) subsong;
 
 -(int) getLatencyInBuffer:(double)latency;
+-(bool) isMidiLikeDataAvailable;
 
 @end
