@@ -43,7 +43,10 @@ extern int MIDIFX_OFS;
 
 #define MAX_BARS 2048*2
 typedef struct {
-    unsigned char startidx,note,instr,size;
+    unsigned short int startidx;
+    unsigned char note;
+    unsigned char instr;
+    unsigned short int size;
 } t_data_bar2draw;
 static t_data_bar2draw data_bar2draw[MAX_BARS];
 
@@ -5733,6 +5736,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                         st=data_midifx_st[j][i];
                     }
                     data_bar2draw_count++;
+                    j++;
                 } else j++;
             } else j++;
             if (data_bar2draw_count==MAX_BARS) break;
@@ -5784,8 +5788,10 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     
     index=0;
     //TO OPTIMIZE
-    int data_bar_2dmap[128*MIDIFX_LEN];
-    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
+//    int data_bar_2dmap[128*MIDIFX_LEN];
+//    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
+    
+    //draw non playing bars
     
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].note&128;
@@ -5797,27 +5803,28 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             } else if (color_mode==1) { //instru
                 colidx=instr&31;
             }
+        
+//        printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
             
             if (data_bar2draw[i].size==0) continue;
             
-            //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
+            
             
             
             int adj_size=0;
-            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-                if (draw_count) {
-                    if (_instr!=(instr+1)) {
-                        draw_count++;
-                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-                    }
-                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-                } else {
-                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
-                }
-            }
-            //        printf("adj: %f\n",adj_size);
+//            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+//                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+//                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+//                if (draw_count) {
+//                    if (_instr!=(instr+1)) {
+//                        draw_count++;
+//                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
+//                    }
+//                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+//                } else {
+//                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+//                }
+//            }
             
             
             crt=(data_midifx_col[colidx&15]>>16);
@@ -5868,10 +5875,10 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
-        
+    //now draw playing bars
     index=0;
     //TO OPTIMIZE
-    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
+//    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
     
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].note&128;
@@ -5891,21 +5898,19 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             
             
             int adj_size=0;
-            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-                if (draw_count) {
-                    if (_instr!=(instr+1)) {
-                        draw_count++;
-                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-                    }
-                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-                } else {
-                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
-                }
-            }
-            //        printf("adj: %f\n",adj_size);
-            
+//            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+//                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+//                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+//                if (draw_count) {
+//                    if (_instr!=(instr+1)) {
+//                        draw_count++;
+//                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
+//                    }
+//                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+//                } else {
+//                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+//                }
+//            }
             
             crt=(data_midifx_col[colidx&15]>>16);
             cgt=((data_midifx_col[colidx&15]>>8)&0xFF);
@@ -5954,7 +5959,6 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     }
     //glLineWidth(line_width*mScaleFactor*3);
     glDrawArrays(GL_TRIANGLES, 0, index);
-    
     
     //////////////////////////////////////////////
     

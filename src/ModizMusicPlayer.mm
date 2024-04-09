@@ -117,6 +117,53 @@ struct gbs *gbs;
 #include "builders/residfp-builder/residfp.h"
 #include "builders/resid-builder/resid.h"
 
+static uint16_t*          m_freqTable;
+static uint16_t freqTablePal[]
+{
+    // C       C#      D       D#      E       F       F#      G       G#      A       A#      B
+    0x0117, 0x0127, 0x0139, 0x014b, 0x015f, 0x0174, 0x018a, 0x01a1, 0x01ba, 0x01d4, 0x01f0, 0x020e, // 1
+    0x022d, 0x024e, 0x0271, 0x0296, 0x02be, 0x02e8, 0x0314, 0x0343, 0x0374, 0x03a9, 0x03e1, 0x041c, // 2
+    0x045a, 0x049c, 0x04e2, 0x052d, 0x057c, 0x05cf, 0x0628, 0x0685, 0x06e8, 0x0752, 0x07c1, 0x0837, // 3
+    0x08b4, 0x0939, 0x09c5, 0x0a5a, 0x0af7, 0x0b9e, 0x0c4f, 0x0d0a, 0x0dd1, 0x0ea3, 0x0f82, 0x106e, // 4
+    0x1168, 0x1271, 0x138a, 0x14b3, 0x15ee, 0x173c, 0x189e, 0x1a15, 0x1ba2, 0x1d46, 0x1f04, 0x20dc, // 5
+    0x22d0, 0x24e2, 0x2714, 0x2967, 0x2bdd, 0x2e79, 0x313c, 0x3429, 0x3744, 0x3a8d, 0x3e08, 0x41b8, // 6
+    0x45a1, 0x49c5, 0x4e28, 0x52cd, 0x57ba, 0x5cf1, 0x6278, 0x6853, 0x6e87, 0x751a, 0x7c10, 0x8371, // 7
+    0x8b42, 0x9389, 0x9c4f, 0xa59b, 0xaf74, 0xb9e2, 0xc4f0, 0xd0a6, 0xdd0e, 0xea33, 0xf820, 0xffff, // 8
+};
+
+static uint16_t freqTableNtsc[]
+{
+    // C       C#      D       D#      E       F       F#      G       G#      A       A#      B
+    0x010c, 0x011c, 0x012d, 0x013f, 0x0152, 0x0166, 0x017b, 0x0192, 0x01aa, 0x01c3, 0x01de, 0x01fa, // 1
+    0x0218, 0x0238, 0x025a, 0x027e, 0x02a4, 0x02cc, 0x02f7, 0x0324, 0x0354, 0x0386, 0x03bc, 0x03f5, // 2
+    0x0431, 0x0471, 0x04b5, 0x04fc, 0x0548, 0x0598, 0x05ee, 0x0648, 0x06a9, 0x070d, 0x0779, 0x07ea, // 3
+    0x0862, 0x08e2, 0x096a, 0x09f8, 0x0a90, 0x0b30, 0x0bdc, 0x0c90, 0x0d52, 0x0e1a, 0x0ef2, 0x0fd4, // 4
+    0x10c4, 0x11c4, 0x12d4, 0x13f0, 0x1520, 0x1660, 0x17b8, 0x1920, 0x1aa4, 0x1c34, 0x1de4, 0x1fa8, // 5
+    0x2188, 0x2388, 0x25a8, 0x27e0, 0x2a40, 0x2cc0, 0x2f70, 0x3240, 0x3548, 0x3868, 0x3bc8, 0x3f50, // 6
+    0x4310, 0x4710, 0x4b50, 0x4fc0, 0x5480, 0x5980, 0x5ee0, 0x6480, 0x6a90, 0x70d0, 0x7790, 0x7ea0, // 7
+    0x8620, 0x8e20, 0x96a0, 0x9f80, 0xa900, 0xb300, 0xbdc0, 0xc900, 0xd520, 0xe1a0, 0xef20, 0xfd40, // 8
+};
+
+int sidplay_getNote(uint16_t freq)
+{
+    if (freq)
+    {
+        int distance = 0xffff;
+        for (int i=0; i<(12 * 8); i++)
+        {
+            int d = abs(freq - m_freqTable[i]);
+            if (d < distance)
+                distance = d;
+            else
+                return i-1;
+        }
+        return (12 * 8)-1;
+    }
+
+    return -1;
+}
+
+
 void* m_sid_chipId[MAXSID_CHIPS];
 
 /* EUPMINI
@@ -2842,7 +2889,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 -(bool) isMidiLikeDataAvailable {
-    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)) return true;
+    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)) return true;
     return false;
 }
 
@@ -5899,6 +5946,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=(SOUND_BUFFER_SIZE_SAMPLE*2)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             }
                             
+                            //midi like notes data
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            //int current_mask=(*nsfPlayerConfig)["MASK"];
+                            int voices_idx=0;
+                            const SidTuneInfo *tuneInfo = mSidTune->getInfo();
+                            uint8_t            m_registers[3][32];
+                            for (int j=0; j < tuneInfo->sidChips(); j++)
+                            {
+                                uint8_t* registers = m_registers[j];
+                                
+                                if (mSidEmuEngine->getSidStatus(j, registers)) {
+                                    for(int i = 0; i < 3; i++) {
+                                        int idx=sidplay_getNote(registers[0x00 + i * 0x07] | (registers[0x01 + i * 0x07] << 8));
+                                        if ((idx>=0)&&m_voicesStatus[i]) {
+                                            int vol=(registers[0x04 + i * 0x07] & 0x01);
+                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                            (int)idx|
+                                            ((int)(voices_idx+1)<<8)|
+                                            ((int)vol<<16)|
+                                            ((int)(1<<1)<<24);
+                                        }
+                                        voices_idx++;
+                                    }
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
@@ -6086,36 +6160,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //midi like notes data
                             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
                             int current_mask=(*nsfPlayerConfig)["MASK"];
-                            /*
-                             case NES_APU:
-                                 if (active) current_mask&=~(1<<voiceIdx);
-                                 else current_mask|=(1<<voiceIdx);
-                                 break;
-                             case NES_FDS:
-                                 if (active) current_mask&=~(1<<5);
-                                 else current_mask|=(1<<5);
-                                 break;
-                             case NES_MMC5:
-                                 if (active) current_mask&=~(1<<(voiceIdx+6));
-                                 else current_mask|=(1<<(voiceIdx+6));
-                                 break;
-                             case NES_FME7:
-                                 if (active) current_mask&=~(1<<(voiceIdx+9));
-                                 else current_mask|=(1<<(voiceIdx+9));
-                                 break;
-                             case NES_VRC6:
-                                 if (active) current_mask&=~(1<<(voiceIdx+12));
-                                 else current_mask|=(1<<(voiceIdx+12));
-                                 break;
-                             case NES_VRC7:
-                                 if (active) current_mask&=~(1<<(voiceIdx+15));
-                                 else current_mask|=(1<<(voiceIdx+15));
-                                 break;
-                             case NES_N106:
-                                 if (active) current_mask&=~(1<<(voiceIdx+21));
-                                 else current_mask|=(1<<(voiceIdx+21));
-                                 break;
-                             */
                             int voices_idx=0;
                             for(int i = 0; i < 2; i++) {
                                 xgm::ITrackInfo *info;
@@ -6151,7 +6195,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fds->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+5)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -6167,7 +6211,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->mmc5->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+6)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -6184,7 +6228,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fme7->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+9)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -6195,12 +6239,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     voices_idx++;
                                 }
                             }
-                            if (nsfData->use_vrc6) {
+                            if (nsfData->use_vrc6) {                                
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc6->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+12)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -6216,7 +6260,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc7->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+15)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -6232,7 +6276,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->n106->GetTrackInfo(i);
                                     int idx=info->GetNote(info->GetFreqHz())-12;
-                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
+                                    if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+24)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
@@ -8870,6 +8914,7 @@ char* loadRom(const char* path, size_t romSize)
                 }
             }
             
+            m_freqTable = (sidtune_info->clockSpeed() == SidTuneInfo::CLOCK_NTSC) ? freqTableNtsc : freqTablePal;
             
             return 0;
         }

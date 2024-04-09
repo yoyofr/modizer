@@ -463,7 +463,7 @@ void NSFPlayer::SetPlayFreq (double r)
     fme7->SetMask((*config)["MASK"].GetInt()>>9 );
     vrc6->SetMask((*config)["MASK"].GetInt()>>12);
     vrc7->SetMask((*config)["MASK"].GetInt()>>15);
-    n106->SetMask((*config)["MASK"].GetInt()>>21);
+    n106->SetMask((*config)["MASK"].GetInt()>>24);
 
     for(int i=0;i<NES_TRACK_MAX;i++)
       infobuf[i].Clear();
@@ -1148,7 +1148,7 @@ void NSFPlayer::SetPlayFreq (double r)
     case N106:
       for (i = 0; i < NES_N106::OPT_END; i++)
         n106->SetOption (i, config->GetDeviceOption(id,i));
-      n106->SetMask((*config)["MASK"].GetInt()>>21);
+      n106->SetMask((*config)["MASK"].GetInt()>>24);
       break;
     default:
       break;
