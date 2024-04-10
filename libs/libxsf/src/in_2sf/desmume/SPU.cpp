@@ -1047,6 +1047,47 @@ static inline void SPU_Mix(SPU_struct *SPU, channel_struct *chan, int32_t data, 
 	SPU->lastdata = data;
 }
 
+
+//YOYOFR
+static int xsf_getNote(double freq)
+{
+  const double LOG2_440 = 8.7813597135246596040696824762152;
+  const double LOG_2 = 0.69314718055994530941723212145818;
+    const int NOTE_440HZ = 61;//0x69;
+
+  if(freq>1.0)
+    return (int)((12 * ( log(freq)/LOG_2 - LOG2_440 ) + NOTE_440HZ + 0.5));
+  else
+    return 0;
+}
+
+int xsf_spu_getNote(int ch) {
+    if (psx_last_note[ch]==0) return 0;
+    double freq=440.0f*(ARM7_CLOCK / (DESMUME_SAMPLE_RATE * 2)) / (0x10000 - psx_last_note[ch]);
+    int note=xsf_getNote(freq);
+    return note;
+}
+
+int xsf_spu_getInstr(int ch) {
+    int idx=0;
+    while (psx_instr_addr[idx]) {
+        if (psx_instr_addr[idx]==psx_last_sample_addr[ch]) {
+            break;
+        }
+        if (idx==255) {
+            //all occupied -> reset
+            memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+            idx=0;
+            break;
+        }
+        idx++;
+    }
+    psx_instr_addr[idx]=psx_last_sample_addr[ch];
+    return idx;
+}
+//YOYOFR
+
+
 // WORK
 static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *const chan, int FORMAT, SPUInterpolationMode INTERPOLATE_MODE, int CHANNELS)
 {
@@ -1072,6 +1113,15 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_current_systemSub>=0) {
                 int i=m_voice_current_systemSub;
+                
+                if (chan->status==CHANSTAT_PLAY) {
+                    psx_last_note[i]=(int)(chan->timer);
+                    psx_last_sample_addr[i]=(int)(chan->addr);
+                } else {
+                    psx_last_note[i]=0;
+                    psx_last_sample_addr[i]=0;
+                }
+                
                 m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=LIMIT8(((spumuldiv7(data, chan->vol) >> chan->datashift)>>8));
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
@@ -1084,6 +1134,10 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_current_systemSub>=0) {
                 int i=m_voice_current_systemSub;
+                
+                psx_last_note[i]=0;
+                psx_last_sample_addr[i]=0;
+                
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }

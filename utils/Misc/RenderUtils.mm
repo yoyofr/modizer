@@ -20,6 +20,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "Font.h"
 #import "GLString.h"
 
+unsigned int data_midifx_pal1[32]={
+    0x0000fe, 0xfd00fe, 0xfe0000, 0x0aff05, 0xff78ff, 0x7900ff, 0x0077fe, 0x9701ff, 0xfeff05, 0x0700ba, 0x77fe77, 0x4187ba, 0xb98744, 0xf034ab, 0xaa31ec, 0xaa0001, 0x00ab05, 0x0003ac, 0xedb1ff, 0x154e56, 0x8d476f, 0x6c8c60, 0xf87574, 0xf6e38b, 0x5b430b, 0xa2f0eb, 0xe3e0f5, 0x115205, 0x39eec0, 0x1f3e9e, 0x89aa0d, 0xfb7810
+};
+
+unsigned int *data_midifx_col=data_midifx_pal1;
+
 
 //class CFont;
 //class CGLString;
@@ -4281,18 +4287,19 @@ int data_pianofx_first=1;
 #define VOICE_OFF	(1<<3)
 #define VOICE_DIE	(1<<4)
 
-unsigned int data_midifx_col[16]={
-    /*    0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
-     0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
-     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
-     0xFFF200*/
-    //0x868240,0x555100,0xFFF872,0xFFFDCE
-    
-    0xFF5512,0x761AFF,0x21ff94,0xffb129,
-    0xcb30ff,0x38ffe4,0xfffc40,0xff47ed,
-    0x4fd9ff,0xc7ff57,0xff5eb7,0x66a8ff,
-    0x9cff6e,0xff7591,0x7d88ff,0x85ff89
-};
+
+//unsigned int data_midifx_col[16]={
+////    0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
+////     0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
+////     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
+////     0xFFF200
+//    //0x868240,0x555100,0xFFF872,0xFFFDCE
+//    
+//    0xFF5512,0x761AFF,0x21ff94,0xffb129,
+//    0xcb30ff,0x38ffe4,0xfffc40,0xff47ed,
+//    0x4fd9ff,0xc7ff57,0xff5eb7,0x66a8ff,
+//    0x9cff6e,0xff7591,0x7d88ff,0x85ff89
+//};
 
 unsigned char piano_key[12]={0,1,0,1,0,0,1,0,1,0,1,0};
 unsigned char piano_key_state[128];
@@ -4981,16 +4988,16 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             
             int colidx;//=i%12;
             if (color_mode==0) {
-                colidx=i%12;
+                colidx=(i%12);
             } else if (color_mode==1) {
-                colidx=piano_key_instr[i]&31;
+                colidx=(piano_key_instr[i])&63;
             }
             
-            crt=(data_midifx_col[colidx&15]>>16)/255.0f;
-            cgt=((data_midifx_col[colidx&15]>>8)&0xFF)/255.0f;
-            cbt=(data_midifx_col[colidx&15]&0xFF)/255.0f;
+            crt=((data_midifx_col[colidx&31]>>16)&0xFF)/255.0f;
+            cgt=((data_midifx_col[colidx&31]>>8)&0xFF)/255.0f;
+            cbt=(data_midifx_col[colidx&31]&0xFF)/255.0f;
             
-            if (colidx&0x10) {
+            if (colidx&0x20) {
                 crt=(crt+1)/2;
                 cgt=(cgt+1)/2;
                 cbt=(cbt+1)/2;
@@ -5363,9 +5370,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         int instr=data_bar2draw[i].instr;
         int colidx;
         if (color_mode==0) { //note
-            colidx=note%12;
+            colidx=(note%12);
         } else if (color_mode==1) { //instru
-            colidx=instr&31;
+            colidx=(instr)&63;
         }
         
         if (data_bar2draw[i].size==0) continue;
@@ -5390,11 +5397,11 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         //        printf("adj: %f\n",adj_size);
         
         
-        crt=(data_midifx_col[colidx&15]>>16)/255.0f/1.0f;
-        cgt=((data_midifx_col[colidx&15]>>8)&0xFF)/255.0f/1.0f;
-        cbt=(data_midifx_col[colidx&15]&0xFF)/255.0f/1.0f;
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF)/255.0f/1.0f;
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF)/255.0f/1.0f;
+        cbt=(data_midifx_col[colidx&31]&0xFF)/255.0f/1.0f;
         
-        if (colidx&0x10) {
+        if (colidx&0x20) {
             crt=(crt+1)/2;
             cgt=(cgt+1)/2;
             cbt=(cbt+1)/2;
@@ -5803,17 +5810,14 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             int instr=data_bar2draw[i].instr;
             int colidx;
             if (color_mode==0) { //note
-                colidx=note%12;
+                colidx=(note%12);
             } else if (color_mode==1) { //instru
-                colidx=instr&31;
+                colidx=(instr)&63;
             }
         
 //        printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
             
             if (data_bar2draw[i].size==0) continue;
-            
-            
-            
             
             int adj_size=0;
             for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
@@ -5833,11 +5837,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
             
             
-            crt=(data_midifx_col[colidx&15]>>16);
-            cgt=((data_midifx_col[colidx&15]>>8)&0xFF);
-            cbt=(data_midifx_col[colidx&15]&0xFF);
+            crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+            cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+            cbt=(data_midifx_col[colidx&31]&0xFF);
             
-            if (colidx&0x10) {
+            if (colidx&0x20) {
                 crt=(crt+255)/2;
                 cgt=(cgt+255)/2;
                 cbt=(cbt+255)/2;
@@ -5893,9 +5897,9 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             int instr=data_bar2draw[i].instr;
             int colidx;
             if (color_mode==0) { //note
-                colidx=note%12;
+                colidx=(note%12);
             } else if (color_mode==1) { //instru
-                colidx=instr&31;
+                colidx=(instr)&63;
             }
             
             if (data_bar2draw[i].size==0) continue;
@@ -5920,11 +5924,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         adj_size*=2;
         if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
             
-            crt=(data_midifx_col[colidx&15]>>16);
-            cgt=((data_midifx_col[colidx&15]>>8)&0xFF);
-            cbt=(data_midifx_col[colidx&15]&0xFF);
+            crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+            cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+            cbt=(data_midifx_col[colidx&31]&0xFF);
             
-            if (colidx&0x10) {
+            if (colidx&0x20) {
                 crt=(crt+255)/2;
                 cgt=(cgt+255)/2;
                 cbt=(cbt+255)/2;
@@ -5935,7 +5939,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 cgt=(cgt+255*3)/4;
                 cbt=(cbt+255*3)/4;
             }
-            ca=255;
+            ca=192;
             
             if (horiz_vert==0) { //horiz
                 int posNote=note*line_width-note_display_offset+adj_size;

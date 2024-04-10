@@ -468,6 +468,7 @@ void optNSFPLAYChangedC(id param) {
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value=0;
+    settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value=0;
         
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
@@ -894,6 +895,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels[0]=(char*)"Play";
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_labels[1]=(char*)"Browse";
+    
+    SETTINGS_ID_DEF(GLOB_ArcMultiPlayMode)
+    settings[GLOB_ArcMultiPlayMode].type=MDZ_SWITCH;
+    settings[GLOB_ArcMultiPlayMode].label=(char*)"Archive/multi play mode";
+    settings[GLOB_ArcMultiPlayMode].description=(char*)"Play ony selected entry or full archive/multisong flie";
+    settings[GLOB_ArcMultiPlayMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_ArcMultiPlayMode].sub_family=0;
+    settings[GLOB_ArcMultiPlayMode].callback=&optGLOBALChangedC;
+    settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_labels[0]=(char*)"Entry";
+    settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_labels[1]=(char*)"Full";
     
     SETTINGS_ID_DEF(GLOB_TruncateNameMode)
     settings[GLOB_TruncateNameMode].type=MDZ_SWITCH;

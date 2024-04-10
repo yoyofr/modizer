@@ -1679,9 +1679,7 @@ static void EMU_CALL reverb_process(struct SPUCORE_STATE *state, uint16 *ram, si
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
 #include <math.h>
-static int psx_last_note[24];
-static int psx_last_sample_addr[24];
-static int psx_instr_addr[256];
+
 //TODO:  MODIZER changes end / YOYOFR
 
 //YOYOFR
@@ -1705,11 +1703,6 @@ int psx_spu_getNote(int ch) {
 }
 
 int psx_spu_getInstr(int ch) {
-    static char firstcall=1;
-    if (firstcall) {
-        memset(psx_instr_addr,0,sizeof(psx_instr_addr));
-        firstcall=0;
-    }
     int idx=0;
     while (psx_instr_addr[idx]) {
         if (psx_instr_addr[idx]==psx_last_sample_addr[ch]) {
@@ -1821,13 +1814,13 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     sint32 *noise = (chanbit & masknoise) ? ibufn : NULL;
       
       //YOYOFR
-      psx_last_note[ch]=0;
+      psx_last_note[ch+m_voice_ofs]=0;
       //if (state->chan[ch].samples_until_keyoff_responds>0) {
       if ( (state->chan[ch].env.state!=ENVELOPE_STATE_OFF)&&(state->chan[ch].samples_until_pending_keyon==0)&&(state->chan[ch].sample.state==SAMPLE_STATE_ON) ) {
           int vol=(state->chan[ch].vol[0].level+state->chan[ch].vol[1].level);
           if (vol>0) {
-              psx_last_note[ch]=state->chan[ch].voice_pitch;
-              psx_last_sample_addr[ch]=state->chan[ch].sample.start_block_addr;
+              psx_last_note[ch+m_voice_ofs]=state->chan[ch].voice_pitch;
+              psx_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
           }
       }
       //YOYOFR

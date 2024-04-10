@@ -121,7 +121,7 @@ void SidSnapshot::record()
 uint16_t SidSnapshot::getRegister(uint8_t sid_idx, uint16_t reg, uint8_t buf_idx, uint32_t tick)
 {
 
-	if (reg < (REGS2RECORD-3))
+	if ((reg < (REGS2RECORD-3))&&(buf_idx<0xFF))
 	{
 		// cached snapshots are spaced "1 frame" apart while WebAudio-side measures time in 256-sample ticks..
 		// map the respective input to the corresponding cache block (the imprecision should not be relevant

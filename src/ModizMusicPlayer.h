@@ -131,6 +131,7 @@ extern "C" {
     NSString *mod_loadmodule_filepath; //filepath given as param of LoadModule
     NSString *mod_currentext;
     NSString *artist,*album;
+    NSString *last_archive_filepath; //last archive extracted successfully
     
     NSProgress *extractProgress;
     bool extractDone;

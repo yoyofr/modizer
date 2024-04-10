@@ -3099,12 +3099,12 @@ int recording=0;
     mOnlyCurrentEntry=0;
     if (arcidx_filepath>=0) {
         arcidx=arcidx_filepath;
-        mOnlyCurrentEntry|=1;
+        if (settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value==0) mOnlyCurrentEntry|=1;
         
     }
     if (subsong_filepath>=0) {
         subsong=subsong_filepath;
-        mOnlyCurrentSubEntry|=1;
+        if (settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value==0) mOnlyCurrentSubEntry|=1;
     }
     filePath=filePathClean;
     

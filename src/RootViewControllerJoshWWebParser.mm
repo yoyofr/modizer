@@ -405,6 +405,7 @@
         
         if (search_dbWEB_nb_entries) {
             for (int i=0;i<27;i++) {
+                if (search_dbWEB_entries_count[i])
                 for (int j=0;j<search_dbWEB_entries_count[i];j++) {
                     search_dbWEB_entries[i][j].label=nil;
                     search_dbWEB_entries[i][j].fullpath=nil;

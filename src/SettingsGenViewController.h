@@ -67,6 +67,7 @@ enum MDZ_SETTINGS {
     GLOB_DefaultLength,
     GLOB_AudioLatency,
     GLOB_ArcMultiDefaultAction,
+    GLOB_ArcMultiPlayMode,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,
     GLOB_AfterDownloadAction,    
