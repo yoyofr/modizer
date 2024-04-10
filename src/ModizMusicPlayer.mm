@@ -1390,6 +1390,11 @@ typedef struct {
     char title[60];
 } psxexe_hdr_t;
 
+//MIDI like stuff
+extern "C" int psx_spu_getNote(int ch);
+extern "C" int psx_spu_getInstr(int ch);
+//
+
 static int psf1_info(void * context, const char * name, const char * value)
 {
     struct psf1_load_state * state = ( struct psf1_load_state * ) context;
@@ -1726,6 +1731,8 @@ int64_t hc_currentSample,hc_fadeStart,hc_fadeLength;
 int16_t *hc_sample_data;
 float *hc_sample_data_float;
 float *hc_sample_converted_data_float;
+
+
 
 usf_loader_state * lzu_state;
 
@@ -2889,7 +2896,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 -(bool) isMidiLikeDataAvailable {
-    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)) return true;
+    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_HC)) return true;
     return false;
 }
 
@@ -3235,7 +3242,7 @@ extern "C" {
             
             const struct gbs_status *status = gbs_get_status(gbs);
             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
-            for(int i = 0; i < 3; i++) {
+            for(int i = 0; i < 4; i++) {
                 long idx;
                 int vol;
                 if (status->ch[i].mute) continue;
@@ -5572,9 +5579,28 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
-                            
-                            
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                            
+                            if (HC_type==0x1) { //PS1
+                                //midi like notes data
+                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                                int voices_idx=0;
+                                for (int j=0; j < 24; j++) {
+                                    int idx=psx_spu_getNote(j);
+                                    int instr=psx_spu_getInstr(j);
+                                    int vol=63;
+                                    
+                                    if ((idx>0)&&m_voicesStatus[j]) {
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(instr+1)<<8)|
+                                        ((int)vol<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                                tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            }
                             
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
@@ -6164,7 +6190,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for(int i = 0; i < 2; i++) {
                                 xgm::ITrackInfo *info;
                                 info=nsfPlayer->apu->GetTrackInfo(i);
-                                int idx=info->GetNote(info->GetFreqHz())-12;
+                                int idx=info->GetNote(info->GetFreqHz());
                                 if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
                                     int vol=info->GetVolume();
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6178,7 +6204,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for(int i = 0; i < 3; i++) {
                                 xgm::ITrackInfo *info;
                                 info=nsfPlayer->dmc->GetTrackInfo(i);
-                                int idx=info->GetNote(info->GetFreqHz())-12;
+                                int idx=info->GetNote(info->GetFreqHz());
                                 if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
                                     int vol=info->GetMaxVolume();
                                     //NSLog(@"got %d/%d for %d",idx,vol,i);
@@ -6194,7 +6220,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 1; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fds->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+5)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6210,7 +6236,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->mmc5->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+6)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6227,7 +6253,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fme7->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+9)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6243,7 +6269,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc6->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+12)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6259,7 +6285,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 9; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc7->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+15)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6275,7 +6301,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 8; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->n106->GetTrackInfo(i);
-                                    int idx=info->GetNote(info->GetFreqHz())-12;
+                                    int idx=info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+24)))==0)) {
                                         int vol=info->GetVolume();
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
