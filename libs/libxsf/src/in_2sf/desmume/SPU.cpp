@@ -1053,7 +1053,7 @@ static int xsf_getNote(double freq)
 {
   const double LOG2_440 = 8.7813597135246596040696824762152;
   const double LOG_2 = 0.69314718055994530941723212145818;
-    const int NOTE_440HZ = 61;//0x69;
+    const int NOTE_440HZ = 60;//0x69;
 
   if(freq>1.0)
     return (int)((12 * ( log(freq)/LOG_2 - LOG2_440 ) + NOTE_440HZ + 0.5));

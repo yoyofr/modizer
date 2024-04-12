@@ -408,6 +408,14 @@ int SID::clock(unsigned int cycles, short* buf)
                             m_voice_current_ptr[sid_idx+j]+=smplIncr;
                             if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                         }
+                        
+                        for (int j=0;j<3;j++) {
+                            if (voice[j]->wave()->readFreq()) {
+                                psx_last_note[j]=voice[j]->wave()->readFreq();
+                                psx_last_vol[j]=voice[j]->envelope()->readENV();
+                            }
+                        }
+                        
                         //TODO:  MODIZER changes end / YOYOFR
                     }
                 } else {

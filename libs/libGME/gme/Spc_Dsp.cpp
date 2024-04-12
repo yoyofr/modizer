@@ -254,6 +254,7 @@ void Spc_Dsp::run( int clock_count )
 		voice_t* v = m.voices;
 		uint8_t* v_regs = m.regs;
 		int vbit = 1;
+        current_voice=0; //YOYOFR
 		do
 		{
 			#define SAMPLE_PTR(i) GET_LE16A( &dir [VREG(v_regs,srcn) * 4 + i * 2] )
@@ -265,6 +266,9 @@ void Spc_Dsp::run( int clock_count )
 			int pitch = GET_LE16A( &VREG(v_regs,pitchl) ) & 0x3FFF;
 			if ( REG(pmon) & vbit )
 				pitch += ((pmon_input >> 5) * pitch) >> 10;
+            
+            
+            
 			
 			// KON phases
 			if ( --kon_delay >= 0 )
@@ -340,14 +344,7 @@ void Spc_Dsp::run( int clock_count )
 					main_out_r += r;
                     
                     //TODO:  MODIZER changes start / YOYOFR
-                        current_voice=0;
-                        while ((1<<current_voice)!=vbit) {
-                            current_voice++;
-                            if (current_voice>7) {
-                                current_voice=0;
-                                break;
-                            }
-                        }
+                        
                      
 					
 					if ( REG(eon) & vbit )
@@ -361,6 +358,27 @@ void Spc_Dsp::run( int clock_count )
                 if ( (REG(flg) & 0x40) ) {
                     newamp=0;
                 }
+                    
+                    //YOYOFR
+                    
+                     {//do only once / call
+                        int pp= pitch;
+                        if (v->enabled&&pp) {
+                            int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
+                            psx_last_note[current_voice]=freq;
+                            psx_last_vol[current_voice]=v->env;
+                            if (psx_last_vol[current_voice]) {
+                                psx_last_vol[current_voice]>>=3;
+                                psx_last_vol[current_voice]+=1;
+                            }
+                            psx_last_sample_addr[current_voice]=current_voice;
+                        } else {
+                            psx_last_note[current_voice]=0;
+                        }
+                    }
+                    //YOYOFR
+                    
+                    
                 
                     m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
                 m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
@@ -583,10 +601,16 @@ void Spc_Dsp::run( int clock_count )
 				}
 			}
 skip_brr:
-			// Next voice
+            
+            // Next voice
 			vbit <<= 1;
 			v_regs += 0x10;
 			v++;
+            
+            //YOYOFR
+            current_voice++;
+            if (current_voice>7) current_voice=0;
+            //YOYOFR
 		}
 		while ( vbit < 0x100 );
 		
@@ -680,6 +704,7 @@ skip_brr:
         //YOYOFR
 	}
 	while ( --count );
+        
 }
 
 

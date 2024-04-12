@@ -88,27 +88,27 @@ float position[] = { 0, 0, 8, 1 };
 
 namespace
 {
-    
-    struct LineVertex
-    {
-        LineVertex() {}
-        LineVertex(uint16_t _x, uint16_t _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
-        : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
-        {}
-        uint16_t x, y;
-        uint8_t r, g, b, a;
-    };
-    
-    struct vertexData {
-        GLfloat x;             // OpenGL X Coordinate
-        GLfloat y;             // OpenGL Y Coordinate
-        GLfloat z;             // OpenGL Z Coordinate
-        GLfloat s;             // Texture S Coordinate
-        GLfloat t;             // Texture T Coordinate
-        GLfloat r,g,b,a;
-    };
-    
-    
+
+struct LineVertex
+{
+    LineVertex() {}
+    LineVertex(uint16_t _x, uint16_t _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+    : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
+    {}
+    uint16_t x, y;
+    uint8_t r, g, b, a;
+};
+
+struct vertexData {
+    GLfloat x;             // OpenGL X Coordinate
+    GLfloat y;             // OpenGL Y Coordinate
+    GLfloat z;             // OpenGL Z Coordinate
+    GLfloat s;             // Texture S Coordinate
+    GLfloat t;             // Texture T Coordinate
+    GLfloat r,g,b,a;
+};
+
+
 }
 
 
@@ -167,7 +167,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     if (isfullscreen) colA=255;
     else colA=255;
-        
+    
     for (int i=0;i<num_voices;i++)
         for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
             for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
@@ -205,18 +205,18 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     }
     
     if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
-    for (int i=0;i<num_voices;i++) {
-        if (mVoicesName[i]) {
-            if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
-                //not the same, reset string
-                delete mVoicesName[i];
-                mVoicesName[i]=NULL;
+        for (int i=0;i<num_voices;i++) {
+            if (mVoicesName[i]) {
+                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
+                    //not the same, reset string
+                    delete mVoicesName[i];
+                    mVoicesName[i]=NULL;
+                }
+            }
+            if (!mVoicesName[i]) {
+                mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
             }
         }
-        if (!mVoicesName[i]) {
-            mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
-        }
-    }
     mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
@@ -227,19 +227,19 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     //check best config, maximize 16/9 ratio
     if (num_voices>=1)
-    for (;;) {
-        columns_width=ww/columns_nb;
-        max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-        mulfactor=(hh-8)/(max_voices_by_row)/2;
-        ratio=columns_width/(2*mulfactor);
-        
-        if (ratio<=2) break;
-        if (columns_nb>=num_voices) break;
-        
-        columns_nb++;
-        
-    }
-   // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
+        for (;;) {
+            columns_width=ww/columns_nb;
+            max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+            mulfactor=(hh-8)/(max_voices_by_row)/2;
+            ratio=columns_width/(2*mulfactor);
+            
+            if (ratio<=2) break;
+            if (columns_nb>=num_voices) break;
+            
+            columns_nb++;
+            
+        }
+    // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
     
     int xofs=(ww-columns_width*columns_nb)/2;
     int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
@@ -257,7 +257,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
     if (smplincr<1) smplincr=1;
     int bufflen=max_len_oscillo_buffer/smplincr;
-        
+    
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
     
@@ -273,7 +273,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         int left_done=0;
         for (;;) {
             // start analyzing
-                        
+            
             //check on right side, ofs1
             if ((ofs1<max_ofs)&& !right_done) {
                 tmp_gap=0;
@@ -366,8 +366,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
                 /*colR*=1.2f;
-                colG*=1.2f;
-                colB*=1.2f;*/
+                 colG*=1.2f;
+                 colB*=1.2f;*/
             }
             
             //draw label if specified
@@ -383,13 +383,13 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 val[cur_voices]=cur_snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*(mulfactor-1)>>7; if(sp[cur_voices]>=mulfactor) sp[cur_voices]=mulfactor-1; if (sp[cur_voices]<=-mulfactor) sp[cur_voices]=-mulfactor+1;
-                                
+                
                 tmpR=colR;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpG=colG;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpB=colB;//+((val[cur_voices]-oval[cur_voices])<<1);
                 if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
-                                
+                
                 if (count>=max_count-1) break;
                 pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
@@ -406,7 +406,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-//    glLineWidth(2.0f*mScaleFactor);
+    //    glLineWidth(2.0f*mScaleFactor);
     switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
         case 0:glLineWidth(0.5f*mScaleFactor);
             break;
@@ -499,7 +499,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     
     if (isfullscreen) colA=255;
     else colA=255;
-        
+    
     for (int i=0;i<num_voices;i++)
         for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
             for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
@@ -537,18 +537,18 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     }
     
     if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
-    for (int i=0;i<num_voices;i++) {
-        if (mVoicesName[i]) {
-            if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
-                //not the same, reset string
-                delete mVoicesName[i];
-                mVoicesName[i]=NULL;
+        for (int i=0;i<num_voices;i++) {
+            if (mVoicesName[i]) {
+                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
+                    //not the same, reset string
+                    delete mVoicesName[i];
+                    mVoicesName[i]=NULL;
+                }
+            }
+            if (!mVoicesName[i]) {
+                mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
             }
         }
-        if (!mVoicesName[i]) {
-            mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
-        }
-    }
     mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
@@ -558,20 +558,26 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     float ratio;
     
     //check best config, maximize 16/9 ratio
-    if (num_voices>=1)
-    for (;;) {
-        columns_width=ww/columns_nb;
-        max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-        mulfactor=(hh-8)/(max_voices_by_row)/2;
-        ratio=columns_width/(2*mulfactor);
-        
-        if (ratio<=2) break;
-        if (columns_nb>=num_voices) break;
-        
-        columns_nb++;
-        
-    }
-   // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
+//    if (num_voices>=1)
+//        for (;;) {
+//            columns_width=ww/columns_nb;
+//            max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+//            mulfactor=(hh-8)/(max_voices_by_row)/2;
+//            ratio=columns_width/(2*mulfactor);
+//            
+//            if (ratio<=2) break;
+//            if (columns_nb>=num_voices) break;
+//            
+//            columns_nb++;
+//            
+//        }
+    // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
+    //stereo, force 1 column
+    columns_nb=1;
+    columns_width=ww/columns_nb;
+    max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+    mulfactor=(hh-8)/(max_voices_by_row)/2;
+    ratio=columns_width/(2*mulfactor);
     
     int xofs=(ww-columns_width*columns_nb)/2;
     int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
@@ -589,7 +595,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
     if (smplincr<1) smplincr=1;
     int bufflen=max_len_oscillo_buffer/smplincr;
-        
+    
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
     
@@ -605,7 +611,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
         int left_done=0;
         for (;;) {
             // start analyzing
-                        
+            
             //check on right side, ofs1
             if ((ofs1<max_ofs)&& !right_done) {
                 tmp_gap=0;
@@ -698,8 +704,8 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
                 /*colR*=1.2f;
-                colG*=1.2f;
-                colB*=1.2f;*/
+                 colG*=1.2f;
+                 colB*=1.2f;*/
             }
             
             //draw label if specified
@@ -715,13 +721,13 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
                 val[cur_voices]=cur_snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*(mulfactor-1)>>7; if(sp[cur_voices]>=mulfactor) sp[cur_voices]=mulfactor-1; if (sp[cur_voices]<=-mulfactor) sp[cur_voices]=-mulfactor+1;
-                                
+                
                 tmpR=colR;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpG=colG;//+((val[cur_voices]-oval[cur_voices])<<1);
                 tmpB=colB;//+((val[cur_voices]-oval[cur_voices])<<1);
                 if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
-                                
+                
                 if (count>=max_count-1) break;
                 pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
@@ -738,7 +744,7 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-//    glLineWidth(2.0f*mScaleFactor);
+    //    glLineWidth(2.0f*mScaleFactor);
     switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
         case 0:glLineWidth(0.5f*mScaleFactor);
             break;
@@ -808,185 +814,185 @@ void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uin
     int dval,valL,valR,ovalL,ovalR,ospl,ospr,spl,spr,colR1,colL1,colR2,colL2,ypos;
     int count;
     
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    
+    
+    
+    pts=(LineVertex*)malloc(sizeof(LineVertex)*128*6);
+    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
+    count=0;
+    
+    
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
+    if (type_oscillo==1) {
+        int wd=(ww/2-10)/64;
+        if (pos) {
+            ypos=hh/4;
+            mulfactor=hh*1/4;
+        } else {
+            ypos=hh/2;
+            mulfactor=hh*1/4;
+        }
+        
+        if (bg) {
+            if (pos) ypos=40;
+            else ypos=hh/2;
+            ptsB[0] = LineVertex((ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
+            ptsB[1] = LineVertex((ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
+            ptsB[2] = LineVertex((ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
+            ptsB[3] = LineVertex((ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
+            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+            /* Render The Quad */
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            
+            ptsB[0] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
+            ptsB[1] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
+            ptsB[2] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
+            ptsB[3] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
+            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+            /* Render The Quad */
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+        valL=snd_data[0]*mulfactor>>6;
+        valR=snd_data[1]*mulfactor>>6;
+        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
+        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
+        colR1=150;
+        colL1=150;
+        colR2=75;
+        colL2=75;
+        
+        for (int i=1; i<64; i++) {
+            ovalL=valL;ovalR=valR;
+            valL=snd_data[(i*numval>>6)*2]*mulfactor>>6;
+            valR=snd_data[(i*numval>>6)*2+1]*mulfactor>>6;
+            ospl=spl;ospr=spr;
+            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
+            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
+            pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
+            colL1=(((valL-ovalL)*1024)>>15)+180;
+            colL2=(((valL-ovalL)*128)>>15)+32;
+            if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+            if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+            pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
+            
+            pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
+            colR1=(((valR-ovalR)*1024)>>15)+180;
+            colR2=(((valR-ovalR)*128)>>15)+32;
+            if (colR1<32) colR1=32;if (colR1>255) colR1=255;
+            if (colR2<32) colR2=32;if (colR2>255) colR2=255;
+            pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
+        }
+        glLineWidth(2.0f*mScaleFactor);
+        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+        glDrawArrays(GL_LINES, 0, count);
+        
+    }
+    if (type_oscillo==2) {
+        int wd=(ww-10)/128;
+        
+        valL=snd_data[0]*mulfactor>>6;
+        valR=snd_data[1]*mulfactor>>6;
+        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
+        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
+        colR1=150;
+        colL1=150;
+        colR2=75;
+        colL2=75;
+        
+        if (pos) {
+            ypos=hh/4;
+            mulfactor=hh*1/4;
+        } else {
+            ypos=hh/2;
+            mulfactor=hh*1/4;
+        }
+        
+        if (bg) {
+            if (pos) ypos=40;
+            else ypos=hh/2;
+            ptsB[0] = LineVertex((ww+128*wd)/2, ypos-32,		0,0,16,192);
+            ptsB[1] = LineVertex((ww-128*wd)/2, ypos-32,		0,0,16,192);
+            ptsB[2] = LineVertex((ww+128*wd)/2, ypos+32,		0,0,16,192);
+            ptsB[3] = LineVertex((ww-128*wd)/2, ypos+32,		0,0,16,192);
+            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+            /* Render The Quad */
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+        for (int i=1; i<128; i++) {
+            valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
+            valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
+            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
+            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
+            dval=valL-valR; if (dval<0) dval=-dval;
+            colL1=((dval*512)>>15)+164;
+            colL2=((dval*256)>>15)+48;
+            if (colL1<48) colL1=48;if (colL1>255) colL1=255;
+            if (colL2<48) colL2=48;if (colL2>255) colL2=255;
+            
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,192);
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colL2,colL1,colL2,192);
+            
+        }
+        glLineWidth(1.0f*mScaleFactor);
+        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+        glDrawArrays(GL_LINES, 0, count);
         
         
-        
-        
-        pts=(LineVertex*)malloc(sizeof(LineVertex)*128*6);
-        ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
         count=0;
-        
-        
-        
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        
-        if (type_oscillo==1) {
-            int wd=(ww/2-10)/64;
-            if (pos) {
-                ypos=hh/4;
-                mulfactor=hh*1/4;
-            } else {
-                ypos=hh/2;
-                mulfactor=hh*1/4;
-            }
-            
-            if (bg) {
-                if (pos) ypos=40;
-                else ypos=hh/2;
-                ptsB[0] = LineVertex((ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
-                ptsB[1] = LineVertex((ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
-                ptsB[2] = LineVertex((ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
-                ptsB[3] = LineVertex((ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
-                glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-                /* Render The Quad */
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-                
-                ptsB[0] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
-                ptsB[1] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
-                ptsB[2] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
-                ptsB[3] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
-                glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-                /* Render The Quad */
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-            valL=snd_data[0]*mulfactor>>6;
-            valR=snd_data[1]*mulfactor>>6;
+        valL=snd_data[0]*mulfactor>>6;
+        valR=snd_data[1]*mulfactor>>6;
+        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
+        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
+        colR1=150;
+        colL1=150;
+        colR2=75;
+        colL2=75;
+        for (int i=1; i<128; i++) {
+            ovalL=valL;ovalR=valR;
+            valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
+            valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
+            ospl=spl;ospr=spr;
             spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
             spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            colR1=150;
-            colL1=150;
-            colR2=75;
-            colL2=75;
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
+            colL1=(((ovalL-valL)*1024)>>15)+164;
+            colL2=(((ovalL-valL)*256)>>15)+64;
+            if (colL1<48) colL1=48;if (colL1>255) colL1=255;
+            if (colL2<48) colL2=48;if (colL2>255) colL2=255;
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
             
-            for (int i=1; i<64; i++) {
-                ovalL=valL;ovalR=valR;
-                valL=snd_data[(i*numval>>6)*2]*mulfactor>>6;
-                valR=snd_data[(i*numval>>6)*2+1]*mulfactor>>6;
-                ospl=spl;ospr=spr;
-                spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-                spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-                pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
-                colL1=(((valL-ovalL)*1024)>>15)+180;
-                colL2=(((valL-ovalL)*128)>>15)+32;
-                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
-                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-                pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
-                
-                pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
-                colR1=(((valR-ovalR)*1024)>>15)+180;
-                colR2=(((valR-ovalR)*128)>>15)+32;
-                if (colR1<32) colR1=32;if (colR1>255) colR1=255;
-                if (colR2<32) colR2=32;if (colR2>255) colR2=255;
-                pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
-            }
-            glLineWidth(2.0f*mScaleFactor);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-            glDrawArrays(GL_LINES, 0, count);
-            
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
+            colR1=(((ovalR-valR)*1024)>>15)+164;
+            colR2=(((ovalR-valR)*256)>>15)+64;
+            if (colR1<48) colR1=48;if (colR1>255) colR1=255;
+            if (colR2<48) colR2=48;if (colR2>255) colR2=255;
+            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
         }
-        if (type_oscillo==2) {
-            int wd=(ww-10)/128;
-            
-            valL=snd_data[0]*mulfactor>>6;
-            valR=snd_data[1]*mulfactor>>6;
-            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            colR1=150;
-            colL1=150;
-            colR2=75;
-            colL2=75;
-            
-            if (pos) {
-                ypos=hh/4;
-                mulfactor=hh*1/4;
-            } else {
-                ypos=hh/2;
-                mulfactor=hh*1/4;
-            }
-            
-            if (bg) {
-                if (pos) ypos=40;
-                else ypos=hh/2;
-                ptsB[0] = LineVertex((ww+128*wd)/2, ypos-32,		0,0,16,192);
-                ptsB[1] = LineVertex((ww-128*wd)/2, ypos-32,		0,0,16,192);
-                ptsB[2] = LineVertex((ww+128*wd)/2, ypos+32,		0,0,16,192);
-                ptsB[3] = LineVertex((ww-128*wd)/2, ypos+32,		0,0,16,192);
-                glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-                /* Render The Quad */
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-            for (int i=1; i<128; i++) {
-                valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
-                valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
-                spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-                spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-                dval=valL-valR; if (dval<0) dval=-dval;
-                colL1=((dval*512)>>15)+164;
-                colL2=((dval*256)>>15)+48;
-                if (colL1<48) colL1=48;if (colL1>255) colL1=255;
-                if (colL2<48) colL2=48;if (colL2>255) colL2=255;
-                
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,192);
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colL2,colL1,colL2,192);
-                
-            }
-            glLineWidth(1.0f*mScaleFactor);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-            glDrawArrays(GL_LINES, 0, count);
-            
-            
-            count=0;
-            valL=snd_data[0]*mulfactor>>6;
-            valR=snd_data[1]*mulfactor>>6;
-            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            colR1=150;
-            colL1=150;
-            colR2=75;
-            colL2=75;
-            for (int i=1; i<128; i++) {
-                ovalL=valL;ovalR=valR;
-                valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
-                valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
-                ospl=spl;ospr=spr;
-                spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-                spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
-                colL1=(((ovalL-valL)*1024)>>15)+164;
-                colL2=(((ovalL-valL)*256)>>15)+64;
-                if (colL1<48) colL1=48;if (colL1>255) colL1=255;
-                if (colL2<48) colL2=48;if (colL2>255) colL2=255;
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
-                
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
-                colR1=(((ovalR-valR)*1024)>>15)+164;
-                colR2=(((ovalR-valR)*256)>>15)+64;
-                if (colR1<48) colR1=48;if (colR1>255) colR1=255;
-                if (colR2<48) colR2=48;if (colR2>255) colR2=255;
-                pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
-            }
-            glLineWidth(2.0f*mScaleFactor);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-            glDrawArrays(GL_LINES, 0, count);
-            
-        }
+        glLineWidth(2.0f*mScaleFactor);
+        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+        glDrawArrays(GL_LINES, 0, count);
         
-        
-        
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisable(GL_BLEND);
-        free(pts);
-        free(ptsB);
+    }
+    
+    
+    
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_BLEND);
+    free(pts);
+    free(ptsB);
     
 }
 
@@ -1305,7 +1311,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     pts[1] = LineVertex(_ww, 0,		0,0,0,fade_lev);
     pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
     pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
-        
+    
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     pts[0] = LineVertex(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
@@ -1410,7 +1416,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glLineWidth(1.0f*mScaleFactor);
-        
+    
     switch (display_note_mode){
         case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
         case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
@@ -1497,7 +1503,7 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     colr=230;colg=76;colb=153;cola=150;
     //Draw current playing line
     ii=_hh-NOTES_DISPLAY_TOPMARGIN-rowToHighlight*(char_height+4)-char_yOfs-char_height+(char_yOfs+char_height)/2;
-            
+    
     pts[0] = LineVertex(0,     ii-3,		colr,colg,colb,cola);
     pts[1] = LineVertex(_ww-1, ii-3,		colr,colg,colb,cola);
     pts[2] = LineVertex(0,     ii+char_height+3,		colr,colg,colb,cola);
@@ -2061,7 +2067,7 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
         cbt*=0.5+(spR);
         if (cbt>1) cbt=1;
         
-                        
+        
         if (mode==1) {
             x=ww*(i+4)/(nb_spectrum_bands+8);
             sx=ww/(nb_spectrum_bands+8)-1;
@@ -3590,7 +3596,7 @@ void RenderUtils::DrawSpectrum3DSphere(short int *spectrumDataL,short int *spect
     
     glTranslatef(0.0, 0.0, -120.0);      /* Translate 50 Units Into The Screen */
     
-    //    glShadeModel(GL_FLAT);
+    //glShadeModel(GL_SMOOTH);
     glLightfv(GL_LIGHT0, GL_POSITION, position );
     glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
     
@@ -4294,7 +4300,7 @@ int data_pianofx_first=1;
 ////     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
 ////     0xFFF200
 //    //0x868240,0x555100,0xFFF872,0xFFFDCE
-//    
+//
 //    0xFF5512,0x761AFF,0x21ff94,0xffb129,
 //    0xcb30ff,0x38ffe4,0xfffc40,0xff47ed,
 //    0x4fd9ff,0xc7ff57,0xff5eb7,0x66a8ff,
@@ -5408,9 +5414,12 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         }
         
         if (played) {
-            crt=(crt+3)/4;
-            cgt=(cgt+3)/4;
-            cbt=(cbt+3)/4;
+            crt=(crt*2+1*3)/5;
+            cgt=(cgt*2+1*3)/5;
+            cbt=(cbt*2+1*3)/5;
+            if (crt>1) crt=1;
+            if (cgt>1) cgt=1;
+            if (cbt>1) cbt=1;
         }
         
         if (note>tgt_note_max) tgt_note_max=note;
@@ -5428,7 +5437,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         float sx;
         float sy=0.5f*(float)data_bar2draw[i].size;
         float sz=0.3f;
-                
+        
         if (piano_note_type[note&127]) {
             //black key
             x1=x-0.15;
@@ -5651,6 +5660,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
 void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
     LineVertex *ptsB;
     int crt,cgt,cbt,ca;
+    int crtp[4],cgtp[4],cbtp[4],cap[4];
     int index;
     //int band_width,ofs_band;
     float band_width;
@@ -5684,9 +5694,8 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         int note=data[i];
         data_midifx_note[data_midifx_len-1][i]=note&0xFF;
         data_midifx_instr[data_midifx_len-1][i]=(note>>8)&0xFF;
-        data_midifx_st[data_midifx_len-1][i]=(note>>24)&0xFF;
         data_midifx_vol[data_midifx_len-1][i]=(note>>16)&0xFF;
-        
+        data_midifx_st[data_midifx_len-1][i]=(note>>24)&0xFF;
     }
     
     
@@ -5743,6 +5752,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                         if (j==(data_midifx_len-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].note|=128;
                         j++;
                         if (j==data_midifx_len) break;
+                        if (vol<data_midifx_vol[j][i]) break; //vol increase, likely a note was retriggered
                         vol=data_midifx_vol[j][i];
                         st=data_midifx_st[j][i];
                     }
@@ -5750,9 +5760,9 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     j++;
                 } else j++;
             } else j++;
-            if (data_bar2draw_count==MAX_BARS) break;
+            if (data_bar2draw_count==MAX_BARS/2) break;
         }
-        if (data_bar2draw_count==MAX_BARS) break;
+        if (data_bar2draw_count==MAX_BARS/2) break;
     }
     qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
     
@@ -5806,81 +5816,150 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].note&128;
-            int note=data_bar2draw[i].note&127;
-            int instr=data_bar2draw[i].instr;
-            int colidx;
-            if (color_mode==0) { //note
-                colidx=(note%12);
-            } else if (color_mode==1) { //instru
-                colidx=(instr)&63;
-            }
+        int note=data_bar2draw[i].note&127;
+        int instr=data_bar2draw[i].instr;
+        int colidx;
+        if (color_mode==0) { //note
+            colidx=(note%12);
+        } else if (color_mode==1) { //instru
+            colidx=(instr)&63;
+        }
         
-//        printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
-            
-            if (data_bar2draw[i].size==0) continue;
-            
-            int adj_size=0;
-            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-                if (draw_count) {
-                    if (_instr!=(instr+1)) {
-                        draw_count++;
-                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-                    }
-                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-                } else {
-                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+        //        printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
+        
+        if (data_bar2draw[i].size==0) continue;
+        
+        int adj_size=0;
+        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+            if (draw_count) {
+                if (_instr!=(instr+1)) {
+                    draw_count++;
+                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
                 }
+                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+            } else {
+                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
             }
+        }
         adj_size*=2;
         if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
-            
-            
-            crt=((data_midifx_col[colidx&31]>>16)&0xFF);
-            cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
-            cbt=(data_midifx_col[colidx&31]&0xFF);
-            
-            if (colidx&0x20) {
-                crt=(crt+255)/2;
-                cgt=(cgt+255)/2;
-                cbt=(cbt+255)/2;
-            }
-            
-            if (played) {
-                crt=(crt+255*3)/4;
-                cgt=(cgt+255*3)/4;
-                cbt=(cbt+255*3)/4;
-            }
-            ca=192;
-            
-            if (horiz_vert==0) { //horiz
-                int posNote=note*line_width-note_display_offset+adj_size;
-                int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
-                int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
-                if ((posNote>=0)&&(posNote<hh)&&(!played)) {
-                    ptsB[index++] = LineVertex(posStart, posNote,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd, posNote,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart, posNote+line_width-adj_size,crt,cgt,cbt,ca);
+        
+        
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+        cbt=(data_midifx_col[colidx&31]&0xFF);
+        
+        if (colidx&0x20) {
+            crt=(crt+255)/2;
+            cgt=(cgt+255)/2;
+            cbt=(cbt+255)/2;
+        }
+        
+        if (played) {
+            crt=(crt*2+255*3)/5;
+            cgt=(cgt*2+255*3)/5;
+            cbt=(cbt*2+255*3)/5;
+            if (crt>255) crt=255;
+            if (cgt>255) cgt=255;
+            if (cbt>255) cbt=255;
+        }
+        ca=256-32;
+        
+        switch (settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value) {
+            case 0:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
                     
-                    ptsB[index++] = LineVertex(posEnd, posNote,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart, posNote+line_width-adj_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd, posNote+line_width-adj_size,crt,cgt,cbt,ca);
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
                 }
-            } else {
-                int posNote=note*line_width-note_display_offset+adj_size;
-                int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
-                int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
-                if ((posNote>=0)&&(posNote<ww)&&(!played)) {
-                    ptsB[index++] = LineVertex(posNote, posStart, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote, posEnd, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size, posStart, crt,cgt,cbt,ca);
-                    
-                    ptsB[index++] = LineVertex(posNote, posEnd, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size, posStart, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size, posEnd, crt,cgt,cbt,ca);
+                break;
+            case 1:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
+                    if ((ii==3)||(ii==2)) {
+                        fact=1.5f;
+                        ofs=96;
+                    }
+                    if ((ii==0)||(ii==1)) {
+                        fact=0.5f;
+                    }
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
                 }
+                break;
+            case 2:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
+                    if ((ii==3)||(ii==2)) {
+                        fact=1.5f;
+                        ofs=96;
+                    }
+                    if ((ii==0)||(ii==1)) {
+                        fact=0.5f;
+                    }
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
+                }
+                crt=crtp[3];cgt=cgtp[3];cbt=cbtp[3];
+                for (int ii=2;ii<4;ii++) {
+                    crtp[ii]=crtp[0];
+                    cgtp[ii]=cgtp[0];
+                    cbtp[ii]=cbtp[0];
+                    cap[ii]=cap[0];
+                }
+                break;
+        }
+        
+        if (horiz_vert==0) { //horiz
+            int posNote=note*line_width-note_display_offset+adj_size;
+            int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
+            if ((posNote>=0)&&(posNote<hh)&&(!played)) {
+                ptsB[index++] = LineVertex(posStart, posNote,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                ptsB[index++] = LineVertex(posEnd, posNote,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                ptsB[index++] = LineVertex(posStart, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posEnd, posNote,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                ptsB[index++] = LineVertex(posStart, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posEnd, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posStart, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posEnd, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posStart, posNote+line_width-adj_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                
+                ptsB[index++] = LineVertex(posEnd, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posStart, posNote+line_width-adj_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                ptsB[index++] = LineVertex(posEnd, posNote+line_width-adj_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
             }
+        } else {
+            int posNote=note*line_width-note_display_offset+adj_size;
+            int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
+            if ((posNote>=0)&&(posNote<ww)&&(!played)) {
+                ptsB[index++] = LineVertex(posNote, posStart, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote, posEnd, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size, posStart, crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posNote, posEnd, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size, posStart, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size, posEnd, crt,cgt,cbt,ca);
+            }
+        }
         
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
@@ -5892,82 +5971,151 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].note&128;
-            int note=data_bar2draw[i].note&127;
-            
-            int instr=data_bar2draw[i].instr;
-            int colidx;
-            if (color_mode==0) { //note
-                colidx=(note%12);
-            } else if (color_mode==1) { //instru
-                colidx=(instr)&63;
-            }
-            
-            if (data_bar2draw[i].size==0) continue;
-            
-            //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
-            
-            
-            int adj_size=0;
-            for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-                int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-                int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-                if (draw_count) {
-                    if (_instr!=(instr+1)) {
-                        draw_count++;
-                        data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-                    }
-                    if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-                } else {
-                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+        int note=data_bar2draw[i].note&127;
+        
+        int instr=data_bar2draw[i].instr;
+        int colidx;
+        if (color_mode==0) { //note
+            colidx=(note%12);
+        } else if (color_mode==1) { //instru
+            colidx=(instr)&63;
+        }
+        
+        if (data_bar2draw[i].size==0) continue;
+        
+        //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
+        
+        
+        int adj_size=0;
+        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+            if (draw_count) {
+                if (_instr!=(instr+1)) {
+                    draw_count++;
+                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
                 }
+                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+            } else {
+                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
             }
+        }
         adj_size*=2;
         if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
-            
-            crt=((data_midifx_col[colidx&31]>>16)&0xFF);
-            cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
-            cbt=(data_midifx_col[colidx&31]&0xFF);
-            
-            if (colidx&0x20) {
-                crt=(crt+255)/2;
-                cgt=(cgt+255)/2;
-                cbt=(cbt+255)/2;
-            }
-            
-            if (played) {
-                crt=(crt+255*3)/4;
-                cgt=(cgt+255*3)/4;
-                cbt=(cbt+255*3)/4;
-            }
-            ca=192;
-            
-            if (horiz_vert==0) { //horiz
-                int posNote=note*line_width-note_display_offset+adj_size;
-                int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
-                int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
-                if ((posNote>=0)&&(posNote<hh)&&played) {
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crt,cgt,cbt,ca);
+        
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+        cbt=(data_midifx_col[colidx&31]&0xFF);
+        
+        if (colidx&0x20) {
+            crt=(crt+255)/2;
+            cgt=(cgt+255)/2;
+            cbt=(cbt+255)/2;
+        }
+        
+        if (played) {
+            crt=(crt*2+255*3)/5;
+            cgt=(cgt*2+255*3)/5;
+            cbt=(cbt*2+255*3)/5;
+            if (crt>255) crt=255;
+            if (cgt>255) cgt=255;
+            if (cbt>255) cbt=255;
+        }
+        ca=256-32;
+        
+        switch (settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value) {
+            case 0:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
                     
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+line_width-adj_size+line_width_extra,crt,cgt,cbt,ca);
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
                 }
-            } else {  //vert
-                int posNote=note*line_width-note_display_offset+adj_size;
-                int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
-                int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
-                if ((posNote>=0)&&(posNote<ww)&&played) {
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                break;
+            case 1:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
+                    if ((ii==3)||(ii==2)) {
+                        fact=1.5f;
+                        ofs=96;
+                    }
+                    if ((ii==0)||(ii==1)) {
+                        fact=0.5f;
+                    }
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
                 }
+                break;
+            case 2:
+                for (int ii=0;ii<4;ii++) {
+                    double fact=1;
+                    double ofs=0;
+                    if ((ii==3)||(ii==2)) {
+                        fact=1.5f;
+                        ofs=96;
+                    }
+                    if ((ii==0)||(ii==1)) {
+                        fact=0.5f;
+                    }
+                    crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+                    if (crtp[ii]>255) crtp[ii]=255;
+                    if (cgtp[ii]>255) cgtp[ii]=255;
+                    if (cbtp[ii]>255) cbtp[ii]=255;
+                    if (cap[ii]>255) cap[ii]=255;
+                }
+                crt=crtp[3];cgt=cgtp[3];cbt=cbtp[3];
+                for (int ii=2;ii<4;ii++) {
+                    crtp[ii]=crtp[0];
+                    cgtp[ii]=cgtp[0];
+                    cbtp[ii]=cbtp[0];
+                    cap[ii]=cap[0];
+                }
+                break;
+        }
+        
+        if (horiz_vert==0) { //horiz
+            int posNote=note*line_width-note_display_offset+adj_size;
+            int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
+            if ((posNote>=0)&&(posNote<hh)&&played) {
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
             }
+        } else {  //vert
+            int posNote=note*line_width-note_display_offset+adj_size;
+            int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
+            if ((posNote>=0)&&(posNote<ww)&&played) {
+                ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
+                
+                ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posStart-line_width_extra, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote+line_width-adj_size+line_width_extra, posEnd+line_width_extra, crt,cgt,cbt,ca);
+            }
+        }
     }
     //glLineWidth(line_width*mScaleFactor*3);
     glDrawArrays(GL_TRIANGLES, 0, index);

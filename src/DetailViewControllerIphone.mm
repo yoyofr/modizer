@@ -2815,22 +2815,58 @@ int recording=0;
     }
     
     if ((cover_img==nil)&&[mplayer isArchive]) {//archive mode, check tmp folder
-        NSError *error;
-        NSArray *dirContent;//
-        BOOL isDir;
         NSString *file,*cpath;
+        NSURL *fileURL;
         NSArray *filetype_ext=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
         NSFileManager *fileMngr=[[NSFileManager alloc] init];
         
+        NSError *error;
+        NSRange rdir;
+        BOOL isDir;
+        NSArray *dirContent;//=[NSMutableArray array];//
+        
         cpath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
-        dirContent=[[fileMngr contentsOfDirectoryAtPath:cpath error:&error] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-        for (file in dirContent) {
-            [fileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        
+        //List all entries
+        NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
+        NSDirectoryEnumerator *directoryEnumerator =
+        [fileMngr enumeratorAtURL:directoryURL
+        includingPropertiesForKeys:@[NSURLPathKey, NSURLNameKey, NSURLIsDirectoryKey]
+                           options:NSDirectoryEnumerationSkipsHiddenFiles
+                      errorHandler:nil];
+        
+        /*for (NSURL *fileURL in directoryEnumerator) {
+         [dirContent addObject:fileURL];
+         }*/
+        dirContent=[directoryEnumerator allObjects];
+        
+        NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+            
+            NSString *str1;//[(NSString *)obj1 lastPathComponent];
+            NSString *str2;//[(NSString *)obj2 lastPathComponent];
+            
+            
+            [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
+            [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+        
+            return [str1 caseInsensitiveCompare:str2];
+        }];
+        
+        int file_idx=0;
+        int file_cnt=[sortedDirContent count];
+        for (fileURL in sortedDirContent) {
+
+            NSNumber *isDirectory = nil;
+            [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+            [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
+            
+            isDir=[isDirectory boolValue];
+            
             if (!isDir) {
                 NSString *extension = [[file pathExtension] uppercaseString];
                 
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) {
-                    cover_img=[UIImage imageWithContentsOfFile:[cpath stringByAppendingFormat:@"/%@",file]];
+                    cover_img=[UIImage imageWithContentsOfFile:file];
                     break;
                 }
             }

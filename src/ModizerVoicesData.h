@@ -22,8 +22,9 @@ extern unsigned char m_channel_voice_mapping[256];
 
 extern int m_genNumVoicesChannels;
 
-extern int psx_last_note[24*2];
-extern int psx_last_sample_addr[24*2];
+extern int psx_last_vol[SOUND_MAXVOICES_BUFFER_FX];
+extern int psx_last_note[SOUND_MAXVOICES_BUFFER_FX];
+extern int psx_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
 extern int psx_instr_addr[256];
 
 extern int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];

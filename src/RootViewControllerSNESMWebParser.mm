@@ -698,7 +698,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             
             if (![[NSFileManager defaultManager] fileExistsAtPath:dbWEB_entries[index][dbWEB_entries_count[index]].img_URL]) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=nil;
             
-            if (wef->file_rating) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d/100",(int)(wef->file_rating)];
+            if (wef->file_rating) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d/100",(int)(100-wef->file_rating)];
             dbWEB_entries[index][dbWEB_entries_count[index]].webRating=wef->file_rating;
             
             if (wef->file_details) {

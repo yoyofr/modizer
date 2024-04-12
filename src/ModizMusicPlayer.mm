@@ -491,8 +491,9 @@ int m_voice_buff_adjustement;
 unsigned char m_voice_channel_mapping[256]; //used for timidity to map channels used to voices
 unsigned char m_channel_voice_mapping[256]; //used for timidity to map channels used to voices
 
-int psx_last_note[24*2];
-int psx_last_sample_addr[24*2];
+int psx_last_note[SOUND_MAXVOICES_BUFFER_FX];
+int psx_last_vol[SOUND_MAXVOICES_BUFFER_FX];
+int psx_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
 int psx_instr_addr[256];
 
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
@@ -731,6 +732,48 @@ KSS *kss;
 extern CHIPS_OPTION ChipOpts[0x02];
 extern bool EndPlay;
 extern char* AppPaths[8];
+
+//YOYOFR
+static int vgm_getNoteFromFreq(double freq)
+{
+  const double LOG2_440 = 8.7813597135246596040696824762152;
+  const double LOG_2 = 0.69314718055994530941723212145818;
+    const int NOTE_440HZ = 60;//0x69;
+
+  if(freq>1.0)
+    return (int)((12 * ( log(freq)/LOG_2 - LOG2_440 ) + NOTE_440HZ + 0.5));
+  else
+    return 0;
+}
+
+int vgm_getNote(int ch) {
+    if (psx_last_note[ch]==0) return 0;
+    double freq=(double)(psx_last_note[ch]);
+    int note=vgm_getNoteFromFreq(freq);
+    //printf("ch %d note %d\n",ch,note);
+    return note;
+}
+
+
+int vgm_getInstr(int ch) {
+    int idx=0;
+    while (psx_instr_addr[idx]) {
+        if (psx_instr_addr[idx]==psx_last_sample_addr[ch]) {
+            break;
+        }
+        if (idx==255) {
+            //all occupied -> reset
+            memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+            idx=0;
+            break;
+        }
+        idx++;
+    }
+    psx_instr_addr[idx]=psx_last_sample_addr[ch];
+    return idx;
+}
+//YOYOFR
+
 
 /*
  "SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
@@ -2908,7 +2951,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 -(bool) isMidiLikeDataAvailable {
-    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)) return true;
+    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_GME)) return true;
     return false;
 }
 
@@ -5389,6 +5432,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     gme_start_track(gme_emu,mod_currentsub);
                                     gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 } else if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                                     else {
@@ -5398,8 +5442,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             } else {
+                                                                
                                 gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                
+                                //midi like notes data
+                                int voices_idx=0;
+                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                                for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                    if (m_voicesStatus[j]) {
+                                        int idx=vgm_getNote(j);
+                                        
+                                        if ((idx>0)) {
+                                            
+                                            //printf("ch %d note %d vol %d\n",j,idx,psx_last_vol[j]);
+                                            
+                                            int instr=vgm_getInstr(j);
+                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                            (int)idx|
+                                            ((int)(instr)<<8)|
+                                            ((int)psx_last_vol[j]<<16)|
+                                            ((int)(1<<1)<<24);
+                                        }
+                                        voices_idx++;
+                                    }
+                                }
+                                tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                                 
                                 if (m_voicesDataAvail) {
                                     
@@ -5530,9 +5599,31 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 
+                                memset(psx_last_note,0,sizeof(psx_last_note));
+                                memset(psx_last_vol,0,sizeof(psx_last_vol));
+                                
                                 nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
+                                //midi like notes data
+                                int voices_idx=0;
+                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                                for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                    if (m_voicesStatus[j]) {
+                                        int idx=vgm_getNote(j);
+                                        if ((idx>0)) {
+                                            //printf("ch %d note %d vol %d\n",j,idx,psx_last_vol[j]);
+                                            int instr=vgm_getInstr(j);
+                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                            (int)idx|
+                                            ((int)(instr)<<8)|
+                                            ((int)psx_last_vol[j]<<16)|
+                                            ((int)(1<<1)<<24);
+                                        }
+                                        voices_idx++;
+                                    }
+                                }
+                                tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                                 
                                 if (m_genNumVoicesChannels) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -6005,6 +6096,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //int idx=SID::getFreq(i) ;//sidplay_getNote(registers[0x00 + i * 0x07] | (registers[0x01 + i * 0x07] << 8));
                                     if ((idx>=0)&&m_voicesStatus[i]) {
                                         int vol=websid::SidSnapshot::getRegister(j,(0x04 + i * 0x07),0xFF,0xFF) & 0x01;
+                                        
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (int)idx|
                                         ((int)(voices_idx)<<8)|
@@ -6051,6 +6143,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             
+                            memset(psx_last_note,0,sizeof(psx_last_note));
+                            memset(psx_last_vol,0,sizeof(psx_last_vol));
+                            
                             m_voice_current_sample=0;
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                             mCurrentSamples+=nbBytes/4;
@@ -6076,9 +6171,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (mSidEmuEngine->getSidStatus(j, registers)) {
                                     for(int i = 0; i < 3; i++) {
-                                        int idx=sidplay_getNote(registers[0x00 + i * 0x07] | (registers[0x01 + i * 0x07] << 8));
+                                        //int idx=sidplay_getNote(registers[0x00 + i * 0x07] | (registers[0x01 + i * 0x07] << 8));
+                                        int idx=sidplay_getNote(psx_last_note[i]);
                                         if ((idx>=0)&&m_voicesStatus[i]) {
-                                            int vol=(registers[0x04 + i * 0x07] & 0x01);
+                                            int vol=psx_last_vol[i];//(registers[0x04 + i * 0x07] & 0x01);
+                                            //printf("ch %d note %d vol %d\n",i,idx,vol);
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (int)idx|
                                             ((int)(voices_idx)<<8)|
@@ -11544,6 +11641,11 @@ int vgmGetFileLength()
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     fclose(f);
+    
+    memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+    memset(psx_last_sample_addr,0,sizeof(psx_last_sample_addr));
+    memset(psx_last_note,0,sizeof(psx_last_note));
+    memset(psx_last_vol,0,sizeof(psx_last_vol));
     
     // Open music file in new emulator
     gme_emu=NULL;

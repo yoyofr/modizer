@@ -278,6 +278,7 @@ void sn76496_write_reg(void *chip, offs_t offset, UINT8 data)
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
+static int current_clock;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -617,6 +618,23 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 		*(rbuffer++) = out2 >> 1;
 		samples--;
 	}
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if (R->MuteMsk[ii]) {
+                if ((R->Volume[ii])&&R->Output[ii]) {
+                    int freq=R->Period[ii];
+                    if (R->Freq0IsMax && (freq==0)) freq=0x400;
+                    if (freq) {
+                        psx_last_note[ii+m_voice_ofs]=current_clock/(2*freq)/16;
+                        psx_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        psx_last_vol[ii+m_voice_ofs]=1;
+                    }
+                }
+            }
+        }
+    //YOYOFR
 }
 
 
@@ -698,6 +716,9 @@ static int SN76496_init(int clock, sn76496_state *R, int stereo)
 static int generic_start(sn76496_state *chip, int clock, int feedbackmask, int noisetap1, int noisetap2, int negate, int stereo, int clockdivider, int freq0)
 {
 	int sample_rate;
+    
+    //yoyofr
+    current_clock=clock;
 	
 	//sn76496_state *chip = get_safe_token(device);
 	//sn76496_state *chip;
