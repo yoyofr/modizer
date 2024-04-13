@@ -6619,6 +6619,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
+                            //copy voice data for oscillo view
+                            for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
+                                }
+                            }
+                            
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
@@ -11506,7 +11513,11 @@ int vgmGetFileLength()
     sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
     
     m_genNumVoicesChannels=numChannels;
-    m_voicesDataAvail=0;
+    m_voicesDataAvail=1;
+    
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[i/4];
+    }
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
