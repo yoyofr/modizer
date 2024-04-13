@@ -374,16 +374,17 @@ void okim6295_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			INT16 sample_data[MAX_SAMPLE_CHUNK];
 			int remaining = samples;
             
+            //YOYOFR
             if (m_voice_ofs>=0) {
                 int divisor = chip->pin7_state ? 132 : 165;
                 int freq=chip->master_clock / divisor;
-                psx_last_note[i+m_voice_ofs]=freq*440.0f/22050.0f;
-                psx_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                vgm_last_note[i+m_voice_ofs]=freq*440.0f/22050.0f;
+                vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
                             
                 int newvol=voice->playing;
-                psx_last_vol[i+m_voice_ofs]=newvol;
+                vgm_last_vol[i+m_voice_ofs]=newvol;
             }
-            //TODO:  MODIZER changes end / YOYOFR
+            //YOYOFR
 
 			/* loop while we have samples remaining */
 			while (remaining)

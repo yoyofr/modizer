@@ -1062,8 +1062,8 @@ static int xsf_getNote(double freq)
 }
 
 int xsf_spu_getNote(int ch) {
-    if (psx_last_note[ch]==0) return 0;
-    double freq=440.0f*(ARM7_CLOCK / (DESMUME_SAMPLE_RATE * 2)) / (0x10000 - psx_last_note[ch]);
+    if (vgm_last_note[ch]==0) return 0;
+    double freq=440.0f*(ARM7_CLOCK / (DESMUME_SAMPLE_RATE * 2)) / (0x10000 - vgm_last_note[ch]);
     int note=xsf_getNote(freq);
     return note;
 }
@@ -1071,7 +1071,7 @@ int xsf_spu_getNote(int ch) {
 int xsf_spu_getInstr(int ch) {
     int idx=0;
     while (psx_instr_addr[idx]) {
-        if (psx_instr_addr[idx]==psx_last_sample_addr[ch]) {
+        if (psx_instr_addr[idx]==vgm_last_sample_addr[ch]) {
             break;
         }
         if (idx==255) {
@@ -1082,7 +1082,7 @@ int xsf_spu_getInstr(int ch) {
         }
         idx++;
     }
-    psx_instr_addr[idx]=psx_last_sample_addr[ch];
+    psx_instr_addr[idx]=vgm_last_sample_addr[ch];
     return idx;
 }
 //YOYOFR
@@ -1115,11 +1115,11 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
                 int i=m_voice_current_systemSub;
                 
                 if (chan->status==CHANSTAT_PLAY) {
-                    psx_last_note[i]=(int)(chan->timer);
-                    psx_last_sample_addr[i]=(int)(chan->addr);
+                    vgm_last_note[i]=(int)(chan->timer);
+                    vgm_last_sample_addr[i]=(int)(chan->addr);
                 } else {
-                    psx_last_note[i]=0;
-                    psx_last_sample_addr[i]=0;
+                    vgm_last_note[i]=0;
+                    vgm_last_sample_addr[i]=0;
                 }
                 
                 m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=LIMIT8(((spumuldiv7(data, chan->vol) >> chan->datashift)>>8));
@@ -1135,8 +1135,8 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
             if (m_voice_current_systemSub>=0) {
                 int i=m_voice_current_systemSub;
                 
-                psx_last_note[i]=0;
-                psx_last_sample_addr[i]=0;
+                vgm_last_note[i]=0;
+                vgm_last_sample_addr[i]=0;
                 
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;

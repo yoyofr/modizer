@@ -224,6 +224,8 @@ void Spc_Dsp::run( int clock_count )
 	if ( mvoll * mvolr < m.surround_threshold )
 		mvoll = -mvoll; // eliminate surround
 	
+    
+    int count_start=count;//YOYOFR
 	do
 	{
 		// KON/KOFF reading
@@ -353,35 +355,18 @@ void Spc_Dsp::run( int clock_count )
 						echo_out_r += r;
 					}
                     
-                    int newamp=LIMIT8(((l * mvoll + l * evoll + r * mvolr + r * evolr) >> 21));
+                    int newamp=(l * mvoll + r * mvolr );
+                    if ( REG(eon) & vbit ) {
+                        newamp+=(l * evoll + r * evolr);
+                    }
+                    
                 
                 if ( (REG(flg) & 0x40) ) {
                     newamp=0;
                 }
                     
-                    //YOYOFR
-                    
-                     {//do only once / call
-                        int pp= pitch;
-                        if (v->enabled&&pp) {
-                            int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
-                            psx_last_note[current_voice]=freq;
-                            psx_last_vol[current_voice]=v->env;
-                            if (psx_last_vol[current_voice]) {
-                                psx_last_vol[current_voice]>>=3;
-                                psx_last_vol[current_voice]+=1;
-                            }
-                            psx_last_sample_addr[current_voice]=current_voice;
-                        } else {
-                            psx_last_note[current_voice]=0;
-                        }
-                    }
-                    //YOYOFR
-                    
-                    
-                
-                    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
-                m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=newamp;
+                    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
+                    m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
                 
                     //TODO:  MODIZER changes end / YOYOFR
 				}
@@ -602,6 +587,30 @@ void Spc_Dsp::run( int clock_count )
 			}
 skip_brr:
             
+            //YOYOFR
+            if (count==count_start) {//do only once / call
+                int pp= pitch;
+                if ( v->enabled && pp && (!(REG(flg) & 0x40)) ) {
+                    int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
+                    vgm_last_note[current_voice]=freq;
+                    vgm_last_vol[current_voice]=v->env;
+                    if (vgm_last_vol[current_voice]) {
+                        vgm_last_vol[current_voice]>>=3;
+                        if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
+                        if (vgm_last_vol[current_voice]<=0) vgm_last_vol[current_voice]=1;
+                    }
+                    vgm_last_sample_addr[current_voice]=current_voice;
+                } else {
+                    vgm_last_note[current_voice]=0;
+                }
+            }
+            //YOYOFR
+            
+            
+        
+            
+            
+            
             // Next voice
 			vbit <<= 1;
 			v_regs += 0x10;
@@ -613,6 +622,8 @@ skip_brr:
             //YOYOFR
 		}
 		while ( vbit < 0x100 );
+        
+        
 		
 		// Echo position
 		int echo_offset = m.echo_offset;
@@ -696,10 +707,13 @@ skip_brr:
 		WRITE_SAMPLES( l, r, out );
 		m.out = out;
         //YOYOFR
-        for (int jj=0;jj<8;jj++) {\
-            m_voice_current_ptr[jj]+=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000/*44100*256/32000*/;\
-            m_voice_buff[jj][(m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
-            m_voice_buff[jj][((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;\
+        for (int jj=0;jj<8;jj++) {
+            m_voice_current_ptr[jj]+=(int64_t)(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_rateratio/*44100*256/32000*/;
+            
+//            if ((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4)  m_voice_current_ptr[jj]-=SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            
+//            m_voice_buff[jj][(m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+//            m_voice_buff[jj][((m_voice_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
         }
         //YOYOFR
 	}

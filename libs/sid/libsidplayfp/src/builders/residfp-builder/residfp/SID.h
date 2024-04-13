@@ -411,8 +411,8 @@ int SID::clock(unsigned int cycles, short* buf)
                         
                         for (int j=0;j<3;j++) {
                             if (voice[j]->wave()->readFreq()) {
-                                psx_last_note[j]=voice[j]->wave()->readFreq();
-                                psx_last_vol[j]=voice[j]->envelope()->readENV();
+                                vgm_last_note[j]=voice[j]->wave()->readFreq();
+                                vgm_last_vol[j]=voice[j]->envelope()->readENV();
                             }
                         }
                         

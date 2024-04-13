@@ -6,8 +6,6 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-
-
 #define SELECTOR_TABVIEWCELL_HEIGHT 50
 #define ARCSUB_MODE_NONE 0
 #define ARCSUB_MODE_ARC 1
@@ -954,13 +952,6 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
         }
         [self updateVisibleChan];
-        
-        tim_midifx_note_range=88;// //128notes max
-        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-            tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.width/tim_midifx_note_range;
-        } else {
-            tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
-        }
         
         [self updateFont];
         [self updateVisibleChan];
@@ -4015,14 +4006,6 @@ int recording=0;
     [self updateBarPos];
     [self updateVisibleChan];
     
-    tim_midifx_note_range=88;// //128notes max
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-        tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.width/tim_midifx_note_range;
-    } else {
-        tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
-    }
-    
-    
     return YES;
 }
 
@@ -5486,6 +5469,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //    BlurTexture=EmptyTexture(128,128);
     //    FxTexture=EmptyTexture(512,512);
     
+    tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
     
     
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
@@ -6437,17 +6421,17 @@ extern "C" int current_sample;
             moveRPx=0;
         }
         
-        if  (tim_midifx_note_range<12*4) {//min is 4 Octaves
-            tim_midifx_note_range=12*4;
+        if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {//min is 4 Octaves
+            tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
         }
-        if (tim_midifx_note_range>128) tim_midifx_note_range=128; //note is a 8bit, so 256 is a max
+        if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
         
-        if (tim_midifx_note_range<128) {
-            tim_midifx_note_offset=((128-tim_midifx_note_range)>>1)*note_fx_linewidth;
+        if (tim_midifx_note_range<MAX_MIDI_NOTES) {
+            tim_midifx_note_offset=((MAX_MIDI_NOTES-tim_midifx_note_range)>>1)*note_fx_linewidth;
         }
         
-        if (tim_midifx_note_range<128) {
-            int maxofs=(128-tim_midifx_note_range)*note_fx_linewidth;
+        if (tim_midifx_note_range<MAX_MIDI_NOTES) {
+            int maxofs=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
             tim_midifx_note_offset=moveRPy;
             if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
             if (tim_midifx_note_offset>maxofs) tim_midifx_note_offset=maxofs;

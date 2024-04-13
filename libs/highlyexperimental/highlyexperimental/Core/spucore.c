@@ -1696,8 +1696,8 @@ static int psx_getNote(double freq)
 }
 
 int psx_spu_getNote(int ch) {
-    if (psx_last_note[ch]==0) return 0;
-    double freq=440*(double)psx_last_note[ch]/(double)0x1000; //0x1000 is base, we'll assume it's A-4
+    if (vgm_last_note[ch]==0) return 0;
+    double freq=440*(double)vgm_last_note[ch]/(double)0x1000; //0x1000 is base, we'll assume it's A-4
     int note=psx_getNote(freq);
     return note;
 }
@@ -1705,7 +1705,7 @@ int psx_spu_getNote(int ch) {
 int psx_spu_getInstr(int ch) {
     int idx=0;
     while (psx_instr_addr[idx]) {
-        if (psx_instr_addr[idx]==psx_last_sample_addr[ch]) {
+        if (psx_instr_addr[idx]==vgm_last_sample_addr[ch]) {
             break;
         }
         if (idx==255) {
@@ -1716,7 +1716,7 @@ int psx_spu_getInstr(int ch) {
         }
         idx++;
     }
-    psx_instr_addr[idx]=psx_last_sample_addr[ch];
+    psx_instr_addr[idx]=vgm_last_sample_addr[ch];
     return idx;
 }
 //YOYOFR
@@ -1814,13 +1814,13 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     sint32 *noise = (chanbit & masknoise) ? ibufn : NULL;
       
       //YOYOFR
-      psx_last_note[ch+m_voice_ofs]=0;
+      vgm_last_note[ch+m_voice_ofs]=0;
       //if (state->chan[ch].samples_until_keyoff_responds>0) {
       if ( (state->chan[ch].env.state!=ENVELOPE_STATE_OFF)&&(state->chan[ch].samples_until_pending_keyon==0)&&(state->chan[ch].sample.state==SAMPLE_STATE_ON) ) {
           int vol=(state->chan[ch].vol[0].level+state->chan[ch].vol[1].level);
           if (vol>0) {
-              psx_last_note[ch+m_voice_ofs]=state->chan[ch].voice_pitch;
-              psx_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
+              vgm_last_note[ch+m_voice_ofs]=state->chan[ch].voice_pitch;
+              vgm_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
           }
       }
       //YOYOFR

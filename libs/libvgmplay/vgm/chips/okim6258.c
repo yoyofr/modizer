@@ -12,6 +12,7 @@
 //#include "emu.h"
 #include <stddef.h>	// for NULL
 #include "mamedef.h"
+#include <stdio.h>
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
@@ -218,6 +219,25 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	if (chip->status & STATUS_PLAYING)
 	{
 		int nibble_shift = chip->nibble_shift;
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            if ((! chip->Muted)&&((chip->pan & 0x03)<3) ) {
+                int freq=chip->master_clock / chip->divider;
+                vgm_last_note[m_voice_ofs]=freq*440.0f/22050.0f;
+                vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+                
+                int newvol=1;
+                if ((chip->nibble_shift==0)&&(chip->step==0)) {
+                    newvol=2;
+                }
+                
+                vgm_last_vol[m_voice_ofs]=newvol;
+                
+                //printf("note %d vol %d\n",vgm_last_note[m_voice_ofs],newvol);
+            }
+        }
+        //YOYOFR
 
 		while (samples)
 		{

@@ -2494,25 +2494,25 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
             if (!(cch[ii]->Muted)) {
                 if (cch[ii]->block_fnum==0) {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
-                        psx_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        psx_last_sample_addr[ii+m_voice_ofs]=ii;
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii;
                         if ((ii==5)&&(F2612->dacen)) {
                             if (!old_dacen) {
-                                psx_last_vol[ii+m_voice_ofs]=2;
-                            } else psx_last_vol[ii+m_voice_ofs]=1;
+                                vgm_last_vol[ii+m_voice_ofs]=2;
+                            } else vgm_last_vol[ii+m_voice_ofs]=1;
                         } else {
                             int newvol=cch[ii]->keyon_triggered+1;
-                            psx_last_vol[ii+m_voice_ofs]=newvol;
+                            vgm_last_vol[ii+m_voice_ofs]=newvol;
                         }
                     }
                 } else {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
-                        psx_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        psx_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
                         int newvol=cch[ii]->keyon_triggered+1;
-                            psx_last_vol[ii+m_voice_ofs]=newvol;
+                            vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 }
             }

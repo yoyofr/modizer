@@ -7,6 +7,13 @@
 #include <string.h>
 #include <algorithm>
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef RARDLL
 #ifndef _WIN32
 #define PASCAL
@@ -403,8 +410,8 @@ blargg_err_t Spc_Emu::set_sample_rate_( long sample_rate )
 	enable_accuracy( false );
 	if ( sample_rate != native_sample_rate )
 	{
-		RETURN_ERR( resampler.buffer_size( native_sample_rate / 20 * 2 ) );
-		resampler.time_ratio( (double) native_sample_rate / sample_rate, 0.9965 );
+		RETURN_ERR( resampler.buffer_size( 2048/*native_sample_rate / 40 * 2 */) ); //YOYOFR, twice smaller, i.e. / 40 instead of / 20
+        m_voice_current_rateratio=resampler.time_ratio( (double) native_sample_rate / sample_rate, 0.9965 ); //YOYOFR
 	}
 	return 0;
 }

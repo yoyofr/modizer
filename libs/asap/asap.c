@@ -2701,11 +2701,11 @@ static int ASAP_GenerateAt(ASAP *self, uint8_t *buffer, int bufferOffset, int bu
                 if (self->moduleInfo.ntsc) freq=1789772/freq/2;
                 else freq=1773447/freq/2;
                 
-                psx_last_note[ii]=freq;
-                psx_last_sample_addr[ii]=ii;
+                vgm_last_note[ii]=freq;
+                vgm_last_sample_addr[ii]=ii;
                 
                 int newvol=((self->pokeys.basePokey.channels[ii].audc & 15) >0);
-                psx_last_vol[ii]=newvol;
+                vgm_last_vol[ii]=newvol;
             } else {
                 freq=1;
             }
@@ -2719,11 +2719,11 @@ static int ASAP_GenerateAt(ASAP *self, uint8_t *buffer, int bufferOffset, int bu
                     if (self->moduleInfo.ntsc) freq=1789772/freq/2;
                     else freq=1773447/freq/2;
                     
-                    psx_last_note[ii+4]=freq;
-                    psx_last_sample_addr[ii+4]=ii;
+                    vgm_last_note[ii+4]=freq;
+                    vgm_last_sample_addr[ii+4]=ii+4;
                     
                     int newvol=((self->pokeys.extraPokey.channels[ii].audc & 15) >0);
-                    psx_last_vol[ii+4]=newvol;
+                    vgm_last_vol[ii+4]=newvol;
                 } else {
                     freq=1;
                 }

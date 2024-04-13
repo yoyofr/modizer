@@ -627,9 +627,9 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                     int freq=R->Period[ii];
                     if (R->Freq0IsMax && (freq==0)) freq=0x400;
                     if (freq) {
-                        psx_last_note[ii+m_voice_ofs]=current_clock/(2*freq)/16;
-                        psx_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
-                        psx_last_vol[ii+m_voice_ofs]=1;
+                        vgm_last_note[ii+m_voice_ofs]=current_clock/(2*freq)/16;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        vgm_last_vol[ii+m_voice_ofs]=1;
                     }
                 }
             }

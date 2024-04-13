@@ -555,7 +555,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
@@ -596,14 +596,14 @@ void optNSFPLAYChangedC(id param) {
     //GBSPLAY
     /////////////////////////////////////
     settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
-    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value=1;
+    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value=5;
     settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //GME
     /////////////////////////////////////
-    settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_value=3;
     settings[GME_RATIO].detail.mdz_slider.slider_value=1;
     settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
     settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
@@ -722,7 +722,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=5;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
     
     

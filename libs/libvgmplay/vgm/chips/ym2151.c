@@ -2457,11 +2457,11 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
                     
                 } else {
                     int freq=PSG->oper[ii*4].freq;
-                    psx_last_note[ii+m_voice_ofs]=freq/604.0f;
-                    psx_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_note[ii+m_voice_ofs]=freq/604.0f/2;
+                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
                     
                     int newvol=PSG->oper[ii*4].key+1;
-                    psx_last_vol[ii+m_voice_ofs]=newvol;
+                    vgm_last_vol[ii+m_voice_ofs]=newvol;
                 }
             }
         }

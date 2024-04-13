@@ -919,7 +919,15 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             for (int j=0;j<local_entries_count[i];j++)  {
                 //r.location=NSNotFound;
                 //if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
-                if  ([self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label] ||([mSearchText length]==0)) {
+                bool found=false;
+                if ((browseType==0)&&mShowSubdir) {
+                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label];
+                    if (!found) found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].fullpath];
+                } else {
+                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label];
+                }
+                
+                if  (found ||([mSearchText length]==0)) {
                     search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
                     search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
                     search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
