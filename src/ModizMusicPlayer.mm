@@ -738,7 +738,7 @@ static int vgm_getNoteFromFreq(double freq)
 {
   const double LOG2_440 = 8.7813597135246596040696824762152;
   const double LOG_2 = 0.69314718055994530941723212145818;
-    const int NOTE_440HZ = 60;//0x69;
+    const int NOTE_440HZ = 69;//0x69;
 
   if(freq>1.0)
     return (int)((12 * ( log(freq)/LOG_2 - LOG2_440 ) + NOTE_440HZ + 0.5));
@@ -2951,7 +2951,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 -(bool) isMidiLikeDataAvailable {
-    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_GME)) return true;
+    if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)) return true;
     return false;
 }
 
@@ -4656,6 +4656,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 bGlobalSeekProgress=-1;
                                 ASAP_Seek(asap, mNeedSeekTime);
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                
+                                //when restarting, mute mask is lost so apply again
+                                int mask=0;
+                                for (int i=0;i<numChannels;i++) if (m_voicesStatus[i]==0) mask|=1<<i;
+                                ASAP_MutePokeyChannels(asap,mask);
                             }
                             if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
                                 int64_t mStartPosSamples;
@@ -6578,6 +6583,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_ASAP) { //ASAP
+                            
+                            memset(psx_last_note,0,sizeof(psx_last_note));
+                            memset(psx_last_vol,0,sizeof(psx_last_vol));
+                            
                             if (ASAPInfo_GetChannels(ASAP_GetInfo(asap))==2) {
                                 nbBytes= ASAP_Generate(asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, ASAPSampleFormat_S16_L_E);
                             } else {
@@ -6589,6 +6598,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 nbBytes*=2;
                             }
                             mCurrentSamples+=nbBytes/4;
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    int idx=vgm_getNote(j);
+                                    if ((idx>0)) {
+                                        //printf("ch %d note %d vol %d\n",j,idx,psx_last_vol[j]);
+                                        int instr=vgm_getInstr(j);
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (int)idx|
+                                        ((int)(instr)<<8)|
+                                        ((int)psx_last_vol[j]<<16)|
+                                        ((int)(1<<1)<<24);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
@@ -11097,6 +11127,11 @@ int vgmGetFileLength()
     mp_datasize=ftell(f);
     fclose(f);
     
+    memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+    memset(psx_last_sample_addr,0,sizeof(psx_last_sample_addr));
+    memset(psx_last_note,0,sizeof(psx_last_note));
+    memset(psx_last_vol,0,sizeof(psx_last_vol));
+    
     
     VGMPlay_Init();
     
@@ -11400,6 +11435,11 @@ int vgmGetFileLength()
     fread(ASAP_module, 1, ASAP_module_len, f);
     fclose(f);
     
+    memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+    memset(psx_last_sample_addr,0,sizeof(psx_last_sample_addr));
+    memset(psx_last_note,0,sizeof(psx_last_note));
+    memset(psx_last_vol,0,sizeof(psx_last_vol));
+    
     if (!ASAP_Load(asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {
         NSLog(@"Cannot ASAP_Load file %@",filePath);
         mPlayType=0;
@@ -11464,6 +11504,9 @@ int vgmGetFileLength()
     [self getStilAsmaInfo:(char*)[filePath UTF8String]];
     
     sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
+    
+    m_genNumVoicesChannels=numChannels;
+    m_voicesDataAvail=0;
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop

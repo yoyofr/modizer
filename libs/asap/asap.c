@@ -4,6 +4,11 @@
 #include <string.h>
 #include "asap.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void FuString_Assign(char **str, char *value)
 {
 	free(*str);
@@ -2685,6 +2690,46 @@ int ASAP_GetWavHeader(const ASAP *self, uint8_t *buffer, ASAPSampleFormat format
 
 static int ASAP_GenerateAt(ASAP *self, uint8_t *buffer, int bufferOffset, int bufferLen, ASAPSampleFormat format)
 {
+    
+    //YOYOFR
+    for (int ii=0;ii<4;ii++) {
+        if ( !(self->pokeys.basePokey.channels[ii].mute&2) ) {
+            int freq=self->pokeys.basePokey.channels[ii].periodCycles;
+            if (freq) {
+                if (self->moduleInfo.ntsc) freq=1789772/freq/2;
+                else freq=1773447/freq/2;
+                
+                psx_last_note[ii]=freq;
+                psx_last_sample_addr[ii]=ii;
+                
+                int newvol=((self->pokeys.basePokey.channels[ii].audc & 15) >0);
+                psx_last_vol[ii]=newvol;
+            } else {
+                freq=1;
+            }
+        }
+    }
+    if (self->moduleInfo.channels==2) {
+        for (int ii=0;ii<4;ii++) {
+            if (!(self->pokeys.extraPokey.channels[ii].mute&2) ) {
+                int freq=self->pokeys.extraPokey.channels[ii].periodCycles;
+                if (freq) {
+                    if (self->moduleInfo.ntsc) freq=1789772/freq/2;
+                    else freq=1773447/freq/2;
+                    
+                    psx_last_note[ii+4]=freq;
+                    psx_last_sample_addr[ii+4]=ii;
+                    
+                    int newvol=((self->pokeys.extraPokey.channels[ii].audc & 15) >0);
+                    psx_last_vol[ii+4]=newvol;
+                } else {
+                    freq=1;
+                }
+            }
+        }
+    }
+    //YOYOFR
+    
 	if (self->silenceCycles > 0 && self->silenceCyclesCounter <= 0)
 		return 0;
 	int blockShift = ASAPInfo_GetChannels(&self->moduleInfo) - (format == ASAPSampleFormat_U8 ? 1 : 0);
