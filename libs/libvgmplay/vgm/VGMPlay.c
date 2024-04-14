@@ -225,7 +225,7 @@ static UINT32 gcd(UINT32 x, UINT32 y);
 //void StopVGM(void);
 //void RestartVGM(void);
 //void PauseVGM(bool Pause);
-//void SeekVGM(bool Relative, INT32 PlayBkSamples);
+//int SeekVGM(bool Relative, INT32 PlayBkSamples);
 //void RefreshMuting(void);
 //void RefreshPanning(void);
 //void RefreshPlaybackOptions(void);
@@ -254,7 +254,7 @@ INLINE UINT32 MulDivRound(UINT64 Number, UINT64 Numerator, UINT64 Denominator);
 //UINT32 GetChipClock(VGM_HEADER* FileHead, UINT8 ChipID, UINT8* RetSubType);
 static UINT16 GetChipVolume(VGM_HEADER* FileHead, UINT8 ChipID, UINT8 ChipNum, UINT8 ChipCnt);
 
-static void RestartPlaying(void);
+void vgm_RestartPlaying(void);
 static void Chips_GeneralActions(UINT8 Mode);
 
 INLINE INT32 SampleVGM2Pbk_I(INT32 SampleVal);	// inline functions
@@ -1121,7 +1121,7 @@ void RestartVGM(void)
 	if (PlayingMode == 0xFF || ! VGMSmplPlayed)
 		return;
 	
-	RestartPlaying();
+    vgm_RestartPlaying();
 	
 	return;
 }
@@ -1169,13 +1169,13 @@ void PauseVGM(bool Pause)
 	return;
 }
 
-void SeekVGM(bool Relative, INT32 PlayBkSamples)
+int SeekVGM(bool Relative, INT32 PlayBkSamples)
 {
 	INT32 Samples;
 	UINT32 LoopSmpls;
 	
 	if (PlayingMode == 0xFF || (Relative && ! PlayBkSamples))
-		return;
+		return -1;
 	
 	LoopSmpls = VGMCurLoop * SampleVGM2Pbk_I(VGMHead.lngLoopSamples);
 	if (! Relative)
@@ -1192,7 +1192,7 @@ void SeekVGM(bool Relative, INT32 PlayBkSamples)
 		Samples = LoopSmpls + VGMSmplPlayed + Samples;
 		if (Samples < 0)
 			Samples = 0;
-		RestartPlaying();
+        vgm_RestartPlaying();
 	}
 	
 	ForceVGMExec = true;
@@ -1206,7 +1206,7 @@ void SeekVGM(bool Relative, INT32 PlayBkSamples)
 		StopSkipping();
 	PauseThread = PausePlay;
 	
-	return;
+	return 0;
 }
 
 void RefreshMuting(void)
@@ -2546,7 +2546,7 @@ static UINT16 GetChipVolume(VGM_HEADER* FileHead, UINT8 ChipID, UINT8 ChipNum, U
 }
 
 
-static void RestartPlaying(void)
+void vgm_RestartPlaying(void)
 {
 	bool OldPThread;
 	

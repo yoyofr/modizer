@@ -584,6 +584,7 @@ static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char *vgmplay_activeChipsName[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsNb;
 static char **mdz_ArchiveFilesList;
+extern "C" void vgm_RestartPlaying(void);
 //static char **mdz_ArchiveFilesListAlias;
 
 static NSFileManager *mFileMngr;
@@ -4734,10 +4735,38 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                             }
-                            if (mPlayType==MMP_VGMPLAY) { //VGM
+                            if (mPlayType==MMP_VGMPLAY) { //VGM                                
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                SeekVGM(false,mNeedSeekTime*441/10);
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                
+                                if (SeekVGM(false,mSeekSamples)) {
+                                    int64_t mStartPosSamples;
+                                    if (mCurrentSamples >mSeekSamples) {
+                                        vgm_RestartPlaying();
+                                        mCurrentSamples=0;
+                                    }
+                                    mStartPosSamples=mCurrentSamples;
+                                    
+                                    while (mSeekSamples - mCurrentSamples > 0) {
+                                        int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
+                                        if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
+                                        VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), sample_to_skip);
+                                        
+                                        mCurrentSamples+=sample_to_skip;
+                                        iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                        
+                                        dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                            //Run UI Updates
+                                            [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
+                                        });
+                                        if ([detailViewControllerIphone isCancelPending]) {
+                                            [detailViewControllerIphone resetCancelStatus];
+                                            mSeekSamples=mCurrentSamples;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                             if (mPlayType==MMP_PIXEL) {
                                 int64_t mStartPosSamples;

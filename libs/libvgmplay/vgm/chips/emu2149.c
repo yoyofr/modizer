@@ -527,6 +527,32 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
     }
       
   }
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if ( (psg->mask&PSG_MASK_CH(ii)) &&  (psg->stereo_mask[ii])) {
+                if ((psg->tmask[i] || psg->edge[i]) && (psg->nmask[i] || (psg->noise_seed & 1)) ) {
+                    if (ii<3) { //tone
+                        int freq=psg->freq[ii];
+                        if (freq) {
+                            vgm_last_note[ii+m_voice_ofs]=psg->clk
+                            /(freq*16);
+                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_vol[ii+m_voice_ofs]=1;
+                        }
+                    } else { //noise
+                        int freq=psg->noise_freq;
+                        if (freq) {
+                            vgm_last_note[ii+m_voice_ofs]=psg->clk
+                            /(freq*16);
+                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_vol[ii+m_voice_ofs]=1;
+                        }
+                    }
+                }
+            }
+        }
+    //YOYOFR
 }
 
 EMU2149_API void

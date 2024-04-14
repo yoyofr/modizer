@@ -1123,6 +1123,13 @@
 			remoteGlobalIDString = CC836A492B6322770035A4DA;
 			remoteInfo = libatariaudio;
 		};
+		CCAB940B2BCBB3D20038834A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCAB93FB2BCBB3D20038834A;
+			remoteInfo = libvgm;
+		};
 		CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCB816F92B7196A500364D64 /* libpixel.xcodeproj */;
@@ -2515,6 +2522,7 @@
 		CC9F0E94123DEFCC00D8EE6D /* vikingchild.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = vikingchild.bin; sourceTree = "<group>"; };
 		CC9F0E95123DEFCC00D8EE6D /* xbiossound.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = xbiossound.bin; sourceTree = "<group>"; };
 		CC9F0E96123DEFCC00D8EE6D /* zonewarrior.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = zonewarrior.bin; sourceTree = "<group>"; };
+		CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libvgm.xcodeproj; path = libvgm/libvgm.xcodeproj; sourceTree = "<group>"; };
 		CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAppHelper.h; sourceTree = "<group>"; };
 		CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GoogleAppHelper.mm; sourceTree = "<group>"; };
 		CCAE594F17ECABD2007638B9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3108,6 +3116,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */,
 				CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */,
 				CCE8D74F2B929CDF0076D8C0 /* websid */,
 				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
@@ -4810,6 +4819,14 @@
 			path = libLazyusf;
 			sourceTree = "<group>";
 		};
+		CCAB94082BCBB3D20038834A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCAB940C2BCBB3D20038834A /* liblibvgm.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCB21D9C124690E000A30F62 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
@@ -5167,6 +5184,10 @@
 					ProjectRef = CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */;
 				},
 				{
+					ProductGroup = CCAB94082BCBB3D20038834A /* Products */;
+					ProjectRef = CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */;
+				},
+				{
 					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
@@ -5452,6 +5473,13 @@
 			fileType = archive.ar;
 			path = liblibatariaudio.a;
 			remoteRef = CC836A592B6322780035A4DA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCAB940C2BCBB3D20038834A /* liblibvgm.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibvgm.a;
+			remoteRef = CCAB940B2BCBB3D20038834A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CCB816FE2B7196A500364D64 /* liblibpixel.a */ = {

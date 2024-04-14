@@ -52,7 +52,7 @@ void PlayVGM(void);
 void StopVGM(void);
 void RestartVGM(void);
 void PauseVGM(bool Pause);
-void SeekVGM(bool Relative, INT32 PlayBkSamples);
+int SeekVGM(bool Relative, INT32 PlayBkSamples);
 void RefreshMuting(void);
 void RefreshPanning(void);
 void RefreshPlaybackOptions(void);

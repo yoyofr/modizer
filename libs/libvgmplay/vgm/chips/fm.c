@@ -595,6 +595,8 @@ typedef struct
 	UINT8	kcode;		/* key code:                        */
 	UINT32	block_fnum;	/* current blk/fnum value for this slot (can be different betweeen slots of one channel in 3slot mode) */
 	UINT8	Muted;
+    //YOYOFR
+    UINT8   keyon_triggered;
 } FM_CH;
 
 
@@ -878,6 +880,10 @@ INLINE void FM_BUSY_SET(FM_ST *ST,int busyclock )
 
 INLINE void FM_KEYON(UINT8 type, FM_CH *CH , int s )
 {
+    //YOYOFR
+    CH->keyon_triggered=1;
+    //YOYOFR
+    
 	FM_SLOT *SLOT = &CH->SLOT[s];
 	if( !SLOT->key )
 	{
@@ -890,6 +896,10 @@ INLINE void FM_KEYON(UINT8 type, FM_CH *CH , int s )
 
 INLINE void FM_KEYOFF(FM_CH *CH , int s )
 {
+    //YOYOFR
+    CH->keyon_triggered=0;
+    //YOYOFR
+    
 	FM_SLOT *SLOT = &CH->SLOT[s];
 	if( SLOT->key )
 	{
@@ -4042,6 +4052,7 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FMSAMPLE  *bufL,*bufR;
 	FM_CH	*cch[4];
 	INT32 *out_fm = OPN->out_fm;
+    static INT32 old_out_fm[4];
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
@@ -4070,6 +4081,55 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	cch[1] = &F2610->CH[2];
 	cch[2] = &F2610->CH[4];
 	cch[3] = &F2610->CH[5];
+    
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<4;ii++) {
+            if (!(cch[ii]->Muted)) {
+                if (cch[ii]->block_fnum==0) {
+                    if ((out_fm[ii]!=old_out_fm[ii])) {
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=cch[ii]->keyon_triggered+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    if ((out_fm[ii]!=old_out_fm[ii])) {
+                        int freq=(cch[ii]->block_fnum)&0x7FF;
+                        int octave=((cch[ii]->block_fnum)>>11)&0x7;
+                        vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=cch[ii]->keyon_triggered+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+        }
+        //ADPCM-A
+        for (int ii=0;ii<6;ii++) {
+            if ( (!(F2610->adpcm[ii].Muted)) && (F2610->adpcm[ii].flag) ) {
+                if (F2610->adpcm[ii].vol_mul && F2610->adpcm[ii].start ) {
+                    vgm_last_note[4+ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                    vgm_last_sample_addr[4+ii+m_voice_ofs]=4+ii+m_voice_ofs;//F2610->adpcm[ii].start;
+                    int newvol=1+(F2610->adpcm[ii].now_step==0?1:0);
+                    vgm_last_vol[4+ii+m_voice_ofs]=newvol;
+                }
+            }
+        }
+        //ADPCM-B
+        if( (DELTAT->portstate&0x80) && (! F2610->MuteDeltaT) ) {
+            if (DELTAT->volume) {
+                int freq=DELTAT->delta;
+                vgm_last_note[10+m_voice_ofs]=220.0f*(55555.0f * ((double)(DELTAT->delta) / 65535.0f))/22050.0f; //using A3 / 22Khz
+                vgm_last_sample_addr[10+m_voice_ofs]=10+m_voice_ofs;//DELTAT->start;
+                int newvol=1;
+                vgm_last_vol[10+m_voice_ofs]=newvol;
+            }
+        }
+    }
+        
+    //YOYOFR
 
 #ifdef YM2610B_WARNING
 #define FM_KEY_IS(SLOT) ((SLOT)->key)
@@ -4235,6 +4295,12 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	}
 	INTERNAL_TIMER_B(&OPN->ST,length)
 
+    //YOYOFR
+    old_out_fm[0]=out_fm[1];
+    old_out_fm[1]=out_fm[2];
+    old_out_fm[2]=out_fm[4];
+    old_out_fm[3]=out_fm[5];
+    //YOYOFR
 }
 
 #if BUILD_YM2610B
