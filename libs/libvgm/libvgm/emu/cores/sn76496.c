@@ -323,6 +323,11 @@ INLINE void countdown_cycles(sn76496_state *R)
 	}
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 {
 	UINT32 i;
@@ -358,6 +363,24 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 			return;
 		}
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    if (samples) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	ggst[0] = 0x01;
 	ggst[1] = 0x01;
@@ -460,12 +483,48 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 				{
 					out += vol[i] * R->volume[i] * ggst[0];
 					out2 += vol[i] * R->volume[i] * ggst[1];
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        if (ofs_end>ofs_start)
+                        for (;;) {
+                            if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=
+                                -LIMIT8( (vol[i] * R->volume[i] * (ggst[0] + ggst[1]) ) >>7);
+                            else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=
+                            LIMIT8( (vol[i] * R->volume[i] * (ggst[0] + ggst[1]) ) >>7);
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 				else if (R->MuteMsk[i])
 				{
 					// Make Bipolar Output with PCM possible
 					out += R->volume[i] * ggst[0];
 					out2 += R->volume[i] * ggst[1];
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        if (ofs_end>ofs_start)
+                        for (;;) {
+                            if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8((R->volume[i] * (ggst[0]+ggst[1]))>>7);
+                            else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((R->volume[i] * (ggst[0]+ggst[1]))>>7);
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
 		}
@@ -496,12 +555,46 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 					{
 						out += vol[i] * R->volume[i] * ggst[0];
 						out2 += vol[i] * R2->volume[i] * ggst[1];
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            
+                            if (ofs_end>ofs_start)
+                            for (;;) {
+                                if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8((vol[i] * R->volume[i] * (ggst[0]+ggst[1]))>>7);
+                                else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((vol[i] * R->volume[i] * (ggst[0]+ggst[1]))>>7);
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					else if (R->MuteMsk[i])
 					{
 						// Make Bipolar Output with PCM possible
 						out += R->volume[i] * ggst[0];
 						out2 += R2->volume[i] * ggst[1];
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            
+                            if (ofs_end>ofs_start)
+                            for (;;) {
+                                if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8((vol[i] * (R->volume[i] * ggst[0]+R2->volume[i] * ggst[1]))>>7);
+                                else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((vol[i] * (R->volume[i] * ggst[0]+R2->volume[i] * ggst[1]))>>7);
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
 			}
@@ -527,6 +620,23 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 				}
 				out += vol[3] * R2->volume[3] * ggst[0];
 				out2 += vol[3] * R->volume[3] * ggst[1];
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+3];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+3]+smplIncr);
+                    
+                    if (ofs_end>ofs_start)
+                    for (;;) {
+                        if (R->negate) m_voice_buff[m_voice_ofs+3][(ofs_start>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8((vol[3] * (R2->volume[3] * ggst[0]+R->volume[3] * ggst[1]))>>7);
+                        else m_voice_buff[m_voice_ofs+3][(ofs_start>10)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((vol[3] * (R2->volume[3] * ggst[0]+R->volume[3] * ggst[1]))>>7);
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+3]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 		}
 		// --- CUSTOM CODE END --
@@ -536,6 +646,23 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 		lbuffer[j] = out >> 1;	// >>1 to make up for bipolar output
 		rbuffer[j] = out2 >> 1;
 	}
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if (R->MuteMsk[ii]) {
+                if ((R->volume[ii])/*&&R->output[ii]*/) {
+                    int freq=R->period[ii];
+                    if (!(R->sega_style_psg) && (freq==0)) freq=0x400;
+                    if (freq) {
+                        vgm_last_note[ii+m_voice_ofs]=R->clock/(2*freq)/16;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        vgm_last_vol[ii+m_voice_ofs]=1;
+                    }
+                }
+            }
+        }
+    //YOYOFR
 }
 
 static void sn76496_connect_t6w28(void *noisechip, void *tonechip)

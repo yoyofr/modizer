@@ -21,8 +21,8 @@
 /*                                                         */
 /***********************************************************/
 
-#include <stdlib.h>	// for calloc()
-#include <stddef.h>	// for NULL
+#include <stdlib.h>    // for calloc()
+#include <stddef.h>    // for NULL
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -110,7 +110,7 @@
 #define AR_RATE        399128
 #define DR_RATE        5514396
 
-//#define AR_RATE        426136			// good rate ?
+//#define AR_RATE        426136            // good rate ?
 //#define DR_RATE        (AR_RATE * 12)
 
 #define LFO_FMS_LBITS  9  // FIXED (LFO_FMS_BASE gives somethink as 1)
@@ -2496,25 +2496,25 @@ void YM2612_SetMute(ym2612_ *YM2612, UINT32 val)
 
 void YM2612_SetOptions(ym2612_ *YM2612, UINT32 Flags)
 {
-	YM2612->DAC_Highpass_Enable = (Flags >> 0) & 0x01;
-	YM2612->Enable_SSGEG = (Flags >> 1) & 0x01;
+    YM2612->DAC_Highpass_Enable = (Flags >> 0) & 0x01;
+    YM2612->Enable_SSGEG = (Flags >> 1) & 0x01;
 }
 
 void YM2612_ClearBuffer(DEV_SMPL **buffer, UINT32 length)
 {
-	// the MAME core does this before updating,
-	// but the Gens core does this before mixing
-	DEV_SMPL *bufL, *bufR;
-	UINT32 i;
-	
-	bufL = buffer[0];
-	bufR = buffer[1];
-	
-	for (i = 0; i < length; i++)
-	{
-		bufL[i] = 0;
-		bufR[i] = 0;
-	}
+    // the MAME core does this before updating,
+    // but the Gens core does this before mixing
+    DEV_SMPL *bufL, *bufR;
+    UINT32 i;
+    
+    bufL = buffer[0];
+    bufR = buffer[1];
+    
+    for (i = 0; i < length; i++)
+    {
+        bufL[i] = 0;
+        bufR[i] = 0;
+    }
 }
 
 void YM2612_Update(ym2612_ *YM2612, DEV_SMPL **buf, UINT32 length)

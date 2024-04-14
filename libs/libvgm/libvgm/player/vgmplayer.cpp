@@ -32,6 +32,11 @@
 #include "helper.h"
 #include "../emu/logging.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef _MSC_VER
 #define snprintf	_snprintf
 #endif
@@ -1794,11 +1799,24 @@ UINT32 VGMPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
 			CHIP_DEVICE* cDev = &_devices[curDev];
 			UINT8 disable = (cDev->optID != (size_t)-1) ? _devOpts[cDev->optID].muteOpts.disable : 0x00;
 			VGM_BASEDEV* clDev;
-			
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            m_voice_current_system=curDev;
+            m_voice_current_systemSub=0;
+            m_voice_current_systemPairedOfs=0;
+            //TODO:  MODIZER changes end / YOYOFR
+            
 			for (clDev = &cDev->base; clDev != NULL; clDev = clDev->linkDev, disable >>= 1)
 			{
+                //YOYOFR
+                m_voice_current_samplerate=clDev->defInf.sampleRate;
+                //YOYOFR
 				if (clDev->defInf.dataPtr != NULL && ! (disable & 0x01))
 					Resmpl_Execute(&clDev->resmpl, smplStep, &data[curSmpl]);
+                
+                //YOYOFR
+                m_voice_current_systemSub++;
+                //YOYOFR
 			}
 		}
 		for (curDev = 0; curDev < _dacStreams.size(); curDev ++)
