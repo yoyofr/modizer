@@ -249,7 +249,6 @@
 		5937EEEA26453B0800270715 /* XPathQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE526453B0800270715 /* XPathQuery.m */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
-		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
 		593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
 		5939290525CF59CB009281DC /* hvl_replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5939290425CF59CB009281DC /* hvl_replay.cpp */; };
 		59392A1A25CF610C009281DC /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
@@ -799,6 +798,7 @@
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
+		CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAB940C2BCBB3D20038834A /* liblibvgm.a */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594E17ECABD2007638B9 /* Localizable.strings */; };
 		CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */; };
@@ -933,13 +933,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 592862691E2D4A5A00A08A4E;
 			remoteInfo = libxsf;
-		};
-		593928CC25CF4E81009281DC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC1343681AC17B3900CAB284;
-			remoteInfo = vgmplay;
 		};
 		593928E425CF524A009281DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1946,7 +1939,6 @@
 		CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonY-highlight.png"; sourceTree = "<group>"; };
 		CC03F2DA12160FE000F2AC65 /* buttonY.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonY.png; sourceTree = "<group>"; };
 		CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gbsplay.xcodeproj; path = gbsplay/gbsplay.xcodeproj; sourceTree = "<group>"; };
-		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC1638392B7CCC22003323FD /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
 		CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libnsfplay.xcodeproj; path = libnsfplay/libnsfplay.xcodeproj; sourceTree = "<group>"; };
@@ -2712,7 +2704,6 @@
 				CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */,
 				5905DE87284F12AE007DA8EE /* libpsflib.a in Frameworks */,
 				CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */,
-				593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				CC02DD422BA3187200ED5992 /* CoreImage.framework in Frameworks */,
 				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
@@ -2724,6 +2715,7 @@
 				CCB4C4672BA0F1F300695908 /* ReplayKit.framework in Frameworks */,
 				CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */,
 				5980544E262F221600BB0309 /* libxmp.a in Frameworks */,
+				CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
@@ -3142,7 +3134,6 @@
 				CC33B25F1AB81688009608E8 /* libopenmpt */,
 				59BDE859260F666C00FB0C69 /* libpsflib */,
 				33B9D4CF138B92A200E8B191 /* libtim */,
-				CC1343751AC17B4D00CAB284 /* libvgmplay */,
 				59321DCA1E25609F00020079 /* libvgmstream */,
 				595F9C1C1E54B90D009DBEED /* libxmp */,
 				592862B91E2D4D6800A08A4E /* libxsf */,
@@ -3156,14 +3147,6 @@
 				59BF55092628ED5D0064EF5E /* v2mplayer */,
 			);
 			path = libs;
-			sourceTree = "<group>";
-		};
-		593928C925CF4E81009281DC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				593928CD25CF4E81009281DC /* libvgmplay.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		593928E125CF524A009281DC /* Products */ = {
@@ -3718,14 +3701,6 @@
 				CC07A8832BB952EA0052DE82 /* libgbsplay.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		CC1343751AC17B4D00CAB284 /* libvgmplay */ = {
-			isa = PBXGroup;
-			children = (
-				CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */,
-			);
-			path = libvgmplay;
 			sourceTree = "<group>";
 		};
 		CC1638532B7CDF91003323FD /* Products */ = {
@@ -5240,10 +5215,6 @@
 					ProjectRef = 59BF550D2628ED5D0064EF5E /* v2mplayer.xcodeproj */;
 				},
 				{
-					ProductGroup = 593928C925CF4E81009281DC /* Products */;
-					ProjectRef = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
-				},
-				{
 					ProductGroup = 593928E125CF524A009281DC /* Products */;
 					ProjectRef = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
 				},
@@ -5284,13 +5255,6 @@
 			fileType = archive.ar;
 			path = liblibxsf.a;
 			remoteRef = 592862BE1E2D4D7A00A08A4E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		593928CD25CF4E81009281DC /* libvgmplay.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libvgmplay.a;
-			remoteRef = 593928CC25CF4E81009281DC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		593928E525CF524A009281DC /* libvgmstream.a */ = {
@@ -6401,6 +6365,7 @@
 					utils/UnrarKIT/Classes,
 					utils/UnrarKIT/Libraries/unrar,
 					libs/gbsplay/gbsplay,
+					libs/libvgm/libvgm,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6520,6 +6485,7 @@
 					utils/UnrarKIT/Classes,
 					utils/UnrarKIT/Libraries/unrar,
 					libs/gbsplay/gbsplay,
+					libs/libvgm/libvgm,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6638,6 +6604,7 @@
 					utils/UnrarKIT/Classes,
 					utils/UnrarKIT/Libraries/unrar,
 					libs/gbsplay/gbsplay,
+					libs/libvgm/libvgm,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

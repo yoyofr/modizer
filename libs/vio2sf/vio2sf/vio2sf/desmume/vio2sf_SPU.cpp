@@ -839,19 +839,19 @@ int twosf_spu_getNote(int ch) {
 
 int twosf_spu_getInstr(int ch) {
     int idx=0;
-    while (psx_instr_addr[idx]) {
-        if (psx_instr_addr[idx]==vgm_last_sample_addr[ch]) {
+    while (vgm_instr_addr[idx]) {
+        if (vgm_instr_addr[idx]==vgm_last_sample_addr[ch]) {
             break;
         }
         if (idx==255) {
             //all occupied -> reset
-            memset(psx_instr_addr,0,sizeof(psx_instr_addr));
+            memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
             idx=0;
             break;
         }
         idx++;
     }
-    psx_instr_addr[idx]=vgm_last_sample_addr[ch];
+    vgm_instr_addr[idx]=vgm_last_sample_addr[ch];
     return idx;
 }
 //YOYOFR

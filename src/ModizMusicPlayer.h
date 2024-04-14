@@ -105,14 +105,6 @@ extern "C" {
 // MDX
 #import "mdx.h"
 // PMD
-
-
-//VGM
-#import "../libs/libvgmplay/vgm/chips/mamedef.h"
-#import "../libs/libvgmplay/vgm/VGMFile.h"
-#import "../libs/libvgmplay/vgm/VGMPlay_Intf.h"
-#import "../libs/libvgmplay/vgm/VGMPlay.h"
-//CHIPS_OPTION ChipOpts[0x02];
     
 }
 

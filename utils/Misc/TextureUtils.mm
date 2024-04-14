@@ -16,6 +16,7 @@
 
 uint TextureUtils::Create(UIImage* uiimage)
 {
+    if (uiimage==NULL) return 0;
 	CGImage* image = uiimage.CGImage;
 	assert(image != NULL);
 	const int width = CGImageGetWidth(image);

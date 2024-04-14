@@ -225,6 +225,7 @@ enum MDZ_SETTINGS {
         UADE_NTSC,
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
+        VGMPLAY_Fadeouttime,
         VGMPLAY_Maxloop,
         VGMPLAY_PreferJTAG,
         VGMPLAY_YMF262Emulator,

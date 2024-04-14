@@ -283,7 +283,7 @@ int main(int argc, const char *argv[]) {
     /* example for setting cores */
     /* TODO provide interface for user to specify cores
      * for devices, like:
-     *   --core=ym2612=nuke ?
+     *   --core=ym2612=nuke ?DEVID_YM3812
      *   --ym2612=nuke ?
      *   ???
      */

@@ -708,6 +708,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //VGMPLAY
     /////////////////////////////////////
+    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
@@ -2247,6 +2248,17 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     
+    SETTINGS_ID_DEF(VGMPLAY_Fadeouttime)
+    settings[VGMPLAY_Fadeouttime].label=(char*)"Fade out time";
+    settings[VGMPLAY_Fadeouttime].description=NULL;
+    settings[VGMPLAY_Fadeouttime].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_Fadeouttime].sub_family=0;
+    settings[VGMPLAY_Fadeouttime].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_digits=0;
+    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_min_value=0;
+    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_max_value=10;
+    
     SETTINGS_ID_DEF(VGMPLAY_Maxloop)
     settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
     settings[VGMPLAY_Maxloop].description=NULL;
@@ -2289,8 +2301,9 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM3812Emulator].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb=2;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBOX";
+    settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[0]=(char*)"AdlibEmu";
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
+    //settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Nuked OPL3";
     
     SETTINGS_ID_DEF(VGMPLAY_QSoundEmulator)
     settings[VGMPLAY_QSoundEmulator].type=MDZ_SWITCH;
@@ -2325,10 +2338,11 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YMF262Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_YMF262Emulator].sub_family=0;
     settings[VGMPLAY_YMF262Emulator].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb=2;
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb=3;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBox (AdLibEmu)";
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[0]=(char*)"AdlibEmu";
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Nuked";
     
     /////////////////////////////////////
     //VGMSTREAM
