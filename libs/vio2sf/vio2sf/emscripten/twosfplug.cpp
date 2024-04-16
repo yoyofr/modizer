@@ -1140,6 +1140,10 @@ public:
 		calcfade();
 
 	}
+    
+    void set_mute_mask(int mask) {
+        m_emu->dwChannelMute=mask;
+    }
 private:
 	double MulDiv(int ms, int sampleRate, int d) {
 		return ((double)ms)*sampleRate/d;
@@ -1182,6 +1186,10 @@ int ds_load_file(const char *uri) {
 	} catch(...) {
 		return -1;
 	}
+}
+
+void ds_set_mute_mask (int mask) {
+    g_input_2sf.set_mute_mask(mask);
 }
 
 int16_t *available_buffer= 0;

@@ -556,6 +556,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
@@ -1428,6 +1429,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_labels[0]=(char*)"Flat";
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_labels[1]=(char*)"Box";
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_labels[2]=(char*)"Piston";
+    
+    SETTINGS_ID_DEF(GLOB_FXMIDIBarVibrato)
+    settings[GLOB_FXMIDIBarVibrato].type=MDZ_SWITCH;
+    settings[GLOB_FXMIDIBarVibrato].label=(char*)"Show vibrato";
+    settings[GLOB_FXMIDIBarVibrato].description=NULL;
+    settings[GLOB_FXMIDIBarVibrato].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIBarVibrato].sub_family=0;
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_labels[1]=(char*)"Fixed";
+    settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_labels[2]=(char*)"Anim";
     
     SETTINGS_ID_DEF(GLOB_FXPiano)
     settings[GLOB_FXPiano].type=MDZ_SWITCH;

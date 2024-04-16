@@ -930,6 +930,8 @@ static int32 update_vibrato(Voice *vp, int sign)
   /* If the sweep's over, we can store the newly computed sample_increment */
   if (!vp->vibrato_sweep || channel[ch].mod.val)
     vp->vibrato_sample_increment[phase] = (int32) a;
+    
+    
 
   if (sign)
     a = -a; /* need to preserve the loop direction */

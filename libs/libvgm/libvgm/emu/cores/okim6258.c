@@ -226,6 +226,11 @@ static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 	return chip->signal;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+#include <sys/types.h>
+//TODO:  MODIZER changes end / YOYOFR
+
 /**********************************************************************************************
 
      okim6258_update -- update the sound chip so that it is in sync with CPU execution
@@ -238,10 +243,47 @@ static void okim6258_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 	DEV_SMPL *bufL = outputs[0];
 	DEV_SMPL *bufR = outputs[1];
 	UINT32 i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=1;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
 
 	if ((chip->status & STATUS_PLAYING) && ! chip->Muted)
 	{
 		UINT8 nibble_shift = chip->nibble_shift;
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            if ((! chip->Muted)&&((chip->pan & 0x03)<3) ) {
+                int freq=chip->master_clock / chip->divider;
+                vgm_last_note[m_voice_ofs]=freq*440.0f/22050.0f;
+                vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+                
+                int newvol=1;
+                if ((chip->nibble_shift==0)&&(chip->step==0)) {
+                    newvol=2;
+                }
+                
+                vgm_last_vol[m_voice_ofs]=newvol;
+                
+                //printf("note %d vol %d\n",vgm_last_note[m_voice_ofs],newvol);
+            }
+        }
+        //YOYOFR
 
 		for (i = 0; i < samples; i++)
 		{
@@ -292,6 +334,23 @@ static void okim6258_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 			sample <<= 4;	// scale up to 16 bit
 			bufL[i] = (chip->pan & 0x02) ? 0 : sample;
 			bufR[i] = (chip->pan & 0x01) ? 0 : sample;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    
+                    if ((!(chip->Muted))&&((chip->pan&3)!=3)) m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((sample>>8));
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+            }
+            //TODO:  MODIZER changes start / YOYOFR
 		}
 
 		/* Update the parameters */
@@ -304,6 +363,15 @@ static void okim6258_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		{
 			bufL[i] = 0;
 			bufR[i] = 0;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+            }
+            //TODO:  MODIZER changes start / YOYOFR
 		}
 	}
 }

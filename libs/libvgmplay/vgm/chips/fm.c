@@ -3404,10 +3404,6 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
         m_voice_current_samplerate=44100;
         printf("voice sample rate null\n");
     }
-    if (!m_voice_current_samplerate) {
-        m_voice_current_samplerate=44100;
-        printf("voice sample rate null\n");
-    }
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
@@ -4052,7 +4048,7 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FMSAMPLE  *bufL,*bufR;
 	FM_CH	*cch[4];
 	INT32 *out_fm = OPN->out_fm;
-    static INT32 old_out_fm[4];
+    static INT32 old_out_fm[4]; //YOYOFR
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip

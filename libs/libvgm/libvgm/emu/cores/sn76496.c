@@ -381,6 +381,23 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
     int64_t smplIncr;
     if (samples) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if (R->MuteMsk[ii]) {
+                if ((R->volume[ii])/*&&R->output[ii]*/) {
+                    int freq=R->period[ii];
+                    if (!(R->sega_style_psg) && (freq==0)) freq=0x400;
+                    if (freq) {
+                        vgm_last_note[ii+m_voice_ofs]=R->clock/(2*freq)/16;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        vgm_last_vol[ii+m_voice_ofs]=1;
+                    }
+                }
+            }
+        }
+    //YOYOFR
 	
 	ggst[0] = 0x01;
 	ggst[1] = 0x01;
@@ -563,8 +580,8 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
                             
                             if (ofs_end>ofs_start)
                             for (;;) {
-                                if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8((vol[i] * R->volume[i] * (ggst[0]+ggst[1]))>>7);
-                                else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((vol[i] * R->volume[i] * (ggst[0]+ggst[1]))>>7);
+                                if (R->negate) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8(( vol[i] * (R->volume[i] * ggst[0] + R2->volume[i] * ggst[1])  )>>7);
+                                else m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( vol[i] * (R->volume[i] * ggst[0] + R2->volume[i] * ggst[1]) )>>7);
                                 ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                 if (ofs_start>=ofs_end) break;
                             }
@@ -647,22 +664,7 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 		rbuffer[j] = out2 >> 1;
 	}
     
-    //YOYOFR
-    if (m_voice_ofs>=0)
-        for (int ii=0;ii<4;ii++) {
-            if (R->MuteMsk[ii]) {
-                if ((R->volume[ii])/*&&R->output[ii]*/) {
-                    int freq=R->period[ii];
-                    if (!(R->sega_style_psg) && (freq==0)) freq=0x400;
-                    if (freq) {
-                        vgm_last_note[ii+m_voice_ofs]=R->clock/(2*freq)/16;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
-                        vgm_last_vol[ii+m_voice_ofs]=1;
-                    }
-                }
-            }
-        }
-    //YOYOFR
+    
 }
 
 static void sn76496_connect_t6w28(void *noisechip, void *tonechip)

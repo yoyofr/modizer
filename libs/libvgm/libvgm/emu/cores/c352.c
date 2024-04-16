@@ -213,6 +213,11 @@ static void c352_ramp_volume(C352_Voice* v,int ch,UINT8 val)
 		v->curr_vol[ch] += (vol_delta>0) ? -1 : 1;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void c352_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 {
 	C352 *c = (C352 *)chip;
@@ -222,12 +227,40 @@ static void c352_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 	C352_Voice* v;
 
 	DEV_SMPL out[4];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=C352_VOICES;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/(c->sample_rate_base);//m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	memset(outputs[0], 0, samples * sizeof(DEV_SMPL));
 	memset(outputs[1], 0, samples * sizeof(DEV_SMPL));
 	if (c->wave == NULL)
 		return;
 
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int i=0;i<C352_VOICES;i++) {
+            vgm_last_note[i+m_voice_ofs]=440.0f*c->v[i].freq/22050.0f;
+            vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+            int newvol=1;
+            vgm_last_vol[i+m_voice_ofs]=newvol;
+        }
+    }
+    //YOYOFR
+    
 	for(i=0;i<samples;i++)
 	{
 		out[0]=out[1]=out[2]=out[3]=0;
@@ -263,6 +296,48 @@ static void c352_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 				else
 					s = v->sample;
 			}
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                
+                if ((ofs_end)>(ofs_start)) {
+                    int val=0;
+                    if(!c->v[j].mute)
+                    {
+                        if (!c->muteRear && !c->optMuteRear) {
+                            // Left
+                            val += (((v->flags & C352_FLG_PHASEFL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[0]))>>8;
+                            val += (((v->flags & C352_FLG_PHASERL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[2]))>>8;
+                            // Right
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[1]))>>8;
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[3]))>>8;
+                            
+                            val=val>>2;
+                            
+                        } else {
+                            // Left
+                            val += (((v->flags & C352_FLG_PHASEFL) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[0]))>>8;
+                            // Right
+                            val += (((v->flags & C352_FLG_PHASEFR) ? -(int32_t)s : (int32_t)s) * (int32_t)(v->curr_vol[1]))>>8;
+                            
+                            val=val>>1;
+                        }
+                    }
+                    
+                    for (;;) {
+                        
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>7));
+                        
+                        ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+                }
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			if(!c->v[j].mute)
 			{

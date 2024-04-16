@@ -509,7 +509,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                                 NSArray *el_ar=[el childrenWithTagName:@"a"];
                                 for (int ii=0;ii<[el_ar count];ii++) {
                                     TFHppleElement *ela=[el_ar objectAtIndex:ii];
-                                    if (chipset) chipset=[NSString stringWithFormat:@"%@-%@",chipset,[ela text]];
+                                    if (chipset) chipset=[NSString stringWithFormat:@"%@,%@",chipset,[ela text]];
                                     else chipset=[NSString stringWithFormat:@"%@",[ela text]];
                                 }
                             }

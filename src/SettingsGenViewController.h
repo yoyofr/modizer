@@ -275,6 +275,7 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern_FontSize,
     GLOB_FXMIDIPattern,
     GLOB_FXMIDIBarStyle,
+    GLOB_FXMIDIBarVibrato,
     GLOB_FXPiano,
     GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,

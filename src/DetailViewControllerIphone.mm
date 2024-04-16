@@ -96,7 +96,7 @@ static RootViewControllerPlaylist *nowplayingPL;
 
 extern volatile t_settings settings[MAX_SETTINGS];
 
-extern int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
+extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
 int tim_midifx_note_range,tim_midifx_note_offset;
@@ -201,6 +201,7 @@ static int display_length_mode=0;
 -(void)didSelectRowInAlertSubController:(NSInteger)row {
     mPaused=0;
     [self play_curEntry:(int)row+mplayer.mod_minsub];
+    clearFXbuffer=true;
     //[mplayer playGoToSub:(int)row+mplayer.mod_minsub];
 }
 
@@ -353,7 +354,7 @@ static int display_length_mode=0;
     
     [self play_loadArchiveModule];
     [self hideWaiting];
-    
+    clearFXbuffer=true;
     //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
@@ -1364,7 +1365,7 @@ static float movePinchScale,movePinchScaleOld;
     int64_t curTime;
     if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
     
-    NSLog(@"initiate seek: %lld",curTime);
+    //NSLog(@"initiate seek: %lld",curTime);
     [mplayer Seek:curTime];
     
     
@@ -1917,6 +1918,7 @@ int recording=0;
     no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self restartCurrent];
+        clearFXbuffer=true;
         no_reentrant=false;
         return;
     }
@@ -1929,6 +1931,7 @@ int recording=0;
             [self play_loadArchiveModule];
             [self hideWaiting];
         }
+        clearFXbuffer=true;
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     } else {
@@ -1946,6 +1949,7 @@ int recording=0;
                     }
                 } else [self playPrev];
             }
+            clearFXbuffer=true;
         } else [self playPrev];
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -1955,12 +1959,16 @@ int recording=0;
 
 - (IBAction)playNextSub {
     static bool no_reentrant=false;
-    if (mShuffle==1) {
-        [self playNext];
-        return;
-    }
     if (no_reentrant) return;
     no_reentrant=true;
+    
+    if (mShuffle==1) {
+        [self playNext];
+        clearFXbuffer=true;
+        no_reentrant=false;
+        return;
+    }
+    
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
         if ([mplayer selectNextArcEntry]<0) [self playNext];
@@ -1970,6 +1978,7 @@ int recording=0;
             [self hideWaiting];
             [self refreshCurrentVC];
         }
+        clearFXbuffer=true;
     } else {
         if (mplayer.mod_subsongs>1) { //subsongs
             if ([mplayer playNextSub]<0) { //end reached
@@ -1984,6 +1993,7 @@ int recording=0;
                     }
                 } else [self playNext]; //not an archive, next entry
             }
+            clearFXbuffer=true;
         } else [self playNext]; //not an archive, next entry
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -2005,11 +2015,15 @@ int recording=0;
                 [self refreshCurrentVC];
             }
         }
+        clearFXbuffer=true;
     }
     no_reentrant=false;
 }
 
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             if ([mplayer selectPrevArcEntry]<0) [self playPrev];
@@ -2020,7 +2034,9 @@ int recording=0;
                 [self refreshCurrentVC];
             }
         }
+        clearFXbuffer=true;
     }
+    no_reentrant=false;
 }
 
 -(void) stop {
@@ -2045,7 +2061,8 @@ int recording=0;
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
-    [self play_nextEntry];
+    if ([self play_nextEntry]) clearFXbuffer=true;
+    
     no_reentrant=false;
 }
 
@@ -2055,7 +2072,9 @@ int recording=0;
     no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self play_curEntry:-1];
-    } else [self play_prevEntry];
+    clearFXbuffer=true;
+    } else if ([self play_prevEntry]) clearFXbuffer=true;
+        
     no_reentrant=false;
 }
 -(BOOL)play_curEntry:(int)subsong {
@@ -2112,14 +2131,14 @@ int recording=0;
     return TRUE;
 }
 
--(void)play_prevEntry {
+-(int)play_prevEntry {
     if (mPlaylist_size==0) {
         if (repeatingTimer) [repeatingTimer invalidate];
         repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
         [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
-        return;
+        return 0;
     }
     if (mShuffle) {
         int i;
@@ -2134,21 +2153,24 @@ int recording=0;
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
         [self play_curEntry:-1];
+        return 1;
     } else {
         if (mPlaylist_pos>0) mPlaylist_pos--;
         else if (mLoopMode==1) mPlaylist_pos=mPlaylist_size-1;
         [self play_curEntry:-1];
+        return 1;
     }
+    return 0;
 }
 
--(void)play_nextEntry {
+-(int)play_nextEntry {
     if (mPlaylist_size==0) {
         if (repeatingTimer) [repeatingTimer invalidate];
         repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
         [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
-        return;
+        return 0;
     }
     if (mShuffle) {
         int i;
@@ -2163,13 +2185,17 @@ int recording=0;
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
         [self play_curEntry:-1];
+        return 1;
     } else if (mPlaylist_pos<mPlaylist_size-1) {
         mPlaylist_pos++;
         [self play_curEntry:-1];
+        return 1;
     } else if (mLoopMode==1) {
         mPlaylist_pos=0;
         [self play_curEntry:-1];
+        return 1;
     }
+    return 0;
 }
 
 -(void)play_randomEntry {
@@ -2281,6 +2307,8 @@ int recording=0;
     }
     
     [self play_curEntry:-1];
+    
+    clearFXbuffer=true;
     
     [self refreshCurrentVC];
 }
@@ -2461,11 +2489,13 @@ int recording=0;
         
         [self play_curEntry:-1];
         playLaunched=1;
+        clearFXbuffer=true;
     }
     if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
         mPlaylist_pos=added_pos;
         [self play_curEntry:-1];
         playLaunched=1;
+        clearFXbuffer=true;
     }
     
     [self refreshCurrentVC];
@@ -5471,6 +5501,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
     
+    clearFXbuffer=false;
     
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
     glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
@@ -7089,7 +7120,8 @@ extern "C" int current_sample;
         
         if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
             playerpos=[mplayer getCurrentGenBufferIdx];
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer);
+            clearFXbuffer=false;
             
             if (mHeader) delete mHeader;
             mHeader=nil;
@@ -7131,7 +7163,8 @@ extern "C" int current_sample;
                     }
                 }
                 
-                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer);
+                clearFXbuffer=false;
             }
             
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
@@ -7457,11 +7490,13 @@ extern "C" int current_sample;
             //playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
             switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
                 case 1:
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer);
+                    clearFXbuffer=false;
                     break;
                 case 2:
                     playerpos=[mplayer getCurrentGenBufferIdx];
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer);
+                    clearFXbuffer=false;
                     break;
                 case 3:
                     if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -7471,7 +7506,8 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer);
+                    clearFXbuffer=false;
                     break;
                 case 4:
                     if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
@@ -7482,7 +7518,8 @@ extern "C" int current_sample;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     playerpos=[mplayer getCurrentGenBufferIdx];
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer);
+                    clearFXbuffer=false;
                     break;
             }
         }
@@ -7714,7 +7751,6 @@ extern "C" int current_sample;
     
     // Apple (and the khronos group) encourages you to discard depth
     // render buffer contents whenever is possible
-    
     FrameBufferUtils::SwapBuffer(m_oglView->m_frameBuffer,m_oglContext);
     no_reentrant=0;
 }

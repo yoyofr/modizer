@@ -296,12 +296,51 @@ static void c219_fetch_sample(c219_state *chip, UINT32 vid)
 	return;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void c219_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 {
 	c219_state *chip = (c219_state *)param;
 	UINT32 i, j;
 
 	DEV_SMPL out[2];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=MAX_VOICE;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/chip->sample_rate;//m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii = 0; ii < MAX_VOICE; ii++) {
+            C219_VOICE* v = &chip->voi[ii];
+            const C219_VREGS* vreg = (C219_VREGS*)&chip->REG[ii*16];
+
+            if (v->key && ! v->Muted) {
+                UINT32 freq=(vreg->frequency_msb<<8) | vreg->frequency_lsb;
+                vgm_last_note[ii+m_voice_ofs]=440.0f* (double)(freq) / 11025.0f;
+                vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                int newvol=1;
+                vgm_last_vol[ii+m_voice_ofs]=newvol;
+            }
+        }
+    }
+    //YOYOFR
 
 	memset(outputs[0], 0, samples * sizeof(DEV_SMPL));
 	memset(outputs[1], 0, samples * sizeof(DEV_SMPL));
@@ -335,7 +374,38 @@ static void c219_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					s = -s;
 				out[0] += (((vreg->mode & C219_MODE_INVERT) ? -s : s) * vreg->volume_left);
 				out[1] += (s * vreg->volume_right);
-			}
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                    
+                    if (ofs_end>ofs_start) {
+                        INT32 val=(((vreg->mode & C219_MODE_INVERT) ? -s : s) * vreg->volume_left);
+                        val+= (s * vreg->volume_right);
+                        for (;;) {
+                            
+                            m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>16));
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+                    }
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+                
+                
+            } else {
+                //YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr*(samples-i));
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+                }
+                //YOYOFR
+            }
 		}
 
 		outputs[0][i] += (out[0] >> 9);

@@ -1682,45 +1682,6 @@ static void EMU_CALL reverb_process(struct SPUCORE_STATE *state, uint16 *ram, si
 
 //TODO:  MODIZER changes end / YOYOFR
 
-//YOYOFR
-static int psx_getNote(double freq)
-{
-  const double LOG2_440 = 8.7813597135246596040696824762152;
-  const double LOG_2 = 0.69314718055994530941723212145818;
-    const int NOTE_440HZ = 60;//0x69;
-
-  if(freq>1.0)
-    return (int)((12 * ( log(freq)/LOG_2 - LOG2_440 ) + NOTE_440HZ + 0.5));
-  else
-    return 0;
-}
-
-int psx_spu_getNote(int ch) {
-    if (vgm_last_note[ch]==0) return 0;
-    double freq=440*(double)vgm_last_note[ch]/(double)0x1000; //0x1000 is base, we'll assume it's A-4
-    int note=psx_getNote(freq);
-    return note;
-}
-
-int psx_spu_getInstr(int ch) {
-    int idx=0;
-    while (vgm_instr_addr[idx]) {
-        if (vgm_instr_addr[idx]==vgm_last_sample_addr[ch]) {
-            break;
-        }
-        if (idx==255) {
-            //all occupied -> reset
-            memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
-            idx=0;
-            break;
-        }
-        idx++;
-    }
-    vgm_instr_addr[idx]=vgm_last_sample_addr[ch];
-    return idx;
-}
-//YOYOFR
-
 /*
 ** Renderer
 */
@@ -1814,16 +1775,11 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     sint32 *noise = (chanbit & masknoise) ? ibufn : NULL;
       
       //YOYOFR
+      static int last_out[48];
       vgm_last_note[ch+m_voice_ofs]=0;
-      //if (state->chan[ch].samples_until_keyoff_responds>0) {
-      if ( (state->chan[ch].env.state!=ENVELOPE_STATE_OFF)&&(state->chan[ch].samples_until_pending_keyon==0)&&(state->chan[ch].sample.state==SAMPLE_STATE_ON) ) {
-          int vol=(state->chan[ch].vol[0].level+state->chan[ch].vol[1].level);
-          if (vol>0) {
-              vgm_last_note[ch+m_voice_ofs]=state->chan[ch].voice_pitch;
-              vgm_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
-          }
-      }
       //YOYOFR
+      
+      
       
       
     if(!(main_l | main_r | verb_l | verb_r)) b = NULL;
@@ -1878,7 +1834,22 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
             }
             while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+            
+            if (i==r-1) {
+                //YOYOFR
+                //if (state->chan[ch].samples_until_keyoff_responds>0) {
+                if ( (last_out[ch]!=valo) && (state->chan[ch].env.state!=ENVELOPE_STATE_OFF)&&(state->chan[ch].samples_until_pending_keyon==0)&&(state->chan[ch].sample.state==SAMPLE_STATE_ON) ) {
+                    int vol=(state->chan[ch].vol[0].level>>15)+(state->chan[ch].vol[1].level>>15);
+                    if (vol>0) {
+                        vgm_last_note[ch+m_voice_ofs]=440.0f*(state->chan[ch].voice_pitch)/(double)0x1000;
+                        vgm_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
+                    }
+                }
+                //YOYOFR
+                last_out[ch]=valo;
+            }
         }
+        
         //TODO:  MODIZER changes end / YOYOFR
     }
   }

@@ -9,6 +9,11 @@
 
 #include "playera.hpp"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void SampleConv_toU8(void* buffer, INT32 value)
 {
 	value >>= 16;	// 24 bit -> 8 bit
@@ -628,6 +633,13 @@ UINT32 PlayerA::Render(UINT32 bufSize, void* data)
 		_outSmplPack(&bData[(curSmpl * 2 + 0) * _outSmplSize1], fnlSmpl.L);
 		_outSmplPack(&bData[(curSmpl * 2 + 1) * _outSmplSize1], fnlSmpl.R);
 	}
+    
+    //YOYOFR
+    for (int i = 0; i < smplCount; i++)
+        for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+            m_voice_buff[j][i]=LIMIT8(((int)(m_voice_buff[j][i])* curVolume) >> VOL_BITS);
+        }
+    //YOYOFR
 	
 	return curSmpl * _outSmplSizeA;
 }

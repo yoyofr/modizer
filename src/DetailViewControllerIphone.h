@@ -179,6 +179,8 @@ enum {
     int real_spectrumSumL[SPECTRUM_BANDS][8],real_spectrumSumR[SPECTRUM_BANDS][8];
 	unsigned char real_beatDetectedL[SPECTRUM_BANDS];
 	unsigned char real_beatDetectedR[SPECTRUM_BANDS];
+    
+    bool clearFXbuffer;
 	
 	t_plPlaylist_entry *mPlaylist;
 	int	mPlaylist_pos,mPlaylist_size;
@@ -258,8 +260,8 @@ enum {
 -(int)checkFlagOnStartup;
 
 -(BOOL)play_curEntry:(int)subsong;
--(void)play_nextEntry;
--(void)play_prevEntry;
+-(int)play_nextEntry;
+-(int)play_prevEntry;
 
 -(void)play_restart;
 

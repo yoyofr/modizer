@@ -179,7 +179,7 @@ void XSFPlayer_NCSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset,
 				rightChannel += muldiv7(sample, chn.reg.panning);
                 
                 //TODO:  MODIZER changes start / YOYOFR
-                vgm_last_note[i]=(int)(chn.reg.timer);
+                vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chn.reg.timer));
                 /*if (chn.reg.source) vgm_last_sample_addr[i]=(long long)(chn.reg.source->dataptr);
                 else*/ vgm_last_sample_addr[i]=chn.trackId;
                 

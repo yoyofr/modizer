@@ -1948,6 +1948,10 @@ INLINE void advance(YM2151 *PSG)
 	}
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 /*  Generate samples for one of the YM2151's
 *
@@ -1961,6 +1965,44 @@ static void ym2151_update_one(void *chip, UINT32 length, DEV_SMPL **buffers)
 	UINT32 i;
 	int ch;
 	DEV_SMPL outl, outr;
+    static INT32 last_chanout[8]; //YOYOFR
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<8;ii++) {
+            if (!(PSG->Muted[ii]) && (PSG->pan[2*ii]|PSG->pan[2*ii+1]) && (PSG->chanout[ii]!=last_chanout[ii])) {
+                if (PSG->oper[ii*4].freq==0) {
+                    
+                } else {
+                    int freq=PSG->oper[ii*4].freq;
+                    vgm_last_note[ii+m_voice_ofs]=freq/604.0f/2;
+                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    
+                    int newvol=PSG->oper[ii*4].key+1;
+                    vgm_last_vol[ii+m_voice_ofs]=newvol;
+                }
+            }
+            last_chanout[ii]=PSG->chanout[ii];
+        }
+    }
+    //YOYOFR
 
 	for (i=0; i<length; i++)
 	{
@@ -1981,6 +2023,27 @@ static void ym2151_update_one(void *chip, UINT32 length, DEV_SMPL **buffers)
 		}
 		buffers[0][i] = outl;
 		buffers[1][i] = outr;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    for (int ii=0;ii<8;ii++) {
+                        INT32 val=PSG->chanout[ii] & PSG->pan[2*ii];
+                        val+=PSG->chanout[ii] & PSG->pan[2*ii+1];
+                        m_voice_buff[m_voice_ofs+ii][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((val ) >>7));
+                    }
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            for (int ii=0;ii<8;ii++) m_voice_current_ptr[m_voice_ofs+ii]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		advance(PSG);
 

@@ -1802,7 +1802,7 @@ UINT32 VGMPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
             
             //TODO:  MODIZER changes start / YOYOFR
             m_voice_current_system=curDev;
-            m_voice_current_systemSub=0;
+            m_voice_current_systemSub=0;  //YOYOFR: to remove, not used anymore
             m_voice_current_systemPairedOfs=0;
             //TODO:  MODIZER changes end / YOYOFR
             
@@ -1813,10 +1813,6 @@ UINT32 VGMPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
                 //YOYOFR
 				if (clDev->defInf.dataPtr != NULL && ! (disable & 0x01))
 					Resmpl_Execute(&clDev->resmpl, smplStep, &data[curSmpl]);
-                
-                //YOYOFR
-                m_voice_current_systemSub++;
-                //YOYOFR
 			}
 		}
 		for (curDev = 0; curDev < _dacStreams.size(); curDev ++)

@@ -41,6 +41,11 @@
 #include "emu2149_private.h"
 #include "../panning.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static DEVDEF_RWFUNC devFunc[] =
 {
@@ -496,6 +501,53 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
   DEV_SMPL *bufRO = out[1];
   int32_t buffers[2];
   UINT32 i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=3;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii+m_voice_current_systemPairedOfs;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if (!(psg->mask&EPSG_MASK_CH(ii))) {
+                int vol=0;
+                if (!(psg->volume[ii] & 32)) vol = (psg->voltbl[psg->volume[ii] & 31] << 5);
+                else vol = (psg->voltbl[psg->env_ptr] << 5);
+                if (vol) {
+                    if (ii<3) { //tone
+                        int freq=psg->freq[ii];
+                        if (freq) {
+                            vgm_last_note[ii+m_voice_ofs]=psg->clk
+                            /(freq*16);
+                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_vol[ii+m_voice_ofs]=1;
+                        }
+                    } else { //noise
+                        int freq=psg->noise_freq;
+                        if (freq) {
+                            vgm_last_note[ii+m_voice_ofs]=psg->clk
+                            /(freq*16);
+                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_vol[ii+m_voice_ofs]=1;
+                        }
+                    }
+                }
+            }
+        }
+    //YOYOFR
 
   if (!psg->quality)
   {
@@ -505,6 +557,23 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
       mix_output_stereo(psg, buffers);
       bufMO[i] = buffers[0];
       bufRO[i] = buffers[1];
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<3;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->ch_out[jj])>>6);
+                    ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
   else
@@ -525,6 +594,24 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
                             + (double) psg->sprev[0] * psg->psgtime) / psg->psgstep);
       bufRO[i] = (DEV_SMPL) (((double) psg->snext[1] * (psg->psgstep - psg->psgtime)
                             + (double) psg->sprev[1] * psg->psgtime) / psg->psgstep);
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<3;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((psg->ch_out[jj])>>6);
+                    ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
 }

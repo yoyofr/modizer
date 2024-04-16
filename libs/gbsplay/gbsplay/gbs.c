@@ -203,7 +203,20 @@ static int wave_scalefactor(const struct gbs* const gbs)
 /* FIXME: Clean up the api and make public? */
 static int gbs_midi_note(const struct gbs* const gbs, long div_tc, int ch)
 {
-	int note = NOTE(div_tc, ch);
+    //YOYOFR: add subnote
+//#define FREQ(x,ch) (131072. / ((x)<<((ch)>1)))
+//#define FREQTONOTE(f) (lround(log2((f)/C0HZ)*12)+C0MIDI)
+//#define NOTE(x,ch) FREQTONOTE(FREQ(x,ch))
+    double freq=(131072. / ((div_tc)<<((ch)>1)));
+    double dnote=log2((freq)/C0HZ)*12+C0MIDI;
+    int note=lround(dnote);
+    int subnote=lround((dnote-note)*8.0f);
+    if (subnote>7) subnote=7;
+    if (subnote<-7) subnote=-7;
+    note=note|((subnote<8?subnote:subnote+7+8)<<8);
+//YOYOFR
+    
+	//int note = NOTE(div_tc, ch);
 	if (ch == 2) {
 		// Scale by scalefactor octaves:
 		// 0: no repetitions, keep as is

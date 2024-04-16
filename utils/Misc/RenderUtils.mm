@@ -51,6 +51,7 @@ extern int MIDIFX_OFS;
 typedef struct {
     unsigned short int startidx;
     unsigned char note;
+    unsigned char subnote;
     unsigned char instr;
     unsigned short int size;
     unsigned char played;
@@ -93,10 +94,10 @@ namespace
 struct LineVertex
 {
     LineVertex() {}
-    LineVertex(uint16_t _x, uint16_t _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+    LineVertex(signed short _x, signed short _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
     : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
     {}
-    uint16_t x, y;
+    signed short x, y;
     uint8_t r, g, b, a;
 };
 
@@ -4272,6 +4273,7 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 #define MIDIFX_LEN 128*2
 int data_midifx_len=MIDIFX_LEN;
 unsigned char data_midifx_note[MIDIFX_LEN][256];
+unsigned char data_midifx_subnote[MIDIFX_LEN][256];
 unsigned char data_midifx_instr[MIDIFX_LEN][256];
 unsigned char data_midifx_vol[MIDIFX_LEN][256];
 unsigned char data_midifx_st[MIDIFX_LEN][256];
@@ -4279,6 +4281,7 @@ int data_midifx_first=1;
 
 int data_pianofx_len=MIDIFX_LEN;
 unsigned char data_pianofx_note[MIDIFX_LEN][256];
+unsigned char data_pianofx_subnote[MIDIFX_LEN][256];
 unsigned char data_pianofx_instr[MIDIFX_LEN][256];
 unsigned char data_pianofx_vol[MIDIFX_LEN][256];
 unsigned char data_pianofx_st[MIDIFX_LEN][256];
@@ -4312,14 +4315,14 @@ unsigned char piano_key_instr[128];
 
 //extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+void RenderUtils::DrawPiano3D(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,bool clearbuffer) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
     static int piano_fxcpt;
     static int first_call=1;
     
-    if (first_call) {
+    if (first_call||clearbuffer) {
         memset(piano_key_state,0,128);
         memset(piano_key_instr,0,128);
         first_call=0;
@@ -4366,26 +4369,32 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
     
     
     //if first launch, clear buffers
-    if (data_pianofx_first) {
+    if (data_pianofx_first|clearbuffer) {
         data_pianofx_first=0;
         for (int i=0;i<data_pianofx_len;i++) {
             memset(data_pianofx_note[i],0,256);
+            memset(data_pianofx_subnote[i],0,256);
+            memset(data_pianofx_instr[i],0,256);
+            memset(data_pianofx_vol[i],0,256);
+            memset(data_pianofx_st[i],0,256);
         }
     }
     //update old ones
     for (int j=0;j<data_pianofx_len-1;j++) {
         memcpy(data_pianofx_note[j],data_pianofx_note[j+1],256);
+        memcpy(data_pianofx_subnote[j],data_pianofx_note[j+1],256);
         memcpy(data_pianofx_instr[j],data_pianofx_instr[j+1],256);
         memcpy(data_pianofx_vol[j],data_pianofx_vol[j+1],256);
         memcpy(data_pianofx_st[j],data_pianofx_st[j+1],256);
     }
     //add new one
     for (int i=0;i<256;i++) {
-        int note=data[i];
+        unsigned int note=data[i];
         data_pianofx_note[data_pianofx_len-1][i]=note&0xFF;
+        data_pianofx_subnote[data_pianofx_len-1][i]=(note>>28)&0xF;
         data_pianofx_instr[data_pianofx_len-1][i]=(note>>8)&0xFF;
-        data_pianofx_st[data_pianofx_len-1][i]=(note>>24)&0xFF;
         data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
+        data_pianofx_st[data_pianofx_len-1][i]=(note>>24)&0xF;
         
     }
     
@@ -4730,7 +4739,7 @@ int qsort_CompareBar(const void *entryA, const void *entryB) {
 
 
 
-void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
+void RenderUtils::DrawPiano3DWithNotesWall(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality,bool clearbuffer) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4749,7 +4758,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     static int camera_pos_countdown=0;
     
     
-    if (first_call) {
+    if (first_call|clearbuffer) {
         
         memset(piano_key_state,0,128);
         memset(piano_key_instr,0,128);
@@ -4909,26 +4918,32 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
     
     //if first launch, clear buffers
-    if (data_pianofx_first) {
+    if (data_pianofx_first|clearbuffer) {
         data_pianofx_first=0;
         for (int i=0;i<data_pianofx_len;i++) {
             memset(data_pianofx_note[i],0,256);
+            memset(data_pianofx_subnote[i],0,256);
+            memset(data_pianofx_instr[i],0,256);
+            memset(data_pianofx_vol[i],0,256);
+            memset(data_pianofx_st[i],0,256);
         }
     }
     //update old ones
     for (int j=0;j<data_pianofx_len-1;j++) {
         memcpy(data_pianofx_note[j],data_pianofx_note[j+1],256);
+        memcpy(data_pianofx_subnote[j],data_pianofx_note[j+1],256);
         memcpy(data_pianofx_instr[j],data_pianofx_instr[j+1],256);
         memcpy(data_pianofx_vol[j],data_pianofx_vol[j+1],256);
         memcpy(data_pianofx_st[j],data_pianofx_st[j+1],256);
     }
     //add new one
     for (int i=0;i<256;i++) {
-        int note=data[i];
+        unsigned int note=data[i];
         data_pianofx_note[data_pianofx_len-1][i]=note&0xFF;
+        data_pianofx_subnote[data_pianofx_len-1][i]=(note>>28)&0xF;
         data_pianofx_instr[data_pianofx_len-1][i]=(note>>8)&0xFF;
-        data_pianofx_st[data_pianofx_len-1][i]=(note>>24)&0xFF;
         data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
+        data_pianofx_st[data_pianofx_len-1][i]=(note>>24)&0xF;
     }
     
     if (fx_len!=data_pianofx_len) {
@@ -5658,7 +5673,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
 }
 
-void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode,float mScaleFactor,bool clearBuffer) {
     LineVertex *ptsB;
     int crt,cgt,cbt,ca;
     int crtp[4],cgtp[4],cbtp[4],cap[4];
@@ -5677,26 +5692,32 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     }
     
     //if first launch, clear buffers
-    if (data_midifx_first) {
+    if (data_midifx_first||clearBuffer) {
         data_midifx_first=0;
         for (int i=0;i<data_midifx_len;i++) {
             memset(data_midifx_note[i],0,256);
+            memset(data_midifx_subnote[i],0,256);
+            memset(data_midifx_instr[i],0,256);
+            memset(data_midifx_vol[i],0,256);
+            memset(data_midifx_st[i],0,256);
         }
     }
     //update old ones
     for (int j=0;j<data_midifx_len-1;j++) {
         memcpy(data_midifx_note[j],data_midifx_note[j+1],256);
+        memcpy(data_midifx_subnote[j],data_midifx_subnote[j+1],256);
         memcpy(data_midifx_instr[j],data_midifx_instr[j+1],256);
         memcpy(data_midifx_vol[j],data_midifx_vol[j+1],256);
         memcpy(data_midifx_st[j],data_midifx_st[j+1],256);
     }
     //add new one
     for (int i=0;i<256;i++) {
-        int note=data[i];
+        unsigned int note=data[i];
         data_midifx_note[data_midifx_len-1][i]=note&0xFF;
+        data_midifx_subnote[data_midifx_len-1][i]=(note>>28)&0xF;
         data_midifx_instr[data_midifx_len-1][i]=(note>>8)&0xFF;
         data_midifx_vol[data_midifx_len-1][i]=(note>>16)&0xFF;
-        data_midifx_st[data_midifx_len-1][i]=(note>>24)&0xFF;
+        data_midifx_st[data_midifx_len-1][i]=(note>>24)&0xF;
     }
     
     
@@ -5744,15 +5765,20 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 int vol=data_midifx_vol[j][i];
                 int st=data_midifx_st[j][i];
                 int note=data_midifx_note[j][i];
+                int subnote=data_midifx_subnote[j][i];
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     data_bar2draw[data_bar2draw_count].startidx=j;
                     data_bar2draw[data_bar2draw_count].note=note;
+                    data_bar2draw[data_bar2draw_count].subnote=subnote;
                     data_bar2draw[data_bar2draw_count].instr=instr;
                     data_bar2draw[data_bar2draw_count].size=0;
                     data_bar2draw[data_bar2draw_count].played=0;
-                    while ((data_midifx_instr[j][i]==instr)&&(data_midifx_note[j][i]==note)&&(vol&&(st&VOICE_ON))) {  //while same bar (instru & notes), increase size
+                    while ((data_midifx_instr[j][i]==instr)&&(data_midifx_note[j][i]==note)/*&&(data_midifx_subnote[j][i]==subnote)*/&&(vol&&(st&VOICE_ON))) {  //while same bar (instru & notes), increase size
+                        if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==1)&&(data_midifx_subnote[j][i]!=subnote)) break;
                         data_bar2draw[data_bar2draw_count].size++;
+                        //take most recent subnote if before playing bar
+                        if (j<data_midifx_len-MIDIFX_OFS) data_bar2draw[data_bar2draw_count].subnote=data_midifx_subnote[j][i];
                         if (j==(data_midifx_len-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].played=1;
                         j++;
                         if (j==data_midifx_len) break;
@@ -5773,24 +5799,29 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     if (data_bar2draw_count>=2) { //propagate played flag
         for (int i=1;i<data_bar2draw_count;i++) {
             int note=data_bar2draw[i-1].note;
+            int subnote=data_bar2draw[i-1].subnote;
             int played=data_bar2draw[i-1].played;
             int instr=data_bar2draw[i-1].instr;
             
             if (played) {
-                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-                    (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)))
-                    data_bar2draw[i].played=1;
+                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)/*&&((data_bar2draw[i].subnote)==subnote)*/&&
+                    (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size))) {
+                    if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
+                }
             }
         }
         
         for (int i=data_bar2draw_count-2;i>=0;i--) {
             int note=data_bar2draw[i+1].note;
+            int subnote=data_bar2draw[i+1].subnote;
             int played=data_bar2draw[i+1].played;
             int instr=data_bar2draw[i+1].instr;
             
             if (played) {
-                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-                    (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) data_bar2draw[i].played=1;
+                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)/*&&((data_bar2draw[i].subnote)==subnote)*/&&
+                    (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) {
+                    if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
+                }
             }
         }
     }
@@ -5798,9 +5829,10 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     for (int i=1;i<data_bar2draw_count;i++) {
         if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
             (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
+            /*(data_bar2draw[i].subnote==data_bar2draw[i-1].subnote)&&*/
             (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
             (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
-            data_bar2draw[i].size=0;
+            if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==data_bar2draw[i-1].subnote)) data_bar2draw[i].size=0;
         }
     }
     
@@ -5814,6 +5846,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].played;
         int note=data_bar2draw[i].note;
+        int subnote=(data_bar2draw[i].subnote<8?data_bar2draw[i].subnote:data_bar2draw[i].subnote-8-7);
         
         int instr=data_bar2draw[i].instr;
         int colidx;
@@ -5870,8 +5903,6 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
             ca=192;
         }
         
-        
-        
         switch (settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value) {
             case 0:
                 for (int ii=0;ii<4;ii++) {
@@ -5891,7 +5922,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     double ofs=0;
                     if ((ii==3)||(ii==2)) {
                         fact=1.5f;
-                        ofs=96;
+                        ofs=64;
                     }
                     if ((ii==0)||(ii==1)) {
                         fact=0.5f;
@@ -5936,10 +5967,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         }
         
         if (horiz_vert==0) { //horiz
-            int posNote=note*line_width-note_display_offset+adj_size;
+            int posNote=note*line_width-note_display_offset+adj_size+subnote;
             int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
             int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
-            if ((posNote>=0)&&(posNote<hh)/*&&played*/) {
+            
+            if ( ((posNote+(line_width-adj_size)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
                     ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
@@ -5959,7 +5991,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                 } else {
                     int border_size=(line_width>=8?2:1);
-                    //bottom
+                    //top
                     ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
@@ -5977,7 +6009,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
-                    //top
+                    //bottom
                     ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
@@ -6008,10 +6040,10 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 }
             }
         } else {  //vert
-            int posNote=note*line_width-note_display_offset+adj_size;
+            int posNote=note*line_width-note_display_offset+adj_size+subnote-8;
             int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
             int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
-            if ((posNote>=0)&&(posNote<ww)/*&&played*/) {
+            if ( ((posNote+(line_width-adj_size)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
                     ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
@@ -6032,7 +6064,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
-                    //bottom
+                    //top
                     ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
                     ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
                     ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
@@ -6059,7 +6091,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
                     ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
                     
-                    //top
+                    //bottom
                     ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
                     ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
                     ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
