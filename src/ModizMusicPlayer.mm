@@ -13277,13 +13277,16 @@ extern bool icloud_available;
     mCurrentSamples=0;
     bGlobalAudioPause=0;
     mNeedSeek=0;bGlobalSeekProgress=0;
+    
     [self iPhoneDrv_PlayStart];
     bGlobalEndReached=0;
     bGlobalIsPlaying=1;
+    
     //Ensure play has been taken into account
     //wait for sound generation thread to end
     
-    while (bGlobalSoundHasStarted<SOUND_BUFFER_NB/2) {
+    //while (bGlobalSoundHasStarted<SOUND_BUFFER_NB/2) {
+    while (bGlobalSoundHasStarted==0) {
         [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
         counter++;
         if (counter*DEFAULT_WAIT_TIME_UADE_MS>2) break;
