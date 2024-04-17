@@ -155,7 +155,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     int colR,colG,colB,tmpR,tmpG,tmpB,colA;
     int count;
-    int min_gap,tmp_gap,ofs1,ofs2,old_ofs;
+    int64_t max_gap,tmp_gap,ofs1,ofs2,old_ofs;
     
     static char first_call=1;
     
@@ -263,10 +263,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
-    
     for (int j=0;j<num_voices;j++) {
         // for each voices
-        min_gap=bufflen*256;
+        max_gap=0;
         //reset start offset / previous frame
         old_ofs=0;
         
@@ -282,26 +281,20 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 tmp_gap=0;
                 signed char *snd_data_ptr=cur_snd_data+ofs1*SOUND_MAXVOICES_BUFFER_FX+j;
                 signed char *prev_snd_data_ptr=prev_snd_data+j;
-                int val;
+                int64_t val;
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
-                    if (val>0) tmp_gap+=val;
-                    else if (val<0) tmp_gap-=val;
-                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
+                    val=(int64_t)(*snd_data_ptr)*(int64_t)(*prev_snd_data_ptr);
+                    tmp_gap+=val;
                     snd_data_ptr+=incr;
                     prev_snd_data_ptr+=incr;
                 }
                 
-                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
-                    min_gap=tmp_gap;
+                //if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
+                if (max_gap<tmp_gap) {
+                    max_gap=tmp_gap;
                     snd_data_ofs[j]=ofs1;
-                    if (min_gap<=min_gap_threshold) {
-                        left_done=1;
-                        right_done=1;
-                        break;
-                    }
                 }
                 
                 ofs1+=smplincr;
@@ -311,26 +304,19 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 tmp_gap=0;
                 signed char *snd_data_ptr=cur_snd_data+ofs2*SOUND_MAXVOICES_BUFFER_FX+j;
                 signed char *prev_snd_data_ptr=prev_snd_data+j;
-                int val;
+                int64_t val;
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
-                    if (val>0) tmp_gap+=val;
-                    else if (val<0) tmp_gap-=val;
-                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
+                    val=(int64_t)(*snd_data_ptr)*(int64_t)(*prev_snd_data_ptr);
+                    tmp_gap+=val;
                     snd_data_ptr+=incr;
                     prev_snd_data_ptr+=incr;
                 }
                 
-                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
-                    min_gap=tmp_gap;
+                if (tmp_gap>max_gap) { //if more aligned, use ofs as new ref
+                    max_gap=tmp_gap;
                     snd_data_ofs[j]=ofs2;
-                    if (min_gap<=min_gap_threshold)  {
-                        left_done=1;
-                        right_done=1;
-                        break;
-                    }
                 }
                 ofs2-=smplincr;
             } else left_done=1;
