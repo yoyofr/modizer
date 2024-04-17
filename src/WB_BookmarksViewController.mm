@@ -9,6 +9,8 @@
 #import "WB_BookmarksViewController.h"
 #import "QuartzCore/CAGradientLayer.h"
 
+extern volatile t_settings settings[MAX_SETTINGS];
+
 /*
  */
 
@@ -432,7 +434,8 @@
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
         
         //
@@ -447,7 +450,8 @@
         bottomLabel.backgroundColor = [UIColor clearColor];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                   ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         bottomLabel.opaque=TRUE;
         
         cell.accessoryView=nil;
@@ -455,6 +459,12 @@
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
+        
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+        
+        bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
     }
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];

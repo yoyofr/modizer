@@ -948,7 +948,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
         
         //
@@ -974,7 +975,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         bottomLabel.backgroundColor = [UIColor clearColor];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        //bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+//        bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                   ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         bottomLabel.opaque=TRUE;
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
@@ -1009,6 +1011,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         coverImgView = (UIImageView *)[cell viewWithTag:COVER_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
+        
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;

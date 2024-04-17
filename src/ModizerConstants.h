@@ -94,16 +94,15 @@ extern void *LoadingProgressObserverContext;
 #define DEFAULT_PLAYBACK_FREQ 44100
 
 #define SOUND_BUFFER_SIZE_SAMPLE 512 //1024
-#define SOUND_BUFFER_NB 64 //
+#define SOUND_BUFFER_NB 128 //
 //TODO / IMPROVE: Hardcoding -> computed on the fly
-#define MIDIFX_OFS_60FPS 44 //44 frames at 60fps to match duration of 32 buffers of 1024 samples at 44.1Khz
-#define MIDIFX_OFS_30FPS 22 //22 frames at 30fps to match duration of 32 buffers of 1024 samples at 44.1Khz
+#define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
+#define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz
 
 #define MAX_MIDI_NOTES 128+128 //128midi notes+allowing extra ones / various emulated chipsets
-#define MAX_VISIBLE_MIDI_NOTES 12*12  //maximum visible range
-#define MIN_VISIBLE_MIDI_NOTES 12*4  //minimum visible range
-
-
+#define MAX_VISIBLE_MIDI_NOTES 12*14  //maximum visible range
+#define DEFAULT_VISIBLE_MIDI_NOTES 12*8  //maximum visible range
+#define MIN_VISIBLE_MIDI_NOTES 12*2  //minimum visible range
 
 #define MAXSID_CHIPS 16
 

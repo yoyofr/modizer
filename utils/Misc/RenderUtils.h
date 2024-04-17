@@ -50,9 +50,9 @@ void DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,
 
 void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt,float mScaleFactor);
 	
-void DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode,float mScaleFactor,bool clearbuffer=false);
-void DrawPiano3D(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,bool clearbuffer=false);
-void DrawPiano3DWithNotesWall(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality,bool clearbuffer=false);
+void DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,bool clearbuffer=false,bool paused=false);
+void DrawPiano3D(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,bool clearbuffer=false,bool paused=false);
+void DrawPiano3DWithNotesWall(unsigned int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality,bool clearbuffer=false,bool paused=false);
 }
 
 #endif

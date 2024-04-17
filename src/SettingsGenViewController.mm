@@ -555,9 +555,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
@@ -1418,6 +1420,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[1]=(char*)"Hori";
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[2]=(char*)"Vert";
     
+    SETTINGS_ID_DEF(GLOB_FXMIDICutLine)
+    settings[GLOB_FXMIDICutLine].type=MDZ_SWITCH;
+    settings[GLOB_FXMIDICutLine].label=(char*)"Midi bars mode";
+    settings[GLOB_FXMIDICutLine].description=NULL;
+    settings[GLOB_FXMIDICutLine].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDICutLine].sub_family=0;
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_labels[0]=(char*)"Cut";
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_labels[1]=(char*)"Shaded";
+    settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_labels[2]=(char*)"Full";
+    
     SETTINGS_ID_DEF(GLOB_FXMIDIBarStyle)
     settings[GLOB_FXMIDIBarStyle].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIBarStyle].label=(char*)"Note bar style";
@@ -1455,6 +1469,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[3]=(char*)"3";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    
+    SETTINGS_ID_DEF(GLOB_FXPianoCutLine)
+    settings[GLOB_FXPianoCutLine].type=MDZ_SWITCH;
+    settings[GLOB_FXPianoCutLine].label=(char*)"Piano bars mode";
+    settings[GLOB_FXPianoCutLine].description=NULL;
+    settings[GLOB_FXPianoCutLine].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoCutLine].sub_family=0;
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_labels[0]=(char*)"Cut";
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_labels[1]=(char*)"Shaded";
+    settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_labels[2]=(char*)"Full";
     
     SETTINGS_ID_DEF(GLOB_FXPianoColorMode)
     settings[GLOB_FXPianoColorMode].type=MDZ_SWITCH;
@@ -3364,7 +3390,8 @@ void optNSFPLAYChangedC(id param) {
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
         topLabel.userInteractionEnabled=true;
@@ -3396,6 +3423,9 @@ void optNSFPLAYChangedC(id param) {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         resetBtn = (UIButton *)[cell viewWithTag:RESET_BTN_TAG];
+        
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
     
     if (darkMode) {

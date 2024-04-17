@@ -61,6 +61,13 @@
 #include "okim6295.h"
 #include "okiadpcm.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+static int m_voice_ofs;
+static int64_t smplIncr;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 typedef struct _okim6295_state okim6295_state;
 
 
@@ -262,10 +269,28 @@ static void generate_adpcm(okim6295_state *chip, okim_voice *voice, DEV_SMPL *bu
 	{
 		// fetch the next sample byte
 		UINT8 nibble = memory_raw_read_byte(chip, voice->base_offset + voice->sample / 2) >> (((voice->sample & 1) << 2) ^ 4);
-
-		// output to the buffer, scaling by the volume
-		// signal in range -2048..2047, volume in range 2..32 => signal * volume / 2 in range -32768..32767
-		buffer[i] += oki_adpcm_clock(&voice->adpcm, nibble) * voice->volume / 2;
+		        
+        //TODO:  MODIZER changes start / YOYOFR
+        // output to the buffer, scaling by the volume
+        // signal in range -2048..2047, volume in range 2..32 => signal * volume / 2 in range -32768..32767
+        INT16 val=oki_adpcm_clock(&voice->adpcm, nibble) * voice->volume / 2;
+        buffer[i] += val;
+        
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs]+smplIncr);
+            
+            if (ofs_end>ofs_start)
+            for (;;) {
+                
+                m_voice_buff[m_voice_ofs][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>8));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		// next!
 		if (++voice->sample >= voice->count)
@@ -288,6 +313,24 @@ static void okim6295_update(void* info, UINT32 samples, DEV_SMPL** outputs)
 {
 	okim6295_state *chip = (okim6295_state *)info;
 	int i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_total_channels=4;
+    m_voice_ofs=-1;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
 
 	// reset the output stream
 	memset(outputs[0], 0, samples * sizeof(*outputs[0]));
@@ -295,8 +338,24 @@ static void okim6295_update(void* info, UINT32 samples, DEV_SMPL** outputs)
 	if (chip->ROM != NULL)
 	{
 		// iterate over voices and accumulate sample data
-		for (i = 0; i < OKIM6295_VOICES; i++)
-			generate_adpcm(chip, &chip->voice[i], outputs[0], samples);
+        for (i = 0; i < OKIM6295_VOICES; i++) {
+            
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                int divisor = chip->pin7_state ? 132 : 165;
+                int freq=chip->master_clock / divisor;
+                vgm_last_note[m_voice_ofs]=freq*440.0f/22050.0f;
+                vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+                            
+                int newvol=chip->voice[i].playing;
+                vgm_last_vol[m_voice_ofs]=newvol;
+            }
+            //YOYOFR
+            
+            generate_adpcm(chip, &chip->voice[i], outputs[0], samples);
+            
+            if (m_voice_ofs>=0) m_voice_ofs++; //YOYOFR
+        }
 	}
 
 	memcpy(outputs[1], outputs[0], samples * sizeof(*outputs[0]));

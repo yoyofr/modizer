@@ -99,7 +99,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
-int tim_midifx_note_range,tim_midifx_note_offset;
+float tim_midifx_note_range,tim_midifx_note_offset=0;
 
 extern volatile int db_checked;
 
@@ -895,9 +895,11 @@ static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static int currentPattern,currentRow,startChan,visibleChan;
-static float oglTapX,oglTapY,movePx,movePy,movePxMOD,movePyMOD,movePxMID,movePyMID,movePxOld,movePyOld;
-static float movePxFXPiano,movePyFXPiano,movePx2FXPiano,movePy2FXPiano,movePinchScaleFXPiano;
-static float movePx2,movePy2,movePx2Old,movePy2Old;
+
+static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0;
+static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
+static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
+static float movePx2=0,movePy2=0,movePx2Old=0,movePy2Old=0;
 static float movePinchScale,movePinchScaleOld;
 
 
@@ -5286,10 +5288,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     lblCurrentSongCFlow.textAlignment=NSTextAlignmentLeft;
     lblTimeFCflow.textAlignment=NSTextAlignmentRight;
     
-    lblMainCoverflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
-    lblSecCoverflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
-    lblCurrentSongCFlow.lineBreakMode=NSLineBreakByTruncatingMiddle;
-    lblTimeFCflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
+    lblMainCoverflow.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                    ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
+    lblSecCoverflow.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                   ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
+    lblCurrentSongCFlow.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                       ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
+    lblTimeFCflow.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     
     [self.view addSubview:coverflow];
     [self.view addSubview:lblMainCoverflow];
@@ -5499,7 +5505,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //    BlurTexture=EmptyTexture(128,128);
     //    FxTexture=EmptyTexture(512,512);
     
-    tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
+    tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES;
     
     clearFXbuffer=false;
     
@@ -6043,6 +6049,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
     
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
+    
+    movePxMID=movePyMID=0;
+    
     //    self.navigationController.navigationBar.hidden = YES;
     m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
     m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
@@ -6410,6 +6419,8 @@ extern "C" int current_sample;
     
     movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
     
+    movePinchScaleFXMID+=movePinchScale-movePinchScaleOld;
+    
     movePxOld=movePx;
     movePyOld=movePy;
     movePx2Old=movePx2;
@@ -6429,55 +6440,57 @@ extern "C" int current_sample;
     
     
     if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
-        int moveRPx,moveRPy;
-        int note_fx_linewidth;
-        
+        float note_fx_linewidth;
+        //scroll  & get current note bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-            moveRPx=movePyMID;
-            moveRPy=-movePxMID;
+            tim_midifx_note_offset+=-movePxMID;
+            movePxMID=0;
             note_fx_linewidth=ww/tim_midifx_note_range;
         } else {
-            moveRPx=movePxMID;
-            moveRPy=movePyMID;
+            tim_midifx_note_offset+=movePyMID;
+            movePyMID=0;
             note_fx_linewidth=hh/tim_midifx_note_range;
         }
-        //            if (touch_cpt==1) moveRPx=0; //hack to reset zoom on touch start
+        if (tim_midifx_note_offset<0) {
+            tim_midifx_note_offset=0;
+        }
+        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
+            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
+        }
         
-        if (moveRPx>32) {
-            tim_midifx_note_range+=12;
-            moveRPx=0;
-        }
-        if (moveRPx<-32) {
-            tim_midifx_note_range-=12;
-            moveRPx=0;
-        }
+        //compute current center
+        float note_visible_center=(tim_midifx_note_offset)/note_fx_linewidth+(tim_midifx_note_range/2);
+        
+        //update visible notes range
+        if (movePinchScaleFXMID<0) movePinchScaleFXMID=0;
+        if (movePinchScaleFXMID>((MAX_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(MAX_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
+        tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXMID*64.0f;
         
         if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {//min is 4 Octaves
             tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
         }
         if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
         
-        if (tim_midifx_note_range<MAX_MIDI_NOTES) {
-            tim_midifx_note_offset=((MAX_MIDI_NOTES-tim_midifx_note_range)>>1)*note_fx_linewidth;
-        }
-        
-        if (tim_midifx_note_range<MAX_MIDI_NOTES) {
-            int maxofs=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
-            tim_midifx_note_offset=moveRPy;
-            if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
-            if (tim_midifx_note_offset>maxofs) tim_midifx_note_offset=maxofs;
-        } else tim_midifx_note_offset=0;
-        moveRPy=tim_midifx_note_offset;
-        
+        //update bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-            movePxMID=-moveRPy;
-            movePyMID=moveRPx;
             note_fx_linewidth=ww/tim_midifx_note_range;
         } else {
-            movePxMID=moveRPx;
-            movePyMID=moveRPy;
             note_fx_linewidth=hh/tim_midifx_note_range;
         }
+        
+        //recompute offset to get same center
+        tim_midifx_note_offset=(note_visible_center-(tim_midifx_note_range/2))*note_fx_linewidth;
+        
+        if (tim_midifx_note_offset<0) {
+            tim_midifx_note_offset=0;
+        }
+        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
+            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
+        }
+//        static int cptyo=0;
+//        cptyo++;
+//        if ((cptyo&7)==7) printf("range %f \t width %f \t ofs %f \t Px %f \t Py %f\n",tim_midifx_note_range,note_fx_linewidth,tim_midifx_note_offset,movePxMID,movePyMID);
+
     }
     /*if (mOglView2Taps) { //double tap: fullscreen switch
      mOglView2Taps=0;
@@ -7120,7 +7133,7 @@ extern "C" int current_sample;
         
         if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
             playerpos=[mplayer getCurrentGenBufferIdx];
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer);
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
             clearFXbuffer=false;
             
             if (mHeader) delete mHeader;
@@ -7163,7 +7176,7 @@ extern "C" int current_sample;
                     }
                 }
                 
-                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer);
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
                 clearFXbuffer=false;
             }
             
@@ -7490,12 +7503,12 @@ extern "C" int current_sample;
             //playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
             switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
                 case 1:
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer);
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer,mPaused);
                     clearFXbuffer=false;
                     break;
                 case 2:
                     playerpos=[mplayer getCurrentGenBufferIdx];
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer,mPaused);
                     clearFXbuffer=false;
                     break;
                 case 3:
@@ -7506,7 +7519,7 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer);
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,clearFXbuffer,mPaused);
                     clearFXbuffer=false;
                     break;
                 case 4:
@@ -7518,7 +7531,7 @@ extern "C" int current_sample;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     playerpos=[mplayer getCurrentGenBufferIdx];
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value,clearFXbuffer,mPaused);
                     clearFXbuffer=false;
                     break;
             }
@@ -8105,7 +8118,8 @@ extern "C" int current_sample;
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
-        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
         
@@ -8113,6 +8127,9 @@ extern "C" int current_sample;
         cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        
+        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];

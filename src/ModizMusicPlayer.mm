@@ -5412,9 +5412,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode==1) iModuleLength=-1;
                                 
                                 if (iModuleLength>0) {
-                                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ); //Fade 1s before end
-                                    else gme_set_fade_msecs( gme_emu, iModuleLength/2, iModuleLength/2 );
-                                } else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 );
+                                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+                                    else gme_set_fade_msecs( gme_emu, iModuleLength ,+100);
+                                } else gme_set_fade( gme_emu, 1<<30);
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
@@ -12243,9 +12243,9 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         if (iModuleLength>0) {
-            if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ); //Fade 1s before end
-            else gme_set_fade_msecs( gme_emu, iModuleLength/2, iModuleLength/2 );
-        } else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 );
+            if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+            else gme_set_fade_msecs( gme_emu, iModuleLength,+100);
+        } else gme_set_fade( gme_emu, 1<<30);
         //            else gme_set_fade_msecs( gme_emu, 1<<30);
         
         iCurrentTime=0;
@@ -13342,8 +13342,10 @@ extern bool icloud_available;
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 //Loop
                 if (mLoopMode==1) iModuleLength=-1;
-                if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 ,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000); //Fade 1s before end
-                else gme_set_fade_msecs( gme_emu, 1<<30,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000);
+                if (iModuleLength>0) {
+                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+                    else gme_set_fade_msecs( gme_emu, iModuleLength,+100);
+                } else gme_set_fade( gme_emu, 1<<30);
                 mod_message_updated=2;
             }
             gme_seek(gme_emu,startPos);
