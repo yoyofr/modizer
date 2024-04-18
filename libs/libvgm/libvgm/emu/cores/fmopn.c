@@ -2437,7 +2437,7 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             old_out_fm[ii]=OPN->out_fm[ii];
         }
     }
-
+    //YOYOFR
 
 	/* refresh PG and EG */
 	refresh_fc_eg_chan( OPN, cch[0] );
@@ -3865,6 +3865,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             }
         }
     }
+    //YOYOFR
 
 #ifdef YM2610B_WARNING
 #define FM_KEY_IS(SLOT) ((SLOT)->key)

@@ -635,12 +635,13 @@ UINT32 PlayerA::Render(UINT32 bufSize, void* data)
 	}
     
     //YOYOFR
-    for (int i = 0; i < smplCount; i++)
-        for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-            m_voice_buff[j][i]=LIMIT8(((int)(m_voice_buff[j][i])* curVolume) >> VOL_BITS);
-        }
+    if (basePbSmpl >= _fadeSmplStart) {
+        for (int i = 0; i < smplCount; i++)
+            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                m_voice_buff[j][i]=LIMIT8(((int)(m_voice_buff[j][i])* curVolume) >> VOL_BITS);
+            }     
+    }
     //YOYOFR
-	
 	return curSmpl * _outSmplSizeA;
 }
 

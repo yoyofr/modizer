@@ -67,6 +67,11 @@ differences between OPL2 and OPL3 shown in datasheets:
 #include "../logging.h"
 #include "ymf262.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4244)	// disable warning for converting double -> UINT32
 #endif
@@ -183,7 +188,8 @@ typedef struct
 	*/
 	UINT8   extended;   /* set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11) */
 	UINT8   Muted;
-
+    //YOYOFR
+    UINT8   keyon_triggered;
 //unsigned char reserved[512-273];//speedup:pump up the struct size to power of 2
 
 } OPL3_CH;
@@ -1762,29 +1768,34 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 				/* BD key on/off */
 				if(v&0x10)
 				{
+                    chip->P_CH[6].keyon_triggered=1;//YOYOFR
 					FM_KEYON (&chip->P_CH[6].SLOT[SLOT1], 2);
 					FM_KEYON (&chip->P_CH[6].SLOT[SLOT2], 2);
 				}
 				else
 				{
+                    chip->P_CH[6].keyon_triggered=0;//YOYOFR
 					FM_KEYOFF(&chip->P_CH[6].SLOT[SLOT1],~2);
 					FM_KEYOFF(&chip->P_CH[6].SLOT[SLOT2],~2);
 				}
 				/* HH key on/off */
-				if(v&0x01) FM_KEYON (&chip->P_CH[7].SLOT[SLOT1], 2);
-				else       FM_KEYOFF(&chip->P_CH[7].SLOT[SLOT1],~2);
+                if(v&0x01) {FM_KEYON (&chip->P_CH[7].SLOT[SLOT1], 2);chip->P_CH[7].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&chip->P_CH[7].SLOT[SLOT1],~2);chip->P_CH[7].keyon_triggered=0;}//YOYOFR
 				/* SD key on/off */
-				if(v&0x08) FM_KEYON (&chip->P_CH[7].SLOT[SLOT2], 2);
-				else       FM_KEYOFF(&chip->P_CH[7].SLOT[SLOT2],~2);
+                if(v&0x08) {FM_KEYON (&chip->P_CH[7].SLOT[SLOT2], 2);chip->P_CH[7].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&chip->P_CH[7].SLOT[SLOT2],~2);chip->P_CH[7].keyon_triggered=0;}//YOYOFR
 				/* TOM key on/off */
-				if(v&0x04) FM_KEYON (&chip->P_CH[8].SLOT[SLOT1], 2);
-				else       FM_KEYOFF(&chip->P_CH[8].SLOT[SLOT1],~2);
+                if(v&0x04) {FM_KEYON (&chip->P_CH[8].SLOT[SLOT1], 2);chip->P_CH[8].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&chip->P_CH[8].SLOT[SLOT1],~2);chip->P_CH[8].keyon_triggered=0;}//YOYOFR
 				/* TOP-CY key on/off */
-				if(v&0x02) FM_KEYON (&chip->P_CH[8].SLOT[SLOT2], 2);
-				else       FM_KEYOFF(&chip->P_CH[8].SLOT[SLOT2],~2);
+                if(v&0x02) {FM_KEYON (&chip->P_CH[8].SLOT[SLOT2], 2);chip->P_CH[8].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&chip->P_CH[8].SLOT[SLOT2],~2);chip->P_CH[8].keyon_triggered=0;}//YOYOFR
 			}
 			else
 			{
+                chip->P_CH[6].keyon_triggered=0;//YOYOFR
+                chip->P_CH[7].keyon_triggered=0;//YOYOFR
+                chip->P_CH[8].keyon_triggered=0;//YOYOFR
 				/* BD key off */
 				FM_KEYOFF(&chip->P_CH[6].SLOT[SLOT1],~2);
 				FM_KEYOFF(&chip->P_CH[6].SLOT[SLOT2],~2);
@@ -1836,6 +1847,7 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 						//ALSO keyon/off slots of 2nd channel forming up 4-op channel
 						if(v&0x20)
 						{
+                            CH->keyon_triggered=1;//YOYOFR
 							FM_KEYON (&CH->SLOT[SLOT1], 1);
 							FM_KEYON (&CH->SLOT[SLOT2], 1);
 							FM_KEYON (&(CH+3)->SLOT[SLOT1], 1);
@@ -1843,6 +1855,7 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 						}
 						else
 						{
+                            CH->keyon_triggered=0;//YOYOFR
 							FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 							FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 							FM_KEYOFF(&(CH+3)->SLOT[SLOT1],~1);
@@ -1854,11 +1867,13 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 						//else normal 2 operator function keyon/off
 						if(v&0x20)
 						{
+                            CH->keyon_triggered=1;//YOYOFR
 							FM_KEYON (&CH->SLOT[SLOT1], 1);
 							FM_KEYON (&CH->SLOT[SLOT2], 1);
 						}
 						else
 						{
+                            CH->keyon_triggered=0;//YOYOFR
 							FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 							FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 						}
@@ -1876,11 +1891,13 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 						//else normal 2 operator function keyon/off
 						if(v&0x20)
 						{
+                            CH->keyon_triggered=1;//YOYOFR
 							FM_KEYON (&CH->SLOT[SLOT1], 1);
 							FM_KEYON (&CH->SLOT[SLOT2], 1);
 						}
 						else
 						{
+                            CH->keyon_triggered=0;//YOYOFR
 							FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 							FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 						}
@@ -1890,11 +1907,13 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 				default:
 					if(v&0x20)
 					{
+                        CH->keyon_triggered=1;//YOYOFR
 						FM_KEYON (&CH->SLOT[SLOT1], 1);
 						FM_KEYON (&CH->SLOT[SLOT2], 1);
 					}
 					else
 					{
+                        CH->keyon_triggered=0;//YOYOFR
 						FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 						FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 					}
@@ -1905,11 +1924,13 @@ static void OPL3WriteReg(OPL3 *chip, int r, int v)
 			{
 				if(v&0x20)
 				{
+                    CH->keyon_triggered=1;//YOYOFR
 					FM_KEYON (&CH->SLOT[SLOT1], 1);
 					FM_KEYON (&CH->SLOT[SLOT2], 1);
 				}
 				else
 				{
+                    CH->keyon_triggered=0;//YOYOFR
 					FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 					FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 				}
@@ -2521,6 +2542,29 @@ void ymf262_update_one(void *_chip, UINT32 length, DEV_SMPL **buffers)
 
 	UINT32 i;
 	int chn;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=18;
+    if (m_voicesForceOfs>=0) {
+        m_voice_ofs=m_voicesForceOfs;
+        m_voicesForceOfs=-1;
+    } else {
+        for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+            if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+                m_voice_ofs=ii;
+                break;
+            }
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	if (! length)
 	{
@@ -2537,6 +2581,36 @@ void ymf262_update_one(void *_chip, UINT32 length, DEV_SMPL **buffers)
 		memset(ch_b, 0, length * sizeof(DEV_SMPL));
 		return;
 	}
+    
+    //YOYOFR
+    static INT32 old_out_fm[18]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<4;ii++) {
+            if (!(chip->P_CH[ii].Muted)) {
+                if (!(chip->P_CH[ii].block_fnum)) {
+                    if ((chip->chanout[ii] !=old_out_fm[ii])) {
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    if ((chip->chanout[ii]!=old_out_fm[ii])) {
+                        int64_t freq=(chip->P_CH[ii].block_fnum)&0x3FF;
+                        int64_t block=((chip->P_CH[ii].block_fnum)>>10)&0x7;
+                        int64_t note=freq*(1<<block)/2*(chip->clock)/72/(1<<19);
+                        
+                        vgm_last_note[ii+m_voice_ofs]=note;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+                old_out_fm[ii]=chip->chanout[ii];
+            }
+        }
+    }
+    //YOYOFR
 	
 	for( i=0; i < length ; i++ )
 	{
@@ -2617,6 +2691,28 @@ void ymf262_update_one(void *_chip, UINT32 length, DEV_SMPL **buffers)
 			c += chip->chanout[chn] & chip->pan[chn * 4 + 2];
 			d += chip->chanout[chn] & chip->pan[chn * 4 + 3];
 		}
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            if (ofs_end>ofs_start)
+            for (;;) {
+                for (int ii=0;ii<18;ii++)
+                    m_voice_buff[m_voice_ofs+ii][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(
+                    ( ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+1]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+2]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+3]))
+                     )>>7);
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            for (int ii=0;ii<18;ii++) m_voice_current_ptr[m_voice_ofs+ii]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		/* store to sound buffer */
 		ch_a[i] = ((a+c) * chip->masterVolL) >> 12;

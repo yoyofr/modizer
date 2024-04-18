@@ -21,6 +21,11 @@
 #include "helper.h"
 #include "../emu/logging.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef _MSC_VER
 #define snprintf	_snprintf
 #endif
@@ -1194,15 +1199,26 @@ UINT32 S98Player::Render(UINT32 smplCnt, WAVE_32BS* data)
 			smplStep = 1;	// must render at least 1 sample in order to advance
 		if ((UINT32)smplStep > smplCnt - curSmpl)
 			smplStep = smplCnt - curSmpl;
-		
+        
+        		
 		for (curDev = 0; curDev < _devices.size(); curDev ++)
 		{
 			S98_CHIPDEV* cDev = &_devices[curDev];
 			UINT8 disable = (cDev->optID != (size_t)-1) ? _devOpts[cDev->optID].muteOpts.disable : 0x00;
 			VGM_BASEDEV* clDev;
+            
+            //TODO:  MODIZER changes start / yoyofr
+            m_voice_current_system=curDev;
+            m_voice_current_systemSub=0;  //YOYOFR: to remove, not used anymore
+            m_voice_current_systemPairedOfs=0;
+            //TODO:  MODIZER changes end / YOYOFR
 			
 			for (clDev = &cDev->base; clDev != NULL; clDev = clDev->linkDev, disable >>= 1)
 			{
+                //YOYOFR
+                m_voice_current_samplerate=clDev->defInf.sampleRate;
+                //YOYOFR
+                
 				if (clDev->defInf.dataPtr != NULL && ! (disable & 0x01))
 					Resmpl_Execute(&clDev->resmpl, smplStep, &data[curSmpl]);
 			}

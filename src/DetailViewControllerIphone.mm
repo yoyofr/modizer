@@ -6439,7 +6439,7 @@ extern "C" int current_sample;
     }
     
     
-    if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
         float note_fx_linewidth;
         //scroll  & get current note bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
@@ -6462,8 +6462,8 @@ extern "C" int current_sample;
         float note_visible_center=(tim_midifx_note_offset)/note_fx_linewidth+(tim_midifx_note_range/2);
         
         //update visible notes range
-        if (movePinchScaleFXMID<0) movePinchScaleFXMID=0;
-        if (movePinchScaleFXMID>((MAX_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(MAX_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
+        if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
+        if (movePinchScaleFXMID>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
         tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXMID*64.0f;
         
         if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {//min is 4 Octaves

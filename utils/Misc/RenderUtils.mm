@@ -270,7 +270,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         old_ofs=0;
         
         ofs1=snd_data_ofs[j];
-        ofs2=snd_data_ofs[j];
+        ofs2=snd_data_ofs[j]-smplincr;
         int right_done=0;
         int left_done=0;
         for (;;) {
@@ -285,7 +285,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=(int64_t)(*snd_data_ptr)*(int64_t)(*prev_snd_data_ptr);
+                    val=(int)(*snd_data_ptr)*(int)(*prev_snd_data_ptr);
                     tmp_gap+=val;
                     snd_data_ptr+=incr;
                     prev_snd_data_ptr+=incr;
@@ -308,7 +308,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
                 for (int i=0;i<bufflen;i++) {
                     //compute diff between 2 samples with respective offset
-                    val=(int64_t)(*snd_data_ptr)*(int64_t)(*prev_snd_data_ptr);
+                    val=(int)(*snd_data_ptr)*(int)(*prev_snd_data_ptr);
                     tmp_gap+=val;
                     snd_data_ptr+=incr;
                     prev_snd_data_ptr+=incr;

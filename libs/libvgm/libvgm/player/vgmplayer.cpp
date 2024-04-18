@@ -1800,7 +1800,7 @@ UINT32 VGMPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
 			UINT8 disable = (cDev->optID != (size_t)-1) ? _devOpts[cDev->optID].muteOpts.disable : 0x00;
 			VGM_BASEDEV* clDev;
             
-            //TODO:  MODIZER changes start / YOYOFR
+            //TODO:  MODIZER changes start / yoyofr
             m_voice_current_system=curDev;
             m_voice_current_systemSub=0;  //YOYOFR: to remove, not used anymore
             m_voice_current_systemPairedOfs=0;
@@ -1811,6 +1811,7 @@ UINT32 VGMPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
                 //YOYOFR
                 m_voice_current_samplerate=clDev->defInf.sampleRate;
                 //YOYOFR
+                
 				if (clDev->defInf.dataPtr != NULL && ! (disable & 0x01))
 					Resmpl_Execute(&clDev->resmpl, smplStep, &data[curSmpl]);
 			}

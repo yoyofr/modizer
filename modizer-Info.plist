@@ -697,6 +697,8 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
+                    <string>gym</string>
+                    <string>s98</string>
 					<string>vgm</string>
 					<string>vgz</string>
 				</array>

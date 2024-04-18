@@ -876,7 +876,7 @@ UINT8 vgmGetChipChannelsNb(UINT8 type) {
         case DEVID_YM3812:return 0x09;
         case DEVID_YM3526:return 0x09;
         case DEVID_Y8950:return 0x09;
-        case DEVID_YMF262:return 0x17;
+        case DEVID_YMF262:return 0x12;
         case DEVID_YMF278B:return 0x2F;
         case DEVID_YMF271:return 0x0C;
         case DEVID_YMZ280B:return 0x08;
@@ -11482,27 +11482,6 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
         vgm_player.SetLoopCount(vgmplay->GetModifiedLoopCount(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
     }
     
-    
-    /* need to call Start before calls like Tick2Sample or
-     * checking any kind of timing info, because
-     * Start updates the sample rate multiplier/divisors */
-    vgm_player.Start();
-    
-    /* libvgm uses the term "Sample" but its' really a PCM frame! */
-    /* In a mono configuration, 1 frame = 1 sample, in a stereo
-     * configuration, 1 frame = (left sample + right sample) */
-    
-    /* figure out how many total frames we're going to render */
-    totalFrames = vgm_plrEngine->Tick2Sample(vgm_plrEngine->GetTotalPlayTicks(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
-    
-    /* we only want to fade if there's a looping section. Assumption is
-     * if the VGM doesn't specify a loop, it's a song with an actual ending */
-    if(vgm_plrEngine->GetLoopTicks()) {
-        fadeFrames = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
-        totalFrames += fadeFrames;
-    }
-    
-    
     switch (settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value) {
         case 0: //MAME
             set_core(vgm_plrEngine,DEVID_YM2612,FCC_MAME);
@@ -11547,6 +11526,29 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
             set_core(vgm_plrEngine,DEVID_QSOUND,FCC_MAME);
             break;
     }
+    
+    
+    /* need to call Start before calls like Tick2Sample or
+     * checking any kind of timing info, because
+     * Start updates the sample rate multiplier/divisors */
+    vgm_player.Start();
+    
+    /* libvgm uses the term "Sample" but its' really a PCM frame! */
+    /* In a mono configuration, 1 frame = 1 sample, in a stereo
+     * configuration, 1 frame = (left sample + right sample) */
+    
+    /* figure out how many total frames we're going to render */
+    totalFrames = vgm_plrEngine->Tick2Sample(vgm_plrEngine->GetTotalPlayTicks(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
+    
+    /* we only want to fade if there's a looping section. Assumption is
+     * if the VGM doesn't specify a loop, it's a song with an actual ending */
+    if(vgm_plrEngine->GetLoopTicks()) {
+        fadeFrames = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
+        totalFrames += fadeFrames;
+    }
+    
+    
+    
     
     PLR_DEV_OPTS devOpts;
     UINT32 id;
@@ -11626,13 +11628,13 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
     const char* const* tagList =  vgm_plrEngine->GetTags();
     if (tagList != NULL) {
         
-        const char* songTitle = NULL;
-        const char* songGame = NULL;
-        const char* songSystem = NULL;
-        const char* songAuthor = NULL;
-        const char* songDate = NULL;
-        const char* songEncoder = NULL;
-        const char* songComment = NULL;
+        const char* songTitle = "";
+        const char* songGame = "";
+        const char* songSystem = "";
+        const char* songAuthor = "";
+        const char* songDate = "";
+        const char* songEncoder = "";
+        const char* songComment = "";
         
         //1st pass to populate japanese tag if option selected
         if (defaultLang) {
@@ -11655,10 +11657,6 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
                     songAuthor = t[1];
             }
         }
-        if (!songTitle) songTitle="";
-        if (!songGame) songGame="";
-        if (!songSystem) songSystem="";
-        if (!songAuthor) songAuthor="";
         
         //2nd pass to complete
         for (const char* const* t = tagList; *t != NULL; t += 2) {
@@ -11712,6 +11710,7 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
     }
     
     iModuleLength=vgm_plrEngine->Sample2Second(totalFrames)*1000.0f;
+    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
     
     iCurrentTime=0;
     mCurrentSamples=0;

@@ -80,6 +80,12 @@ Revision History:
 #include "../EmuHelper.h"
 #include "../logging.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+static int64_t smplIncr,cur_channel,m_voice_ofs;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifndef SNDDEV_SELECT
 #define SNDDEV_YM3812
 #define SNDDEV_YM3526
@@ -195,6 +201,8 @@ typedef struct
 	UINT32  ksl_base;   /* KeyScaleLevel Base step      */
 	UINT8   kcode;      /* key code (for key scaling)   */
 	UINT8   Muted;
+    //YOYOFR
+    UINT8 keyon_triggered;
 } OPL_CH;
 
 /* OPL state */
@@ -884,6 +892,55 @@ INLINE signed int op_calc1(UINT32 phase, unsigned int env, signed int pm, unsign
 	return tl_tab[p];
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define MDZ_OUTPUT(val,channel) \
+if (m_voice_ofs>=0) { \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end)>(ofs_start)) \
+    for (;;) { \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val)>>5);  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+}
+
+#define MDZ_OUTPUT_ADD(val,channel) \
+if (m_voice_ofs>=0) { \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end)>(ofs_start)) \
+    for (;;) { \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=(m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+LIMIT8((val)>>5))>>1;  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+}
+
+#define MDZ_SKIP(channel) \
+if (m_voice_ofs>=0) { \
+    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end)>(ofs_start)) \
+    for (;;) { \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;  \
+        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+}
+
+#define MDZ_ADVANCE \
+for (int ii=0;ii<m_total_channels;ii++) {\
+int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ii]+smplIncr); \
+while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT); \
+m_voice_current_ptr[m_voice_ofs+ii]=ofs_end; \
+}
+
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #define volume_calc(OP) ((OP)->TLL + ((UINT32)(OP)->volume) + (OPL->LFO_AM & (OP)->AMmask))
 
@@ -894,8 +951,12 @@ INLINE void OPL_CALC_CH( FM_OPL *OPL, OPL_CH *CH )
 	unsigned int env;
 	signed int out;
 
-	if (CH->Muted)
-		return;
+    //YOYOFR
+    if (CH->Muted) {
+        MDZ_SKIP(cur_channel)
+        return;
+    }
+    //YOYOFR
 
 	OPL->phase_modulation = 0;
 
@@ -916,8 +977,12 @@ INLINE void OPL_CALC_CH( FM_OPL *OPL, OPL_CH *CH )
 	/* SLOT 2 */
 	SLOT++;
 	env = volume_calc(SLOT);
-	if( env < ENV_QUIET )
-		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable);
+	if( env < ENV_QUIET ) {
+        OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable);
+        //YOYOFR
+        MDZ_OUTPUT(op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable),cur_channel)
+    } else MDZ_SKIP(cur_channel)
+        		
 }
 
 /*
@@ -962,7 +1027,8 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	OPL_SLOT *SLOT;
 	signed int out;
 	unsigned int env;
-
+    char wrote7,wrote8; //YOYOFR
+    wrote7=wrote8=0; //YOYOFR
 
 	/* Bass Drum (verified on real YM3812):
 	  - depends on the channel 6 'connect' register:
@@ -994,9 +1060,16 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	/* SLOT 2 */
 	SLOT++;
 	env = volume_calc(SLOT);
-	if( env < ENV_QUIET && ! OPL->MuteSpc[0] )
-		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
-
+	if( env < ENV_QUIET && ! OPL->MuteSpc[0] ){
+        //YOYOFR
+        if (CH[6].Muted) {
+            MDZ_SKIP(6+0)
+        } else {
+                OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
+                MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 1), 6+0)
+        }
+        //YOYOFR
+    }
 
 	/* Phase generation is based on: */
 	/* HH  (13) channel 7->slot 1 combined with channel 8->slot 2 (same combination as TOP CYMBAL but different output phases) */
@@ -1062,7 +1135,15 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 				phase = 0xd0>>2;
 		}
 
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
+        //YOYOFR
+        if (CH[7].Muted) {
+            MDZ_SKIP(6+1)
+        } else {
+            wrote7=1;
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
+            MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 1), 6+1)
+        }
+        //YOYOFR
 	}
 
 	/* Snare Drum (verified on real YM3812) */
@@ -1083,13 +1164,33 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		if (noise)
 			phase ^= 0x100;
 
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
+		//YOYOFR
+        if (CH[7].Muted) {
+            MDZ_SKIP(6+1)
+        } else {
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
+            if (wrote7) {
+                MDZ_OUTPUT_ADD((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
+            } else {
+                MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
+            }
+        }
+        //YOYOFR
 	}
 
 	/* Tom Tom (verified on real YM3812) */
 	env = volume_calc(SLOT8_1);
-	if( env < ENV_QUIET && ! OPL->MuteSpc[2] )
-		OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
+	if( env < ENV_QUIET && ! OPL->MuteSpc[2] ){
+        //YOYOFR
+        if (CH[8].Muted) {
+            MDZ_SKIP(6+2)
+        } else {
+            wrote8=1;
+            OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
+            MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 1), 6+2)
+        }
+        //YOYOFR
+    }
 
 	/* Top Cymbal (verified on real YM3812) */
 	env = volume_calc(SLOT8_2);
@@ -1116,7 +1217,18 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		if (res2)
 			phase = 0x300;
 
-		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
+        //YOYOFR
+        if (CH[8].Muted) {
+            MDZ_SKIP(6+2)
+        } else {
+            OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
+            if (wrote8) {
+                MDZ_OUTPUT_ADD((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+2)
+            } else {
+                MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+2)
+            }
+        }
+        //YOYOFR
 	}
 }
 
@@ -1576,29 +1688,34 @@ static void OPLWriteReg(FM_OPL *OPL, UINT8 r, UINT8 v)
 				/* BD key on/off */
 				if(v&0x10)
 				{
+                    OPL->P_CH[6].keyon_triggered=1;//YOYOFR
 					FM_KEYON (&OPL->P_CH[6].SLOT[SLOT1], 2);
 					FM_KEYON (&OPL->P_CH[6].SLOT[SLOT2], 2);
 				}
 				else
 				{
+                    OPL->P_CH[6].keyon_triggered=0;//YOYOFR
 					FM_KEYOFF(&OPL->P_CH[6].SLOT[SLOT1],~2);
 					FM_KEYOFF(&OPL->P_CH[6].SLOT[SLOT2],~2);
 				}
 				/* HH key on/off */
-				if(v&0x01) FM_KEYON (&OPL->P_CH[7].SLOT[SLOT1], 2);
-				else       FM_KEYOFF(&OPL->P_CH[7].SLOT[SLOT1],~2);
+                if(v&0x01) {FM_KEYON (&OPL->P_CH[7].SLOT[SLOT1], 2);OPL->P_CH[7].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&OPL->P_CH[7].SLOT[SLOT1],~2);OPL->P_CH[7].keyon_triggered=0;}//YOYOFR
 				/* SD key on/off */
-				if(v&0x08) FM_KEYON (&OPL->P_CH[7].SLOT[SLOT2], 2);
-				else       FM_KEYOFF(&OPL->P_CH[7].SLOT[SLOT2],~2);
+                if(v&0x08) {FM_KEYON (&OPL->P_CH[7].SLOT[SLOT2], 2);OPL->P_CH[7].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&OPL->P_CH[7].SLOT[SLOT2],~2);OPL->P_CH[7].keyon_triggered=0;}//YOYOFR
 				/* TOM key on/off */
-				if(v&0x04) FM_KEYON (&OPL->P_CH[8].SLOT[SLOT1], 2);
-				else       FM_KEYOFF(&OPL->P_CH[8].SLOT[SLOT1],~2);
+                if(v&0x04) {FM_KEYON (&OPL->P_CH[8].SLOT[SLOT1], 2);OPL->P_CH[8].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&OPL->P_CH[8].SLOT[SLOT1],~2);OPL->P_CH[8].keyon_triggered=0;}//YOYOFR
 				/* TOP-CY key on/off */
-				if(v&0x02) FM_KEYON (&OPL->P_CH[8].SLOT[SLOT2], 2);
-				else       FM_KEYOFF(&OPL->P_CH[8].SLOT[SLOT2],~2);
+                if(v&0x02) {FM_KEYON (&OPL->P_CH[8].SLOT[SLOT2], 2);OPL->P_CH[8].keyon_triggered=1;}//YOYOFR
+                else       {FM_KEYOFF(&OPL->P_CH[8].SLOT[SLOT2],~2);OPL->P_CH[8].keyon_triggered=0;}//YOYOFR
 			}
 			else
 			{
+                OPL->P_CH[6].keyon_triggered=0;//YOYOFR
+                OPL->P_CH[7].keyon_triggered=0;//YOYOFR
+                OPL->P_CH[8].keyon_triggered=0;//YOYOFR
 				/* BD key off */
 				FM_KEYOFF(&OPL->P_CH[6].SLOT[SLOT1],~2);
 				FM_KEYOFF(&OPL->P_CH[6].SLOT[SLOT2],~2);
@@ -1626,11 +1743,13 @@ static void OPLWriteReg(FM_OPL *OPL, UINT8 r, UINT8 v)
 
 			if(v&0x20)
 			{
+                CH->keyon_triggered=1;//YOYOFR
 				FM_KEYON (&CH->SLOT[SLOT1], 1);
 				FM_KEYON (&CH->SLOT[SLOT2], 1);
 			}
 			else
 			{
+                CH->keyon_triggered=0;//YOYOFR
 				FM_KEYOFF(&CH->SLOT[SLOT1],~1);
 				FM_KEYOFF(&CH->SLOT[SLOT2],~1);
 			}
@@ -1917,11 +2036,13 @@ static UINT8 OPLRead(FM_OPL *OPL,UINT8 a)
 /* CSM Key Controll */
 INLINE void CSMKeyControll(OPL_CH *CH)
 {
+    CH->keyon_triggered=1;//YOYOFR
 	FM_KEYON (&CH->SLOT[SLOT1], 4);
 	FM_KEYON (&CH->SLOT[SLOT2], 4);
 
 	/* The key off should happen exactly one sample later - not implemented correctly yet */
 
+    CH->keyon_triggered=0;//YOYOFR
 	FM_KEYOFF(&CH->SLOT[SLOT1], ~4);
 	FM_KEYOFF(&CH->SLOT[SLOT2], ~4);
 }
@@ -2042,6 +2163,54 @@ void ym3812_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		refresh_eg(OPL);
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=9;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    static INT32 old_out_fm[9]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<9;ii++) {
+            if (!(OPL->P_CH[ii].Muted)) {
+                if (OPL->P_CH[ii].block_fnum==0) {
+                    /*if ((OPL-> !=old_out_fm[ii])) */{
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    /*if ((OPL->out_fm[ii]!=old_out_fm[ii]))*/{
+                        int64_t freq=(OPL->P_CH[ii].block_fnum)&0x3FF;
+                        int64_t block=((OPL->P_CH[ii].block_fnum)>>10)&0x7;
+                        
+                        int64_t note=freq*(1<<block)/2*(OPL->clock)/72/(1<<19);
+                        
+                        vgm_last_note[ii+m_voice_ofs]=note; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+            //old_out_fm[ii]=OPL->out_fm[ii];
+        }
+    }
+    //YOYOFR
 
 	bufL = buffer[0];
 	bufR = buffer[1];
@@ -2053,19 +2222,32 @@ void ym3812_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 
 		advance_lfo(OPL);
 
-		/* FM part */
-		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
-		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
-		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
-		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
-		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
-		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
+        /* FM part */
+        //YOYOFR
+        cur_channel=0;
+        OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
+        OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
+        OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
+        OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
+        OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
+        OPL_CALC_CH(OPL, &OPL->P_CH[5]);
+        //YOYOFR
 
 		if(!rhythm)
 		{
-			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
-			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
-			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
+            //YOYOFR
+            cur_channel=6;
+            OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
+            OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
+            OPL_CALC_CH(OPL, &OPL->P_CH[8]);
+            //YOYOFR
 		}
 		else        /* Rhythm part */
 		{
@@ -2079,6 +2261,8 @@ void ym3812_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		bufR[i] = lt;
 
 		advance(OPL);
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }

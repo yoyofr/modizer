@@ -726,7 +726,7 @@ S-C
 S14
 S3M
 S7G
-S98xxxxxxxxx
+S98
 SA
 SA-P
 SA2
