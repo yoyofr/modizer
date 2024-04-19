@@ -37,6 +37,13 @@
 #include "ym3438.h"
 #include "ym3438_int.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+static int m_voice_ofs=-1;
+static int64_t smplIncr;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 // superctr's MegaDrive model 1 filter
 #define FILTER_CUTOFF 0.512331301282628 // 5894Hz  single pole IIR low pass
 #define FILTER_CUTOFF_I (1-FILTER_CUTOFF)
@@ -1532,7 +1539,7 @@ void NOPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
                 chip->samples[0] += buffer[0];
                 chip->samples[1] += buffer[1];
             }
-
+            
             while (chip->writebuf[chip->writebuf_cur].time <= chip->writebuf_samplecnt)
             {
                 if (!(chip->writebuf[chip->writebuf_cur].port & 0x04))
@@ -1546,6 +1553,29 @@ void NOPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
             }
             chip->writebuf_samplecnt++;
         }
+        
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<6;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                
+                if (!chip->mute[jj] && (ofs_end>ofs_start))
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((chip->ch_out[jj])>>1));
+                    
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        }
+        //YOYOFR
+        
+        
         if(!chip->use_filter)
         {
             chip->samples[0] *= 11;
@@ -1573,6 +1603,62 @@ void nukedopn2_update(void *chip, UINT32 numsamples, DEV_SMPL **sndptr)
     Bit32s buffer[2];
     smpl = sndptr[0];
     smpr = sndptr[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    static INT32 old_out_fm[6]; //YOYOFR
+    static UINT8 old_dacen; //YOYOFR
+    
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<6;ii++) {
+            if (!(opn2->mute[ii])) {
+                if (opn2->fnum[ii]==0) {
+                    if ((opn2->ch_out[ii]!=old_out_fm[ii])) {
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        if ((ii==5)&&(opn2->dacen)) {
+                            if (!old_dacen) {
+                                vgm_last_vol[ii+m_voice_ofs]=2;
+                            } else vgm_last_vol[ii+m_voice_ofs]=1;
+                        } else {
+                            int newvol=1;//cch[ii]->keyon_triggered+1;
+                            vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        }
+                    }
+                } else {
+                    if ((opn2->ch_out[ii]!=old_out_fm[ii])) {
+                        int freq=opn2->fnum[ii];
+                        int octave=opn2->block[ii];
+                        vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=1;//cch[ii]->keyon_triggered+1;
+                            vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+        }
+    
+    for (int ii=0;ii<6;ii++) {
+        old_out_fm[ii]=opn2->ch_out[ii];
+        old_dacen=opn2->dacen;
+    }
+    //YOYOFR
 
     for (i = 0; i < numsamples; i++)
     {

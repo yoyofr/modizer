@@ -150,6 +150,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         
         gzclose(f);
     }
+    
+    [self resume];
     return 0;
 }
 

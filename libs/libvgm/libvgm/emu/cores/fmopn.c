@@ -4901,6 +4901,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             for (int jj=0;jj<6;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
         }
+        //YOYOFR
 
 		/* 6-channels mixing  */
 		lt  = ((out_fm[0]>>0) & OPN->pan[0]);

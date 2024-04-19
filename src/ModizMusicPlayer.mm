@@ -11374,7 +11374,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     return 0;
 }
 
-static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
+static void vgm_set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
     PLR_DEV_OPTS devOpts;
     UINT32 id;
     
@@ -11384,6 +11384,28 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
     devOpts.emuCore[0] = coreId;
     player->SetDeviceOptions(id,devOpts);
     return;
+}
+
+static UINT32 vgm_get_dev_option(PlayerBase *player, UINT8 devId) {
+    PLR_DEV_OPTS devOpts;
+    UINT32 id;
+    
+    /* just going to set the first instance */
+    id = PLR_DEV_ID(devId,0);
+    if(player->GetDeviceOptions(id,devOpts)) return 0;
+    return devOpts.coreOpts;
+}
+
+
+static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts) {
+    PLR_DEV_OPTS devOpts;
+    UINT32 id;
+    
+    /* just going to set the first instance */
+    id = PLR_DEV_ID(devId,0);
+    if(player->GetDeviceOptions(id,devOpts)) return;
+    devOpts.coreOpts |= coreOpts;
+    player->SetDeviceOptions(id,devOpts);
 }
 
 
@@ -11480,52 +11502,62 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
     {
         VGMPlayer* vgmplay = dynamic_cast<VGMPlayer*>(vgm_plrEngine);
         vgm_player.SetLoopCount(vgmplay->GetModifiedLoopCount(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
+        
+    } else {
+        vgm_player.SetLoopCount(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value);
     }
+    if (mLoopMode==1) vgm_player.SetLoopCount(-1);
     
     switch (settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value) {
         case 0: //MAME
-            set_core(vgm_plrEngine,DEVID_YM2612,FCC_MAME);
+            vgm_set_core(vgm_plrEngine,DEVID_YM2612,FCC_GPGX);
             break;
         case 1: //Nuked
-            set_core(vgm_plrEngine,DEVID_YM2612,FCC_NUKE);
+            vgm_set_core(vgm_plrEngine,DEVID_YM2612,FCC_NUKE);
             break;
         case 2: //Gens
-            set_core(vgm_plrEngine,DEVID_YM2612,FCC_GENS);
+            vgm_set_core(vgm_plrEngine,DEVID_YM2612,FCC_GENS);
             break;
     }
+    UINT32 coreOpts;
+    coreOpts=vgm_get_dev_option(vgm_plrEngine,DEVID_YM2612);
+    coreOpts|=(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value<<3);
+    vgm_set_dev_option(vgm_plrEngine,DEVID_YM2612,coreOpts);
     
     switch (settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value) {
         case 0: //ADLIB
-            set_core(vgm_plrEngine,DEVID_YM3812,FCC_ADLE);
+            vgm_set_core(vgm_plrEngine,DEVID_YM3812,FCC_ADLE);
             break;
         case 1: //MAME
-            set_core(vgm_plrEngine,DEVID_YM3812,FCC_MAME);
+            vgm_set_core(vgm_plrEngine,DEVID_YM3812,FCC_MAME);
             break;
             //        case 2: //NUKED
-            //            set_core(vgm_plrEngine,DEVID_YM3812,FCC_NUKE);
+            //            vgm_set_core(vgm_plrEngine,DEVID_YM3812,FCC_NUKE);
             //            break;
     }
     
     switch (settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value) {
         case 0: //ADLIB
-            set_core(vgm_plrEngine,DEVID_YMF262,FCC_ADLE);
+            vgm_set_core(vgm_plrEngine,DEVID_YMF262,FCC_ADLE);
             break;
         case 1: //MAME
-            set_core(vgm_plrEngine,DEVID_YMF262,FCC_MAME);
+            vgm_set_core(vgm_plrEngine,DEVID_YMF262,FCC_MAME);
             break;
         case 2: //NUKED
-            set_core(vgm_plrEngine,DEVID_YMF262,FCC_NUKE);
+            vgm_set_core(vgm_plrEngine,DEVID_YMF262,FCC_NUKE);
             break;
     }
     
     switch (settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value) {
         case 0: //ADLIB
-            set_core(vgm_plrEngine,DEVID_QSOUND,FCC_CTR_);
+            vgm_set_core(vgm_plrEngine,DEVID_QSOUND,FCC_CTR_);
             break;
         case 1: //MAME
-            set_core(vgm_plrEngine,DEVID_QSOUND,FCC_MAME);
+            vgm_set_core(vgm_plrEngine,DEVID_QSOUND,FCC_MAME);
             break;
     }
+    
+    
     
     
     /* need to call Start before calls like Tick2Sample or
@@ -11546,28 +11578,6 @@ static void set_core(PlayerBase *player, UINT8 devId, UINT32 coreId) {
         fadeFrames = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
         totalFrames += fadeFrames;
     }
-    
-    
-    
-    
-    PLR_DEV_OPTS devOpts;
-    UINT32 id;
-    //    id = PLR_DEV_ID(DEVID_YM2612,0);
-    //    if(vgm_plrEngine->GetDeviceOptions(id,devOpts)) return;
-    //    devOpts.emuCore[0] = coreId;
-    //    vgm_plrEngine->SetDeviceOptions(id,devOpts);
-    
-#if 0
-    NSString *vgm_base_path = [[NSBundle mainBundle] resourcePath];
-    AppPaths[0]=strdup([[NSString stringWithFormat:@"%@/",vgm_base_path] UTF8String]);
-    // load configuration file here
-    ChipOpts[0].YM2612.SpecialFlags|=(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value<<3);
-    ChipOpts[1].YM2612.SpecialFlags|=(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value<<3);
-    
-    VGMMaxLoop=settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
-    if (mLoopMode==1) VGMMaxLoop=-1;
-    
-#endif
     
     mod_message[0]=0;
     numChannels=0;

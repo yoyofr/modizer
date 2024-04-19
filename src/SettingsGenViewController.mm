@@ -2365,10 +2365,10 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_NUKEDOPN2_Option].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb=4;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[0]=(char*)"2612 Filt.";
-    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[1]=(char*)"3438 ASIC";
-    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[2]=(char*)"3438 Disc.";
-    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[3]=(char*)"2612 NoFilt.";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[0]=(char*)"Filt.";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[1]=(char*)"ASIC";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[2]=(char*)"Disc.";
+    settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_labels[3]=(char*)"MD1";
     
     SETTINGS_ID_DEF(VGMPLAY_YMF262Emulator)
     settings[VGMPLAY_YMF262Emulator].type=MDZ_SWITCH;

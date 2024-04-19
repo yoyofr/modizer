@@ -358,7 +358,7 @@ pthread_mutex_t play_mutex;
 		[detailViewControlleriPhone enterForeground];
 	}
     
-    
+    [downloadVC restoreDownloadList];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -404,7 +404,7 @@ pthread_mutex_t play_mutex;
 	NSLog(@"received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
+    //[downloadVC backupDownloadList];
 	//[super didReceiveMemoryWarning];
 }
 
