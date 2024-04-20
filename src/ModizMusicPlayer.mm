@@ -3351,6 +3351,11 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
             mNeedSeek=3;
             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
             mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+            
+            for (int j=0;j<m_genNumVoicesChannels;j++) {
+                m_voice_prev_current_ptr[j]=0;
+                m_voice_current_ptr[j]=0;
+            }
         }
         
         if (end_reached) {
@@ -3494,6 +3499,11 @@ extern "C" {
                 mNeedSeek=3;
                 buffer_ana_flag[buffer_ana_gen_ofs]|=2;
                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                
+                for (int j=0;j<m_genNumVoicesChannels;j++) {
+                    m_voice_prev_current_ptr[j]=0;
+                    m_voice_current_ptr[j]=0;
+                }
             }
             
             buffer_ana_gen_ofs++;
@@ -3562,6 +3572,11 @@ void gsf_update(unsigned char* pSound,int lBytes) {
             mNeedSeek=3;
             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
             mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+            
+            for (int j=0;j<m_genNumVoicesChannels;j++) {
+                m_voice_prev_current_ptr[j]=0;
+                m_voice_current_ptr[j]=0;
+            }
         }
         
         buffer_ana_sample_ofs[buffer_ana_gen_ofs]=mCurrentSamples;
@@ -4416,6 +4431,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mNeedSeek=0;
                                 bGlobalSeekProgress=0;
                                 seek_needed=-1;
+                                
+                                for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                    m_voice_prev_current_ptr[j]=0;
+                                    m_voice_current_ptr[j]=0;
+                                }
                             }
                             if (!step_emulation(gbs)) {
                                 quit = 1;
@@ -5019,7 +5039,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mPlayType==MMP_HC) { //HC
                                 int64_t mStartPosSamples;
-                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(hc_sample_rate)/1000.0f;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
                                 if (hc_currentSample>mSeekSamples) {
                                     //
@@ -5038,7 +5058,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 // progress
                                 //
                                 while (mSeekSamples - hc_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
-                                    uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
+                                    uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+                                    
+                                    //reset voice data for oscillo view if not SNSF
+                                    if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
+                                        for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                            memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                            m_voice_current_ptr[j]=0;
+                                        }
+                                    }
+                                    
                                     switch (HC_type) {
                                         case 1:
                                         case 2:
@@ -5059,7 +5088,22 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             break;
                                     }
                                     hc_currentSample += SOUND_BUFFER_SIZE_SAMPLE;
-                                    iCurrentTime=hc_currentSample*1000/hc_sample_rate;
+                                    iCurrentTime=hc_currentSample*1000/PLAYBACK_FREQ;
+                                    
+                                    //copy voice data for oscillo view
+                                    if (m_genNumVoicesChannels) {
+                                        if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2))  { //SNSF, QSF, PSF, PSF2
+                                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                            }
+                                        } else {
+                                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                            }
+                                        }
+                                    }
                                     
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
@@ -5077,7 +5121,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //
                                 if (mSeekSamples - hc_currentSample > 0)
                                 {
-                                    uint32_t howmany = (mSeekSamples - hc_currentSample);
+                                    uint32_t howmany = (mSeekSamples - hc_currentSample)*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+                                    
+                                    //reset voice data for oscillo view if not SNSF
+                                    if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
+                                        for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                            memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                            m_voice_current_ptr[j]=0;
+                                        }
+                                    }
+                                    
                                     switch (HC_type) {
                                         case 1:
                                         case 2:
@@ -5090,15 +5143,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         case 0x21:
                                             usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                             break;
-                                        case 0x23: //to confirm it is ok
+                                        case 0x23:
                                             snsf_gen(hc_sample_data, howmany);
                                             break;
                                         case 0x41:
                                             qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                             break;
                                     }
+                                    
+                                    //copy voice data for oscillo view
+                                    if (m_genNumVoicesChannels) {
+                                        if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2))  { //SNSF, QSF, PSF, PSF2
+                                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                                m_voice_prev_current_ptr[j]+=(mSeekSamples - hc_currentSample)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                            }
+                                        } else {
+                                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                                m_voice_prev_current_ptr[j]+=(mSeekSamples - hc_currentSample)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                            }
+                                        }
+                                    }
+                                    
                                     hc_currentSample = mSeekSamples;
                                     iCurrentTime=hc_currentSample*1000/hc_sample_rate;
+                                    
+                                    
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
@@ -5110,6 +5181,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         break;
                                     }
                                 }
+                                
+                                
+                                //reset voice data for oscillo view if not SNSF
+                                if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
+                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                        memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE*4*4);
+                                    }
+                                }
+                                
+                                
+                                
                                 mCurrentSamples=hc_currentSample;
                             }
                             if (mPlayType==MMP_2SF) { //2SF
@@ -5241,6 +5323,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [detailViewControllerIphone hideWaitingCancel];
                             });
                             
+                                                        
                         }
                         if (moveToSubSong) {
                             mod_currentsub=moveToSubSongIndex;
@@ -5973,12 +6056,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             }
                             
+                            int64_t vol=256;
+                            if (iModuleLength>0) {
+                                if (hc_fadeLength&&(hc_fadeStart>0)&&(hc_currentSample>hc_fadeStart)) {
+                                    int startSmpl=hc_currentSample-hc_fadeStart;
+                                    if (startSmpl>SOUND_BUFFER_SIZE_SAMPLE) startSmpl=SOUND_BUFFER_SIZE_SAMPLE;
+                                    vol=256*(hc_fadeLength-(hc_currentSample-hc_fadeStart))/hc_fadeLength;
+                                    if (vol<0) vol=0;
+                                    if (vol>256) vol=256;
+                                }
+                            }
+                            
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
                                 if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2))  { //SNSF, QSF, PSF, PSF2
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j]
-                                            [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j]
+                                            [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*vol>>8;
                                             m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
@@ -11364,8 +11458,8 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     
     hc_currentSample=0;
     mCurrentSamples=0;
-    hc_fadeLength=(int64_t)(info.tag_fade_ms)*(int64_t)hc_sample_rate/1000;
-    hc_fadeStart=(int64_t)(info.tag_length_ms)*(int64_t)hc_sample_rate/1000;
+    hc_fadeLength=(int64_t)(info.tag_fade_ms)*(int64_t)PLAYBACK_FREQ/1000;
+    hc_fadeStart=(int64_t)(info.tag_length_ms)*(int64_t)PLAYBACK_FREQ/1000;
     
     hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
     hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
@@ -14055,7 +14149,10 @@ extern bool icloud_available;
         //        if (AppPaths[0]) free(AppPaths[0]);
         //        AppPaths[0]=NULL;
         
+        OSMutex_Lock(vgm_renderMtx);
         vgm_player.Stop();
+        OSMutex_Unlock(vgm_renderMtx);
+        
         vgm_player.UnloadFile();
         
         vgm_player.UnregisterAllPlayers();

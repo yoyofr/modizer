@@ -1178,6 +1178,7 @@ UINT8 ADLIBEMU(reg_read)(void *chip, UINT8 port)
         outbufl[i] += chanval*cptr[chn].left_pan;        \
         outbufr[i] += chanval*cptr[chn].right_pan;    \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval*(cptr[chn].left_pan+cptr[chn].right_pan);\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1193,6 +1194,7 @@ if (ofs_end>ofs_start)     \
         outbufl[i] += chanval;                        \
         outbufr[i] += chanval;                        \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval;\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1211,6 +1213,7 @@ if (ofs_end>ofs_start)     \
         outbufl[i] += chanval*cptr[chn].left_pan;        \
         outbufr[i] += chanval*cptr[chn].right_pan;    \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval*(cptr[chn].left_pan+cptr[chn].right_pan);\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1226,6 +1229,7 @@ if (ofs_end>ofs_start)     \
         outbufl[i] += chanval;                        \
         outbufr[i] += chanval;                        \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval;\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1245,6 +1249,7 @@ if (ofs_end>ofs_start)     \
     outbufl[i] += chanval;                            \
     outbufr[i] += chanval;                            \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval;\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1261,6 +1266,7 @@ if (m_voice_ofs>=0) {     \
     outbufl[i] += chanval;                            \
     outbufr[i] += chanval;                            \
 /*TODO:  MODIZER changes start / YOYOFR */    \
+OPL->chan_out[channel]+=chanval;\
 if (m_voice_ofs>=0) {     \
     int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
     int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
@@ -1304,7 +1310,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     int m_voice_ofs=-1;
-    int m_total_channels=max_channel+5;
+    int m_total_channels=max_channel;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
@@ -1320,6 +1326,44 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
     if (m_voice_current_samplerate) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    static INT32 old_out_fm[NUM_CHANNELS]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<max_channel;ii++) {
+            if (!(OPL->MuteChn[ii])) {
+                // frequency
+                int idx=(ii%9)+(ii/9)*0x100;
+                int64_t frn = ((((Bit32u)OPL->adlibreg[ARC_KON_BNUM+idx])&3)<<8) + (Bit32u)OPL->adlibreg[ARC_FREQ_NUM+idx];
+                // block number/octave
+                int64_t oct = ((((Bit32u)OPL->adlibreg[ARC_KON_BNUM+idx])>>2)&7);
+                int keyon=((((Bit32u)OPL->adlibreg[ARC_KON_BNUM+idx])>>5)&1);
+                
+                
+                if (!(frn)) {
+                    //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
+                    {
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    //if ((OPL->chan_out[ii]!=old_out_fm[ii]))
+                    {
+                        int64_t note=frn*(1<<oct)/2*(OPL->chip_clock)/72/(1<<19);
+                        
+                        vgm_last_note[ii+m_voice_ofs]=note;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+                old_out_fm[ii]=OPL->chan_out[ii];
+            }
+        }
+    }
+    //YOYOFR
 	
 	if (! numsamples)
 	{
@@ -2057,16 +2101,16 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 
 		outbufl += endsamples;
 		outbufr += endsamples;
+        
+        //YOYOFR
+        for (int i=0;i<max_channel;i++) {
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr*endsamples);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+        }
+        //YOYOFR
 	}
     
-    //YOYOFR
-    for (int i=0;i<max_channel+5;i++) {
-        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr*numsamples);
-        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
-    }
-    //YOYOFR
-
 	for (i=0;i<numsamples;i++)
 	{
 		sndptr[0][i] = (sndptr[0][i] * OPL->master_vol_l) >> 12;

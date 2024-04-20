@@ -193,6 +193,8 @@ typedef struct opl_chip
 	
 	Bit32s master_vol_l;	// .12 fixed point
 	Bit32s master_vol_r;
+    
+    Bit32s chan_out[NUM_CHANNELS];//YOYOFR
 } OPL_DATA;
 
 
