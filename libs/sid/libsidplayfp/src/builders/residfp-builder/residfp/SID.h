@@ -390,7 +390,7 @@ int SID::clock(unsigned int cycles, short* buf)
                  buf[s++] = resampler->getOutput();
                  }*/
                 if (!mSIDSeekInProgress) {
-                    if (/*!all_muted &&*/ (unlikely(resampler->input(output()))))
+                    if ((unlikely(resampler->input(output()))))
                     {
                         if (all_muted) {
                             buf[s++]=0;
@@ -409,12 +409,7 @@ int SID::clock(unsigned int cycles, short* buf)
                             if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                         }
                         
-                        for (int j=0;j<3;j++) {
-                            if (voice[j]->wave()->readFreq()) {
-                                vgm_last_note[j]=voice[j]->wave()->readFreq();
-                                vgm_last_vol[j]=voice[j]->envelope()->readENV();
-                            }
-                        }
+                        
                         
                         //TODO:  MODIZER changes end / YOYOFR
                     }
@@ -443,6 +438,13 @@ int SID::clock(unsigned int cycles, short* buf)
         if (unlikely(nextVoiceSync == 0))
         {
             voiceSync(true);
+        }
+    }
+    
+    for (int j=0;j<3;j++) {
+        if (voice[j]->wave()->readFreq()) {
+            vgm_last_note[sid_idx+j]=voice[j]->wave()->readFreq();
+            vgm_last_vol[sid_idx+j]=voice[j]->envelope()->readENV();
         }
     }
     

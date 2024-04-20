@@ -59,6 +59,8 @@ public:
   // Calculate and set waveform output value.
   void set_waveform_output();
   void set_waveform_output(cycle_count delta_t);
+    
+    unsigned int readFreq() const { return freq; } //YOYOFR
 
 protected:
   void clock_shift_register();

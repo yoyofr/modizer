@@ -888,6 +888,14 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
         
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
+            //YOYOFR
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //YOYOFR
             break;
         }
         
@@ -895,32 +903,42 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
         buf[s*interleave] = output();
         
         //TODO:  MODIZER changes start / YOYOFR
-        if (!mSIDSeekInProgress) {
-            if (!all_muted) {
-                m_voice_current_sample++;
-                
-                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
-                m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
-                
-                for (int j=0;j<4;j++) {
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+        if (!mSIDSeekInProgress && !all_muted) {
+            m_voice_current_sample++;
+            
+            //YOYOFR
+            sid_v1=voice[0].output();
+            sid_v2=voice[1].output();
+            sid_v3=voice[2].output();
+            
+            m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
+            m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
+            m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+            m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
+            
+            for (int j=0;j<4;j++) {
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-                m_voice_current_sample++;
-                for (int j=0;j<4;j++) {
-                    m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                    
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
-    
+    //YOYOFR
+    for (int j=0;j<3;j++) {
+        if (voice[j].wave.readFreq()) {
+            vgm_last_note[sid_idx+j]=voice[j].wave.readFreq();
+            vgm_last_vol[sid_idx+j]=voice[j].envelope.readENV();
+        }
+    }
+    //YOYOFR
     return s;
 }
 
@@ -973,6 +991,14 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
         
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
+            //YOYOFR
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //YOYOFR
             break;
         }
         
@@ -983,19 +1009,22 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
         
         
         //TODO:  MODIZER changes start / YOYOFR
-        if (!mSIDSeekInProgress) {
-            if (!all_muted) {
-                m_voice_current_sample++;
-                
-                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
-                m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
-                
-                for (int j=0;j<4;j++) {
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+        if (!mSIDSeekInProgress && !all_muted) {
+            m_voice_current_sample++;
+            
+            //YOYOFR
+            sid_v1=voice[0].output();
+            sid_v2=voice[1].output();
+            sid_v3=voice[2].output();
+            
+            m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
+            m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
+            m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+            m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
+            
+            for (int j=0;j<4;j++) {
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
             m_voice_current_sample++;
@@ -1008,7 +1037,14 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
-    
+    //YOYOFR
+    for (int j=0;j<3;j++) {
+        if (voice[j].wave.readFreq()) {
+            vgm_last_note[sid_idx+j]=voice[j].wave.readFreq();
+            vgm_last_vol[sid_idx+j]=voice[j].envelope.readENV();
+        }
+    }
+    //YOYOFR
     return s;
 }
 
@@ -1086,6 +1122,16 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
         
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
+            
+            //YOYOFR
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //YOYOFR
+            
             break;
         }
         
@@ -1126,32 +1172,42 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
         buf[s*interleave] = clip(v);
         
         //TODO:  MODIZER changes start / YOYOFR
-        if (!mSIDSeekInProgress) {
-            if (!all_muted) {
-                m_voice_current_sample++;
-                
-                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
-                m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
-                
-                for (int j=0;j<4;j++) {
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+        if (!mSIDSeekInProgress && !all_muted) {
+            m_voice_current_sample++;
+            
+            //YOYOFR
+            sid_v1=voice[0].output();
+            sid_v2=voice[1].output();
+            sid_v3=voice[2].output();
+            
+            m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
+            m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
+            m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+            m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
+            
+            for (int j=0;j<4;j++) {
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-                m_voice_current_sample++;
-                for (int j=0;j<4;j++) {
-                    m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                    
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
-    
+    //YOYOFR
+    for (int j=0;j<3;j++) {
+        if (voice[j].wave.readFreq()) {
+            vgm_last_note[sid_idx+j]=voice[j].wave.readFreq();
+            vgm_last_vol[sid_idx+j]=voice[j].envelope.readENV();
+        }
+    }
+    //YOYOFR
     return s;
 }
 
@@ -1196,6 +1252,15 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
         
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
+            
+            //YOYOFR
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
+            //YOYOFR
             break;
         }
         
@@ -1216,32 +1281,42 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
         buf[s*interleave] = clip(v);
         
         //TODO:  MODIZER changes start / YOYOFR
-        if (!mSIDSeekInProgress) {
-            if (!all_muted) {
-                m_voice_current_sample++;
-                
-                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
-                m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
-                
-                for (int j=0;j<4;j++) {
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+        if (!mSIDSeekInProgress && !all_muted) {
+            m_voice_current_sample++;
+            
+            //YOYOFR
+            sid_v1=voice[0].output();
+            sid_v2=voice[1].output();
+            sid_v3=voice[2].output();
+            
+            m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
+            m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
+            m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+            m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
+            
+            for (int j=0;j<4;j++) {
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-                m_voice_current_sample++;
-                for (int j=0;j<4;j++) {
-                    m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                    
-                    m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                }
+            m_voice_current_sample++;
+            for (int j=0;j<4;j++) {
+                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                
+                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            }
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
-    
+    //YOYOFR
+    for (int j=0;j<3;j++) {
+        if (voice[j].wave.readFreq()) {
+            vgm_last_note[sid_idx+j]=voice[j].wave.readFreq();
+            vgm_last_vol[sid_idx+j]=voice[j].envelope.readENV();
+        }
+    }
+    //YOYOFR
     return s;
 }
 

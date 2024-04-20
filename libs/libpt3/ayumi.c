@@ -1,6 +1,7 @@
 /* Author: Peter Sovietov */
 
 #include <string.h>
+#include <stdio.h>
 #include <math.h>
 #include "ayumi.h"
 
@@ -149,7 +150,7 @@ static void update_mixer(struct ayumi* ay,int ch) {
       //TODO:  MODIZER changes start / YOYOFR
       
           m_voice_currentChannel=ch*3+i;
-          m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( ay->dac_table[out]*224 );
+          m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8( (ay->dac_table[out]*100) );
       
       //TODO:  MODIZER changes end / YOYOFR
   }
@@ -158,6 +159,7 @@ static void update_mixer(struct ayumi* ay,int ch) {
 int ayumi_configure(struct ayumi* ay, int is_ym, double clock_rate, int sr) {
   int i;
   memset(ay, 0, sizeof(struct ayumi));
+    ay->clock_rate = clock_rate;
   ay->step = clock_rate / (sr * 8 * DECIMATE_FACTOR);
   ay->dac_table = is_ym ? YM_dac_table : AY_dac_table;
   ay->noise = 1;
@@ -357,6 +359,7 @@ void ayumi_process(struct ayumi* ay,int ch) {
         if ((m_voice_current_ptr[m_voice_currentChannel]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     }
     //YOYOFR
+        
 }
 
 

@@ -55,6 +55,7 @@ struct ayumi {
   int dc_index;
   double left;
   double right;
+    double clock_rate; //YOYOFR
 };
 
 int ayumi_configure(struct ayumi* ay, int is_ym, double clock_rate, int sr);

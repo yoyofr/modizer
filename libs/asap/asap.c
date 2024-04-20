@@ -2695,6 +2695,7 @@ static int ASAP_GenerateAt(ASAP *self, uint8_t *buffer, int bufferOffset, int bu
     
     //YOYOFR
     for (int ii=0;ii<4;ii++) {
+        vgm_last_note[ii]=0;
         if ( !(self->pokeys.basePokey.channels[ii].mute&2) ) {
             int freq=self->pokeys.basePokey.channels[ii].periodCycles;
             if (freq) {
@@ -2706,13 +2707,12 @@ static int ASAP_GenerateAt(ASAP *self, uint8_t *buffer, int bufferOffset, int bu
                 
                 int newvol=((self->pokeys.basePokey.channels[ii].audc & 15) >0);
                 vgm_last_vol[ii]=newvol;
-            } else {
-                freq=1;
             }
         }
     }
     if (self->moduleInfo.channels==2) {
         for (int ii=0;ii<4;ii++) {
+            vgm_last_note[ii+4]=0;
             if (!(self->pokeys.extraPokey.channels[ii].mute&2) ) {
                 int freq=self->pokeys.extraPokey.channels[ii].periodCycles;
                 if (freq) {
