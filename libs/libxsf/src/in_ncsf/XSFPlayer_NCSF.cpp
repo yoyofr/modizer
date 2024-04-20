@@ -160,8 +160,10 @@ void XSFPlayer_NCSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset,
 
                 if (mute & SBIT(i)) {
                     //TODO:  MODIZER changes start / YOYOFR
-                    vgm_last_note[i]=0;
-                    vgm_last_sample_addr[i]=0;
+                    if (smpl==0) {
+                        vgm_last_note[i]=0;
+                        vgm_last_sample_addr[i]=0;
+                    }
                     m_voice_buff[i][m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                     m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
@@ -179,9 +181,11 @@ void XSFPlayer_NCSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset,
 				rightChannel += muldiv7(sample, chn.reg.panning);
                 
                 //TODO:  MODIZER changes start / YOYOFR
-                vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chn.reg.timer));
-                /*if (chn.reg.source) vgm_last_sample_addr[i]=(long long)(chn.reg.source->dataptr);
-                else*/ vgm_last_sample_addr[i]=chn.trackId;
+                if (smpl==0) {
+                    vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chn.reg.timer));
+                    /*if (chn.reg.source) vgm_last_sample_addr[i]=(long long)(chn.reg.source->dataptr);
+                     else*/ vgm_last_sample_addr[i]=chn.trackId;
+                }
                 
                 m_voice_buff[i][m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sample>>8));
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;

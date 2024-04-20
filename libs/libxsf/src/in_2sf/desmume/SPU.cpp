@@ -1073,12 +1073,14 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
             if (m_voice_current_systemSub>=0) {
                 int i=m_voice_current_systemSub;
                 
-                if (chan->status==CHANSTAT_PLAY) {
-                    vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chan->timer));
-                    vgm_last_sample_addr[i]=(int)(chan->addr);
-                } else {
-                    vgm_last_note[i]=0;
-                    vgm_last_sample_addr[i]=0;
+                if (SPU->bufpos==SPU->buflength-1) {
+                    if (chan->status==CHANSTAT_PLAY) {
+                        vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chan->timer));
+                        vgm_last_sample_addr[i]=i;//(int)(chan->addr);
+                    } else {
+                        vgm_last_note[i]=0;
+                        vgm_last_sample_addr[i]=0;
+                    }
                 }
                 
                 m_voice_buff[i][(m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=LIMIT8(((spumuldiv7(data, chan->vol) >> chan->datashift)>>8));
@@ -1094,8 +1096,10 @@ static inline void ____SPU_ChanUpdate(SPU_struct *const SPU, channel_struct *con
             if (m_voice_current_systemSub>=0) {
                 int i=m_voice_current_systemSub;
                 
-                vgm_last_note[i]=0;
-                vgm_last_sample_addr[i]=0;
+                if (SPU->bufpos==SPU->buflength-1) {
+                    vgm_last_note[i]=0;
+                    vgm_last_sample_addr[i]=0;
+                }
                 
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if ((m_voice_current_ptr[i]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;

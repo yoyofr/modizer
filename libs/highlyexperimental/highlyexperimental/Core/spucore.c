@@ -1842,7 +1842,8 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
                     int vol=(state->chan[ch].vol[0].level>>15)+(state->chan[ch].vol[1].level>>15);
                     if (vol>0) {
                         vgm_last_note[ch+m_voice_ofs]=440.0f*(state->chan[ch].voice_pitch)/(double)0x1000;
-                        vgm_last_sample_addr[ch+m_voice_ofs]=state->chan[ch].sample.start_block_addr;
+                        vgm_last_vol[ch+m_voice_ofs]=1;
+                        vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;//state->chan[ch].sample.start_block_addr;
                     }
                 }
                 //YOYOFR

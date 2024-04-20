@@ -20,6 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../../src/ModizerVoicesData.h"
+static char channel_pending_note_update[8];
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -905,14 +906,37 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     //TODO:  MODIZER changes start / YOYOFR
     int current_voice=v->voice_number;
     int new_val=(m.t_output*(vol+voln))>>7;
+    int enabled=((stereo_switch & (1 << (v->voice_number))) ? 1 : 0);
     int64_t ofs_start=m_voice_current_ptr[current_voice];
     int64_t ofs_end=m_voice_current_ptr[current_voice]+(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/32000;
     for (;;) {
-        m_voice_buff[current_voice][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>8);
+        if (enabled) m_voice_buff[current_voice][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(new_val>>8);
         ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         if (ofs_start>=ofs_end) break;
     }
     //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    //get midi like note, only once / run
+        if (channel_pending_note_update[current_voice] && (vol+voln)) {
+            long long pp=m.t_pitch;
+            channel_pending_note_update[current_voice]=0;
+            
+            if ( enabled && pp && (!(REG(flg) & 0x40)) ) {
+                int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
+                vgm_last_note[current_voice]=freq;
+                vgm_last_vol[current_voice]=v->env;
+                if (vgm_last_vol[current_voice]) {
+                    vgm_last_vol[current_voice]>>=3;
+                    if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
+                    if (vgm_last_vol[current_voice]<=0) vgm_last_vol[current_voice]=1;
+                }
+                vgm_last_sample_addr[current_voice]=current_voice;
+            } else {
+                vgm_last_note[current_voice]=0;
+            }
+        } else vgm_last_note[current_voice]=0;
+    //YOYOFR
 }
 VOICE_CLOCK( V4 )
 {
@@ -1224,6 +1248,8 @@ void SPC_DSP::run( int clocks_remain )
 	
 	int const phase = m.phase;
 	m.phase = (phase + clocks_remain) & 31;
+    
+    memset(channel_pending_note_update,1,8); //YOYOFR
 	switch ( phase )
 	{
 	loop:
