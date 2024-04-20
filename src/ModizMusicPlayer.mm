@@ -99,6 +99,7 @@ static char websid_skip_silence_loop = 10;
 static char websid_sound_started;
 static int16_t** websid_scope_buffers;
 static const char **websid_info;
+char sid_firstcall[MAXSID_CHIPS];
 
 //GBSPLAY
 extern "C" {
@@ -4347,7 +4348,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         tim_finished=1;
                     } else if (mPlayType==MMP_GSF) {  //Special case : GSF
                         int counter=0;
-                        [NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
+                        [NSThread sleepForTimeInterval:0.01];  //TODO : check why it crashes in "release" target without this...
                         intr = 0;
                         tim_finished=0;
                         gsf_loop();
@@ -6471,6 +6472,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             memset(vgm_last_note,0,sizeof(vgm_last_note));
                             memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            memset(sid_firstcall,1,sizeof(sid_firstcall));
                             
                             m_voice_current_sample=0;
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
@@ -9288,6 +9290,7 @@ char* loadRom(const char* path, size_t romSize)
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
     
+    memset(sid_firstcall,1,sizeof(sid_firstcall));
     
     // Set config
     SidConfig cfg = mSidEmuEngine->config();

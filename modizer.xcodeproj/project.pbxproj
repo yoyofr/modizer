@@ -1870,7 +1870,6 @@
 		59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = psflib.xcodeproj; path = psflib/psflib.xcodeproj; sourceTree = "<group>"; };
 		59BDE902260FE1D000FB0C69 /* highlytheoritical.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = highlytheoritical.xcodeproj; sourceTree = "<group>"; };
 		59BDE94A260FE33100FB0C69 /* HighlyQuixotic.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = HighlyQuixotic.xcodeproj; sourceTree = "<group>"; };
-		59BE8D1526000FE300414A42 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		59BE8D2E26000FE300414A42 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		59BE8D3026000FE300414A42 /* sidplayfp-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "sidplayfp-Prefix.pch"; sourceTree = "<group>"; };
 		59BE8D3126000FE300414A42 /* sidplayfp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = sidplayfp.xcodeproj; sourceTree = "<group>"; };
@@ -3494,7 +3493,6 @@
 		59BE8CFE26000FE300414A42 /* libsidplayfp */ = {
 			isa = PBXGroup;
 			children = (
-				59BE8D1526000FE300414A42 /* Makefile */,
 				59BE8E3726000FE400414A42 /* NEWS */,
 				59BE8D2E26000FE300414A42 /* README */,
 				59BE8D2F26000FE300414A42 /* sidplayfp */,

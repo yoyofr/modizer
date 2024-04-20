@@ -320,11 +320,13 @@ static int sid_v2;
 static int sid_v3;
 extern "C" int sid_v4;
 
+
 extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
 extern char mSIDSeekInProgress;
 extern int m_voice_current_sample;
 extern void* m_sid_chipId[MAXSID_CHIPS];
+char sid_firstcall[MAXSID_CHIPS];
 }
 //TODO:  MODIZER changes end / YOYOFR
 
@@ -409,8 +411,6 @@ int SID::clock(unsigned int cycles, short* buf)
                             if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                         }
                         
-                        
-                        
                         //TODO:  MODIZER changes end / YOYOFR
                     }
                 } else {
@@ -441,11 +441,14 @@ int SID::clock(unsigned int cycles, short* buf)
         }
     }
     
-    for (int j=0;j<3;j++) {
-        if (voice[j]->wave()->readFreq()) {
-            vgm_last_note[sid_idx+j]=voice[j]->wave()->readFreq();
-            vgm_last_vol[sid_idx+j]=voice[j]->envelope()->readENV();
-        }
+    if (sid_firstcall[sid_idx]) {
+        sid_firstcall[sid_idx]=0;
+        for (int j=0;j<3;j++) {
+            if (voice[j]->wave()->readFreq()) {
+                vgm_last_note[sid_idx+j]=voice[j]->wave()->readFreq();
+                vgm_last_vol[sid_idx+j]=voice[j]->envelope()->readENV();
+            }
+}
     }
     
     return s;

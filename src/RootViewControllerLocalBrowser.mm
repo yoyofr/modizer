@@ -3119,17 +3119,30 @@ As a consequence, some entries might disappear from existing playlist.\n\
     //[self fillKeys];
     //[tableView reloadData];
     //mSearch=0;
+    NSString *searchText=searchBar.text;
+    mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    
+//    shouldFillKeys=1;
+//    [self fillKeys];
+//    [tableView reloadData];
+    [self refreshViewReloadFiles];
+    
     sBar.showsCancelButton = NO;
 }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     //if (mSearchText) [mSearchText release];
     
-    mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    shouldFillKeys=1;
-    [self fillKeys];
-    [tableView reloadData];
+    //dont auto validate if too many entries
+    if (local_nb_entries<MAX_AUTOSEARCH_ENTRIES_NB) {
+        mSearchText=[[NSString alloc] initWithString:searchText];
+        if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+        else mSearch=1;
+        shouldFillKeys=1;
+        [self fillKeys];
+        [tableView reloadData];
+    }
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     //if (mSearchText) [mSearchText release];

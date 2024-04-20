@@ -69,7 +69,7 @@ extern void *LoadingProgressObserverContext;
 
 #define MODIZER_COMPIL 1
 
-#define DEFAULT_WAIT_TIME_MS  0.003   //in s
+#define DEFAULT_WAIT_TIME_MS  0.0001   //in s
 #define DEFAULT_WAIT_TIME_UADE_MS  0.003   //in s
 
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
@@ -322,6 +322,8 @@ VSS,WB,ML,MOD15_ST-IV,AGI,TPU,QPA,SQT,QTS,INSTR,SMPL"
 #define extMIDIList @"MID,MIDI"
 #define extPC98List @"M,M2,MZ"
 #define extU64List @"USF,MINIUSF"
+
+#define MAX_AUTOSEARCH_ENTRIES_NB 1024
 
 
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
