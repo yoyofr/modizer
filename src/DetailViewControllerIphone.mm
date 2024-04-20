@@ -1980,7 +1980,6 @@ int recording=0;
             [self hideWaiting];
             [self refreshCurrentVC];
         }
-        clearFXbuffer=true;
     } else {
         if (mplayer.mod_subsongs>1) { //subsongs
             if ([mplayer playNextSub]<0) { //end reached
@@ -1994,8 +1993,7 @@ int recording=0;
                         [self refreshCurrentVC];
                     }
                 } else [self playNext]; //not an archive, next entry
-            }
-            clearFXbuffer=true;
+            }            
         } else [self playNext]; //not an archive, next entry
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -2773,7 +2771,7 @@ int recording=0;
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
     
-    
+    clearFXbuffer=true;
     return TRUE;
 }
 
@@ -3146,7 +3144,8 @@ int recording=0;
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
     mRestart=0;
-        
+     
+    clearFXbuffer=true;
 }
 
 -(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
@@ -7533,7 +7532,6 @@ extern "C" int current_sample;
                 case 2:
                     playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(ww,hh,SOUND_BUFFER_NB*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    clearFXbuffer=false;
                     break;
                 case 3:
                     if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -7544,7 +7542,6 @@ extern "C" int current_sample;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     RenderUtils::DrawPiano3D(ww,hh,SOUND_BUFFER_NB*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    clearFXbuffer=false;
                     break;
                 case 4:
                     if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
@@ -7556,7 +7553,6 @@ extern "C" int current_sample;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(ww,hh,SOUND_BUFFER_NB*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    clearFXbuffer=false;
                     break;
             }
         }

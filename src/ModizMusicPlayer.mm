@@ -5988,42 +5988,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_HC) { //Highly Complete
                             
                             //reset voice data for oscillo view if not SNSF
-                            if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
-                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
-                                    m_voice_current_ptr[j]=0;
-                                }
-                            }
+//                            if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
+//                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+//                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+//                                    m_voice_current_ptr[j]=0;
+//                                }
+//                            }
                             
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                             
-                            if (HC_type==0x1) { //PS1
+                            if ((HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12)) { //PS1, PS2, SSF, DSF
                                 //midi like notes data
                                 memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
                                 int voices_idx=0;
-                                for (int j=0; j < 24; j++) {
-                                    unsigned int idx=vgm_getNote(j);
-                                    unsigned int instr=vgm_getInstr(j);
-                                    unsigned int vol=1;
-                                    
-                                    if ((idx>0)&&m_voicesStatus[j]) {
-                                        unsigned int subidx=vgm_getSubNote(j);
-                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
-                                        (unsigned int)idx|
-                                        ((unsigned int)(instr)<<8)|
-                                        ((unsigned int)vol<<16)|
-                                        ((unsigned int)(1<<1)<<24)|
-                                        ((unsigned int)subidx<<28);
-                                    }
-                                    voices_idx++;
-                                }
-                                tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
-                            } else if (HC_type==0x2) { //PS2
-                                //midi like notes data
-                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
-                                int voices_idx=0;
-                                for (int j=0; j < 48; j++) {
+                                for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     unsigned int idx=vgm_getNote(j);
                                     unsigned int instr=vgm_getInstr(j);
                                     unsigned int vol=1;
@@ -6041,7 +6020,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             }
-                            
                             int64_t vol=256;
                             if (iModuleLength>0) {
                                 if (hc_fadeLength&&(hc_fadeStart>0)&&(hc_currentSample>hc_fadeStart)) {
@@ -6055,7 +6033,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
-                                if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2))  { //SNSF, QSF, PSF, PSF2
+                                if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12))  { //SNSF, QSF, PSF, PSF2, SSF, DSF
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j]
                                             [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*vol>>8;
@@ -6063,13 +6041,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                         if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-                                    }
-                                } else {
-                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=(int)(m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)])*vol>>8;
-                                        }
-                                        m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                                        if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                     }
                                 }
                             }
