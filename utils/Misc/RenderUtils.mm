@@ -4266,7 +4266,7 @@ unsigned char data_midifx_subnote[MIDIFX_LEN][256];
 unsigned char data_midifx_instr[MIDIFX_LEN][256];
 unsigned char data_midifx_vol[MIDIFX_LEN][256];
 unsigned int data_midifx_st[MIDIFX_LEN][256];
-int data_midifx_first=1;
+static int data_midifx_first=1;
 
 int data_pianofx_len=MIDIFX_LEN;
 unsigned int data_pianofx_framecpt=0;
@@ -5716,17 +5716,17 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
     float line_width_extra;
     
     if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
-    fx_len=MIDIFX_LEN;
+    if (fx_len<=MIDIFX_OFS) fx_len=MIDIFX_OFS+1;
     
     if (fx_len!=data_midifx_len) {
         data_midifx_len=fx_len;
-        data_midifx_first=1;
+        //data_midifx_first=1;
     }
     
     //if first launch, clear buffers
     if (data_midifx_first||clearBuffer) {
         data_midifx_first=0;
-        for (int i=0;i<data_midifx_len;i++) {
+        for (int i=0;i<MIDIFX_LEN;i++) {
             memset(data_midifx_note[i],0,256);
             memset(data_midifx_subnote[i],0,256);
             memset(data_midifx_instr[i],0,256);
@@ -5736,7 +5736,7 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
     }
     if (!paused) {
         //update old ones
-        for (int j=0;j<data_midifx_len-1;j++) {
+        for (int j=0;j<MIDIFX_LEN-1;j++) {
             memcpy(data_midifx_note[j],data_midifx_note[j+1],256);
             memcpy(data_midifx_subnote[j],data_midifx_subnote[j+1],256);
             memcpy(data_midifx_instr[j],data_midifx_instr[j+1],256);
@@ -5746,16 +5746,16 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
         //add new one
         for (int i=0;i<256;i++) {
             unsigned int note=data[i];
-            data_midifx_note[data_midifx_len-1][i]=note&0xFF;
-            data_midifx_subnote[data_midifx_len-1][i]=(note>>28)&0xF;
-            data_midifx_instr[data_midifx_len-1][i]=(note>>8)&0xFF;
-            data_midifx_vol[data_midifx_len-1][i]=(note>>16)&0xFF;
-            data_midifx_st[data_midifx_len-1][i]=((note>>24)&0xF)|(data_midifx_framecpt<<8);
+            data_midifx_note[MIDIFX_LEN-1][i]=note&0xFF;
+            data_midifx_subnote[MIDIFX_LEN-1][i]=(note>>28)&0xF;
+            data_midifx_instr[MIDIFX_LEN-1][i]=(note>>8)&0xFF;
+            data_midifx_vol[MIDIFX_LEN-1][i]=(note>>16)&0xFF;
+            data_midifx_st[MIDIFX_LEN-1][i]=((note>>24)&0xF)|(data_midifx_framecpt<<8);
         }
     }
     
     if (settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value==0) { //cut note bars after piano
-        for (int j=0;j<data_pianofx_len-1-MIDIFX_OFS;j++) {
+        for (int j=0;j<MIDIFX_LEN-1-MIDIFX_OFS;j++) {
             memset(data_midifx_note[j],0,256);
             memset(data_midifx_subnote[j],0,256);
             memset(data_midifx_instr[j],0,256);
@@ -5800,8 +5800,8 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
     int data_bar2draw_count=0;
     
     for (int i=0; i<256; i++) { //for each channels
-        int j=0;
-        while (j<data_midifx_len) {  //while not having reach roof
+        int j=MIDIFX_LEN-data_midifx_len;
+        while (j<MIDIFX_LEN) {  //while not having reach roof
             if (data_midifx_note[j][i]) {  //do we have a note ?
                 int instr=data_midifx_instr[j][i];
                 int vol=data_midifx_vol[j][i];
@@ -5810,7 +5810,7 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
                 int subnote=data_midifx_subnote[j][i];
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
-                    data_bar2draw[data_bar2draw_count].startidx=j;
+                    data_bar2draw[data_bar2draw_count].startidx=j-(MIDIFX_LEN-data_midifx_len);
                     data_bar2draw[data_bar2draw_count].note=note;
                     data_bar2draw[data_bar2draw_count].subnote=subnote;
                     data_bar2draw[data_bar2draw_count].instr=instr;
@@ -5826,13 +5826,13 @@ void RenderUtils::DrawMidiFX(unsigned int *data,uint ww,uint hh,int horiz_vert,f
                         data_midifx_st[j][i]=st;
                         if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==1)&&(data_midifx_subnote[j][i]!=subnote)) break;
                         //take most recent subnote if before playing bar
-                        if (j<data_midifx_len-MIDIFX_OFS) data_bar2draw[data_bar2draw_count].subnote=data_midifx_subnote[j][i];
-                        if (j==(data_midifx_len-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].played=1;
+                        if (j<MIDIFX_LEN-MIDIFX_OFS) data_bar2draw[data_bar2draw_count].subnote=data_midifx_subnote[j][i];
+                        if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].played=1;
                         j++;
                         if (settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value==1) {
-                            if (j==(data_midifx_len-MIDIFX_OFS-1)) break;
+                            if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) break;
                         }
-                        if (j==data_midifx_len) break;
+                        if (j==MIDIFX_LEN) break;
                     }
                     data_bar2draw_count++;
                     //j++;

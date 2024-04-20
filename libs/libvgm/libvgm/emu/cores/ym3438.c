@@ -41,6 +41,7 @@
 #include "../../../../../src/ModizerVoicesData.h"
 static int m_voice_ofs=-1;
 static int64_t smplIncr;
+static int cur_chan=0;
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -1355,7 +1356,7 @@ void NOPN2_Clock(ym3438_t *chip, Bit32s *buffer)
         chip->pg_block = chip->block[(chip->channel + 1) % 6];
         chip->pg_kcode = chip->kcode[(chip->channel + 1) % 6];
     }
-
+    
     NOPN2_UpdateLFO(chip);
     NOPN2_DoRegWrite(chip);
     chip->cycles = (chip->cycles + 1) % 24;
@@ -1363,6 +1364,9 @@ void NOPN2_Clock(ym3438_t *chip, Bit32s *buffer)
 
     buffer[0] = chip->mol;
     buffer[1] = chip->mor;
+    
+    chip->chan_out[cur_chan]+=chip->mol+chip->mor; //YOYOFR
+    
 
     if (chip->status_time)
         chip->status_time--;
@@ -1504,6 +1508,9 @@ void NOPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
     
     while (chip->samplecnt >= chip->rateratio)
     {
+        //YOYOFR
+        for (int jj=0;jj<6;jj++) chip->chan_out[jj]=0;
+        
         chip->oldsamples[0] = chip->samples[0];
         chip->oldsamples[1] = chip->samples[1];
         chip->samples[0] = chip->samples[1] = 0;
@@ -1512,21 +1519,27 @@ void NOPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
             switch (chip->cycles >> 2)
             {
             case 0: // Ch 2
+                    cur_chan=1;//YOYOFR
                 mute = chip->mute[1];
                 break;
             case 1: // Ch 6, DAC
+                    cur_chan=5;//YOYOFR
                 mute = chip->mute[5 + chip->dacen];
                 break;
             case 2: // Ch 4
+                    cur_chan=3;//YOYOFR
                 mute = chip->mute[3];
                 break;
             case 3: // Ch 1
+                    cur_chan=0;//YOYOFR
                 mute = chip->mute[0];
                 break;
             case 4: // Ch 5
+                    cur_chan=4;//YOYOFR
                 mute = chip->mute[4];
                 break;
             case 5: // Ch 3
+                    cur_chan=2;//YOYOFR
                 mute = chip->mute[2];
                 break;
             default:
@@ -1561,9 +1574,10 @@ void NOPN2_GenerateResampled(ym3438_t *chip, Bit32s *buf)
                 int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
                 int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
                 
+                
                 if (!chip->mute[jj] && (ofs_end>ofs_start))
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((chip->ch_out[jj])>>1));
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((chip->chan_out[jj])>>4));
                     
                     ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if (ofs_start>=ofs_end) break;

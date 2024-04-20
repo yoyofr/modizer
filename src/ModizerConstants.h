@@ -99,6 +99,8 @@ extern void *LoadingProgressObserverContext;
 #define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz
 
+#define MAX_MIDIFX_LENGTH 256
+
 #define MAX_MIDI_NOTES 128+128 //128midi notes+allowing extra ones / various emulated chipsets
 #define MAX_VISIBLE_MIDI_NOTES 12*14  //maximum visible range
 #define DEFAULT_VISIBLE_MIDI_NOTES 12*8  //maximum visible range

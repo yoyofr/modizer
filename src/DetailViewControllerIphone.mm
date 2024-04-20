@@ -99,7 +99,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
-float tim_midifx_note_range,tim_midifx_note_offset=0;
+float tim_midifx_note_range,tim_midifx_note_offset=0,tim_midifx_length;
 
 extern volatile int db_checked;
 
@@ -5506,8 +5506,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //    FxTexture=EmptyTexture(512,512);
     
     tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES;
+    tim_midifx_length=MAX_MIDIFX_LENGTH;
     
-    clearFXbuffer=false;
+    clearFXbuffer=true;
     
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
     glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
@@ -6443,13 +6444,25 @@ extern "C" int current_sample;
         float note_fx_linewidth;
         //scroll  & get current note bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            //vertical
             tim_midifx_note_offset+=-movePxMID;
             movePxMID=0;
             note_fx_linewidth=ww/tim_midifx_note_range;
+            
+            tim_midifx_length-=movePyMID;
+            movePyMID=0;
+            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
+            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
         } else {
+            //horizontal
             tim_midifx_note_offset+=movePyMID;
             movePyMID=0;
             note_fx_linewidth=hh/tim_midifx_note_range;
+            
+            tim_midifx_length+=movePxMID;
+            movePxMID=0;
+            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
+            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
         }
         if (tim_midifx_note_offset<0) {
             tim_midifx_note_offset=0;
@@ -7133,7 +7146,7 @@ extern "C" int current_sample;
         
         if ([mplayer isMidiLikeDataAvailable]&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
             playerpos=[mplayer getCurrentGenBufferIdx];
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
             clearFXbuffer=false;
             
             if (mHeader) delete mHeader;
@@ -7176,7 +7189,7 @@ extern "C" int current_sample;
                     }
                 }
                 
-                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,SOUND_BUFFER_NB*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,clearFXbuffer,mPaused);
                 clearFXbuffer=false;
             }
             

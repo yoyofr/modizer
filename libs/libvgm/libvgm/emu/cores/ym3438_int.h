@@ -73,6 +73,10 @@ typedef struct
     Bit32u cycles;
     Bit32u channel;
     Bit16s mol, mor;
+    
+    
+    Bit32s chan_out[6]; //YOYOFR
+    
     /* IO */
     Bit16u write_data;
     Bit8u write_a;
