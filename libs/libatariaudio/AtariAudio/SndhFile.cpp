@@ -272,3 +272,8 @@ int	SndhFile::AudioRender(int16_t* buffer, int count, uint32_t* pSampleViewInfo)
 	}
 	return m_loopCount;
 }
+
+//YOYOFR
+int SndhFile::getYM2149_Freq(int channel) {
+    return m_atariMachine.getYM2149_Freq(channel);
+}

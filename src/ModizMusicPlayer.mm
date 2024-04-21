@@ -783,16 +783,18 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
     //YOYOFR
     for (int ii=0;ii<TONE_CHANNELS;ii++) {
         vgm_last_note[ch*3+ii]=0;
-        int vol = ay->channels[ii].e_on ? ay->envelope : ay->channels[ii].volume * 2 + 1;
-        if ( vol ) {
-            double freq=ay->channels[ii].tone_period;
+        //int vol = ay->channels[ii].e_on ? ay->envelope : ay->channels[ii].volume * 2 + 1;
+        //if ( vol|1 ) {
+            double freq=0;
+            if (ay->channels[ii].t_off==0) freq=ay->channels[ii].tone_period;
+            else if (ay->channels[ii].n_off==0) freq=ay->noise_period;
             if (freq>1) {
                 freq=ay->clock_rate/freq/16;
                 vgm_last_note[ch*3+ii]=freq;
                 vgm_last_sample_addr[ch*3+ii]=ch*3+ii;
                 vgm_last_vol[ch*3+ii]=1;
             }
-        }
+        //}
     }
     
     return ret;
@@ -3139,7 +3141,8 @@ void propertyListenerCallback (void                   *inUserData,              
 -(bool) isMidiLikeDataAvailable {
     if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||
         (mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||
-        (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)) return true;
+        (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
+        (mPlayType==MMP_ATARISOUND) ) return true;
     return false;
 }
 
@@ -6165,8 +6168,33 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_V2M) { //V2M
                             
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            
                             v2m_player->Render((float*) v2m_sample_data_float, SOUND_BUFFER_SIZE_SAMPLE);
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j <m_genNumVoicesChannels; j++) {
+                                unsigned int idx=vgm_getNote(j);;//vgm_last_note[j];//
+                                unsigned int vol=vgm_last_vol[j];
+                                
+                                if ((idx>0)&&m_voicesStatus[j]) {
+                                    unsigned int subidx=vgm_getSubNote(j);
+                                    unsigned int instr=vgm_getInstr(j);
+                                    tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                    (unsigned int)idx|
+                                    ((unsigned int)(instr)<<8)|
+                                    ((unsigned int)vol<<16)|
+                                    ((unsigned int)(1<<1)<<24)|
+                                    ((unsigned int)(subidx)<<28);
+                                }
+                                voices_idx++;
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
@@ -6656,6 +6684,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+3]=(signed char)((atariWaveData[i]>>24)&0xFF);
                             }
                             //if (loopCnt&&(mLoopMode==0)) nbBytes=0;
+                            
+                            //midi like notes data
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            //int current_mask=(*nsfPlayerConfig)["MASK"];
+                            unsigned int voices_idx=0;
+                            for (int i = 0; i < 3; i++) {
+                                vgm_last_note[i]=atariSndh.getYM2149_Freq(i);
+                                unsigned int idx=vgm_getNote(i);
+                                if ((idx>=0)&&m_voicesStatus[i]) {
+                                    unsigned int subidx=vgm_getSubNote(i);
+                                    unsigned int vol=1;
+                                    tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                    idx|
+                                    ((voices_idx)<<8)|
+                                    (vol<<16)|
+                                    ((1<<1)<<24)|
+                                    (subidx<<28);
+                                }
+                                voices_idx++;
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {

@@ -389,7 +389,7 @@ int SID::clock(unsigned int cycles, short* buf)
                 //TODO:  MODIZER changes start / YOYOFR
                 /*if (unlikely(resampler->input(output())))
                  {
-                 buf[s++] = resampler->getOutput();
+                 buf[s++] = resampler->getOutput(scaleFactor);
                  }*/
                 if (!mSIDSeekInProgress) {
                     if ((unlikely(resampler->input(output()))))
@@ -448,7 +448,7 @@ int SID::clock(unsigned int cycles, short* buf)
                 vgm_last_note[sid_idx+j]=voice[j]->wave()->readFreq();
                 vgm_last_vol[sid_idx+j]=voice[j]->envelope()->readENV();
             }
-}
+        }
     }
     
     return s;

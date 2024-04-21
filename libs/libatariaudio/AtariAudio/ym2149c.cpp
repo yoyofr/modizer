@@ -190,6 +190,8 @@ int16_t Ym2149c::ComputeNextSample(uint32_t* pSampleDebugInfo)
 	levels |= ((m_regs[10] & 0x10) ? envLevel : m_regs[10]) << 8;
 	levels &= highMask;
 	assert(levels < 0x1000);
+    
+    m_currentLevel=levels;//YOYOFR
 
 	const uint32_t indexA = ((levels >> 0) & 15) + ((m_tonePeriod[0] > 1)?0:16);
 	const uint32_t indexB = ((levels >> 4) & 15) + ((m_tonePeriod[1] > 1)?0:16);
@@ -221,4 +223,18 @@ void	Ym2149c::InsideTimerIrq(bool inside)
 		}
 	}
 	m_insideTimerIrq = inside;
+}
+
+//YOYOFR
+int Ym2149c::getYM2149_Freq(int channel) {
+    double period=0;
+    
+    //int vol = (m_currentLevel>>(channel*4))&15;
+    
+    if( !(m_toneMask&(1<<(channel*4)))  ) period=m_tonePeriod[channel%3];
+    else if( !(m_noiseMask&(1<<(channel*4))) ) period=m_noisePeriod;
+    //m_noisePeriod
+    double freq=0;
+    if (period) freq=m_ymClockOneEighth/period/2;
+    return freq;
 }

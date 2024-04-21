@@ -91,7 +91,7 @@ public:
      *
      * @return resampled sample
      */
-    short getOutput(int scaleFactor) const
+    inline short getOutput(int scaleFactor) const
     {
         const int out = (scaleFactor * output()) / 2;
         return softClip(out);

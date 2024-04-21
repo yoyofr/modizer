@@ -3220,8 +3220,7 @@ private:
                 
                 continue;
             }
-                
-
+            
             // clear channel buffer
             memset(instance.chanbuf, 0, nsamples * sizeof(StereoSample));
             //TODO:  MODIZER changes start / YOYOFR
@@ -3234,6 +3233,12 @@ private:
                         continue;
 
                     voicesw[voice].render(instance.chanbuf, nsamples);
+                    
+                    if ((voicesw[voice].curvol>0) && voicesw[voice].gate) {
+                        vgm_last_note[chan]=voicesw[voice].osc[0].freq*440.0f/voicesw[voice].osc[0].inst->SRfcobasefrq;
+                        vgm_last_sample_addr[chan]=chan;//voice;
+                        vgm_last_vol[chan]=1;
+                    }
                 }
 
                 // channel 15 -> Ronan
@@ -3243,6 +3248,9 @@ private:
                 chansw[chan].process(nsamples);
             }
             
+
+            
+            
             //TODO:  MODIZER changes start / YOYOFR
             for (int jj=0;jj<nsamples;jj++) {
                 m_voice_buff[chan][m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8(  (int)((instance.chanbuf[jj].l+instance.chanbuf[jj].r)*64)  );
@@ -3250,6 +3258,7 @@ private:
                 if ((m_voice_current_ptr[chan]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
             //TODO:  MODIZER changes end / YOYOFR
+            
         }
 
         // global filters

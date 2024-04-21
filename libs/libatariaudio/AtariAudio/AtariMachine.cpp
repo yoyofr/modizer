@@ -415,3 +415,7 @@ int16_t	AtariMachine::ComputeNextSample(uint32_t* pSampleDebugInfo)
 	gCurrentMachine = NULL;
 	return out;
 }
+
+int AtariMachine::getYM2149_Freq(int channel) {//YOYOFR
+    return m_Ym2149.getYM2149_Freq(channel);
+}

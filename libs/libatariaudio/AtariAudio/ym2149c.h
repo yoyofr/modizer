@@ -17,6 +17,7 @@ public:
 	int16_t	ComputeNextSample(uint32_t* pSampleDebugInfo = NULL);
 	void	InsideTimerIrq(bool inside);
 
+    int getYM2149_Freq(int channel);//YOYOFR
 private:
 	void	WriteReg(int reg, uint8_t value);
 	uint16_t Tick();

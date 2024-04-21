@@ -52,6 +52,8 @@ public:
 
 	const void*	GetRawData() const { return m_rawBuffer; }
 	const int	GetRawDataSize() const { return m_rawSize; }
+    
+    int getYM2149_Freq(int channel);//YOYOFR
 
 private:
 	uint16_t		Read16(const char*);

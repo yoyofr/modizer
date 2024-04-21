@@ -41,7 +41,7 @@ public:
 	void			TrapInstructionCallback(int v);
 	void			ResetCb(void);
 
-
+    int getYM2149_Freq(int channel);//YOYOFR
 private:
 	void		ConfigureReturnByRts();
 	void		ConfigureReturnByRte();

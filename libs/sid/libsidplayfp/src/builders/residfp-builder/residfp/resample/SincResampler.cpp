@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -34,13 +34,12 @@
 #  include "config.h"
 #endif
 
-#ifdef HAVE_EMMINTRIN_H
-#  include <emmintrin.h>
-#elif defined HAVE_MMINTRIN_H
-#  include <mmintrin.h>
+#ifdef HAVE_SMMINTRIN_H
+#  include <smmintrin.h>
 #elif defined(HAVE_ARM_NEON_H)
 #  include <arm_neon.h>
 #endif
+
 #ifdef HAVE_CXX11
 #  include <mutex>
 #endif
@@ -96,63 +95,53 @@ double I0(double x)
  * @param bLength length of the sinc buffer
  * @return convolved result
  */
-int convolve(const short* a, const short* b, int bLength)
+int convolve(const int* a, const short* b, int bLength)
 {
-#ifdef HAVE_EMMINTRIN_H
+#ifdef HAVE_SMMINTRIN_H
     int out = 0;
 
-    const uintptr_t offset = (uintptr_t)(a) & 0x0f;
+    const uintptr_t offset = (uintptr_t)(b) & 0x0f;
 
     // check for aligned accesses
-    if (offset == ((uintptr_t)(b) & 0x0f))
+    if (offset)
     {
-        if (offset)
+        const int l = (0x10 - offset) / 2;
+
+        for (int i = 0; i < l; i++)
         {
-            const int l = (0x10 - offset)/2;
-
-            for (int i = 0; i < l; i++)
-            {
-                out += *a++ * *b++;
-            }
-
-            bLength -= offset;
+            out += *a++ * static_cast<int>(*b++);
         }
 
-        __m128i acc = _mm_setzero_si128();
-
-        const int n = bLength / 8;
-
-        for (int i = 0; i < n; i++)
-        {
-            const __m128i tmp = _mm_madd_epi16(*(__m128i*)a, *(__m128i*)b);
-            acc = _mm_add_epi32(acc, tmp);
-            a += 8;
-            b += 8;
-        }
-
-        __m128i vsum = _mm_add_epi32(acc, _mm_srli_si128(acc, 8));
-        vsum = _mm_add_epi32(vsum, _mm_srli_si128(vsum, 4));
-        out += _mm_cvtsi128_si32(vsum);
-
-        bLength &= 7;
+        bLength -= l;
     }
-#elif defined HAVE_MMINTRIN_H
-    __m64 acc = _mm_setzero_si64();
 
-    const int n = bLength / 4;
+    __m128i acc = _mm_setzero_si128();
+
+    const int n = bLength / 8;
 
     for (int i = 0; i < n; i++)
     {
-        const __m64 tmp = _mm_madd_pi16(*(__m64*)a, *(__m64*)b);
-        acc = _mm_add_pi16(acc, tmp);
+        const __m128i tmp_b = _mm_stream_load_si128((__m128i*)b);
+
+        __m128i val_b = _mm_cvtepi16_epi32(tmp_b);
+        __m128i prod = _mm_mullo_epi32(*(__m128i*)a, val_b);
+        acc = _mm_add_epi32(acc, prod);
         a += 4;
-        b += 4;
+
+        val_b = _mm_cvtepi16_epi32(_mm_srli_si128(tmp_b, 8));
+        prod = _mm_mullo_epi32(*(__m128i*)a, val_b);
+        acc = _mm_add_epi32(acc, prod);
+        a += 4;
+
+        b += 8;
     }
 
-    int out = _mm_cvtsi64_si32(acc) + _mm_cvtsi64_si32(_mm_srli_si64(acc, 32));
-    _mm_empty();
+    __m128i vsum = _mm_add_epi32(acc, _mm_srli_si128(acc, 8));
+    vsum = _mm_add_epi32(vsum, _mm_srli_si128(vsum, 4));
+    out += _mm_cvtsi128_si32(vsum);
 
-    bLength &= 3;
+    bLength &= 7;
+
 #elif defined(HAVE_ARM_NEON_H)
 #if (defined(__arm64__) && defined(__APPLE__)) || defined(__aarch64__)
     int32x4_t acc1Low = vdupq_n_s32(0);
@@ -239,7 +228,7 @@ int convolve(const short* a, const short* b, int bLength)
 
     for (int i = 0; i < bLength; i++)
     {
-        out += *a++ * *b++;
+        out += *a++ * static_cast<int>(*b++);
     }
 
     return (out + (1 << 14)) >> 15;
@@ -377,14 +366,7 @@ bool SincResampler::input(int input)
 {
     bool ready = false;
 
-    /*
-     * Clip the input as it may overflow the 16 bit range.
-     *
-     * Approximate measured input ranges:
-     * 6581: [-24262,+25080]  (Kawasaki_Synthesizer_Demo)
-     * 8580: [-21514,+35232]  (64_Forever, Drum_Fool)
-     */
-    sample[sampleIndex] = sample[sampleIndex + RINGSIZE] = softClip(input);
+    sample[sampleIndex] = sample[sampleIndex + RINGSIZE] = input;
     sampleIndex = (sampleIndex + 1) & (RINGSIZE - 1);
 
     if (sampleOffset < 1024)
