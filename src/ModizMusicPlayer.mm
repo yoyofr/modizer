@@ -6021,7 +6021,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                             
-                            if ((HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12)||(HC_type==0x23)) { //PS1, PS2, SSF, DSF, SNSF
+                            if ((HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12)||(HC_type==0x23)||(HC_type==0x41)) { //PS1, PS2, SSF, DSF, SNSF, QSF
                                 //midi like notes data
                                 memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
                                 int voices_idx=0;

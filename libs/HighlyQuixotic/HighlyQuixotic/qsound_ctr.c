@@ -268,6 +268,30 @@ void qsoundc_update(void* param, UINT32 samples, INT16* output)
         
             //TODO:  MODIZER changes end / YOYOFR
 		}
+        
+        //YOYOFR
+        for (int i=0;i<16;i++) {
+            if ( !(chip->muteMask & (1<<i)) && (chip->voice[i].volume)) {
+                double freq=chip->voice[i].rate;
+                if (freq) {
+                    freq=440.0f*freq/(1<<12);
+                }
+                vgm_last_note[i]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                vgm_last_sample_addr[i]=i;
+                int newvol=1;
+                vgm_last_vol[i]=newvol;
+            } else vgm_last_note[i]=0;
+        }
+        for (int i=16;i<19;i++) {
+            if ( !(chip->muteMask & (1<<i)) && chip->adpcm[i-16].volume ) {
+                double freq=220.0f; //fixed, take A3 as ref
+                vgm_last_note[i]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                vgm_last_sample_addr[i]=i;
+                int newvol=1;
+                vgm_last_vol[i]=newvol;
+            } else vgm_last_note[i]=0;
+        }
+        //YOYOFR
 	}
 	else
 	{
