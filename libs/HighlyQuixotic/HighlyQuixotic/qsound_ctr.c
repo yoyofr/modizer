@@ -258,7 +258,7 @@ void qsoundc_update(void* param, UINT32 samples, INT16* output)
             int64_t ofs_end=(m_voice_current_ptr[0]+smplIncr);
             for (;;) {
                 for (int jj=0;jj<16+3;jj++)
-                    if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chip->voice_output[jj]>>4)*0.6f);
+                    if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((chip->voice_output[jj]>>4)*0.4f);
                     else m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
                 ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;

@@ -25,6 +25,14 @@
 #include "../panning.h" // Maxim
 #undef INLINE	// emu2413 uses its own INLINE definition
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+static int64_t smplIncr;
+static int m_voice_ofs;
+static int m_total_channels;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static UINT8 device_start_ym2413_emu(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
 static void ym2413_update_emu(void *chip, UINT32 samples, DEV_SMPL **out);
@@ -1089,15 +1097,65 @@ INLINE static void mix_output_stereo(EOPLL *opll) {
   int i;
   out[0] = out[1] = 0;
   for (i = 0; i < 14; i++) {
+      
+      //YOYOFR
+      /* 0..8:tone 9:bd 10:hh 11:sd 12:tom 13:cym */
+      int jj=i;
+      if (vgmVRC7) {
+          if (i>=6) jj=-1;
+      } else if (i==9) jj=6;
+      else if (i==10) jj=7;
+      else if (i==11) jj=7;
+      else if (i==12) jj=8;
+      else if (i==13) jj=8;
+      //YOYOFR
+      
     if (opll->pan[i] & 2)
       out[0] += APPLY_PANNING_S(opll->ch_out[i], opll->pan_fine[i][0]);
     if (opll->pan[i] & 1)
       out[1] += APPLY_PANNING_S(opll->ch_out[i], opll->pan_fine[i][1]);
+      
+      //YOYOFR
+      if ((m_voice_ofs>=0)&&(jj<m_total_channels)&&(jj>=0)) {
+          
+          int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+          int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+          
+          if (ofs_end>ofs_start)
+          for (;;) {
+              if (i>=9) {
+                  int old_val=m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
+                  int val=0;
+                  if (opll->pan[i] & 2) val+=((int64_t)(opll->ch_out[i]) * (int64_t)(opll->pan_fine[i][0])) >> PANNING_BITS;
+                  if (opll->pan[i] & 1) val+=((int64_t)(opll->ch_out[i]) * (int64_t)(opll->pan_fine[i][1])) >> PANNING_BITS;
+                  val>>=5;
+                  
+                  m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((val+old_val)>>1));
+              } else {
+                  int val=0;
+                  if (opll->pan[i] & 2) val+=((int64_t)(opll->ch_out[i]) * (int64_t)(opll->pan_fine[i][0])) >> PANNING_BITS;
+                  if (opll->pan[i] & 1) val+=((int64_t)(opll->ch_out[i]) * (int64_t)(opll->pan_fine[i][1])) >> PANNING_BITS;
+                  m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>5));
+              }
+                                          
+              ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+              if (ofs_start>=ofs_end) break;
+          }
+      }
+      //YOYOFR
   }
   if (opll->conv) {
     EOPLL_RateConv_putData(opll->conv, 0, out[0]);
     EOPLL_RateConv_putData(opll->conv, 1, out[1]);
   }
+    
+    //YOYOFR
+    for (int jj = 0; jj < 9; jj++) {
+        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+    }
+    //YOYOFR
 }
 
 /***********************************************************
@@ -1579,6 +1637,117 @@ static void ym2413_update_emu(void *chip, UINT32 samples, DEV_SMPL **out)
 	EOPLL *opll = (EOPLL *)chip;
 	int32_t buffers[2];
 	uint32_t i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    m_total_channels=(vgmVRC7?6:9);
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    static INT32 old_out_fm[9]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<9;ii++) {
+            int64_t freq;
+            int64_t block;
+            int64_t note;
+            EOPLL_SLOT *slt;
+            bool mute=false;
+            int newvol;
+            note=0;
+            newvol=0;
+            if (!opll->rhythm_mode) {
+                mute=(opll->mask & EOPLL_MASK_CH(ii));
+                if (!mute) {
+                    slt = CAR(opll, ii);
+                    if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                        freq=slt->fnum; block=slt->blk;
+                        note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                        newvol=slt->key_flag|slt->sus_flag;
+                    }
+                }
+            } else {
+                if (ii<6) {
+                    mute=(opll->mask & EOPLL_MASK_CH(ii));
+                    if (!mute) {
+                        slt = CAR(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                } else if (ii==6) {
+                    mute=(opll->mask & EOPLL_MASK_BD);
+                    if (!mute) {
+                        slt = CAR(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                } else if (ii==7) {
+                    mute=(opll->mask & EOPLL_MASK_HH);
+                    if (!mute) {
+                        slt = MOD(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                    mute=(opll->mask & EOPLL_MASK_SD);
+                    if (!mute) {
+                        slt = CAR(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                } else if (ii==8) {
+                    mute=(opll->mask & EOPLL_MASK_TOM);
+                    if (!mute) {
+                        slt = MOD(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                    mute=(opll->mask & EOPLL_MASK_CYM);
+                    if (!mute) {
+                        slt = CAR(opll, ii);
+                        if (slt->blk_fnum && (slt->key_flag|slt->sus_flag)) {
+                            freq=slt->fnum; block=slt->blk;
+                            note=freq*(1<<block)*(opll->clk)/72/(1<<19);
+                            newvol=slt->key_flag|slt->sus_flag;
+                        }
+                    }
+                }
+            }
+            
+            if (note) {
+                vgm_last_note[ii+m_voice_ofs]=note;
+                vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                vgm_last_vol[ii+m_voice_ofs]=newvol;
+            }
+            //old_out_fm[ii]=OPL->out_fm[ii];
+        }
+    }
+    //YOYOFR
 	
 	for (i=0; i < samples; i++)
 	{
@@ -1586,6 +1755,8 @@ static void ym2413_update_emu(void *chip, UINT32 samples, DEV_SMPL **out)
 		out[0][i] = buffers[0];
 		out[1][i] = buffers[1];
 	}
+    
+    
 	
 	return;
 }

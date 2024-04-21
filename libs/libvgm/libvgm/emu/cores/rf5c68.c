@@ -15,6 +15,11 @@
 #include "../EmuCores.h"
 #include "rf5c68.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs);
 
@@ -114,6 +119,23 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
 	/* start with clean buffers */
 	memset(left, 0, samples * sizeof(*left));
 	memset(right, 0, samples * sizeof(*right));
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=NUM_CHANNELS;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* bail if not enabled */
 	if (chip->data == NULL || !chip->enable)
@@ -161,14 +183,59 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
 					sample &= 0x7f;
 					left[j] += (sample * lv) >> 5;
 					right[j] += (sample * rv) >> 5;
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 				else
 				{
 					left[j] -= (sample * lv) >> 5;
 					right[j] -= (sample * rv) >> 5;
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                if (lv+rv) {
+                    int freq=440.0f*(double)(chan->step)/(1<<11);
+                    vgm_last_note[i+m_voice_ofs]=freq;
+                    vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                    int newvol=1;
+                    vgm_last_vol[i+m_voice_ofs]=newvol;
+                }
+            }
+            //YOYOFR
 		}
+        
+        
 	}
 	
 #if 0	// IMO this is completely useless.

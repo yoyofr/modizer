@@ -24,6 +24,8 @@ int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 int mod_total_length;
 
 
+int last_audio_sample=0;
+
 #import "ModizMusicPlayer.h"
 #import "ModizFileHelper.h"
 
@@ -496,10 +498,12 @@ unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_instr_addr[256];
+bool vgm_play_no_seek;
 
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 int m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+bool m_voicesWithDataAccmul[SOUND_MAXVOICES_BUFFER_FX];
 int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 int64_t m_voice_prev_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
@@ -621,7 +625,7 @@ static const char* vgm_LogLevel2Str(UINT8 level)
 }
 
 static void vgm_PlayerLogCallback(void* userParam, PlayerBase* player, UINT8 level, UINT8 srcType,
-    const char* srcTag, const char* message)
+                                  const char* srcTag, const char* message)
 {
     if (level > vgm_logLevel)
         return;    // don't print messages with higher verbosity than current log level
@@ -753,7 +757,7 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
     int i = 0;
     if (pt3_fast) pt3_isr_step /= 4;
     pt3_lastleng=leng;
-        
+    
     while (leng>0)
     {
         if (1) {
@@ -785,15 +789,15 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
         vgm_last_note[ch*3+ii]=0;
         //int vol = ay->channels[ii].e_on ? ay->envelope : ay->channels[ii].volume * 2 + 1;
         //if ( vol|1 ) {
-            double freq=0;
-            if (ay->channels[ii].t_off==0) freq=ay->channels[ii].tone_period;
-            else if (ay->channels[ii].n_off==0) freq=ay->noise_period;
-            if (freq>1) {
-                freq=ay->clock_rate/freq/16;
-                vgm_last_note[ch*3+ii]=freq;
-                vgm_last_sample_addr[ch*3+ii]=ch*3+ii;
-                vgm_last_vol[ch*3+ii]=1;
-            }
+        double freq=0;
+        if (ay->channels[ii].t_off==0) freq=ay->channels[ii].tone_period;
+        else if (ay->channels[ii].n_off==0) freq=ay->noise_period;
+        if (freq>1) {
+            freq=ay->clock_rate/freq/16;
+            vgm_last_note[ch*3+ii]=freq;
+            vgm_last_sample_addr[ch*3+ii]=ch*3+ii;
+            vgm_last_vol[ch*3+ii]=1;
+        }
         //}
     }
     
@@ -890,7 +894,7 @@ UINT8 vgmGetChipChannelsNb(UINT8 type) {
         case DEVID_RF5C68:return 0X08;
         case DEVID_YM2203:return 0x06;
         case DEVID_YM2608:return 0X10;
-                   
+            
             
         case DEVID_YM2610:return 0x0E;  //if YM2610B, 0x10
         case DEVID_YM3812:return 0x09;
@@ -945,7 +949,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_RF5C68:return 1;
         case DEVID_YM2203:return 1;
         case DEVID_YM2608:return 1;
-                        
+            
         case DEVID_YM2610:return 1;
         case DEVID_YM3812:return 1;
         case DEVID_YM3526:return 1;
@@ -977,7 +981,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_WSWAN:return 1;
         case DEVID_VBOY_VSU:return 1;
         case DEVID_SAA1099:return 0;
-        case DEVID_ES5503:return 0;
+        case DEVID_ES5503:return 1;
         case DEVID_ES5506:return 0;
         case DEVID_X1_010:return 0;
         case DEVID_C352:return 1;
@@ -1131,7 +1135,7 @@ extern "C" char gsf_libfile[1024];
 //{
 //    if (! Clock)
 //        return 0;
-//    
+//
 //    if (ChipID == 0x00 && (Clock & 0x80000000))
 //        Clock &= ~0x40000000;
 //    if (Clock & 0x80000000)
@@ -1139,7 +1143,7 @@ extern "C" char gsf_libfile[1024];
 //        Clock &= ~0x80000000;
 //        ChipID |= 0x80;
 //    }
-//    
+//
 //    sprintf(str,"%s", GetAccurateChipName(ChipID, SubType));
 //    if (Clock & 0x40000000) return 2;
 //    return 1;
@@ -1148,7 +1152,7 @@ extern "C" char gsf_libfile[1024];
 //static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const wchar_t* JapTag)
 //{
 //    const wchar_t* RetTag;
-//    
+//
 //    if (EngTag == NULL || ! wcslen(EngTag))
 //    {
 //        RetTag = JapTag;
@@ -1164,7 +1168,7 @@ extern "C" char gsf_libfile[1024];
 //        else
 //            RetTag = JapTag;
 //    }
-//    
+//
 //    if (RetTag == NULL)
 //        return L"";
 //    else
@@ -3124,7 +3128,11 @@ void propertyListenerCallback (void                   *inUserData,              
     
     sampleVolume=0;
     for (i=0; i<SOUND_BUFFER_NB; i++) {
-        memset(mBuffers[i]->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        //memset(mBuffers[i]->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
+            ((int *)mBuffers[i]->mAudioData)[j]=last_audio_sample;
+        }
+        
         mBuffers[i]->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
         AudioQueueEnqueueBuffer( mAudioQueue, mBuffers[i], 0, NULL);
         //        [self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
@@ -3154,7 +3162,15 @@ void propertyListenerCallback (void                   *inUserData,              
     int skip_queue=0;
     mBuffer->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
     if (bGlobalAudioPause==2) {
-        memset(mBuffer->mAudioData, 0, SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        //NSLog(@"yoyoyo");
+        buffer_ana_play_ofs++;
+        if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
+        
+        //memset(mBuffer->mAudioData, 0, SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+            ((int *)mBuffer->mAudioData)[i]=last_audio_sample;
+        }
+        
         if (bGlobalAudioPause==2) skip_queue=1;//return 0;  //End of song
     } else {
         //consume another buffer
@@ -3185,11 +3201,7 @@ void propertyListenerCallback (void                   *inUserData,              
             }
             
             //iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
-            iCurrentTime=buffer_ana_sample_ofs[buffer_ana_play_ofs]*1000/PLAYBACK_FREQ;
-            
-            /*if (mPlayType==MMP_SC68) {//SC68
-             iCurrentTime=sc68_cntl(sc68,SC68_GET_POS);
-             }*/
+            //iCurrentTime=buffer_ana_sample_ofs[buffer_ana_play_ofs]*1000/PLAYBACK_FREQ;
             
             /* Panning effect. Turns stereo into mono in a specific degree */
             if (mPanning) {
@@ -3227,15 +3239,16 @@ void propertyListenerCallback (void                   *inUserData,              
                         ((short int *)mBuffer->mAudioData)[i*2]=val;
                         ((short int *)mBuffer->mAudioData)[i*2+1]=val;
                     }
-                } else memcpy((char*)mBuffer->mAudioData,buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                } else memcpy((char*)(mBuffer->mAudioData),buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             }
+            
+            last_audio_sample=0;//((int *)mBuffer->mAudioData)[SOUND_BUFFER_SIZE_SAMPLE-1];
             
             memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             
             memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             
             if (bGlobalEndReached && buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
-                //iCurrentTime=0;
                 bGlobalAudioPause=2;
                 bGlobalEndReached=0;
                 for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=~0x4;
@@ -3245,7 +3258,10 @@ void propertyListenerCallback (void                   *inUserData,              
             buffer_ana_play_ofs++;
             if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
         } else {
-            memset((char*)mBuffer->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);  //WARNING : not fast enough!!
+            //memset((char*)mBuffer->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);  //WARNING : not fast enough!!
+            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                ((int *)mBuffer->mAudioData)[i]=last_audio_sample;
+            }
         }
     }
     if (!skip_queue) {
@@ -3303,10 +3319,17 @@ void propertyListenerCallback (void                   *inUserData,              
     return buffer_to_compensate;
 }
 
+
+-(int) getCurrentTime {
+    static int64_t lastCnt;
+    if (mNeedSeek==2) return mCurrentSamples*1000/PLAYBACK_FREQ;
+    int64_t smplCnt=buffer_ana_sample_ofs[[self getCurrentPlayedBufferIdx]];
+    if (bGlobalEndReached && smplCnt<lastCnt) smplCnt=lastCnt;
+    lastCnt=smplCnt;
+    return round(smplCnt*1000.0f/PLAYBACK_FREQ);
+}
+
 -(int) getCurrentPlayedBufferIdx {
-    /*int adj=-1-[self getLatencyInBuffer];
-     adj=-1;*/
-    
     int idx=(buffer_ana_play_ofs+1);//-[self getLatencyInBuffer]);
     while (idx<0) idx+=SOUND_BUFFER_NB;
     return idx%SOUND_BUFFER_NB;
@@ -4071,7 +4094,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             if (mod_currentsub<mod_maxsub) [self playNextSub]; //TODO: check if it works
                         }
                         //update song length
-                        [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:iCurrentTime];
+                        [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                         //printf("received happy song end %d\n",mod_wantedcurrentsub);
                     } else {
                         /* unhappy song end (error in the 68k side). skip to next song
@@ -4082,7 +4105,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //subsong_end = 1;
                         //moveToNextSubSong=2;
                         
-                        [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:iCurrentTime];
+                        [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                         //printf("received unhappy song end %d\n",mod_wantedcurrentsub);
                     }
                     i = 0;
@@ -4412,6 +4435,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         tim_finished=0;
                         int64_t mStartPosSamples;
                         while (g_playing&&(!quit)) {
+                            ///////////////////////
+                            // SEEKING MNGT
+                            ///////////////////////
                             if (mNeedSeek==1) {
                                 seek_needed=mNeedSeekTime;
                                 seek_tgtSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
@@ -4434,8 +4460,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [detailViewControllerIphone updateWaitingTitle:NSLocalizedString(@"Seeking",@"")];
                                     [detailViewControllerIphone updateWaitingDetail:@""];
                                 });
-                            }
-                            if (mNeedSeek==2) {
+                            } else if (mNeedSeek==2) {
                                 dispatch_sync(dispatch_get_main_queue(), ^(void){
                                     //Run UI Updates
                                     [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(seek_tgtSamples-mStartPosSamples)]];
@@ -4445,8 +4470,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //mSeekSamples=mCurrentSamples;
                                     mNeedSeek=3;
                                 }
-                            }
-                            if (mNeedSeek==3) {
+                            } else if (mNeedSeek==3) {
                                 dispatch_sync(dispatch_get_main_queue(), ^(void){
                                     [detailViewControllerIphone hideWaiting];
                                     [detailViewControllerIphone hideWaitingCancel];
@@ -4460,6 +4484,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     m_voice_current_ptr[j]=0;
                                 }
                             }
+                            ///////////////////////
                             if (!step_emulation(gbs)) {
                                 quit = 1;
                                 //break;
@@ -4486,7 +4511,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
                                     gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                                                   settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 } else {
                                     gbs_init(gbs,mod_currentsub);
@@ -4494,7 +4519,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     iModuleLength=(status->subsong_len)*1000/1024;
                                     mod_title=[NSString stringWithUTF8String:status->songtitle];
                                     gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                                                   settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 }
                                 const struct gbs_metadata *metadata=gbs_get_metadata(gbs);
@@ -4506,7 +4531,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
-                                [self iPhoneDrv_PlayRestart];
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -4951,19 +4976,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (mPlayType==MMP_VGMPLAY) { //VGM
                                 int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
-                                
-                                vgm_player.Seek(PLAYPOS_SAMPLE,mSeekSamples);
-                                //vgm_plrEngine->Seek(PLAYPOS_SAMPLE,mSeekSamples);
-#if 0
-                                if (SeekVGM(false,mSeekSamples)) {
+                                                                
+                                if (!vgm_play_no_seek) {
+                                    vgm_player.Seek(PLAYPOS_SAMPLE,mSeekSamples);
+                                    mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                } else {
                                     int64_t mStartPosSamples;
+                                    if (mSeekSamples<mCurrentSamples) {
+                                        //reset
+                                        vgm_player.Reset();
+                                        mCurrentSamples=0;
+                                    }
                                     mStartPosSamples=mCurrentSamples;
                                     
                                     while (mSeekSamples - mCurrentSamples > 0) {
                                         int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                         if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
-                                        VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), sample_to_skip);
+                                        
+                                        OSMutex_Lock(vgm_renderMtx);
+                                        nbBytes=vgm_player.Render(sample_to_skip*2*2,buffer_ana[buffer_ana_gen_ofs]);
+                                        OSMutex_Unlock(vgm_renderMtx);
+                                        
                                         
                                         mCurrentSamples+=sample_to_skip;
                                         iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
@@ -4979,7 +5012,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         }
                                     }
                                 }
-#endif
                             }
                             if (mPlayType==MMP_PIXEL) {
                                 int64_t mStartPosSamples;
@@ -5172,7 +5204,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                             m_voice_prev_current_ptr[j]+=(mSeekSamples - hc_currentSample)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                             if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-                                        }                                        
+                                        }
                                     }
                                     
                                     hc_currentSample = mSeekSamples;
@@ -5332,7 +5364,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [detailViewControllerIphone hideWaitingCancel];
                             });
                             
-                                                        
+                            
                         }
                         if (moveToSubSong) {
                             mod_currentsub=moveToSubSongIndex;
@@ -5364,7 +5396,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
-                                [self iPhoneDrv_PlayRestart];
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -5387,7 +5419,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
-                                [self iPhoneDrv_PlayRestart];
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 while (mod_message_updated) {
                                     //wait
                                     usleep(1);
@@ -5403,7 +5435,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (adPlugPlayer->update()) opl_towrite=(int)(PLAYBACK_FREQ*1.0f/adPlugPlayer->getrefresh());
                                 
-                                [self iPhoneDrv_PlayRestart];
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -5420,7 +5452,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
-                                [self iPhoneDrv_PlayRestart];
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -5507,7 +5539,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
                                     else gme_set_fade_msecs( gme_emu, iModuleLength ,+100);
                                 } else gme_set_fade( gme_emu, 1<<30);
+                                
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
@@ -5603,6 +5637,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_SC68) {//SC68
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
                                 sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                 sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
                                 sc68_music_info_t info;
@@ -5916,6 +5951,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (m_genNumVoicesChannels) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                        
+                                        memset(m_voice_buff_accumul_temp[j],0,SOUND_BUFFER_SIZE_SAMPLE*4*2);
+                                        memset(m_voice_buff_accumul_temp_cnt[j],0,SOUND_BUFFER_SIZE_SAMPLE*2);
+                                        
                                         m_voice_current_ptr[j]=0;
                                     }
                                 }
@@ -5935,10 +5974,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 OSMutex_Unlock(vgm_renderMtx);
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
-//                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-//                                    buffer_ana[buffer_ana_gen_ofs][i*2+0]=vgm_renderBuffer[i].L;
-//                                    buffer_ana[buffer_ana_gen_ofs][i*2+1]=vgm_renderBuffer[i].R;
-//                                }
+                                //                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                //                                    buffer_ana[buffer_ana_gen_ofs][i*2+0]=vgm_renderBuffer[i].L;
+                                //                                    buffer_ana[buffer_ana_gen_ofs][i*2+1]=vgm_renderBuffer[i].R;
+                                //                                }
                                 
                                 //midi like notes data
                                 int voices_idx=0;
@@ -5963,6 +6002,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                                 
                                 if (m_genNumVoicesChannels) {
+                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)
+                                        if (m_voicesWithDataAccmul[j]){
+                                            for (int i=0;i<(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i++) {
+                                                int val=m_voice_buff_accumul_temp[j][i];
+                                                int cnt=m_voice_buff_accumul_temp_cnt[j][i];
+                                                if (cnt) val=val/cnt;
+                                                m_voice_buff[j][i]=val;
+                                            }
+                                        }
+                                }
+                                
+                                if (m_genNumVoicesChannels) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         
                                         for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
@@ -5974,12 +6025,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //NSLog(@"prev ptr: %d",m_voice_prev_current_ptr[5]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 //copy voice data for oscillo view
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
-                                        m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
+                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                        m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
                                     }
-                                    m_voice_prev_current_ptr[j]=0;
-                                    //                                    m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                                    //                                    if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) m_voice_prev_current_ptr[j]-=SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                 }
                                 
                             }
@@ -6011,12 +6059,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_HC) { //Highly Complete
                             
                             //reset voice data for oscillo view if not SNSF
-//                            if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
-//                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-//                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
-//                                    m_voice_current_ptr[j]=0;
-//                                }
-//                            }
+                            //                            if (m_genNumVoicesChannels&&(HC_type!=0x23)&&(HC_type!=0x41)&&(HC_type!=0x1)&&(HC_type!=0x2)) {
+                            //                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                            //                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                            //                                    m_voice_current_ptr[j]=0;
+                            //                                }
+                            //                            }
                             
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
@@ -6059,7 +6107,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if ((HC_type==0x23)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12))  { //SNSF, QSF, PSF, PSF2, SSF, DSF
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j]
-                                            [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*vol>>8;
+                                                                                                                                                            [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*vol>>8;
                                             m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
@@ -6732,7 +6780,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
                                 //end reached
-                                [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:iCurrentTime];
+                                [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
                                 if (iModuleLength<0) {
                                     if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
@@ -6759,7 +6807,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for(int i = 0; i < 2; i++) {
                                 xgm::ITrackInfo *info;
                                 info=nsfPlayer->apu->GetTrackInfo(i);
-                                vgm_last_note[i]=info->GetFreqHz()*4;
+                                vgm_last_note[i]=info->GetFreqHz()*2;
                                 unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                 if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
                                     unsigned int subidx=vgm_getSubNote(i);
@@ -6776,7 +6824,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for(int i = 0; i < 3; i++) {
                                 xgm::ITrackInfo *info;
                                 info=nsfPlayer->dmc->GetTrackInfo(i);
-                                vgm_last_note[i]=info->GetFreqHz()*4;
+                                vgm_last_note[i]=info->GetFreqHz()*2;
                                 unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                 if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
                                     unsigned int subidx=vgm_getSubNote(i);
@@ -6795,7 +6843,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 1; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fds->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+5)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -6814,7 +6862,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->mmc5->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+6)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -6834,7 +6882,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->fme7->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+9)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -6853,7 +6901,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 3; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc6->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+12)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -6872,7 +6920,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 9; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->vrc7->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+15)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -6891,7 +6939,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for(int i = 0; i < 8; i++) {
                                     xgm::ITrackInfo *info;
                                     info=nsfPlayer->n106->GetTrackInfo(i);
-                                    vgm_last_note[i]=info->GetFreqHz()*4;
+                                    vgm_last_note[i]=info->GetFreqHz()*2;
                                     unsigned int idx=vgm_getNote(i);//  info->GetNote(info->GetFreqHz());
                                     if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<(i+24)))==0)) {
                                         unsigned int subidx=vgm_getSubNote(i);
@@ -7048,7 +7096,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             
-                            
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
@@ -7062,8 +7109,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             
                         }
-                        
-                        buffer_ana_sample_ofs[buffer_ana_gen_ofs]=mCurrentSamples;
                         
                         buffer_ana_flag[buffer_ana_gen_ofs]=1;
                         if (mNeedSeek==2) {  //ask for a currentime update when this buffer will be played
@@ -7091,6 +7136,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             else bGlobalEndReached=1;
                         }
                         if (bGlobalEndReached) buffer_ana_flag[buffer_ana_gen_ofs]=buffer_ana_flag[buffer_ana_gen_ofs]|4; //end reached
+                        
+                        buffer_ana_sample_ofs[buffer_ana_gen_ofs]=mCurrentSamples;
                         
                         buffer_ana_gen_ofs++;
                         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
@@ -8724,7 +8771,7 @@ typedef struct {
         }
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
         gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                       settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout
     } else {
         gbs_init(gbs, mod_currentsub);
@@ -8734,7 +8781,7 @@ typedef struct {
         mod_title=[NSString stringWithUTF8String:status->songtitle];
         
         gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                       settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
         
     }
@@ -11736,6 +11783,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     vgm_plrEngine->GetSongInfo(sInf);
     vgm_plrEngine->GetSongDeviceInfo(diList);
     
+    vgm_play_no_seek=false;
+    
     char firstChip=1;
     for (curDev = 0; curDev < diList.size(); curDev ++) {
         const PLR_DEV_INFO& pdi = diList[curDev];
@@ -11747,6 +11796,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         }
         if (pdi.type==DEVID_YM2610) {
             if (pdi.devCfg->flags&1) vgm2610b=1;
+            
+            vgm_play_no_seek=true; //vgm native seek doesn't work for ADPCM part
         }
         vgmplay_activeChips[vgmplay_activeChipsNb]=pdi.type;
         vgmplay_activeChipsID[vgmplay_activeChipsNb]=pdi.id;
@@ -11758,6 +11809,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         for (int j=m_genNumVoicesChannels;j<m_genNumVoicesChannels+vgmGetVoicesNb(pdi.type);j++) {
             m_voice_voiceColor[j]=m_voice_systemColor[vgmplay_activeChipsNb];
+            
+            if (pdi.type==DEVID_ES5503) m_voicesWithDataAccmul[j]=1;  //oscillo data generation in accumul buffer
         }
         
         if (vgmDataVoice_Available(pdi.type)) m_genNumVoicesChannels+=vgmGetVoicesNb(pdi.type);
@@ -11839,17 +11892,17 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         
         snprintf(mod_message+strlen(mod_message),MAX_STIL_DATA_LENGTH*2-strlen(mod_message),"\nAuthor......: %s\nGame........: %s\nSystem......: %s\nTitle.......: %s\nRelease Date: %s\nCreator.....: %s\nNotes.......: %s\n",
-                songAuthor,songGame,songSystem,songTitle,songDate,songEncoder,songComment);
-                /*[[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
-                [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
-                [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
-                [[self wcharToNS:VGMTag.strCreator] UTF8String],
-                [[self wcharToNS:VGMTag.strNotes] UTF8String]);*/
+                 songAuthor,songGame,songSystem,songTitle,songDate,songEncoder,songComment);
+        /*[[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
+         [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
+         [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
+         [[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
+         [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
+         [[self wcharToNS:VGMTag.strCreator] UTF8String],
+         [[self wcharToNS:VGMTag.strNotes] UTF8String]);*/
         
-//        artist=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
-//        album=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)];
+        //        artist=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
+        //        album=[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strGameNameE,VGMTag.strGameNameJ)];
         artist=[NSString stringWithUTF8String:songAuthor];
         album=[NSString stringWithUTF8String:songGame];
         if ([album length]==0) album=[filePath lastPathComponent];
@@ -12588,7 +12641,7 @@ extern bool icloud_available;
         
         mdz_IsArchive=0;
         mNeedSeek=0;
-        mod_message_updated=0;
+        //mod_message_updated=0;
         mod_subsongs=1;
         mod_currentsub=mod_minsub=mod_maxsub=0;
         mod_wantedcurrentsub=-1;
@@ -12707,7 +12760,7 @@ extern bool icloud_available;
         }
     } else {//archiveMode
         mNeedSeek=0;
-        mod_message_updated=0;
+        //mod_message_updated=0;
         mod_subsongs=1;
         mod_currentsub=mod_minsub=mod_maxsub=0;
         mod_wantedcurrentsub=-1;
@@ -13150,6 +13203,7 @@ extern bool icloud_available;
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
     for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
         m_voice_current_ptr[i]=0;
+        m_voicesWithDataAccmul[i]=0;
         memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE);
     }
     for (int j=0;j<SOUND_BUFFER_NB;j++) {
@@ -13784,7 +13838,7 @@ extern bool icloud_available;
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
                 gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                               settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -13797,7 +13851,7 @@ extern bool icloud_available;
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
                 gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,1,
+                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
                               settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -14966,9 +15020,6 @@ extern "C" void adjust_amplification(void);
 -(int) getSongLength {
     return iModuleLength;
 }
--(int) getCurrentTime {
-    return iCurrentTime;
-}
 -(int) shouldUpdateInfos{
     return mod_message_updated;
 }
@@ -15052,7 +15103,10 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==0x11) return [NSString stringWithFormat:@"#%d-SCSP",channel+1];
             else if (HC_type==0x12) return [NSString stringWithFormat:@"#%d-AICA",channel+1];
             else if (HC_type==0x23) return [NSString stringWithFormat:@"#%d-SPC700",channel+1];
-            else if (HC_type==0x41) return [NSString stringWithFormat:@"#%d-QSOUND",channel+1];
+            else if (HC_type==0x41) {
+                if (channel<16) return [NSString stringWithFormat:@"#%d-PCM",channel+1];
+                else return [NSString stringWithFormat:@"#%d-ADPCM",channel-15];
+            }
             return @"";
         case MMP_OPENMPT: {
             NSString *result;
@@ -15581,11 +15635,11 @@ extern "C" void adjust_amplification(void);
             else generic_mute_mask|=(1<<channel);
             break;
         case MMP_2SF:
-            {
-                int new_2sf_mutemask=0;
-                for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_2sf_mutemask|=1<<i;
-                ds_set_mute_mask(new_2sf_mutemask);
-            }
+        {
+            int new_2sf_mutemask=0;
+            for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_2sf_mutemask|=1<<i;
+            ds_set_mute_mask(new_2sf_mutemask);
+        }
             break;
         case MMP_NCSF:
             xSFPlayer->MuteChannels(channel,active);
@@ -15705,7 +15759,7 @@ extern "C" void adjust_amplification(void);
             int idx=0;
             int mask=0;
             OSMutex_Lock(vgm_renderMtx);
-                        
+            
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     //
@@ -15719,237 +15773,265 @@ extern "C" void adjust_amplification(void);
                     PLR_MUTE_OPTS& muteOpts = devOpts.muteOpts;
                     vgm_plrEngine->GetDeviceMuting(vgmplay_activeChipsID[i], muteOpts);
                     
+                    int chip_channel=channel-idx;
                     
                     switch (vgmplay_activeChips[i]) {
-//                        case 0: //SN76496: 4voices
-//                            if (active) muteOpts.chnMute[0]&=~(1<<(channel-idx));
-//                            else muteOpts.chnMute[0]|=1<<(channel-idx);
-//                            break;
-//                        case 1: //VRC7 or YM2413
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1|=1<<(channel-idx);
-//                            break;
+                            //                        case 0: //SN76496: 4voices
+                            //                            if (active) muteOpts.chnMute[0]&=~(1<<(channel-idx));
+                            //                            else muteOpts.chnMute[0]|=1<<(channel-idx);
+                            //                            break;
+                        case 1: //VRC7 or YM2413
+                            if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                            else muteOpts.chnMute[0]|=1<<chip_channel;
+                            
+                            /* 0..8:tone 9:bd 10:hh 11:sd 12:tom 13:cym */
+                            /* 9->6, 10/11->7, 12/13->8*/
+                            /*
+                             EOPLL_MASK_BD, EOPLL_MASK_SD, EOPLL_MASK_TOM, EOPLL_MASK_CYM, EOPLL_MASK_HH
+                             */
+                            
+                            if (chip_channel==6) {
+                                //BD
+                                if (active) muteOpts.chnMute[0]&=~(1<<9);
+                                else muteOpts.chnMute[0]|=1<<9;
+                            } else if (chip_channel==7) {
+                                //HH & SD
+                                if (active) {
+                                    muteOpts.chnMute[0]&=~(1<<13);
+                                    muteOpts.chnMute[0]&=~(1<<10);
+                                } else {
+                                    muteOpts.chnMute[0]|=1<<13;
+                                    muteOpts.chnMute[0]|=1<<10;
+                                }
+                            } else if (chip_channel==8) {
+                                //TOM & CYM
+                                if (active) {
+                                    muteOpts.chnMute[0]&=~(1<<11);
+                                    muteOpts.chnMute[0]&=~(1<<12);
+                                } else {
+                                    muteOpts.chnMute[0]|=1<<11;
+                                    muteOpts.chnMute[0]|=1<<12;
+                                }
+                            }
+                            break;
                         case DEVID_YM2612: //YM2612:  6voices
-                            if (active) muteOpts.chnMute[0]&=~(1<<(channel-idx));
-                            else muteOpts.chnMute[0]|=1<<(channel-idx);
-                            if ((channel-idx)==5) {
+                            if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                            else muteOpts.chnMute[0]|=1<<chip_channel;
+                            if (chip_channel==5) {
                                 //update dac channel as well, seems when dac channel 6 is linked to fm 4
                                 if (active) muteOpts.chnMute[0]&=~(1<<6);
                                 else muteOpts.chnMute[0]|=1<<6;
                             }
                             break;
-//                        case 3: //YM2151: 8voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1|=1<<(channel-idx);
+                            //                        case 3: //YM2151: 8voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 4: //Sega PCM: 16voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1|=1<<(channel-idx);
+                            //                        case 4: //Sega PCM: 16voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 5: //RF5C68
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1|=1<<(channel-idx);
+                            //                        case 5: //RF5C68
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 6: {//YM2203
+                            //                        case 6: {//YM2203
                             // chnmute1 3bits -> fff f:fm 3ch
                             // chnmute3, 3bits -> yyy y:ay 3ch
-//                            int voice=channel-idx;
-//                            if (voice<3) {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=~(1<<voice);
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1|=(1<<voice);
-//                            } else {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=~(1<<(voice-3));
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3|=(1<<(voice-3));
-//                            }
-//                            break;
-//                        }
-//                        case DEVID_YM2608:{ //YM2608: 16voices:
+                            //                            int voice=channel-idx;
+                            //                            if (voice<3) {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=~(1<<voice);
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1|=(1<<voice);
+                            //                            } else {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=~(1<<(voice-3));
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3|=(1<<(voice-3));
+                            //                            }
+                            //                            break;
+                            //                        }
+                            //                        case DEVID_YM2608:{ //YM2608: 16voices:
                             // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
                             // chnmute3, 3bits -> yyy y:ay 3ch
-//                            int voice=channel-idx;
-//                            if (voice<6) {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=~(1<<voice);
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1|=(1<<voice);
-//                            } else if (voice<13) {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=~(1<<(voice-6));
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2|=(1<<(voice-6));
-//                            } else {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=~(1<<(voice-13));
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
-//                            }
-//                            break;
-//                        }
-                        case DEVID_YM2610:{ //YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
-//                             chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
-//                             chnmute3, 3bits -> yyy y:ay 3ch
-                            int voice=channel-idx;
+                            //                            int voice=channel-idx;
+                            //                            if (voice<6) {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=~(1<<voice);
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1|=(1<<voice);
+                            //                            } else if (voice<13) {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=~(1<<(voice-6));
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2|=(1<<(voice-6));
+                            //                            } else {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=~(1<<(voice-13));
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
+                            //                            }
+                            //                            break;
+                            //                        }
+                        case DEVID_YM2610://YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
+                            //                             chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
+                            //                             chnmute3, 3bits -> yyy y:ay 3ch
                             if (vgm2610b==0) {
-                                if (voice<4) {
-                                    switch (voice) {
-                                        case 0:voice=1;break;
-                                        case 1:voice=2;break;
-                                        case 2:voice=4;break;
-                                        case 3:voice=5;break;
+                                if (chip_channel<4) {
+                                    switch (chip_channel) {
+                                        case 0:chip_channel=1;break;
+                                        case 1:chip_channel=2;break;
+                                        case 2:chip_channel=4;break;
+                                        case 3:chip_channel=5;break;
                                     }
-                                } else voice+=2; //adpcm start at 6
+                                } else chip_channel+=2; //adpcm start at 6
                             }
                             
-                            if (voice<13) { //FM&ADPCM
-                                if (active) muteOpts.chnMute[0]&=~(1<<voice);
-                                else muteOpts.chnMute[0]|=(1<<voice);
+                            if (chip_channel<13) { //FM&ADPCM
+                                if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                                else muteOpts.chnMute[0]|=(1<<chip_channel);
                             } else { //EPSG - linked device
-                                if (active) muteOpts.chnMute[1]&=~(1<<(voice-13));
-                                else muteOpts.chnMute[1]|=(1<<(voice-13));
+                                if (active) muteOpts.chnMute[1]&=~(1<<(chip_channel-13));
+                                else muteOpts.chnMute[1]|=(1<<(chip_channel-13));
                             }
                             break;
-                        }
-//                        case 9: //YM3812: 9voices+5perc
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1|=1<<(channel-idx);
+                            //                        case 9: //YM3812: 9voices+5perc
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 0x0A: //YM3526
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1|=1<<(channel-idx);
+                            //                        case 0x0A: //YM3526
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YM3526.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 0x0B: //Y8950
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1|=1<<(channel-idx);
+                            //                        case 0x0B: //Y8950
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1|=1<<(channel-idx);
                             break;
-//                        case 0x0C: //YMF262
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
+                            //                        case 0x0C: //YMF262
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
                             break;
                         case DEVID_YMF278B: //YMF278B:47voices:23(ymf262)+24pcm(wave table) fm: 18 channels + 5 drums pcm: 24 channels
                             //  mute1: dddddffffffffffffffffff
                             //  mute2: pppppppppppppppppppppppp
-                            if (active) muteOpts.chnMute[0]&=~(1<<(channel-idx));
-                            else muteOpts.chnMute[0]|=1<<(channel-idx);
-//                            if (channel-idx<23) {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=~(1<<(channel-idx));
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1|=(1<<(channel-idx));
-//                            } else {
-//                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2&=~(1<<(channel-idx-23));
-//                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2|=(1<<(channel-idx-23));
-//                            }
+                            if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                            else muteOpts.chnMute[0]|=1<<chip_channel;
+                            //                            if (channel-idx<23) {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=~(1<<(channel-idx));
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1|=(1<<(channel-idx));
+                            //                            } else {
+                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2&=~(1<<(channel-idx-23));
+                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2|=(1<<(channel-idx-23));
+                            //                            }
                             break;
-//                        case 0x0E: //YMF271
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x0F: //YMZ280B
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x10: //RF5C164
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x11: //PWM
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x12: //AY8910
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x13: //GameBoy
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x14: //NES APU: 5voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x15: //MultiPCM
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x16: //UPD7759
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x17: //OKIM6258: 1voice
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x18: //OKIM6295: 4voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x19: //K051649: 5voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1A: //K054539
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1B: //HuC6280
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1C: //C140: 24voices
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1D: //k053260
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1E: //pokey
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x1F: //qsound
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x20: //SCSP
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x21: //WSWAN
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x22: //VSU
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x23: //SAA1099
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x24: //ES5503
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x25: //ES5506
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x26: //X1_010
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x27: //C352
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1|=1<<(channel-idx);
-//                            break;
-//                        case 0x28: //X1_010
-//                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1&=~(1<<(channel-idx));
-//                            else ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1|=1<<(channel-idx);
-//                            break;
+                            //                        case 0x0E: //YMF271
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x0F: //YMZ280B
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YMZ280B.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x10: //RF5C164
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].RF5C164.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x11: //PWM
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x12: //AY8910
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x13: //GameBoy
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].GameBoy.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x14: //NES APU: 5voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x15: //MultiPCM
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].MultiPCM.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x16: //UPD7759
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].UPD7759.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x17: //OKIM6258: 1voice
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x18: //OKIM6295: 4voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x19: //K051649: 5voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1A: //K054539
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].K054539.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1B: //HuC6280
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1C: //C140: 24voices
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1D: //k053260
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].K053260.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1E: //pokey
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].Pokey.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x1F: //qsound
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].QSound.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x20: //SCSP
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].SCSP.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x21: //WSWAN
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].WSwan.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x22: //VSU
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].VSU.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x23: //SAA1099
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].SAA1099.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x24: //ES5503
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].ES5503.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x25: //ES5506
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].ES5506.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x26: //X1_010
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].X1_010.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x27: //C352
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].C352.ChnMute1|=1<<(channel-idx);
+                            //                            break;
+                            //                        case 0x28: //X1_010
+                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1&=~(1<<(channel-idx));
+                            //                            else ChipOpts[vgmplay_activeChipsID[i]].GA20.ChnMute1|=1<<(channel-idx);
+                            //                            break;
                         default:
-                            if (active) muteOpts.chnMute[0]&=~(1<<(channel-idx));
-                            else muteOpts.chnMute[0]|=1<<(channel-idx);
+                            if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                            else muteOpts.chnMute[0]|=1<<chip_channel;
                             break;
                     }
                     
                     vgm_plrEngine->SetDeviceMuting(vgmplay_activeChipsID[i], muteOpts);
                     
                     break;
-                    //return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),i];
                 }
                 idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }

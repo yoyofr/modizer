@@ -391,7 +391,7 @@ long gbs_step(struct gbs* const gbs, long time_to_work)
 	struct gbhw *gbhw = &gbs->gbhw;
 
 	cycles_t cycles = gbhw_step(gbhw, time_to_work);
-	long time;
+	double time;//yoyofr
 
 	if (cycles < 0) {
 		return false;
@@ -403,28 +403,40 @@ long gbs_step(struct gbs* const gbs, long time_to_work)
 	gbs->lvol = -gbs->lmin > gbs->lmax ? -gbs->lmin : gbs->lmax;
 	gbs->rvol = -gbs->rmin > gbs->rmax ? -gbs->rmin : gbs->rmax;
 
-	time = gbs->ticks / GBHW_CLOCK;
+	time = (double)gbs->ticks / GBHW_CLOCK;
 	if (gbs->silence_timeout) {
 		if (gbs->lmin == gbs->lmax && gbs->rmin == gbs->rmax) {
 			if (gbs->silence_start == 0)
 				gbs->silence_start = gbs->ticks;
 		} else gbs->silence_start = 0;
+        
+        if (gbs->silence_start &&
+            (gbs->ticks - gbs->silence_start) / GBHW_CLOCK >= gbs->silence_timeout) {
+            if (gbs->subsong_info[gbs->subsong].len == 0) {
+                gbs->subsong_info[gbs->subsong].len = gbs->ticks * GBS_LEN_DIV / GBHW_CLOCK;
+            }
+            return gbs_nextsubsong(gbs);
+        }
 	}
 
-	if (gbs->silence_start &&
-	    (gbs->ticks - gbs->silence_start) / GBHW_CLOCK >= gbs->silence_timeout) {
-		if (gbs->subsong_info[gbs->subsong].len == 0) {
-			gbs->subsong_info[gbs->subsong].len = gbs->ticks * GBS_LEN_DIV / GBHW_CLOCK;
-		}
-		return gbs_nextsubsong(gbs);
-	}
+    
+	
 
+    //YOYOFR, some changes / fadeout
 	if (gbs->subsong_timeout && gbs->status.loop_mode != LOOP_SINGLE) {
-		if (gbs->fadeout &&
-		    time >= gbs->subsong_timeout - gbs->fadeout - gbs->gap)
-			gbhw_master_fade(gbhw, 128/gbs->fadeout, 0);
-		if (time >= gbs->subsong_timeout - gbs->gap)
-			gbhw_master_fade(gbhw, 128*16, 0);
+        //printf("time %f/%d  fade %d\n",time,gbs->subsong_timeout,gbs->fadeout);
+        if (gbs->fadeout && (time >= (gbs->subsong_timeout - gbs->fadeout - gbs->gap))) {
+            //printf("will stop soon: %f %d\n",time,gbs->subsong_timeout);
+            //gbhw_master_fade(gbhw, 128*4/gbs->fadeout, 0);
+            double volume=(1.0f-(time-(double)(gbs->subsong_timeout - gbs->fadeout - gbs->gap) )/(double)(gbs->fadeout+ gbs->gap));
+            if (volume<0) volume=0;
+            volume=volume*volume; //sounds better, logarithmic scale
+            gbhw->master_volume=(256*256)*volume;
+            if (gbhw->master_volume<0) gbhw->master_volume=0;
+        }
+        if (time >= (gbs->subsong_timeout - gbs->gap)) {
+            //gbhw_master_fade(gbhw, 128*16, 0);
+        }
 		if (time >= gbs->subsong_timeout)
 			return gbs_nextsubsong(gbs);
 	}

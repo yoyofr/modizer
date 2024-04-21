@@ -15,6 +15,11 @@
 
 #include "segapcm.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs);
 
 static UINT8 device_start_segapcm(const SEGAPCM_CFG* cfg, DEV_INFO* retDevInf);
@@ -89,6 +94,7 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 {
 	segapcm_state *spcm = (segapcm_state *)chip;
 	int ch;
+    static int last_addr[16]; //YOYOFR
 
 	/* clear the buffers */
 	memset(outputs[0], 0, samples*sizeof(DEV_SMPL));
@@ -116,6 +122,25 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 	//          bit 1: loop disable
 	//          other bits: bank
 	// 0x87     ?
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=16;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* loop over channels */
 	for (ch = 0; ch < 16; ch++)
@@ -130,6 +155,24 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 			UINT32 loop = (regs[0x05] << 16) | (regs[0x04] << 8);
 			UINT8 end = regs[6] + 1;
 			UINT32 i;
+            
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                if ((regs[2] & 0x7F)+(regs[3] & 0x7F)) {
+                    int freq=440.0f*regs[7]/256;  //use A4 as ref
+                    vgm_last_note[ch+m_voice_ofs]=freq;
+                    vgm_last_sample_addr[ch+m_voice_ofs]=m_voice_ofs+ch;
+                    
+                    int newvol=1;
+                    if (last_addr[ch]>addr) {
+                        newvol=2;
+                    }
+                    vgm_last_vol[ch+m_voice_ofs]=newvol;
+                }
+            }
+            
+            last_addr[ch]=addr;
+            //YOYOFR
 
 			/* loop over samples on this channel */
 			for (i = 0; i < samples; i++)
@@ -160,6 +203,22 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 				outputs[0][i] += v * (regs[2] & 0x7F);
 				outputs[1][i] += v * (regs[3] & 0x7F);
 				addr = (addr + regs[7]) & 0xffffff;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                    
+                    if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+ch][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((v*((regs[2]&0x7F)+(regs[3]&0x7F)))>>7));
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 
 			/* store back the updated address */
@@ -167,6 +226,17 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
 			regs[0x85] = addr >> 16;
 			spcm->low[ch] = regs[0x86] & 1 ? 0 : addr;
 		}
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        else {
+            for (int i = 0; i < samples; i++)
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+                }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 }
 

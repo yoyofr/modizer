@@ -48,6 +48,11 @@
 #include "../EmuHelper.h"
 #include "es5503.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static void es5503_w(void *info, UINT8 offset, UINT8 data);
 static UINT8 es5503_r(void *info, UINT8 offset);
@@ -236,6 +241,24 @@ static void es5503_pcm_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 	UINT32 ramptr;
 	ES5503Chip *chip = (ES5503Chip *)param;
 	UINT8 chnsStereo, chan;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int64_t m_voice_ofs=-1;
+    int m_total_channels=32;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    m_voice_current_samplerate=es5503_get_sample_rate(chip);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	memset(outputs[0], 0, samples * sizeof(DEV_SMPL));
 	memset(outputs[1], 0, samples * sizeof(DEV_SMPL));
@@ -317,6 +340,24 @@ static void es5503_pcm_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 							outputs[1][snum] += outData;
 						}
 					}
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int j=osc;
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                        if ((ofs_end)>(ofs_start)) {
+                            int val=outData>>7;
+                            if (val)
+                                for (;;) {
+                                    m_voice_buff_accumul_temp[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]+=val;
+                                    m_voice_buff_accumul_temp_cnt[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]++;
+                                    ofs_start+=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                    if (ofs_start>=ofs_end) break;
+                                }
+                        }
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 
 					if (altram >= wtsize)
 					{
@@ -325,7 +366,33 @@ static void es5503_pcm_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 				}
 			}	// end if (oscillators[osc] playing)
 		}	// end for (osc)
+        
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int j=0;j<32;j++) {
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}	// end for (snum)
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int v=0;v<chip->oscsenabled;v++) {
+            ES5503Osc *pOsc = &chip->oscillators[v];
+            int j=v;
+            if (!pOsc->Muted && pOsc->vol && (pOsc->freq>0)) {
+                double freq=(double)(pOsc->freq)*(double)m_voice_current_samplerate/(1<<(17+pOsc->wavetblsize));
+                vgm_last_note[j]=freq;
+                vgm_last_vol[j]=1;
+                vgm_last_sample_addr[j]=j;
+            }
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 }
 
 

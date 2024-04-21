@@ -2760,7 +2760,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GBSPLAY_SilenceTimeout].callback=&optGBSPLAYChangedC;
     settings[GBSPLAY_SilenceTimeout].type=MDZ_SLIDER_DISCRETE;
     settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_digits=0;
-    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_min_value=2;
+    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_min_value=0;
     settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_max_value=30;
     
     SETTINGS_ID_DEF(GBSPLAY_HPFilterType)
@@ -3273,6 +3273,7 @@ void optNSFPLAYChangedC(id param) {
         (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==60)||
         (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100) ){
         ((OBSlider*)sender).value=round(((OBSlider*)sender).value);
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value);
     }
 /*
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;

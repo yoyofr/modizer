@@ -633,7 +633,9 @@ static void sequencer_step(struct gbhw *gbhw)
 			}
 		}
 	}
-	if (gbhw->master_fade) {
+    
+    //YOYOFR, better mngt
+	/*if (gbhw->master_fade) {
 		gbhw->master_volume += gbhw->master_fade;
 		if ((gbhw->master_fade > 0 &&
 		     gbhw->master_volume >= gbhw->master_dstvol) ||
@@ -642,7 +644,7 @@ static void sequencer_step(struct gbhw *gbhw)
 			gbhw->master_fade = 0;
 			gbhw->master_volume = gbhw->master_dstvol;
 		}
-	}
+	}*/
 }
 
 void gbhw_master_fade(struct gbhw* const gbhw, long speed, long dstvol)

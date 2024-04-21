@@ -104,6 +104,8 @@ enum {
 	
 	NSString *ratingImg[3];
     
+    int curSongLength;
+    
     int mOnlyCurrentEntry;
     int mOnlyCurrentSubEntry;
 

@@ -99,7 +99,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
-float tim_midifx_note_range,tim_midifx_note_offset=0,tim_midifx_length;
+float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length;
+bool tim_midifx_note_offset_reset;
 
 extern volatile int db_checked;
 
@@ -1261,10 +1262,10 @@ static float movePinchScale,movePinchScaleOld;
     int slider_time;
     sliderProgressModuleChanged=1;
     sliderProgressModuleEdit=1;
-    if ([mplayer getSongLength]>0) slider_time=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    if (curSongLength>0) slider_time=(int)(sliderProgressModule.value*(float)(curSongLength-1));
     
-    if (display_length_mode&&([mplayer getSongLength]>0)) {
-        labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-slider_time)/1000)/60,(([mplayer getSongLength]-slider_time)/1000)%60];
+    if (display_length_mode&&(curSongLength>0)) {
+        labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-slider_time)/1000)/60,((curSongLength-slider_time)/1000)%60];
     } else {
         labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", (slider_time/1000)/60,(slider_time/1000)%60];
     }
@@ -1273,11 +1274,11 @@ static float movePinchScale,movePinchScaleOld;
 
 -(void) seek:(NSNumber*)seekTime {
     int curTime;
-    if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
     
     [mplayer Seek:seekTime.intValue];
     
-    if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
+    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
     //sliderProgressModuleChanged=0;
     //sliderProgressModuleEdit=0;
@@ -1365,13 +1366,13 @@ static float movePinchScale,movePinchScaleOld;
 
 - (IBAction)sliderProgressModuleValueChanged:(id)sender {
     int64_t curTime;
-    if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
     
     //NSLog(@"initiate seek: %lld",curTime);
     [mplayer Seek:curTime];
     
     
-    if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
+    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
     sliderProgressModuleChanged=0;
     sliderProgressModuleEdit=0;
@@ -1434,7 +1435,14 @@ static float movePinchScale,movePinchScaleOld;
         }
     }
     int mpl_upd=[mplayer shouldUpdateInfos];
-    if (mpl_upd||mShouldUpdateInfos) {
+    
+    if (curSongLength) {
+        if ((itime>curSongLength-2000)&&(itime<curSongLength-100)) {
+            mpl_upd=0;
+        }
+    }
+    
+    if ( (mpl_upd) ||mShouldUpdateInfos ) {
         
         ///////////////////////////////////////////////////
         // Update miniplayer
@@ -1522,30 +1530,33 @@ static float movePinchScale,movePinchScaleOld;
         }
         [self updateBarPos];
         
-        if ([mplayer getSongLength]<0) {
+        curSongLength=[mplayer getSongLength];
+        
+        if (curSongLength<0) {
             if (display_length_mode) display_length_mode=0;
             sliderProgressModule.enabled=FALSE;
             labelModuleLength.text=@"--:--";
         } else {
+            
             sliderProgressModule.enabled=TRUE;
-            labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+            labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", (curSongLength/1000)/60,(curSongLength/1000)%60];
         }
     }
     
-    if (([mplayer getSongLength]>0)&&(itime>[mplayer getSongLength])) // if gone too far, limit
-        itime=[mplayer getSongLength];
+    if ((curSongLength>0)&&(itime>curSongLength)) // if gone too far, limit
+        itime=curSongLength;
     
     if (!sliderProgressModuleEdit) {
         labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         
-        if ([mplayer getSongLength]>0) {
-            lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        if (curSongLength>0) {
+            lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,(curSongLength/1000)/60,(curSongLength/1000)%60];
         } else {
             lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         }
-        if ([mplayer getSongLength]>0) {
-            if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
-            sliderProgressModule.value=(float)(itime)/(float)([mplayer getSongLength]);
+        if (curSongLength>0) {
+            if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-itime)/1000)/60,((curSongLength-itime)/1000)%60];
+            sliderProgressModule.value=(float)(itime)/(float)(curSongLength);
         }
         if ((mMoveStartChanLeft)&&(startChan>0)) startChan--;
         if ((mMoveStartChanRight)&&(startChan<(mplayer.numChannels-visibleChan))) startChan++;
@@ -1993,7 +2004,7 @@ int recording=0;
                         [self refreshCurrentVC];
                     }
                 } else [self playNext]; //not an archive, next entry
-            }            
+            } else clearFXbuffer=true;
         } else [self playNext]; //not an archive, next entry
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -4987,6 +4998,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     labelModuleName.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
     
     mLoadIssueMessage=0;
+    curSongLength=0;
     
     repeatingTimer=0;
     
@@ -5505,6 +5517,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //    FxTexture=EmptyTexture(512,512);
     
     tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES;
+    tim_midifx_note_offset_reset=true;
     tim_midifx_length=MAX_MIDIFX_LENGTH;
     
     clearFXbuffer=true;
@@ -6477,6 +6490,11 @@ extern "C" int current_sample;
         }
         if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
             tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
+        }
+        if (tim_midifx_note_offset_reset) {
+            tim_midifx_note_offset_reset=false;
+            tim_midifx_note_offset=note_fx_linewidth*(128 - tim_midifx_note_range)/2;
+            if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
         }
         
         //compute current center
@@ -7475,6 +7493,9 @@ extern "C" int current_sample;
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
                         }
+//                        static int cpt=0;
+//                        cpt++;
+//                        if (!(cpt&31)) printf("call with buff: %d\n",cur_pos);
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
