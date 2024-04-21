@@ -11747,7 +11747,14 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             break;
     }
     
-    
+    switch (settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_value) {
+        case 0: //ADLIB
+            vgm_set_core(vgm_plrEngine,DEVID_RF5C68,FCC_MAME);
+            break;
+        case 1: //MAME
+            vgm_set_core(vgm_plrEngine,DEVID_RF5C68,FCC_GENS);
+            break;
+    }
     
     
     /* need to call Start before calls like Tick2Sample or

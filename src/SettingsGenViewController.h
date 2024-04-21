@@ -233,6 +233,7 @@ enum MDZ_SETTINGS {
         VGMPLAY_YMF262Emulator,
         VGMPLAY_YM3812Emulator,
         VGMPLAY_QSoundEmulator,
+        VGMPLAY_RF5C68Emulator,
     
         MDZ_SETTINGS_FAMILY_VGMSTREAM,
         VGMSTREAM_ResampleQuality,

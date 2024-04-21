@@ -172,8 +172,16 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
 					sample = chip->data[(chan->addr >> 11) & 0xffff];
 
 					/* if we loop to a loop point, we're effectively dead */
-					if (sample == 0xff)
-						break;
+                    if (sample == 0xff) {
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
+                        break;
+                    }
 				}
 				chan->addr += chan->step;
 
@@ -191,7 +199,7 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                         
                         if (ofs_end>ofs_start)
                         for (;;) {
-                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (sample*(lv+rv))>>(6+7)  );
                             ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             if (ofs_start>=ofs_end) break;
                         }
@@ -212,7 +220,7 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                         
                         if (ofs_end>ofs_start)
                         for (;;) {
-                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=-LIMIT8( (sample*(lv+rv))>>(6+7)  );
                             ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             if (ofs_start>=ofs_end) break;
                         }

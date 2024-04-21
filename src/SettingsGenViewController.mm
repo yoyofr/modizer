@@ -718,6 +718,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_NUKEDOPN2_Option].detail.mdz_switch.switch_value=0;
     
     
@@ -2355,6 +2356,18 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels[0]=(char*)"CTR";
     settings[VGMPLAY_QSoundEmulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
+    
+    SETTINGS_ID_DEF(VGMPLAY_RF5C68Emulator)
+    settings[VGMPLAY_RF5C68Emulator].type=MDZ_SWITCH;
+    settings[VGMPLAY_RF5C68Emulator].label=(char*)"RF5C68 emu";
+    settings[VGMPLAY_RF5C68Emulator].description=NULL;
+    settings[VGMPLAY_RF5C68Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_RF5C68Emulator].sub_family=0;
+    settings[VGMPLAY_RF5C68Emulator].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_value_nb=2;
+    settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
+    settings[VGMPLAY_RF5C68Emulator].detail.mdz_switch.switch_labels[1]=(char*)"GENS";
     
     SETTINGS_ID_DEF(VGMPLAY_NUKEDOPN2_Option)
     settings[VGMPLAY_NUKEDOPN2_Option].type=MDZ_SWITCH;

@@ -18,6 +18,10 @@
 #include "../EmuHelper.h"
 #include "scd_pcm.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 static UINT8 device_start_rf5c68_gens(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
 static void*SCD_PCM_Init(UINT32 Clock, UINT32 Rate, UINT8 smpl0patch);
@@ -353,6 +357,23 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
 	DEV_SMPL *bufL, *bufR;
 	UINT32 Addr, k;
 	struct pcm_chan_ *CH;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	bufL = buf[0];
 	bufR = buf[1];
@@ -381,8 +402,16 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
 				if (chip->RAM[Addr] == 0xFF)
 				{
 					CH->Addr = (Addr = CH->Loop_Addr) << PCM_STEP_SHIFT;
-					if (chip->RAM[Addr] == 0xFF)
-						break;
+                    if (chip->RAM[Addr] == 0xFF) {
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
+                        break;
+                    }
 					else
 						j--;
 				}
@@ -393,6 +422,22 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
 						CH->Data = chip->RAM[Addr] & 0x7F;
 						bufL[j] -= CH->Data * CH->MUL_L;
 						bufR[j] -= CH->Data * CH->MUL_R;
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            
+                            if (ofs_end>ofs_start)
+                            for (;;) {
+                                m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( -(CH->Data * (CH->MUL_L+CH->MUL_R))>>(8)  );
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					else
 					{
@@ -403,6 +448,22 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
 							CH->Data = -0x7F;
 						bufL[j] += CH->Data * CH->MUL_L;
 						bufR[j] += CH->Data * CH->MUL_R;
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            
+                            if (ofs_end>ofs_start)
+                            for (;;) {
+                                m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (CH->Data * (CH->MUL_L+CH->MUL_R))>>(8)  );
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					
 					// update address register
@@ -425,6 +486,18 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
 			{
 				CH->Addr = CH->Loop_Addr << PCM_STEP_SHIFT;
 			}
+            
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                if (CH->MUL_L+CH->MUL_R) {
+                    int freq=440.0f*(double)(CH->Step)/(1<<11);
+                    vgm_last_note[i+m_voice_ofs]=freq;
+                    vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                    int newvol=1;
+                    vgm_last_vol[i+m_voice_ofs]=newvol;
+                }
+            }
+            //YOYOFR
 		}
 	}
 	
