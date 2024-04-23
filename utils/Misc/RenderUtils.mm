@@ -4305,7 +4305,7 @@ unsigned char piano_key_instr[128];
 
 //extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+void RenderUtils::DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4317,14 +4317,6 @@ void RenderUtils::DrawPiano3D(uint ww,uint hh,int fx_len,int automove,float posx
         memset(piano_key_instr,0,128);
         first_call=0;
         piano_fxcpt=arc4random()&0xFFF;
-    }
-    
-    if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
-    fx_len=MIDIFX_LEN;
-    
-    if (fx_len!=data_pianofx_len) {
-        data_pianofx_len=fx_len;
-        data_pianofx_first=1;
     }
     
     piano_fxcpt++;
@@ -4754,7 +4746,7 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
 }
 
 
-void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
+void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4782,16 +4774,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int fx_len,int automo
         
         for (int i=0;i<MAX_BARS*6*6;i++) vertColorBAR[i][3]=1;
     }
-    
-    
-    if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
-    fx_len=MIDIFX_LEN;
-    
-    if (fx_len!=data_pianofx_len) {
-        data_pianofx_len=fx_len;
-        data_pianofx_first=1;
-    }
-    
     
     if (camera_pos_countdown==0) {
         camera_pos=arc4random()%8;
@@ -5445,7 +5427,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int fx_len,int automo
         if (note<tgt_note_min) tgt_note_min=note;
         
         x=piano_note_posx[note&127];
-        y=piano_note_posy[note&127]+((float)(data_bar2draw[i].startidx)-(data_midifx_len-MIDIFX_OFS)+MIDIFX_OFS*3*0)*0.5f;
+        y=piano_note_posy[note&127]+((float)(data_bar2draw[i].startidx)-(data_pianofx_len-MIDIFX_OFS)+MIDIFX_OFS*3*0)*0.5f;
         z=piano_note_posz[note&127];
         
         float x1;

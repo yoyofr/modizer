@@ -3155,7 +3155,7 @@ void propertyListenerCallback (void                   *inUserData,              
     if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||
         (mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
-        (mPlayType==MMP_ATARISOUND) ) return true;
+        (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP) ) return true;
     return false;
 }
 
@@ -5869,6 +5869,34 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                                 }
                                 
+                                //midi like notes data
+                                int voices_idx=0;
+                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                                
+                                for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                    if (m_voicesStatus[j]) {
+                                        unsigned int idx=(xmp_fi.channel_info[j].note)&0xFF;
+                                        int vol=(xmp_fi.channel_info[j].volume);
+                                        if ((idx>0)&&(vol>0)) {
+                                            int subidx=xmp_fi.channel_info[j].pitchbend>>4;
+                                            if (subidx>7) subidx=7;
+                                            if (subidx<-7) subidx=-7;
+                                            subidx=(subidx>=0?subidx:subidx+7+8);
+                                            
+                                            unsigned int instr=(xmp_fi.channel_info[j].instrument)&0xFF;
+                                            
+                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                            (unsigned int)idx|
+                                            ((unsigned int)(instr)<<8)|
+                                            ((unsigned int)1<<16)|
+                                            ((unsigned int)(1<<1)<<24)|
+                                            ((unsigned int)subidx<<28);
+                                        }
+                                        voices_idx++;
+                                    }
+                                }
+                                tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                                
                                 if (m_voicesDataAvail) {
                                     //copy voice data for oscillo view
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -5909,11 +5937,41 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
                             nbBytes*=4;
                             mCurrentSamples+=nbBytes/4;
-                            openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
                             for (int i=0;i<numChannels;i++) {
                                 int v=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),i)*255;
                                 genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                             }
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            
+                            int currentPattern=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));;
+                            int currentRow=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));;
+                            
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    unsigned int idx=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
+                                                                                                    currentRow,j,OPENMPT_MODULE_COMMAND_NOTE);
+                                    //int vol=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
+                                    //                                                       currentRow,j,OPENMPT_MODULE_COMMAND_VOLUME);
+                                    if ((idx>0)) {
+                                        unsigned int subidx=0;//vgm_getSubNote(j);
+                                        
+                                        unsigned int instr=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
+                                                                                                          currentRow,j,OPENMPT_MODULE_COMMAND_INSTRUMENT);
+                                        
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)idx|
+                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)1<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)subidx<<28);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view

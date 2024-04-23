@@ -893,6 +893,29 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     if (no_reentrant) return;
     no_reentrant=true;
     
+    // First check count for each section
+    cpath=[ModizFileHelper getFullPathForFilePath:currentPath];
+    //NSLog(@"%@\n%@",cpath,currentPath);
+    //Check if it is a directory or an archive
+    BOOL isDirectory;
+    browseType=0;
+    if ([mFileMngr fileExistsAtPath:cpath isDirectory:&isDirectory]) {
+        if (!isDirectory) {
+            //file:check if archive or multisongs
+            NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
+            if ([archivetype_ext indexOfObject:extension]!=NSNotFound) {
+                //check if really an archive
+                if ([ModizFileHelper isABrowsableArchive:cpath]) browseType=1;
+            }
+            //check if Multisongs file
+            else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) {
+                //check if really a gme file
+                if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
+                else if ([ModizFileHelper isSidFileWithSubsongs:cpath]) browseType=3;
+            }
+        }
+    }
+    
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     search_local=0;
     
@@ -917,8 +940,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             search_local_entries_count[i]=0;
             if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
             for (int j=0;j<local_entries_count[i];j++)  {
-                //r.location=NSNotFound;
-                //if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                
                 bool found=false;
                 if ((browseType==0)&&mShowSubdir) {
                     found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label];
@@ -942,6 +964,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     search_local_nb_entries++;
                 }
             }
+            
+            
         }
         no_reentrant=false;
         return;
@@ -972,28 +996,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     }
     for (int i=0;i<27;i++) local_entries_count[i]=0;
     
-    // First check count for each section
-    cpath=[ModizFileHelper getFullPathForFilePath:currentPath];
-    //NSLog(@"%@\n%@",cpath,currentPath);
-    //Check if it is a directory or an archive
-    BOOL isDirectory;
-    browseType=0;
-    if ([mFileMngr fileExistsAtPath:cpath isDirectory:&isDirectory]) {
-        if (!isDirectory) {
-            //file:check if archive or multisongs
-            NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-            if ([archivetype_ext indexOfObject:extension]!=NSNotFound) {
-                //check if really an archive
-                if ([ModizFileHelper isABrowsableArchive:cpath]) browseType=1;
-            }
-            //check if Multisongs file
-            else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) {
-                //check if really a gme file
-                if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
-                else if ([ModizFileHelper isSidFileWithSubsongs:cpath]) browseType=3;
-            }
-        }
-    }
+    
     
     if (browseType==3) {//SID
         SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
@@ -3119,24 +3122,24 @@ As a consequence, some entries might disappear from existing playlist.\n\
     //[self fillKeys];
     //[tableView reloadData];
     //mSearch=0;
-    NSString *searchText=searchBar.text;
-    mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    
-//    shouldFillKeys=1;
-//    [self fillKeys];
-//    [tableView reloadData];
-    [self refreshViewReloadFiles];
+    NSLog(@"didendediting, got %@",searchBar.text);
+        if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+        else mSearch=1;
+        
+        //    shouldFillKeys=1;
+        //    [self fillKeys];
+        //    [tableView reloadData];
+        [self refreshViewReloadFiles];
     
     sBar.showsCancelButton = NO;
 }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     //if (mSearchText) [mSearchText release];
     
+    NSLog(@"text updated, got %@",searchText);
+    mSearchText=[[NSString alloc] initWithString:searchText];
     //dont auto validate if too many entries
     if (local_nb_entries<MAX_AUTOSEARCH_ENTRIES_NB) {
-        mSearchText=[[NSString alloc] initWithString:searchText];
         if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
         else mSearch=1;
         shouldFillKeys=1;

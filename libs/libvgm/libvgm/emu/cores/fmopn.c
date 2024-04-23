@@ -4984,7 +4984,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
     //YOYOFR
     if (m_voice_ofs>=0)
         for (int ii=0;ii<6;ii++) {
-            if (!(cch[ii]->Muted) && cch[ii]->SLOT[0].key) {
+            if (!(cch[ii]->Muted) ) {
                 if (cch[ii]->block_fnum==0) {
                    if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
