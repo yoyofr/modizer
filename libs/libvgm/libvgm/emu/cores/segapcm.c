@@ -128,8 +128,9 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
     int m_voice_ofs=-1;
     int m_total_channels=16;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
-            m_voice_ofs=ii;
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
             break;
         }
     }

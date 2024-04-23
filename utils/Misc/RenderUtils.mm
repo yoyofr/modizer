@@ -5802,6 +5802,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                         if (settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value==1) {
                             if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) break;
                         }
+                        if (data_midifx_vol[j][i]>vol) break;
                         if (j==MIDIFX_LEN) break;
                     }
                     data_bar2draw_count++;

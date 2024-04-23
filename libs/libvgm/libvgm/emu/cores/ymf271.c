@@ -37,6 +37,14 @@
 #include "../logging.h"
 #include "ymf271.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+static int curchan;
+static int64_t smplIncr;
+static int m_voice_ofs;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4244)	// disable warning for converting INT64 -> INT32
 #endif
@@ -702,6 +710,23 @@ static void update_pcm(YMF271Chip *chip, int slotnum, INT32 *mixp, UINT32 length
 
 		mixp[i*2+0] += (sample * ch0_vol) >> 16;
 		mixp[i*2+1] += (sample * ch1_vol) >> 16;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+curchan]+i*smplIncr;
+            int64_t ofs_end=ofs_start+smplIncr;
+            
+            int val=sample*MAXVAL(ch0_vol,ch1_vol) >> 16;
+            
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff_accumul_temp[m_voice_ofs+curchan][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+=LIMIT8(val>>6);
+                    m_voice_buff_accumul_temp_cnt[m_voice_ofs+curchan][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]++;
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		// go to next step
 		slot->stepptr += slot->step;
@@ -752,7 +777,28 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 	int op;
 	INT32 *mixp;
 	YMF271Chip *chip = (YMF271Chip *)info;
-
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=12;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
 	for (smpl_ofs = 0; smpl_ofs < samples; smpl_ofs += proc_smpls)
 	{
 		proc_smpls = samples - smpl_ofs;
@@ -766,8 +812,20 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 		YMF271Group *slot_group = &chip->groups[j];
 		mixp = chip->mix_buffer;
 
-		if (slot_group->Muted || chip->mem_base == NULL)
-			continue;
+        if (slot_group->Muted || chip->mem_base == NULL) {
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+proc_smpls*smplIncr);
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+            
+            continue;
+        }
 
 		if (slot_group->pfm && slot_group->sync != 3)
 		{
@@ -998,6 +1056,26 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 										(output2 * chip->lut_attenuation[chip->slots[slot2].ch1_level]) +
 										(output3 * chip->lut_attenuation[chip->slots[slot3].ch1_level]) +
 										(output4 * chip->lut_attenuation[chip->slots[slot4].ch1_level])) >> 16;
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j]+i*smplIncr;
+                            int64_t ofs_end=ofs_start+smplIncr;
+                            
+                            INT64 val=((output1 * MAXVAL(chip->lut_attenuation[chip->slots[slot1].ch0_level],chip->lut_attenuation[chip->slots[slot1].ch1_level]) ) +
+                                    (output2 * MAXVAL(chip->lut_attenuation[chip->slots[slot2].ch0_level],chip->lut_attenuation[chip->slots[slot2].ch1_level]) ) +
+                                    (output3 * MAXVAL(chip->lut_attenuation[chip->slots[slot3].ch0_level],chip->lut_attenuation[chip->slots[slot3].ch1_level]) ) +
+                                    (output4 * MAXVAL(chip->lut_attenuation[chip->slots[slot4].ch0_level],chip->lut_attenuation[chip->slots[slot4].ch1_level]) )) >> 16;
+                            
+                            if (ofs_end>ofs_start)
+                                for (;;) {
+                                    m_voice_buff_accumul_temp[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+=LIMIT8(val>>6);
+                                    m_voice_buff_accumul_temp_cnt[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]++;
+                                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    if (ofs_start>=ofs_end) break;
+                                }
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
 				break;
@@ -1060,6 +1138,24 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 											(output3 * chip->lut_attenuation[chip->slots[slot3].ch0_level])) >> 16;
 							mixp[i*2+1] += ((output1 * chip->lut_attenuation[chip->slots[slot1].ch1_level]) +
 											(output3 * chip->lut_attenuation[chip->slots[slot3].ch1_level])) >> 16;
+                            
+                            //TODO:  MODIZER changes start / YOYOFR
+                            if (m_voice_ofs>=0) {
+                                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j]+i*smplIncr;
+                                int64_t ofs_end=ofs_start+smplIncr;
+                                
+                                INT64 val=((output1 * MAXVAL(chip->lut_attenuation[chip->slots[slot1].ch0_level],chip->lut_attenuation[chip->slots[slot1].ch1_level]) ) +
+                                        (output3 * MAXVAL(chip->lut_attenuation[chip->slots[slot3].ch0_level],chip->lut_attenuation[chip->slots[slot3].ch1_level]) )) >> 16;
+                                
+                                if (ofs_end>ofs_start)
+                                    for (;;) {
+                                        m_voice_buff_accumul_temp[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+=LIMIT8(val>>6);
+                                        m_voice_buff_accumul_temp_cnt[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]++;
+                                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                        if (ofs_start>=ofs_end) break;
+                                    }
+                            }
+                            //TODO:  MODIZER changes end / YOYOFR
 						}
 					}
 				}
@@ -1171,9 +1267,29 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 						mixp[i*2+0] += ((output1 * chip->lut_attenuation[chip->slots[slot1].ch1_level]) +
 										(output2 * chip->lut_attenuation[chip->slots[slot2].ch1_level]) +
 										(output3 * chip->lut_attenuation[chip->slots[slot3].ch1_level])) >> 16;
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j]+i*smplIncr;
+                            int64_t ofs_end=ofs_start+smplIncr;
+                            
+                            INT64 val=((output1 * MAXVAL(chip->lut_attenuation[chip->slots[slot1].ch0_level],chip->lut_attenuation[chip->slots[slot1].ch1_level]) ) +
+                                     (output2 * MAXVAL(chip->lut_attenuation[chip->slots[slot2].ch0_level],chip->lut_attenuation[chip->slots[slot2].ch1_level]) ) +
+                                    (output3 * MAXVAL(chip->lut_attenuation[chip->slots[slot3].ch0_level],chip->lut_attenuation[chip->slots[slot3].ch1_level]) )) >> 16;
+                            
+                            if (ofs_end>ofs_start)
+                                for (;;) {
+                                    m_voice_buff_accumul_temp[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]+=LIMIT8(val>>6);
+                                    m_voice_buff_accumul_temp_cnt[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]++;
+                                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                    if (ofs_start>=ofs_end) break;
+                                }
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
 
+                curchan=j; //YOYOFR
 				update_pcm(chip, j + (3*12), chip->mix_buffer, proc_smpls);
 				break;
 			}
@@ -1181,6 +1297,7 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 			// PCM
 			case 3:
 			{
+                curchan=j; //YOYOFR
 				update_pcm(chip, j + (0*12), chip->mix_buffer, proc_smpls);
 				update_pcm(chip, j + (1*12), chip->mix_buffer, proc_smpls);
 				update_pcm(chip, j + (2*12), chip->mix_buffer, proc_smpls);
@@ -1188,6 +1305,15 @@ static void ymf271_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 				break;
 			}
 		}
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+proc_smpls*smplIncr);
+            
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 
 	for (i = 0; i < proc_smpls; i++)

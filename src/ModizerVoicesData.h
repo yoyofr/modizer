@@ -11,6 +11,8 @@
 #include "ModizerConstants.h"
 #include <sys/types.h>
 
+#define MAXVAL(a,b) (a>b?a:b)
+
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern signed int *m_voice_buff_accumul_temp[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
@@ -40,6 +42,7 @@ extern signed char m_voice_current_system,m_voice_current_systemSub;
 extern int m_voice_current_samplerate;
 extern double m_voice_current_rateratio;
 extern char m_voice_current_systemPairedOfs;
+extern char m_voice_current_total;
 extern char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 extern int m_voice_current_sample;
 

@@ -107,6 +107,10 @@
 #include "../logging.h"
 #include "ymf278b.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #define LINKDEV_OPL3	0x00
 
@@ -772,9 +776,62 @@ static void ymf278b_pcm_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 		// TODO also mute individual channels
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=24;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	vl = mix_level[chip->pcm_l];
 	vr = mix_level[chip->pcm_r];
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int i=0;i<24;i++) {
+            YMF278BSlot* sl;
+            UINT32 step,vol;
+            UINT16 envVol;
+            sl = &chip->slots[i];
+            
+            step = (sl->lfo_active && sl->vib)
+                 ? calcStep(sl->OCT, sl->FN, ymf278b_slot_compute_vib(sl))
+                 : sl->step;
+            
+            envVol = (UINT16)sl->env_vol;
+            if (sl->lfo_active && sl->AM)
+                envVol += ymf278b_slot_compute_am(sl);
+            if (envVol >= MAX_ATT_INDEX)
+                envVol = MAX_ATT_INDEX;
+            vol = (vol_tab[envVol]);
+            vol = (vol * vol_tab[sl->TL << TL_SHIFT]) >> 15;
+
+            if ( !(sl->state == EG_OFF || sl->Muted) && vol ) {
+                vgm_last_note[i+m_voice_ofs]=440.0f*(double)step/(1<<16);
+                vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                int newvol=1;
+                vgm_last_vol[i+m_voice_ofs]=newvol;
+            }
+        }
+    }
+//            last_addr[i]=v->sample_start;
+    //YOYOFR
+    
+    
 	for (j = 0; j < samples; j ++)
 	{
 		for (i = 0; i < 24; i ++)
@@ -792,6 +849,17 @@ static void ymf278b_pcm_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 			{
 				//outputs[0][j] += 0;
 				//outputs[1][j] += 0;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                    
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+                
 				continue;
 			}
 
@@ -824,6 +892,22 @@ static void ymf278b_pcm_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 			smplOut = (smplOut * 0x5A82) >> 17;	// reduce volume by -15 db, should bring it into balance with FM
 			outputs[0][j] += (smplOut * volLeft ) >> 5;
 			outputs[1][j] += (smplOut * volRight) >> 5;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(((smplOut*(volLeft+volRight))>>10));
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			step = (sl->lfo_active && sl->vib)
 			     ? calcStep(sl->OCT, sl->FN, ymf278b_slot_compute_vib(sl))
@@ -838,6 +922,8 @@ static void ymf278b_pcm_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 		}
 		ymf278b_advance(chip);
 	}
+    
+    
 }
 
 INLINE void ymf278b_keyOnHelper(YMF278BChip* chip, YMF278BSlot* slot)

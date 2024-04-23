@@ -949,6 +949,11 @@ UINT32 DROPlayer::Render(UINT32 smplCnt, WAVE_32BS* data)
                 
 				if (clDev->defInf.dataPtr != NULL && ! (disable & 0x01))
 					Resmpl_Execute(&clDev->resmpl, smplStep, &data[curSmpl]);
+                
+                //YOYOFR
+                m_voice_current_systemSub++; //flag that next one will be a linked device
+                m_voice_current_systemPairedOfs+=m_voice_current_total;
+                //YOYOFR
 			}
 		}
 		curSmpl += smplStep;

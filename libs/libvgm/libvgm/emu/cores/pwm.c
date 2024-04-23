@@ -29,6 +29,11 @@
 #include "../EmuCores.h"
 #include "pwm.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 typedef struct _pwm_chip pwm_chip;
 
 
@@ -169,21 +174,92 @@ static void PWM_Update(void* info, UINT32 length, DEV_SMPL **buf)
 	DEV_SMPL tmpOutR;
 	UINT32 i;
 	
-	if (chip->PWM_Mute)
+    //YOYOFR
+	if (chip->PWM_Mute==3)
 	{
 		memset(buf[0], 0, length * sizeof(DEV_SMPL));
 		memset(buf[1], 0, length * sizeof(DEV_SMPL));
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    static int last_out[2];
+    static int last_out_same_cnt[2]={0,0};
+    int m_voice_ofs=-1;
+    int m_total_channels=2;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	// New PWM scaling algorithm provided by Chilly Willy on the Sonic Retro forums.
 	tmpOutL = PWM_Update_Scale(chip, (INT16)chip->PWM_Out_L);
 	tmpOutR = PWM_Update_Scale(chip, (INT16)chip->PWM_Out_R);
-	
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        int limit_silence=(int64_t)m_voice_current_samplerate*50/1000;  //50ms
+        if (last_out[0]==tmpOutL) last_out_same_cnt[0]+=length;
+        else last_out_same_cnt[0]=0;
+        if (last_out[1]==tmpOutR) last_out_same_cnt[1]+=length;
+        else last_out_same_cnt[1]=0;
+        
+        if (chip->PWM_Cycle)
+            if (!(chip->PWM_Mute&1) && (last_out_same_cnt[0]<limit_silence) ) {
+            vgm_last_note[0+m_voice_ofs]=440.0f*((double)chip->clock/chip->PWM_Cycle)/22050.0f;
+            vgm_last_sample_addr[0+m_voice_ofs]=m_voice_ofs+0;
+            int newvol=1;
+            vgm_last_vol[0+m_voice_ofs]=newvol;
+        }
+        if (!(chip->PWM_Mute&2) && (last_out_same_cnt[1]<limit_silence) ) {
+            vgm_last_note[1+m_voice_ofs]=440.0f*((double)chip->clock/chip->PWM_Cycle)/22050.0f;
+            vgm_last_sample_addr[1+m_voice_ofs]=m_voice_ofs+0;
+            int newvol=1;
+            vgm_last_vol[1+m_voice_ofs]=newvol;
+        }
+        last_out[0]=tmpOutL;
+        last_out[1]=tmpOutR;
+    }
+    //YOYOFR
+    
 	for (i = 0; i < length; i ++)
 	{
-		buf[0][i] = tmpOutL;
-		buf[1][i] = tmpOutR;
+        if (chip->PWM_Mute&1) buf[0][i]=0;
+        else buf[0][i] = tmpOutL;
+        if (chip->PWM_Mute&2) buf[1][i] = 0;
+        else buf[1][i] = tmpOutR;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int64_t ofs_end=(ofs_start+smplIncr);
+            
+            if (ofs_end>ofs_start)
+            for (;;) {
+                INT32 val=tmpOutL;
+                if (!(chip->PWM_Mute&1)) m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>7));
+                val=tmpOutR;
+                if (!(chip->PWM_Mute&2)) m_voice_buff[m_voice_ofs+1][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>7));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+            m_voice_current_ptr[m_voice_ofs+1]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 	
 	return;
@@ -266,7 +342,7 @@ static void pwm_set_mute_mask(void *info, UINT32 MuteMask)
 {
 	pwm_chip* chip = (pwm_chip*)info;
 	
-	chip->PWM_Mute = (MuteMask >> 0) & 0x01;
+	chip->PWM_Mute = (MuteMask >> 0) & 0x03;//YOYOFR
 	
 	return;
 }

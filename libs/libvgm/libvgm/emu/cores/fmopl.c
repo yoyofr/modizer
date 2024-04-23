@@ -2169,8 +2169,9 @@ void ym3812_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
     m_voice_ofs=-1;
     int m_total_channels=9;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
-            m_voice_ofs=ii;
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
             break;
         }
     }
@@ -2361,6 +2362,55 @@ void ym3526_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		refresh_eg(OPL);
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=9;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    static INT32 old_out_fm[9]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<9;ii++) {
+            if (!(OPL->P_CH[ii].Muted)) {
+                if (OPL->P_CH[ii].block_fnum==0) {
+                    /*if ((OPL-> !=old_out_fm[ii])) */{
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    /*if ((OPL->out_fm[ii]!=old_out_fm[ii]))*/{
+                        int64_t freq=(OPL->P_CH[ii].block_fnum)&0x3FF;
+                        int64_t block=((OPL->P_CH[ii].block_fnum)>>10)&0x7;
+                        
+                        int64_t note=freq*(1<<block)/2*(OPL->clock)/72/(1<<19);
+                        
+                        vgm_last_note[ii+m_voice_ofs]=note; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+            //old_out_fm[ii]=OPL->out_fm[ii];
+        }
+    }
+    //YOYOFR
 	
 	bufL = buffer[0];
 	bufR = buffer[1];
@@ -2373,17 +2423,27 @@ void ym3526_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		advance_lfo(OPL);
 
 		/* FM part */
+        //YOYOFR
+        cur_channel=0;
 		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
 		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
 		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
 		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
 		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
 		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
 
 		if(!rhythm)
 		{
+            cur_channel=6;
 			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
 			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
 			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
 		}
 		else        /* Rhythm part */
@@ -2398,6 +2458,9 @@ void ym3526_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		bufR[i] = lt;
 
 		advance(OPL);
+        
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }
@@ -2552,6 +2615,65 @@ void y8950_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		refresh_eg(OPL);
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=10;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    static INT32 old_out_fm[9]; //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<9;ii++) {
+            if (!(OPL->P_CH[ii].Muted)) {
+                if (OPL->P_CH[ii].block_fnum==0) {
+                    /*if ((OPL-> !=old_out_fm[ii])) */{
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    /*if ((OPL->out_fm[ii]!=old_out_fm[ii]))*/{
+                        int64_t freq=(OPL->P_CH[ii].block_fnum)&0x3FF;
+                        int64_t block=((OPL->P_CH[ii].block_fnum)>>10)&0x7;
+                        
+                        int64_t note=freq*(1<<block)/2*(OPL->clock)/72/(1<<19);
+                        
+                        vgm_last_note[ii+m_voice_ofs]=note; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=OPL->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+            //old_out_fm[ii]=OPL->out_fm[ii];
+        }
+        //ADPCM - 1 channel
+        if( DELTAT->portstate&0x80 && ! OPL->MuteSpc[5] ) {
+            if (DELTAT->volume) {
+                int freq=DELTAT->delta;
+                vgm_last_note[9+m_voice_ofs]=220.0f*(55555.0f * ((double)(DELTAT->delta) / 65535.0f))/22050.0f; //using A3 / 22Khz
+                vgm_last_sample_addr[9+m_voice_ofs]=9+m_voice_ofs;//DELTAT->start;
+                int newvol=1;
+                vgm_last_vol[9+m_voice_ofs]=newvol;
+            }
+        }
+    }
+    //YOYOFR
 	
 	bufL = buffer[0];
 	bufR = buffer[1];
@@ -2569,17 +2691,27 @@ void y8950_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 			YM_DELTAT_ADPCM_CALC(DELTAT);
 
 		/* FM part */
+        //YOYOFR
+        cur_channel=0;
 		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
 		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
 		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
 		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
 		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
 		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
 
 		if(!rhythm)
 		{
+            cur_channel=6;
 			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
 			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
 			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
 		}
 		else        /* Rhythm part */
@@ -2588,12 +2720,29 @@ void y8950_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 		}
 
 		lt = OPL->output[0] + (OPL->output_deltat[0]>>11);
+        
+        if (m_voice_ofs>=0) 
+            if( DELTAT->portstate&0x80 && ! OPL->MuteSpc[5] ) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+9];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+9]+smplIncr);
+                if ((ofs_end)>(ofs_start))
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+9][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((OPL->output_deltat[0]>>16));
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+            }
+
+        
 
 		/* store to sound buffer */
 		bufL[i] = lt;
 		bufR[i] = lt;
 
 		advance(OPL);
+        
+        //YOYOFR
+        MDZ_ADVANCE
 	}
 
 }

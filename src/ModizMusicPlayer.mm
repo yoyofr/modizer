@@ -510,6 +510,7 @@ int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];
 signed char m_voice_current_system,m_voice_current_systemSub;
 char m_voice_current_systemPairedOfs;
+char m_voice_current_total;
 char mSIDSeekInProgress;
 char m_voicesDataAvail;
 char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
@@ -608,7 +609,11 @@ static OS_MUTEX* vgm_renderMtx;    // render thread mutex
 
 static DATA_LOADER* vgm_RequestFileCallback(void* userParam, PlayerBase* player, const char* fileName)
 {
-    DATA_LOADER* dLoad = FileLoader_Init(fileName);
+    
+    NSString *vgm_path;
+    vgm_path=[NSString stringWithFormat:@"%@/%s",[[NSBundle mainBundle] resourcePath],fileName];
+    //printf("vgm loading: %s | %s\n",fileName,[vgm_path UTF8String]);
+    DATA_LOADER* dLoad = FileLoader_Init([vgm_path UTF8String]);
     UINT8 retVal = DataLoader_Load(dLoad);
     if (! retVal)
         return dLoad;
@@ -899,9 +904,9 @@ UINT8 vgmGetChipChannelsNb(UINT8 type) {
         case DEVID_YM2610:return 0x0E;  //if YM2610B, 0x10
         case DEVID_YM3812:return 0x09;
         case DEVID_YM3526:return 0x09;
-        case DEVID_Y8950:return 0x09;
+        case DEVID_Y8950:return 0x0A;
         case DEVID_YMF262:return 0x12;
-        case DEVID_YMF278B:return 0x2F;
+        case DEVID_YMF278B:return 0x18+18; //24PCM + YMF262
         case DEVID_YMF271:return 0x0C;
         case DEVID_YMZ280B:return 0x08;
             
@@ -956,7 +961,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_Y8950:return 1;
         case DEVID_YMF262:return 1;
         case DEVID_YMF278B:return 1;
-        case DEVID_YMF271:return 0;
+        case DEVID_YMF271:return 1;
         case DEVID_YMZ280B:return 1;
             
         case DEVID_32X_PWM:return 1;
@@ -11818,6 +11823,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             m_voice_voiceColor[j]=m_voice_systemColor[vgmplay_activeChipsNb];
             
             if (pdi.type==DEVID_ES5503) m_voicesWithDataAccmul[j]=1;  //oscillo data generation in accumul buffer
+            if (pdi.type==DEVID_YMF271) m_voicesWithDataAccmul[j]=1;  //oscillo data generation in accumul buffer
         }
         
         if (vgmDataVoice_Available(pdi.type)) m_genNumVoicesChannels+=vgmGetVoicesNb(pdi.type);
@@ -15905,22 +15911,72 @@ extern "C" void adjust_amplification(void);
                             //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1&=~(1<<(channel-idx));
                             //                            else ChipOpts[vgmplay_activeChipsID[i]].Y8950.ChnMute1|=1<<(channel-idx);
                             break;
-                            //                        case 0x0C: //YMF262
-                            //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=~(1<<(channel-idx));
-                            //                            else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
-                            break;
-                        case DEVID_YMF278B: //YMF278B:47voices:23(ymf262)+24pcm(wave table) fm: 18 channels + 5 drums pcm: 24 channels
-                            //  mute1: dddddffffffffffffffffff
-                            //  mute2: pppppppppppppppppppppppp
+                        case DEVID_YMF262: //YMF262
                             if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
                             else muteOpts.chnMute[0]|=1<<chip_channel;
-                            //                            if (channel-idx<23) {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1&=~(1<<(channel-idx));
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute1|=(1<<(channel-idx));
-                            //                            } else {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2&=~(1<<(channel-idx-23));
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YMF278B.ChnMute2|=(1<<(channel-idx-23));
-                            //                            }
+                            
+                            //BD,SD,TOM,CYM,HH
+                            if (chip_channel==6) {
+                                //BD
+                                if (active) muteOpts.chnMute[0]&=~(1<<(18+0));
+                                else muteOpts.chnMute[0]|=1<<(18+0);
+                            } else if (chip_channel==7) {
+                                //HH & SD
+                                if (active) {
+                                    muteOpts.chnMute[0]&=~(1<<(18+4));
+                                    muteOpts.chnMute[0]&=~(1<<(18+1));
+                                } else {
+                                    muteOpts.chnMute[0]|=1<<(18+4);
+                                    muteOpts.chnMute[0]|=1<<(18+1);
+                                }
+                            } else if (chip_channel==8) {
+                                //TOM & CYM
+                                if (active) {
+                                    muteOpts.chnMute[0]&=~(1<<(18+2));
+                                    muteOpts.chnMute[0]&=~(1<<(18+3));
+                                } else {
+                                    muteOpts.chnMute[0]|=1<<(18+2);
+                                    muteOpts.chnMute[0]|=1<<(18+3);
+                                }
+                            }
+                            break;
+                        case DEVID_YMF278B:
+                            if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                            else muteOpts.chnMute[0]|=1<<chip_channel;
+                            
+                            if (chip_channel<24) { //PCM
+                                if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                                else muteOpts.chnMute[0]|=(1<<chip_channel);
+                            } else { //OPL3 - linked device
+                                chip_channel-=24;
+                                if (active) muteOpts.chnMute[1]&=~(1<<(chip_channel));
+                                else muteOpts.chnMute[1]|=(1<<(chip_channel));
+                                
+                                //BD,SD,TOM,CYM,HH
+                                if (chip_channel==6) {
+                                    //BD
+                                    if (active) muteOpts.chnMute[1]&=~(1<<(18+0));
+                                    else muteOpts.chnMute[1]|=1<<(18+0);
+                                } else if (chip_channel==7) {
+                                    //HH & SD
+                                    if (active) {
+                                        muteOpts.chnMute[1]&=~(1<<(18+4));
+                                        muteOpts.chnMute[1]&=~(1<<(18+1));
+                                    } else {
+                                        muteOpts.chnMute[1]|=1<<(18+4);
+                                        muteOpts.chnMute[1]|=1<<(18+1);
+                                    }
+                                } else if (chip_channel==8) {
+                                    //TOM & CYM
+                                    if (active) {
+                                        muteOpts.chnMute[1]&=~(1<<(18+2));
+                                        muteOpts.chnMute[1]&=~(1<<(18+3));
+                                    } else {
+                                        muteOpts.chnMute[1]|=1<<(18+2);
+                                        muteOpts.chnMute[1]|=1<<(18+3);
+                                    }
+                                }
+                            }
                             break;
                             //                        case 0x0E: //YMF271
                             //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF271.ChnMute1&=~(1<<(channel-idx));

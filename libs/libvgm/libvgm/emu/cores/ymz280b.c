@@ -42,6 +42,11 @@
 #include "../logging.h"
 #include "ymz280b.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void update_irq_state_timer_common(void *param, int voicenum);
 static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static UINT8 device_start_ymz280b(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
@@ -573,6 +578,26 @@ static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 	if (chip->mem_base == NULL)
 		return;
 
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
 	/* loop over voices */
 	for (v = 0; v < 8; v++)
 	{
@@ -588,17 +613,48 @@ static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		INT32 rvol = voice->output_right;
 		
 		/* skip if muted */
-		if (voice->Muted)
-			continue;
+        if (voice->Muted) {
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+v]+samples*smplIncr);
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+            continue;
+        }
 
 		/* quick out if we're not playing and we're at 0 */
 		if (!voice->playing && curr == 0 && prev == 0)
 		{
 			/* make sure next sound plays immediately */
 			voice->output_pos = FRAC_ONE;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+v]+samples*smplIncr);
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			continue;
 		}
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            if ( voice->output_step ) {
+                vgm_last_note[v+m_voice_ofs]=440.0f*(double)voice->output_step/(1<<14);
+                vgm_last_sample_addr[v+m_voice_ofs]=m_voice_ofs+v;
+                int newvol=1;
+                vgm_last_vol[v+m_voice_ofs]=newvol;
+            }
+        }
+        //YOYOFR
 
 		/* finish off the current sample */
 		/* interpolate */
@@ -608,6 +664,24 @@ static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 			ldest[i] += interp_sample * lvol;
 			rdest[i] += interp_sample * rvol;
 			voice->output_pos += voice->output_step;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                int64_t ofs_end=(ofs_start+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    INT32 val=interp_sample*MAXVAL(lvol,rvol);
+                    m_voice_buff[m_voice_ofs+v][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>16));
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+
 		}
 
 		/* if we're over, continue; otherwise, we're done */
@@ -671,6 +745,23 @@ static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 				ldest[i] += interp_sample * lvol;
 				rdest[i] += interp_sample * rvol;
 				voice->output_pos += voice->output_step;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                    int64_t ofs_end=(ofs_start+smplIncr);
+                    
+                    if (ofs_end>ofs_start)
+                    for (;;) {
+                        INT32 val=interp_sample*MAXVAL(lvol,rvol);
+                        m_voice_buff[m_voice_ofs+v][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>16));
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 
 			/* if we're over, grab the next samples */
