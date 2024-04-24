@@ -982,17 +982,17 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_POKEY:return 0;
         case DEVID_QSOUND:return 1;
             
-        case DEVID_SCSP:return 0;
+        case DEVID_SCSP:return 1;
         case DEVID_WSWAN:return 1;
         case DEVID_VBOY_VSU:return 1;
-        case DEVID_SAA1099:return 0;
+        case DEVID_SAA1099:return 1;
         case DEVID_ES5503:return 1;
         case DEVID_ES5506:return 0;
         case DEVID_X1_010:return 0;
         case DEVID_C352:return 1;
             
         case DEVID_GA20:return 1;
-        case DEVID_MIKEY:return 0;
+        case DEVID_MIKEY:return 1;
     }
     return 0;
 }
@@ -5871,26 +5871,31 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 //midi like notes data
                                 int voices_idx=0;
-                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                                memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*sizeof(unsigned int));
                                 
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     if (m_voicesStatus[j]) {
-                                        unsigned int idx=(xmp_fi.channel_info[j].note)&0xFF;
-                                        int vol=(xmp_fi.channel_info[j].volume);
+                                        unsigned int idx=(xmp_fi.channel_info[j].note);
+                                        unsigned int vol;//=(xmp_fi.channel_info[j].volume);
+                                        double note_adj=round((double)(xmp_fi.channel_info[j].pitchbend)/100.0f);
+                                        double subnote_adj=(xmp_fi.channel_info[j].pitchbend-note_adj*100.0f)*7.0f/100.0f;
+                                        //if (vol) printf("%d %d -> %lf / %lf\n",j,xmp_fi.channel_info[j].pitchbend,note_adj,subnote_adj);
+                                        vol=(xmp_fi.channel_info[j].event.note?2:1);
+                                        idx+=note_adj;
                                         if ((idx>0)&&(vol>0)) {
-                                            int subidx=xmp_fi.channel_info[j].pitchbend>>4;
+                                            int subidx=subnote_adj;
                                             if (subidx>7) subidx=7;
                                             if (subidx<-7) subidx=-7;
                                             subidx=(subidx>=0?subidx:subidx+7+8);
                                             
-                                            unsigned int instr=(xmp_fi.channel_info[j].instrument)&0xFF;
+                                            unsigned int instr=xmp_fi.channel_info[j].instrument;
                                             
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
-                                            (unsigned int)idx|
-                                            ((unsigned int)(instr)<<8)|
-                                            ((unsigned int)1<<16)|
+                                            (unsigned int)(idx&0xFF)|
+                                            ((unsigned int)(instr&0xFF)<<8)|
+                                            ((unsigned int)(vol&0xFF)<<16)|
                                             ((unsigned int)(1<<1)<<24)|
-                                            ((unsigned int)subidx<<28);
+                                            ((unsigned int)(subidx&15)<<28);
                                         }
                                         voices_idx++;
                                     }
@@ -5951,22 +5956,24 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
-                                    unsigned int idx=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
-                                                                                                    currentRow,j,OPENMPT_MODULE_COMMAND_NOTE);
-                                    //int vol=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
-                                    //                                                       currentRow,j,OPENMPT_MODULE_COMMAND_VOLUME);
+                                    //unsigned int idx=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
+                                    //                                                                currentRow,j,OPENMPT_MODULE_COMMAND_NOTE);
+                                    unsigned int note=round((double)openmpt_module_get_current_channel_note(openmpt_module_ext_get_module(ompt_mod),j)/(1<<10));
+                                    vgm_last_note[j]=note;
+                                    unsigned int idx=vgm_getNote(j);
+                                    int vol=(openmpt_module_get_current_channel_triggerNote(openmpt_module_ext_get_module(ompt_mod),j)?2:1);
+                                    
                                     if ((idx>0)) {
-                                        unsigned int subidx=0;//vgm_getSubNote(j);
+                                        unsigned int subidx=vgm_getSubNote(j);
                                         
-                                        unsigned int instr=openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),currentPattern,
-                                                                                                          currentRow,j,OPENMPT_MODULE_COMMAND_INSTRUMENT);
+                                        unsigned int instr=openmpt_module_get_current_channel_instr(openmpt_module_ext_get_module(ompt_mod),j);
                                         
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
                                         ((unsigned int)(instr)<<8)|
-                                        ((unsigned int)1<<16)|
+                                        ((unsigned int)(vol)<<16)|
                                         ((unsigned int)(1<<1)<<24)|
-                                        ((unsigned int)subidx<<28);
+                                        ((unsigned int)(subidx)<<28);
                                     }
                                     voices_idx++;
                                 }

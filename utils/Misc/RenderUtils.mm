@@ -5755,10 +5755,10 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         int j=MIDIFX_LEN-data_midifx_len;
         while (j<MIDIFX_LEN) {  //while not having reach roof
             if (data_midifx_note[j][i]) {  //do we have a note ?
-                int instr=data_midifx_instr[j][i];
-                int vol=data_midifx_vol[j][i];
+                unsigned int instr=data_midifx_instr[j][i];
+                unsigned int vol=data_midifx_vol[j][i];
                 unsigned int st=data_midifx_st[j][i];
-                int note=data_midifx_note[j][i];
+                unsigned int note=data_midifx_note[j][i];
                 int subnote=data_midifx_subnote[j][i];
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
@@ -5770,9 +5770,9 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     data_bar2draw[data_bar2draw_count].played=0;
                     data_bar2draw[data_bar2draw_count].frameidx=st>>8;
                     while ( (data_midifx_instr[j][i]==instr)&&
-                            (data_midifx_note[j][i]==note)/*&&(data_midifx_subnote[j][i]==subnote)*/&&
-                            (data_midifx_vol[j][i]&&
-                            (data_midifx_st[j][i]&VOICE_ON)) ) {  //while same bar (instru & notes), increase size
+                            (data_midifx_note[j][i]==note)&&
+                            (data_midifx_vol[j][i]<=vol)&&
+                            (data_midifx_st[j][i]&VOICE_ON) ) {  //while same bar (instru & notes), increase size
                         data_bar2draw[data_bar2draw_count].size++;
                         //propagate lowest frame nb
                         data_midifx_st[j][i]=st;
@@ -5780,11 +5780,15 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                         //take most recent subnote if before playing bar
                         if (j<MIDIFX_LEN-MIDIFX_OFS) data_bar2draw[data_bar2draw_count].subnote=data_midifx_subnote[j][i];
                         if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].played=1;
+                        //update vol to latest encountered one, allow to retrigger if volume increases from last bar to new one and manage special case with vol = 2111121111
+                        vol=data_midifx_vol[j][i];
                         j++;
                         if (settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value==1) {
                             if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) break;
                         }
-                        if (data_midifx_vol[j][i]>vol) break;
+                        /*if (data_midifx_vol[j][i]>vol) {
+                            break;
+                        }*/
                         if (j==MIDIFX_LEN) break;
                     }
                     data_bar2draw_count++;

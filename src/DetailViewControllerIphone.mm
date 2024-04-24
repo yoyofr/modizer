@@ -1276,8 +1276,6 @@ static float movePinchScale,movePinchScaleOld;
     int curTime;
     if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
     
-    [mplayer Seek:seekTime.intValue];
-    
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
     //sliderProgressModuleChanged=0;
@@ -1367,6 +1365,8 @@ static float movePinchScale,movePinchScaleOld;
 - (IBAction)sliderProgressModuleValueChanged:(id)sender {
     int64_t curTime;
     if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
+    
+    if (mPaused) [self playPushed:self];
     
     //NSLog(@"initiate seek: %lld",curTime);
     [mplayer Seek:curTime];
@@ -7189,38 +7189,8 @@ extern "C" int current_sample;
                     glPopMatrix();
                 }
             }
-        } else if (mplayer.mPatternDataAvail) { //Modplug
-//            if (1) {
-//                playerpos=[mplayer getCurrentGenBufferIdx];
-//                
-//                int *pat,*row;
-//                pat=[mplayer playPattern];
-//                row=[mplayer playRow];
-//                currentPattern=pat[playerpos];
-//                currentRow=row[playerpos];
-//                
-//                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
-//                idx=startRow*mplayer.numChannels+startChan;
-//                
-//                for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
-//                
-//                if (currentNotes) {
-//                    idx=currentRow*mplayer.numChannels;
-//                    for (j=0;j<mplayer.numChannels;j++,idx++)  {
-//                        if (currentNotes[idx].Note) {
-//                            cnote=(currentNotes[idx].Note-13)&127;
-//                            cinst=(currentNotes[idx].Instrument)&0x1F;
-//                            cvol=(currentNotes[idx].Volume)&0xFF;
-//                            if (!cvol) cvol=63;
-//                            
-//                            tim_notes_cpy[playerpos][j]=cnote|(cinst<<8)|(cvol<<16)|((1<<1)<<24); //VOICE_ON : 1<<1
-//                        }
-//                    }
-//                }
-//                
-//                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
-//                clearFXbuffer=false;
-//            }
+        }
+        if (mplayer.mPatternDataAvail) { //LIBOMPT or LIBXMP
             
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
                 //DISPLAY MOD PATTERNS

@@ -28,6 +28,12 @@
 #include "../RatioCntr.h"
 #include "saa1099_vb.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include <math.h>
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 typedef struct saa_frequency_generator SAA_FREQ_GEN;
 typedef struct saa_noise_generator SAA_NOISE_GEN;
@@ -568,6 +574,44 @@ static void saa1099v_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 	memset(outputs[1], 0, samples * sizeof(DEV_SMPL));
 	if (! saa->allOn)
 		return;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int ii=0;ii<6;ii++) {
+            saaCh = &saa->channels[ii];
+            if (!saaCh->muted && (saaCh->volL||saaCh->volR) ) {
+                if (saaCh->toneOn) {
+                    int freq=saa->clock / pow(2.0,(double)(17 - saaCh->oct + (1 - (double)(saaCh->freq)/255)));
+                    vgm_last_note[ii+m_voice_ofs]=freq;
+                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_vol[ii+m_voice_ofs]=1;
+                } else if (saaCh->noiseOn) {
+                }
+            }
+        }
+    }
+    //YOYOFR
+    
 	
 	for (curSmpl = 0; curSmpl < samples; curSmpl ++)
 	{
@@ -608,6 +652,9 @@ static void saa1099v_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 				if (! saaCh->toneOn && ! saaCh->noiseOn)
 					noDCremove = 1;
 			}
+            
+            //YOYOFR
+            int32_t chanout=0;
 			
 			// tone XOR noise enabled: outState can be: 0 [off], 2 [on]
 			// tone + noise enabled: outState can be: 0 [both off], 1 [only tone on], 2 [both on]
@@ -616,19 +663,43 @@ static void saa1099v_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 				outState = outState - 1;	// DC offset removal and make bipolar
 				outputs[0][curSmpl] += outState * outVolL;
 				outputs[1][curSmpl] += outState * outVolR;
+                
+                chanout=outState * (outVolL+outVolR); //YOYOFR
 			}
 			else if (noDCremove == 1)
 			{
 				// just ignore offset removal (makes software-PCM work)
 				outputs[0][curSmpl] += outState * outVolL;
 				outputs[1][curSmpl] += outState * outVolR;
+                
+                chanout=outState * (outVolL+outVolR); //YOYOFR
 			}
 			else //if (noDCremove == 2)
 			{
 				// set "center" based on current volume level (for EnvGen-based sounds)
 				outputs[0][curSmpl] += outState * outVolL - saa->volTbl[saaCh->volL & ~0x01];
 				outputs[1][curSmpl] += outState * outVolR - saa->volTbl[saaCh->volR & ~0x01];
+                
+                chanout=outState * (outVolL+outVolR)- saa->volTbl[saaCh->volL & ~0x01]- saa->volTbl[saaCh->volR & ~0x01]; //YOYOFR
 			}
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int i=curChn;
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=
+                        LIMIT8( (chanout>>6) );
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 		
 		// Updating after calculating the sample output improves emulation of a few artifacts.

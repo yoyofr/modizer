@@ -1194,6 +1194,35 @@ LIBOPENMPT_API int32_t openmpt_module_get_current_row( openmpt_module * mod );
  */
 LIBOPENMPT_API int32_t openmpt_module_get_current_playing_channels( openmpt_module * mod );
 
+//YOYOFR
+/*! \brief Get currently playing instrument
+ *
+ * \param mod The module handle to work on.
+ * \param channel The channel whose note should be retrieved.
+ * \return The channel  instrument.
+ * \remarks
+ */
+LIBOPENMPT_API uint8_t openmpt_module_get_current_channel_instr( openmpt_module * mod, int32_t channel );
+
+/*! \brief Get new note flag
+ *
+ * \param mod The module handle to work on.
+ * \param channel The channel whose flag should be retrieved.
+ * \return Yes if a new note was just triggered, No if not
+ * \remarks
+ */
+LIBOPENMPT_API bool openmpt_module_get_current_channel_triggerNote( openmpt_module * mod, int32_t channel );
+
+/*! \brief Get currently playing note
+ *
+ * \param mod The module handle to work on.
+ * \param channel The channel whose note should be retrieved.
+ * \return The approximate channel note.
+ * \remarks 
+ */
+LIBOPENMPT_API uint32_t openmpt_module_get_current_channel_note( openmpt_module * mod, int32_t channel );
+//YOYOFR
+
 /*! \brief Get an approximate indication of the channel volume.
  *
  * \param mod The module handle to work on.

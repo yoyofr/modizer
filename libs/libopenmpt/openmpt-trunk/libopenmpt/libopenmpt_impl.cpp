@@ -1329,6 +1329,43 @@ std::int32_t module_impl::get_current_playing_channels() const {
 	return m_sndFile->GetMixStat();
 }
 
+//YOYOFR
+uint8_t module_impl::get_current_channel_instr( std::int32_t channel ) const {
+    if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
+        return 0;
+    }
+    const uint8_t instr = m_sndFile->m_PlayState.Chn[channel].nOldIns-1
+    ;// nNewIns;
+    return instr;
+}
+
+bool module_impl::get_current_channel_triggerNote( std::int32_t channel ) const {
+    if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
+        return false;
+    }
+    const bool triggerNote = (m_sndFile->m_PlayState.Chn[channel].rowCommand.note>0);
+    return triggerNote;
+}
+
+uint32_t module_impl::get_current_channel_note( std::int32_t channel ) const {
+    if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
+        return 0;
+    }
+    //const float note = m_sndFile->m_PlayState.Chn[channel].nNewNote;
+    uint32_t note;
+    
+    /*if(!m_sndFile->m_PlayState.Chn[channel].HasCustomTuning())
+        note = m_sndFile->GetFreqFromPeriod(m_sndFile->m_PlayState.Chn[channel].nPeriod, m_sndFile->m_PlayState.Chn[channel].nC5Speed, 0);
+    else
+        note = m_sndFile->m_PlayState.Chn[channel].nPeriod;*/
+
+    uint32_t freq = 0;
+    if (m_sndFile->m_PlayState.Chn[channel].nPeriod) freq = m_sndFile->m_PlayState.Chn[channel].nFreq;
+    
+    return freq;
+}
+//YOYOFR
+
 float module_impl::get_current_channel_vu_mono( std::int32_t channel ) const {
 	if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
 		return 0.0f;

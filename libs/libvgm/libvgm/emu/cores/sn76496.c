@@ -380,7 +380,7 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
         //printf("voice sample rate null\n");
     }
     int64_t smplIncr;
-    if (samples) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
     //YOYOFR

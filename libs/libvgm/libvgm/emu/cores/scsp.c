@@ -43,6 +43,11 @@
 #include "scsp.h"
 #include "scspdsp.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static void SCSP_DoMasterSamples(void* info, UINT32 nsamples, DEV_SMPL **outputs);
 static UINT8 device_start_scsp(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
@@ -1083,19 +1088,49 @@ INLINE INT32 SCSP_UpdateSlot(scsp_state *scsp, SCSP_SLOT *slot)
 
 static void SCSP_DoMasterSamples(void* info, UINT32 nsamples, DEV_SMPL **outputs)
 {
-	scsp_state *scsp = (scsp_state *)info;
-	DEV_SMPL *bufr,*bufl;
-	UINT32 sl, s, i;
-
-	bufl = outputs[0];
-	bufr = outputs[1];
-
-	if (scsp->SCSPRAM == NULL)
-	{
-		memset(bufl, 0, nsamples * sizeof(DEV_SMPL));
-		memset(bufr, 0, nsamples * sizeof(DEV_SMPL));
-		return;
-	}
+    scsp_state *scsp = (scsp_state *)info;
+    DEV_SMPL *bufr,*bufl;
+    UINT32 sl, s, i;
+    
+    bufl = outputs[0];
+    bufr = outputs[1];
+    
+    if (scsp->SCSPRAM == NULL)
+    {
+        memset(bufl, 0, nsamples * sizeof(DEV_SMPL));
+        memset(bufr, 0, nsamples * sizeof(DEV_SMPL));
+        return;
+    }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=32;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<32;ii++) {
+            if ( scsp->Slots[ii].active && ! scsp->Slots[ii].Muted ) {
+                vgm_last_note[ii+m_voice_ofs]=440*(double)scsp->Slots[ii].step/256.0;
+                vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                vgm_last_vol[ii+m_voice_ofs]=1;
+            }
+        }
+    //YOYOFR
 
 	for(s=0;s<nsamples;++s)
 	{
@@ -1127,6 +1162,26 @@ static void SCSP_DoMasterSamples(void* info, UINT32 nsamples, DEV_SMPL **outputs
 				{
 					smpl+=(sample*scsp->LPANTABLE[Enc])>>SHIFT;
 					smpr+=(sample*scsp->RPANTABLE[Enc])>>SHIFT;
+                    
+                    int chanout=(sample*scsp->LPANTABLE[Enc])>>SHIFT;//YOYOFR
+                    chanout+=(sample*scsp->RPANTABLE[Enc])>>SHIFT;//YOYOFR
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+sl];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+sl]+smplIncr);
+                        
+                        if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+sl][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=
+                            LIMIT8( (chanout >>7) );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+sl]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
 

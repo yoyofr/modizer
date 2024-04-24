@@ -226,6 +226,13 @@ public:
 	std::int32_t get_current_pattern() const;
 	std::int32_t get_current_row() const;
 	std::int32_t get_current_playing_channels() const;
+    
+    //YOYOFR
+    bool get_current_channel_triggerNote( std::int32_t channel ) const;
+    uint8_t get_current_channel_instr( std::int32_t channel ) const;
+    uint32_t get_current_channel_note( std::int32_t channel ) const;
+    //YOYOFR
+    
 	float get_current_channel_vu_mono( std::int32_t channel ) const;
 	float get_current_channel_vu_left( std::int32_t channel ) const;
 	float get_current_channel_vu_right( std::int32_t channel ) const;

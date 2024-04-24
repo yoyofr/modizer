@@ -2368,6 +2368,11 @@ bool CSoundFile::ReadNote()
 			}
 
 			auto [ninc, freq] = GetChannelIncrement(chn, period, nPeriodFrac);
+            
+            //YOYOFR
+            chn.nFreq=freq;
+            //YOYOFR
+            
 #ifndef MODPLUG_TRACKER
 			ninc.MulDiv(m_nFreqFactor, 65536);
 #endif  // !MODPLUG_TRACKER

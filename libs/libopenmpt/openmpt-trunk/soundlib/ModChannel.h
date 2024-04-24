@@ -72,6 +72,9 @@ struct ModChannel
 	int32 nRealVolume, nRealPan;
 	int32 nVolume, nPan, nFadeOutVol;
 	int32 nPeriod;  // Frequency in Hz if CSoundFile::PeriodsAreFrequencies() or using custom tuning, 4x Amiga periods otherwise
+    //YOYOFR
+    int32 nFreq;
+    //YOYOFR
 	int32 nC5Speed, nPortamentoDest;
 	int32 cachedPeriod, glissandoPeriod;
 	int32 nCalcVolume;                 // Calculated channel volume, 14-Bit (without global volume, pre-amp etc applied) - for MIDI macros

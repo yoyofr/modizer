@@ -10,6 +10,10 @@
 #include "../RatioCntr.h"
 #include "ws_audio.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 typedef struct _wsa_state wsa_state;
 
@@ -211,6 +215,43 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
 	UINT8 ch, cnt;
 	INT16 w;	// could fit into INT8
 	DEV_SMPL l, r;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    if (m_voice_ofs>=0)
+        for (int ii=0;ii<4;ii++) {
+            if ( !(chip->ws_audio[ii].Muted) ) {
+                int vol=0;
+                if ((ii==1) && (SNDMOD&0x20)) vol=chip->PCMVolumeLeft+chip->PCMVolumeRight;
+                else vol=chip->ws_audio[ii].lvol+chip->ws_audio[ii].rvol;
+                
+                if (vol) {
+                    vgm_last_note[ii+m_voice_ofs]=440.0*(double)chip->ws_audio[ii].delta/65536.0;
+                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_vol[ii+m_voice_ofs]=1;
+                }
+            }
+        }
+    //YOYOFR
 
 	bufL = buffer[0];
 	bufR = buffer[1];
@@ -224,9 +265,10 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
 		RC_MASK(&chip->HBlankTmr);
 
 		l = r = 0;
-
+        
 		for (ch=0; ch<4; ch++)
 		{
+            chanout[ch]=0;//yoyofr
 			if (chip->ws_audio[ch].Muted)
 				continue;
 			
@@ -237,6 +279,8 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
 				w -= 0x80;
 				l += chip->PCMVolumeLeft  * w;
 				r += chip->PCMVolumeRight * w;
+                
+                chanout[ch]+=(chip->PCMVolumeLeft + chip->PCMVolumeRight)  * w;//yoyofr
 			}
 			else if (SNDMOD&(1<<ch))
 			{
@@ -300,6 +344,8 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
 					w = (chip->NoiseRng&1)? 0x7f:-0x80;
 					l += chip->ws_audio[ch].lvol * w;
 					r += chip->ws_audio[ch].rvol * w;
+                    
+                    chanout[ch]+=(chip->ws_audio[ch].lvol+chip->ws_audio[ch].rvol)  * w;//yoyofr
 				}
 				else
 				{
@@ -316,9 +362,29 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
 					w -= 0x80;
 					l += chip->ws_audio[ch].lvol * w;
 					r += chip->ws_audio[ch].rvol * w;
+                    
+                    chanout[ch]+=(chip->ws_audio[ch].lvol+chip->ws_audio[ch].rvol)  * w;//yoyofr
 				}
 			}
 		}
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0)
+            for (int jj=0;jj<4;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=
+                        LIMIT8( ((chanout[jj]* chip->MainVolume) >> 6) );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		bufL[i] = l * chip->MainVolume;
 		bufR[i] = r * chip->MainVolume;

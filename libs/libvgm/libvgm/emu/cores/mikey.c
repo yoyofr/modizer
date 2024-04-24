@@ -12,6 +12,11 @@
 #include "../EmuHelper.h"
 #include "mikey.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void mikey_write( void*, uint8_t address, uint8_t value );
 static uint8_t mikey_read( void*, uint8_t address );
 static void mikey_set_mute_mask( void*, UINT32 mutes );
@@ -703,6 +708,51 @@ static void mikey_write( void* info, uint8_t address, uint8_t value )
 static void mikey_update( void* info, UINT32 samples, DEV_SMPL** outputs )
 {
   mikey_t* mikey = (mikey_t*)info;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        //YOYOFR
+        for (int i=0;i<4;i++) {
+            if ( !(mikey->mMikey.mMute[i]) ) {
+                int vol=( ( ( mikey->mMikey.mStereo & ( 0x01 << i ) ) == 0 ) ? ( ( mikey->mMikey.mPan & ( 0x01 << i ) ) != 0 ? mikey->mMikey.mAttenuationLeft[i] : 0x3c ) : 0 );
+                vol+=( ( ( mikey->mMikey.mStereo & ( 0x10 << i ) ) == 0 ) ? ( ( mikey->mMikey.mPan & ( 0x01 << i ) ) != 0 ? mikey->mMikey.mAttenuationRight[i] : 0x3c ) : 0 );
+                if (vol && mikey->mMikey.mAudioChannels[i].mTimer.mEnableCount&& mikey->mMikey.mAudioChannels[i].mTimer.mEnableReload) {
+                    double freq=(double)(mikey->mMikey.mAudioChannels[i].mTimer.mBackup)*(1<<mikey->mMikey.mAudioChannels[i].mTimer.mAudShift);
+                    if (freq) {
+                        freq=1000000.0/freq;
+                        vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        int newvol=1;
+                        vgm_last_vol[i+m_voice_ofs]=newvol;
+                    }
+                }
+            } else vgm_last_note[i+m_voice_ofs]=0;
+        }
+        //YOYOFR
+    }
+    //YOYOFR
+    
   UINT32 i = 0;
   for ( ;; )
   {
@@ -721,6 +771,32 @@ static void mikey_update( void* info, UINT32 samples, DEV_SMPL** outputs )
         mikey->mSamplesRemainder -= mikey->mSampleRate;
         mikey->mNextTick += 1;
       }
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<4;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        int val=0;
+                        if ( !mikey->mMikey.mMute[jj] )
+                        {
+                          val += mikey->mMikey.mAudioChannels[jj].mOutput * ( ( ( mikey->mMikey.mStereo & ( 0x01 << jj ) ) == 0 ) ? ( ( mikey->mMikey.mPan & ( 0x01 << jj ) ) != 0 ? mikey->mMikey.mAttenuationLeft[jj] : 0x3c ) : 0 );
+                          val += mikey->mMikey.mAudioChannels[jj].mOutput * ( ( ( mikey->mMikey.mStereo & ( 0x10 << jj ) ) == 0 ) ? ( ( mikey->mMikey.mPan & ( 0x01 << jj ) ) != 0 ? mikey->mMikey.mAttenuationRight[jj] : 0x3c ) : 0 );
+                        }
+                        
+                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>7 );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
+        
 
       if ( ++i >= samples )
         return;

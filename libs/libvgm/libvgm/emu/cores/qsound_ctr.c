@@ -20,6 +20,11 @@
 #include "../EmuHelper.h"
 #include "qsound_ctr.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 struct qsound_voice {
@@ -281,12 +286,78 @@ static void qsoundc_update(void* param, UINT32 samples, DEV_SMPL** outputs)
 		memset(outputs[1], 0, samples * sizeof(*outputs[1]));
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=19;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        //YOYOFR
+        for (int i=0;i<16;i++) {
+            if ( !(chip->muteMask & (1<<i)) && (chip->voice[i].volume)) {
+                double freq=chip->voice[i].rate;
+                if (freq) {
+                    freq=440.0f*freq/(1<<12);
+                }
+                vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                int newvol=1;
+                vgm_last_vol[i+m_voice_ofs]=newvol;
+            }
+        }
+        for (int i=16;i<19;i++) {
+            if ( !(chip->muteMask & (1<<i)) && chip->adpcm[i-16].volume ) {
+                double freq=220.0f; //fixed, take A3 as ref
+                vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                int newvol=1;
+                vgm_last_vol[i+m_voice_ofs]=newvol;
+            }
+        }
+        //YOYOFR
+    }
+    //YOYOFR
 
 	for (curSmpl = 0; curSmpl < samples; curSmpl ++)
 	{
 		update_sample(chip);
 		outputs[0][curSmpl] = chip->out[0];
 		outputs[1][curSmpl] = chip->out[1];
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int i=0;i<16+3;i++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        if (!(chip->muteMask & (1<<i))) m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( chip->voice_output[i]>>6 );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 	
 	return;

@@ -1030,6 +1030,9 @@ UINT32 VGMPlayer::GetHeaderChipClock(UINT8 chipType) const
 			break;
 		}
 	}
+    
+    //YOYOFR
+    if ( (_fileHdr.fileVer<0x172) && (chipType==DEVID_MIKEY) ) return 0;
 	
 	return ReadLE32(&_hdrBuffer[_CHIPCLK_OFS[chipType]]);
 }

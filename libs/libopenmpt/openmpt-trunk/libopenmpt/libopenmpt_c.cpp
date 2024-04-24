@@ -1017,6 +1017,39 @@ int32_t openmpt_module_get_current_playing_channels( openmpt_module * mod ) {
 	return 0;
 }
 
+//YOYOFR
+uint8_t openmpt_module_get_current_channel_instr( openmpt_module * mod, int32_t channel ) {
+    try {
+        openmpt::interface::check_soundfile( mod );
+        return mod->impl->get_current_channel_instr( channel );
+    } catch ( ... ) {
+        openmpt::report_exception( __func__, mod );
+    }
+    return 0;
+}
+
+bool openmpt_module_get_current_channel_triggerNote( openmpt_module * mod, int32_t channel ) {
+    try {
+        openmpt::interface::check_soundfile( mod );
+        return mod->impl->get_current_channel_triggerNote( channel );
+    } catch ( ... ) {
+        openmpt::report_exception( __func__, mod );
+    }
+    return false;
+}
+
+uint32_t openmpt_module_get_current_channel_note( openmpt_module * mod, int32_t channel ) {
+    try {
+        openmpt::interface::check_soundfile( mod );
+        return mod->impl->get_current_channel_note( channel );
+    } catch ( ... ) {
+        openmpt::report_exception( __func__, mod );
+    }
+    return 0;
+}
+
+//YOYOFR
+
 float openmpt_module_get_current_channel_vu_mono( openmpt_module * mod, int32_t channel ) {
 	try {
 		openmpt::interface::check_soundfile( mod );
