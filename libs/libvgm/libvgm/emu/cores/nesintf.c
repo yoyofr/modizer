@@ -11,6 +11,27 @@
 #include "nesintf.h"
 #include "../panning.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+/** Bottom Half of APU **/
+enum
+{
+    OPT_UNMUTE_ON_RESET=0,
+    OPT_NONLINEAR_MIXER,
+    OPT_ENABLE_4011,
+    OPT_ENABLE_PNOISE,
+    OPT_DPCM_ANTI_CLICK,
+    OPT_RANDOMIZE_NOISE,
+    OPT_TRI_MUTE,
+    OPT_TRI_NULL,
+    OPT_RANDOMIZE_TRI,
+    OPT_DPCM_REVERSE,
+    OPT_END
+};
+
+
 #ifdef EC_NES_MAME
 #include "nes_apu.h"
 #endif
@@ -164,6 +185,25 @@ static void nes_stream_update_nsfplay(void* chip, UINT32 samples, DEV_SMPL** out
 	NESAPU_INF* info = (NESAPU_INF*)chip;
 	UINT32 CurSmpl;
 	INT32 Buffer[4];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	for (CurSmpl = 0; CurSmpl < samples; CurSmpl ++)
 	{
@@ -172,6 +212,45 @@ static void nes_stream_update_nsfplay(void* chip, UINT32 samples, DEV_SMPL** out
 		outputs[0][CurSmpl] = Buffer[0] + Buffer[2];
 		outputs[1][CurSmpl] = Buffer[1] + Buffer[3];
 	}
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int i=0;i<6;i++) {
+            if (i<2) {
+                int vol=NES_APU_np_GetKeyOn(info->chip_apu,i);
+                if (vol) {
+                    double freq=NES_APU_np_GetFreq(info->chip_apu,i);
+                    if (freq) {                        
+                        vgm_last_note[i+m_voice_ofs]=freq; //440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        vgm_last_vol[i+m_voice_ofs]=vol;
+                    }
+                }
+            } else if (i<5) {
+                int vol=NES_DMC_np_GetKeyOn(info->chip_dmc,i-2);
+                if (vol) {
+                    double freq=NES_DMC_np_GetFreq(info->chip_dmc,i-2);
+                    if (freq) {
+                        vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        vgm_last_vol[i+m_voice_ofs]=vol;
+                    }
+                }
+            }
+            else if ((i==5)&&(info->chip_fds!=NULL)) {
+               int vol=NES_FDS_np_GetKeyOn(info->chip_fds);
+               if (vol) {
+                   double freq=NES_FDS_np_GetFreq(info->chip_fds);
+                   if (freq) {
+                       vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                       vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                       vgm_last_vol[i+m_voice_ofs]=vol;
+                   }
+               }
+           }
+        }
+    }
+    //YOYOFR
 	
 #ifdef EC_NES_NSFP_FDS
 	if (info->chip_fds != NULL)

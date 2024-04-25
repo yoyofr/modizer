@@ -12,6 +12,10 @@
 #include "../RatioCntr.h"
 #include "np_nes_fds.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #define DEFAULT_CLOCK	1789772.0
 #define DEFAULT_RATE	44100
@@ -373,6 +377,24 @@ static void Tick(NES_FDS* fds, UINT32 clocks)
 	fds->last_vol = vol_out;
 }
 
+//YOYOFR
+double NES_FDS_np_GetFreq(void *chip){
+    NES_FDS* fds = (NES_FDS*)chip;
+    double freq=0;
+    freq=fds->last_freq;
+    if (freq) freq=(freq * fds->clock) / (65536.0 * 64.0);
+    return freq;
+}
+
+int NES_FDS_np_GetKeyOn(void *chip) {
+    NES_FDS* fds = (NES_FDS*)chip;
+    bool keyon=false;
+    keyon = fds->last_vol > 0;
+    return (keyon?1:0);
+}
+//YOYOFR
+
+
 UINT32 NES_FDS_Render(void* chip, INT32 b[2])
 {
 	NES_FDS* fds = (NES_FDS*)chip;
@@ -388,6 +410,26 @@ UINT32 NES_FDS_Render(void* chip, INT32 b[2])
 
 	UINT32 clocks;
 	INT32 v, rc_out, m;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	RC_STEP(&fds->tick_count);
 	clocks = RC_GET_VAL(&fds->tick_count);
@@ -405,6 +447,25 @@ UINT32 NES_FDS_Render(void* chip, INT32 b[2])
 	m = fds->mask ? 0 : v;
 	b[0] = (m * fds->sm[0]) >> (7-2);
 	b[1] = (m * fds->sm[1]) >> (7-2);
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+5];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+5]+smplIncr);
+         
+            int val=m * (fds->sm[0]+fds->sm[1])>>(7-2);
+            
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+5][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (val>>7) );
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+5]=ofs_end;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+
 	return 2;
 }
 

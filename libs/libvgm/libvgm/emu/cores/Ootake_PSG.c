@@ -60,6 +60,11 @@ Copyright(C)2006-2021 Kitao Nakamura.
 #include "Ootake_PSG.h"
 #include "Ootake_PSG_private.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static DEVDEF_RWFUNC devFunc[] =
 {
@@ -644,6 +649,48 @@ OPSG_Mix(
 	Sint32		smp; //Kitao追加。DDA音量,ノイズ音量計算用
 	DEV_SMPL*	bufL = pDst[0];
 	DEV_SMPL*	bufR = pDst[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
+    //YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int i=0;i<6;i++) {
+            PSGChn = &info->Psg[i];
+            if ((PSGChn->bOn)&&((i != 1)||(info->LfoCtrl == 0))&&(!info->bPsgMute[i])) {//Kitao更新
+                int vol=PSGChn->outVolumeL+PSGChn->outVolumeR;
+                if (vol && info->Psg[i].bOn) {
+                    double freq=info->Psg[i].frq;
+                    if (freq) {
+                        freq=info->PSG_FRQ/(32*freq);
+                        vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        int newvol=1;
+                        vgm_last_vol[i+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+        }
+    }
+    //YOYOFR
 
 	for (j=0; j<nSample; j++)
 	{
@@ -652,6 +699,7 @@ OPSG_Mix(
 		for (i=0; i<N_CHANNEL; i++)
 		{
 			PSGChn = &info->Psg[i];
+            int chanout=0; //yoyofr
 			
 			if ((PSGChn->bOn)&&((i != 1)||(info->LfoCtrl == 0))&&(!info->bPsgMute[i])) //Kitao更新
 			{
@@ -660,9 +708,15 @@ OPSG_Mix(
 					smp = PSGChn->ddaSample * PSGChn->outVolumeL;
 					//smp = PSGChn->ddaSample * PSGChn->outVolumeL * (Sint32)OVERSAMPLE_RATE; //オーバーサンプリング用
 					sampleAllL += smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //YOYOFR
+                    chanout+= smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //YOYOFR
 					smp = PSGChn->ddaSample * PSGChn->outVolumeR;
 					//smp = PSGChn->ddaSample * PSGChn->outVolumeR * (Sint32)OVERSAMPLE_RATE; //オーバーサンプリング用
 					sampleAllR += smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //YOYOFR
+                    chanout+= smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //YOYOFR
 				}
 				else if (PSGChn->bNoiseOn)
 				{
@@ -680,15 +734,27 @@ OPSG_Mix(
 					{
 						smp = sample * PSGChn->outVolumeL;
 						sampleAllL += (smp >> 1) + (smp >> 12) + (smp >> 14); //(1/2 + 1/4096 + (1/32768 + 1/32768))
+                        //YOYOFR
+                        chanout+= (smp >> 1) + (smp >> 12) + (smp >> 14); //(1/2 + 1/4096 + (1/32768 + 1/32768))
+                        //YOYOFR
 						smp = sample * PSGChn->outVolumeR;
 						sampleAllR += (smp >> 1) + (smp >> 12) + (smp >> 14);
+                        //YOYOFR
+                        chanout+= (smp >> 1) + (smp >> 12) + (smp >> 14); //(1/2 + 1/4096 + (1/32768 + 1/32768))
+                        //YOYOFR
 					}
 					else //通常
 					{
 						smp = sample * PSGChn->outVolumeL;
 						sampleAllL += smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整(1 + 1/2048 + 1/16384 + 1/32768)。この"+1/32768"で絶妙(主観。大魔界村,ソルジャーブレイドなど)になる。v2.62更新
+                        //YOYOFR
+                        chanout+=  smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整(1 + 1/2048 + 1/16384 + 1/32768)。この"+1/32768"で絶妙(主観。大魔界村,ソルジャーブレイドなど)になる。v2.62更新
+                        //YOYOFR
 						smp = sample * PSGChn->outVolumeR;
 						sampleAllR += smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整
+                        //YOYOFR
+                        chanout+=  smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整(1 + 1/2048 + 1/16384 + 1/32768)。この"+1/32768"で絶妙(主観。大魔界村,ソルジャーブレイドなど)になる。v2.62更新
+                        //YOYOFR
 					}
 				}
 				else if (PSGChn->deltaPhase)
@@ -707,8 +773,16 @@ OPSG_Mix(
 						sample -= sample >> 2; //低周波域の音量を制限。ブラッドギアのスタート時などで実機と同様の音に。ソルジャーブレイドなども実機に近くなった。v2.03
 
 					sampleAllL += sample * PSGChn->outVolumeL; //Kitao更新
+                    //YOYOFR
+                    chanout+=  sample * PSGChn->outVolumeL; //Kitao更新
+                    //YOYOFR
 					sampleAllR += sample * PSGChn->outVolumeR; //Kitao更新
+                    //YOYOFR
+                    chanout+=  sample * PSGChn->outVolumeR; //Kitao更新
+                    //YOYOFR
 				}
+                
+                
 			}
 			//Kitao追加。DDA消音時はノイズ軽減のためフェードアウトで消音する。
 			//			 ベラボーマン(「わしがばくだはかせじゃ」から数秒後)やパワーテニス(タイトル曲終了から数秒後。点数コール)，将棋初心者無用(音声)等で効果あり。
@@ -721,9 +795,29 @@ OPSG_Mix(
 			else if (info->DdaFadeOutR[i] < 0)
 				++info->DdaFadeOutR[i];
 			sampleAllL += info->DdaFadeOutL[i];
+            chanout += info->DdaFadeOutL[i]; //YOYOFR
 			//sampleAllL += info->DdaFadeOutL[i] * OVERSAMPLE_RATE; //オーバーサンプリング用
 			sampleAllR += info->DdaFadeOutR[i];
+            
+            chanout += info->DdaFadeOutR[i]; //YOYOFR
 			//sampleAllR += info->DdaFadeOutR[i] * OVERSAMPLE_RATE; //オーバーサンプリング用
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int jj=i;
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                    
+                    if (ofs_end>ofs_start)
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( ((int)(chanout* info->VOL))>>6 );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 		//Kitao更新。6ch合わさったところで、ボリューム調整してバッファに書き込む。
 		bufL[j] = (DEV_SMPL)((double)sampleAllL * info->VOL);

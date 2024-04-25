@@ -732,7 +732,6 @@ static void mikey_update( void* info, UINT32 samples, DEV_SMPL** outputs )
     
     //YOYOFR
     if (m_voice_ofs>=0) {
-        //YOYOFR
         for (int i=0;i<4;i++) {
             if ( !(mikey->mMikey.mMute[i]) ) {
                 int vol=( ( ( mikey->mMikey.mStereo & ( 0x01 << i ) ) == 0 ) ? ( ( mikey->mMikey.mPan & ( 0x01 << i ) ) != 0 ? mikey->mMikey.mAttenuationLeft[i] : 0x3c ) : 0 );
@@ -747,9 +746,8 @@ static void mikey_update( void* info, UINT32 samples, DEV_SMPL** outputs )
                         vgm_last_vol[i+m_voice_ofs]=newvol;
                     }
                 }
-            } else vgm_last_note[i+m_voice_ofs]=0;
+            }
         }
-        //YOYOFR
     }
     //YOYOFR
     

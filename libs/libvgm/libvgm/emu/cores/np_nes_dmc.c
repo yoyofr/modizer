@@ -11,8 +11,14 @@
 #include "../../stdbool.h"
 #include "../snddef.h"
 #include "../RatioCntr.h"
-#include "np_nes_apu.h"	// for NES_APU_np_FrameSequence
+#include "np_nes_apu.h"    // for NES_APU_np_FrameSequence
 #include "np_nes_dmc.h"
+
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 
 // Master Clock: 21477272 (NTSC)
@@ -38,76 +44,75 @@ enum
 	OPT_END
 };
 
-
 typedef struct _NES_DMC NES_DMC;
 struct _NES_DMC
 {
-	DEV_DATA _devData;
+    DEV_DATA _devData;
 
-	//const int GETA_BITS;
-	//static const UINT32 freq_table[2][16];
-	//static const UINT32 wavlen_table[2][16];
-	UINT32 tnd_table[2][16][16][128];
+    //const int GETA_BITS;
+    //static const UINT32 freq_table[2][16];
+    //static const UINT32 wavlen_table[2][16];
+    UINT32 tnd_table[2][16][16][128];
 
-	int option[OPT_END];
-	int mask;
-	INT32 sm[2][3];
-	UINT8 reg[0x10];
-	UINT32 len_reg;
-	UINT32 adr_reg;
-	//IDevice *memory;
-	const UINT8* memory;
-	UINT32 out[3];
-	UINT32 daddress;
-	UINT32 dlength;
-	UINT32 data;
-	bool empty;
-	INT16 damp;
-	int dac_lsb;
-	bool dmc_pop;
-	INT32 dmc_pop_offset;
-	INT32 dmc_pop_follow;
-	UINT32 clock;
-	UINT32 rate;
-	int pal;
-	int mode;
-	bool irq;
+    int option[OPT_END];
+    int mask;
+    INT32 sm[2][3];
+    UINT8 reg[0x10];
+    UINT32 len_reg;
+    UINT32 adr_reg;
+    //IDevice *memory;
+    const UINT8* memory;
+    UINT32 out[3];
+    UINT32 daddress;
+    UINT32 dlength;
+    UINT32 data;
+    bool empty;
+    INT16 damp;
+    int dac_lsb;
+    bool dmc_pop;
+    INT32 dmc_pop_offset;
+    INT32 dmc_pop_follow;
+    UINT32 clock;
+    UINT32 rate;
+    int pal;
+    int mode;
+    bool irq;
 
-	INT32 counter[3];	// frequency dividers
-	int tphase;			// triangle phase
-	UINT32 nfreq;		// noise frequency
-	UINT32 dfreq;		// DPCM frequency
+    INT32 counter[3];    // frequency dividers
+    int tphase;            // triangle phase
+    UINT32 nfreq;        // noise frequency
+    UINT32 dfreq;        // DPCM frequency
 
-	UINT32 tri_freq;
-	int linear_counter;
-	int linear_counter_reload;
-	bool linear_counter_halt;
-	bool linear_counter_control;
+    UINT32 tri_freq;
+    int linear_counter;
+    int linear_counter_reload;
+    bool linear_counter_halt;
+    bool linear_counter_control;
 
-	int noise_volume;
-	UINT32 noise, noise_tap;
+    int noise_volume;
+    UINT32 noise, noise_tap;
 
-	// noise envelope
-	bool envelope_loop;
-	bool envelope_disable;
-	bool envelope_write;
-	int envelope_div_period;
-	int envelope_div;
-	int envelope_counter;
+    // noise envelope
+    bool envelope_loop;
+    bool envelope_disable;
+    bool envelope_write;
+    int envelope_div_period;
+    int envelope_div;
+    int envelope_counter;
 
-	bool enable[2];	// tri/noise enable
-	int length_counter[2];	// 0=tri, 1=noise
+    bool enable[2];    // tri/noise enable
+    int length_counter[2];    // 0=tri, 1=noise
 
-	// frame sequencer
-	void* apu;	// apu is clocked by DMC's frame sequencer
-	int frame_sequence_count;	// current cycle count
-	int frame_sequence_length;	// CPU cycles per FrameSequence
-	int frame_sequence_step;	// current step of frame sequence
-	int frame_sequence_steps;	// 4/5 steps per frame
-	bool frame_irq;
-	bool frame_irq_enable;
+    // frame sequencer
+    void* apu;    // apu is clocked by DMC's frame sequencer
+    int frame_sequence_count;    // current cycle count
+    int frame_sequence_length;    // CPU cycles per FrameSequence
+    int frame_sequence_step;    // current step of frame sequence
+    int frame_sequence_steps;    // 4/5 steps per frame
+    bool frame_irq;
+    bool frame_irq_enable;
 
-	RATIO_CNTR tick_count;
+    RATIO_CNTR tick_count;
 };
 
 INLINE UINT32 calc_tri(NES_DMC* dmc, UINT32 clocks);
@@ -478,11 +483,71 @@ static void Tick(NES_DMC* dmc, UINT32 clocks)
 	dmc->out[2] = calc_dmc(dmc, clocks);
 }
 
+//YOYOFR
+double NES_DMC_np_GetFreq(void *chip, int trk){
+    NES_DMC* dmc = (NES_DMC*)chip;
+    double freq=0;
+    if (trk==0) {
+        freq=dmc->tri_freq;
+        if (freq) {
+            freq=(double)(dmc->clock)/32.0/(dmc->tri_freq + 1);;
+        }
+    }
+    else if (trk==1) {
+        freq=dmc->nfreq;
+        if (freq) freq=(double)(dmc->clock)/freq* ((dmc->noise_tap&(1<<6)) ? 93 : 1);
+    }
+    else if (trk==2) {
+        freq=dmc->dfreq;
+        if (freq) freq=(double)(dmc->clock)/freq;
+    }
+    return freq;
+}
+
+int NES_DMC_np_GetKeyOn(void *chip, int trk) {
+    NES_DMC* dmc = (NES_DMC*)chip;
+    bool keyon=false;
+    switch(trk) {
+        case 0:
+            keyon = (dmc->linear_counter>0 && dmc->length_counter[0]>0 && dmc->enable[0]);
+            break;
+        case 1:
+            keyon = dmc->length_counter[1]>0 && dmc->enable[1] &&
+            (dmc->envelope_disable ? (dmc->noise_volume>0) : (dmc->envelope_counter>0));
+            break;
+        case 2:
+            keyon = dmc->dlength > 0;
+            break;
+    }
+    return (keyon?1:0);
+}
+//YOYOFR
+
 UINT32 NES_DMC_np_Render(void* chip, INT32 b[2])
 {
 	NES_DMC* dmc = (NES_DMC*)chip;
 	UINT32 clocks;
 	INT32 m[3];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	RC_STEP(&dmc->tick_count);
 	clocks = RC_GET_VAL(&dmc->tick_count);
@@ -548,6 +613,26 @@ UINT32 NES_DMC_np_Render(void* chip, INT32 b[2])
 	b[1] += m[1] * dmc->sm[1][1];
 	b[1] +=-m[2] * dmc->sm[1][2];
 	b[1] >>= 7-2;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int jj=0;jj<3;jj++) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj+2];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj+2]+smplIncr);
+         
+            int val=m[jj] * (dmc->sm[0][jj]+dmc->sm[1][jj])>>(7-2);
+            
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+jj+2][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (val>>7) );
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+jj+2]=ofs_end;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
 	return 2;
 }

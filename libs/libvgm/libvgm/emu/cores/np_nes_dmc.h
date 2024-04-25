@@ -17,4 +17,9 @@ int NES_DMC_np_GetDamp(void* chip);
 void NES_DMC_np_SetMask(void* chip, int m);
 void NES_DMC_np_SetStereoMix(void* chip, int trk, INT16 mixl, INT16 mixr);
 
+//YOYOFR
+double NES_DMC_np_GetFreq(void *chip, int trk);
+int NES_DMC_np_GetKeyOn(void *chip, int trk);
+//YOYOFR
+
 #endif	// __NP_NES_DMC_H__

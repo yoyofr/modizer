@@ -14,4 +14,10 @@ int NES_FDS_GetOption(void* chip, int id);
 void NES_FDS_SetMask(void* chip, int m);
 void NES_FDS_SetStereoMix(void* chip, int trk, INT16 mixl, INT16 mixr);
 
+//YOYOFR
+double NES_FDS_np_GetFreq(void *chip);
+int NES_FDS_np_GetKeyOn(void *chip);
+//YOYOFR
+
+
 #endif	// __NP_NES_FDS_H__

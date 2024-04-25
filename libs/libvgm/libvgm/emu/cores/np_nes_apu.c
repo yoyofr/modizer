@@ -15,6 +15,10 @@
 #include "../RatioCntr.h"
 #include "np_nes_apu.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 // Master Clock: 21477272 (NTSC)
 // APU Clock = Master Clock / 12
@@ -39,52 +43,52 @@ enum
 	SQR1_MASK = 2,
 };
 
-
 typedef struct _NES_APU NES_APU;
 struct _NES_APU
 {
-	DEV_DATA _devData;
+    DEV_DATA _devData;
 
-	int option[OPT_END];		// 各種オプション
-	int mask;
-	INT32 sm[2][2];
+    int option[OPT_END];        // 各種オプション
+    int mask;
+    INT32 sm[2][2];
 
-	UINT32 gclock;
-	UINT8 reg[0x20];
-	INT32 out[2];
-	UINT32 rate, clock;
+    UINT32 gclock;
+    UINT8 reg[0x20];
+    INT32 out[2];
+    UINT32 rate, clock;
 
-	INT32 square_table[32];		// nonlinear mixer
-	INT32 square_linear;		// linear mix approximation
+    INT32 square_table[32];        // nonlinear mixer
+    INT32 square_linear;        // linear mix approximation
 
-	int scounter[2];			// frequency divider
-	int sphase[2];				// phase counter
+    int scounter[2];            // frequency divider
+    int sphase[2];                // phase counter
 
-	int duty[2];
-	int volume[2];
-	int freq[2];
-	int sfreq[2];
+    int duty[2];
+    int volume[2];
+    int freq[2];
+    int sfreq[2];
 
-	bool sweep_enable[2];
-	bool sweep_mode[2];
-	bool sweep_write[2];
-	int sweep_div_period[2];
-	int sweep_div[2];
-	int sweep_amount[2];
+    bool sweep_enable[2];
+    bool sweep_mode[2];
+    bool sweep_write[2];
+    int sweep_div_period[2];
+    int sweep_div[2];
+    int sweep_amount[2];
 
-	bool envelope_disable[2];
-	bool envelope_loop[2];
-	bool envelope_write[2];
-	int envelope_div_period[2];
-	int envelope_div[2];
-	int envelope_counter[2];
+    bool envelope_disable[2];
+    bool envelope_loop[2];
+    bool envelope_write[2];
+    int envelope_div_period[2];
+    int envelope_div[2];
+    int envelope_counter[2];
 
-	int length_counter[2];
+    int length_counter[2];
 
-	bool enable[2];
+    bool enable[2];
 
-	RATIO_CNTR tick_count;
+    RATIO_CNTR tick_count;
 };
+
 
 static void sweep_sqr(NES_APU* apu, int ch);	// calculates target sweep frequency
 static INT32 calc_sqr(NES_APU* apu, int ch, UINT32 clocks);
@@ -228,12 +232,53 @@ static void Tick(NES_APU* apu, UINT32 clocks)
 	apu->out[1] = calc_sqr(apu, 1, clocks);
 }
 
+//YOYOFR
+double NES_APU_np_GetFreq(void *chip, int trk){
+    NES_APU* apu = (NES_APU*)chip;
+    double freq=0;
+    freq=apu->freq[trk];
+    if (freq) freq=(double)(apu->clock)/16.0/(freq + 1);
+    return freq;
+}
+
+int NES_APU_np_GetKeyOn(void *chip, int trk) {
+    NES_APU* apu = (NES_APU*)chip;
+    bool keyon=false;
+    keyon = apu->enable[trk] &&
+            apu->length_counter[trk] > 0 &&
+            apu->freq[trk] >= 8 &&
+            apu->sfreq[trk] < 0x800 &&
+            (apu->envelope_disable[trk] ? apu->volume[trk] : (apu->envelope_counter[trk] > 0));
+    return (keyon?1:0);
+}
+//YOYOFR
+
 // 生成される波形の振幅は0-8191
 UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
 {
 	NES_APU* apu = (NES_APU*)chip;
 	UINT32 clocks;
 	INT32 m[2];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int chanout[4];
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	RC_STEP(&apu->tick_count);
 	clocks = RC_GET_VAL(&apu->tick_count);
@@ -275,6 +320,26 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
 	b[1]  = m[0] * apu->sm[1][0];
 	b[1] += m[1] * apu->sm[1][1];
 	b[1] >>= 7-2;	// see above
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int jj=0;jj<2;jj++) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+         
+            int val=m[jj] * (apu->sm[0][jj]+apu->sm[1][jj])>>(7-2);
+            
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (val>>7) );
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
 	return 2;
 }

@@ -997,7 +997,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
     return 0;
 }
 
-char vgmVRC7,vgm2610b;
+char vgmVRC7,vgm2610b,vgmNESFDS;
 
 static char vgm_voice_name[32];
 char *vgmGetVoiceDetailedVoiceName(UINT8 chipdId,UINT8 channel) {
@@ -1050,6 +1050,7 @@ char *vgmGetVoiceDetailedVoiceName(UINT8 chipdId,UINT8 channel) {
 UINT8 vgmGetVoicesNb(UINT8 chipId) {
     if ((chipId==DEVID_YM2413)&&(vgmVRC7)) return 6;
     if ((chipId==DEVID_YM2610)&&(vgm2610b)) return 16;
+    if ((chipId==DEVID_NES_APU)&&(vgmNESFDS)) return 6;
     return vgmGetChipChannelsNb(chipId);
 }
 
@@ -6085,10 +6086,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (m_genNumVoicesChannels) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        
-                                        for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                            m_voice_buff[j][i]=m_voice_buff[j][(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-1];
-                                        }
+                                        if (m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)
+                                            for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                                m_voice_buff[j][i]=m_voice_buff[j][(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-1];
+                                            }
                                     }
                                 }
                                 
@@ -6509,7 +6510,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (m_genNumVoicesChannels) {
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                     
-                                    if (m_voice_current_ptr[j])
+                                    if (m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)
                                         for (int i=(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                                             m_voice_buff[j][i]=m_voice_buff[j][(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-1];
                                         }
@@ -11851,6 +11852,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     m_genNumVoicesChannels=0;
     vgmplay_activeChipsNb=0;
     vgmVRC7=vgm2610b=0;
+    vgmNESFDS=0;
     
     // only after calling PlayerA::Start() we can obtain info about the currently used sound cores
     PLR_SONG_INFO sInf;
@@ -11870,6 +11872,9 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         if (pdi.type==DEVID_YM2413) {
             if (pdi.devCfg->flags&1) vgmVRC7=1;
+        }
+        if (pdi.type==DEVID_NES_APU) {
+            if (pdi.devCfg->flags) vgmNESFDS=1;
         }
         if (pdi.type==DEVID_YM2610) {
             if (pdi.devCfg->flags&1) vgm2610b=1;
