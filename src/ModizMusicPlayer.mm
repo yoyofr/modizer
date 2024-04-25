@@ -979,7 +979,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_C140:return 1;
         case DEVID_C219:return 1;
         case DEVID_K053260:return 1;
-        case DEVID_POKEY:return 0;
+        case DEVID_POKEY:return 1;
         case DEVID_QSOUND:return 1;
             
         case DEVID_SCSP:return 1;

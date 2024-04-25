@@ -251,6 +251,8 @@ int NES_APU_np_GetKeyOn(void *chip, int trk) {
             (apu->envelope_disable[trk] ? apu->volume[trk] : (apu->envelope_counter[trk] > 0));
     return (keyon?1:0);
 }
+
+
 //YOYOFR
 
 // 生成される波形の振幅は0-8191
@@ -262,7 +264,6 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
-    int chanout[4];
     int m_voice_ofs=-1;
     int m_total_channels=6;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {

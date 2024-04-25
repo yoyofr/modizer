@@ -22,6 +22,11 @@
 #include "../logging.h"
 #include "k054539.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 static void k054539_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static UINT8 device_start_k054539(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
 static void device_stop_k054539(void *chip);
@@ -205,6 +210,27 @@ static void k054539_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		memset(outputs[1], 0, samples*sizeof(*outputs[1]));
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
 
 	for(sample = 0; sample != samples; sample++) {
 		float lval, rval;
@@ -374,7 +400,10 @@ static void k054539_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					info->regs[0x22c] &= ~(1<<ch);	// turn off channel to prevent spamming log messages
 					break;
 				}
-
+                
+                int chanout=0; //yoyofr
+                chanout=cur_val*((float)lvol+(float)rvol);
+                
 				lval += cur_val * (float)lvol;
 				rval += cur_val * (float)rvol;
 				rbase[(rdelta + info->reverb_pos) & 0x1fff] += (INT16)(cur_val*rbvol);
@@ -389,7 +418,47 @@ static void k054539_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					base1[0x0d] = cur_pos>> 8 & 0xff;
 					base1[0x0e] = cur_pos>>16 & 0xff;
 				}
-			}
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                    if (ofs_end>ofs_start)
+                        for (;;) {
+                            int val=chanout;
+                            m_voice_buff[m_voice_ofs+ch][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>4 );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+                
+                //YOYOFR
+                if (sample==0) {
+                    float vol=lvol+rvol;
+                    if (vol) {
+                        double freq=delta;
+                        if (freq) {
+                            freq=freq*440.0*2/65536.0;
+                            vgm_last_note[ch+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                            vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                            int newvol=1;
+                            vgm_last_vol[ch+m_voice_ofs]=newvol;
+                        }
+                    }
+                }
+                //YOYOFR
+            } else {
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+            }
 		info->reverb_pos = (info->reverb_pos + 1) & 0x1fff;
 		outputs[0][sample] = (DEV_SMPL)(lval);
 		outputs[1][sample] = (DEV_SMPL)(rval);

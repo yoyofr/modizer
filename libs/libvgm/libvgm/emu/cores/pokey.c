@@ -95,6 +95,11 @@
 #include "../EmuHelper.h"
 #include "pokey.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 typedef struct pokey_device pokey_device;
 typedef struct pokey_channel pokey_channel;
 
@@ -875,6 +880,25 @@ void pokey_update(void *info, UINT32 samples, DEV_SMPL **outputs)
 {
 	pokey_device *d = (pokey_device *)info;
 	UINT32 sampindex;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for(sampindex = 0; sampindex < samples; sampindex++)
 	{
@@ -884,8 +908,27 @@ void pokey_update(void *info, UINT32 samples, DEV_SMPL **outputs)
 		{
 			INT32 out = 0;
 			int i;
-			for (i = 0; i < 4; i++)
-				out += ((d->m_out_raw >> (4*i)) & 0x0f);
+            for (i = 0; i < 4; i++) {
+                out += ((d->m_out_raw >> (4*i)) & 0x0f);
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                    if (ofs_end>ofs_start)
+                        for (;;) {
+                            int val=((d->m_out_raw >> (4*i)) & 0x0f);
+                            val *= POKEY_DEFAULT_GAIN;
+                            val = (val > 0x7fff) ? 0x7fff : val;
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>5 );
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+            }
 			out *= POKEY_DEFAULT_GAIN;
 			out = (out > 0x7fff) ? 0x7fff : out;
 			outputs[0][sampindex] = out;
