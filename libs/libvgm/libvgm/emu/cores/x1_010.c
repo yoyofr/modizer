@@ -64,6 +64,11 @@ Registers:
 #include "../logging.h"
 #include "x1_010.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static UINT8 device_start_x1_010(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
@@ -185,6 +190,25 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 	memset( outputs[1], 0, samples*sizeof(*outputs[1]) );
 	if (info->rom == NULL)
 		return;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=16;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 //	if( info->sound_enable == 0 ) return;
 
@@ -208,19 +232,62 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					emu_logf(&info->logger, DEVLOG_TRACE, "Play sample %p - %p, channel %X volume %d:%d freq %X step %X offset %X\n",
 						start, end, ch, volL, volR, freq, smp_step, smp_offs );
 				}
-				for( i = 0; i < samples; i++ ) {
-					delta = smp_offs>>FREQ_BASE_BITS;
-					// sample ended?
-					if( start+delta >= end ) {
-						reg->status &= ~0x01;                   // Key off
-						break;
-					}
-					data = start[delta];
-					bufL[i] += (data*volL/256);
-					bufR[i] += (data*volR/256);
-					smp_offs += smp_step;
+                
+                for( i = 0; i < samples; i++ ) {
+                    delta = smp_offs>>FREQ_BASE_BITS;
+                    // sample ended?
+                    if( start+delta >= end ) {
+                        reg->status &= ~0x01;                   // Key off
+                        
+                        //YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int jj=ch;
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+                        }
+                        //YOYOFR
+                        
+                        break;
+                    }
+                    data = start[delta];
+                    bufL[i] += (data*volL/256);
+                    bufR[i] += (data*volR/256);
+                    smp_offs += smp_step;
+                    
+                    //YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int jj=ch;
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                        if (ofs_end>ofs_start)
+                            for (;;) {
+                                int val=(data*MAXVAL(volL,volR)/256);
+                                m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>5 );
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+                        
+                    }
+                    //YOYOFR
 				}
 				info->smp_offset[ch] = smp_offs;
+                
+                //YOYOFR
+                INT32 volume=volL+volR;
+                if (volume && (reg->status&1)) {
+                    if (reg->frequency) {
+                        double freqnote=(UINT32)(261.6256f*(float)info->base_clock/8192.0f*freq/(float)info->rate+0.5f); //using C4 as ref
+                        vgm_last_note[ch+m_voice_ofs]=freqnote; ;//440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                        int newvol=1;
+                        vgm_last_vol[ch+m_voice_ofs]=newvol;
+                    }
+                }
+                //YOYOFR
+                
 			} else {                                            // Wave form
 				start    = (INT8 *)&(info->reg[reg->volume*128+0x1000]);
 				smp_offs = info->smp_offset[ch];
@@ -235,12 +302,23 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					emu_logf(&info->logger, DEVLOG_TRACE, "Play waveform %X, channel %X volume %X freq %4X step %X offset %X\n",
 						reg->volume, ch, reg->end, freq, smp_step, smp_offs );
 				}
+                
 				for( i = 0; i < samples; i++ ) {
 					int vol;
 					delta = env_offs>>ENV_BASE_BITS;
 					// Envelope one shot mode
 					if( (reg->status&4) != 0 && delta >= 0x80 ) {
 						reg->status &= ~0x01;                   // Key off
+                        
+                        //YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int jj=ch;
+                            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+                        }
+                        //YOYOFR
+                        
 						break;
 					}
 					vol = env[delta&0x7f];
@@ -251,9 +329,39 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 					bufR[i] += (data*volR/256);
 					smp_offs += smp_step;
 					env_offs += env_step;
+                    
+                    //YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int jj=ch;
+                        int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                        int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                        if (ofs_end>ofs_start)
+                            for (;;) {
+                                int val=(data*MAXVAL(volL,volR)/256);
+                                m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>5 );
+                                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                        m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+                    }
+                    //YOYOFR
 				}
 				info->smp_offset[ch] = smp_offs;
 				info->env_offset[ch] = env_offs;
+                
+                //YOYOFR
+                INT32 volume=volL+volR;
+                if (volume && (reg->status&1)) {
+                    if (freq) {
+                        double freqnote=(UINT32)(261.6256f*(float)info->base_clock/128.0/1024.0/4.0*freq/(float)info->rate+0.5f); //using C4 as ref
+                        vgm_last_note[ch+m_voice_ofs]=freqnote; ;//440.0f*c->v[i].freq/22050.0f;
+                        vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                        int newvol=1;
+                        vgm_last_vol[ch+m_voice_ofs]=newvol;
+                    }
+                }
+                //YOYOFR
 			}
 		}
 	}

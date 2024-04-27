@@ -19,6 +19,41 @@
 
 //struct Mesh;
 
+namespace
+{
+
+struct LineVertex
+{
+    LineVertex() {}
+    LineVertex(signed short _x, signed short _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+    : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
+    {}
+    signed short x, y;
+    uint8_t r, g, b, a;
+};
+
+struct LineVertexF
+{
+    LineVertexF() {}
+    LineVertexF(float _x, float _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+    : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
+    {}
+    float x, y;
+    uint8_t r, g, b, a;
+};
+
+struct vertexData {
+    GLfloat x;             // OpenGL X Coordinate
+    GLfloat y;             // OpenGL Y Coordinate
+    GLfloat z;             // OpenGL Z Coordinate
+    GLfloat s;             // Texture S Coordinate
+    GLfloat t;             // Texture T Coordinate
+    GLfloat r,g,b,a;
+};
+
+
+}
+
 
 namespace RenderUtils
 {
@@ -54,7 +89,10 @@ void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_i
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
 void UpdateDataPiano(unsigned int *data,bool clearbuffer,bool paused);
 
+int DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote);
+
 void DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor);
+void DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor);
 void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
 void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 }

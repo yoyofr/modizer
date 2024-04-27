@@ -897,12 +897,55 @@ void pokey_update(void *info, UINT32 samples, DEV_SMPL **outputs)
         //printf("voice sample rate null\n");
     }
     int64_t smplIncr;
+    int period[4];
     smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	for(sampindex = 0; sampindex < samples; sampindex++)
 	{
 		pokey_execute_run(d);
+        
+        //YOYOFR
+        if (sampindex==0) {
+            int div=(d->m_AUDCTL&1?114:28);
+            switch (d->m_AUDCTL & 80) {
+                case 0:
+                    period[0] = div* (d->m_channel[0].m_AUDF + 1);
+                    period[1] = div* (d->m_channel[1].m_AUDF + 1);
+                    break;
+                case 16:
+                    period[0] = div << 8;
+                    period[1] = div * (d->m_channel[0].m_AUDF + (d->m_channel[1].m_AUDF << 8) + 1);
+                    break;
+                case 64:
+                    period[0] = d->m_channel[0].m_AUDF + 4;
+                    period[1] = div * (d->m_channel[1].m_AUDF + 1);
+                    break;
+                case 80:
+                    period[0] = 256;
+                    period[1] = d->m_channel[0].m_AUDF + (d->m_channel[1].m_AUDF << 8) + 7;
+                    break;
+            }
+            switch (d->m_AUDCTL & 40) {
+                case 0:
+                    period[2] = div * (d->m_channel[2].m_AUDF + 1);
+                    period[3] = div * (d->m_channel[3].m_AUDF + 1);
+                    break;
+                case 8:
+                    period[2] = div << 8;
+                    period[3] = div * (d->m_channel[2].m_AUDF + (d->m_channel[3].m_AUDF << 8) + 1);
+                    break;
+                case 32:
+                    period[2] = d->m_channel[2].m_AUDF + 4;
+                    period[3] = div * (d->m_channel[3].m_AUDF + 1);
+                    break;
+                case 40:
+                    period[2] = 256;
+                    period[3] = d->m_channel[2].m_AUDF + (d->m_channel[3].m_AUDF << 8) + 7;
+                    break;
+            }
+        }
+        //YOYOFR
 
 		if (d->m_output_type == LEGACY_LINEAR)
 		{
@@ -928,7 +971,24 @@ void pokey_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                     m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
                 }
                 //TODO:  MODIZER changes end / YOYOFR
+                //YOYOFR
+                if (sampindex==0) {
+                    if (!(d->m_muted[i])) {
+                        
+                        double freq=period[i];
+                        int vol=((d->m_channel[i].m_AUDC & 15) >0);
+                        if (freq && vol) {
+                            freq=1/d->m_clock_period/freq/2;
+                            vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                            vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                            vgm_last_vol[i+m_voice_ofs]=1;
+                        }
+                    }
+                }
+                //YOYOFR
             }
+            
+            
 			out *= POKEY_DEFAULT_GAIN;
 			out = (out > 0x7fff) ? 0x7fff : out;
 			outputs[0][sampindex] = out;

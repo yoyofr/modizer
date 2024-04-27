@@ -3732,7 +3732,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     frame.origin.y = -frame.size.height;
     refreshBackgroundView = [[UIView alloc]initWithFrame:frame];
     refreshBackgroundView.tag=TAG_REFRESHVIEW;
-    refreshBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    refreshBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth;// | UIViewAutoresizingFlexibleHeight;
     
     if (darkMode) {
         refreshBackgroundView.backgroundColor=[UIColor blackColor];

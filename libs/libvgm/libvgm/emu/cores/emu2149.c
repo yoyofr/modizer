@@ -505,7 +505,7 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     int m_voice_ofs=-1;
-    int m_total_channels=3;
+    int m_total_channels=4;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (m_voice_ChipID[ii]==m_voice_current_system) {
             m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);

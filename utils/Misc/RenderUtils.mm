@@ -7,8 +7,6 @@
  *
  */
 
-
-//extern BOOL is_retina;
 extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
@@ -88,32 +86,6 @@ float specularLight[3][4] = {
     {1.0f, 1.0f, 1.0f, 1.0f }
 };	// �wiat�o odbicia
 float position[] = { 0, 0, 8, 1 };
-
-
-namespace
-{
-
-struct LineVertex
-{
-    LineVertex() {}
-    LineVertex(signed short _x, signed short _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
-    : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
-    {}
-    signed short x, y;
-    uint8_t r, g, b, a;
-};
-
-struct vertexData {
-    GLfloat x;             // OpenGL X Coordinate
-    GLfloat y;             // OpenGL Y Coordinate
-    GLfloat z;             // OpenGL Z Coordinate
-    GLfloat s;             // Texture S Coordinate
-    GLfloat t;             // Texture T Coordinate
-    GLfloat r,g,b,a;
-};
-
-
-}
 
 
 void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
@@ -6050,7 +6022,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                 }
             }
         } else {  //vert
-            int posNote=note*line_width-note_display_offset+adj_size+subnote-8;
+            int posNote=note*line_width-note_display_offset+adj_size+subnote;
             int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
             int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
             if ( ((posNote+(line_width-adj_size)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
@@ -6145,6 +6117,346 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     }
     glLineWidth(band_width*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 2);
+    
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_BLEND);
+    
+    free(ptsB);
+    
+}
+
+
+int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote) {
+    int crtp[4],cgtp[4],cbtp[4],cap[4];
+    
+    for (int ii=0;ii<4;ii++) {
+        double fact=1;
+        double ofs=0;
+        if ((ii==3)||(ii==2)) {
+            fact=1.5f;
+            ofs=64;
+        }
+        if ((ii==0)||(ii==1)) {
+            fact=0.5f;
+            ofs=0;
+        }
+        crtp[ii]=crt*fact+ofs;
+        cgtp[ii]=cgt*fact+ofs;
+        cbtp[ii]=cbt*fact+ofs;
+        cap[ii]=ca;
+        if (crtp[ii]>255) crtp[ii]=255;
+        if (cgtp[ii]>255) cgtp[ii]=255;
+        if (cbtp[ii]>255) cbtp[ii]=255;
+        if (cap[ii]>255) cap[ii]=255;
+    }
+    //top
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width, y,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x, y+border_size,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //left
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+border_size, y,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    //bottom
+    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x, y+height-border_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    
+    //right
+    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                        
+    //inner part
+    ptsB[index++] = LineVertexF(x+border_size, y+border_size,crt,cgt,cbt,ca);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crt,cgt,cbt,ca);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crt,cgt,cbt,ca);
+    
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crt,cgt,cbt,ca);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crt,cgt,cbt,ca);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height-border_size,crt,cgt,cbt,ca);
+    
+    return index;
+}
+
+void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+    LineVertexF *ptsB;
+    int crt,cgt,cbt,ca;
+    int crtp[4],cgtp[4],cbtp[4],cap[4];
+    int index;
+    //int band_width,ofs_band;
+    float band_width;
+    float line_width;
+    float line_width_extra;
+    
+    if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
+    if (fx_len<=MIDIFX_OFS) fx_len=MIDIFX_OFS+1;
+    
+    if (fx_len!=data_midifx_len) {
+        data_midifx_len=fx_len;
+        //data_midifx_first=1;
+    }
+    
+    ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
+    if (horiz_vert==0) {//Horiz
+        band_width=(float)(ww+0*ww/4)/data_midifx_len;
+        //        ofs_band=(ww-band_width*data_midifx_len)>>1;
+        line_width=1.0f*hh/note_display_range;
+    } else { //vert
+        band_width=(float)(hh+0*hh/4)/data_midifx_len;
+        //        ofs_band=(hh-band_width*data_midifx_len)>>1;
+        line_width=1.0f*ww/note_display_range;
+    }
+    //line_width_extra=line_width*0.2f;
+//    if (line_width_extra<2) line_width_extra=2;
+    line_width_extra=3;
+    
+    //glDisable(GL_BLEND);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    
+    
+    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
+    
+    
+    //////////////////////////////////////////////
+    
+    int data_bar2draw_count=0;
+    
+    index=0;
+    
+    float note_posX[256];
+    uint8_t note_posType[256];
+    int midi_data_ofs=MIDIFX_LEN-MIDIFX_OFS-1;
+    
+    int octaves=8;
+    //white keys
+    float width=(float)(ww)/(7.0*octaves);
+    float height=width*4;
+    float x;
+    float y;
+    //black keys
+    float widthB=round(width/2.0);
+    float heightB=height*3/5;
+    float xB;
+    float yB;
+    
+    
+    int border_size=2;
+    int num_rows=hh/(height+16);
+    if (m_genNumVoicesChannels<num_rows) num_rows=m_genNumVoicesChannels;
+    
+    //draw white keys
+    for (int j=0;j<num_rows;j++) {
+        y=hh-(height+16)*(j+1);
+        for (int i=0;i<7*octaves;i++) {//8 Octaves
+            x=(float)(ww)*i/(7*octaves);
+            
+            //get note index
+            //1st get octave
+            int note=(i/7); //octave
+            note=note*12;
+            //2nd get white key idx
+            switch (i%7) {
+                case 0:note+=0;break; //C
+                case 1:note+=2;break; //D
+                case 2:note+=4;break; //E
+                case 3:note+=5;break; //F
+                case 4:note+=7;break; //G
+                case 5:note+=9;break; //A
+                case 6:note+=11;break; //B
+            }
+            
+            note_posX[note]=x;
+            note_posType[note]=0;
+            
+            index=DrawBox(ptsB,index,x,y,width,height,border_size,220,220,220,255,0);
+        }
+    }
+    
+    //1st pass draw notes - white keys
+    for (int i=0; i<256; i++) { //for each channels
+        if (data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i]) {  //do we have a note ?
+            unsigned int note=data_midifx_note[midi_data_ofs][i];
+            if (!note) note=data_midifx_note[midi_data_ofs+1][i];
+            note=note%(12*octaves);  //limit to pianoroll size
+            
+            unsigned int note_idx;
+            note_idx=(note%12);
+            if ( (note_idx==0)||
+                 (note_idx==2)||
+                 (note_idx==4)||
+                 (note_idx==5)||
+                 (note_idx==7)||
+                 (note_idx==9)||
+                 (note_idx==11)
+                ) { //white key
+                
+                unsigned int instr=data_midifx_instr[midi_data_ofs][i];
+                unsigned int vol=data_midifx_vol[midi_data_ofs][i];
+                unsigned int st=data_midifx_st[midi_data_ofs][i];
+                
+                int subnote=data_midifx_subnote[midi_data_ofs][i];
+                subnote=(subnote<8?subnote:subnote-8-7);
+                
+                int colidx=instr&63;
+                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                
+                if (colidx&0x20) {
+                    crt=(crt+255)/2;
+                    cgt=(cgt+255)/2;
+                    cbt=(cbt+255)/2;
+                }
+                
+                if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
+                    x=note_posX[note];
+                    
+//                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
+                    
+                    if (note_posType[note]==0) { //white key
+                        y=hh-(height+16)*((instr%num_rows)+1);
+                        index=DrawBox(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote);
+                    }
+                }
+            }
+        }
+    }
+    
+    //draw black keys
+    for (int j=0;j<num_rows;j++) {
+        y=hh-(height+16)*(j+1);
+        for (int i=0;i<7*octaves;i++) {//8 Octaves
+            x=(float)(ww)*i/(7.0*octaves);
+            
+            yB=y+height-heightB;
+            
+            //get note index
+            //1st get octave
+            int note=(i/7); //octave
+            note=note*12;
+            
+            switch (i%7) {
+                case 0: //C#
+                    xB=round(x+width*9.0f/12);
+                    index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                    
+                    note+=1;
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 1://D#
+                    xB=round(x+width*11.0f/12);
+                    index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                    
+                    note+=3;
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 3://F#
+                    xB=round(x+width*9.0f/12);
+                    index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                    
+                    note+=6;
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 4://G#
+                    xB=round(x+width*10.0f/12);
+                    index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                    
+                    note+=8;
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 5://A#
+                    xB=round(x+width*11.0f/12);
+                    index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                    
+                    note+=10;
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+            }
+        }
+    }
+    
+    //2nd pass draw notes - black keys
+    for (int i=0; i<256; i++) { //for each channels
+        if (data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i]) {  //do we have a note ?
+            unsigned int note=data_midifx_note[midi_data_ofs][i];
+            if (!note) note=data_midifx_note[midi_data_ofs+1][i];
+            note=note%(12*octaves);  //limit to pianoroll size
+            
+            uint8_t note_idx=note%12;
+            if ((note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10)) { //black key
+                
+                unsigned int instr=data_midifx_instr[midi_data_ofs][i];
+                unsigned int vol=data_midifx_vol[midi_data_ofs][i];
+                unsigned int st=data_midifx_st[midi_data_ofs][i];
+                
+                int subnote=data_midifx_subnote[midi_data_ofs][i];
+                subnote=(subnote<8?subnote:subnote-8-7);
+                
+                int colidx=instr&63;
+                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                
+                if (colidx&0x20) {
+                    crt=(crt+255)/2;
+                    cgt=(cgt+255)/2;
+                    cbt=(cbt+255)/2;
+                }
+                
+                if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
+//                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
+                    
+                    x=note_posX[note];
+                    if (note_posType[note]==1) { //back key
+                        y=hh-(height+16)*((instr%num_rows)+1)+height-heightB;
+                        index=DrawBox(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote);
+                    }
+                }
+            }
+        }
+    }
+    
+//    printf("total: %d\n",index);
+    
+    glDrawArrays(GL_TRIANGLES, 0, index);
+    
+    //////////////////////////////////////////////
+    
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);

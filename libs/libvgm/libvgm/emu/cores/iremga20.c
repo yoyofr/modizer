@@ -52,6 +52,9 @@ Revisions:
 #include "../logging.h"
 #include "iremga20.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
 
 static void IremGA20_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static UINT8 device_start_iremga20(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
@@ -136,6 +139,8 @@ struct _ga20_state
 	struct IremGA20_channel_def channel[4];
 	
 	UINT8 interpolate;
+    
+    UINT32 clock; //YOYOFR
 };
 
 
@@ -171,6 +176,25 @@ static void IremGA20_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		memset(outR, 0, samples * sizeof(DEV_SMPL));
 		return;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for (i = 0; i < samples; i++)
 	{
@@ -179,18 +203,64 @@ static void IremGA20_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		for (j = 0; j < 4; j++)
 		{
 			ch = &chip->channel[j];
-			if (ch->Muted || ! ch->play)
-				continue;
+            if (ch->Muted || ! ch->play) {
+                //YOYOFR
+                if (m_voice_ofs>=0) {
+                    int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                    while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                    m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+                }
+                //YOYOFR
+                continue;
+            }
+            
+            int chanout;//YOYOFR
 			
 			if (! chip->interpolate)
 			{
 				sampleout += ch->smpl1 * (INT32)ch->volume;
+                
+                chanout=ch->smpl1 * (INT32)ch->volume; //YOYOFR
 			}
 			else
 			{
 				smpl_int = (ch->smpl1 * ((1 << RATE_SHIFT) - ch->frac) + ch->smpl2 * ch->frac);
 				sampleout += (smpl_int * (INT32)ch->volume) >> RATE_SHIFT;
+                
+                chanout=(smpl_int * (INT32)ch->volume) >> RATE_SHIFT; //YOYOFR
 			}
+            
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        int val=chanout;
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>7 );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+                
+            }
+            //YOYOFR
+            //YOYOFR
+            INT32 volume=ch->volume;
+            if ((i==0) && volume) {
+                if (1) {
+                    double freq=0x100-ch->rate;
+                    freq=(double)(chip->clock)/4/freq;
+                    freq=freq*440.0/22050.0;
+                    vgm_last_note[j+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                    vgm_last_sample_addr[j+m_voice_ofs]=j+m_voice_ofs;
+                    int newvol=1;
+                    vgm_last_vol[j+m_voice_ofs]=newvol;
+                }
+            }
+            //YOYOFR
+            
 			ch->frac += ch->fracrate;
 			ch->counter ++;
 			if (! ch->counter)
@@ -337,6 +407,8 @@ static UINT8 device_start_iremga20(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf)
 
 	chip->_devData.chipInf = chip;
 	INIT_DEVINF(retDevInf, &chip->_devData, cfg->clock / 4, &devDef);
+    
+    chip->clock=cfg->clock; //yoyofr
 
 	return 0x00;
 }

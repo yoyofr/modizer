@@ -911,7 +911,7 @@ UINT8 vgmGetChipChannelsNb(UINT8 type) {
         case DEVID_YMZ280B:return 0x08;
             
         case DEVID_32X_PWM:return 0x02;
-        case DEVID_AY8910:return 0x03;
+        case DEVID_AY8910:return 0x04;
         case DEVID_GB_DMG:return 0x04;
         case DEVID_NES_APU:return 0x05;
         case DEVID_YMW258:return 0x1C;
@@ -988,7 +988,7 @@ UINT8 vgmDataVoice_Available(UINT8 type) {
         case DEVID_SAA1099:return 1;
         case DEVID_ES5503:return 1;
         case DEVID_ES5506:return 0;
-        case DEVID_X1_010:return 0;
+        case DEVID_X1_010:return 1;
         case DEVID_C352:return 1;
             
         case DEVID_GA20:return 1;

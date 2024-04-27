@@ -918,8 +918,8 @@ static void MultiPCM_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                 
                 //YOYOFR
                 if (i==0) {
-                    INT32 vol=left_pan_table[vol]+right_pan_table[vol];
-                    if (vol) {
+                    INT32 volume=left_pan_table[vol]+right_pan_table[vol];
+                    if (volume) {
                         double freq=slot->step;
                         if (freq) {
                             freq=freq*440.0/(1<<TL_SHIFT);

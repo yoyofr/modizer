@@ -134,6 +134,9 @@
 #include "../logging.h"
 #include "upd7759.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
 
 static void upd7759_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static void upd7759_slave_update(void *ptr);
@@ -616,6 +619,25 @@ static void upd7759_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 	UINT32 i;
 	DEV_SMPL *buffer = outputs[0];
 	DEV_SMPL *buffer2 = outputs[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=1;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* loop until done */
 	i = 0;
@@ -664,6 +686,23 @@ static void upd7759_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 				chip->clocks_left -= (chip->pos >> FRAC_BITS);
 				chip->pos &= FRAC_MASK;
 			}
+            
+            //YOYOFR
+            if (m_voice_ofs>=0) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        int val=sample;
+                        m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>0 );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+                
+            }
+            //YOYOFR
 		}
 
 	/* if we got out early, just zap the rest of the buffer */
@@ -672,6 +711,15 @@ static void upd7759_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		samples -= i;
 		memset(&buffer[i], 0, samples * sizeof(DEV_SMPL));
 		memset(&buffer2[i], 0, samples * sizeof(DEV_SMPL));
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+(int64_t)samples*smplIncr);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+            
+        }
+        //YOYOFR
 	}
 }
 

@@ -26,6 +26,9 @@
 #include "../RatioCntr.h"
 #include "vsu.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
 
 static void vsu_stream_update(void *param, UINT32 samples, DEV_SMPL **outputs);
 static UINT8 device_start_vsu(const DEV_GEN_CFG* cfg, DEV_INFO* retDevInf);
@@ -519,6 +522,25 @@ static void vsu_stream_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 {
 	vsu_state* chip = (vsu_state*)param;
 	UINT32 curSmpl;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==m_voice_current_system) {
+            m_voice_ofs=ii+(m_voice_current_systemSub?m_voice_current_systemPairedOfs:0);
+            m_voice_current_total=m_total_channels;
+            break;
+        }
+    }
+    if (!m_voice_current_samplerate) {
+        m_voice_current_samplerate=44100;
+        //printf("voice sample rate null\n");
+    }
+    int64_t smplIncr;
+    smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	for (curSmpl = 0; curSmpl < samples; curSmpl ++)
 	{
@@ -533,7 +555,48 @@ static void vsu_stream_update(void *param, UINT32 samples, DEV_SMPL **outputs)
 		// Because music usually doesn't use the maximum volume (SFX do), I boost by 2^3 = 8.
 		outputs[0][curSmpl] <<= 3;
 		outputs[1][curSmpl] <<= 3;
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<6;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                DEV_SMPL left=0,right=0;
+                VSU_CalcCurrentOutput(chip, jj, &left, &right);
+                int val=(left+right)*0.8;
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        
+                        m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val>>3);
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+            }
+        }
+        //YOYOFR
 	}
+    
+    //YOYOFR
+    for (int jj=0;jj<6;jj++) {
+        if  ((chip->IntlControl[jj] & 0x80) && !(chip->Muted[jj]) ) {
+            INT32 volume=chip->Envelope[jj]*(chip->LeftLevel[jj]+chip->RightLevel[jj]);
+            if (volume) {
+                if (1) {
+                    double freq=2048-chip->EffFreq[jj];
+                    if (jj==5) freq*=10;
+                    freq=/*440.0**/(double)(chip->clock)/freq/8;
+                    //freq=freq*440.0/22050.0;
+                    vgm_last_note[jj+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
+                    vgm_last_sample_addr[jj+m_voice_ofs]=jj+m_voice_ofs;
+                    int newvol=1;
+                    vgm_last_vol[jj+m_voice_ofs]=newvol;
+                }
+            }
+        }
+    }
+    //YOYOFR
 	return;
 }
 
