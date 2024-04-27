@@ -533,7 +533,7 @@ static int display_length_mode=0;
     
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
     if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) active_idx|=1<<10;
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<10;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<11;
     
     if (oglViewFullscreen) active_idx|=1<<13;
@@ -1009,6 +1009,7 @@ static float movePinchScale,movePinchScaleOld;
     //VGMPLAY
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
+        [mplayer optVGMPLAY_Update];
     }
     
     /////////////////////
@@ -1039,9 +1040,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     //GME
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {        
-        [mplayer optGME_Ratio:settings[GME_RATIO].detail.mdz_slider.slider_value
-                    isEnabled:settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value];
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {                
         [mplayer optGME_Update];                
     }
     
@@ -6682,6 +6681,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU8_START://32: //Spectrum3D
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
@@ -7536,6 +7536,7 @@ extern "C" int current_sample;
             if (settings[GLOB_FX3].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FX5].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
+            if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }

@@ -26,7 +26,7 @@ extern int m_genNumVoicesChannels;
 
 extern unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
-extern unsigned int vgm_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
+extern unsigned char vgm_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned int vgm_instr_addr[256];
 
 extern int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];

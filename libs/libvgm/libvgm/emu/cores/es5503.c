@@ -387,9 +387,9 @@ static void es5503_pcm_update(void *param, UINT32 samples, DEV_SMPL **outputs)
             int j=v;
             if (!pOsc->Muted && pOsc->vol && (pOsc->freq>0)) {
                 double freq=(double)(pOsc->freq)*(double)m_voice_current_samplerate/(1<<(17+pOsc->wavetblsize));
-                vgm_last_note[j]=freq;
-                vgm_last_vol[j]=1;
-                vgm_last_sample_addr[j]=j;
+                vgm_last_note[j+m_voice_ofs]=freq;
+                vgm_last_vol[j+m_voice_ofs]=1;
+                vgm_last_sample_addr[j+m_voice_ofs]=j+m_voice_ofs;
             }
         }
     }

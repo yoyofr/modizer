@@ -558,6 +558,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoRollAllNote].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXPianoRollMonoChannel].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value=2;
@@ -612,8 +613,8 @@ void optNSFPLAYChangedC(id param) {
     //GME
     /////////////////////////////////////
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=3;
-    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
-    settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
+    settings[GME_PBRATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
     settings[GME_EQ_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
@@ -719,6 +720,8 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
+    settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_value=1;
+    settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_value=0;
@@ -1436,11 +1439,19 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXPianoRollMonoChannel)
     settings[GLOB_FXPianoRollMonoChannel].label=(char*)"Piano roll-mono channel";
-    settings[GLOB_FXPianoRollMonoChannel].description=(char*)"Show a piano / channel";
+    settings[GLOB_FXPianoRollMonoChannel].description=(char*)"Display a piano / channel";
     settings[GLOB_FXPianoRollMonoChannel].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoRollMonoChannel].sub_family=0;
     settings[GLOB_FXPianoRollMonoChannel].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXPianoRollMonoChannel].detail.mdz_boolswitch.switch_value=0;
+    
+    SETTINGS_ID_DEF(GLOB_FXPianoRollVoicesLabels)
+    settings[GLOB_FXPianoRollVoicesLabels].label=(char*)"Piano roll-voices labels";
+    settings[GLOB_FXPianoRollVoicesLabels].description=(char*)"Display voices label";
+    settings[GLOB_FXPianoRollVoicesLabels].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollVoicesLabels].sub_family=0;
+    settings[GLOB_FXPianoRollVoicesLabels].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FXMIDIPattern)
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
@@ -1818,14 +1829,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
     settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=10;
     
-    SETTINGS_ID_DEF(GME_RATIO_ONOFF)
-    settings[GME_RATIO_ONOFF].type=MDZ_BOOLSWITCH;
-    settings[GME_RATIO_ONOFF].label=(char*)"Enable Playback Ratio";
-    settings[GME_RATIO_ONOFF].description=NULL;
-    settings[GME_RATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_RATIO_ONOFF].sub_family=0;
-    settings[GME_RATIO_ONOFF].callback=&optGMEChangedC;
-    settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    SETTINGS_ID_DEF(GME_PBRATIO_ONOFF)
+    settings[GME_PBRATIO_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[GME_PBRATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[GME_PBRATIO_ONOFF].description=NULL;
+    settings[GME_PBRATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_PBRATIO_ONOFF].sub_family=0;
+    settings[GME_PBRATIO_ONOFF].callback=&optGMEChangedC;
+    settings[GME_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GME_IGNORESILENCE)
     settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
@@ -1836,16 +1847,16 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_IGNORESILENCE].callback=&optGMEChangedC;
     settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value=0;
     
-    SETTINGS_ID_DEF(GME_RATIO)
-    settings[GME_RATIO].label=(char*)"Playback Ratio";
-    settings[GME_RATIO].description=NULL;
-    settings[GME_RATIO].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_RATIO].sub_family=0;
-    settings[GME_RATIO].callback=&optGMEChangedC;
-    settings[GME_RATIO].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GME_RATIO].detail.mdz_slider.slider_digits=1;
-    settings[GME_RATIO].detail.mdz_slider.slider_min_value=0.1;
-    settings[GME_RATIO].detail.mdz_slider.slider_max_value=5;
+    SETTINGS_ID_DEF(GME_PBRATIO)
+    settings[GME_PBRATIO].label=(char*)"Playback Ratio";
+    settings[GME_PBRATIO].description=NULL;
+    settings[GME_PBRATIO].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_PBRATIO].sub_family=0;
+    settings[GME_PBRATIO].callback=&optGMEChangedC;
+    settings[GME_PBRATIO].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_PBRATIO].detail.mdz_slider.slider_digits=1;
+    settings[GME_PBRATIO].detail.mdz_slider.slider_min_value=0.1;
+    settings[GME_PBRATIO].detail.mdz_slider.slider_max_value=5;
     
     SETTINGS_ID_DEF(GME_EQ_ONOFF)
     settings[GME_EQ_ONOFF].type=MDZ_BOOLSWITCH;
@@ -2351,6 +2362,26 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_PreferJTAG].sub_family=0;
     settings[VGMPLAY_PreferJTAG].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
+    
+    SETTINGS_ID_DEF(VGMPLAY_PBRATIO_ONOFF)
+    settings[VGMPLAY_PBRATIO_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[VGMPLAY_PBRATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[VGMPLAY_PBRATIO_ONOFF].description=NULL;
+    settings[VGMPLAY_PBRATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_PBRATIO_ONOFF].sub_family=0;
+    settings[VGMPLAY_PBRATIO_ONOFF].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    
+    SETTINGS_ID_DEF(VGMPLAY_PBRATIO)
+    settings[VGMPLAY_PBRATIO].label=(char*)"Playback Ratio";
+    settings[VGMPLAY_PBRATIO].description=NULL;
+    settings[VGMPLAY_PBRATIO].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_PBRATIO].sub_family=0;
+    settings[VGMPLAY_PBRATIO].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_PBRATIO].type=MDZ_SLIDER_CONTINUOUS;
+    settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_digits=1;
+    settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_min_value=0.1;
+    settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_max_value=5;
     
     SETTINGS_ID_DEF(VGMPLAY_YM2612Emulator)
     settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;

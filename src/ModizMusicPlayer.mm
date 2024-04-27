@@ -496,8 +496,7 @@ unsigned char m_channel_voice_mapping[256]; //used for timidity to map channels 
 
 unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
-unsigned int vgm_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
-unsigned int vgm_instr_addr[256];
+unsigned char vgm_last_sample_addr[SOUND_MAXVOICES_BUFFER_FX];
 bool vgm_play_no_seek;
 
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
@@ -870,23 +869,6 @@ int vgm_getSubNote(int ch) {
 }
 
 
-int vgm_getInstr(int ch) {
-    int idx=0;
-    while (vgm_instr_addr[idx]) {
-        if (vgm_instr_addr[idx]==vgm_last_sample_addr[ch]) {
-            break;
-        }
-        if (idx==255) {
-            //all occupied -> reset
-            memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
-            idx=0;
-            break;
-        }
-        idx++;
-    }
-    vgm_instr_addr[idx]=vgm_last_sample_addr[ch];
-    return idx;
-}
 //YOYOFR
 
 UINT8 vgmGetChipChannelsNb(UINT8 type) {
@@ -5805,7 +5787,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             
-                                            unsigned int instr=vgm_getInstr(j);
+                                            unsigned int instr=vgm_last_sample_addr[j];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
                                             ((unsigned int)(instr)<<8)|
@@ -6059,7 +6041,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         if ((idx>0)) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
-                                            unsigned int instr=vgm_getInstr(j);
+                                            unsigned int instr=vgm_last_sample_addr[j];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
                                             ((unsigned int)(instr)<<8)|
@@ -6146,7 +6128,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 int voices_idx=0;
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     unsigned int idx=vgm_getNote(j);
-                                    unsigned int instr=vgm_getInstr(j);
+                                    unsigned int instr=vgm_last_sample_addr[j];
                                     unsigned int vol=vgm_last_vol[j];
                                     
                                     if ((idx>0)&&m_voicesStatus[j]) {
@@ -6203,7 +6185,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if ((idx>0)&&m_voicesStatus[j]) {
                                     unsigned int subidx=vgm_getSubNote(j);
-                                    unsigned int instr=vgm_getInstr(j);
+                                    unsigned int instr=vgm_last_sample_addr[j];
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                     (unsigned int)idx|
                                     ((unsigned int)(instr)<<8)|
@@ -6254,7 +6236,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if ((idx>0)&&m_voicesStatus[j]) {
                                     unsigned int subidx=vgm_getSubNote(j);
-                                    unsigned int instr=vgm_getInstr(j);
+                                    unsigned int instr=vgm_last_sample_addr[j];
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                     (unsigned int)idx|
                                     ((unsigned int)(instr)<<8)|
@@ -6302,7 +6284,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if ((idx>0)&&m_voicesStatus[j]) {
                                     unsigned int subidx=vgm_getSubNote(j);
-                                    unsigned int instr=vgm_getInstr(j);
+                                    unsigned int instr=vgm_last_sample_addr[j];
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                     (unsigned int)idx|
                                     ((unsigned int)(instr)<<8)|
@@ -7076,7 +7058,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        unsigned int instr=vgm_getInstr(j);
+                                        unsigned int instr=vgm_last_sample_addr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         idx|
                                         ((instr)<<8)|
@@ -7147,7 +7129,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if ((idx>0)) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
-                                        unsigned int instr=vgm_getInstr(j);
+                                        unsigned int instr=vgm_last_sample_addr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         idx|
                                         ((instr)<<8)|
@@ -11034,7 +11016,6 @@ void ds_meta_set(const char * tag, const char * value) {
     
     //    int fadeInMS=xSFFile->GetFadeMS(xSFPlayer->fadeInMS);
     
-    memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
     memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     
@@ -11083,7 +11064,6 @@ void ds_meta_set(const char * tag, const char * value) {
     }
     xSFConfig->LoadConfig();
     
-    memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
     memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     
@@ -11353,7 +11333,6 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     
     
     if (HC_type==1) { //PSF1
-        memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
         memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
         memset(vgm_last_note,0,sizeof(vgm_last_note));
         hc_sample_rate=44100;
@@ -11385,7 +11364,6 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         void * pIOP = psx_get_iop_state( HC_emulatorCore );
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
     } else if (HC_type==2) { //PSF2
-        memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
         memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
         memset(vgm_last_note,0,sizeof(vgm_last_note));
         hc_sample_rate=48000;
@@ -11687,7 +11665,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mp_datasize=ftell(f);
     fclose(f);
     
-    memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
     memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
@@ -11719,7 +11696,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         pCfg.loopCount = settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
         pCfg.fadeSmpls = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
         pCfg.endSilenceSmpls = 0;
-        pCfg.pbSpeed = 1.0;
+        pCfg.pbSpeed = (settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_value: 1.0);
         vgm_player.SetConfiguration(pCfg);
     }
     
@@ -12124,7 +12101,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     fread(ASAP_module, 1, ASAP_module_len, f);
     fclose(f);
     
-    memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
     memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
@@ -12378,7 +12354,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mp_datasize=ftell(f);
     fclose(f);
     
-    memset(vgm_instr_addr,0,sizeof(vgm_instr_addr));
     memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
@@ -14847,15 +14822,6 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 // GME
 ///////////////////////////
--(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled {
-    optGMERatio = ratio;
-    if(gme_emu) {
-        if(!enabled) optGMERatio = 1;
-        gme_set_tempo(gme_emu, optGMERatio);
-    }
-}
-
-
 -(void) optGME_Update {
     if (gme_emu) {
         if (settings[GME_EQ_ONOFF].detail.mdz_boolswitch.switch_value) {
@@ -14876,8 +14842,25 @@ extern "C" void adjust_amplification(void);
         }
         
         gme_set_stereo_depth(gme_emu,settings[GME_STEREO_PANNING].detail.mdz_slider.slider_value);
+        
+        if(settings[GME_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) gme_set_tempo(gme_emu, settings[GME_PBRATIO].detail.mdz_slider.slider_value);
+        else gme_set_tempo(gme_emu, 1);
     }
     
+}
+
+///////////////////////////
+// VGMPlay
+///////////////////////////
+-(void) optVGMPLAY_Update {
+    if (vgm_renderMtx==NULL) return;
+    OSMutex_Lock(vgm_renderMtx);
+        if (settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+            vgm_player.SetPlaybackSpeed(settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_value);
+        } else {
+            vgm_player.SetPlaybackSpeed(1.0);
+        }
+    OSMutex_Unlock(vgm_renderMtx);
 }
 
 ///////////////////////////

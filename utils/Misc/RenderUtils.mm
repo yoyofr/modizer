@@ -6347,7 +6347,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=instr&63;
+                int colidx=i&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6448,7 +6448,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=instr&63;
+                int colidx=i&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6478,7 +6478,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     memset(voices_posX,0,sizeof(voices_posX));
     
     //draw label small colored boxes
-    if (voices_label)
+    if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
         for (int i=0;i<m_genNumVoicesChannels;i++) {
             int j=i%num_rows;
             y=hh-(height+16)*(j+1)+height;
@@ -6519,7 +6519,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     memset(voices_posX,0,sizeof(voices_posX));
     
     //draw label
-    if (voices_label)
+    if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
         for (int i=0;i<m_genNumVoicesChannels;i++) {
             int j=i%num_rows;
             y=hh-(height+16)*(j+1)+height;

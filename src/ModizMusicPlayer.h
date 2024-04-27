@@ -337,11 +337,7 @@ extern "C" {
 
 -(void) optUpdateSystemColor;
 
--(void) optVGMPLAY_MaxLoop:(unsigned int)val;
--(void) optVGMPLAY_NUKEDOPNoption:(unsigned char)val;
--(void) optVGMPLAY_YM2612emulator:(unsigned char)val;
--(void) optVGMPLAY_YMF262emulator:(unsigned char)val;
--(void) optVGMPLAY_PreferedJTag:(bool)val;
+-(void) optVGMPLAY_Update;
 
 -(void) optGEN_DefaultLength:(float_t)val;
 
@@ -377,7 +373,6 @@ extern "C" {
 
 -(void) optHC_ResampleQuality:(unsigned int)val;
 
--(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
 -(void) optGME_Update;
 
 -(void) optGSF_UpdateParam;
