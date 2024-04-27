@@ -109,6 +109,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 
 static CFont *mOscilloFont[3]={NULL,NULL,NULL};
 static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
+static CGLString *mVoicesNamePiano[SOUND_MAXVOICES_BUFFER_FX];
 static int mVoicesName_FontSize;
 
 #define FX_OSCILLO_MAXROWS 16
@@ -179,7 +180,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         mOscilloFont[2] = new CFont([fontPath UTF8String]);
     }
     
-    if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
+    if (mOscilloFont[1] && voices_label)
         for (int i=0;i<num_voices;i++) {
             if (mVoicesName[i]) {
                 if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
@@ -477,39 +478,10 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
             snd_data_ofs[i]=max_ofs/2;
-            mVoicesName[i]=NULL;
         }
-        mVoicesName_FontSize=-1;
         
         first_call=0;
     }
-    
-    if (!mOscilloFont[0]) {
-        NSString *fontPath;
-        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        mOscilloFont[0] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-        mOscilloFont[1] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-        mOscilloFont[2] = new CFont([fontPath UTF8String]);
-    }
-    
-    if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value] && voices_label)
-        for (int i=0;i<num_voices;i++) {
-            if (mVoicesName[i]) {
-                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
-                    //not the same, reset string
-                    delete mVoicesName[i];
-                    mVoicesName[i]=NULL;
-                }
-            }
-            if (!mVoicesName[i]) {
-                mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
-            }
-        }
-    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
@@ -518,19 +490,19 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     float ratio;
     
     //check best config, maximize 16/9 ratio
-//    if (num_voices>=1)
-//        for (;;) {
-//            columns_width=ww/columns_nb;
-//            max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-//            mulfactor=(hh-8)/(max_voices_by_row)/2;
-//            ratio=columns_width/(2*mulfactor);
-//            
-//            if (ratio<=2) break;
-//            if (columns_nb>=num_voices) break;
-//            
-//            columns_nb++;
-//            
-//        }
+    //    if (num_voices>=1)
+    //        for (;;) {
+    //            columns_width=ww/columns_nb;
+    //            max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
+    //            mulfactor=(hh-8)/(max_voices_by_row)/2;
+    //            ratio=columns_width/(2*mulfactor);
+    //
+    //            if (ratio<=2) break;
+    //            if (columns_nb>=num_voices) break;
+    //
+    //            columns_nb++;
+    //
+    //        }
     // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
     //stereo, force 1 column
     columns_nb=1;
@@ -666,14 +638,6 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
                 /*colR*=1.2f;
                  colG*=1.2f;
                  colB*=1.2f;*/
-            }
-            
-            //draw label if specified
-            if (voices_label&&mVoicesName[cur_voices]) {
-                glPushMatrix();
-                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]->maxCharHeight/mScaleFactor), 0.0f);
-                mVoicesName[cur_voices]->Render(255);
-                glPopMatrix();
             }
             
             for (int i=0; i<columns_width-2; i++) {
@@ -2153,9 +2117,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
-                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
+            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
             
             glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
@@ -2163,9 +2127,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                                 0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
             
             
-            glRotatef(10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                            0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             break;
         case 2:
@@ -2180,9 +2144,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),1,0,0);
             
-            glRotatef(20.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                            0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             
             glRotatef(360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
@@ -2196,9 +2160,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
-                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
+            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
             
             glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
@@ -2206,9 +2170,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                                 0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
             
             
-            glRotatef(10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
-                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+                            0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
             break;
         case 4:
@@ -2217,7 +2181,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
             
-            glRotatef(-90+0.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
             
@@ -2227,7 +2191,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                                    0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
             
             
-            glRotatef(0.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
             
@@ -4648,8 +4612,8 @@ int qsort_CompareBar(const void *entryA, const void *entryB) {
     
     if (valA==valB) {
         //try to have min start idx first
-//        valA=((t_data_bar2draw*)entryA)->startidx;
-//        valB=((t_data_bar2draw*)entryB)->startidx;
+        //        valA=((t_data_bar2draw*)entryA)->startidx;
+        //        valB=((t_data_bar2draw*)entryB)->startidx;
         valA=-((t_data_bar2draw*)entryA)->played;
         valB=-((t_data_bar2draw*)entryB)->played;
         
@@ -5262,8 +5226,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
                     data_bar2draw[data_bar2draw_count].played=0;
                     data_bar2draw[data_bar2draw_count].frameidx=st>>8;
                     while ( (data_pianofx_instr[j][i]==instr)&&
-                            (data_pianofx_note[j][i]==note)&&
-                            (data_pianofx_vol[j][i]&&
+                           (data_pianofx_note[j][i]==note)&&
+                           (data_pianofx_vol[j][i]&&
                             (data_pianofx_st[j][i]&VOICE_ON))) {  //while same bar (instru & notes), increase size
                         data_bar2draw[data_bar2draw_count].size++;
                         //propagate lowest frame nb
@@ -5284,41 +5248,41 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
     }
     qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
     
-/*
-    if (data_bar2draw_count>=2) { //propagate played flag
-        for (int i=1;i<data_bar2draw_count;i++) {
-            int note=data_bar2draw[i-1].note;
-            int played=data_bar2draw[i-1].played;
-            int instr=data_bar2draw[i-1].instr;
-            
-            if (played) {
-                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-                    (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)))
-                    data_bar2draw[i].played=1;
-            }
-        }
-        
-        for (int i=data_bar2draw_count-2;i>=0;i--) {
-            int note=data_bar2draw[i+1].note;
-            int played=data_bar2draw[i+1].played;
-            int instr=data_bar2draw[i+1].instr;
-            
-            if (played) {
-                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-                    (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) data_bar2draw[i].played=1;
-            }
-        }
-    }
-    
-    for (int i=1;i<data_bar2draw_count;i++) {
-        if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
-            (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
-            (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
-            (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
-            data_bar2draw[i].size=0;
-        }
-    }
-*/
+    /*
+     if (data_bar2draw_count>=2) { //propagate played flag
+     for (int i=1;i<data_bar2draw_count;i++) {
+     int note=data_bar2draw[i-1].note;
+     int played=data_bar2draw[i-1].played;
+     int instr=data_bar2draw[i-1].instr;
+     
+     if (played) {
+     if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
+     (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)))
+     data_bar2draw[i].played=1;
+     }
+     }
+     
+     for (int i=data_bar2draw_count-2;i>=0;i--) {
+     int note=data_bar2draw[i+1].note;
+     int played=data_bar2draw[i+1].played;
+     int instr=data_bar2draw[i+1].instr;
+     
+     if (played) {
+     if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
+     (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) data_bar2draw[i].played=1;
+     }
+     }
+     }
+     
+     for (int i=1;i<data_bar2draw_count;i++) {
+     if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
+     (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
+     (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
+     (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
+     data_bar2draw[i].size=0;
+     }
+     }
+     */
     int vertices_index=0;
     int indices_index=0;
     glVertexPointer(3, GL_FLOAT, 0, verticesBAR);
@@ -5348,18 +5312,18 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
         float adj_size=0;
         int max_draw_count=0;
         for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-//            int _instr=(data_bar_2dmap[(note&127)*MIDIFX_LEN+j]>>16);
+            //            int _instr=(data_bar_2dmap[(note&127)*MIDIFX_LEN+j]>>16);
             int draw_count=data_bar_2dmap[(note&127)*MIDIFX_LEN+j]&255;
             if (draw_count) {
                 if (adj_size<0.1f*(float)(draw_count)) adj_size=0.1f*(float)(draw_count);
-//                if (_instr!=(instr+1)) {
-                    draw_count++;
+                //                if (_instr!=(instr+1)) {
+                draw_count++;
                 if (max_draw_count<draw_count) max_draw_count=draw_count;
-//                    data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
+                //                    data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
                 data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=draw_count;
-//                }
+                //                }
             } else {
-//                data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+                //                data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
                 data_bar_2dmap[(note&127)*MIDIFX_LEN+j]=1;
                 if (max_draw_count<1) max_draw_count=1;
             }
@@ -5704,7 +5668,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         line_width=1.0f*ww/note_display_range;
     }
     //line_width_extra=line_width*0.2f;
-//    if (line_width_extra<2) line_width_extra=2;
+    //    if (line_width_extra<2) line_width_extra=2;
     line_width_extra=3;
     
     
@@ -5742,9 +5706,9 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     data_bar2draw[data_bar2draw_count].played=0;
                     data_bar2draw[data_bar2draw_count].frameidx=st>>8;
                     while ( (data_midifx_instr[j][i]==instr)&&
-                            (data_midifx_note[j][i]==note)&&
-                            (data_midifx_vol[j][i]<=vol)&&
-                            (data_midifx_st[j][i]&VOICE_ON) ) {  //while same bar (instru & notes), increase size
+                           (data_midifx_note[j][i]==note)&&
+                           (data_midifx_vol[j][i]<=vol)&&
+                           (data_midifx_st[j][i]&VOICE_ON) ) {  //while same bar (instru & notes), increase size
                         data_bar2draw[data_bar2draw_count].size++;
                         //propagate lowest frame nb
                         data_midifx_st[j][i]=st;
@@ -5759,8 +5723,8 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                             if (j==(MIDIFX_LEN-MIDIFX_OFS-1)) break;
                         }
                         /*if (data_midifx_vol[j][i]>vol) {
-                            break;
-                        }*/
+                         break;
+                         }*/
                         if (j==MIDIFX_LEN) break;
                     }
                     data_bar2draw_count++;
@@ -5772,50 +5736,50 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         if (data_bar2draw_count==MAX_BARS) break;
     }
     qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
-
-   /* if (data_bar2draw_count>=2) { //propagate played flag
-        for (int i=1;i<data_bar2draw_count;i++) {
-            int note=data_bar2draw[i-1].note;
-            int subnote=data_bar2draw[i-1].subnote;
-            int played=data_bar2draw[i-1].played;
-            int instr=data_bar2draw[i-1].instr;
-            
-            if (played) {
-                if ((data_bar2draw[i].instr==instr)&&(data_bar2draw[i].note==note)&&
-                    (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size))) {
-                    if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
-                }
-            }
-        }
-        
-        for (int i=data_bar2draw_count-2;i>=0;i--) {
-            int note=data_bar2draw[i+1].note;
-            int subnote=data_bar2draw[i+1].subnote;
-            int played=data_bar2draw[i+1].played;
-            int instr=data_bar2draw[i+1].instr;
-            
-            if (played) {
-                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-                    (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) {
-                    if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
-                }
-            }
-        }
-    }
     
-    for (int i=1;i<data_bar2draw_count;i++) {
-        if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
-            (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
-            (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
-            (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
-            if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==data_bar2draw[i-1].subnote)) data_bar2draw[i].size=0;
-        }
-    }
-*/
+    /* if (data_bar2draw_count>=2) { //propagate played flag
+     for (int i=1;i<data_bar2draw_count;i++) {
+     int note=data_bar2draw[i-1].note;
+     int subnote=data_bar2draw[i-1].subnote;
+     int played=data_bar2draw[i-1].played;
+     int instr=data_bar2draw[i-1].instr;
+     
+     if (played) {
+     if ((data_bar2draw[i].instr==instr)&&(data_bar2draw[i].note==note)&&
+     (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size))) {
+     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
+     }
+     }
+     }
+     
+     for (int i=data_bar2draw_count-2;i>=0;i--) {
+     int note=data_bar2draw[i+1].note;
+     int subnote=data_bar2draw[i+1].subnote;
+     int played=data_bar2draw[i+1].played;
+     int instr=data_bar2draw[i+1].instr;
+     
+     if (played) {
+     if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
+     (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) {
+     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
+     }
+     }
+     }
+     }
+     
+     for (int i=1;i<data_bar2draw_count;i++) {
+     if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
+     (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
+     (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
+     (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
+     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==data_bar2draw[i-1].subnote)) data_bar2draw[i].size=0;
+     }
+     }
+     */
     index=0;
     //TO OPTIMIZE
-//    int data_bar_2dmap[128*MIDIFX_LEN];
-//    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
+    //    int data_bar_2dmap[128*MIDIFX_LEN];
+    //    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
     
     //draw non playing bars
     
@@ -5838,23 +5802,23 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         
         
         int adj_size=0;
-//        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-//            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-//            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-//            if (draw_count) {
-//                if (_instr!=(instr+1)) {
-//                    draw_count++;
-//                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-//                }
-//                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-//            } else {
-//                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
-//            }
-//        }
-//        adj_size*=2;
-//        if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
-//        adj_size=0;
-//        
+        //        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+        //            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+        //            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+        //            if (draw_count) {
+        //                if (_instr!=(instr+1)) {
+        //                    draw_count++;
+        //                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
+        //                }
+        //                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+        //            } else {
+        //                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+        //            }
+        //        }
+        //        adj_size*=2;
+        //        if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
+        //        adj_size=0;
+        //
         crt=((data_midifx_col[colidx&31]>>16)&0xFF);
         cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
         cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6008,7 +5972,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                                        
+                    
                     //inner part
                     ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
                     ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
@@ -6095,14 +6059,14 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         }
     }
     
-//    printf("total: %d\n",index);
+    //    printf("total: %d\n",index);
     
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     //////////////////////////////////////////////
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     
     //current playing line
@@ -6128,7 +6092,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
 
 
 int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote) {
-    int crtp[4],cgtp[4],cbtp[4],cap[4];
+    int crtp[6],cgtp[6],cbtp[6],cap[6];
     
     for (int ii=0;ii<4;ii++) {
         double fact=1;
@@ -6185,28 +6149,58 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
     ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2]);
     ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
     ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                        
-    //inner part
-    ptsB[index++] = LineVertexF(x+border_size, y+border_size,crt,cgt,cbt,ca);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crt,cgt,cbt,ca);
-    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crt,cgt,cbt,ca);
     
-    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crt,cgt,cbt,ca);
-    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crt,cgt,cbt,ca);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+height-border_size,crt,cgt,cbt,ca);
+    //inner part
+    if (subnote) {
+        if (subnote>0) {
+            float fact=1.1+(float)subnote*0.25/8.0;
+            float ofs=32+subnote*4;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        } else {
+            float fact=1;
+            float ofs=0;
+            fact=1.1-(float)subnote*0.25/8.0; ofs=32-subnote*4;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        }
+        for (int ii=4;ii<6;ii++) {
+            if (crtp[ii]>255) crtp[ii]=255;
+            if (cgtp[ii]>255) cgtp[ii]=255;
+            if (cbtp[ii]>255) cbtp[ii]=255;
+            if (cap[ii]>255) cap[ii]=255;
+        }
+    } else {
+        crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
+        crtp[5]=crt;cgtp[5]=cgt;cbtp[5]=cbt;cap[5]=ca;
+    }
+    ptsB[index++] = LineVertexF(x+border_size, y+border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height-border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
     
     return index;
 }
 
-void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
-    int crtp[4],cgtp[4],cbtp[4],cap[4];
     int index;
     //int band_width,ofs_band;
     float band_width;
     float line_width;
     float line_width_extra;
+    static bool first_call=true;
+    
+    if (first_call) {
+        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
+            mVoicesNamePiano[i]=NULL;
+        }
+        first_call=false;
+    }
     
     if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
     if (fx_len<=MIDIFX_OFS) fx_len=MIDIFX_OFS+1;
@@ -6215,6 +6209,32 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         data_midifx_len=fx_len;
         //data_midifx_first=1;
     }
+    
+    if (!mOscilloFont[0]) {
+        NSString *fontPath;
+        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+        mOscilloFont[0] = new CFont([fontPath UTF8String]);
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+        mOscilloFont[1] = new CFont([fontPath UTF8String]);
+        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
+        mOscilloFont[2] = new CFont([fontPath UTF8String]);
+    }
+    
+    if (mOscilloFont[1] && voices_label)
+        for (int i=0;i<m_genNumVoicesChannels;i++) {
+            if (mVoicesNamePiano[i]) {
+                if (strcmp(mVoicesNamePiano[i]->mText,voices_label+i*32)) {
+                    //not the same, reset string
+                    delete mVoicesNamePiano[i];
+                    mVoicesNamePiano[i]=NULL;
+                }
+            }
+            if (!mVoicesNamePiano[i]) {
+                mVoicesNamePiano[i]=new CGLString(voices_label+i*32, mOscilloFont[1],mScaleFactor);
+            }
+        }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
     
@@ -6231,7 +6251,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         line_width=1.0f*ww/note_display_range;
     }
     //line_width_extra=line_width*0.2f;
-//    if (line_width_extra<2) line_width_extra=2;
+    //    if (line_width_extra<2) line_width_extra=2;
     line_width_extra=3;
     
     //glDisable(GL_BLEND);
@@ -6256,7 +6276,8 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     int octaves=8;
     //white keys
-    float width=(float)(ww)/(7.0*octaves);
+    float visible_wkeys_range=(note_display_range*7.0/12.0);
+    float width=(float)(ww)/visible_wkeys_range;
     float height=width*4;
     float x;
     float y;
@@ -6274,8 +6295,9 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     //draw white keys
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
-        for (int i=0;i<7*octaves;i++) {//8 Octaves
-            x=(float)(ww)*i/(7*octaves);
+        
+        for (int i=0;i<visible_wkeys_range;i++) {//8 Octaves
+            x=(float)(ww)*i/visible_wkeys_range;
             
             //get note index
             //1st get octave
@@ -6301,20 +6323,21 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //1st pass draw notes - white keys
     for (int i=0; i<256; i++) { //for each channels
-        if (data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i]) {  //do we have a note ?
+        if ((data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i])&&
+            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             if (!note) note=data_midifx_note[midi_data_ofs+1][i];
-            note=note%(12*octaves);  //limit to pianoroll size
+            note=note%((int)note_display_range);  //limit to pianoroll size
             
             unsigned int note_idx;
             note_idx=(note%12);
             if ( (note_idx==0)||
-                 (note_idx==2)||
-                 (note_idx==4)||
-                 (note_idx==5)||
-                 (note_idx==7)||
-                 (note_idx==9)||
-                 (note_idx==11)
+                (note_idx==2)||
+                (note_idx==4)||
+                (note_idx==5)||
+                (note_idx==7)||
+                (note_idx==9)||
+                (note_idx==11)
                 ) { //white key
                 
                 unsigned int instr=data_midifx_instr[midi_data_ofs][i];
@@ -6338,7 +6361,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     x=note_posX[note];
                     
-//                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
+                    //                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
                     
                     if (note_posType[note]==0) { //white key
                         y=hh-(height+16)*((instr%num_rows)+1);
@@ -6352,8 +6375,8 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     //draw black keys
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
-        for (int i=0;i<7*octaves;i++) {//8 Octaves
-            x=(float)(ww)*i/(7.0*octaves);
+        for (int i=0;i<visible_wkeys_range;i++) {//8 Octaves
+            x=(float)(ww)*i/visible_wkeys_range;
             
             yB=y+height-heightB;
             
@@ -6409,10 +6432,11 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //2nd pass draw notes - black keys
     for (int i=0; i<256; i++) { //for each channels
-        if (data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i]) {  //do we have a note ?
+        if ((data_midifx_note[midi_data_ofs][i]||data_midifx_note[midi_data_ofs+1][i])&&
+            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             if (!note) note=data_midifx_note[midi_data_ofs+1][i];
-            note=note%(12*octaves);  //limit to pianoroll size
+            note=note%((int)note_display_range);  //limit to pianoroll size
             
             uint8_t note_idx=note%12;
             if ((note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10)) { //black key
@@ -6436,7 +6460,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 }
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
-//                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
+                    //                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
                     
                     x=note_posX[note];
                     if (note_posType[note]==1) { //back key
@@ -6448,19 +6472,67 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         }
     }
     
-//    printf("total: %d\n",index);
+    
+    
+    int voices_posX[SOUND_MAXVOICES_BUFFER_FX];
+    memset(voices_posX,0,sizeof(voices_posX));
+    
+    //draw label small colored boxes
+    if (voices_label)
+        for (int i=0;i<m_genNumVoicesChannels;i++) {
+            int j=i%num_rows;
+            y=hh-(height+16)*(j+1)+height;
+            
+            if (mVoicesNamePiano[i]) {
+                x=voices_posX[j]+16;
+                
+                voices_posX[j]+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
+                
+                int colidx=i&63;
+                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                
+                if (colidx&0x20) {
+                    crt=(crt+255)/2;
+                    cgt=(cgt+255)/2;
+                    cbt=(cbt+255)/2;
+                }
+                
+                y=hh-(height+16)*(j+1)+height+4;
+                index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
+            }
+        }
     
     glDrawArrays(GL_TRIANGLES, 0, index);
     
+    
     //////////////////////////////////////////////
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
+    
+    memset(voices_posX,0,sizeof(voices_posX));
+    
+    //draw label
+    if (voices_label)
+        for (int i=0;i<m_genNumVoicesChannels;i++) {
+            int j=i%num_rows;
+            y=hh-(height+16)*(j+1)+height;
+            
+            if (mVoicesNamePiano[i]) {
+                x=voices_posX[j]+16;
+                glPushMatrix();
+                glTranslatef(x,y+3, 0.0f);
+                mVoicesNamePiano[i]->Render(255);
+                voices_posX[j]+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
+                glPopMatrix();
+            }
+        }
     
     free(ptsB);
     

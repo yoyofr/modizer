@@ -11588,8 +11588,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
         if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
     } else {
-        sprintf(mod_name,"");
-        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        sprintf(mod_name," %s",mod_filename);
         
         sprintf(mod_message,"\n");
         const char *padding="...........";
@@ -11607,6 +11606,9 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
             if ([key isEqualToString:@"album"]&&([value length]>0)) {
                 album=[NSString stringWithString:value];
                 snprintf(mod_name,sizeof(mod_name)," %s",[album UTF8String]);
+                if (mod_title==NULL) { //if album exists and no title, use filename
+                    mod_title=[[NSString stringWithUTF8String:mod_filename] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+                }
             }
             if ([key isEqualToString:@"artist"]&&([value length]>0)) {
                 artist=[NSString stringWithString:value];

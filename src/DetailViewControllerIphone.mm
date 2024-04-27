@@ -5557,27 +5557,27 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[SUBMENU0_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
     txtSubMenuHandle[SUBMENU0_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
     
-#define SUBMENU1_START 6
+#define SUBMENU1_START SUBMENU0_START+SUBMENU0_SIZE
 #define SUBMENU1_SIZE 4
     txtSubMenuHandle[SUBMENU1_START]=0;
     txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
     txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
     txtSubMenuHandle[SUBMENU1_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
     
-#define SUBMENU2_START 10
+#define SUBMENU2_START SUBMENU1_START+SUBMENU1_SIZE
 #define SUBMENU2_SIZE 3
     txtSubMenuHandle[SUBMENU2_START]=0;
     txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
     txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
-#define SUBMENU3_START 13
+#define SUBMENU3_START SUBMENU2_START+SUBMENU2_SIZE
 #define SUBMENU3_SIZE 4
     txtSubMenuHandle[SUBMENU3_START]=0;
     txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
     txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
     txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5c_2x.png"]);
     
-#define SUBMENU4_START 17
+#define SUBMENU4_START SUBMENU3_START+SUBMENU3_SIZE
 #define SUBMENU4_SIZE 7
     txtSubMenuHandle[SUBMENU4_START]=0;
     txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
@@ -5587,27 +5587,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[SUBMENU4_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
     txtSubMenuHandle[SUBMENU4_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
     
-#define SUBMENU5_START 24
+#define SUBMENU5_START SUBMENU4_START+SUBMENU4_SIZE
 #define SUBMENU5_SIZE 3
     txtSubMenuHandle[SUBMENU5_START]=0;
     txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[7];
     txtSubMenuHandle[SUBMENU5_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
     
-#define SUBMENU6_START 27
+#define SUBMENU6_START SUBMENU5_START+SUBMENU5_SIZE
 #define SUBMENU6_SIZE 3
     txtSubMenuHandle[SUBMENU6_START]=0;
     txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[9];
     txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
     
-#define SUBMENU7_START 30
-#define SUBMENU7_SIZE 5
+#define SUBMENU7_START SUBMENU6_START+SUBMENU6_SIZE
+#define SUBMENU7_SIZE 7
     txtSubMenuHandle[SUBMENU7_START]=0;
     txtSubMenuHandle[SUBMENU7_START+1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
     txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
     txtSubMenuHandle[SUBMENU7_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
     txtSubMenuHandle[SUBMENU7_START+4]=txtMenuHandle[10];
+    txtSubMenuHandle[SUBMENU7_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11e_2x.png"]);
+    txtSubMenuHandle[SUBMENU7_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11f_2x.png"]);
     
-#define SUBMENU8_START 35
+#define SUBMENU8_START SUBMENU7_START+SUBMENU7_SIZE
 #define SUBMENU8_SIZE 4
     txtSubMenuHandle[SUBMENU8_START]=0;
     txtSubMenuHandle[SUBMENU8_START+1]=txtMenuHandle[11];
@@ -6461,7 +6463,8 @@ extern "C" int current_sample;
     }
     
     
-    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
+         (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
         float note_fx_linewidth;
         //scroll  & get current note bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
@@ -6631,7 +6634,8 @@ extern "C" int current_sample;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;;
+                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+                    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
@@ -6840,6 +6844,9 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
+                        case SUBMENU7_START://27: //Piano
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
+                            break;
                     }
                 } else if (touched_coord==0x21) {
                     switch (viewTapHelpShow_SubStart) {
@@ -6848,6 +6855,9 @@ extern "C" int current_sample;
                             size_chan=4*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
+                            break;
+                        case SUBMENU7_START://27: //Piano
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
                             break;
                     }
                 } else if (touched_coord==0x31) {
@@ -7165,15 +7175,32 @@ extern "C" int current_sample;
     
     if (([mplayer isPlaying])&&
         (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value||
-         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)  ) {
+         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||
+         settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value)  ) {
         
         int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
         if (display_note_mode>=3) display_note_mode-=3;
         
+        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
+            
+            memset(voicesName,0,sizeof(voicesName));
+            for (int i=0;i<[mplayer getNumChannels];i++) {
+                snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
+            }
+            
+            switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
+                case 1:
+                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    break;
+                case 2:
+                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    break;
+            }
+        }
+        
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
             playerpos=[mplayer getCurrentGenBufferIdx];
             RenderUtils::DrawMidiFX(ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
-            clearFXbuffer=false;
             
             if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
                 if (DEBUG_INFOS) {
@@ -7513,17 +7540,12 @@ extern "C" int current_sample;
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }
         
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
-            int playerpos=[mplayer getCurrentPlayedBufferIdx];
-            //playerpos=(playerpos+SOUND_BUFFER_NB-4+0*MIDIFX_OFS)%SOUND_BUFFER_NB;
+                if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
             switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
                 case 1:
-                    //RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
-                    clearFXbuffer=false;
+                    RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     break;
                 case 2:
-                    playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
                 case 3:
@@ -7544,7 +7566,6 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    playerpos=[mplayer getCurrentGenBufferIdx];
                     RenderUtils::DrawPiano3DWithNotesWall(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
             }
@@ -7637,6 +7658,7 @@ extern "C" int current_sample;
                     break;
                 case SUBMENU7_START: //Piano
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
+                    active_idx=1<<(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+4);
                     break;
                 case SUBMENU8_START:
                     active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;

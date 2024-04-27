@@ -554,6 +554,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
+    
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPianoRollAllNote].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FXPianoRollMonoChannel].detail.mdz_switch.switch_value=0;
+    
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value=1;
@@ -1408,6 +1413,34 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[1]=(char*)"16";
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[2]=(char*)"24";
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[3]=(char*)"32";
+    
+    SETTINGS_ID_DEF(GLOB_FXPianoRoll)
+    settings[GLOB_FXPianoRoll].type=MDZ_SWITCH;
+    settings[GLOB_FXPianoRoll].label=(char*)"Piano roll display";
+    settings[GLOB_FXPianoRoll].description=(char*)"Activate Piano roll FX, standard or 'Synthesia' like";
+    settings[GLOB_FXPianoRoll].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRoll].sub_family=0;
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[1]=(char*)"Std";
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[2]=(char*)"Syn.";
+    
+    SETTINGS_ID_DEF(GLOB_FXPianoRollAllNote)
+    settings[GLOB_FXPianoRollAllNote].label=(char*)"Piano roll-all note";
+    settings[GLOB_FXPianoRollAllNote].description=(char*)"Show all notes, i.e. low or high notes will appear even if not same octave";
+    settings[GLOB_FXPianoRollAllNote].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollAllNote].sub_family=0;
+    settings[GLOB_FXPianoRollAllNote].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value=0;
+    
+    SETTINGS_ID_DEF(GLOB_FXPianoRollMonoChannel)
+    settings[GLOB_FXPianoRollMonoChannel].label=(char*)"Piano roll-mono channel";
+    settings[GLOB_FXPianoRollMonoChannel].description=(char*)"Show a piano / channel";
+    settings[GLOB_FXPianoRollMonoChannel].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollMonoChannel].sub_family=0;
+    settings[GLOB_FXPianoRollMonoChannel].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXPianoRollMonoChannel].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FXMIDIPattern)
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
