@@ -3709,7 +3709,7 @@ int recording=0;
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
             int yofs=self.navigationItem.titleView.frame.size.height;
-            if (is_macOS) yofs+=0*20;
+            if (is_macOS) yofs+=0;
             //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
             
             safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
@@ -3736,9 +3736,6 @@ int recording=0;
             
             if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
-            
-            
-            
             
             if (is_macOS) {
                 volWin.hidden=TRUE;
@@ -3965,7 +3962,7 @@ int recording=0;
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
                 int yofs=self.navigationItem.titleView.frame.size.height;
-                if (is_macOS) yofs+=20;
+                if (is_macOS) yofs+=30;
                 //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
                 
                 safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
@@ -3977,12 +3974,12 @@ int recording=0;
                 if (is_macOS) {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
                     m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 } else {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
                     m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-30-safe_bottom);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 }
                 

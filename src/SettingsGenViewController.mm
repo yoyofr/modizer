@@ -556,8 +556,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXPianoRollAllNote].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FXPianoRollMonoChannel].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=0;
     
@@ -1420,7 +1420,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXPianoRoll)
     settings[GLOB_FXPianoRoll].type=MDZ_SWITCH;
-    settings[GLOB_FXPianoRoll].label=(char*)"Piano roll display";
+    settings[GLOB_FXPianoRoll].label=(char*)"Piano Roll FX";
     settings[GLOB_FXPianoRoll].description=(char*)"Activate Piano roll FX, standard or 'Synthesia' like";
     settings[GLOB_FXPianoRoll].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoRoll].sub_family=0;
@@ -1430,24 +1430,28 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[1]=(char*)"Std";
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[2]=(char*)"Syn.";
     
+    SETTINGS_ID_DEF(GLOB_FXPianoRollSpark)
+    settings[GLOB_FXPianoRollSpark].type=MDZ_SWITCH;
+    settings[GLOB_FXPianoRollSpark].label=(char*)"PR/Spark FX";
+    settings[GLOB_FXPianoRollSpark].description=(char*)"Activate spark FX, colored or white";
+    settings[GLOB_FXPianoRollSpark].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollSpark].sub_family=0;
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[1]=(char*)"Col.";
+    settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[2]=(char*)"White";
+    
     SETTINGS_ID_DEF(GLOB_FXPianoRollAllNote)
-    settings[GLOB_FXPianoRollAllNote].label=(char*)"Piano roll-all note";
+    settings[GLOB_FXPianoRollAllNote].label=(char*)"PR/All note";
     settings[GLOB_FXPianoRollAllNote].description=(char*)"Show all notes, i.e. low or high notes will appear even if not same octave";
     settings[GLOB_FXPianoRollAllNote].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoRollAllNote].sub_family=0;
     settings[GLOB_FXPianoRollAllNote].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value=0;
     
-    SETTINGS_ID_DEF(GLOB_FXPianoRollMonoChannel)
-    settings[GLOB_FXPianoRollMonoChannel].label=(char*)"Piano roll-mono channel";
-    settings[GLOB_FXPianoRollMonoChannel].description=(char*)"Display a piano / channel";
-    settings[GLOB_FXPianoRollMonoChannel].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXPianoRollMonoChannel].sub_family=0;
-    settings[GLOB_FXPianoRollMonoChannel].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXPianoRollMonoChannel].detail.mdz_boolswitch.switch_value=0;
-    
     SETTINGS_ID_DEF(GLOB_FXPianoRollVoicesLabels)
-    settings[GLOB_FXPianoRollVoicesLabels].label=(char*)"Piano roll-voices labels";
+    settings[GLOB_FXPianoRollVoicesLabels].label=(char*)"PR/Voices labels";
     settings[GLOB_FXPianoRollVoicesLabels].description=(char*)"Display voices label";
     settings[GLOB_FXPianoRollVoicesLabels].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoRollVoicesLabels].sub_family=0;
@@ -1455,7 +1459,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FXPianoRollOctavesLabels)
-    settings[GLOB_FXPianoRollOctavesLabels].label=(char*)"Piano roll-octaves labels";
+    settings[GLOB_FXPianoRollOctavesLabels].label=(char*)"PR/Octaves labels";
     settings[GLOB_FXPianoRollOctavesLabels].description=(char*)"Display octaves labels";
     settings[GLOB_FXPianoRollOctavesLabels].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPianoRollOctavesLabels].sub_family=0;
@@ -1464,7 +1468,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMIDIPattern)
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
-    settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
+    settings[GLOB_FXMIDIPattern].label=(char*)"Notes scroller FX";
     settings[GLOB_FXMIDIPattern].description=NULL;
     settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDIPattern].sub_family=0;
@@ -1476,7 +1480,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMIDICutLine)
     settings[GLOB_FXMIDICutLine].type=MDZ_SWITCH;
-    settings[GLOB_FXMIDICutLine].label=(char*)"Midi bars mode";
+    settings[GLOB_FXMIDICutLine].label=(char*)"NS/bars mode";
     settings[GLOB_FXMIDICutLine].description=NULL;
     settings[GLOB_FXMIDICutLine].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDICutLine].sub_family=0;
@@ -1488,7 +1492,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMIDIBarStyle)
     settings[GLOB_FXMIDIBarStyle].type=MDZ_SWITCH;
-    settings[GLOB_FXMIDIBarStyle].label=(char*)"Note bar style";
+    settings[GLOB_FXMIDIBarStyle].label=(char*)"NS/bars style";
     settings[GLOB_FXMIDIBarStyle].description=NULL;
     settings[GLOB_FXMIDIBarStyle].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDIBarStyle].sub_family=0;
@@ -1500,7 +1504,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMIDIBarVibrato)
     settings[GLOB_FXMIDIBarVibrato].type=MDZ_SWITCH;
-    settings[GLOB_FXMIDIBarVibrato].label=(char*)"Show vibrato";
+    settings[GLOB_FXMIDIBarVibrato].label=(char*)"Vibrato display";
     settings[GLOB_FXMIDIBarVibrato].description=NULL;
     settings[GLOB_FXMIDIBarVibrato].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDIBarVibrato].sub_family=0;
@@ -1512,7 +1516,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXPiano)
     settings[GLOB_FXPiano].type=MDZ_SWITCH;
-    settings[GLOB_FXPiano].label=(char*)"Piano mode";
+    settings[GLOB_FXPiano].label=(char*)"Piano FX";
     settings[GLOB_FXPiano].description=NULL;
     settings[GLOB_FXPiano].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPiano].sub_family=0;
