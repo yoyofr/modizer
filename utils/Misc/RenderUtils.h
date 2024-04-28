@@ -51,6 +51,11 @@ struct vertexData {
     GLfloat r,g,b,a;
 };
 
+struct coordData {
+    GLfloat u;             // OpenGL X Coordinate
+    GLfloat v;             // OpenGL Y Coordinate
+};
+
 
 }
 
