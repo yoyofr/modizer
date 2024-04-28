@@ -99,7 +99,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
-float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length;
+float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_noteroll_offset,tim_midifx_length;
 bool tim_midifx_note_offset_reset;
 
 extern volatile int db_checked;
@@ -121,7 +121,7 @@ static MPVolumeView *volumeView;
 static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
-static int txtSubMenuHandle[39];
+static int txtSubMenuHandle[41];
 static char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
 
 //int texturePiano;
@@ -6465,11 +6465,15 @@ extern "C" int current_sample;
     if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
          (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
         float note_fx_linewidth;
+        float noteroll_fx_keywidth;
         //scroll  & get current note bar width
+        
+        tim_midifx_noteroll_offset+=-movePxMID;
+        
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
             //vertical
             tim_midifx_note_offset+=-movePxMID;
-            movePxMID=0;
+            
             note_fx_linewidth=ww/tim_midifx_note_range;
             
             tim_midifx_length-=movePyMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
@@ -6480,7 +6484,7 @@ extern "C" int current_sample;
         } else {
             //horizontal
             tim_midifx_note_offset+=movePyMID;
-            movePyMID=0;
+            
             note_fx_linewidth=hh/tim_midifx_note_range;
             
             tim_midifx_length+=movePxMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
@@ -6488,37 +6492,59 @@ extern "C" int current_sample;
             if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
             if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
         }
+        
+        movePxMID=0;
+        movePyMID=0;
+        
         if (tim_midifx_note_offset<0) {
             tim_midifx_note_offset=0;
         }
         if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
             tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
         }
+        
+        float visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        if (tim_midifx_noteroll_offset<0) {
+            tim_midifx_noteroll_offset=0;
+        }
+        if ( (tim_midifx_noteroll_offset>(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            tim_midifx_noteroll_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
+        
         if (tim_midifx_note_offset_reset) {
             tim_midifx_note_offset_reset=false;
             tim_midifx_note_offset=note_fx_linewidth*(128 - tim_midifx_note_range)/2;
             if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
+            
+            tim_midifx_noteroll_offset=noteroll_fx_keywidth*(128 - tim_midifx_note_range)/2.0*7.0/12.0;
+            if (tim_midifx_noteroll_offset<0) tim_midifx_noteroll_offset=0;
         }
         
         //compute current center
-        float note_visible_center=(tim_midifx_note_offset)/note_fx_linewidth+(tim_midifx_note_range/2);
+        float note_visible_center=tim_midifx_note_offset/note_fx_linewidth+(tim_midifx_note_range/2);
+        float noteroll_visible_center=tim_midifx_noteroll_offset*12.0/7.0/noteroll_fx_keywidth+(tim_midifx_note_range/2);
         
         //update visible notes range
         if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
         if (movePinchScaleFXMID>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
         tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXMID*64.0f;
         
-        if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {//min is 4 Octaves
+        if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {
             tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
         }
         if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
         
         //update bar width
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            //vert
             note_fx_linewidth=ww/tim_midifx_note_range;
         } else {
+            //horiz
             note_fx_linewidth=hh/tim_midifx_note_range;
         }
+        visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
         
         //recompute offset to get same center
         tim_midifx_note_offset=(note_visible_center-(tim_midifx_note_range/2))*note_fx_linewidth;
@@ -6529,19 +6555,19 @@ extern "C" int current_sample;
         if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
             tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
         }
-//        static int cptyo=0;
-//        cptyo++;
-//        if ((cptyo&7)==7) printf("range %f \t width %f \t ofs %f \t Px %f \t Py %f\n",tim_midifx_note_range,note_fx_linewidth,tim_midifx_note_offset,movePxMID,movePyMID);
-
+        
+        tim_midifx_noteroll_offset=(noteroll_visible_center-(tim_midifx_note_range/2))*7.0/12.0*noteroll_fx_keywidth;
+        if (tim_midifx_noteroll_offset<0) {
+            tim_midifx_noteroll_offset=0;
+        }
+        if ( (tim_midifx_noteroll_offset>(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            tim_midifx_noteroll_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
+        //static int cpt=0;
+        //if (((cpt)&31)==0) printf("tim_midifx_noteroll_offset %f  max %f\n",tim_midifx_noteroll_offset,(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0);
+        //cpt++;
+        
     }
-    /*if (mOglView2Taps) { //double tap: fullscreen switch
-     mOglView2Taps=0;
-     oglViewFullscreen^=1;
-     oglViewFullscreenChanged=1;
-     viewTapHelpShow=0;
-     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-     }*/
-    
     
     //check for click
     if (mOglView1Tap==1) {
@@ -6715,6 +6741,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU5_START://21: //MIDI Pattern
                             settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             movePxMID=movePyMID=0;
                             break;
                         case SUBMENU6_START://24: //3D Sphere/Torus
@@ -6725,6 +6752,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU8_START://32: //Spectrum3D
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
@@ -6758,6 +6786,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU5_START://21: //MIDI Pattern
                             settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             movePxMID=movePyMID=0;
                             break;
                         case SUBMENU6_START://24: //3D Sphere/Torus
@@ -6768,6 +6797,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU8_START://32: //Spectrum3D
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
@@ -6799,6 +6829,7 @@ extern "C" int current_sample;
                             
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU8_START://32: //Spectrum3D
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
@@ -6824,6 +6855,7 @@ extern "C" int current_sample;
                             break;
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x11) {
@@ -6845,6 +6877,8 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START://27: //Piano
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
                             break;
                     }
@@ -6857,6 +6891,8 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START://27: //Piano
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
                             break;
                     }
@@ -6974,15 +7010,6 @@ extern "C" int current_sample;
             
             const float log2FrameSize = log2f(numSamples);
             
-            /*for (int i=1; i<numSamples/2; i++) {
-             
-             //idx=6*(i-1)*2*SPECTRUM_BANDS/numSamples;
-             idx=SPECTRUM_BANDS*log2f(i)/log2FrameSize;
-             if (idx<SPECTRUM_BANDS) {
-             fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
-             fft_freqAvgCount[idx]++;
-             }
-             }*/
             int lowfreq,highfreq,tmpfreq;
             float sum;
             
@@ -7026,23 +7053,6 @@ extern "C" int current_sample;
             memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
             memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
-            
-            /*for (int i=0;i<SPECTRUM_BANDS;i++) {
-             lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
-             highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
-             if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
-             if (lowfreq<numSamples/2) {
-             sum=0;
-             for (int k=lowfreq;k<highfreq;k++) {
-             fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-             //sum=sum+fft_frequency[k];
-             }
-             //sum=sum/(float)(highfreq-lowfreq+1);
-             //sum*=(float)powf(i,1.5f)+1;
-             //fft_frequencyAvg[i]=sum;
-             fft_frequencyAvg[i]*=(float)powf(i,1.5f)+1;
-             }
-             }*/
             
             highfreq=1;
             for (int i=0;i<SPECTRUM_BANDS;i++) {
@@ -7185,15 +7195,15 @@ extern "C" int current_sample;
             
             memset(voicesName,0,sizeof(voicesName));
             for (int i=0;i<[mplayer getNumChannels];i++) {
-                snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:true] UTF8String]);
             }
             
             switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
                 case 1:
-                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_noteroll_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
                     break;
                 case 2:
-                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    RenderUtils::DrawPianoRollSynthesiaFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_noteroll_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
                     break;
             }
         }
@@ -7489,7 +7499,7 @@ extern "C" int current_sample;
                     if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<[mplayer getNumChannels];i++) {
-                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
 //                        static int cpt=0;
 //                        cpt++;
@@ -7505,7 +7515,7 @@ extern "C" int current_sample;
                     if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
                         memset(voicesName,0,sizeof(voicesName));
                         for (int i=0;i<[mplayer getNumChannels];i++) {
-                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i] UTF8String]);
+                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
@@ -7536,7 +7546,6 @@ extern "C" int current_sample;
             if (settings[GLOB_FX3].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FX5].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }

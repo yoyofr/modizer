@@ -22,7 +22,7 @@ extern int m_voice_buff_adjustement;
 extern unsigned char m_voice_channel_mapping[256];
 extern unsigned char m_channel_voice_mapping[256];
 
-extern int m_genNumVoicesChannels;
+extern int m_genNumVoicesChannels,m_genNumMidiVoicesChannels;
 
 extern unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];

@@ -517,7 +517,7 @@ int m_voicesForceOfs;
 int m_voice_current_samplerate;
 double m_voice_current_rateratio;
 int m_voice_current_sample;
-int m_genNumVoicesChannels;
+int m_genNumVoicesChannels,m_genNumMidiVoicesChannels;
 int m_genMasterVol;
 int64_t generic_mute_mask;
 
@@ -2154,10 +2154,12 @@ static int tim_output_data(char *buf, int32 nbytes) {
                 //vol=(int)(voice[i].envelope_volume>>24);
                 int note=vgm_getNoteFromFreq(voice[i].frequency/1000);
                 int subnote=vgm_getSubNoteFromFreq(voice[i].frequency/1000);
+                int chan=(voice[i].channel)%SOUND_MAXVOICES_BUFFER_FX;
+                chan=m_channel_voice_mapping[chan];
                 
                 tim_notes[buffer_ana_gen_ofs][voices++]=
                 note|
-                ((unsigned int)(voice[i].channel)<<8)|
+                ((unsigned int)chan<<8)|
                 ((unsigned int)vol<<16)|
                 ((unsigned int)((voice[i].status==VOICE_ON?1<<1:0))<<24)|
                 ((unsigned int)subnote<<28);
@@ -2722,6 +2724,7 @@ void propertyListenerCallback (void                   *inUserData,              
          }*/
         
         m_genNumVoicesChannels=0;
+        m_genNumMidiVoicesChannels=0;
         [self optUpdateSystemColor];
         
         //Global
@@ -6554,7 +6557,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         idx|
-                                        (voices_idx<<8)|
+                                        ((i+j*3)<<8)|
                                         (vol<<16)|
                                         ((1<<1)<<24)|
                                         (subidx<<28);
@@ -6637,7 +6640,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             //printf("ch %d note %d vol %d\n",i,idx,vol);
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             idx|
-                                            ((voices_idx)<<8)|
+                                            ((i+j*3)<<8)|
                                             (vol<<16)|
                                             ((1<<1)<<24)|
                                             (subidx<<28);
@@ -9320,6 +9323,7 @@ char* loadRom(const char* path, size_t romSize)
         
         numChannels=SID::getNumberUsedChips() * 4;
         m_genNumVoicesChannels=numChannels;
+        m_genNumMidiVoicesChannels=m_genNumVoicesChannels*3/4;
         m_voicesDataAvail=1;
         
         for (int i=0;i<m_genNumVoicesChannels;i++) {
@@ -9590,6 +9594,7 @@ char* loadRom(const char* path, size_t romSize)
             //if (sid_engine==1){
             m_voicesDataAvail=1;
             m_genNumVoicesChannels=numChannels;
+            m_genNumMidiVoicesChannels=m_genNumVoicesChannels*3/4;
             for (int i=0;i<m_genNumVoicesChannels;i++) {
                 m_voice_voiceColor[i]=m_voice_systemColor[i/4];
             }
@@ -13258,6 +13263,7 @@ extern bool icloud_available;
     album=[filePath lastPathComponent];
     mod_title=nil;
     
+    m_genNumMidiVoicesChannels=0;
     m_voicesDataAvail=0;
     m_voicesForceOfs=-1;
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
@@ -13387,6 +13393,8 @@ extern bool icloud_available;
     [self initSubSongPlayed];
     no_reentrant=false;
     mLoadModuleStatus=retval;
+    
+    if (m_genNumMidiVoicesChannels==0) m_genNumMidiVoicesChannels=m_genNumVoicesChannels;
     
     //clear oscillo data ptr
     for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
@@ -15138,7 +15146,7 @@ extern "C" void adjust_amplification(void);
     }
 }
 
--(NSString*) getVoicesName:(unsigned int)channel {
+-(NSString*) getVoicesName:(unsigned int)channel onlyMidi:(bool)onlyMidi {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
         case MMP_TIMIDITY:
@@ -15212,8 +15220,10 @@ extern "C" void adjust_amplification(void);
         case MMP_GME:
             return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
         case MMP_WEBSID:
+            if (onlyMidi) return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
             return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
         case MMP_SIDPLAY:
+            if (onlyMidi) return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
             return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
         case MMP_VGMPLAY:{
             int idx=0;

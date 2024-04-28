@@ -430,7 +430,7 @@ extern "C" {
 -(void) setSystemm_voicesStatus:(int)systemIdx active:(bool)active;
 -(int) getSystemm_voicesStatus:(int)systemIdx;
 -(bool) isVoicesMutingSupported;
--(NSString*) getVoicesName:(unsigned int)channel;
+-(NSString*) getVoicesName:(unsigned int)channel onlyMidi:(bool)onlyMidi;
 -(bool) getm_voicesStatus:(unsigned int)channel;
 -(void) setm_voicesStatus:(bool)active index:(unsigned int)channel;
 -(void) vgmStream_ChangeToSub:(int) subsong;
