@@ -20,7 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../../src/ModizerVoicesData.h"
-static char channel_pending_note_update[8];
+static uint8_t channel_pending_note_update[8];
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -918,25 +918,29 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     
     //YOYOFR
     //get midi like note, only once / run
-        if (channel_pending_note_update[current_voice] && (vol+voln)) {
+        if (/*channel_pending_note_update[current_voice] &&*/ (vol+voln)) {
             long long pp=m.t_pitch;
             channel_pending_note_update[current_voice]=0;
             
             if ( enabled && pp && (!(REG(flg) & 0x40)) ) {
                 int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
-                vgm_last_note[current_voice]=freq;
-                vgm_last_vol[current_voice]=v->env;
-                if (vgm_last_vol[current_voice]) {
-                    vgm_last_vol[current_voice]>>=3;
-                    if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
-                    if (vgm_last_vol[current_voice]<=0) vgm_last_vol[current_voice]=1;
-                }
-                vgm_last_sample_addr[current_voice]=current_voice;
+                if (freq) {
+                    vgm_last_note[current_voice]=freq;
+                    vgm_last_vol[current_voice]=v->env;
+                    if (vgm_last_vol[current_voice]) {
+                        vgm_last_vol[current_voice]>>=3;
+                        if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
+                        if (vgm_last_vol[current_voice]<0) vgm_last_vol[current_voice]=0;
+                    }
+                    vgm_last_sample_addr[current_voice]=current_voice;
+                    if (vgm_last_vol[current_voice]==0) vgm_last_note[current_voice]=0;
+                } else vgm_last_note[current_voice]=0;
             } else {
                 vgm_last_note[current_voice]=0;
             }
         } else vgm_last_note[current_voice]=0;
     //YOYOFR
+    
 }
 VOICE_CLOCK( V4 )
 {

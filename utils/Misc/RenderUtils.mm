@@ -5642,7 +5642,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
 }
 
 void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
-    LineVertex *ptsB;
+    LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int crtp[4],cgtp[4],cbtp[4],cap[4];
     int index;
@@ -5659,7 +5659,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         //data_midifx_first=1;
     }
     
-    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*30*MAX_BARS);
+    ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -5685,8 +5685,8 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
     
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
     
     
     //////////////////////////////////////////////
@@ -5743,51 +5743,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     }
     qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
     
-    /* if (data_bar2draw_count>=2) { //propagate played flag
-     for (int i=1;i<data_bar2draw_count;i++) {
-     int note=data_bar2draw[i-1].note;
-     int subnote=data_bar2draw[i-1].subnote;
-     int played=data_bar2draw[i-1].played;
-     int instr=data_bar2draw[i-1].instr;
-     
-     if (played) {
-     if ((data_bar2draw[i].instr==instr)&&(data_bar2draw[i].note==note)&&
-     (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size))) {
-     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
-     }
-     }
-     }
-     
-     for (int i=data_bar2draw_count-2;i>=0;i--) {
-     int note=data_bar2draw[i+1].note;
-     int subnote=data_bar2draw[i+1].subnote;
-     int played=data_bar2draw[i+1].played;
-     int instr=data_bar2draw[i+1].instr;
-     
-     if (played) {
-     if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note)==note)&&
-     (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) {
-     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==subnote)) data_bar2draw[i].played=1;
-     }
-     }
-     }
-     }
-     
-     for (int i=1;i<data_bar2draw_count;i++) {
-     if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
-     (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
-     (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
-     (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
-     if ((settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value==2)||(data_bar2draw[i].subnote==data_bar2draw[i-1].subnote)) data_bar2draw[i].size=0;
-     }
-     }
-     */
     index=0;
-    //TO OPTIMIZE
-    //    int data_bar_2dmap[128*MIDIFX_LEN];
-    //    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
-    
-    //draw non playing bars
     
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].played;
@@ -5807,24 +5763,6 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
         
         
-        int adj_size=0;
-        //        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
-        //            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
-        //            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
-        //            if (draw_count) {
-        //                if (_instr!=(instr+1)) {
-        //                    draw_count++;
-        //                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
-        //                }
-        //                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
-        //            } else {
-        //                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
-        //            }
-        //        }
-        //        adj_size*=2;
-        //        if (adj_size>=line_width*3/4) adj_size=line_width*3/4;
-        //        adj_size=0;
-        //
         crt=((data_midifx_col[colidx&31]>>16)&0xFF);
         cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
         cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -5919,147 +5857,147 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         }
         
         if (horiz_vert==0) { //horiz
-            int posNote=note*line_width-note_display_offset+adj_size+subnote;
-            int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
-            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
+            float posNote=note*line_width-note_display_offset+subnote;
+            float posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
+            float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
             
-            if ( ((posNote+(line_width-adj_size)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
+            if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
                     
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+line_width-adj_size+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     //top
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0]);
                     
                     //left
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
                     //bottom
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra, posNote+(line_width-adj_size)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
                     
                     //right
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra, posNote+(line_width-adj_size)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
                     //inner part
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote+(line_width-adj_size)+line_width_extra-border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posStart-line_width_extra+border_size, posNote+(line_width-adj_size)+line_width_extra-border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posEnd+line_width_extra-border_size, posNote+(line_width-adj_size)+line_width_extra-border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
                     
                     
                 }
             }
         } else {  //vert
-            int posNote=note*line_width-note_display_offset+adj_size+subnote;
-            int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
-            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
-            if ( ((posNote+(line_width-adj_size)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
+            float posNote=note*line_width-note_display_offset+subnote;
+            float posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
+            float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
+            if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
                     
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
                     //top
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
                     //left
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
                     
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
                     
                     //right
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
                     
                     //bottom
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
-                    ptsB[index++] = LineVertex(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
                     
                     //inner part
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
                     
-                    ptsB[index++] = LineVertex(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertex(posNote+(line_width-adj_size)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
                 }
             }
         }
@@ -6077,16 +6015,25 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     
     //current playing line
     //    230,76,153
+    index=0;
     if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, 0,210,210,255,200);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, hh,210,210,255,200);
-    } else {
-        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width,210,210,255,200);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,210,210,255,200);
+        index=DrawBox(ptsB, index,
+                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width,
+                      0,
+                      band_width*2,hh,1,
+                      240,210,255,200,0);
         
+    } else {
+        index=DrawBox(ptsB, index,
+                      0,
+                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width,
+                      ww,
+                      band_width*2,1,
+                      240,210,255,200,0);
     }
-    glLineWidth(band_width*mScaleFactor);
-    glDrawArrays(GL_LINES, 0, 2);
+    glDrawArrays(GL_TRIANGLES, 0, index);
+//    glLineWidth(band_width*mScaleFactor);
+//    glDrawArrays(GL_LINES, 0, 2);
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
@@ -6467,7 +6414,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     
     
-    
+    memset(voices_posX,0,sizeof(voices_posX));
     //draw label small colored boxes
     if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {

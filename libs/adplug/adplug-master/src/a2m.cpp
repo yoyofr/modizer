@@ -74,7 +74,7 @@ bool Ca2mLoader::load(const std::string &filename, const CFileProvider &fp)
 
   // file validation section
   if (memcmp(id, "_A2module_", sizeof(id)) ||
-      (version != 1 && version != 5 && version != 4 && version != 8) ||
+      (version != 1 && version != 5 && version != 4 && version != 8 && version != 9) ||
       numpats < 1 || numpats > 64) {
     fp.close(f);
     return false;

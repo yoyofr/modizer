@@ -639,6 +639,17 @@ void update_audio (void)
     }
 
     last_audio_cycles = cycles - n_cycles;
+    
+    //YOYOFR
+        for (int i=0;i<4;i++) {
+            if (audio_channel[i].per && audio_channel[i].vol) {
+                vgm_last_note[i]=440.0f*SOUNDTICKS/audio_channel[i].per/8287;
+                vgm_last_sample_addr[i]=i;
+                vgm_last_vol[i]=1;
+            }
+        }
+    
+    //YOYOFR
 }
 
 

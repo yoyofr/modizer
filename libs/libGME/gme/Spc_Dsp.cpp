@@ -597,8 +597,9 @@ skip_brr:
                     if (vgm_last_vol[current_voice]) {
                         vgm_last_vol[current_voice]>>=3;
                         if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
-                        if (vgm_last_vol[current_voice]<=0) vgm_last_vol[current_voice]=1;
+                        if (vgm_last_vol[current_voice]<0) vgm_last_vol[current_voice]=0;
                     }
+                    if (vgm_last_vol[current_voice]==0) vgm_last_note[current_voice]=0;
                     vgm_last_sample_addr[current_voice]=current_voice;
                 } else {
                     vgm_last_note[current_voice]=0;

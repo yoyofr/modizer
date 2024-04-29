@@ -3141,7 +3141,8 @@ void propertyListenerCallback (void                   *inUserData,              
     if ((mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_GBS)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_SIDPLAY)||
         (mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
-        (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP) ) return true;
+        (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
+        (mPlayType==MMP_UADE)) return true;
     return false;
 }
 
@@ -3750,6 +3751,28 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             lBytes-=to_fill;
             pSound+=to_fill;
             buffer_ana_subofs=0;
+            
+            //midi like notes data
+            int voices_idx=0;
+            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                if (m_voicesStatus[j]) {
+                    unsigned int idx=vgm_getNote(j);
+                    if ((idx>0)) {
+                        unsigned int subidx=vgm_getSubNote(j);
+                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                        unsigned int instr=vgm_last_sample_addr[j];
+                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                        (unsigned int)idx|
+                        ((unsigned int)(instr)<<8)|
+                        ((unsigned int)vgm_last_vol[j]<<16)|
+                        ((unsigned int)(1<<1)<<24)|
+                        ((unsigned int)subidx<<28);
+                    }
+                    voices_idx++;
+                }
+            }
+            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
             
             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
             
