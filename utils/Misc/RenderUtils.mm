@@ -1218,6 +1218,7 @@ void RenderUtils::DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uin
 void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt,float mScaleFactor) {
     LineVertex pts[24];
     //set the opengl state
+    
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_BLEND);
