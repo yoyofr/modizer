@@ -2145,7 +2145,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
         int i,voices,vol;
         memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
         for(i = voices = 0; i < upper_voices; i++) {
-            if(voice[i].status != VOICE_FREE) {
+            if ( (voice[i].status == VOICE_ON)||(voice[i].status == VOICE_SUSTAINED) ){
                 vol=(voice[i].left_mix+voice[i].right_mix);//((int)(voice[i].envelope_volume>>24)<<16)|
                 if (vol<0) vol=-vol;
                 vol=vol>>3;
@@ -2157,16 +2157,17 @@ static int tim_output_data(char *buf, int32 nbytes) {
                 int chan=(voice[i].channel)%SOUND_MAXVOICES_BUFFER_FX;
                 chan=m_channel_voice_mapping[chan];
                 
-                tim_notes[buffer_ana_gen_ofs][voices++]=
-                note|
-                ((unsigned int)chan<<8)|
-                ((unsigned int)vol<<16)|
-                ((unsigned int)((voice[i].status==VOICE_ON?1<<1:0))<<24)|
-                ((unsigned int)subnote<<28);
+                if (vol) {
+                    tim_notes[buffer_ana_gen_ofs][voices++]=
+                    note|
+                    ((unsigned int)chan<<8)|
+                    ((unsigned int)1<<16)|
+                    ((unsigned int)(1<<1)<<24)|
+                    ((unsigned int)subnote<<28);
+                }
             }
         }
         tim_voicenb[buffer_ana_gen_ofs]=voices;
-        
         
         buffer_ana_flag[buffer_ana_gen_ofs]=1;
         buffer_ana_sample_ofs[buffer_ana_gen_ofs]=mCurrentSamples;
@@ -8051,7 +8052,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     } else {
         char *tmp_mod_name=(char*)mdx_get_title(mdx);
         if (tmp_mod_name) {
-            mod_title=[NSString stringWithUTF8String:tmp_mod_name];
+            mod_title=[self sjisToNS:tmp_mod_name];
             snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         } else {
             snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
@@ -12958,7 +12959,7 @@ extern bool icloud_available;
                     
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     filePath=[self getFullFilePath:_filePath];
-                    sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
+                    sprintf(mod_filename,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
                     
                     //NSLog(@"%@",_filePath);
                     
@@ -13015,7 +13016,7 @@ extern bool icloud_available;
         file_no_ext=[temparray_filepath firstObject];
         
         filePath=[self getFullFilePath:_filePath];
-        sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
+        sprintf(mod_filename,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
     }
     
     if (filePath==NULL) {
