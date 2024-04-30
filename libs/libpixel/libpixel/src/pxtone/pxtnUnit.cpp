@@ -56,6 +56,8 @@ bool pxtnUnit::set_woice( const pxtnWoice *p_woice )
 	_key_now    = EVENTDEFAULT_KEY;
 	_key_margin = 0;
 	_key_start  = EVENTDEFAULT_KEY;
+    
+    _keyonoff_triggered=0; //YOYOFR
 	return true;
 }
 
@@ -97,6 +99,7 @@ void pxtnUnit::Tone_ZeroLives()
 
 void pxtnUnit::Tone_KeyOn()
 {
+    _keyonoff_triggered=1; //YOYOFR
 	_key_now    = _key_start + _key_margin;
 	_key_start  = _key_now;
 	_key_margin = 0;
@@ -104,6 +107,7 @@ void pxtnUnit::Tone_KeyOn()
 
 void pxtnUnit::Tone_Key( int32_t  key )
 {
+    _keyonoff_triggered=1; //YOYOFR
 	_key_start            = _key_now;
 	_key_margin           = key - _key_start;
 	_portament_sample_pos = 0;

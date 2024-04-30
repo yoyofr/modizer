@@ -509,7 +509,7 @@ int org_getlength(void)
 		return -1000;
 	if(org.nonlooping)
 		return org.loop_start*org.tempo;
-	return org.loop_end*org.tempo;
+	return org.loop_end*org.tempo+(org.loop_end-org.loop_start)*org.tempo*(maxstep-1);
 }
 
 int org_play(const char *fn, char *buf) {
@@ -685,6 +685,28 @@ static int get_samples(char *buf,int samplesNb)
 		}
 
 	}
+    
+    //YOYOFR
+    for (int i=0;i<CHANNELS;i++) {
+        //YOYOFR
+        if (!(organya_mute_mask&(1<<i))) {
+            int32_t vol=org.chan[i].playing.vol;
+            
+            if (vol && (org.chan[i].pos >= -1.0)) {
+                if(i < CHANNELS/2) {
+                    float note=org.chan[i].playing.key;
+                    vgm_last_note[i]=440.0*pow(2,(note)/12-2.4)*(double)org.chan[i].freq/SAMPLERATE;
+                } else {
+                    float note=org.chan[i].playing.key;
+                    vgm_last_note[i]=440.0*note/28.0*(double)org.chan[i].freq/SAMPLERATE;
+                }
+                vgm_last_sample_addr[i]=i;
+                if (!vgm_last_vol[i]) vgm_last_vol[i]=1;
+            }
+        }
+    }
+    //YOYOFR
+    
 	return l;
 }
 

@@ -619,6 +619,8 @@ typedef struct
 	UINT8   kcode;      /* key code:                        */
 	UINT32  block_fnum; /* current blk/fnum value for this slot (can be different betweeen slots of one channel in 3slot mode) */
 	UINT8   Muted;
+    //YOYOFR
+    UINT8   keyonff_triggered;
 } FM_CH;
 
 
@@ -772,6 +774,10 @@ INLINE void FM_IRQMASK_SET(FM_ST *ST,int flag)
 INLINE void FM_KEYON(FM_OPN *OPN, FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
+    
+    //YOYOFR
+    CH->keyonff_triggered=1;
+    //YOYOFR
 
 	// Note by Valley Bell:
 	//  I assume that the CSM mode shouldn't affect channels
@@ -810,6 +816,10 @@ INLINE void FM_KEYON(FM_OPN *OPN, FM_CH *CH , int s )
 INLINE void FM_KEYOFF(FM_OPN *OPN, FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
+    
+    //YOYOFR
+    CH->keyonff_triggered=1;
+    //YOYOFR
 
 	if (SLOT->key && (!OPN->SL3.key_csm || CH != &OPN->P_CH[2]))
 	{
@@ -852,6 +862,10 @@ INLINE void FM_KEYOFF(FM_OPN *OPN, FM_CH *CH , int s )
 INLINE void FM_KEYON_CSM(FM_OPN *OPN, FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
+    
+    //YOYOFR
+    CH->keyonff_triggered=1;
+    //YOYOFR
 
 	if (!SLOT->key && !OPN->SL3.key_csm)
 	{
@@ -885,6 +899,11 @@ INLINE void FM_KEYON_CSM(FM_OPN *OPN, FM_CH *CH , int s )
 INLINE void FM_KEYOFF_CSM(FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
+    
+    //YOYOFR
+    CH->keyonff_triggered=1;
+    //YOYOFR
+    
 	if (!SLOT->key)
 	{
 		if (SLOT->state>EG_REL)
@@ -4379,6 +4398,8 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 	INT32 dacout;
 	FM_CH   *cch[6];
 	INT32 lt,rt;
+    static INT32 old_out_fm[6]; //YOYOFR
+    static UINT8 old_dacen; //YOYOFR
 
 	/* set buffer */
 	if (buffer != NULL)
@@ -4600,6 +4621,43 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
 			OPN->SL3.key_csm = 0;
 		}
 	}
+    
+    //YOYOFR
+        for (int ii=0;ii<6;ii++) {
+            if (!(cch[ii]->Muted) ) {
+                if (cch[ii]->block_fnum==0) {
+                   if ((out_fm[ii]!=old_out_fm[ii])) {
+                        vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii]=ii;
+                        if ((ii==5)&&(F2612->dacen)) {
+                            if (!old_dacen) {
+                                vgm_last_vol[ii]=2;
+                            } else vgm_last_vol[ii]=1;
+                        } else {
+                            int newvol=cch[ii]->keyonff_triggered+1;
+                            cch[ii]->keyonff_triggered=0;
+                            if (vgm_last_vol[ii]<newvol) vgm_last_vol[ii]=newvol;
+                        }
+                    }
+                } else {
+                    if ((out_fm[ii]!=old_out_fm[ii])) {
+                        int freq=(cch[ii]->block_fnum)&0x7FF;
+                        int octave=((cch[ii]->block_fnum)>>11)&0x7;
+                        vgm_last_note[ii]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
+                        vgm_last_sample_addr[ii]=ii;
+                        int newvol=cch[ii]->keyonff_triggered+1;
+                        cch[ii]->keyonff_triggered=0;
+                        if (vgm_last_vol[ii]<newvol) vgm_last_vol[ii]=newvol;
+                    }
+                }
+            }
+        }
+    
+    for (int ii=0;ii<6;ii++) {
+        old_out_fm[ii]=out_fm[ii];
+        old_dacen=F2612->dacen;
+    }
+    //YOYOFR
 
 	/* timer B control */
 	INTERNAL_TIMER_B(&OPN->ST,length)

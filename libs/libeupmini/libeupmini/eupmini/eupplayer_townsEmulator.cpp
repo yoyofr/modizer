@@ -523,6 +523,14 @@ void TownsPcmEmulator::nextTick(int *outbuf, int buflen)
     m_voice_ofs++;
     //TODO:  MODIZER changes end / YOYOFR
     
+    //YOYOFR
+        if ( !(eup_mutemask&(1<<m_voice_ofs)) && (_volL+_volR) && this->velocity() && _control7 && phaseStep) {
+            vgm_last_note[m_voice_ofs]=440.0*(float)phaseStep/65536.0;
+            vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+            vgm_last_vol[m_voice_ofs]=1;
+        }
+    //YOYOFR
+    
 	signed char const *soundSamples = _currentSound->samples();
 	for (int i = 0, j = 0; i < buflen; i++) {
 		if (loopLength > 0) {

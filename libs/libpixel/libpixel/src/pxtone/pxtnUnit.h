@@ -39,6 +39,7 @@ private:
 	pxtnVOICETONE _vts[ pxtnMAX_UNITCONTROLVOICE ];
 
 public :
+    int _keyonoff_triggered; //YOYOFR
     int last_smpl;
 	 pxtnUnit();
 	~pxtnUnit();
@@ -46,17 +47,20 @@ public :
 	void    Tone_Init ();
 		    
 	void    Tone_Clear();
-		    
+    
 	void    Tone_Reset_and_2prm( int32_t voice_idx, int32_t env_rls_clock, float offset_freq );
 	void    Tone_Envelope  ();
 	void    Tone_KeyOn     ();
 	void    Tone_ZeroLives ();
 	void    Tone_Key       ( int32_t key );
+    int32_t getCurrentKey() {return _key_now;} //YOYOFR
 	void    Tone_Pan_Volume( int32_t ch, int32_t pan );
 	void    Tone_Pan_Time  ( int32_t ch, int32_t pan, int32_t sps );
 		    
 	void    Tone_Velocity  ( int32_t val );
+    int32_t getCurrentVelocity() {return _v_VELOCITY;} //YOYOFR
 	void    Tone_Volume    ( int32_t val );
+    int32_t getCurrentVolume() {return _v_VOLUME;} //YOYOFR
 	void    Tone_Portament ( int32_t val );
 	void    Tone_GroupNo   ( int32_t val );
 	void    Tone_Tuning    ( float   val );

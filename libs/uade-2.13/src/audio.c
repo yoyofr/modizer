@@ -648,7 +648,6 @@ void update_audio (void)
                 vgm_last_vol[i]=1;
             }
         }
-    
     //YOYOFR
 }
 
