@@ -6286,7 +6286,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=i&63;
+                int colidx=data_midifx_instr[midi_data_ofs][i]&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6388,7 +6388,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=i&63;
+                int colidx=data_midifx_instr[midi_data_ofs][i]&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
