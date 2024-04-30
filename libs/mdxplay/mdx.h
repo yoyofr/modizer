@@ -263,5 +263,6 @@ void mdx_play(MDX_DATA *mdx,PDX_DATA *pdx);
 void mdx_stop();
 unsigned char *mdx_get_title( MDX_DATA *mdx );
 int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx );
+int mdx_get_realtracks();
 
 #endif /*_MDX_H_*/

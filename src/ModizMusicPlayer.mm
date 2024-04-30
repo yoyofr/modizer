@@ -3142,7 +3142,8 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_WEBSID)||(mPlayType==MMP_HC)||(mPlayType==MMP_NCSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
-        (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL) ) return true;
+        (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
+        (mPlayType==MMP_MDXPDX)) return true;
     return false;
 }
 
@@ -3355,27 +3356,53 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
     if (len<to_fill) {
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
         
-        for (int j=0;j<m_genNumVoicesChannels;j++) {
-            for (int i=buffer_ana_subofs/4;i<(buffer_ana_subofs+len)/4;i++) {
-                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
-                //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
-            }
-            m_voice_prev_current_ptr[j]+=(len>>2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;//m_voice_current_ptr[j];
-            if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-        }
-        
+//        for (int j=0;j<m_genNumVoicesChannels;j++) {
+//            for (int i=buffer_ana_subofs/4;i<(buffer_ana_subofs+len)/4;i++) {
+//                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+//                //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
+//            }
+//            m_voice_prev_current_ptr[j]+=(len>>2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;//m_voice_current_ptr[j];
+//            if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//        }
+//        
         buffer_ana_subofs+=len;
     } else {
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
         
         for (int j=0;j<m_genNumVoicesChannels;j++) {
-            for (int i=buffer_ana_subofs/4;i<(buffer_ana_subofs+to_fill)/4;i++) {
+            for (int i=0;i<(SOUND_BUFFER_SIZE_SAMPLE);i++) {
                 m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
+                m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                 //m_voice_buff[j][(i+m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]=0;
             }
-            m_voice_prev_current_ptr[j]+=(to_fill>>2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;//m_voice_current_ptr[j];
+            m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;//m_voice_current_ptr[j];
             if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=(SOUND_BUFFER_SIZE_SAMPLE*2*4)) m_voice_prev_current_ptr[j]-=(SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
         }
+        
+        //midi like notes data
+        int voices_idx=0;
+        memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+        for (int j=0; j < m_genNumVoicesChannels; j++) {
+            if (m_voicesStatus[j]) {
+                unsigned int idx=vgm_getNote(j);
+                if ((idx>0)) {
+                    unsigned int subidx=vgm_getSubNote(j);
+                    // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                    unsigned int instr=vgm_last_sample_addr[j];
+                    tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                    (unsigned int)idx|
+                    ((unsigned int)(instr)<<8)|
+                    ((unsigned int)vgm_last_vol[j]<<16)|
+                    ((unsigned int)(1<<1)<<24)|
+                    ((unsigned int)subidx<<28);
+                }
+                voices_idx++;
+            }
+        }
+        tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+        
+        memset(vgm_last_note,0,sizeof(vgm_last_note));
+        memset(vgm_last_vol,0,sizeof(vgm_last_vol));
         
         
         len-=to_fill;
@@ -8023,8 +8050,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         return -1;
     } else {
         char *tmp_mod_name=(char*)mdx_get_title(mdx);
-        if (tmp_mod_name) snprintf(mod_name,sizeof(mod_name)," %s",tmp_mod_name);
-        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+        if (tmp_mod_name) {
+            mod_title=[NSString stringWithUTF8String:tmp_mod_name];
+            snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+        } else {
+            snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+        }
         
         decode_pos_ms = 0;
         seek_needed = -1;
@@ -8040,7 +8071,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         iCurrentTime=0;
         mCurrentSamples=0;
         
-        numChannels=(mdx->haspdx?9:8);//mdx->tracks;
+        numChannels=mdx_get_realtracks();
         
         NSString *filePathDoc=[ModizFileHelper getFilePathFromDocuments:filePath];
         
@@ -15329,8 +15360,8 @@ extern "C" void adjust_amplification(void);
             if (hvl_song->ht_ModType) return [NSString stringWithFormat:@"#%d-HVL",channel+1];
             return [NSString stringWithFormat:@"#%d-AHX",channel+1];
         case MMP_MDXPDX:
-            if (channel<8) return [NSString stringWithFormat:@"#%d-YM2151",channel+1];
-            else return [NSString stringWithFormat:@"PCM"];
+            if (channel<8) return [NSString stringWithFormat:@"#%d-FM",channel+1];
+            else return [NSString stringWithFormat:@"#%d-PCM",channel+1];
         case MMP_ADPLUG:
             return [NSString stringWithFormat:@"#%d-OPL3",channel+1];
         case MMP_STSOUND:
@@ -15624,8 +15655,13 @@ extern "C" void adjust_amplification(void);
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             } else { //PDX
-                if (m_voicesStatus[8]) return 2;
-                else return 0;
+                tmp=0;
+                for (int i=8;i<numChannels;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==(numChannels-8)) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
             }
         case MMP_ASAP:
             tmp=0;
@@ -15712,7 +15748,7 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) {//MDX
                 for (int i=0;i<8;i++) [self setm_voicesStatus:active index:i];
             } else {
-                [self setm_voicesStatus:active index:8];
+                for (int i=8;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             }
             break;
         case MMP_ASAP:

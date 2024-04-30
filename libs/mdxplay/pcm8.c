@@ -542,9 +542,13 @@ static inline void pcm8( int flush_for_end )
             f=self->work[ch].fnum;
             s=self->work[ch].snum;
             
+            int buf_idx=0;//yoyofr
+            
             while(is_dst_ran_out==0) {
                 while( f>=0 ) {
-                    s = *(src++) * self->work[ch].volume / PCM8_MAX_VOLUME;
+                    if (generic_mute_mask&(1<<(8+ch))) s=0;
+                    else s = *(src++) * self->work[ch].volume / PCM8_MAX_VOLUME;
+                    
                     if ( src >= self->work[ch].end_ptr ) {
                         src--;
                         is_note_end=1;
@@ -553,6 +557,21 @@ static inline void pcm8( int flush_for_end )
                 }
                 while( f<0 ) {
                     *(dst++) += s;
+                    
+                    //YOYOFR
+                    int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    int64_t ofs_start=m_voice_current_ptr[(8+ch)];
+                    int64_t ofs_end=(m_voice_current_ptr[(8+ch)]+smplIncr);
+                    
+                        for (;;) {
+                            m_voice_buff[(8+ch)][(buf_idx+(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((s>>8));
+                            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                    buf_idx++;
+                    //YOYOFR
+                    
+                    
                     f += self->work[ch].freq;
                     if ( dst >= self->sample_buffer2+self->sample_buffer_size ) {
                         is_dst_ran_out=1;
@@ -569,7 +588,20 @@ static inline void pcm8( int flush_for_end )
                 self->work[ch].fnum = f;
                 self->work[ch].snum = s;
             }
+            
         }
+    }
+    
+    for ( ch=0 ; ch<PCM8_MAX_NOTE ; ch++ ) {
+        //YOYOFR
+        int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+        int64_t ofs_end=(m_voice_current_ptr[(8+ch)]+(self->sample_buffer_size)*smplIncr);
+        
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) {
+            ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        }
+        m_voice_current_ptr[(8+ch)]=ofs_end;
+        //YOYOFR
     }
     
     /* now pronouncing ! */
@@ -578,28 +610,6 @@ static inline void pcm8( int flush_for_end )
         /* 16bit stereo */
         for ( i=0 ; i<self->sample_buffer_size ; i++ ) {
             v = self->sample_buffer2[i]/2 * self->master_volume/PCM8_MAX_VOLUME;
-            
-            //TODO:  MODIZER changes start / YOYOFR
-            if (generic_mute_mask&(1<<8)) v=0;
-            
-            int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            int64_t ofs_start=m_voice_current_ptr[8];
-            int64_t ofs_end=(m_voice_current_ptr[8]+smplIncr);
-            int out=self->sample_buffer2[i]/2 * self->master_volume/PCM8_MAX_VOLUME;
-            
-            if ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))
-                for (;;) {
-                    m_voice_buff[8][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8((v>>8));
-                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                    if (ofs_start>=ofs_end) break;
-                }
-            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) {
-                ofs_end-=((SOUND_BUFFER_SIZE_SAMPLE*2*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-            }
-            m_voice_current_ptr[8]=ofs_end;
-            
-            //TODO:  MODIZER changes end / YOYOFR
-            
             switch(self->master_pan) {
                 case MDX_PAN_L:
                     l=v;
@@ -703,6 +713,23 @@ static inline void pcm8( int flush_for_end )
         memset(self->pcm_buffer+self->pcm_buffer_ptr,0,self->pcm_buffer_size-self->pcm_buffer_ptr);
         pcm8_write_dev(self->pcm_buffer, self->pcm_buffer_size,1);
     }
+    
+    //YOYOFR
+    for (i=0;i<PCM8_MAX_NOTE;i++) {
+        if ( !(generic_mute_mask&(1<<(i+8))) ) {
+            int freq=self->work[i].freq;
+            if (freq && self->work[i].volume && self->work[i].ptr) {
+                vgm_last_note[8+i]=freq*440.0f/22050.0f;
+                vgm_last_sample_addr[8+i]=8+i;
+                int newvol=1;
+                //                if ((chip->nibble_shift==0)&&(chip->step==0)) {
+                //                    newvol=2;
+                //                }
+                vgm_last_vol[8+i]=newvol;
+            }
+        }
+    }
+    //YOYOFR
     
     return;
 }

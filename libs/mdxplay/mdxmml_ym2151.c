@@ -273,6 +273,13 @@ int mdx_parse_mml_ym2151( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
   return 0;
 }
 
+//YOYOFR
+static int realtracks=0;
+int mdx_get_realtracks() {
+    return realtracks;
+}
+//YOYOFR
+
 int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	int i;
 	long count;
@@ -289,6 +296,8 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	
 	self->mdx = orig_mdx;
 	self->pdx = orig_pdx;
+    
+    realtracks=0;//YOYOFR
     
     mdx_parse_mml_ym2151_async_initialize(orig_mdx,orig_pdx);
     while (mdx_parse_mml_ym2151_async(self)) {
@@ -372,6 +381,9 @@ int mdx_parse_mml_ym2151_async(void* in_self)
       { continue; }
 
     count = self->mdx->track[i].counter;
+      
+    
+      
     if ( count < 0 ) { continue; } /* this track has finished */
     self->all_track_finished=FLAG_FALSE;
     
@@ -521,6 +533,11 @@ set_new_event( int t )
     count = data[ptr+1]+1;
     do_quantize( t, count );
     follower = 1;
+      
+      //YOYOFR
+        //check real tracks usage
+      if (realtracks<t+1) realtracks=t+1;
+      //YOYOFR
 
   } else {
     switch ( data[ptr] ) {
