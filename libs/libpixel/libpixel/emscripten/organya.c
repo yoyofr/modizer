@@ -124,6 +124,8 @@ static void clear_sound(void)
 		org.chan[i].playing.len = 0;
 	}
 }
+
+
 int maxstep=3; //julian edit
 int sstep=0; //julian edit
 static int set_step(unsigned int new_step)
@@ -181,6 +183,34 @@ static int set_step(unsigned int new_step)
 	}
 	return 0;
 }
+
+//yoyofr
+int org_setPosition(int pos_ms) {
+    if(!org.loaded || (org.tempo==0) )
+        return -1000;
+    unsigned int new_step=pos_ms/org.tempo;
+    if(org.nonlooping) {
+        if (new_step<org.step) {
+            clear_sound();
+        }
+        set_step(new_step);
+        return 0;
+    }
+    sstep=0;
+    while (new_step>org.loop_end) {
+        new_step-=(org.loop_end-org.loop_start);
+        sstep++;
+    }
+    
+    if (new_step<org.step) {
+        clear_sound();
+    }
+    
+    set_step(new_step);
+    return 0;
+}
+//yoyofr
+
 
 void unload_org(void)
 {
@@ -495,6 +525,10 @@ static int load_org(const char *fn, char **buf)
 	return 0;
 }
 
+//YOYOFR
+void org_setLoopNb(int loopNb) {
+    maxstep=loopNb+1;
+}
     
 void org_init(void)
 {           

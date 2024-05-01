@@ -65,6 +65,8 @@ extern "C" int org_getoutputtime(void);
 extern "C" int org_currentpos();
 extern "C" int org_gensamples(char *pixel_sample_buffer,int samplesNb);
 extern "C" int org_getlength(void);
+extern "C" void org_setLoopNb(int loopNb);
+extern "C" int org_setPosition(int pos_ms);
 
 bool pixel_organya_mode;
 pxtnService*    pixel_pxtn;
@@ -5059,48 +5061,55 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 int64_t mStartPosSamples;
                                 int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mCurrentSamples >mSeekSamples) {
-                                    
-                                    if (!pixel_organya_mode) {
-                                        pixel_pxtn->clear();
-                                        pixel_pxtn->init();
-                                        
-                                        pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ);
-                                        pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen);
-                                        pixel_pxtn->read(pixel_desc);
-                                        pixel_pxtn->tones_ready();
-                                        
-                                        
-                                        pxtnVOMITPREPARATION prep = {0};
-                                        //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
-                                        prep.start_pos_float = 0;
-                                        prep.master_volume = 1; //(volume / 100.0f);
-                                        
-                                        pixel_pxtn->moo_preparation(&prep);
-                                    } else {
-                                        org_play(org_filename, pixel_fileBuffer);
-                                    }
-                                    mCurrentSamples=0;
-                                }
-                                mStartPosSamples=mCurrentSamples;
                                 
-                                while (mSeekSamples - mCurrentSamples > 0) {
-                                    int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
-                                    if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
-                                    if (pixel_organya_mode) org_gensamples((char*)(buffer_ana[buffer_ana_gen_ofs]), sample_to_skip);
-                                    else pixel_pxtn->Moo(NULL, sample_to_skip*2*2);
+                                if (pixel_organya_mode) {
+                                    org_setPosition(mNeedSeekTime);
+                                    mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                                } else {
                                     
-                                    mCurrentSamples+=sample_to_skip;
-                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    if (mCurrentSamples >mSeekSamples) {
+                                        
+                                        if (!pixel_organya_mode) {
+                                            pixel_pxtn->clear();
+                                            pixel_pxtn->init();
+                                            
+                                            pixel_pxtn->set_destination_quality(2, PLAYBACK_FREQ);
+                                            pixel_desc->set_memory_r(pixel_fileBuffer, pixel_fileBufferLen);
+                                            pixel_pxtn->read(pixel_desc);
+                                            pixel_pxtn->tones_ready();
+                                            
+                                            
+                                            pxtnVOMITPREPARATION prep = {0};
+                                            //prep.flags |= pxtnVOMITPREPFLAG_loop; // don't loop
+                                            prep.start_pos_float = 0;
+                                            prep.master_volume = 1; //(volume / 100.0f);
+                                            
+                                            pixel_pxtn->moo_preparation(&prep);
+                                        } else {
+                                            org_play(org_filename, pixel_fileBuffer);
+                                        }
+                                        mCurrentSamples=0;
+                                    }
+                                    mStartPosSamples=mCurrentSamples;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
-                                        //Run UI Updates
-                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
-                                    });
-                                    if ([detailViewControllerIphone isCancelPending]) {
-                                        [detailViewControllerIphone resetCancelStatus];
-                                        mSeekSamples=mCurrentSamples;
-                                        break;
+                                    while (mSeekSamples - mCurrentSamples > 0) {
+                                        int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
+                                        if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
+                                        if (pixel_organya_mode) org_gensamples((char*)(buffer_ana[buffer_ana_gen_ofs]), sample_to_skip);
+                                        else pixel_pxtn->Moo(NULL, sample_to_skip*2*2);
+                                        
+                                        mCurrentSamples+=sample_to_skip;
+                                        iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                        
+                                        dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                            //Run UI Updates
+                                            [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
+                                        });
+                                        if ([detailViewControllerIphone isCancelPending]) {
+                                            [detailViewControllerIphone resetCancelStatus];
+                                            mSeekSamples=mCurrentSamples;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -9150,7 +9159,11 @@ typedef struct {
     [self mmp_updateDBStatsAtLoad];
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
-    if (mLoopMode) iModuleLength=-1;
+    if (mLoopMode) {
+        iModuleLength=-1;
+        if (!pixel_organya_mode) pixel_pxtn->moo_set_loop(true);
+        else org_setLoopNb(-1);
+    }
     
     return 0;
 }
