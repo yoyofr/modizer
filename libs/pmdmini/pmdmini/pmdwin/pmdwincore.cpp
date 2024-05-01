@@ -22,6 +22,8 @@
 #include "ppsdrv.h"
 #include "p86drv.h"
 
+extern "C" int pmd_real_tracks_used;
+
 
 //-----------------------------------------------------------------------------
 //	コンストラクタ・デストラクタ
@@ -8707,7 +8709,6 @@ int WINAPI PMDWIN::getpos2(void)
 	return open_work.syousetu_lng * open_work.syousetu + open_work.opncount;
 }
 
-
 //=============================================================================
 //	曲の長さの取得(pos : ms)
 //=============================================================================
@@ -8737,6 +8738,15 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int *length, int *loop)
 	opna.SetSSGWait(0);
 	opna.SetRhythmWait(0);
 	opna.SetADPCMWait(0);
+        
+    int fmUsed=0;
+    int ssgUsed=0;
+    int adpUsed=0;
+    int rhyUsed=0;
+    int extUsed=0;
+    int dumUsed=0;
+    int effUsed=0;
+    int ppzUsed=0;
 	
 	do {
 		if(opna.ReadStatus() & 0x01) {
@@ -8746,6 +8756,29 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int *length, int *loop)
 		if(opna.ReadStatus() & 0x02) {
 			TimerB_main();
 		}
+        /*
+         QQ FMPart[NumOfFMPart], SSGPart[NumOfSSGPart], ADPCMPart, RhythmPart;
+         QQ ExtPart[NumOfExtPart], DummyPart, EffPart, PPZ8Part[NumOfPPZ8Part];
+         */
+        
+        for (int j=0;j<NumOfFMPart;j++) {
+            if (FMPart[j].onkai!=255) fmUsed=1;
+        }
+        for (int j=0;j<NumOfSSGPart;j++) {
+            if (SSGPart[j].onkai!=255) ssgUsed=1;
+        }
+        if (ADPCMPart.onkai!=255) adpUsed=1;
+        if (RhythmPart.onkai!=255) rhyUsed=1;
+        for (int j=0;j<NumOfExtPart;j++) {
+            if (ExtPart[j].onkai!=255) extUsed=1;
+        }
+        if (DummyPart.onkai!=255) dumUsed=1;
+        if (EffPart.onkai!=255) effUsed=1;
+        for (int j=0;j<NumOfPPZ8Part;j++) {
+            if (PPZ8Part[j].onkai!=255) ppzUsed=1;
+        }
+        
+        
 		
 		opna.SetReg(0x27, open_work.ch3mode | 0x30);	// TIMER RESET(timerA,Bとも)
 		
@@ -8769,6 +8802,17 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int *length, int *loop)
 			return true;
 		}
 	} while(open_work.status2 < 2);
+    
+    
+    pmd_real_tracks_used=0;
+    if (fmUsed) pmd_real_tracks_used+=NumOfFMPart;
+    if (ssgUsed) pmd_real_tracks_used+=NumOfSSGPart;
+    if (adpUsed) pmd_real_tracks_used+=NumOfADPCMPart;
+    if (rhyUsed) pmd_real_tracks_used+=NumOfRhythmPart;
+    if (extUsed) pmd_real_tracks_used+=NumOfExtPart;
+    //if (dumUsed) pmd_real_tracks_used++;
+    if (effUsed) pmd_real_tracks_used+=NumOfEffPart;
+    if (ppzUsed) pmd_real_tracks_used+=NumOfPPZ8Part;
 	
 	*loop = (int)(upos / 1000) - *length;
 	mstop();

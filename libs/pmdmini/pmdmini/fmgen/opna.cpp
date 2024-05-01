@@ -10,6 +10,11 @@
 #include "opna.h"
 #include "fmgeninl.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #define BUILD_OPN
 #define BUILD_OPNA
 #define BUILD_OPNB
@@ -1100,8 +1105,32 @@ void OPNABase::FMMix(Sample* buffer, int nsamples)
 		if (act & 0x555)
 		{
 			Mix6(buffer, nsamples, act);
-		}
-	}
+        } else {
+            //TODO:  MODIZER changes start / YOYOFR
+            int64_t smplIncr;
+            if (psgrate) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/psgrate;
+            else smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+            for (int jj=0;jj<6;jj++) {
+                int64_t ofs_start=m_voice_current_ptr[jj];
+                int64_t ofs_end=(m_voice_current_ptr[jj]+nsamples*smplIncr);
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[jj]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+        }
+    } else {
+        //TODO:  MODIZER changes start / YOYOFR
+        int64_t smplIncr;
+        if (psgrate) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/psgrate;
+        else smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+        for (int jj=0;jj<6;jj++) {
+            int64_t ofs_start=m_voice_current_ptr[jj];
+            int64_t ofs_end=(m_voice_current_ptr[jj]+nsamples*smplIncr);
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[jj]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1114,6 +1143,27 @@ void OPNABase::MixSubSL(int activech, ISample** dest)
 	if (activech & 0x040) (*dest[3] += ch[3].CalcL());
 	if (activech & 0x100) (*dest[4] += ch[4].CalcL());
 	if (activech & 0x400) (*dest[5] += ch[5].CalcL());
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int64_t smplIncr;
+    if (psgrate) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/psgrate;
+    else smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+    for (int jj=0;jj<6;jj++) {
+        int64_t ofs_start=m_voice_current_ptr[jj];
+        int64_t ofs_end=(m_voice_current_ptr[jj]+smplIncr);
+        if ( (activech & (1<<(2*jj))) && (ofs_end>ofs_start) ) {
+            int val=ch[jj].CalcL();
+            for (;;) {
+                m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((val>>5));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+        }
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        m_voice_current_ptr[jj]=ofs_end;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
 }
 
 inline void OPNABase::MixSubS(int activech, ISample** dest)
@@ -1124,6 +1174,26 @@ inline void OPNABase::MixSubS(int activech, ISample** dest)
 	if (activech & 0x040) (*dest[3] += ch[3].Calc());
 	if (activech & 0x100) (*dest[4] += ch[4].Calc());
 	if (activech & 0x400) (*dest[5] += ch[5].Calc());
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int64_t smplIncr;
+    if (psgrate) smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/psgrate;
+    else smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+    for (int jj=0;jj<6;jj++) {
+        int64_t ofs_start=m_voice_current_ptr[jj];
+        int64_t ofs_end=(m_voice_current_ptr[jj]+smplIncr);
+        if ( (activech & (1<<(2*jj))) && (ofs_end>ofs_start) ) {
+            int val=ch[jj].Calc();
+            for (;;) {
+                m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((val>>5));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+        }
+        while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        m_voice_current_ptr[jj]=ofs_end;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 }
 
 // ---------------------------------------------------------------------------

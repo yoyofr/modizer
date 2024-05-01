@@ -14,7 +14,7 @@
 #define	SOUND_55K_2			  55466
 
 // wait で計算した分を代入する buffer size(samples)
-#define		WAIT_PCM_BUFFER_SIZE  65536
+#define		WAIT_PCM_BUFFER_SIZE  4096 //65536
 
 // 線形補間時に計算した分を代入する buffer size(samples)
 #define		IP_PCM_BUFFER_SIZE  2048

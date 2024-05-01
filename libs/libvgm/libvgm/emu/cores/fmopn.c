@@ -2503,11 +2503,11 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
                 if (ofs_end>ofs_start)
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2-1)]=LIMIT8((OPN->out_fm[jj]>>7));
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((OPN->out_fm[jj]>>7));
                     ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }

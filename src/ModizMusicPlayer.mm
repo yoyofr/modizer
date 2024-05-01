@@ -56,6 +56,7 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #import "EQViewController.h"
 
+int pmd_real_tracks_used;
 
 //PxTone & Organya
 #include "pxtnService.h"
@@ -4988,6 +4989,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 
+                                for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                    m_voice_prev_current_ptr[j]=0;
+                                    m_voice_current_ptr[j]=1024<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                }
+                                
                             }
                             if (mPlayType==MMP_NSFPLAY) { //NSFPlay
                                 int64_t mStartPosSamples;
@@ -6055,10 +6061,51 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_PMDMINI) { //PMD
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            
                             // render audio into sound buffer
                             pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    unsigned int idx=vgm_getNote(j);
+                                    if ((idx>0)) {
+                                        unsigned int subidx=vgm_getSubNote(j);
+                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        unsigned int instr=vgm_last_sample_addr[j];
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)idx|
+                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)vgm_last_vol[j]<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)subidx<<28);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
+//                            printf("ptr: %d prev:%d\n",
+//                                   m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
+//                                   m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+//                            
+                            
+                            //copy voice data for oscillo view
+                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]);
+                                    m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=0;
+                                }
+                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            }
+                            
                             // pmd_renderer gives no useful information on when song is done
                             // and will happily keep playing forever, so check song length against
                             // current playtime
@@ -12276,8 +12323,13 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         mod_maxsub=1;
         mod_currentsub=1;
         
-        numChannels=2;//pmd_get_tracks();
+        numChannels=pmd_real_tracks_used;//pmd_get_tracks();//pmd_get_tracks();
+        m_genNumVoicesChannels=numChannels;
+        m_voicesDataAvail=1;
         
+        for (int i=0;i<m_genNumVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         [self mmp_updateDBStatsAtLoad];
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
