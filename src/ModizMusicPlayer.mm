@@ -5069,7 +5069,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     if (mCurrentSamples >mSeekSamples) {
                                         
-                                        if (!pixel_organya_mode) {
                                             pixel_pxtn->clear();
                                             pixel_pxtn->init();
                                             
@@ -5085,13 +5084,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             prep.master_volume = 1; //(volume / 100.0f);
                                             
                                             pixel_pxtn->moo_preparation(&prep);
-                                        } else {
-                                            org_play(org_filename, pixel_fileBuffer);
-                                        }
+                                        
                                         mCurrentSamples=0;
+                                        
+                                        
                                     }
-                                    mStartPosSamples=mCurrentSamples;
+                                    pixel_pxtn->prepareVomitPxtone(mSeekSamples);
+                                    mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                     
+#if 0
+                                    mStartPosSamples=mCurrentSamples;
                                     while (mSeekSamples - mCurrentSamples > 0) {
                                         int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                         if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
@@ -5111,6 +5113,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             break;
                                         }
                                     }
+#endif
                                 }
                             }
                             if (mPlayType==MMP_EUP) { //EUP
@@ -9075,6 +9078,7 @@ typedef struct {
     if (pixel_organya_mode) {
         organya_mute_mask=0;
         strcpy(org_filename,[filePath UTF8String]);
+        org_setLoopNb(2); //by default 2 loops
         success = !org_play(org_filename, pixel_fileBuffer);
     } else {
         // pxtone
@@ -15332,9 +15336,12 @@ extern "C" void adjust_amplification(void);
             if (pixel_organya_mode) {
                 return [NSString stringWithFormat:@"#%d-Organya",channel+1];
             } else {
-                const char *name=pixel_pxtn->Unit_Get(channel)->get_name_buf(NULL);
-                if (name) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
-                else return [NSString stringWithFormat:@"#%d",channel+1];
+                const pxtnUnit *unit=pixel_pxtn->Unit_Get(channel);
+                if (unit) {
+                    const char *name=unit->get_name_buf(NULL);
+                    if (name && name[0]) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
+                }
+                return [NSString stringWithFormat:@"#%d",channel+1];
             }
         }
         case MMP_ATARISOUND:

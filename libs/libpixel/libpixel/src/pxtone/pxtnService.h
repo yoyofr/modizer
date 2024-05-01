@@ -69,7 +69,7 @@ private:
 	int32_t _unit_max ;	int32_t _unit_num ;	pxtnUnit      **_units ;
 
 	int32_t _group_num;
-
+    
 	pxtnERR _ReadVersion      ( pxtnDescriptor *p_doc, _enum_FMTVER *p_fmt_ver, uint16_t *p_exe_ver );
 	pxtnERR _ReadTuneItems    ( pxtnDescriptor *p_doc );
 	bool    _x1x_Project_Read ( pxtnDescriptor *p_doc );
@@ -171,6 +171,10 @@ public :
 	bool    tones_clear();
 
 	int32_t Group_Num () const;
+    
+    //YOYOFR
+    bool prepareVomitPxtone(int start_pos);
+    //YOYOFR
 
 	// delay.
 	int32_t    Delay_Num() const;

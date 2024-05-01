@@ -1298,3 +1298,30 @@ bool pxtnService::_x1x_Project_Read( pxtnDescriptor *p_doc )
 
 	return true;
 }
+
+int32_t sample_at(const pxtnService * const pxVomit, int32_t meas_num) {
+    int32_t beat_num = pxVomit->master->get_beat_num();
+    int32_t p_ch_num, sps; pxVomit->get_destination_quality(&p_ch_num, &sps);
+    float beat_tempo = pxVomit->master->get_beat_tempo();
+    return pxtnService_moo_CalcSampleNum(meas_num, beat_num, sps, beat_tempo);
+}
+
+
+bool pxtnService::prepareVomitPxtone(int start_pos) {
+    pxtnVOMITPREPARATION prep = {0};
+    prep.flags           |= pxtnVOMITPREPFLAG_loop;
+    prep.flags           |= pxtnVOMITPREPFLAG_unit_mute;
+
+    // seeking to a position past the end doesn't wrap, so we have to do it
+    // ourselves. (the repeat sample position is missing in particular)
+    {
+        prep.start_pos_sample = start_pos;
+        int32_t end_smp = moo_get_total_sample();
+        int32_t rep_smp = sample_at(this, master->get_repeat_meas());
+        while (prep.start_pos_sample > end_smp)
+            prep.start_pos_sample -= end_smp - rep_smp;
+    }
+
+    prep.master_volume    = 0.5f;
+    return moo_preparation(&prep);
+}
