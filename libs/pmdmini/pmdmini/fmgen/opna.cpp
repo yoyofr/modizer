@@ -1222,6 +1222,8 @@ OPNA::~OPNA()
 }
 
 
+//YOYOFR
+extern "C" char bundlePath[1024];
 
 // ---------------------------------------------------------------------------
 //	初期化
@@ -1229,7 +1231,7 @@ OPNA::~OPNA()
 bool OPNA::Init(uint c, uint r, bool ipflag, const TCHAR* path)
 {
 	rate = 8000;
-	LoadRhythmSample(path);
+	LoadRhythmSample(bundlePath);
 	
 	if (!adpcmbuf)
 		adpcmbuf = new uint8[0x40000];
@@ -1285,9 +1287,9 @@ bool OPNA::LoadRhythmSample(const TCHAR* path)
 {
 	static const TCHAR* rhythmname[6] =
 	{
-		_T("BD"), _T("SD"), _T("TOP"), _T("HH"), _T("TOM"), _T("RIM"),
+		_T("bd"), _T("sd"), _T("top"), _T("hh"), _T("tom"), _T("rim"),
 	};
-	
+    
 	int i;
 	for (i=0; i<6; i++)
 		rhythm[i].pos = ~0;
@@ -1302,7 +1304,7 @@ bool OPNA::LoadRhythmSample(const TCHAR* path)
 			filepath.Strncpy(buf, path, _MAX_PATH);
 		filepath.Strncat(buf, _T("2608_"), _MAX_PATH);
 		filepath.Strncat(buf, rhythmname[i], _MAX_PATH);
-		filepath.Strncat(buf, _T(".WAV"), _MAX_PATH);
+		filepath.Strncat(buf, _T(".wav"), _MAX_PATH);
 		
 		if (!file.Open(buf, FileIO::readonly))
 		{

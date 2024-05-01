@@ -16,6 +16,8 @@ extern void *LoadingProgressObserverContext;
 extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t play_mutex;
 
+char bundlePath[1024];
+
 int64_t iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
@@ -2743,6 +2745,8 @@ void propertyListenerCallback (void                   *inUserData,              
         mLoopMode=0;
         mCurrentSamples=0;
         m_voice_current_sample=0;
+        
+        snprintf(bundlePath,sizeof(bundlePath),"%s/",[[[NSBundle mainBundle] resourcePath] UTF8String]);
         
         last_archive_filepath=NULL;
         

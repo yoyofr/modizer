@@ -56,6 +56,7 @@ missing seek support:
 - [PLAYER] PMDMini now supports seek
 - [PLAYER] MDX/PDX now supports seek
 - [PLAYER] Timidity custom soundfont support: will load sf2 files present in same directory/archive as the mid files (trying first same name as the mid file and if not found, will take first one in same dir/archive)
+- [PLAYER] PMDMINI bugfixes
 - [UI] Searches are now regular expression based
 - [UI] Local browser loading time optimized
 - [DB] MODLAND updated to latest version
