@@ -32,7 +32,6 @@ Todo/Requested:
 missing seek support:
   - UADE
 
-=> midi viewer: adapt color or bar size / volume of the played note? 
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 => HC /PSF2 fadeout for oscillo
@@ -40,6 +39,9 @@ missing seek support:
 
 3.6
 ---
+- [PLAYER] migration from vgmplay to libvgm with support for S98, GYM & DR0
+- [FX] New Piano Roll FX
+- [FX] Notes scroller FX improvements
 - [PLAYER] New player for Gameboy GBS file, GBSPLAY. Support oscilloscope FX & voices muting
 - [UI] Downloads management improved, max queue is now 16384 and pending items are saved when exiting app
 - [DB] Online collection loading optimized
@@ -57,6 +59,7 @@ missing seek support:
 - [UI] Searches are now regular expression based
 - [UI] Local browser loading time optimized
 - [DB] MODLAND updated to latest version
+- [DB] Fixed some bugs in STIL data processing (HVSC, ASMA)
 - [DB] ASMA updated to latest version
 - [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category

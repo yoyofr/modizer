@@ -3146,7 +3146,7 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
-        (mPlayType==MMP_MDXPDX)) return true;
+        (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)) return true;
     return false;
 }
 
@@ -5707,8 +5707,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
-                                if (info.title[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.title);
-                                else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+                                //if (info.title[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.title);
+                                //else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+                                if (info.title[0]) mod_title=[NSString stringWithUTF8String:info.title];
                                 
                                 if (info.artist[0]) {
                                     artist=[NSString stringWithUTF8String:info.artist];
@@ -6759,6 +6760,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_STSOUND) { //STSOUND
+                            
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            
                             int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
                             if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) { nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
@@ -6771,6 +6776,27 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for (int j=0;j<m_genNumVoicesChannels;j++) {
                                     m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i];
                                     m_voice_buff[j][i]=0;
+                                }
+                            }
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    unsigned int idx=vgm_getNote(j);
+                                    if ((idx>0)) {
+                                        unsigned int subidx=vgm_getSubNote(j);
+                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        unsigned int instr=vgm_last_sample_addr[j];
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)idx|
+                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)vgm_last_vol[j]<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)subidx<<28);
+                                    }
+                                    voices_idx++;
                                 }
                             }
                         }
@@ -8287,8 +8313,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         ret=sc68_play(sc68,info.dsk.track,(mLoopMode?SC68_INF_LOOP:0)); //change for default track
         sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
         ret=sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
-        if (info.title[0]) sprintf(mod_name," %s",info.title);
-        else sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_name," %s",mod_filename);
+        if (info.title[0]) mod_title=[NSString stringWithUTF8String:info.title];
         
         mod_subsongs=info.tracks;
         mod_minsub=1;
@@ -9268,8 +9295,10 @@ typedef struct {
                         parser_status=2;
                     } else if (stil_info[idx]==')') {
                         parser_status=3;
+                        parser_track_nb--;
                     }
                     break;
+                case 0: //got it directly
                 case 3: // got a "(#<track_nb>)" before
                     if (strncmp(stil_info+idx,"NAME: ",strlen("NAME: "))==0) {
                         parser_status=4;
@@ -9291,9 +9320,10 @@ typedef struct {
                 case 4: // "NAME: "
                     if (stil_info[idx]==0x0A) {
                         parser_status=3;
-                        if (parser_track_nb<=mod_subsongs) {
-                            sidtune_name[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
-                            strcpy(sidtune_name[parser_track_nb-1],tmp_str);
+                        if (sidtune_name[parser_track_nb]) parser_track_nb++; //already got a data, so it's mean we need to move to next one
+                        if (parser_track_nb<mod_subsongs) {
+                            sidtune_name[parser_track_nb]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(sidtune_name[parser_track_nb],tmp_str);
                         }
                     } else {
                         tmp_str[tmp_str_idx]=stil_info[idx];
@@ -9304,9 +9334,10 @@ typedef struct {
                 case 5: // "TITLE: "
                     if (stil_info[idx]==0x0A) {
                         parser_status=3;
-                        if (parser_track_nb<=mod_subsongs) {
-                            sidtune_title[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
-                            strcpy(sidtune_title[parser_track_nb-1],tmp_str);
+                        if (sidtune_title[parser_track_nb]) parser_track_nb++; //already got a data, so it's mean we need to move to next one
+                        if (parser_track_nb<mod_subsongs) {
+                            sidtune_title[parser_track_nb]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(sidtune_title[parser_track_nb],tmp_str);
                         }
                     } else {
                         tmp_str[tmp_str_idx]=stil_info[idx];
@@ -9317,9 +9348,10 @@ typedef struct {
                 case 6: // "ARTIST: "
                     if (stil_info[idx]==0x0A) {
                         parser_status=3;
-                        if (parser_track_nb<=mod_subsongs) {
-                            sidtune_artist[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
-                            strcpy(sidtune_artist[parser_track_nb-1],tmp_str);
+                        if (sidtune_artist[parser_track_nb]) parser_track_nb++; //already got a data, so it's mean we need to move to next one
+                        if (parser_track_nb<mod_subsongs) {
+                            sidtune_artist[parser_track_nb]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(sidtune_artist[parser_track_nb],tmp_str);
                         }
                     } else {
                         tmp_str[tmp_str_idx]=stil_info[idx];
@@ -12298,6 +12330,24 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     duration = ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
     
+    stil_info[0]=0;
+    [self getStilAsmaInfo:(char*)[filePath UTF8String]];
+    
+    //Parse STIL INFO for subsongs info
+    [self sid_parseStilInfo];
+    
+    if (sidtune_name) {
+        if (sidtune_name[mod_currentsub]) mod_title=[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        else mod_title=NULL;
+    } else mod_title=NULL;
+    
+    if (sidtune_title) {
+        if (sidtune_title[mod_currentsub]) {
+            if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+            else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+        }
+    }
+    
     //////////////////////////////////
     //update DB with songlength
     //////////////////////////////////
@@ -12337,12 +12387,9 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     if (ASAPInfo_GetTitle(ASAP_GetInfo(asap))[0]) {
         sprintf(mod_name," %s",ASAPInfo_GetTitle(ASAP_GetInfo(asap)));
-        mod_title=[NSString stringWithUTF8String:(const char*)ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
+        //mod_title=[NSString stringWithUTF8String:(const char*)ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
     }
     else sprintf(mod_name," %s",mod_filename);
-    
-    stil_info[0]=0;
-    [self getStilAsmaInfo:(char*)[filePath UTF8String]];
     
     sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
     
@@ -14126,6 +14173,8 @@ extern bool icloud_available;
             sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
             iModuleLength=info.trk.time_ms;
             
+            if (info.title[0]) mod_title=[NSString stringWithUTF8String:info.title];
+            
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -14377,6 +14426,7 @@ extern bool icloud_available;
         if (websid_fileBuffer) free(websid_fileBuffer);
         websid_fileBuffer=NULL;
         
+        //STILL DATA
         if (sidtune_title) {
             for (int i=0;i<mod_subsongs;i++)
                 if (sidtune_title[i]) free(sidtune_title[i]);
@@ -14415,9 +14465,7 @@ extern bool icloud_available;
                 mSidTune = NULL;
             }
         }
-        
-        
-        
+        //STILL DATA
         if (sidtune_title) {
             for (int i=0;i<mod_subsongs;i++)
                 if (sidtune_title[i]) free(sidtune_title[i]);
@@ -14480,6 +14528,25 @@ extern bool icloud_available;
     }
     if (mPlayType==MMP_ASAP) { //ASAP
         free(ASAP_module);
+        //STILL DATA
+        if (sidtune_title) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_title[i]) free(sidtune_title[i]);
+            free(sidtune_title);
+            sidtune_title=NULL;
+        }
+        if (sidtune_name) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_name[i]) free(sidtune_name[i]);
+            free(sidtune_name);
+            sidtune_name=NULL;
+        }
+        if (sidtune_artist) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_artist[i]) free(sidtune_artist[i]);
+            free(sidtune_artist);
+            sidtune_artist=NULL;
+        }
     }
     if (mPlayType==MMP_PMDMINI) { //PMD
         pmd_stop();
@@ -14679,8 +14746,6 @@ extern bool icloud_available;
         if (subtitle) return subtitle;
         
         if (websid_info[4][0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
-        return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
-        
     } else if (mPlayType==MMP_SIDPLAY) {
         NSString *subtitle=NULL;
         if (sidtune_name) {
@@ -14697,8 +14762,18 @@ extern bool icloud_available;
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
         if (sidtune_info->infoString(0)[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
-        return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
-        
+    } else if (mPlayType==MMP_ASAP) {
+        NSString *subtitle=NULL;
+        if (sidtune_name) {
+            if (sidtune_name[subsong]) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        }
+        if (sidtune_title) {
+            if (sidtune_title[subsong]) {
+                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+            }
+        }
+        if (subtitle) return subtitle;
     } else if (mPlayType==MMP_KSS) {
         if (m3uReader.size()-1>=subsong) {
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
@@ -14722,6 +14797,11 @@ extern bool icloud_available;
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,nsfData->GetTitleString("%L",subsong)];
+    } else if (mPlayType==MMP_SC68) {
+        sc68_music_info_t info;
+        sc68_music_info(sc68,&info,subsong,0);
+        
+        if (info.title[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:info.title]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
 }

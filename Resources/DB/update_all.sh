@@ -20,7 +20,7 @@ echo ...
 cd ASMA
 ./get_asma_latest.sh
 ./gen_new_asma.sh Asma
-cp trunk/Extras/Docs/STIL.txt .
+cp trunk/asma/Docs/STIL.txt .
 ./conv_stil.sh
 ./conv_asma.sh Asma.txt
 

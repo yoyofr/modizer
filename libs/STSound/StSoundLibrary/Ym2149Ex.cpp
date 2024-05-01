@@ -554,6 +554,39 @@ void	CYm2149Ex::updateStereo(ymsample *pSampleBuffer,ymint nbSample)
 		while (--nbSample);
 	}
 	
+    //TODO:  MODIZER changes end / YOYOFR
+    //YOYOFR
+    for (int i=0;i<3;i++) {
+        
+        if (!(generic_mute_mask&(1<<i))) {
+            
+            double freq=((uint32_t)(registers[i*2+1])<<8)|registers[i*2];
+            int vol=0;
+            int bt,bn;
+            bn = currentNoise;
+            switch (i) {
+                case 0:
+                    bt = ((((yms32)posA)>>31) | mixerTA) & (bn | mixerNA);
+                    vol = (*pVolA)&bt;
+                    break;
+                case 1:
+                    bt = ((((yms32)posB)>>31) | mixerTB) & (bn | mixerNB);
+                    vol = (*pVolB)&bt;
+                    break;
+                case 2:
+                    bt = ((((yms32)posC)>>31) | mixerTC) & (bn | mixerNC);
+                    vol = (*pVolC)&bt;
+                    break;
+            }
+            if (freq && (vol>>5) ) {
+                freq=internalClock/16.0/freq;
+                vgm_last_note[i]=freq;
+                vgm_last_sample_addr[i]=i;
+                vgm_last_vol[i]=1;
+            }
+        }
+    }
+    //YOYOFR
 }
 
 void	CYm2149Ex::drumStart(ymint voice,ymu8 *pDrumBuffer,ymu32 drumSize,ymint drumFreq)

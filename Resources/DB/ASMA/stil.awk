@@ -22,6 +22,11 @@ BEGIN {
    readflag=1;
    info="";
 }
+/^\/Groups/ {
+   title=substr($0,1,length($0));
+   readflag=1;
+   info="";
+}
 /^\/Misc/ {
    title=substr($0,1,length($0));
    readflag=1;
