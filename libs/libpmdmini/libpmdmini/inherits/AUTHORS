@@ -1,0 +1,21 @@
+pmdxmms - PMD input plugin for XMMS
+
+- AGAWA Koji <kaoru-k@self-core.org>
+
+ This plugin maintainer.
+
+- PMDWin / C60 <HQD00151@nifty.ne.jp>
+
+ Wrote PMD sound engine for Windows.
+
+- M88 / cisc <cisc@remus.dti.ne.jp>
+
+ Wrote OPNA FM sound generator. This is used by PMDWin.
+
+- PPZ8 / Ukky
+
+ Wrote PPZ8 PCM driver.
+
+- PMD98 / KAJIHARA Mashahiro <kajapon@z2.zzz.or.jp>
+
+ Wrote PMD sound driver for PC-9801. There is start of this way.

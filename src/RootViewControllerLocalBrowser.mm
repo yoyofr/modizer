@@ -3122,7 +3122,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     //[self fillKeys];
     //[tableView reloadData];
     //mSearch=0;
-    NSLog(@"didendediting, got %@",searchBar.text);
         if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
         else mSearch=1;
         
@@ -3136,7 +3135,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     //if (mSearchText) [mSearchText release];
     
-    NSLog(@"text updated, got %@",searchText);
     mSearchText=[[NSString alloc] initWithString:searchText];
     //dont auto validate if too many entries
     if (local_nb_entries<MAX_AUTOSEARCH_ENTRIES_NB) {

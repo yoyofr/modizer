@@ -57,6 +57,8 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 #import "EQViewController.h"
 
 int pmd_real_tracks_used;
+signed char pmd_system_voice_idx[3];  //FM, SSG, PPZ
+signed char pmd_system_voice_nb[3];  //FM, SSG, PPZ
 
 //PxTone & Organya
 #include "pxtnService.h"
@@ -651,8 +653,9 @@ static void vgm_PlayerLogCallback(void* userParam, PlayerBase* player, UINT8 lev
 static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsInstance[SOUND_VOICES_MAX_ACTIVE_CHIPS];
-static const char *vgmplay_activeChipsName[SOUND_VOICES_MAX_ACTIVE_CHIPS];
-static char vgmplay_activeChipsNb;
+static const char *mod_activeChipsName[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+static uint8_t mod_activeChip_VoiceNb[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+static char mod_activeChipsNb;
 static char **mdz_ArchiveFilesList;
 //static char **mdz_ArchiveFilesListAlias;
 
@@ -3151,7 +3154,7 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
-        (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)) return true;
+        (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI) ) return true;
     return false;
 }
 
@@ -6061,8 +6064,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_PMDMINI) { //PMD
-                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+//                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+//                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            
+//                            printf("B ptr: %d prev:%d\n",
+//                                   m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
+//                                   m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             
                             // render audio into sound buffer
                             pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
@@ -6091,7 +6098,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
-//                            printf("ptr: %d prev:%d\n",
+                            //memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            //memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            
+//                            printf("A diff: %d ptr: %d prev:%d\n",
+//                                   (m_voice_current_ptr[0]-m_voice_prev_current_ptr[0])>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
 //                                   m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
 //                                   m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
 //                            
@@ -6103,7 +6114,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4-1)]=0;
                                 }
                                 m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                                if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                //if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             }
                             
                             // pmd_renderer gives no useful information on when song is done
@@ -12088,7 +12099,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mod_message[0]=0;
     numChannels=0;
     m_genNumVoicesChannels=0;
-    vgmplay_activeChipsNb=0;
+    mod_activeChipsNb=0;
     vgmVRC7=vgm2610b=0;
     vgmNESFDS=0;
     
@@ -12119,16 +12130,16 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             
             vgm_play_no_seek=true; //vgm native seek doesn't work for ADPCM part
         }
-        vgmplay_activeChips[vgmplay_activeChipsNb]=pdi.type;
-        vgmplay_activeChipsID[vgmplay_activeChipsNb]=pdi.id;
-        vgmplay_activeChipsInstance[vgmplay_activeChipsNb]=pdi.instance;
+        vgmplay_activeChips[mod_activeChipsNb]=pdi.type;
+        vgmplay_activeChipsID[mod_activeChipsNb]=pdi.id;
+        vgmplay_activeChipsInstance[mod_activeChipsNb]=pdi.instance;
         m_voice_ChipID[numChannels]=pdi.id;
         
-        vgmplay_activeChipsName[vgmplay_activeChipsNb]=SndEmu_GetDevName(pdi.type, 0x01, pdi.devCfg);
+        mod_activeChipsName[mod_activeChipsNb]=SndEmu_GetDevName(pdi.type, 0x01, pdi.devCfg);
         numChannels+=vgmGetVoicesNb(pdi.type);
         
         for (int j=m_genNumVoicesChannels;j<m_genNumVoicesChannels+vgmGetVoicesNb(pdi.type);j++) {
-            m_voice_voiceColor[j]=m_voice_systemColor[vgmplay_activeChipsNb];
+            m_voice_voiceColor[j]=m_voice_systemColor[mod_activeChipsNb];
             
             if (pdi.type==DEVID_ES5503) m_voicesWithDataAccmul[j]=1;  //oscillo data generation in accumul buffer
             if (pdi.type==DEVID_YMF271) m_voicesWithDataAccmul[j]=1;  //oscillo data generation in accumul buffer
@@ -12138,12 +12149,12 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         
         if (firstChip) {
-            sprintf(mod_message+strlen(mod_message),"Chipsets....: %s",vgmplay_activeChipsName[vgmplay_activeChipsNb]);
+            sprintf(mod_message+strlen(mod_message),"Chipsets....: %s",mod_activeChipsName[mod_activeChipsNb]);
             firstChip=0;
-        } else sprintf(mod_message+strlen(mod_message),",%s",vgmplay_activeChipsName[vgmplay_activeChipsNb]);
+        } else sprintf(mod_message+strlen(mod_message),",%s",mod_activeChipsName[mod_activeChipsNb]);
         
         
-        vgmplay_activeChipsNb++;
+        mod_activeChipsNb++;
     }
     
     if (m_genNumVoicesChannels) m_voicesDataAvail=1;
@@ -12282,6 +12293,9 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mp_datasize=ftell(f);
     fclose(f);
     
+    memset(pmd_system_voice_idx,-1,sizeof(pmd_system_voice_idx));
+    memset(pmd_system_voice_nb,0,sizeof(pmd_system_voice_nb));
+    
     if (!pmd_is_pmd((char*)[filePath UTF8String])) {
         // not PMD; try AdPlug instead
         return 1;
@@ -12295,7 +12309,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         pmd_play(arg, (char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
         
         //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
-        iModuleLength=pmd_loop_msec();
+        iModuleLength=pmd_length_msec();//pmd_loop_msec();
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
         iCurrentTime=0;
         mCurrentSamples=0;
@@ -12327,9 +12341,38 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         m_genNumVoicesChannels=numChannels;
         m_voicesDataAvail=1;
         
-        for (int i=0;i<m_genNumVoicesChannels;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        memset(mod_activeChip_VoiceNb,0,sizeof(mod_activeChip_VoiceNb));
+        int idx=0;
+        mod_activeChipsNb=0;
+        if (pmd_system_voice_nb[0]>0) { //FM
+            for (int i=idx;i<idx+pmd_system_voice_nb[0];i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[mod_activeChipsNb];
+            }
+            mod_activeChipsName[mod_activeChipsNb]="FM";
+            mod_activeChip_VoiceNb[mod_activeChipsNb]=pmd_system_voice_nb[0];
+            idx+=pmd_system_voice_nb[0];
+            mod_activeChipsNb++;
         }
+        if (pmd_system_voice_nb[1]>0) { //SSG
+            for (int i=idx;i<idx+pmd_system_voice_nb[1];i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[mod_activeChipsNb];
+            }
+            mod_activeChipsName[mod_activeChipsNb]="SSG";
+            mod_activeChip_VoiceNb[mod_activeChipsNb]=pmd_system_voice_nb[1];
+            idx+=pmd_system_voice_nb[1];
+            mod_activeChipsNb++;
+        }
+        if (pmd_system_voice_nb[2]>0) { //PPZ
+            for (int i=idx;i<idx+pmd_system_voice_nb[2];i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[mod_activeChipsNb];
+            }
+            mod_activeChipsName[mod_activeChipsNb]="PPZ";
+            mod_activeChip_VoiceNb[mod_activeChipsNb]=pmd_system_voice_nb[2];
+            idx+=pmd_system_voice_nb[2];
+            mod_activeChipsNb++;
+        }
+        
+        
         [self mmp_updateDBStatsAtLoad];
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -13543,8 +13586,11 @@ extern bool icloud_available;
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
     for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
         m_voice_current_ptr[i]=0;
+        m_voice_prev_current_ptr[i]=0;
         m_voicesWithDataAccmul[i]=0;
         memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE);
+        memset(m_voice_buff_accumul_temp[i],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
+        memset(m_voice_buff_accumul_temp_cnt[i],0,SOUND_BUFFER_SIZE_SAMPLE*2);
     }
     for (int j=0;j<SOUND_BUFFER_NB;j++) {
         memset(m_voice_buff_ana[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
@@ -13671,14 +13717,19 @@ extern bool icloud_available;
     if (m_genNumMidiVoicesChannels==0) m_genNumMidiVoicesChannels=m_genNumVoicesChannels;
     
     //clear oscillo data ptr
-    for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
-        m_voice_current_ptr[i]=0;
-        m_voice_prev_current_ptr[i]=0;
-        memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*4);
-        
-        memset(m_voice_buff_accumul_temp[i],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
-        memset(m_voice_buff_accumul_temp_cnt[i],0,SOUND_BUFFER_SIZE_SAMPLE*2);
-    }
+//    for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
+//        m_voice_current_ptr[i]=0;
+//        m_voice_prev_current_ptr[i]=0;
+//        memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*4);
+//        
+//        memset(m_voice_buff_accumul_temp[i],0,SOUND_BUFFER_SIZE_SAMPLE*sizeof(int)*2);
+//        memset(m_voice_buff_accumul_temp_cnt[i],0,SOUND_BUFFER_SIZE_SAMPLE*2);
+//    }
+//    
+//    //clear last note & related buffers
+//    memset(vgm_last_sample_addr,0,sizeof(vgm_last_sample_addr));
+//    memset(vgm_last_note,0,sizeof(vgm_last_note));
+//    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
     
     return retval;
 }
@@ -14623,11 +14674,6 @@ extern bool icloud_available;
         vgm_player.UnregisterAllPlayers();
         if (vgm_loader) DataLoader_Deinit(vgm_loader);
         vgm_loader=NULL;
-        
-        /*for (int i=0;i<vgmplay_activeChipsNb;i++) {
-         if (vgmplay_activeChipsName[i]) free(vgmplay_activeChipsName[i]);
-         vgmplay_activeChipsName[i]=NULL;
-         }*/
     }
     if (mPlayType==MMP_2SF) { //2SF
     }
@@ -15442,6 +15488,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GME:
         case MMP_ADPLUG:
         case MMP_MDXPDX:
+        case MMP_PMDMINI:
         case MMP_HVL:
         case MMP_STSOUND:
         case MMP_WEBSID:
@@ -15519,6 +15566,16 @@ extern "C" void adjust_amplification(void);
         case MMP_MDXPDX:
             if (channel<8) return [NSString stringWithFormat:@"#%d-FM",channel+1];
             else return [NSString stringWithFormat:@"#%d-PCM",channel+1];
+        case MMP_PMDMINI: {
+            int idx=0;
+            for (int i=0;i<mod_activeChipsNb;i++) {
+                if ((channel>=idx)&&(channel<idx+mod_activeChip_VoiceNb[i])) {
+                    return [NSString stringWithFormat:@"#%d-%s",channel-idx+1,mod_activeChipsName[i]];
+                }
+                idx+=mod_activeChip_VoiceNb[i];
+            }
+            return @"";
+        }
         case MMP_ADPLUG:
             return [NSString stringWithFormat:@"#%d-OPL3",channel+1];
         case MMP_STSOUND:
@@ -15537,11 +15594,11 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
         case MMP_VGMPLAY:{
             int idx=0;
-            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+            for (int i=0;i<mod_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     vgmGetVoiceDetailedVoiceName(vgmplay_activeChips[i],channel-idx);
                     if (vgm_voice_name[0]) return [NSString stringWithFormat:@"#%d-%s",channel-idx+1,vgm_voice_name];
-                    else return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx+1,vgmplay_activeChipsName[i],vgmplay_activeChipsInstance[i]+1];
+                    else return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx+1,mod_activeChipsName[i],vgmplay_activeChipsInstance[i]+1];
                 }
                 idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
@@ -15590,8 +15647,9 @@ extern "C" void adjust_amplification(void);
             return pt3_numofchips;
         case MMP_ASAP:
             return numChannels/4;
+        case MMP_PMDMINI:
         case MMP_VGMPLAY:
-            return vgmplay_activeChipsNb;
+            return mod_activeChipsNb;
         case MMP_WEBSID:
         case MMP_SIDPLAY:
             return numChannels/4; //number of sidchip active: voices/3, (3ch each)
@@ -15654,8 +15712,10 @@ extern "C" void adjust_amplification(void);
                 return @"SPC700";
             }
             return [NSString stringWithFormat:@"%s",gmetype];
+        case MMP_PMDMINI:
+            return [NSString stringWithFormat:@"%s",mod_activeChipsName[systemIdx]];
         case MMP_VGMPLAY:
-            return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
+            return [NSString stringWithFormat:@"%s#%d",mod_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
         case MMP_WEBSID:
         case MMP_SIDPLAY:
             return [NSString stringWithFormat:@"Sid#%d",systemIdx + 1]; //number of sidchip active
@@ -15705,9 +15765,17 @@ extern "C" void adjust_amplification(void);
             return voiceIdx/4;
         case MMP_PT3:
             return voiceIdx/3;
+        case MMP_PMDMINI: {
+            int idx=0;
+            for (int i=0;i<mod_activeChipsNb;i++) {
+                if (voiceIdx<idx+mod_activeChip_VoiceNb[i]) return i;
+                idx+=mod_activeChip_VoiceNb[i];
+            }
+            return 0;
+        }
         case MMP_VGMPLAY: {
             int idx=0;
-            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+            for (int i=0;i<mod_activeChipsNb;i++) {
                 if (voiceIdx<idx+vgmGetVoicesNb(vgmplay_activeChips[i])) return i;
                 idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
@@ -15836,6 +15904,21 @@ extern "C" void adjust_amplification(void);
             if (tmp==3) return 0; //all off
             if (tmp==0) return 2; //all on
             return 1; //partially off
+        case MMP_PMDMINI: {
+            int idx=0;
+            //1st reach 1st voice of systemIdx
+            for (int i=0;i<systemIdx;i++) {
+                idx+=mod_activeChip_VoiceNb[i];
+            }
+            //2nd check active voices/total
+            tmp=0;
+            for (int i=0;i<mod_activeChip_VoiceNb[systemIdx];i++) {
+                tmp+=(m_voicesStatus[idx+i]?1:0);
+            }
+            if (tmp==mod_activeChip_VoiceNb[systemIdx]) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
+        }
         case MMP_VGMPLAY: {
             int idx=0;
             //1st reach 1st voice of systemIdx
@@ -15918,6 +16001,18 @@ extern "C" void adjust_amplification(void);
                 [self setm_voicesStatus:active index:systemIdx*3+i];
             }
             break;
+        case MMP_PMDMINI: {
+            int idx=0;
+            //1st reach 1st voice of systemIdx
+            for (int i=0;i<systemIdx;i++) {
+                idx+=mod_activeChip_VoiceNb[i];
+            }
+            //2nd update voice status
+            for (int i=0;i<mod_activeChip_VoiceNb[systemIdx];i++) {
+                [self setm_voicesStatus:active index:i+idx];
+            }
+            break;
+        }
         case MMP_VGMPLAY: {
             int idx=0;
             //1st reach 1st voice of systemIdx
@@ -16020,6 +16115,7 @@ extern "C" void adjust_amplification(void);
             nsfPlayer->Notify(-1);
         }
             break;
+        case MMP_PMDMINI:
         case MMP_MDXPDX:
         case MMP_ADPLUG:
         case MMP_HVL:
@@ -16153,7 +16249,7 @@ extern "C" void adjust_amplification(void);
             int mask=0;
             OSMutex_Lock(vgm_renderMtx);
             
-            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+            for (int i=0;i<mod_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     //
                     PLR_DEV_OPTS devOpts;

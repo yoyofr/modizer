@@ -1,0 +1,421 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC9A50F22BE37A8900CED1F0 /* opnaw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50C52BE37A8900CED1F0 /* opnaw.cpp */; };
+		CC9A50F32BE37A8900CED1F0 /* p86drv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50C72BE37A8900CED1F0 /* p86drv.cpp */; };
+		CC9A50F42BE37A8900CED1F0 /* pmdwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50CA2BE37A8900CED1F0 /* pmdwin.cpp */; };
+		CC9A50F52BE37A8900CED1F0 /* pmdwincore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50CE2BE37A8900CED1F0 /* pmdwincore.cpp */; };
+		CC9A50F62BE37A8900CED1F0 /* ppsdrv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50D42BE37A8900CED1F0 /* ppsdrv.cpp */; };
+		CC9A50F72BE37A8900CED1F0 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50D62BE37A8900CED1F0 /* ppz8l.cpp */; };
+		CC9A50F82BE37A8900CED1F0 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50D82BE37A8900CED1F0 /* table.cpp */; };
+		CC9A50F92BE37A8900CED1F0 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50DA2BE37A8900CED1F0 /* util.cpp */; };
+		CC9A50FA2BE37A8900CED1F0 /* file_fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50DD2BE37A8900CED1F0 /* file_fmgen.cpp */; };
+		CC9A50FB2BE37A8900CED1F0 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50E22BE37A8900CED1F0 /* opna.cpp */; };
+		CC9A50FC2BE37A8900CED1F0 /* sjis2utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50E52BE37A8900CED1F0 /* sjis2utf.cpp */; };
+		CC9A50FD2BE37A8900CED1F0 /* ymfm_adpcm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50E72BE37A8900CED1F0 /* ymfm_adpcm.cpp */; };
+		CC9A50FE2BE37A8900CED1F0 /* ymfm_opn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50EB2BE37A8900CED1F0 /* ymfm_opn.cpp */; };
+		CC9A50FF2BE37A8900CED1F0 /* ymfm_ssg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50ED2BE37A8900CED1F0 /* ymfm_ssg.cpp */; };
+		CC9A51002BE37A8900CED1F0 /* pmdmini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC9A50F12BE37A8900CED1F0 /* pmdmini.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC9A50A92BE36C8200CED1F0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC9A50AB2BE36C8200CED1F0 /* liblibpmdmini.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibpmdmini.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC9A50BD2BE37A8900CED1F0 /* pmdmini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pmdmini.h; path = src/pmdmini.h; sourceTree = "<group>"; };
+		CC9A50C32BE37A8900CED1F0 /* ipmdwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ipmdwin.h; sourceTree = "<group>"; };
+		CC9A50C42BE37A8900CED1F0 /* ippz8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ippz8.h; sourceTree = "<group>"; };
+		CC9A50C52BE37A8900CED1F0 /* opnaw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opnaw.cpp; sourceTree = "<group>"; };
+		CC9A50C62BE37A8900CED1F0 /* opnaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnaw.h; sourceTree = "<group>"; };
+		CC9A50C72BE37A8900CED1F0 /* p86drv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = p86drv.cpp; sourceTree = "<group>"; };
+		CC9A50C82BE37A8900CED1F0 /* p86drv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = p86drv.h; sourceTree = "<group>"; };
+		CC9A50C92BE37A8900CED1F0 /* pcmmusdriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pcmmusdriver.h; sourceTree = "<group>"; };
+		CC9A50CA2BE37A8900CED1F0 /* pmdwin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmdwin.cpp; sourceTree = "<group>"; };
+		CC9A50CC2BE37A8900CED1F0 /* pmdwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwin.h; sourceTree = "<group>"; };
+		CC9A50CE2BE37A8900CED1F0 /* pmdwincore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmdwincore.cpp; sourceTree = "<group>"; };
+		CC9A50CF2BE37A8900CED1F0 /* pmdwincore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwincore.h; sourceTree = "<group>"; };
+		CC9A50D02BE37A8900CED1F0 /* pmdwinimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwinimport.h; sourceTree = "<group>"; };
+		CC9A50D22BE37A8900CED1F0 /* portability_fmpmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = portability_fmpmd.h; sourceTree = "<group>"; };
+		CC9A50D32BE37A8900CED1F0 /* portability_fmpmdcore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = portability_fmpmdcore.h; sourceTree = "<group>"; };
+		CC9A50D42BE37A8900CED1F0 /* ppsdrv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppsdrv.cpp; sourceTree = "<group>"; };
+		CC9A50D52BE37A8900CED1F0 /* ppsdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppsdrv.h; sourceTree = "<group>"; };
+		CC9A50D62BE37A8900CED1F0 /* ppz8l.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppz8l.cpp; sourceTree = "<group>"; };
+		CC9A50D72BE37A8900CED1F0 /* ppz8l.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppz8l.h; sourceTree = "<group>"; };
+		CC9A50D82BE37A8900CED1F0 /* table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = table.cpp; sourceTree = "<group>"; };
+		CC9A50D92BE37A8900CED1F0 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
+		CC9A50DA2BE37A8900CED1F0 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
+		CC9A50DB2BE37A8900CED1F0 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		CC9A50DD2BE37A8900CED1F0 /* file_fmgen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_fmgen.cpp; sourceTree = "<group>"; };
+		CC9A50DE2BE37A8900CED1F0 /* file_fmgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_fmgen.h; sourceTree = "<group>"; };
+		CC9A50DF2BE37A8900CED1F0 /* headers_fmgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headers_fmgen.h; sourceTree = "<group>"; };
+		CC9A50E02BE37A8900CED1F0 /* ifileio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ifileio.h; sourceTree = "<group>"; };
+		CC9A50E22BE37A8900CED1F0 /* opna.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opna.cpp; sourceTree = "<group>"; };
+		CC9A50E32BE37A8900CED1F0 /* opna.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opna.h; sourceTree = "<group>"; };
+		CC9A50E42BE37A8900CED1F0 /* portability_fmgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = portability_fmgen.h; sourceTree = "<group>"; };
+		CC9A50E52BE37A8900CED1F0 /* sjis2utf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sjis2utf.cpp; sourceTree = "<group>"; };
+		CC9A50E62BE37A8900CED1F0 /* sjis2utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sjis2utf.h; sourceTree = "<group>"; };
+		CC9A50E72BE37A8900CED1F0 /* ymfm_adpcm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ymfm_adpcm.cpp; sourceTree = "<group>"; };
+		CC9A50E82BE37A8900CED1F0 /* ymfm_adpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymfm_adpcm.h; sourceTree = "<group>"; };
+		CC9A50E92BE37A8900CED1F0 /* ymfm_fm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymfm_fm.h; sourceTree = "<group>"; };
+		CC9A50EA2BE37A8900CED1F0 /* ymfm_fm.ipp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ymfm_fm.ipp; sourceTree = "<group>"; };
+		CC9A50EB2BE37A8900CED1F0 /* ymfm_opn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ymfm_opn.cpp; sourceTree = "<group>"; };
+		CC9A50EC2BE37A8900CED1F0 /* ymfm_opn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymfm_opn.h; sourceTree = "<group>"; };
+		CC9A50ED2BE37A8900CED1F0 /* ymfm_ssg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ymfm_ssg.cpp; sourceTree = "<group>"; };
+		CC9A50EE2BE37A8900CED1F0 /* ymfm_ssg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymfm_ssg.h; sourceTree = "<group>"; };
+		CC9A50EF2BE37A8900CED1F0 /* ymfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymfm.h; sourceTree = "<group>"; };
+		CC9A50F12BE37A8900CED1F0 /* pmdmini.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pmdmini.cpp; path = src/pmdmini.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC9A50A82BE36C8200CED1F0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC9A50A22BE36C8200CED1F0 = {
+			isa = PBXGroup;
+			children = (
+				CC9A50AD2BE36C8200CED1F0 /* libpmdmini */,
+				CC9A50AC2BE36C8200CED1F0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC9A50AC2BE36C8200CED1F0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC9A50AB2BE36C8200CED1F0 /* liblibpmdmini.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC9A50AD2BE36C8200CED1F0 /* libpmdmini */ = {
+			isa = PBXGroup;
+			children = (
+				CC9A50F12BE37A8900CED1F0 /* pmdmini.cpp */,
+				CC9A50BD2BE37A8900CED1F0 /* pmdmini.h */,
+				CC9A50DC2BE37A8900CED1F0 /* pmdwin */,
+				CC9A50F02BE37A8900CED1F0 /* ymfm */,
+			);
+			path = libpmdmini;
+			sourceTree = "<group>";
+		};
+		CC9A50DC2BE37A8900CED1F0 /* pmdwin */ = {
+			isa = PBXGroup;
+			children = (
+				CC9A50C52BE37A8900CED1F0 /* opnaw.cpp */,
+				CC9A50C72BE37A8900CED1F0 /* p86drv.cpp */,
+				CC9A50CA2BE37A8900CED1F0 /* pmdwin.cpp */,
+				CC9A50CE2BE37A8900CED1F0 /* pmdwincore.cpp */,
+				CC9A50D42BE37A8900CED1F0 /* ppsdrv.cpp */,
+				CC9A50D62BE37A8900CED1F0 /* ppz8l.cpp */,
+				CC9A50D82BE37A8900CED1F0 /* table.cpp */,
+				CC9A50DA2BE37A8900CED1F0 /* util.cpp */,
+				CC9A50C32BE37A8900CED1F0 /* ipmdwin.h */,
+				CC9A50C42BE37A8900CED1F0 /* ippz8.h */,
+				CC9A50C62BE37A8900CED1F0 /* opnaw.h */,
+				CC9A50C82BE37A8900CED1F0 /* p86drv.h */,
+				CC9A50C92BE37A8900CED1F0 /* pcmmusdriver.h */,
+				CC9A50CC2BE37A8900CED1F0 /* pmdwin.h */,
+				CC9A50CF2BE37A8900CED1F0 /* pmdwincore.h */,
+				CC9A50D02BE37A8900CED1F0 /* pmdwinimport.h */,
+				CC9A50D22BE37A8900CED1F0 /* portability_fmpmd.h */,
+				CC9A50D32BE37A8900CED1F0 /* portability_fmpmdcore.h */,
+				CC9A50D52BE37A8900CED1F0 /* ppsdrv.h */,
+				CC9A50D72BE37A8900CED1F0 /* ppz8l.h */,
+				CC9A50D92BE37A8900CED1F0 /* table.h */,
+				CC9A50DB2BE37A8900CED1F0 /* util.h */,
+			);
+			name = pmdwin;
+			path = src/pmdwin;
+			sourceTree = "<group>";
+		};
+		CC9A50F02BE37A8900CED1F0 /* ymfm */ = {
+			isa = PBXGroup;
+			children = (
+				CC9A50DD2BE37A8900CED1F0 /* file_fmgen.cpp */,
+				CC9A50E22BE37A8900CED1F0 /* opna.cpp */,
+				CC9A50E52BE37A8900CED1F0 /* sjis2utf.cpp */,
+				CC9A50E72BE37A8900CED1F0 /* ymfm_adpcm.cpp */,
+				CC9A50EB2BE37A8900CED1F0 /* ymfm_opn.cpp */,
+				CC9A50ED2BE37A8900CED1F0 /* ymfm_ssg.cpp */,
+				CC9A50DE2BE37A8900CED1F0 /* file_fmgen.h */,
+				CC9A50DF2BE37A8900CED1F0 /* headers_fmgen.h */,
+				CC9A50E02BE37A8900CED1F0 /* ifileio.h */,
+				CC9A50E32BE37A8900CED1F0 /* opna.h */,
+				CC9A50E42BE37A8900CED1F0 /* portability_fmgen.h */,
+				CC9A50E62BE37A8900CED1F0 /* sjis2utf.h */,
+				CC9A50E82BE37A8900CED1F0 /* ymfm_adpcm.h */,
+				CC9A50E92BE37A8900CED1F0 /* ymfm_fm.h */,
+				CC9A50EC2BE37A8900CED1F0 /* ymfm_opn.h */,
+				CC9A50EE2BE37A8900CED1F0 /* ymfm_ssg.h */,
+				CC9A50EF2BE37A8900CED1F0 /* ymfm.h */,
+				CC9A50EA2BE37A8900CED1F0 /* ymfm_fm.ipp */,
+			);
+			name = ymfm;
+			path = src/ymfm;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC9A50AA2BE36C8200CED1F0 /* libpmdmini */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC9A50B42BE36C8200CED1F0 /* Build configuration list for PBXNativeTarget "libpmdmini" */;
+			buildPhases = (
+				CC9A50A72BE36C8200CED1F0 /* Sources */,
+				CC9A50A82BE36C8200CED1F0 /* Frameworks */,
+				CC9A50A92BE36C8200CED1F0 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libpmdmini;
+			productName = libpmdmini;
+			productReference = CC9A50AB2BE36C8200CED1F0 /* liblibpmdmini.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC9A50A32BE36C8200CED1F0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					CC9A50AA2BE36C8200CED1F0 = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = CC9A50A62BE36C8200CED1F0 /* Build configuration list for PBXProject "libpmdmini" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC9A50A22BE36C8200CED1F0;
+			productRefGroup = CC9A50AC2BE36C8200CED1F0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC9A50AA2BE36C8200CED1F0 /* libpmdmini */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC9A50A72BE36C8200CED1F0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC9A50F22BE37A8900CED1F0 /* opnaw.cpp in Sources */,
+				CC9A50FE2BE37A8900CED1F0 /* ymfm_opn.cpp in Sources */,
+				CC9A50F32BE37A8900CED1F0 /* p86drv.cpp in Sources */,
+				CC9A50FA2BE37A8900CED1F0 /* file_fmgen.cpp in Sources */,
+				CC9A50FB2BE37A8900CED1F0 /* opna.cpp in Sources */,
+				CC9A51002BE37A8900CED1F0 /* pmdmini.cpp in Sources */,
+				CC9A50F72BE37A8900CED1F0 /* ppz8l.cpp in Sources */,
+				CC9A50F82BE37A8900CED1F0 /* table.cpp in Sources */,
+				CC9A50F42BE37A8900CED1F0 /* pmdwin.cpp in Sources */,
+				CC9A50F52BE37A8900CED1F0 /* pmdwincore.cpp in Sources */,
+				CC9A50FD2BE37A8900CED1F0 /* ymfm_adpcm.cpp in Sources */,
+				CC9A50FC2BE37A8900CED1F0 /* sjis2utf.cpp in Sources */,
+				CC9A50F62BE37A8900CED1F0 /* ppsdrv.cpp in Sources */,
+				CC9A50FF2BE37A8900CED1F0 /* ymfm_ssg.cpp in Sources */,
+				CC9A50F92BE37A8900CED1F0 /* util.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC9A50B22BE36C8200CED1F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CC9A50B32BE36C8200CED1F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC9A50B52BE36C8200CED1F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC9A50B62BE36C8200CED1F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC9A50A62BE36C8200CED1F0 /* Build configuration list for PBXProject "libpmdmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC9A50B22BE36C8200CED1F0 /* Debug */,
+				CC9A50B32BE36C8200CED1F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC9A50B42BE36C8200CED1F0 /* Build configuration list for PBXNativeTarget "libpmdmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC9A50B52BE36C8200CED1F0 /* Debug */,
+				CC9A50B62BE36C8200CED1F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC9A50A32BE36C8200CED1F0 /* Project object */;
+}

@@ -1,0 +1,178 @@
+==============================================================================
+                     FMP for Windows 「WinFMP」 Ver.0.50
+                     PMD for Windows 「PMDWin」 Ver.0.50
+                        Copyright & Programmed by C60
+                          WinFMP, PMDWin DLL 対応表
+==============================================================================
+
+
+------------------------------------------------------------------------------
+▼はじめに
+    本対応表は、WinFMP と、PMDWin の DLL の API 対応表です。
+    WinFMP Ver0.10 以降、PMDWin Ver0.17 以降で使用できます。
+    WinFMP, PMDWin 両対応プレイヤーを作る際にご利用ください。
+    それぞれの API の詳細に関しては、DLLInfof.txt, DLLInfop.txt を
+    参照してください。
+    
+    
+------------------------------------------------------------------------------
+▼記号の意味
+    ○：引数あるいは戻り値の型、範囲とも同一である。
+    △：引数あるいは戻り値の型は同一だが、範囲が異なっている。
+    ×：引数あるいは戻り値の型、範囲とも異なっている。
+    −：API、引数あるいは戻り値が存在しない。
+
+
+------------------------------------------------------------------------------
+▼API 対応表
+
+    ・バージョン取得
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_getversion              getversion               −        ○  |
+        |fmp_getinterfaceversion     getinterfaceversion      −        ○  |
+        +-----------------------------------------------------------------+
+        
+        
+    ・COM インスタンス作成
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_CoCreateInstance        pmd_CoCreateInstance     ○        ○  |
+        +-----------------------------------------------------------------+
+        
+        
+    ・初期化、環境設定
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_init                    pmdwininit               ○      ○    |
+        |fmp_loadrhythmsample        loadrhythmsample         ○      ○    |
+        |fmp_setpcmdir               setpcmdir                ○      −    |
+        |fmp_setpcmrate              setpcmrate               ○      −    |
+        |fmp_setppzrate              setppzrate               ○      −    |
+        |fmp_setfmcalc55k            setfmcalc55k             ○      −    |
+        |−                           setppsuse                ×      −    |
+        |−                           setrhythmwithssgeffect   ×      −    |
+        |−                           setpmd86pcmmode          ×      −    |
+        |                            getpmd86pcmmode          −      ×    |
+        |fmp_setppzinterpolation     setppzinterpolation      ○      −    |
+        |−                           setppsinterpolation      ○      −    |
+        |−                           setp86interpolation      ○      −    |
+        |fmp_setfmwait               setfmwait                ○      −    |
+        |fmp_setssgwait              setssgwait               ○      −    |
+        |fmp_setrhythmwait           setrhythmwait            ○      −    |
+        |fmp_setadpcmwait            setadpcmwait             ○      −    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・曲読み込み、演奏制御
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_load                    music_load               ○      △    |
+        |fmp_load2                   music_load2              ○      △    |
+        |fmp_start                   music_start              −      −    |
+        |fmp_stop                    music_stop               −      −    |
+        |fmp_fadeout                 fadeout                  △      −    |
+        |fmp_fadeout2                fadeout2                 ○      −    |
+        |fmp_maskon                  maskon                   ×      ○    |
+        |fmp_maskoff                 maskoff                  ×      ○    |
+        |fmp_setpos                  setpos                   ○      −    |
+        |fmp_setpos2                 setpos2                  ○      −    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・wave データ取得
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_getpcmdata              getpcmdata               ○      −    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・音量制御
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_setfmvoldown            setfmvoldown             △      −    |
+        |fmp_setssgvoldown           setssgvoldown            △      −    |
+        |fmp_setrhythmvoldown        setrhythmvoldown         △      −    |
+        |fmp_setadpcmvoldown         setadpcmvoldown          △      −    |
+        |−                           setppzvoldown            ×      −    |
+        |fmp_getfmvoldown            getfmvoldown             −      △    |
+        |fmp_getssgvoldown           getssgvoldown            −      △    |
+        |fmp_getrhythmvoldown        getrhythmvoldown         −      △    |
+        |fmp_getadpcmvoldown         getadpcmvoldown          −      △    |
+        |−                           getppzvoldown            −      ×    |
+        |fmp_getfmvoldown?           getfmvoldown2            −      △    |
+        |fmp_getssgvoldown?          getssgvoldown2           −      △    |
+        |fmp_getrhythmvoldown?       getrhythmvoldown2        −      △    |
+        |fmp_getadpcmvoldown?        getadpcmvoldown2         −      △    |
+        |−                           getppzvoldown2           −      ×    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・曲情報取得
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_getcomment              getmemo?                 ×      ○    |
+        |fmp_getcomment2             getmemo2?                ×      ○    |
+        |fmp_getcomment3             getmemo3?                ×      ×    |
+        |fmp_fgetcomment             fgetmemo?                ×      ○    |
+        |fmp_fgetcomment2            fgetmemo2?               ×      ○    |
+        |fmp_fgetcomment3            fgetmemo3?               ×      ×    |
+        |fmp_getdefinedpcmfilename   getmemo?                 ×      ○    |
+        |fmp_getdefinedppzfilename   getmemo?                 ×      ○    |
+        |fmp_fgetdefinedpcmfilename  fgetmemo?                ×      ○    |
+        |fmp_fgetdefinedppzfilename  fgetmemo?                ×      ○    |
+        |fmp_getmusicfilename        getmusicfilename         ○      ○    |
+        |fmp_getpcmfilename          getpcmfilename           ○      ○    |
+        |fmp_getpcmfilename?         getppcfilename           ○      ○    |
+        |fmp_getpcmfilename?         getp86filename           ○      ○    |
+        |−                           getppsfilename           ×      ×    |
+        |fmp_getppzfilename          getppzfilename           ○      ○    |
+        |fmp_getpos                  getpos                   −      ○    |
+        |fmp_getpos2                 getpos2                  −      ○    |
+        |fmp_getlength               getlength                ○      ○    |
+        |fmp_getlength2              getlength2               ○      ○    |
+        |fmp_getloopcount            getloopcount             −      ○    |
+        |fmp_getsyncscnt             −                        −      ○    |
+        |fmp_getlastsyncexttime      −                        −      ○    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・PCM 強制読み込み
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |−                           ppc_load                 ×      ×    |
+        |−                           pps_load                 ×      ×    |
+        |−                           p86_load                 ×      ×    |
+        |−                           ppz_load                 ×      ×    |
+        +-----------------------------------------------------------------+
+        
+        
+    ・ワークポインタ取得
+        +-----------------------------------------------------------------+
+        | WinFMP                      PMDWin                 引数   戻り値|
+        +-----------------------------------------------------------------+
+        |fmp_getworks                −                        −      ×    |
+        |−                           getopenwork              −      ×    |
+        |−                           getpartwork              ×      ×    |
+        +-----------------------------------------------------------------+
+        
+        
+        
+------------------------------------------------------------------------------
+▼連絡先
+
+    E-mail                  HQD00151@nifty.com
+    Homepage                http://c60.la.coocan.jp/
+    Twitter                 c60fmp
+
+
+
+                                                                Ｃ６０

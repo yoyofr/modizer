@@ -1,0 +1,53 @@
+
+=== PMD input plugin for XMMS ===
+
+PMD のデータを演奏するための XMMS プラグインです。C60 氏の PMDWin をベー
+スにしています。
+
+   * PMD for Windows 「PMDWin」 version 0.19
+      / Copyright & Programmed by C60
+   * FM Sound Generator with OPN/OPM interface version 006
+      / Copyright (C) by cisc 1998, 2001.
+
+
+=== USAGE ===
+
+XMMS から普通に再生出来るはずです。
+
+
+=== About PMD ===
+
+わかるひとにはわかります。
+
+
+=== Known BUGs ===
+
+   * FreeBSD だと pmdwinimport.h の typedef で怒られるので、適当に
+     typedef をコメントアウトするなりしてください。
+
+
+=== Changes ===
+
+fmgen, PMDWin ともに UNIX でコンパイルが通るように修正したり、足りない関
+数を追加したりしました。その他、例えば波形生成などに関してはまったくのノー
+タッチです。
+
+
+=== COPYING ===
+
+   * pmdwin ディレクトリ配下のファイルについては doc/PMDWinS.txt の条項
+     に従います。
+   * fmgen ディレクトリ配下のファイルについては doc/fmgen.txt の条項に従
+     います。
+   * その他は COPYING の条項に従います。
+
+例え作者であっても、GPL を使うにあたってこのような例外は設けられないのだ
+ろうか…。BSD ライクなライセンスに変更出来るのであれば、そうしよう。
+
+
+=== TODO ===
+
+募集中。
+
+   * pmdwin
+      * gziped なファイルへの対応

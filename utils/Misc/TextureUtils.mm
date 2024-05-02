@@ -43,6 +43,7 @@ uint TextureUtils::Create(UIImage* uiimage)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	//free(textureData);
+    CFRelease(data);
 	return handle;
 }
 
