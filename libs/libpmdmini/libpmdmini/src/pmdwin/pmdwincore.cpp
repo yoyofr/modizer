@@ -8887,7 +8887,7 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
                 printf("RHYTHM ON\n");
             }
             if (extUsed) {
-                pmd_real_tracks_used+=3;  //3 Additional channels
+                //pmd_real_tracks_used+=3;  //3 Additional channels
                 printf("EXT ON\n");
             }
             //if (dumUsed) pmd_real_tracks_used++;
@@ -8927,7 +8927,7 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
         printf("RHYTHM ON\n");
     }
     if (extUsed) {
-        pmd_real_tracks_used+=3;  //3 Additional channels
+        //pmd_real_tracks_used+=3;  //3 Additional channels
         printf("EXT ON\n");
     }
     //if (dumUsed) pmd_real_tracks_used++;
