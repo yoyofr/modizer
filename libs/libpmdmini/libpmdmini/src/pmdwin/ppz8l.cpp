@@ -10,6 +10,12 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../../src/ModizerVoicesData.h"
+#define VOICE_FM 0
+#define VOICE_SSG 1
+#define VOICE_PPZ 2
+extern "C" int pmd_real_tracks_used;
+extern "C" signed char pmd_system_voice_idx[3];  //FM, SSG, PPZ
+extern "C" signed char pmd_system_voice_nb[3];  //FM, SSG, PPZ
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -660,6 +666,13 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
     Sample	*di;
     Sample	bx;
     
+    if (pmd_system_voice_idx[VOICE_PPZ]>=0) {
+        for (int i=pmd_system_voice_idx[VOICE_PPZ];i<pmd_system_voice_idx[VOICE_PPZ]+pmd_system_voice_nb[VOICE_PPZ];i++) {
+            vgm_last_note[i]=0;
+            vgm_last_vol[i]=0;
+        }
+    }
+    
     //YOYOFR
     int64_t smplIncr;
     int64_t idx=0;
@@ -690,6 +703,20 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
         if(channelwork[i].PCM_PAN == 0) {
             channelwork[i].PCM_FLG = 0;
             continue;
+        }
+        
+        //YOYOFR
+        if (m_voice_current_system>=0) {
+            if (!(generic_mute_mask&(1<<(i+m_voice_current_system))) && channelwork[i].PCM_FLG && channelwork[i].PCM_VOL) {
+                
+                double freq=(channelwork[i].PCM_ADDS_H<<16)|channelwork[i].PCM_ADDS_L;
+                if (freq) {
+                    vgm_last_note[m_voice_current_system+i]=440.0*(freq/65536.0);
+                    vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                    int newvol=channelwork[i].PCM_VOL+1;//h[ii].keyonff_triggered+1;
+                    vgm_last_vol[m_voice_current_system+i]=newvol;
+                }
+            }
         }
         
         if(interpolation) {
@@ -821,7 +848,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             bx = (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                              + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else bx=0;
                         
                         *di++ += bx;
@@ -856,7 +883,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             bx = (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                              + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else bx=0;
                         
                         *di++ += bx;
@@ -891,7 +918,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             bx = (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                              + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else bx=0;
                         *di++ += bx * 3 / 4;
                         *di++ += bx;
@@ -925,7 +952,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             bx = (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                              + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else bx=0;
                         
                         *di++ += bx / 2;
@@ -960,7 +987,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             bx = (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                              + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else bx=0;
                         
                         *di++ += bx / 4;
@@ -997,7 +1024,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                         //YOYOFR
                         if (!(generic_mute_mask&(1<<(m_voice_current_system+i))))
                             *di++ += (VolumeTable[channelwork[i].PCM_VOL][*channelwork[i].PCM_NOW] * (0x10000-channelwork[i].PCM_NOW_XOR)
-                                  + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
+                                      + VolumeTable[channelwork[i].PCM_VOL][*(channelwork[i].PCM_NOW+1)] * channelwork[i].PCM_NOW_XOR) >> 16;
                         else di++;
                         
                         PPZ8_MODIZER_UPD

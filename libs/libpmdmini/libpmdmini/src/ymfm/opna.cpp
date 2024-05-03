@@ -41,7 +41,7 @@ extern "C" char bundlePath[1024];
 #define VOICE_PPZ 2
 extern "C" int pmd_real_tracks_used;
 extern "C" signed char pmd_system_voice_idx[3];  //FM, SSG, PPZ
-
+extern "C" signed char pmd_system_voice_nb[3];  //FM, SSG, PPZ
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -505,12 +505,23 @@ void OPNA::Mix(Sample* buffer, int nsamples)
 {
 	int nsamples2 = nsamples;
 	Sample* buffer2 = buffer;
+
     
     //YOYOFR
-    memset(vgm_last_note,0,sizeof(vgm_last_note));
-    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+    if (pmd_system_voice_idx[VOICE_FM]>=0) {
+        for (int i=pmd_system_voice_idx[VOICE_FM];i<pmd_system_voice_idx[VOICE_FM]+pmd_system_voice_nb[VOICE_FM];i++) {
+            vgm_last_note[i]=0;
+            vgm_last_vol[i]=0;
+        }
+    }
+    if (pmd_system_voice_idx[VOICE_SSG]>=0) {
+        for (int i=pmd_system_voice_idx[VOICE_SSG];i<pmd_system_voice_idx[VOICE_SSG]+pmd_system_voice_nb[VOICE_SSG];i++) {
+            vgm_last_note[i]=0;
+            vgm_last_vol[i]=0;
+        }
+    }
     //YOYOFR
-	
+    
 	while (nsamples2-- != 0)
 	{
 		int32_t outputs[2] = { 0, 0 };
