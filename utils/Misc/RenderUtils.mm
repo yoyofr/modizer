@@ -6809,7 +6809,8 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value)
         for (int i=0; i<256; i++) { //for each channels
             if ((data_midifx_note[midi_data_ofs][i]/*||data_midifx_note[midi_data_ofs+1][i]*/)&&
-                (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
+                data_midifx_vol[midi_data_ofs][i] &&
+                ( data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
                 unsigned int note=data_midifx_note[midi_data_ofs][i];
                 if (!note) note=data_midifx_note[midi_data_ofs+1][i];
                 
@@ -7045,6 +7046,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     //1st pass draw notes - white keys
     for (int i=0; i<256; i++) { //for each channels
         if ((data_midifx_note[midi_data_ofs][i]/*||data_midifx_note[midi_data_ofs+1][i]*/)&&
+            data_midifx_vol[midi_data_ofs][i] &&
             (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             if (!note) note=data_midifx_note[midi_data_ofs+1][i];

@@ -73,14 +73,14 @@ void CSurroundopl::update(short *buf, int samples)
 		this->rbuf = new short[this->bufsize];
 	}
 
-    this->oplA.opl->update(this->lbuf, samples);
-    //YOYOFR
-    m_voice_current_system=0;
-    //YOYOFR to skip the second update / oscilloscope view
-	this->oplB.opl->update(this->rbuf, samples);
     //YOYOFR
     m_voice_current_system=1;
+    this->oplA.opl->update(this->lbuf, samples);
+    //YOYOFR to skip the second update / oscilloscope view
+    m_voice_current_system=0;
     //YOYOFR
+	this->oplB.opl->update(this->rbuf, samples);
+    
     
 
 	// Copy the two mono OPL buffers into the stereo buffer

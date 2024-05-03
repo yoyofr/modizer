@@ -975,7 +975,7 @@ static void OPL_INLINE clipit8(Bit32s ival, Bit8s* outval) {
 #endif
 
     //YOYOFR
-#define YOYOFR_CHANNELDATA_STORE(channel,voice_op,mulfact) voicesData[channel][i]+=op[voice_op].cval*(mulfact+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0));
+#define YOYOFR_CHANNELDATA_STORE(channel,voice_op,mulfact) if (m_voice_current_system) {voicesData[channel][i]+=op[voice_op].cval*(mulfact+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0));}
 #define YOYOFR_MUTE_VOICE(a) if (generic_mute_mask&(1<<((a)%18))) chanval=0;
     //YOYOFR
 
@@ -1001,13 +1001,51 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
     int m_total_channels=18;
     int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    memset(vgm_last_note,0,sizeof(vgm_last_note));
+    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+    //static Bit32s old_out_fm[18];
+        for (int ii=0;ii<18;ii++) {
+            if ( !(generic_mute_mask&(1<<ii))  ) {
+                // frequency
+                int idx=(ii%9)+(ii/9)*0x100;
+                int64_t frn = (((Bit32u)(adlibreg[ARC_KON_BNUM+idx])&3)<<8) + adlibreg[ARC_FREQ_NUM+idx];
+                // block number/octave
+                int64_t oct = ((((Bit32u)adlibreg[ARC_KON_BNUM+idx])>>2)&7);
+                int keyon=((((Bit32u)adlibreg[ARC_KON_BNUM+idx])>>5)&1);
+                
+                
+                if (!(frn)) {
+                    //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
+                    {
+                        vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii]=ii;
+                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii]=newvol;
+                    }
+                } else {
+                    //if ((OPL->chan_out[ii]!=old_out_fm[ii]))
+                    {
+                        int64_t note=frn*(1<<oct)*INTFREQU/(1<<18);
+                        
+                        vgm_last_note[ii]=note;
+                        vgm_last_sample_addr[ii]=ii;
+                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                        vgm_last_vol[ii]=newvol;
+                    }
+                }
+                //old_out_fm[ii]=OPL->chan_out[ii];
+            }
+        }
+    //YOYOFR
 
 	for (Bits cursmp=0; cursmp<samples_to_process; cursmp+=endsamples) {
 		endsamples = samples_to_process-cursmp;
 		if (endsamples>BLOCKBUF_SIZE) endsamples = BLOCKBUF_SIZE;
         
         //YOYOFR
-        for (int uu=0;uu<NUM_CHANNELS;uu++) memset(voicesData[uu],0,BLOCKBUF_SIZE*sizeof(Bit32s));
+        if (m_voice_current_system) {for (int uu=0;uu<NUM_CHANNELS;uu++) memset(voicesData[uu],0,BLOCKBUF_SIZE*sizeof(Bit32s));}
         //YOYOFR
 
 		memset((void*)&outbufl,0,endsamples*sizeof(Bit32s));
@@ -1058,7 +1096,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                         
                         //TODO:  MODIZER changes start / YOYOFR
                         YOYOFR_CHANNELDATA_STORE(6,6+9,2)
-                        //updateModizerVoicesData(6,6+9,2+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                         //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
@@ -1097,7 +1134,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                         
                         //TODO:  MODIZER changes start / YOYOFR
                         YOYOFR_CHANNELDATA_STORE(6,6+9,2)
-                        //updateModizerVoicesData(6,6+9,2+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                         //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
@@ -1127,7 +1163,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     
                     //TODO:  MODIZER changes start / YOYOFR
                     YOYOFR_CHANNELDATA_STORE(8,8+0,2)
-                    //updateModizerVoicesData(8,8+0,2+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan)/2:0),smplIncr);
                     //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
@@ -1186,9 +1221,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     YOYOFR_CHANNELDATA_STORE(7,7,2)
                     YOYOFR_CHANNELDATA_STORE(7,7+9,2)
                     YOYOFR_CHANNELDATA_STORE(8,8+9,2)
-                    //updateModizerVoicesData(7,7,2*3+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
-                    //updateModizerVoicesData(7,7+9,2*3+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
-                    //updateModizerVoicesData(8,8+9,2*3+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                     //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
@@ -1254,7 +1286,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+0,1)
-                                //updateModizerVoicesData(voice_channel+0,voice_channel+0,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1287,7 +1318,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+3,1)
-                                //updateModizerVoicesData(voice_channel+3,voice_channel+3,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1309,7 +1339,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+3+9,1)
-                                //updateModizerVoicesData(voice_channel+3+9,voice_channel+3+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1337,7 +1366,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+0,1)
-                                //updateModizerVoicesData(voice_channel+0,voice_channel+0,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1376,7 +1404,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+3+9,1)
-                                //updateModizerVoicesData(voice_channel+3+9,voice_channel+3+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1422,8 +1449,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     //YOYOFR
                     YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+0,1)
                     YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+9,1)
-                    //updateModizerVoicesData(voice_channel+0,voice_channel+0,2+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
-                    //updateModizerVoicesData(voice_channel+9,voice_channel+9,2+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                     //YOYOFR
 				}
 			} else {
@@ -1464,7 +1489,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+9,1)
-                                //updateModizerVoicesData(voice_channel+9,voice_channel+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1492,7 +1516,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+3+9,1)
-                                //updateModizerVoicesData(voice_channel+3+9,voice_channel+3+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1545,7 +1568,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                                 
                                 //YOYOFR
                                 YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+3+9,1)
-                                //updateModizerVoicesData(voice_channel+3+9,voice_channel+3+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                                 //YOYOFR
 							}
 						}
@@ -1589,7 +1611,6 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                     
                     //YOYOFR
                     YOYOFR_CHANNELDATA_STORE(cur_ch,channel_op+9,1)
-                    //updateModizerVoicesData(voice_channel+9,voice_channel+9,1+((adlibreg[0x105]&1)?(cptr[0].left_pan+cptr[0].right_pan):0),smplIncr);
                     //YOYOFR
 				}
 			}
