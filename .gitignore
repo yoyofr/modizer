@@ -13,8 +13,8 @@
 #Xcode files
 *.xcuserstate
 *.xcscheme
-modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
-modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
+#modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
+#modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
 
 #temp data / database creation
 *.xcbkptlist
