@@ -11,17 +11,11 @@
 *.p12
 
 #Xcode files
-*.xcuserstate
-*.xcscheme
-#modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
-#modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
+#*.xcuserstate
+#*.xcscheme
 
 #temp data / database creation
 *.xcbkptlist
-
-modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcdebugger/Breakpoints.xcbkptlist
-
-modizer/modizer.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/modizer.xcscheme
 
 #DB resources
 
