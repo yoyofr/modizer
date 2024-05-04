@@ -2208,6 +2208,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [SettingsGenViewController applyDefaultSettings];
             [detailViewController settingsChanged:(int)SETTINGS_ALL];
             
+            detailViewController.not_expected_version=0;
+            
             [self hideWaiting];
             
         }];

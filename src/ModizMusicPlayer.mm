@@ -5882,8 +5882,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 int diffptr=(m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-(m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 if (diffptr<0) diffptr+=SOUND_BUFFER_SIZE_SAMPLE*4*4;
-                                if (diffptr<SOUND_BUFFER_SIZE_SAMPLE)
-                                    NSLog(@"old ptr %d new ptr %d diff %d",m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,diffptr);
+                                //if (diffptr<SOUND_BUFFER_SIZE_SAMPLE)
+                                //    NSLog(@"old ptr %d new ptr %d diff %d",m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,diffptr);
                                 
                                 if (diffptr<SOUND_BUFFER_SIZE_SAMPLE) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {

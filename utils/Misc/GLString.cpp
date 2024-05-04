@@ -147,9 +147,10 @@ void CGLString::BuildString(int msg_type)
 		valg=0xFF;
 		valb=0xFF;
 	} else if (msg_type==32) {
-        valr=0xF;
-        valg=0xF;
-        valb=0xF;
+        valr=0;
+        valg=0;
+        valb=0;
+        vala=64;
     } else if (msg_type&128) {
 		valr=valg=valb=0xFF;
 		vala=(msg_type&127)*2;

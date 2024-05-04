@@ -44,7 +44,13 @@ static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 
 extern int MIDIFX_OFS;
 
+static int max_indices;
+
 int txt_pianoRoll[3];
+
+#define INDICES_SIZE_KEYW 60
+#define INDICES_SIZE_KEYB 36
+#define INDICES_SIZE_BOX 30
 
 #define MAX_BARS 4096
 typedef struct {
@@ -5675,6 +5681,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
+    max_indices=30*MAX_BARS;
     texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -5880,6 +5887,11 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
             if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
+                    
+                    if (index+12>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
+                    }
                     ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
                     ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
@@ -5897,6 +5909,11 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                 } else {
                     int border_size=(line_width>=8?2:1);
+                    
+                    if (index+30>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
+                    }
                     //top
                     ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
                     ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
@@ -5952,6 +5969,12 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
             if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
+                    
+                    if (index+12>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
+                    }
+                    
                     ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
                     ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
                     ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
@@ -5969,6 +5992,11 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
                 } else {
                     int border_size=(line_width>=8?2:1);
+                    
+                    if (index+30>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
+                    }
                     
                     //top
                     ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
@@ -6529,14 +6557,14 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
                 switch (note_type) {
                     case 1://C#
                     case 6://F#
-                        shadow_left_black_ofs=(width*2.0f/12)-1;
+                        shadow_left_black_ofs=(width*2.0f/12);
                         break;
                     case 3://D#
                     case 10://A#
-                        shadow_left_black_ofs=(width*4.0f/12)-1;
+                        shadow_left_black_ofs=(width*4.0f/12);
                         break;
                     case 8://G#
-                        shadow_left_black_ofs=(width*3.0f/12)-1;
+                        shadow_left_black_ofs=(width*3.0f/12);
                         break;
                     default:
                         break;
@@ -6612,31 +6640,31 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
     ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     
     //left low
-    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y         ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12      , y         ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12      , y+height2 ,0,0,0,cap[0]);
     
-    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x               , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y          ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12      , y+height2  ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x               , y+height2  ,0,0,0,cap[0]);
     
     //right high
-    ptsB[index++] = LineVertexF(x+width             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-1           , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height      ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     
-    ptsB[index++] = LineVertexF(x+width             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     
     //right low
-    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12           , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12           , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y         ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y         ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2 ,0,0,0,cap[0]);
     
-    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12           , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y          ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2  ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2  ,0,0,0,cap[0]);
     
     //inner part high
     
@@ -6688,21 +6716,25 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
     //shadow
     if (shadow_type) {
         if (shadow_type&PR_SHADOW_WHITE) {
-            ptsB[index++] = LineVertexF(x+1       , y+height*3/4    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+width/4 , y+height2+height2       ,0,0,0,16);
+            ptsB[index++] = LineVertexF(x+1       , y+height*7/8    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+width/3 , y+height2+height2       ,0,0,0,0);
             ptsB[index++] = LineVertexF(x+1       , y+height2           ,0,0,0,128);
         }
         
         if (shadow_type&PR_SHADOW_SMALL_BLACK) {
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs       , y+height    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/8 , y+height*2/5+height2       ,0,0,0,16);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs       , y+height*2/5           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/4 , y+height*2/5+height2       ,0,0,0,0);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
         }
         
         if (shadow_type&PR_SHADOW_LARGE_BLACK) {
             ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/8+width/8 , y+height*2/5+height2       ,0,0,0,16);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs        , y+height*2/5           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height      ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
+            
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/2 , y+height*2/5+height2*3       ,0,0,0,0);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
         }
     }
     
@@ -6763,6 +6795,9 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
         crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
         crtp[5]=crt;cgtp[5]=cgt;cbtp[5]=cbt;cap[5]=ca;
     }
+    
+    //to have the black key slightly overlapping the felt
+    height*=1.02;
     
     //left
     ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
@@ -6893,6 +6928,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
+    max_indices=30*MAX_BARS;
     
     
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -6908,10 +6944,6 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //////////////////////////////////////////////
     
-    int data_bar2draw_count=0;
-    
-    index=0;
-    
     float note_posX[256];
     uint8_t note_posType[256];
     int midi_data_ofs=MIDIFX_LEN-MIDIFX_OFS-1;
@@ -6923,22 +6955,74 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     float x;
     float y;
     //black keys
-    float widthB=round(width/2.0);
+    float widthB=width/2.0;
     float heightB=height*3/5;
     float xB;
     float yB;
-    
     
     int border_size=2;
     int num_rows=hh/(height+16);
     if (m_genNumMidiVoicesChannels<num_rows) num_rows=m_genNumMidiVoicesChannels;
     
-    //check all key status
-    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
-        for (int note=0;note<256;note++) {
-            bool whitekey=false;
-            int note_idx=(note%12);
-            if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
+    //draw piano felt
+    index=0;
+    int crtp[2],cgtp[2],cbtp[2],cap[2];
+    crtp[0]=60;crtp[1]=120;
+    cgtp[0]=60;cgtp[1]=0;
+    cbtp[0]=60;cbtp[1]=0;
+    cap[0]=255;cap[1]=255;
+    float wd=height/32.0;
+    for (int j=0;j<num_rows;j++) {
+        y=hh-(height+16)*(j+1)+height;
+        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+        
+        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, index);
+    
+    index=0;
+    
+    //prepapre key data & check all key status
+    int wk_idx=0;//white key counter
+    int bk_idx=0;//black key counter
+    for (int note=0;note<256;note++) {
+        bool whitekey=false;
+        int note_idx=(note%12);
+        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
+        
+        if (whitekey) {
+            x=(float)(ww)*wk_idx/visible_wkeys_range-note_display_offset;
+            note_posX[note]=x;
+            note_posType[note]=0;
+            wk_idx++;
+        } else {
+            x=(float)(ww)*(wk_idx-1)/visible_wkeys_range-note_display_offset;
+            switch (bk_idx%5) {
+                case 0: //C#
+                    xB=(x+width*8.0f/12);
+                    break;
+                case 1://D#
+                    xB=(x+width*10.0f/12);
+                    break;
+                case 2://F#
+                    xB=(x+width*8.0f/12);
+                    break;
+                case 3://G#
+                    xB=(x+width*9.0f/12);
+                    break;
+                case 4://A#
+                    xB=(x+width*10.0f/12);
+                    break;
+            }
+            note_posX[note]=xB;
+            note_posType[note]=1;
+            bk_idx++;
+        }
+        for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
             pianoroll_key_status[i][note]=(whitekey?PR_WHITE_KEY:0)|(note_idx<<4);
         }
     }
@@ -6947,7 +7031,6 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
             (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
-            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) note=note%((int)note_display_range);  //limit to pianoroll size
             
             pianoroll_key_status[instr%num_rows][note]|=PR_KEY_PRESSED;
         }
@@ -6957,20 +7040,16 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
         
-        int i=0;//white key counter
         for (int note=0;note<256;note++) {
-            int note_idx=note%12;
-            if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) { //white key
-                
-                x=(float)(ww)*i/visible_wkeys_range-note_display_offset;
-                
-                note_posX[note]=x;
-                note_posType[note]=0;
-                
-                if ((x+width>0)||(x<ww)) {
+            if (note_posType[note]==0) { //white key
+                x=note_posX[note];
+                if ((x+width>0)||(x<ww) ) {
+                    if (index+INDICES_SIZE_KEYW>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
+                    }
                     index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j);
                 }
-                i++;
             }
         }
     }
@@ -6984,24 +7063,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
             unsigned int vol=data_midifx_vol[midi_data_ofs][i];
             unsigned int st=data_midifx_st[midi_data_ofs][i];
             
-            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                note=note%((int)note_display_range);  //limit to pianoroll size
-            } else {
-            }
-            
-            unsigned int note_idx;
-            note_idx=(note%12);
-            if ( (note_idx==0)||
-                (note_idx==2)||
-                (note_idx==4)||
-                (note_idx==5)||
-                (note_idx==7)||
-                (note_idx==9)||
-                (note_idx==11)
-                ) { //white key
-                
-                
-                
+            if ( note_posType[note]==0 ) { //white key
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
@@ -7019,16 +7081,13 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     x=note_posX[note];
                     
-                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                        while (x+width<0) x+=7*width;
-                        while (x>=(int)ww) x-=7*width;
-                    }
-                    
-                    //                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
-                    
                     if (note_posType[note]==0) { //white key
                         y=hh-(height+16)*((instr%num_rows)+1);
-                        if ( (x+width>0)||(x<ww) ) {
+                        if (index+INDICES_SIZE_KEYW>=max_indices) {
+                            glDrawArrays(GL_TRIANGLES, 0, index);
+                            index=0;
+                        }
+                        if ( (x+width>0)||(x<ww)) {
                             index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
                         }
                     }
@@ -7040,55 +7099,16 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     //draw black keys
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
-        int i=0; //back key counter
-        int jj=0; //white key counter
         for (int note=0;note<256;note++) {
-            int note_idx=note%12;
-            if ( (note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10) ) { //black key
-                
-                x=(float)(ww)*(jj-1)/visible_wkeys_range-note_display_offset;
+            if (note_posType[note]) {
                 yB=y+height-heightB;
-                
-                switch (i%5) {
-                    case 0: //C#
-                        xB=(x+width*8.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 1://D#
-                        xB=(x+width*10.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 2://F#
-                        xB=(x+width*8.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 3://G#
-                        xB=(x+width*9.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 4://A#
-                        xB=(x+width*10.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
+                xB=note_posX[note];
+                if (index+INDICES_SIZE_KEYB>=max_indices) {
+                    glDrawArrays(GL_TRIANGLES, 0, index);
+                    index=0;
                 }
-                
-                i++;
-            } else jj++;
+                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j);
+            }
         }
     }
     
@@ -7097,11 +7117,6 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         if ((data_midifx_note[midi_data_ofs][i])&&
             (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
-            
-            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                note=note%((int)note_display_range);  //limit to pianoroll size
-            } else {
-            }
             
             uint8_t note_idx=note%12;
             if ((note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10)) { //black key
@@ -7129,14 +7144,13 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                     
                     x=note_posX[note];
                     
-                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                        while (x+width<0) x+=7*width;
-                        while (x>=(int)ww) x-=7*width;
-                    }
-                    
                     if (note_posType[note]==1) { //back key
                         y=hh-(height+16)*((instr%num_rows)+1)+height-heightB;
-                        if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
+                        if (index+INDICES_SIZE_KEYB>=max_indices) {
+                            glDrawArrays(GL_TRIANGLES, 0, index);
+                            index=0;
+                        }
+                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
                     }
                 }
             }
@@ -7150,7 +7164,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i%num_rows;
-            y=hh-(height+16)*(j+1)+height;
+            y=hh-(height+16)*(j+1)+height+1;
             
             if (mVoicesNamePiano[i]) {
                 x=voices_posX[j]+16;
@@ -7169,11 +7183,16 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 }
                 
                 y=hh-(height+16)*(j+1)+height+4;
+                if (index+INDICES_SIZE_BOX>=max_indices) {
+                    glDrawArrays(GL_TRIANGLES, 0, index);
+                    index=0;
+                }
                 index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
             }
         }
     
     glDrawArrays(GL_TRIANGLES, 0, index);
+    
     
     
     //////////////////////////////////////////////
@@ -7191,12 +7210,12 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value) {
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i%num_rows;
-            y=hh-(height+16)*(j+1)+height;
+            y=hh-(height+16)*(j+1)+height+4+1;
             
             if (mVoicesNamePiano[i]) {
                 x=voices_posX[j]+16;
                 glPushMatrix();
-                glTranslatef(x,y+3, 0.0f);
+                glTranslatef(x,y, 0.0f);
                 mVoicesNamePiano[i]->Render(255);
                 voices_posX[j]+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
                 glPopMatrix();
@@ -7207,12 +7226,14 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     if (mOctavesIndex[0]&&settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_switch.switch_value) {
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i%num_rows;
-            y=hh-(height+16)*(j+1)+16-12;
             for (int o=0;o<256/12;o++) {
                 x=o*width*7.0-note_display_offset;
                 
                 if (mOctavesIndex[o]) {
                     glPushMatrix();
+                    
+                    if (pianoroll_key_status[j][o*12]&PR_KEY_PRESSED) y=hh-(height+16)*(j+1)+16-12+height/24;
+                    else y=hh-(height+16)*(j+1)+16-12+height/8;
                     
                     float lblwidth=strlen(mOctavesIndex[o]->mText)*mOscilloFont[1]->maxCharWidth/mScaleFactor;
                     x+=(width-lblwidth)/2;
@@ -7325,6 +7346,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
+    max_indices=30*MAX_BARS;
     texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -7392,8 +7414,58 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
     
-    index=0;
+    int border_size=2;
     
+    //prepapre key data & check all key status
+    int wk_idx=0;//white key counter
+    int bk_idx=0;//black key counter
+    for (int note=0;note<256;note++) {
+        bool whitekey=false;
+        int note_idx=(note%12);
+        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
+        
+        if (whitekey) {
+            x=(float)(ww)*wk_idx/visible_wkeys_range-note_display_offset;
+            note_posX[note]=x;
+            note_posType[note]=0;
+            wk_idx++;
+        } else {
+            x=(float)(ww)*(wk_idx-1)/visible_wkeys_range-note_display_offset;
+            switch (bk_idx%5) {
+                case 0: //C#
+                    xB=(x+width*8.0f/12);
+                    break;
+                case 1://D#
+                    xB=(x+width*10.0f/12);
+                    break;
+                case 2://F#
+                    xB=(x+width*8.0f/12);
+                    break;
+                case 3://G#
+                    xB=(x+width*9.0f/12);
+                    break;
+                case 4://A#
+                    xB=(x+width*10.0f/12);
+                    break;
+            }
+            note_posX[note]=xB;
+            note_posType[note]=1;
+            bk_idx++;
+        }
+        pianoroll_key_status[0][note]=(whitekey?PR_WHITE_KEY:0)|(note_idx<<4);
+    }
+    for (int i=0; i<256; i++) { //for each channels
+        if ((data_midifx_note[midi_data_ofs][i])&&
+            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
+            unsigned int note=data_midifx_note[midi_data_ofs][i];
+            unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
+            
+            pianoroll_key_status[0][note]|=PR_KEY_PRESSED;
+        }
+    }
+    
+    
+    index=0;
     for (int i=0;i<data_bar2draw_count;i++) {
         int played=data_bar2draw[i].played;
         int note=data_bar2draw[i].note;
@@ -7437,70 +7509,20 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             ca=192;
         }
         
-        int posNote;
-        int note_idx=note%12;
-        int octave=note/12;
-        int wd;
-        switch (note_idx) {
-            case 0://C
-                posNote=(octave*7+0)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 1://C#
-                posNote=(octave*7+0)*width+width*9.0f/12-note_display_offset+subnote;
-                wd=widthB+line_width_extra*2;
-                break;
-            case 2://D
-                posNote=(octave*7+1)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 3://D#
-                posNote=(octave*7+1)*width+width*11.0f/12-note_display_offset+subnote;
-                wd=widthB+line_width_extra*2;
-                break;
-            case 4://E
-                posNote=(octave*7+2)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 5://F
-                posNote=(octave*7+3)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 6://F#
-                posNote=(octave*7+3)*width+width*9.0f/12-note_display_offset+subnote;
-                wd=widthB+line_width_extra*2;
-                break;
-            case 7://G
-                posNote=(octave*7+4)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 8://G#
-                posNote=(octave*7+4)*width+width*10.0f/12-note_display_offset+subnote;
-                wd=widthB+line_width_extra*2;
-                break;
-            case 9://A
-                posNote=(octave*7+5)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-            case 10://A#
-                posNote=(octave*7+5)*width+width*11.0f/12-note_display_offset+subnote;
-                wd=widthB+line_width_extra*2;
-                break;
-            case 11://B
-                posNote=(octave*7+6)*width-note_display_offset+subnote;
-                wd=width+line_width_extra*2;
-                break;
-        }
-        if (wd>=3) wd-=2;
-        posNote+=2;
+        float posNote;
+        float wd;
+        posNote=note_posX[note];
+        if (note_posType[note]==0) wd=width+line_width_extra*2;
+        else wd=widthB+line_width_extra*2;
         
-        if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-            while (posNote-line_width_extra+wd<0) posNote+=7*width;
-            while (posNote-line_width_extra>=(int)ww) posNote-=7*width;
-        }
+        //if (wd>=3) wd-=2;
         
-        int posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy;
-        int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy;
+        
+        
+        //posNote+=2;
+        
+        float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
+        float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;
         if ( (posNote-line_width_extra+wd>=0) && (posNote-line_width_extra<(int)ww)) {
             int border_size=(line_width>=8?2:1);
             
@@ -7515,6 +7537,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     //    printf("total: %d\n",index);
     glDrawArrays(GL_TRIANGLES, 0, index);
+    
     
     //Draw spark fx
     glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
@@ -7569,66 +7592,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 line_width_extra=2;
                 
                 float posNote;
-                int note_idx=note%12;
-                int octave=note/12;
                 float wd;
-                switch (note_idx) {
-                    case 0://C
-                        posNote=(octave*7+0)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 1://C#
-                        posNote=(octave*7+0)*width+width*9.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 2://D
-                        posNote=(octave*7+1)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 3://D#
-                        posNote=(octave*7+1)*width+width*11.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 4://E
-                        posNote=(octave*7+2)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 5://F
-                        posNote=(octave*7+3)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 6://F#
-                        posNote=(octave*7+3)*width+width*9.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 7://G
-                        posNote=(octave*7+4)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 8://G#
-                        posNote=(octave*7+4)*width+width*10.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 9://A
-                        posNote=(octave*7+5)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 10://A#
-                        posNote=(octave*7+5)*width+width*11.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 11://B
-                        posNote=(octave*7+6)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                }
-                //if (wd>=3) wd-=2;
-                //posNote+=2;
                 
-                if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                    while (posNote-line_width_extra+wd<0) posNote+=7*width;
-                    while (posNote-line_width_extra>=(int)ww) posNote-=7*width;
-                }
+                posNote=note_posX[note];
+                if (note_posType[note]==0) wd=width+line_width_extra*2;
+                else wd=widthB+line_width_extra*2;
                 
                 posNote-=wd/2;
                 wd=wd*2;
@@ -7644,13 +7612,13 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     texcoords[index+5].u=1.0f; texcoords[index+5].v=18.0/128;
                     
                     
-                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height;
-                    ptsB[index+1].x=posNote;ptsB[index+1].y=ofsy+0+height+wd/3;
-                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height;
+                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height+height/32;
+                    ptsB[index+1].x=posNote;ptsB[index+1].y=ofsy+0+height+height/32+wd/3;
+                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height+height/32;
                     
-                    ptsB[index+3].x=posNote;ptsB[index+3].y=ofsy+0+height+wd/3;
-                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height;
-                    ptsB[index+5].x=posNote+wd;ptsB[index+5].y=ofsy+0+height+wd/3;
+                    ptsB[index+3].x=posNote;ptsB[index+3].y=ofsy+0+height+height/32+wd/3;
+                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height+height/32;
+                    ptsB[index+5].x=posNote+wd;ptsB[index+5].y=ofsy+0+height+height/32+wd/3;
                     
                     //apply some distortion
                     float wd_distX=wd/3.0;
@@ -7745,44 +7713,36 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     index=0;
+    //draw piano felt
+    int crtp[2],cgtp[2],cbtp[2],cap[2];
+    crtp[0]=60;crtp[1]=120;
+    cgtp[0]=60;cgtp[1]=0;
+    cbtp[0]=60;cbtp[1]=0;
+    cap[0]=255;cap[1]=255;
+    float wd=height/32.0;
+        y=ofsy+height;
+        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+        
+        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    glDrawArrays(GL_TRIANGLES, 0, index);
     
-    int border_size=2;
-    
-    
-    //check all key status
-    for (int note=0;note<256;note++) {
-        bool whitekey=false;
-        int note_idx=(note%12);
-        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
-        pianoroll_key_status[0][note]=(whitekey?PR_WHITE_KEY:0)|(note_idx<<4);
-    }
-    for (int i=0; i<256; i++) { //for each channels
-        if ((data_midifx_note[midi_data_ofs][i])&&
-            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
-            unsigned int note=data_midifx_note[midi_data_ofs][i];
-            unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
-            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) note=note%((int)note_display_range);  //limit to pianoroll size
-            
-            pianoroll_key_status[0][note]|=PR_KEY_PRESSED;
-        }
-    }
+    index=0;
     
     
     //draw white keys
     y=ofsy+0;
-    
-    int i=0;//white key counter
     for (int note=0;note<256;note++) {
-        int note_idx=note%12;
-        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) { //white key
-            
-            x=(float)(ww)*i/visible_wkeys_range-note_display_offset;
-            
-            note_posX[note]=x;
-            note_posType[note]=0;
-            
+        if ( note_posType[note]==0) { //white key
+            x=note_posX[note];
+            if (index+INDICES_SIZE_KEYW>=max_indices) {
+                glDrawArrays(GL_TRIANGLES, 0, index);
+                index=0;
+            }
             if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0);
-            i++;
         }
     }
     
@@ -7794,16 +7754,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             if (!note) note=data_midifx_note[midi_data_ofs+1][i];
             
-            unsigned int note_idx;
-            note_idx=(note%12);
-            if ( (note_idx==0)||
-                (note_idx==2)||
-                (note_idx==4)||
-                (note_idx==5)||
-                (note_idx==7)||
-                (note_idx==9)||
-                (note_idx==11)
-                ) { //white key
+            if (note_posType[note]==0) { //white key
                 
                 unsigned int instr=data_midifx_instr[midi_data_ofs][i];
                 unsigned int vol=data_midifx_vol[midi_data_ofs][i];
@@ -7826,16 +7777,12 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     x=note_posX[note];
                     
-                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                        while (x+width<0) x+=7*width;
-                        while (x>=(int)ww) x-=7*width;
+                    y=ofsy+0;
+                    if (index+INDICES_SIZE_KEYW>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
                     }
-                    //                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
-                    
-                    if (note_posType[note]==0) { //white key
-                        y=ofsy+0;
-                        if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0);
-                    }
+                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0);
                 }
             }
         }
@@ -7843,53 +7790,16 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     
     //draw black keys
     y=ofsy+0;
-    for (int note=0,i=0,jj=0;note<256;note++) {
-        int note_idx=note%12;
-        if ( (note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10) ) { //black key
-            
-            x=(float)(ww)*(jj-1)/visible_wkeys_range-note_display_offset;
+    for (int note=0;note<256;note++) {
+        if (note_posType[note] ) { //black key
             yB=y+height-heightB;
-            
-            switch (i%5) {
-                case 0: //C#
-                    xB=round(x+width*9.0f/12);
-                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
-                    
-                    note_posX[note]=xB;
-                    note_posType[note]=1;
-                    break;
-                case 1://D#
-                    xB=round(x+width*10.0f/12);
-                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
-                    
-                    note_posX[note]=xB;
-                    note_posType[note]=1;
-                    break;
-                case 2://F#
-                    xB=round(x+width*9.0f/12);
-                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
-                    
-                    note_posX[note]=xB;
-                    note_posType[note]=1;
-                    break;
-                case 3://G#
-                    xB=round(x+width*9.5f/12);
-                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
-                    
-                    note_posX[note]=xB;
-                    note_posType[note]=1;
-                    break;
-                case 4://A#
-                    xB=round(x+width*10.0f/12);
-                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
-                    
-                    note_posX[note]=xB;
-                    note_posType[note]=1;
-                    break;
+            xB=note_posX[note];
+            if (index+INDICES_SIZE_KEYB>=max_indices) {
+                glDrawArrays(GL_TRIANGLES, 0, index);
+                index=0;
             }
-            
-            i++;
-        } else jj++;
+            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+        }
     }
     
     //2nd pass draw notes - black keys
@@ -7899,13 +7809,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             unsigned int note=data_midifx_note[midi_data_ofs][i];
             if (!note) note=data_midifx_note[midi_data_ofs+1][i];
             
-            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                note=note%((int)note_display_range);  //limit to pianoroll size
-            } else {
-            }
-            
-            uint8_t note_idx=note%12;
-            if ((note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10)) { //black key
+            if (note_posType[note]) { //black key
                 
                 unsigned int instr=data_midifx_instr[midi_data_ofs][i];
                 unsigned int vol=data_midifx_vol[midi_data_ofs][i];
@@ -7927,18 +7831,13 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     //                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
-                    
                     x=note_posX[note];
-                    
-                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                        while (x+width<0) x+=7*width;
-                        while (x>=(int)ww) x-=7*width;
+                    y=ofsy+height-heightB+0;
+                    if (index+INDICES_SIZE_KEYB>=max_indices) {
+                        glDrawArrays(GL_TRIANGLES, 0, index);
+                        index=0;
                     }
-                    
-                    if (note_posType[note]==1) { //back key
-                        y=ofsy+height-heightB+0;
-                        if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0);
-                    }
+                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0);
                 }
             }
         }
@@ -7973,7 +7872,10 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 x=16;
                 y-=16;
             }
-            
+            if (index+INDICES_SIZE_BOX>=max_indices) {
+                glDrawArrays(GL_TRIANGLES, 0, index);
+                index=0;
+            }
             index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
             
             x+=widthx;
@@ -8030,66 +7932,13 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 line_width_extra=2;
                 
                 float posNote;
-                int note_idx=note%12;
-                int octave=note/12;
                 float wd;
-                switch (note_idx) {
-                    case 0://C
-                        posNote=(octave*7+0)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 1://C#
-                        posNote=(octave*7+0)*width+width*9.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 2://D
-                        posNote=(octave*7+1)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 3://D#
-                        posNote=(octave*7+1)*width+width*10.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 4://E
-                        posNote=(octave*7+2)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 5://F
-                        posNote=(octave*7+3)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 6://F#
-                        posNote=(octave*7+3)*width+width*9.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 7://G
-                        posNote=(octave*7+4)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 8://G#
-                        posNote=(octave*7+4)*width+width*9.5f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 9://A
-                        posNote=(octave*7+5)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                    case 10://A#
-                        posNote=(octave*7+5)*width+width*10.0f/12-note_display_offset;
-                        wd=widthB+line_width_extra*2;
-                        break;
-                    case 11://B
-                        posNote=(octave*7+6)*width-note_display_offset;
-                        wd=width+line_width_extra*2;
-                        break;
-                }
+                posNote=note_posX[note];
+                if (note_posType[note]==0) wd=width+line_width_extra*2;
+                else wd=widthB+line_width_extra*2;
+                
                 //if (wd>=3) wd-=2;
                 //posNote+=2;
-                if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
-                    while (posNote-line_width_extra+wd<0) posNote+=7*width;
-                    while (posNote-line_width_extra>=(int)ww) posNote-=7*width;
-                }
-                
                 posNote-=wd*1.0;
                 wd=wd*3;
                 
@@ -8104,13 +7953,13 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     texcoords[index+5].u=1.0f; texcoords[index+5].v=0.0/128;
                     
                     
-                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height-wd/2+height/16;
-                    ptsB[index+1].x=posNote;ptsB[index+1].y=ofsy+0+height+wd/2+height/16;
-                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height-wd/2+height/16;
+                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height-wd/2+height/32+height/16;
+                    ptsB[index+1].x=posNote;ptsB[index+1].y=ofsy+0+height+wd/2+height/32+height/16;
+                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height-wd/2+height/32+height/16;
                     
-                    ptsB[index+3].x=posNote;ptsB[index+3].y=ofsy+0+height+wd/2+height/16;
-                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height-wd/2+height/16;
-                    ptsB[index+5].x=posNote+wd;ptsB[index+5].y=ofsy+0+height+wd/2+height/16;
+                    ptsB[index+3].x=posNote;ptsB[index+3].y=ofsy+0+height+wd/2+height/32+height/16;
+                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height-wd/2+height/32+height/16;
+                    ptsB[index+5].x=posNote+wd;ptsB[index+5].y=ofsy+0+height+wd/2+height/32+height/16;
                     
                     //apply some distortion
                     float wd_distX=wd/3.0;
@@ -8227,13 +8076,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     
     if (mOctavesIndex[0]&&settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_switch.switch_value) {
-        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
-            int j=i;
-            y=ofsy+0+3;
             for (int o=0;o<256/12;o++) {
                 x=o*width*7.0-note_display_offset;
                 
                 if (mOctavesIndex[o]) {
+                    
+                    if (pianoroll_key_status[0][o*12]&PR_KEY_PRESSED) y=ofsy+0+3+height/24;
+                    else y=ofsy+0+3+height/8;
+                    
                     glPushMatrix();
                     
                     float lblwidth=strlen(mOctavesIndex[o]->mText)*mOscilloFont[1]->maxCharWidth/mScaleFactor;
@@ -8245,7 +8095,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     glPopMatrix();
                 }
             }
-        }
     }
     free(ptsB);
     free(texcoords);

@@ -263,7 +263,7 @@ pthread_mutex_t play_mutex;
     
     //[self pushViewController:animatedLaunchVC animated:YES];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setNumberOfLines:2];
-    [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByCharWrapping];
+    [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByWordWrapping];//NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
     
     return YES;

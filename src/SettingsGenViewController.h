@@ -278,7 +278,6 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern_FontSize,
     GLOB_FXPianoRoll,
     GLOB_FXPianoRollSpark,
-    GLOB_FXPianoRollAllNote,
     GLOB_FXPianoRollVoicesLabels,
     GLOB_FXPianoRollOctavesLabels,
     GLOB_FXMIDIPattern,

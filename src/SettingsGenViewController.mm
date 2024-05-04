@@ -557,8 +557,7 @@ void optNSFPLAYChangedC(id param) {
     
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FXPianoRollAllNote].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
@@ -1441,14 +1440,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[1]=(char*)"Col.";
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels[2]=(char*)"White";
-    
-    SETTINGS_ID_DEF(GLOB_FXPianoRollAllNote)
-    settings[GLOB_FXPianoRollAllNote].label=(char*)"PR/All note";
-    settings[GLOB_FXPianoRollAllNote].description=(char*)"Show all notes, i.e. low or high notes will appear even if not same octave";
-    settings[GLOB_FXPianoRollAllNote].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXPianoRollAllNote].sub_family=0;
-    settings[GLOB_FXPianoRollAllNote].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FXPianoRollVoicesLabels)
     settings[GLOB_FXPianoRollVoicesLabels].label=(char*)"PR/Voices labels";
