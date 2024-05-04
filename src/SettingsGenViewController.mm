@@ -140,7 +140,7 @@ volatile t_settings settings[MAX_SETTINGS];
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
@@ -1030,7 +1030,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultMODPlayer)
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
+    settings[GLOB_DefaultMODPlayer].label=(char*)"MOD player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
@@ -1043,7 +1043,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultSAPPlayer)
     settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
+    settings[GLOB_DefaultSAPPlayer].label=(char*)"SAP player";
     settings[GLOB_DefaultSAPPlayer].description=NULL;
     settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultSAPPlayer].sub_family=0;
@@ -1055,7 +1055,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultSIDPlayer)
     settings[GLOB_DefaultSIDPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultSIDPlayer].label=(char*)"Default SID player";
+    settings[GLOB_DefaultSIDPlayer].label=(char*)"SID player";
     settings[GLOB_DefaultSIDPlayer].description=NULL;
     settings[GLOB_DefaultSIDPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultSIDPlayer].sub_family=0;
@@ -1067,7 +1067,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultVGMPlayer)
     settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";
+    settings[GLOB_DefaultVGMPlayer].label=(char*)"VGM player";
     settings[GLOB_DefaultVGMPlayer].description=NULL;
     settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultVGMPlayer].sub_family=0;
@@ -1079,7 +1079,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultNSFPlayer)
     settings[GLOB_DefaultNSFPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultNSFPlayer].label=(char*)"Default NSF player";
+    settings[GLOB_DefaultNSFPlayer].label=(char*)"NSF player";
     settings[GLOB_DefaultNSFPlayer].description=NULL;
     settings[GLOB_DefaultNSFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultNSFPlayer].sub_family=0;
@@ -1091,7 +1091,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultGBSPlayer)
     settings[GLOB_DefaultGBSPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultGBSPlayer].label=(char*)"Default GBS player";
+    settings[GLOB_DefaultGBSPlayer].label=(char*)"GBS player";
     settings[GLOB_DefaultGBSPlayer].description=NULL;
     settings[GLOB_DefaultGBSPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultGBSPlayer].sub_family=0;
@@ -1103,7 +1103,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultKSSPlayer)
     settings[GLOB_DefaultKSSPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultKSSPlayer].label=(char*)"Default KSS player";
+    settings[GLOB_DefaultKSSPlayer].label=(char*)"KSS player";
     settings[GLOB_DefaultKSSPlayer].description=NULL;
     settings[GLOB_DefaultKSSPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultKSSPlayer].sub_family=0;
@@ -1115,7 +1115,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_Default2SFPlayer)
     settings[GLOB_Default2SFPlayer].type=MDZ_SWITCH;
-    settings[GLOB_Default2SFPlayer].label=(char*)"Default 2SF player";
+    settings[GLOB_Default2SFPlayer].label=(char*)"2SF player";
     settings[GLOB_Default2SFPlayer].description=NULL;
     settings[GLOB_Default2SFPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_Default2SFPlayer].sub_family=0;
@@ -1127,7 +1127,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultMIDIPlayer)
     settings[GLOB_DefaultMIDIPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMIDIPlayer].label=(char*)"Default MIDI player";
+    settings[GLOB_DefaultMIDIPlayer].label=(char*)"MIDI player";
     settings[GLOB_DefaultMIDIPlayer].description=NULL;
     settings[GLOB_DefaultMIDIPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultMIDIPlayer].sub_family=0;

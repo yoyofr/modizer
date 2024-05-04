@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;#clean the macos &quot;Designed for iPad&quot; install folder to avoid deployment issue&#10;#seems like macos 14.4, only the first 2 builds are ok, after changes aren&apos;t taken into account&#10;#clean all install&#10;cd ${BUILT_PRODUCTS_DIR}/&#10;cd ..&#10;find . -name &quot;.XCInstall&quot; -delete &#10;&#10;">
+               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;#clean the macos &quot;Designed for iPad&quot; install folder to avoid deployment issue&#10;#seems like macos 14.4, only the first 2 builds are ok, after changes aren&apos;t taken into account&#10;#clean all install&#10;cd ${BUILT_PRODUCTS_DIR}/&#10;rm -fr &quot;.XCInstall&quot; &#10;&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

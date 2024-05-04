@@ -1754,7 +1754,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             temp_playlist->entries[i].playcounts=-1;
         }
         temp_playlist->nb_entries=mPlaylist_size;
-        temp_playlist->playlist_name=@"Now playing";
+        temp_playlist->playlist_name=NSLocalizedString(@"Now playing",@"");
         temp_playlist->playlist_id=nil;
         
         nowplayingPL = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];

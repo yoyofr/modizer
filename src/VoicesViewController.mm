@@ -323,13 +323,13 @@
         if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
             voicesAllOn=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:BButtonTypePrimary style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
             [voicesAllOn addTarget:self action:@selector(pushedAllVoicesOn:) forControlEvents:UIControlEventTouchUpInside];
-            [voicesAllOn setTitle:@"All" forState:UIControlStateNormal];
+            [voicesAllOn setTitle:NSLocalizedString(@"All",@"") forState:UIControlStateNormal];
             [voicesAllOn addAwesomeIcon:FAIconVolumeUp beforeTitle:true];
             [self.scrollView addSubview:voicesAllOn];
             
             voicesAllOff=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:BButtonTypeInverse style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
             [voicesAllOff addTarget:self action:@selector(pushedAllVoicesOff:) forControlEvents:UIControlEventTouchUpInside];
-            [voicesAllOff setTitle:@"All" forState:UIControlStateNormal];
+            [voicesAllOff setTitle:NSLocalizedString(@"All",@"") forState:UIControlStateNormal];
             [voicesAllOff addAwesomeIcon:FAIconVolumeOff beforeTitle:true];
             [self.scrollView addSubview:voicesAllOff];
             

@@ -69,7 +69,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     browse_mode=BROWSE_ALL;
     if ([self.title isEqualToString:@"Systems"]) {
         browse_mode=BROWSE_SYSTEMS;
-    } else if (![self.title isEqualToString:@"All"]) {
+    } else if (![self.title isEqualToString:NSLocalizedString(@"All",@"")]) {
         browse_mode=BROWSE_ALL_SYSTEM;
     }
 }
@@ -166,7 +166,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"All",@"https://www.smspower.org/Music/VGMs"},
+        {NSLocalizedString(@"All",@""),@"https://www.smspower.org/Music/VGMs"},
         {@"Systems",@"https://www.smspower.org/Music/VGMs"}
     };
     

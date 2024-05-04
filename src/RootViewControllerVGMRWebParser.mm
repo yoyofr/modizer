@@ -208,7 +208,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"All",@"All"},
+        {NSLocalizedString(@"All",@""),@"All"},
         {@"Top Packs",@"https://vgmrips.net/packs/top"},
         {@"Latest Packs",@"https://vgmrips.net/packs/latest"},
         {@"Companies",@"https://vgmrips.net/packs/companies"},

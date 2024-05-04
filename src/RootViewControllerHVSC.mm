@@ -1983,7 +1983,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }

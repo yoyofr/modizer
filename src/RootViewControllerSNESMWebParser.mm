@@ -99,7 +99,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     
     browse_mode=BROWSE_DEFAULT;
-    if ([self.title isEqualToString:@"All"]) {
+    if ([self.title isEqualToString:NSLocalizedString(@"All",@"")]) {
         browse_mode=BROWSE_ALL;
     }
     
@@ -220,7 +220,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"All",@""},
+        {NSLocalizedString(@"All",@""),@""},
         {@"Top Packs",@"http://snesmusic.org/v2/stats.php"}
     };
     

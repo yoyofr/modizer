@@ -389,7 +389,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                 NSLog(@"Issue %d while renaming file %@",err.code,curPath);
-                //UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                //UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 //[removeAlert show];
             } else {
                 cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
@@ -421,7 +421,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
                 NSLog(@"Issue %d while create folder %@",err.code,newPath);
-                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
                 [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
@@ -2400,7 +2400,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
                 NSLog(@"Issue %d while moving: %@",err.code,cutpaste_filesrcpath);
-                UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [moveAlert show];
             } else {
                 //[cutpaste_filesrcpath release];
@@ -2414,7 +2414,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             }
         } else {
             //Alert msg => nothing to Paste
-            UIAlertView *pasteAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+            UIAlertView *pasteAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [pasteAlert show];
         }
     } else {
@@ -2483,7 +2483,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     
                     //[self.tableView reloadData];
                 } else {
-                    UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                    UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [cannotExtractAlert show];
                 }
                 //[self hideWaiting];
@@ -2530,7 +2530,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [removeAlert show];
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
@@ -2847,8 +2847,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
             secActionView.hidden=NO;
         } else {
             cellValue=NSLocalizedString(@"iCloud","");
-            if (icloud_available) bottomLabel.text=@"available";
-            else bottomLabel.text=@"unavailable";
+            if (icloud_available) bottomLabel.text=NSLocalizedString(@"available",@"");
+            else bottomLabel.text=NSLocalizedString(@"unavailable",@"");
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
@@ -3058,7 +3058,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [removeAlert show];
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
@@ -3199,7 +3199,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }

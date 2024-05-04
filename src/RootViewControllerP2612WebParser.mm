@@ -220,7 +220,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"All",@"https://project2612.org/list.php?page=all"},
+        {NSLocalizedString(@"All",@""),@"https://project2612.org/list.php?page=all"},
         {@"Top Packs",@"https://project2612.org/list.php?sort=rating"},
         {@"Composers",@"https://project2612.org/list.php?page=all"}
     };

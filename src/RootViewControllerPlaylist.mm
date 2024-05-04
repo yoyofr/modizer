@@ -227,7 +227,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 }
 
 -(void) deletePlaylist {
-    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(NSLocalizedString(@"Warning",@""),@"")
                                                                     message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
                                                              preferredStyle:UIAlertControllerStyleAlert];
     

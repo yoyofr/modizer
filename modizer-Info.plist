@@ -106,20 +106,20 @@
 				<string>com.yoyofr.modizer.sc68</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>Atarisound File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.atarisound</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>Atarisound File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.atarisound</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -162,48 +162,48 @@
 				<string>com.yoyofr.modizer.pt3</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>EUPPHONY File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.eup</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>PxTone File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.pxtone</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>Organya File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.organya</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>EUPPHONY File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.eup</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>PxTone File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.pxtone</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>Organya File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.organya</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -218,48 +218,48 @@
 				<string>com.yoyofr.modizer.gme</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>NSF File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.nsf</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>V2M File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.v2m</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>MSX File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.msx</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>NSF File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.nsf</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>V2M File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.v2m</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>MSX File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.msx</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -389,6 +389,18 @@
 	<string></string>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.com.yoyofr.modizer</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>Modizer</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>Any</string>
+		</dict>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>UpheavalPro.ttf</string>
@@ -416,25 +428,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-    <key>UISupportsTrueScreenSizeOnMac</key>
-    <true/>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
-    
-    <key>NSUbiquitousContainers</key>
-    <dict>
-        <key>iCloud.com.yoyofr.modizer</key>
-        <dict>
-            <key>NSUbiquitousContainerIsDocumentScopePublic</key>
-            <true/>
-            <key>NSUbiquitousContainerName</key>
-            <string>Modizer</string>
-            <key>NSUbiquitousContainerSupportedFolderLevels</key>
-            <string>Any</string>
-        </dict>
-    </dict>
-
-
+	<key>UISupportsTrueScreenSizeOnMac</key>
+	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>
@@ -506,23 +503,23 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-                    <string>7z</string>
-                    <string>gz</string>
+					<string>7z</string>
+					<string>gz</string>
 					<string>zip</string>
 					<string>rar</string>
 					<string>rsn</string>
 					<string>lzh</string>
 					<string>lha</string>
-                    <string>pax</string>
-                    <string>tar</string>
-                    <string>cpio</string>
-                    <string>iso</string>
-                    <string>mtree</string>
-                    <string>ar</string>
-                    <string>xar</string>
-                    <string>cab</string>
-                    <string>warc</string>
-                    <string>bz2</string>
+					<string>pax</string>
+					<string>tar</string>
+					<string>cpio</string>
+					<string>iso</string>
+					<string>mtree</string>
+					<string>ar</string>
+					<string>xar</string>
+					<string>cab</string>
+					<string>warc</string>
+					<string>bz2</string>
 				</array>
 			</dict>
 		</dict>
@@ -543,24 +540,24 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>V2M File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.v2m</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>v2m</string>
-                    <string>v2mz</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>V2M File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.v2m</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>v2m</string>
+					<string>v2mz</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -594,13 +591,13 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>sid</string>
-                    <string>str</string>
-                    <string>mus</string>
-                    <string>c64</string>
-                    <string>prg</string>
-                    <string>p00</string>
-                    <string>rsid</string>
-                    <string>psid</string>                    
+					<string>str</string>
+					<string>mus</string>
+					<string>c64</string>
+					<string>prg</string>
+					<string>p00</string>
+					<string>rsid</string>
+					<string>psid</string>
 				</array>
 			</dict>
 		</dict>
@@ -638,23 +635,23 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>Atarisound File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.atarisound</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>sndh</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Atarisound File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.atarisound</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>sndh</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -697,8 +694,8 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-                    <string>gym</string>
-                    <string>s98</string>
+					<string>gym</string>
+					<string>s98</string>
 					<string>vgm</string>
 					<string>vgz</string>
 				</array>
@@ -721,58 +718,58 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>EUPHONY File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.eup</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>eup</string>
-                </array>
-            </dict>
-        </dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>PxTone File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.pxtone</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>ptcop</string>
-                    <string>pttune</string>
-                </array>
-            </dict>
-        </dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>Organya File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.organya</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>org</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>EUPHONY File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.eup</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>eup</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PxTone File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.pxtone</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>ptcop</string>
+					<string>pttune</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Organya File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.organya</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>org</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -796,45 +793,45 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>NSF File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.nsf</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>nsf</string>
-                    <string>nsfe</string>
-                </array>
-            </dict>
-        </dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>MSX File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.msx</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>kss</string>
-                    <string>mgs</string>
-                    <string>opx</string>
-                    <string>mpk</string>
-                    <string>mbm</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>NSF File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.nsf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>nsf</string>
+					<string>nsfe</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>MSX File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.msx</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>kss</string>
+					<string>mgs</string>
+					<string>opx</string>
+					<string>mpk</string>
+					<string>mbm</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

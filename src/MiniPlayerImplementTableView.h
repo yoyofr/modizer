@@ -77,7 +77,7 @@
                 temp_playlist->entries[i].playcounts=-1;
             }
             temp_playlist->nb_entries=detailViewController.mPlaylist_size;
-            temp_playlist->playlist_name=@"Now playing";
+            temp_playlist->playlist_name=NSLocalizedString(@"Now playing",@"");
             temp_playlist->playlist_id=nil;
             
             RootViewControllerPlaylist *nowplayingPL = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];

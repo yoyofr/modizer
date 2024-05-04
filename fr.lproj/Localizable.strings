@@ -1,319 +1,716 @@
-/*
- Localizable.strings
- modizer
- 
- Created by yoyofr on 21/10/10.
- Copyright 2010 __MyCompanyName__. All rights reserved.
- */
+/* No comment provided by engineer. */
+"\nDue to internal changes, settings will be reseted to default and database will be cleaned.\n\nAs a consequence, some entries might disappear from existing playlist.\n\n\n\n" = "Suite à des changements internes, les réglages vont être réinitialisés et la BD nettoyée.\n\nEn conséquence, des entrées peuvent disparaître dans les playlists.";
 
-//Localizable.String file for the French version.
-"Browser_LocalBrowsing_MainKey"="Fichiers locaux";
-"Browser_LocalBrowsing_SubKey"="Parcourir, écouter, supprimer.";
+/* (No Comment) */
+"[Please describe your request below]" = "[Veuillez décrire votre requête ci-dessous]";
 
-"Browser_MODLAND_MainKey"="MODLAND collection";
-"Browser_MODLAND_SubKey"="%d fichiers téléchargeables.";
+/* No comment provided by engineer. */
+"%d entries" = "%d entrées";
 
-"Browser_HVSC_MainKey"="HVSC collection";
-"Browser_HVSC_SubKey"="%d fichiers téléchargeables.";
+/* (No Comment) */
+"%d files." = "%d fichiers.";
 
-"Browser_Playlists_MainKey"="Listes de lecture";
-"Browser_Playlists_SubKey"="Organiser, créer, supprimer & écouter.";
+/* No comment provided by engineer. */
+"1 entry" = "1 entrée";
 
-"Browser_Favorites_MainKey"="Favoris";
-"Browser_Favorites_SubKey"="Ecouter les fichiers les mieux notés.";
+/* (No Comment) */
+"1 file." = "1 fichier.";
 
-"Browser_Most_played_MainKey"="Les plus joués";
-"Browser_Most_played_SubKey"="Ecouter les fichiers les plus joués.";
+/* No comment provided by engineer. */
+"About" = "A propos";
 
-"Browser_Web_MainKey"="Web";
-"Browser_Web_SubKey"="Naviguer et télécharger des fichiers.";
+/* No comment provided by engineer. */
+"Add a playlist..." = "Ajouter une liste";
 
-"Browser_WebVGM_MainKey"="VGMRips";
-"Browser_WebVGM_SubKey"="Video game music rips";
+/* No comment provided by engineer. */
+"Add archive entry" = "Ajouter l'entrée d'archive";
 
+/* No comment provided by engineer. */
+"Add current file" = "Ajouter le fichier";
 
-"Browser_WorldCharts_MainKey"="Classements mondial";
-"Browser_WorldCharts_SubKey"="Top listes & liens.";
+/* No comment provided by engineer. */
+"Add current subsong" = "Ajouter le subsong";
 
-"Browser_UserGuide_MainKey"="Guide d'utilisation";
-"Browser_UserGuide_SubKey"="Manuel, FAQ, astuces.";
+/* (No Comment) */
+"Add or remove entries from browser." = "Ajouter ou supprimer des entrées.";
 
-"GetAllEntries_MainKey"="Tout télécharger";
-"GetAllEntries_SubKey"="Limité à 256 téléchargements.";
+/* (No Comment) */
+"Add to a playlist" = "Ajouter à une liste";
 
-"DisplayAll_MainKey"="Lister tout trié par nom";
-"DisplayAll_SubKey"="Dossier courant:";
+/* No comment provided by engineer. */
+"Add to favorites" = "Ajouter aux favoris";
 
-"DisplayDir_MainKey"="Lister/Dossier";
-"DisplayDir_SubKey"="Tout trié par chemin:";
+/* No comment provided by engineer. */
+"Add/Remove files..." = "Ajouter/Supprimer fichiers...";
 
-"DisplayAllPath_MainKey"="Lister tout trié par chemin";
-"DisplayAllPath_SubKey"="Tout trié par nom:";
+/* (No Comment) */
+"All voices" = "Toutes les voix";
 
-"Formats/Artists/Files"="Formats/Artistes/Fichiers";
-"Artists/Formats/Files"="Artistes/Formats/Fichiers";
-"Artists/Files"="Artistes/Fichiers";
-"Formats: %d entries."="Formats: %d entrées.";
-"Artists: %d entries."="Artistes: %d entrées.";
-
-"Played %d times."="Joué %d fois.";
-"Played once."="Joué 1 fois.";
-"Never played."="Jamais joué.";
-"%d files."="%d fichiers.";
-"1 file."="1 fichier.";
-
-"New playlist"="Nouvelle liste";
-"Save current one"="Sauver liste en cours";
-
-"Create a new empty playlist."="Créer une nouvelle liste vide.";
-"Create a playlist from currently played files."="Sauve la liste en cours d'écoute.";
-
-"Browse files"="Parcourir les fichiers";
-"Add or remove entries from browser."="Ajouter/supprimer des fichiers.";
-
-
-"Rename playlist"="Renommer la liste";
-"Choose a new name."="Choisir un nouveau nom.";
-
-"Playlist (%d)"="Listes (%d)";
-"Playlist/Search off"="Listes/Recherche off";
-
-"Local (%d, limited to %d)"="Local (%d, limité à %d)";
-"Local (%d)"="Local (%d)";
-"Local/Search off"="Local/Recherche off";
-
-"Modland (%d, limited to %d)"="Modland (%d, limité à %d)";
-"Modland (%d)"="Modland (%d)";
-"Modland/Search off"="Modland/Recherche off";
-
-"HVSC (%d, limited to %d)"="HVSC (%d, limité à %d)";
-"HVSC (%d)"="HVSC (%d)";
-"HVSC/Search off"="HVSC/Recherche off";
-
-"Searching Playlists..."="Recherche listes...";
-"Searching Local files..."="Recherche en local...";
-"Searching MODLAND..."="Recherche MODLAND...";
-"Searching HVSC..."="Recherche HVSC...";
-
-"Please enter at least 2 characters for your search."="Entrez au moins 2 caractères svp.";
-"Please activate at least 1 section for your search."="Activez au moins 1 section svp.";
-
-"Database created."="Base de données créée.";
-"Database will now be recreated. Please validate & wait."="La base de donnée va être recréée. Veuillez valider et patienter svp.";
-"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait."="Mauvaise version : %d.%d. Veuillez valider et patienter pour mettre à jour en %d.%d svp.";
-"No database found. Will create a new one. Please validate & wait..."="Pas de base de données. Veuillez svp valider et patienter pendant la création.";
-"File already available locally. Do you want to download it again?"="Fichier déjà disponible. Souhaitez vous poursuivre le téléchargement ?";
-"Playlist is full. Delete some entries to add more."="La liste est pleine. Veuillez supprimer des entrées.";
-
-
-"No download in progress"="Pas de téléchargement en cours";
-"Downloaded %@"="%@ téléchargé";
-"Could not add files. Please check manually with file browser (Local Browsing/Downloads)."="Les fichiers n'ont pas pu être ajoutés. Veuillez vérifier manuellement dans le dossier 'Downloads'.";
-"Downloading %@"="Télécharge %@";
-"Cannot download from this URL."="Téléchargement impossible depuis cette URL.";
-
-"Yes"="Oui";
-"No"="Non";
-"Error"="Erreur";
-"Warning"="Attention";
-"Close"="Fermer";
-"First launch or issue encountered last time Modizer was running. Apply default settings ?"="Premier lancement ou problème lors du dernier. Appliquer les réglages par défaut ?";
-"File cannot be played. Skipping to next playable file."="Ne pas jouer le fichier. Saut jusqu'au prochain fichier jouable.";
-"Seeking %d%%"="Recherche %d%%";
-"Seeking"="Recherche";
-"Loading"="Chargement";
-"Extracting"="Décompression";
-"Too much entries! Playlist will be limited to %d first entries."="Trop d'entrées! La liste est limitée à %d entrées.";
-"Size: %dKB"="Taille: %dKB";
-
-"URL have to start with ftp:// or http://"="L'URL doit commencer par ftp:// ou http://";
-
-"Settings_General"="General";
-"Settings_Player"="Lecteur";
-"Settings_Display"="Affichage";
-"Settings_Download"="Téléchargement";
-"Settings_FTP"="FTP";
-"Settings_PlaybackLib"="Bibliothèques de lecture";
-"Settings_DB"="Base de données";
-"Settings_CleanDB"="Nettoyage de la base";
-"Settings_ResetPlCnt"="Reset des compteurs de lecture";
-"Settings_ResetRatings"="Reset des notes";
-"Settings_ResetDB"="Reset complet de la base";
-"Settings_LocalFiles"="Fichiers locaux";
-"Settings_RecreateSamples"="Recréer le dossier 'Samples'";
-"Settings_FormatDownloads"="Formater le dossier 'Downloads'";
-"Settings_RemCovers"="Supprimer jaquettes";
-"Settings_UpdateFilesBackupFlag"="Verifier fichiers";
-
-"Clean Database"="Nettoyage de la base";
-"Recreate Samples folder"="Recréer le dossier Samples";
-"Reset settings to default"="Reinit. les réglages";
-"Remove current cover"="Supprimer la jaquette";
-"Reset Ratings"="Reset des notes";
-"Reset Played Counters"="Reset des compteurs de lecture";
-"Reset Database"="Reset complet de la base";
-
-"Database cleaned"="Base nettoyée";
-"Samples folder created"="Dossier Samples recréé";
-"Database reseted"="Base reinitialisée";
-"Cover removed"="Jaquette supprimée";
-"Settings reseted"="Réglages reinitialisés";
-"Ratings reseted"="Notes reinitialisées";
-"Played Counters reseted"="Compteurs de lecture reinitialisés";
-"No cover to remove"="Pas de jaquette à supprimer";
-
-"Confirm_DBClean"="Lancer le nettoyage de la base (potentiellement long) ?";
-"Confirm_Reset_PlCnt"="Voulez vous reinitialiser les compteurs de lecture ?";
-"Confirm_Reset_Ratings"="Voulez vous reinitialiser les notes ?";
-"Confirm_ResetDB"="Voulez vous reinitialiser toute la base de donées ? Les listes, notes et compteurs de lecture seront effacés.";
-"Confirm_RecreateSamples"="Voulez vous recréer le dossier 'Samples' ?";
-"Confirm_FormatDownloads"="Voulez vous formater le dossier 'Downloads' ?";
-"Confirm_CheckFiles"="Voulez vous effectuer la maintenance des fichiers locaux ?";
-
-"Image detected"="Image détectée";
-"Choose_SaveCover"="Enregistrer comme jaquette pour %@ ?";
-"CoverFolder"="Jaquette/Dossier";
-"CoverFile"="Jaquette/Fichier";
-
-"Confirm_RemCurCovers"="Effacer les couvertures de %@ (fichier et dossier) ?";
-"Settings_Settings"="Réglages";
-"Settings_SettingsDefault"="Défaut";
-"Settings_SettingsHigh"="Haut";
-"Settings_SettingsMed"="Moyen";
-"Settings_SettingsLow"="Bas";
-"Confirm_SettingsDef"="Voulez vous réinitialiser les réglages avec les valeurs par défaut ?";
-"Confirm_SettingsHigh"="Voulez vous réinitialiser les réglages avec les valeurs hautes ?";
-"Confirm_SettingsMed"="Voulez vous réinitialiser les réglages avec les valeurs moyennes ?";
-"Confirm_SettingsLow"="Voulez vous réinitialiser les réglages avec les valeurs basses ?";
-
-"Browser not enough mem."="Trop d'entrées, ne peut allouer assez de mémoire.";
-"Browser not enough mem. Limited."="Trop d'entrées, ne peut allouer assez de mémoire. Liste tronquée.";
-
-"Default length %d:%.2d"="Durée par défaut %d:%.2d";
-
-"Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";
-"Issue %d while trying to renamefile.\n%@"="Erreur %d lors de la tentative de renommage.\n%@";
-"Issue %d while moving: %@.\n%@"="Erreur %d lors de la tentative de déplacement: %@.\n%@";
-"Issue %d while creating folder\n%@"="Erreur %d lors de la tentative de création du dossier\n%@";
-"Cannot use iCloud as folder name"="Ne peut pas utiliser iCloud comme nom de dossier";
-
-"Filter"="Filtre";
-
-"Create a new playlist"="Créer une nouvelle liste";
-"Most played files"="Fichiers les plus joués";
-"Add a playlist..."="Ajouter une liste";
-"Now playing..."="Lecture en cours...";
-"No entry"="Aucune entrée";
-"%d entries"="%d entrées";
-"1 entry"="1 entrée";
-"Most played..."="Les plus joués...";
-"Favorites..."="Favoris...";
-"Rated files"="Fichiers notés";
-"Add/Remove files..."="Ajouter/Supprimer fichiers...";
-"Add or remove entries from browser."="Ajouter ou supprimer des entrées.";
-"More actions..."="Plus d'actions...";
-
-
-
-
-"Rename"="Renommer";
-"Edit"="Editer";
-"Shuffle"="Mélanger";
-"Sort A->Z"="Tri A->Z";
-"Sort Z->A"="Tri Z->A";
-"Delete"="Supprimer";
-"Cancel"="Annuler";
-"Save"="Sauver";
-"Playlist name"="Nom de la liste";
-
-"Now playing"="Lecture en cours";
-"Now playing (%d)"="Lecture en cours (%d)";
-"Most played"="Les plus joués";
-"Most played (%d)"="Les plus joués (%d)";
-"Most played entries"="Entrées les plus jouées";
-"Most played entries (%d)"="Entrées les plus jouées (%d)";
-"Liked entries"="Entrées likées";
-"Liked entries (%d)"="Entrées likées (%d)";
-"Favorites"="Favoris";
-"Favorites (%d)"="Favoris (%d)";
-"Random"="Au hasard";
-"Random picks"="Choix aléatoires";
-"Generate a randomized playlist"="Générer une liste aléatoire";
-
-"Enter new name"="Entrez le nouveau nom";
-"Enter playlist name"="Entrez le nom de la liste";
-
-"About"="A propos";
-"Some general informations"="Informations générales";
-"Settings"="Réglages";
-"Downloads"="Téléchargements";
-"Clean DB, Reset ratings, ..."="Nettoyage DB, raz des notes, ...";
-"Download queue: 1 file"="File de téléchargement: 1 fichier";
-"Download queue: %d files"="File de téléchargement: %d fichiers";
-"General Settings"="Réglages généraux";
-
-"Choose a subsong"="Liste des subsongs";
-"Choose a song"="Liste des morceaux";
-
-"Extract" = "Extraire";
-"Rename" = "Renommer";
-"Delete" = "Effacer";
-"Cut" = "Couper";
-"Paste" = "Coller";
-"New folder" = "Nv.dossier";
-
-"Are you sure you want to delete this playlist ?" = "Etes vous sûr de vouloir supprimer cette liste ?";
+/* (No Comment) */
 "Are you sure you want to delete this entry ?" = "Etes vous sûr de vouloir supprimer cette entrée ?";
 
-"Nothing to paste"="Rien à coller";
-"Enter folder name"="Entrez le nom du dossier";
-"No file to extract or not supported archive format.\n"="Pas de fichier à extraire ou format archive non supporté.\n";
+/* (No Comment) */
+"Are you sure you want to delete this playlist ?" = "Etes vous sûr de vouloir supprimer cette liste ?";
 
-"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application."="Fichier absent de l'appareil.\nDémarrage du téléchargement depuis iCloud, veuillez vérifier dans l'application 'Fichiers'.";
+/* (No Comment) */
+"Artists: %d entries." = "Artistes: %d entrées.";
 
-"Mail support"="Mail support";
-"Contact support by email"="Contacter le support par email";
+/* (No Comment) */
+"Artists/Files" = "Artistes/Fichiers";
 
-"[Please describe your request below]"="[Veuillez décrire votre requête ci-dessous]";
+/* (No Comment) */
+"Artists/Formats/Files" = "Artistes/Formats/Fichiers";
 
-"Voices control"="Contrôle des voix";
-"All voices"="Toutes les voix";
+/* No comment provided by engineer. */
+"ASMA/Search off" = "ASMA/Recherche off";
 
-"Browsing"="Browsing";
+/* No comment provided by engineer. */
+"available" = "disponible";
 
-"Refreshing"="Mise à jour";
+/* No comment provided by engineer. */
+"Blue" = "Bleu";
 
-"Previous"="Précédent";
-"Previous file"="Fichier précédent";
-"Next file"="Fichier suivant";
-"Next"="Suivant";
+/* No comment provided by engineer. */
+"Bookmarks" = "Favoris";
 
-"Clear 'Now Playing' queue"="Reset 'Lecture en cours'";
+/* No comment provided by engineer. */
+"Brightness" = "Luminosité";
 
+/* (No Comment) */
+"Browse files" = "Parcourir les fichiers";
 
-"Resuming last\nplayed file"="Reprise du dernier\nfichier en cours";
+/* No comment provided by engineer. */
+"Browse Internet" = "Parcourir Internet";
 
-"Add to a playlist"="Ajouter à une liste";
-"Choose a playlist"="Choisissez une liste";
+/* (No Comment) */
+"Browser not enough mem." = "Trop d'entrées, ne peut allouer assez de mémoire.";
 
-"Thousands of entries"="Des milliers d'entrées";
+/* (No Comment) */
+"Browser not enough mem. Limited." = "Trop d'entrées, ne peut allouer assez de mémoire. Liste tronquée.";
 
-"Clear images cache"="Vider le cache d'images";
-"Cache cleaned"="Cache vidé";
+/* (No Comment) */
+"Browser_Favorites_MainKey" = "Favoris";
 
-"Add to favorites"="Ajouter aux favoris";
-"Remove from favorites"="Supprimer des favoris";
+/* (No Comment) */
+"Browser_Favorites_SubKey" = "Ecouter les fichiers les mieux notés.";
 
-"Now playing(%d)"="Lecture en cours(%d)";
+/* (No Comment) */
+"Browser_HVSC_MainKey" = "HVSC collection";
 
-/*Settings*/
-"Search: simplified regexp ('.'->'\\.', '*'->'.*')"="Recherche: regexp simplifiées ('.'->'\\.', '*'->'.*')";
-"Resume position on launch"="Reprise position de lecture au démarrage";
-"Default length"="Durée par défaut";
-"NSFPLAY Default length"="NSFPLAY durée par défaut";
+/* (No Comment) */
+"Browser_HVSC_SubKey" = "%d fichiers téléchargeables.";
 
-/*Launch popup*/
-"Cleaning DB & \nreseting settings"="Nettoyage de la DB & \nréinitialisation des réglages";
+/* Localizable.String file for the English version. */
+"Browser_LocalBrowsing_MainKey" = "Fichiers locaux";
 
-/*Waiting View*/
-"Cancelling..."="Annulation...";
+/* (No Comment) */
+"Browser_LocalBrowsing_SubKey" = "Parcourir, écouter, supprimer.";
+
+/* (No Comment) */
+"Browser_MODLAND_MainKey" = "MODLAND collection";
+
+/* (No Comment) */
+"Browser_MODLAND_SubKey" = "%d fichiers téléchargeables.";
+
+/* (No Comment) */
+"Browser_Most_played_MainKey" = "Les plus joués";
+
+/* (No Comment) */
+"Browser_Most_played_SubKey" = "Ecouter les fichiers les plus joués.";
+
+/* (No Comment) */
+"Browser_Playlists_MainKey" = "Listes de lecture";
+
+/* (No Comment) */
+"Browser_Playlists_SubKey" = "Organiser, créer, supprimer & écouter.";
+
+/* (No Comment) */
+"Browser_UserGuide_MainKey" = "Guide d'utilisation";
+
+/* (No Comment) */
+"Browser_UserGuide_SubKey" = "Manuel, FAQ, astuces.";
+
+/* (No Comment) */
+"Browser_Web_MainKey" = "Web";
+
+/* (No Comment) */
+"Browser_Web_SubKey" = "Naviguer et télécharger des fichiers.";
+
+/* (No Comment) */
+"Browser_WebVGM_MainKey" = "VGMRips";
+
+/* (No Comment) */
+"Browser_WebVGM_SubKey" = "Video game music rips";
+
+/* (No Comment) */
+"Browser_WorldCharts_SubKey" = "Top listes & liens.";
+
+/* (No Comment) */
+"Browsing" = "Browsing";
+
+/* No comment provided by engineer. */
+"Cache cleaned" = "Cache vidé";
+
+/* Cancel Action */
+"Cancel" = "Annuler";
+
+/* Waiting View */
+"Cancelling..." = "Annulation...";
+
+/* (No Comment) */
+"Cannot download from this URL." = "Téléchargement impossible depuis cette URL.";
+
+/* (No Comment) */
+"Cannot use iCloud as folder name" = "Ne peut pas utiliser iCloud comme nom de dossier";
+
+/* (No Comment) */
+"Choose a new name." = "Choisir un nouveau nom.";
+
+/* (No Comment) */
+"Choose a playlist" = "Choisissez une liste";
+
+/* Choose a song */
+"Choose a song" = "Liste des morceaux";
+
+/* Choose a subsong */
+"Choose a subsong" = "Liste des subsongs";
+
+/* (No Comment) */
+"Choose_SaveCover" = "Enregistrer comme jaquette pour %@ ?";
+
+/* No comment provided by engineer. */
+"Clean Database" = "Nettoyage de la base";
+
+/* No comment provided by engineer. */
+"Clean DB, Reset ratings, ..." = "Nettoyage DB, raz des notes, ...";
+
+/* Launch popup */
+"Cleaning DB & \nreseting settings" = "Nettoyage de la DB & \nréinitialisation des réglages";
+
+/* (No Comment) */
+"Clear 'Now Playing' queue" = "Reset 'Lecture en cours'";
+
+/* No comment provided by engineer. */
+"Clear images cache" = "Vider le cache d'images";
+
+/* (No Comment) */
+"Close" = "Fermer";
+
+/* (No Comment) */
+"Confirm_CheckFiles" = "Voulez vous effectuer la maintenance des fichiers locaux ?";
+
+/* (No Comment) */
+"Confirm_DBClean" = "Lancer le nettoyage de la base (potentiellement long) ?";
+
+/* (No Comment) */
+"Confirm_FormatDownloads" = "Voulez vous formater le dossier 'Downloads' ?";
+
+/* (No Comment) */
+"Confirm_RecreateSamples" = "Voulez vous recréer le dossier 'Samples' ?";
+
+/* (No Comment) */
+"Confirm_RemCurCovers" = "Effacer les couvertures de %@ (fichier et dossier) ?";
+
+/* (No Comment) */
+"Confirm_Reset_PlCnt" = "Voulez vous reinitialiser les compteurs de lecture ?";
+
+/* (No Comment) */
+"Confirm_Reset_Ratings" = "Voulez vous reinitialiser les notes ?";
+
+/* (No Comment) */
+"Confirm_ResetDB" = "Voulez vous reinitialiser toute la base de donées ? Les listes, notes et compteurs de lecture seront effacés.";
+
+/* (No Comment) */
+"Confirm_SettingsDef" = "Voulez vous réinitialiser les réglages avec les valeurs par défaut ?";
+
+/* (No Comment) */
+"Confirm_SettingsHigh" = "Voulez vous réinitialiser les réglages avec les valeurs hautes ?";
+
+/* (No Comment) */
+"Confirm_SettingsLow" = "Voulez vous réinitialiser les réglages avec les valeurs basses ?";
+
+/* (No Comment) */
+"Confirm_SettingsMed" = "Voulez vous réinitialiser les réglages avec les valeurs moyennes ?";
+
+/* (No Comment) */
+"Contact support by email" = "Contacter le support par email";
+
+/* (No Comment) */
+"Could not add files. Please check manually with file browser (Local Browsing/Downloads)." = "Les fichiers n'ont pas pu être ajoutés. Veuillez vérifier manuellement dans le dossier 'Downloads'.";
+
+/* No comment provided by engineer. */
+"Cover removed" = "Jaquette supprimée";
+
+/* (No Comment) */
+"CoverFile" = "Jaquette/Fichier";
+
+/* (No Comment) */
+"CoverFolder" = "Jaquette/Dossier";
+
+/* (No Comment) */
+"Create a new empty playlist." = "Créer une nouvelle liste vide.";
+
+/* No comment provided by engineer. */
+"Create a new playlist" = "Créer une nouvelle liste";
+
+/* (No Comment) */
+"Create a playlist from currently played files." = "Sauve la liste en cours d'écoute.";
+
+/* (No Comment) */
+"Cut" = "Couper";
+
+/* No comment provided by engineer. */
+"Database cleaned" = "Base nettoyée";
+
+/* (No Comment) */
+"Database created." = "Base de données créée.";
+
+/* No comment provided by engineer. */
+"Database reseted" = "Base reinitialisée";
+
+/* (No Comment) */
+"Database will now be recreated. Please validate & wait." = "La base de donnée va être recréée. Veuillez valider et patienter svp.";
+
+/* (No Comment) */
+"Default length" = "Durée par défaut";
+
+/* (No Comment) */
+"Default length %d:%.2d" = "Durée par défaut %d:%.2d";
+
+/* (No Comment) */
+"Delete" = "Effacer";
+
+/* (No Comment) */
+"DisplayAll_MainKey" = "Lister tout trié par nom";
+
+/* (No Comment) */
+"DisplayAll_SubKey" = "Dossier courant:";
+
+/* (No Comment) */
+"DisplayAllPath_MainKey" = "Lister tout trié par chemin";
+
+/* (No Comment) */
+"DisplayAllPath_SubKey" = "Tout trié par nom:";
+
+/* (No Comment) */
+"DisplayDir_MainKey" = "Lister/Dossier";
+
+/* (No Comment) */
+"DisplayDir_SubKey" = "Tout trié par chemin:";
+
+/* No comment provided by engineer. */
+"Download queue: %d files" = "File de téléchargement: %d fichiers";
+
+/* No comment provided by engineer. */
+"Download queue: 1 file" = "File de téléchargement: 1 fichier";
+
+/* (No Comment) */
+"Downloaded %@" = "%@ téléchargé";
+
+/* (No Comment) */
+"Downloading %@" = "Télécharge %@";
+
+/* No comment provided by engineer. */
+"Downloads" = "Téléchargements";
+
+/* No comment provided by engineer. */
+"Edit" = "Editer";
+
+/* (No Comment) */
+"Enter folder name" = "Entrez le nom du dossier";
+
+/* No comment provided by engineer. */
+"Enter new name" = "Entrez le nouveau nom";
+
+/* No comment provided by engineer. */
+"Enter playlist name" = "Entrez le nom de la liste";
+
+/* (No Comment) */
+"Error" = "Erreur";
+
+/* (No Comment) */
+"Extract" = "Extraire";
+
+/* (No Comment) */
+"Extracting" = "Décompression";
+
+/* (No Comment) */
+"Favorites" = "Favoris";
+
+/* No comment provided by engineer. */
+"Favorites (%d)" = "Favoris (%d)";
+
+/* No comment provided by engineer. */
+"Favorites..." = "Favoris...";
+
+/* (No Comment) */
+"File already available locally. Do you want to download it again?" = "Fichier déjà disponible. Souhaitez vous poursuivre le téléchargement ?";
+
+/* (No Comment) */
+"File cannot be played. Skipping to next playable file." = "Ne pas jouer le fichier. Saut jusqu'au prochain fichier jouable.";
+
+/* (No Comment) */
+"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application." = "Fichier absent de l'appareil.\nDémarrage du téléchargement depuis iCloud, veuillez vérifier dans l'application 'Fichiers'.";
+
+/* (No Comment) */
+"Formats: %d entries." = "Formats: %d entrées.";
+
+/* (No Comment) */
+"Formats/Artists/Files" = "Formats/Artistes/Fichiers";
+
+/* No comment provided by engineer. */
+"Games Music" = "Musiques de jeux";
+
+/* No comment provided by engineer. */
+"General Settings" = "Réglages généraux";
+
+/* No comment provided by engineer. */
+"Generate a randomized playlist" = "Générer une liste aléatoire";
+
+/* (No Comment) */
+"GetAllEntries_MainKey" = "Tout télécharger";
+
+/* (No Comment) */
+"GetAllEntries_SubKey" = "Limité à 256 téléchargements.";
+
+/* (No Comment) */
+"HVSC (%d, limited to %d)" = "HVSC (%d, limité à %d)";
+
+/* (No Comment) */
+"HVSC (%d)" = "HVSC (%d)";
+
+/* (No Comment) */
+"HVSC/Search off" = "HVSC/Recherche off";
+
+/* (No Comment) */
+"Image detected" = "Image détectée";
+
+/* (No Comment) */
+"Issue %d while creating folder\n%@" = "Erreur %d lors de la tentative de création du dossier\n%@";
+
+/* (No Comment) */
+"Issue %d while moving: %@.\n%@" = "Erreur %d lors de la tentative de déplacement: %@.\n%@";
+
+/* (No Comment) */
+"Issue %d while trying to delete entry.\n%@" = "Erreur %d lors de la tentative de suppression.\n%@";
+
+/* (No Comment) */
+"Issue %d while trying to renamefile.\n%@" = "Erreur %d lors de la tentative de renommage.\n%@";
+
+/* (No Comment) */
+"Loading" = "Chargement";
+
+/* No comment provided by engineer. */
+"Loading & parsing" = "Charge & analyse";
+
+/* (No Comment) */
+"Local (%d, limited to %d)" = "Local (%d, limité à %d)";
+
+/* (No Comment) */
+"Local (%d)" = "Local (%d)";
+
+/* (No Comment) */
+"Local/Search off" = "Local/Recherche off";
+
+/* (No Comment) */
+"Mail support" = "Contacter le support";
+
+/* (No Comment) */
+"Modland (%d, limited to %d)" = "Modland (%d, limité à %d)";
+
+/* (No Comment) */
+"Modland (%d)" = "Modland (%d)";
+
+/* (No Comment) */
+"Modland/Search off" = "Modland/Recherche off";
+
+/* No comment provided by engineer. */
+"More actions..." = "Plus d'actions...";
+
+/* (No Comment) */
+"Most played" = "Les plus joués";
+
+/* No comment provided by engineer. */
+"Most played (%d)" = "Les plus joués (%d)";
+
+/* No comment provided by engineer. */
+"Most played..." = "Les plus joués...";
+
+/* (No Comment) */
+"Never played." = "Jamais joué.";
+
+/* (No Comment) */
+"New folder" = "Nv.dossier";
+
+/* (No Comment) */
+"New playlist" = "Nouvelle liste";
+
+/* (No Comment) */
+"Next" = "Suivant";
+
+/* (No Comment) */
+"Next file" = "Fichier suivant";
+
+/* (No Comment) */
+"No" = "Non";
+
+/* No comment provided by engineer. */
+"No cover to remove" = "Pas de jaquette à supprimer";
+
+/* (No Comment) */
+"No database found. Will create a new one. Please validate & wait..." = "Pas de base de données. Veuillez svp valider et patienter pendant la création.";
+
+/* (No Comment) */
+"No download in progress" = "Pas de téléchargement en cours";
+
+/* No comment provided by engineer. */
+"No entry" = "Aucune entrée";
+
+/* (No Comment) */
+"No file to extract or not supported archive format.\n" = "Pas de fichier à extraire ou format archive non supporté.\n";
+
+/* No comment provided by engineer. */
+"Nothing currently playing. Please select a file." = "Pas de lecture en cours. Veuillez choisir un ficher.";
+
+/* (No Comment) */
+"Nothing to paste" = "Rien à coller";
+
+/* (No Comment) */
+"Now playing" = "Lecture en cours";
+
+/* No comment provided by engineer. */
+"Now playing..." = "Lecture en cours...";
+
+/* (No Comment) */
+"Now playing(%d)" = "Lecture en cours(%d)";
+
+/* No comment provided by engineer. */
+"Other" = "Autre";
+
+/* (No Comment) */
+"Paste" = "Coller";
+
+/* (No Comment) */
+"Played %d times." = "Joué %d fois.";
+
+/* No comment provided by engineer. */
+"Played Counters reseted" = "Compteurs de lecture reinitialisés";
+
+/* (No Comment) */
+"Played once." = "Joué 1 fois.";
+
+/* (No Comment) */
+"Playlist (%d)" = "Listes (%d)";
+
+/* (No Comment) */
+"Playlist is full. Delete some entries to add more." = "La liste est pleine. Veuillez supprimer des entrées.";
+
+/* (No Comment) */
+"Playlist/Search off" = "Listes/Recherche off";
+
+/* (No Comment) */
+"Please activate at least 1 section for your search." = "Activez au moins 1 section svp.";
+
+/* No comment provided by engineer. */
+"Please choose" = "Choisissez svp";
+
+/* (No Comment) */
+"Please enter at least 2 characters for your search." = "Entrez au moins 2 caractères svp.";
+
+/* (No Comment) */
+"Previous" = "Précédent";
+
+/* (No Comment) */
+"Previous file" = "Fichier précédent";
+
+/* No comment provided by engineer. */
+"Random picks" = "Choix aléatoires";
+
+/* No comment provided by engineer. */
+"Ratings reseted" = "Notes reinitialisées";
+
+/* No comment provided by engineer. */
+"Recreate Samples folder" = "Recréer le dossier Samples";
+
+/* (No Comment) */
+"Refreshing" = "Mise à jour";
+
+/* No comment provided by engineer. */
+"Remove current cover" = "Supprimer la jaquette";
+
+/* No comment provided by engineer. */
+"Remove from favorites" = "Supprimer des favoris";
+
+/* (No Comment) */
+"Rename" = "Renommer";
+
+/* (No Comment) */
+"Rename playlist" = "Renommer la liste";
+
+/* No comment provided by engineer. */
+"Reset Database" = "Reset complet de la base";
+
+/* No comment provided by engineer. */
+"Reset Played Counters" = "Reset des compteurs de lecture";
+
+/* No comment provided by engineer. */
+"Reset Ratings" = "Reset des notes";
+
+/* No comment provided by engineer. */
+"Reset settings to default" = "Reinit. les réglages";
+
+/* (No Comment) */
+"Resume position on launch" = "Reprise position de lecture au démarrage";
+
+/* (No Comment) */
+"Resuming last\nplayed file" = "Reprise du dernier\nfichier en cours";
+
+/* No comment provided by engineer. */
+"Samples folder created" = "Dossier Samples recréé";
+
+/* No comment provided by engineer. */
+"Save" = "Sauver";
+
+/* (No Comment) */
+"Save current one" = "Sauver liste en cours";
+
+/* Settings */
+"Search: simplified regexp ('.'->'\\.', '*'->'.*')" = "Recherche: regexp simplifiées ('.'->'\\.', '*'->'.*')";
+
+/* (No Comment) */
+"Searching HVSC..." = "Recherche HVSC...";
+
+/* (No Comment) */
+"Searching Local files..." = "Recherche en local...";
+
+/* (No Comment) */
+"Searching MODLAND..." = "Recherche MODLAND...";
+
+/* (No Comment) */
+"Searching Playlists..." = "Recherche listes...";
+
+/* (No Comment) */
+"Seeking" = "Recherche";
+
+/* (No Comment) */
+"Seeking %d%%" = "Recherche %d%%";
+
+/* No comment provided by engineer. */
+"Settings" = "Réglages";
+
+/* No comment provided by engineer. */
+"Settings reseted" = "Réglages reinitialisés";
+
+/* (No Comment) */
+"Settings_CleanDB" = "Nettoyage de la base";
+
+/* (No Comment) */
+"Settings_DB" = "Base de données";
+
+/* (No Comment) */
+"Settings_Display" = "Affichage";
+
+/* (No Comment) */
+"Settings_Download" = "Téléchargement";
+
+/* (No Comment) */
+"Settings_FormatDownloads" = "Formater le dossier 'Downloads'";
+
+/* (No Comment) */
+"Settings_FTP" = "FTP";
+
+/* (No Comment) */
+"Settings_General" = "General";
+
+/* (No Comment) */
+"Settings_LocalFiles" = "Fichiers locaux";
+
+/* (No Comment) */
+"Settings_PlaybackLib" = "Bibliothèques de lecture";
+
+/* (No Comment) */
+"Settings_Player" = "Lecteur";
+
+/* (No Comment) */
+"Settings_RecreateSamples" = "Recréer le dossier 'Samples'";
+
+/* (No Comment) */
+"Settings_RemCovers" = "Supprimer jaquettes";
+
+/* (No Comment) */
+"Settings_ResetDB" = "Reset complet de la base";
+
+/* (No Comment) */
+"Settings_ResetPlCnt" = "Reset des compteurs de lecture";
+
+/* (No Comment) */
+"Settings_ResetRatings" = "Reset des notes";
+
+/* (No Comment) */
+"Settings_Settings" = "Réglages";
+
+/* (No Comment) */
+"Settings_SettingsDefault" = "Défaut";
+
+/* (No Comment) */
+"Settings_SettingsHigh" = "Haut";
+
+/* (No Comment) */
+"Settings_SettingsLow" = "Bas";
+
+/* (No Comment) */
+"Settings_SettingsMed" = "Moyen";
+
+/* (No Comment) */
+"Settings_UpdateFilesBackupFlag" = "Verifier fichiers";
+
+/* (No Comment) */
+"Shuffle" = "Mélanger";
+
+/* (No Comment) */
+"Size: %dKB" = "Taille: %dKB";
+
+/* No comment provided by engineer. */
+"Some general informations" = "Informations générales";
+
+/* No comment provided by engineer. */
+"Sort A->Z" = "Tri A->Z";
+
+/* No comment provided by engineer. */
+"Sort A->Z (fullpath)" = "Tri A->Z\n(chemin complet)";
+
+/* No comment provided by engineer. */
+"Sort Z->A" = "Tri Z->A";
+
+/* No comment provided by engineer. */
+"Sort Z->A (fullpath)" = "Tri Z->A\n(chemin complet)";
+
+/* No comment provided by engineer. */
+"Thousands of entries" = "Des milliers d'entrées";
+
+/* (No Comment) */
+"Too much entries! Playlist will be limited to %d first entries." = "Trop d'entrées! La liste est limitée à %d entrées.";
+
+/* No comment provided by engineer. */
+"unavailable" = "indisponible";
+
+/* (No Comment) */
+"URL have to start with ftp:// or http://" = "L'URL doit commencer par ftp:// ou http://";
+
+/* Voices control */
+"Voices control" = "Contrôle des voix";
+
+/* (No Comment) */
+"Warning" = "Attention";
+
+/* No comment provided by engineer. */
+"Web browser" = "Navigateur web";
+
+/* (No Comment) */
+"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Mauvaise version : %d.%d. Veuillez valider et patienter pour mettre à jour en %d.%d svp.";
+
+/* (No Comment) */
+"Yes" = "Oui";
+
+"Visualizers"="Visualiseurs";
+
