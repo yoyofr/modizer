@@ -101,7 +101,7 @@ namespace xgm
       trkinfo[1].key = length_counter[1]>0 && enable[1] &&
                        (envelope_disable ? (noise_volume>0) : (envelope_counter>0));
       trkinfo[1]._freq = reg[0x400e - 0x4008]&0xF;
-      trkinfo[1].freq = clock/double(wavlen_table[pal][trkinfo[1]._freq] * ((noise_tap&(1<<6)) ? 93 : 1));
+      trkinfo[1].freq = clock/double(wavlen_table[pal][trkinfo[1]._freq] * ((noise_tap&(1<<6)) ? 93 : 1))/64; //YOYOFR
       trkinfo[1].tone = noise_tap & (1<<6);
       trkinfo[1].output = out[1];
       break;
@@ -110,7 +110,7 @@ namespace xgm
       trkinfo[2].volume = reg[0x4011 - 0x4008]&0x7F;
       trkinfo[2].key = dlength > 0;
       trkinfo[2]._freq = reg[0x4010 - 0x4008]&0xF;
-      trkinfo[2].freq = clock/double(freq_table[pal][trkinfo[2]._freq]);
+      trkinfo[2].freq = clock/double(freq_table[pal][trkinfo[2]._freq])/32; //YOYOFR
       trkinfo[2].tone = (0xc000|(adr_reg<<6));
       trkinfo[2].output = (damp<<1)|dac_lsb;
       break;

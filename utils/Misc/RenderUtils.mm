@@ -44,6 +44,7 @@ static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 
 extern int MIDIFX_OFS;
 
+int txt_pianoRoll[3];
 
 #define MAX_BARS 4096
 typedef struct {
@@ -59,6 +60,10 @@ typedef struct {
 static t_data_bar2draw data_bar2draw[MAX_BARS];
 
 static int pianoroll_cpt;
+
+#define PR_KEY_PRESSED (1<<0)
+#define PR_WHITE_KEY (1<<1)
+static uint8_t pianoroll_key_status[SOUND_MAXMOD_CHANNELS][256];
 
 static int piano_note_type[128];
 static float piano_note_posx[128];
@@ -5643,6 +5648,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
 
 void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
     LineVertexF *ptsB;
+    coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
     int crtp[4],cgtp[4],cbtp[4],cap[4];
     int index;
@@ -5650,6 +5656,15 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     float band_width;
     float line_width;
     float line_width_extra;
+    uint8_t sparkPresent[256];
+    static uint8_t sparkIntensity[256];
+    static bool first_call=true;
+    
+    if (first_call) {
+        first_call=false;
+        memset(sparkIntensity,0,sizeof(sparkIntensity));
+    }
+    
     
     if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
     if (fx_len<=MIDIFX_OFS) fx_len=MIDIFX_OFS+1;
@@ -5660,6 +5675,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
+    texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -6018,29 +6034,369 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     index=0;
     if (horiz_vert==0) {
         index=DrawBox(ptsB, index,
-                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width,
+                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       0,
                       band_width*2,hh,1,
-                      240,210,255,200,0);
+                      235,210,255,200,0);
         
     } else {
         index=DrawBox(ptsB, index,
                       0,
-                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width,
+                      (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       ww,
                       band_width*2,1,
-                      240,210,255,200,0);
+                      235,210,255,200,0);
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
-//    glLineWidth(band_width*mScaleFactor);
-//    glDrawArrays(GL_LINES, 0, 2);
+    //    glLineWidth(band_width*mScaleFactor);
+    //    glDrawArrays(GL_LINES, 0, 2);
     
+    
+#if 0
+    //Draw spark fx
+    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
+    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_SPARK]);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    
+    
+    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+    /* Enable Texture Coordinations Pointer */
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    memset(sparkPresent,0,sizeof(sparkPresent));
+    index=0;
+    int midi_data_ofs=data_midifx_len-MIDIFX_OFS-1;
+    if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value)
+        for (int i=0; i<256; i++) { //for each channels
+            if ((data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1][i])&&
+                data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1][i] &&
+                ( data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1][i]>=data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1+1][i]) ) {  //do we have a note ?
+                unsigned int note=data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1][i];
+                if (!note) note=data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1+1][i];
+                
+                //avoid rendering twice for same note
+                if (sparkPresent[note]) continue;
+                sparkPresent[note]=1;
+                if (sparkIntensity[note]<128) sparkIntensity[note]+=8;
+                
+                unsigned int instr=data_midifx_instr[MIDIFX_LEN-MIDIFX_OFS-1][i];
+                int colidx=instr&63;
+                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                
+                if (colidx&0x20) {
+                    crt=(crt+255)/2;
+                    cgt=(cgt+255)/2;
+                    cbt=(cbt+255)/2;
+                }
+                
+                crt=(crt*3+255*3)/6;
+                cgt=(cgt*3+255*3)/6;
+                cbt=(cbt*3+255*3)/6;
+                
+                if (crt>255) crt=255;
+                if (cgt>255) cgt=255;
+                if (cbt>255) cbt=255;
+                
+                
+                line_width_extra=2;
+                
+                float posNote,posStart;
+                float wd;
+                float width=line_width;
+                
+                if (horiz_vert==0) { //horiz
+                    posNote=note*line_width-note_display_offset;
+                    posStart=(data_midifx_len-MIDIFX_OFS-1)*band_width;//+band_width;
+                    
+                    if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
+                        
+                        wd=width;
+                        posNote-=wd/2;
+                        wd=wd*2;
+                        
+                        for (int sp=0;sp<4;sp++) {
+                            
+                            texcoords[index+0].u=0.0f; texcoords[index+0].v=80.0/128;
+                            texcoords[index+1].u=0.0f; texcoords[index+1].v=18.0/128;
+                            texcoords[index+2].u=1.0f; texcoords[index+2].v=80.0/128;
+                            
+                            texcoords[index+3].u=0.0f; texcoords[index+3].v=18.0/128;
+                            texcoords[index+4].u=1.0f; texcoords[index+4].v=80.0/128;
+                            texcoords[index+5].u=1.0f; texcoords[index+5].v=18.0/128;
+                            
+                            
+                            ptsB[index+0].x=posStart;ptsB[index+0].y=posNote+wd;
+                            ptsB[index+1].x=posStart+wd/2;ptsB[index+1].y=posNote+wd;
+                            ptsB[index+2].x=posStart;ptsB[index+2].y=posNote;
+                            
+                            ptsB[index+3].x=posStart+wd/2;ptsB[index+3].y=posNote+wd;
+                            ptsB[index+4].x=posStart;ptsB[index+4].y=posNote;
+                            ptsB[index+5].x=posStart+wd/2;ptsB[index+5].y=posNote;
+                            
+                            //apply some distortion
+                            float wd_distX=wd/9.0;
+                            float wd_distY=wd/3.0;
+                            
+                            float distorFactors[4][4][6]={
+                                {   {+0.7,  3 ,+0.2,  5, -0.3, 11},
+                                    {+0.2,  3 ,+0.5,  5, -0.4, 5},
+                                    
+                                    {+0.5,  5 ,-0.1,  7, +0.4, 13},
+                                    {+0.3,  2 ,-0.5,  3, +0.2, 3}},
+                                
+                                {   {+0.5,  1 ,+0.2,  7, -0.3, 7},
+                                    {+0.3,  3 ,+0.5,  2, -0.4, 7},
+                                    
+                                    {-0.3,  7 ,-0.1,  9, +0.4, 5},
+                                    {-0.2,  5 ,-0.5,  5, +0.2, 11}},
+                                
+                                {   {-0.7,  2 ,+0.2,  11, -0.3, 9},
+                                    {+0.2,  5 ,+0.5,  13, +0.7, 5},
+                                    
+                                    {+0.6,  9 ,-0.1,  3, +0.4, 3},
+                                    {+0.4,  1 ,-0.5,  3, +0.2, 8}},
+                                
+                                {   {+0.8,  9 ,+0.2,  7, -0.3, 9},
+                                    {+0.4,  11 ,+0.5, 7, +0.4, 5},
+                                    
+                                    {-0.5,  3 ,+0.1,  4, -0.4, 11},
+                                    {-0.3,  5 ,+0.5,  5, +0.2, 3}}};
+                            
+                            ptsB[index+1].x+=wd_distX*(distorFactors[sp][0][0]*sin(pianoroll_cpt*distorFactors[sp][0][1]*3.14159/32)
+                                                       +distorFactors[sp][0][2]*sin(pianoroll_cpt*distorFactors[sp][0][3]*3.14159/32)
+                                                       +distorFactors[sp][0][4]*sin(pianoroll_cpt*distorFactors[sp][0][5]*3.14159/32));
+                            
+                            ptsB[index+3].x+=wd_distX*(distorFactors[sp][0][0]*sin(pianoroll_cpt*distorFactors[sp][0][1]*3.14159/32)
+                                                       +distorFactors[sp][0][2]*sin(pianoroll_cpt*distorFactors[sp][0][3]*3.14159/32)
+                                                       +distorFactors[sp][0][4]*sin(pianoroll_cpt*distorFactors[sp][0][5]*3.14159/32));
+                            
+                            ptsB[index+1].y+=wd_distY*(distorFactors[sp][1][0]*sin(pianoroll_cpt*distorFactors[sp][1][1]*3.14159/32)
+                                                       +distorFactors[sp][1][2]*sin(pianoroll_cpt*distorFactors[sp][1][3]*3.14159/32)
+                                                       +distorFactors[sp][1][4]*sin(pianoroll_cpt*distorFactors[sp][1][5]*3.14159/32));
+                            
+                            ptsB[index+3].y+=wd_distY*(distorFactors[sp][1][0]*sin(pianoroll_cpt*distorFactors[sp][1][1]*3.14159/32)
+                                                       +distorFactors[sp][1][2]*sin(pianoroll_cpt*distorFactors[sp][1][3]*3.14159/32)
+                                                       +distorFactors[sp][1][4]*sin(pianoroll_cpt*distorFactors[sp][1][5]*3.14159/32));
+                            
+                            ptsB[index+5].x+=wd_distX*(distorFactors[sp][2][0]*sin(pianoroll_cpt*distorFactors[sp][2][1]*3.14159/32)
+                                                       +distorFactors[sp][2][2]*sin(pianoroll_cpt*distorFactors[sp][2][3]*3.14159/32)
+                                                       +distorFactors[sp][2][4]*sin(pianoroll_cpt*distorFactors[sp][2][5]*3.14159/32));
+                            
+                            ptsB[index+5].y+=wd_distY*(distorFactors[sp][3][0]*sin(pianoroll_cpt*distorFactors[sp][3][1]*3.14159/32)
+                                                       +distorFactors[sp][3][2]*sin(pianoroll_cpt*distorFactors[sp][3][3]*3.14159/32)
+                                                       +distorFactors[sp][3][4]*sin(pianoroll_cpt*distorFactors[sp][3][5]*3.14159/32));
+                            
+                            if (sp&1) {
+                                for (int ii=0;ii<6;ii++) {
+                                    texcoords[index+ii].u=1-texcoords[index+ii].u;
+                                }
+                                
+                            }
+                            for (int ii=0;ii<6;ii++) {
+                                if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value==2) {
+                                    ptsB[index+ii].r=255;
+                                    ptsB[index+ii].g=255;
+                                    ptsB[index+ii].b=255;
+                                } else {
+                                    ptsB[index+ii].r=crt;
+                                    ptsB[index+ii].g=cgt;
+                                    ptsB[index+ii].b=cbt;
+                                }
+                                ptsB[index+ii].a=sparkIntensity[note]/4;///4;
+                            }
+                            index+=6;
+                            
+                        }
+                    }
+                }else { //vert
+                    posNote=note*line_width-note_display_offset;
+                    posStart=(int)midi_data_ofs*hh/data_midifx_len;
+                }
+            }
+        }
+    glDrawArrays(GL_TRIANGLES, 0, index);
+    
+    glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_LIGHT]);
+    memset(sparkPresent,0,sizeof(sparkPresent));
+    index=0;
+    if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value)
+        for (int i=0; i<256; i++) { //for each channels
+            if ((data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1][i])&&
+                data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1][i] &&
+                ( data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1][i]>=data_midifx_vol[MIDIFX_LEN-MIDIFX_OFS-1+1][i]) ) {  //do we have a note ?
+                unsigned int note=data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1][i];
+                if (!note) note=data_midifx_note[MIDIFX_LEN-MIDIFX_OFS-1+1][i];
+                
+                //avoid rendering twice for same note
+                if (sparkPresent[note]) continue;
+                sparkPresent[note]=1;
+                if (sparkIntensity[note]<128) sparkIntensity[note]+=8;
+                
+                unsigned int instr=data_midifx_instr[MIDIFX_LEN-MIDIFX_OFS-1][i];
+                int colidx=instr&63;
+                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                
+                if (colidx&0x20) {
+                    crt=(crt+255)/2;
+                    cgt=(cgt+255)/2;
+                    cbt=(cbt+255)/2;
+                }
+                
+                crt=(crt*3+255*3)/6;
+                cgt=(cgt*3+255*3)/6;
+                cbt=(cbt*3+255*3)/6;
+                
+                if (crt>255) crt=255;
+                if (cgt>255) cgt=255;
+                if (cbt>255) cbt=255;
+                
+                
+                line_width_extra=2;
+                
+                float posNote,posStart;
+                float wd;
+                float width=line_width;
+                
+                if (horiz_vert==0) { //horiz
+                    posNote=note*line_width-note_display_offset;
+                    posStart=(data_midifx_len-MIDIFX_OFS-1)*band_width;//+band_width;
+                    
+                    if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
+                        
+                        wd=width*2;
+                        posStart-=wd;
+                        posNote-=wd/2+width/2;
+                        wd=wd*2;
+                        
+                        for (int sp=0;sp<4;sp++) {
+                            
+                            texcoords[index+0].u=0.0f; texcoords[index+0].v=128.0/128;
+                            texcoords[index+1].u=0.0f; texcoords[index+1].v=0.0/128;
+                            texcoords[index+2].u=1.0f; texcoords[index+2].v=128.0/128;
+                            
+                            texcoords[index+3].u=0.0f; texcoords[index+3].v=0.0/128;
+                            texcoords[index+4].u=1.0f; texcoords[index+4].v=128.0/128;
+                            texcoords[index+5].u=1.0f; texcoords[index+5].v=0.0/128;
+                            
+                            
+                            ptsB[index+0].x=posStart;ptsB[index+0].y=posNote+wd;
+                            ptsB[index+1].x=posStart+wd*1.2;ptsB[index+1].y=posNote+wd;
+                            ptsB[index+2].x=posStart;ptsB[index+2].y=posNote;
+                            
+                            ptsB[index+3].x=posStart+wd*1.2;ptsB[index+3].y=posNote+wd;
+                            ptsB[index+4].x=posStart;ptsB[index+4].y=posNote;
+                            ptsB[index+5].x=posStart+wd*1.2;ptsB[index+5].y=posNote;
+                            
+                            //apply some distortion
+                            float wd_distX=wd/18.0;
+                            float wd_distY=wd/6.0;
+                            
+                            float distorFactors[4][4][6]={
+                                {   {+0.7,  3 ,+0.2,  5, -0.3, 11},
+                                    {+0.2,  3 ,+0.5,  5, -0.4, 5},
+                                    
+                                    {+0.5,  5 ,-0.1,  7, +0.4, 13},
+                                    {+0.3,  2 ,-0.5,  3, +0.2, 3}},
+                                
+                                {   {+0.5,  1 ,+0.2,  7, -0.3, 7},
+                                    {+0.3,  3 ,+0.5,  2, -0.4, 7},
+                                    
+                                    {-0.3,  7 ,-0.1,  9, +0.4, 5},
+                                    {-0.2,  5 ,-0.5,  5, +0.2, 11}},
+                                
+                                {   {-0.7,  2 ,+0.2,  11, -0.3, 9},
+                                    {+0.2,  5 ,+0.5,  13, +0.7, 5},
+                                    
+                                    {+0.6,  9 ,-0.1,  3, +0.4, 3},
+                                    {+0.4,  1 ,-0.5,  3, +0.2, 8}},
+                                
+                                {   {+0.8,  9 ,+0.2,  7, -0.3, 9},
+                                    {+0.4,  11 ,+0.5, 7, +0.4, 5},
+                                    
+                                    {-0.5,  3 ,+0.1,  4, -0.4, 11},
+                                    {-0.3,  5 ,+0.5,  5, +0.2, 3}}};
+                            
+                            ptsB[index+1].x+=wd_distX*(distorFactors[sp][0][0]*sin(pianoroll_cpt*distorFactors[sp][0][1]*3.14159/32)
+                                                       +distorFactors[sp][0][2]*sin(pianoroll_cpt*distorFactors[sp][0][3]*3.14159/32)
+                                                       +distorFactors[sp][0][4]*sin(pianoroll_cpt*distorFactors[sp][0][5]*3.14159/32));
+                            
+                            ptsB[index+3].x+=wd_distX*(distorFactors[sp][0][0]*sin(pianoroll_cpt*distorFactors[sp][0][1]*3.14159/32)
+                                                       +distorFactors[sp][0][2]*sin(pianoroll_cpt*distorFactors[sp][0][3]*3.14159/32)
+                                                       +distorFactors[sp][0][4]*sin(pianoroll_cpt*distorFactors[sp][0][5]*3.14159/32));
+                            
+                            ptsB[index+1].y+=wd_distY*(distorFactors[sp][1][0]*sin(pianoroll_cpt*distorFactors[sp][1][1]*3.14159/32)
+                                                       +distorFactors[sp][1][2]*sin(pianoroll_cpt*distorFactors[sp][1][3]*3.14159/32)
+                                                       +distorFactors[sp][1][4]*sin(pianoroll_cpt*distorFactors[sp][1][5]*3.14159/32));
+                            
+                            ptsB[index+3].y+=wd_distY*(distorFactors[sp][1][0]*sin(pianoroll_cpt*distorFactors[sp][1][1]*3.14159/32)
+                                                       +distorFactors[sp][1][2]*sin(pianoroll_cpt*distorFactors[sp][1][3]*3.14159/32)
+                                                       +distorFactors[sp][1][4]*sin(pianoroll_cpt*distorFactors[sp][1][5]*3.14159/32));
+                            
+                            ptsB[index+5].x+=wd_distX*(distorFactors[sp][2][0]*sin(pianoroll_cpt*distorFactors[sp][2][1]*3.14159/32)
+                                                       +distorFactors[sp][2][2]*sin(pianoroll_cpt*distorFactors[sp][2][3]*3.14159/32)
+                                                       +distorFactors[sp][2][4]*sin(pianoroll_cpt*distorFactors[sp][2][5]*3.14159/32));
+                            
+                            ptsB[index+5].y+=wd_distY*(distorFactors[sp][3][0]*sin(pianoroll_cpt*distorFactors[sp][3][1]*3.14159/32)
+                                                       +distorFactors[sp][3][2]*sin(pianoroll_cpt*distorFactors[sp][3][3]*3.14159/32)
+                                                       +distorFactors[sp][3][4]*sin(pianoroll_cpt*distorFactors[sp][3][5]*3.14159/32));
+                            
+                            if (sp&1) {
+                                for (int ii=0;ii<6;ii++) {
+                                    texcoords[index+ii].u=1-texcoords[index+ii].u;
+                                }
+                                
+                            }
+                            for (int ii=0;ii<6;ii++) {
+                                if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value==2) {
+                                    ptsB[index+ii].r=255;
+                                    ptsB[index+ii].g=255;
+                                    ptsB[index+ii].b=255;
+                                } else {
+                                    ptsB[index+ii].r=crt;
+                                    ptsB[index+ii].g=cgt;
+                                    ptsB[index+ii].b=cbt;
+                                }
+                                ptsB[index+ii].a=sparkIntensity[note]/4;
+                            }
+                            index+=6;
+                            
+                        }
+                    }
+                }else { //vert
+                    posNote=note*line_width-note_display_offset;
+                    posStart=(int)midi_data_ofs*hh/data_midifx_len;
+                }
+            }
+        }
+    glDrawArrays(GL_TRIANGLES, 0, index);
+    
+    //reset spark intensity if no note played
+    for (int i=0;i<256;i++) {
+        if (sparkPresent[i]==0) {
+            if (sparkIntensity[i]>8) sparkIntensity[i]-=8;
+            else sparkIntensity[i]=0;
+        }
+    }
+    
+    
+    glBindTexture(GL_TEXTURE_2D,0);
+    glDisable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    index=0;
+#endif
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     
     free(ptsB);
-    
+    free(texcoords);
 }
 
 
@@ -6052,7 +6408,7 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
         double ofs=0;
         if ((ii==3)||(ii==2)) {
             fact=1.5f;
-            ofs=64;
+            ofs=100;
         }
         if ((ii==0)||(ii==1)) {
             fact=0.5f;
@@ -6138,6 +6494,345 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
     return index;
 }
 
+int lastkey_type;
+
+#define PR_SHADOW_WHITE (1<<0)
+#define PR_SHADOW_SMALL_BLACK (1<<1)
+#define PR_SHADOW_LARGE_BLACK (1<<2)
+
+int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel) {
+    int crtp[6],cgtp[6],cbtp[6],cap[6];
+    float height2;
+    uint8_t shadow_type=0;
+    float shadow_left_black_ofs=0;
+    
+    bool pressed=pianoroll_key_status[channel][note_idx]&PR_KEY_PRESSED;
+    
+    if (note_idx) { //not 1st key
+        if (pianoroll_key_status[channel][note_idx-1]&PR_WHITE_KEY) {
+            //no black key on the left
+            if (!(pianoroll_key_status[channel][note_idx-1]&PR_KEY_PRESSED)) {
+                //left white key not pressed
+                //shadow if current key is pressed
+                if (pressed) shadow_type=PR_SHADOW_WHITE;
+            }
+        } else {
+            //black key on the left
+            if (!(pianoroll_key_status[channel][note_idx-1]&PR_KEY_PRESSED)) {
+                //left black key not pressed, shadow on
+                //small shadow if key not pressed or else large shadow
+                if (pressed) shadow_type=PR_SHADOW_LARGE_BLACK;
+                else shadow_type=PR_SHADOW_SMALL_BLACK;
+                
+                //check black key type
+                uint8_t note_type=(pianoroll_key_status[channel][note_idx-1]>>4)%12;
+                switch (note_type) {
+                    case 1://C#
+                    case 6://F#
+                        shadow_left_black_ofs=(width*2.0f/12)-1;
+                        break;
+                    case 3://D#
+                    case 10://A#
+                        shadow_left_black_ofs=(width*4.0f/12)-1;
+                        break;
+                    case 8://G#
+                        shadow_left_black_ofs=(width*3.0f/12)-1;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            //check white key on the left
+            if (note_idx>=2) {
+                if (!(pianoroll_key_status[channel][note_idx-2]&PR_KEY_PRESSED)) {
+                    //left white key not pressed
+                    //shadow if current key is pressed
+                    if (pressed) shadow_type|=PR_SHADOW_WHITE;
+                }
+            }
+        }
+    }
+    
+    
+    if (!pressed) {
+        //y+=height/16;
+        //height=height*15/16;
+        height2=height/8;
+    } else {
+        height2=height/24;
+        crt=crt*0.8f;
+        cgt=cgt*0.8f;
+        cbt=cbt*0.8f;
+    }
+    
+    for (int ii=0;ii<4;ii++) {
+        double fact=1;
+        double ofs=0;
+        switch (ii) {
+            case 3:fact=1.5f; ofs=100; break;
+            case 2:fact=0.75f; ofs=0; break;
+            case 1:fact=0.5f; ofs=0; break;
+            case 0:fact=0.25f; ofs=0; break;
+        }
+        crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+        if (crtp[ii]>255) crtp[ii]=255;if (cgtp[ii]>255) cgtp[ii]=255;if (cbtp[ii]>255) cbtp[ii]=255;
+        if (cap[ii]>255) cap[ii]=255;
+    }
+    if (subnote) {
+        if (subnote>0) {
+            float fact=1.1+(float)subnote*0.1/8.0;
+            float ofs=16+subnote*2;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        } else {
+            float fact=1;
+            float ofs=0;
+            fact=1.1-(float)subnote*0.1/8.0; ofs=16-subnote*2;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        }
+        for (int ii=4;ii<6;ii++) {
+            if (crtp[ii]>255) crtp[ii]=255;
+            if (cgtp[ii]>255) cgtp[ii]=255;
+            if (cbtp[ii]>255) cbtp[ii]=255;
+            if (cap[ii]>255) cap[ii]=255;
+        }
+    } else {
+        crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
+        crtp[5]=crt;cgtp[5]=cgt;cbtp[5]=cbt;cap[5]=ca;
+    }
+    
+    //left high
+    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+1             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //left low
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/12             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //right high
+    ptsB[index++] = LineVertexF(x+width             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x+width             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //right low
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12           , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12           , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/12           , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //inner part high
+    
+    ptsB[index++] = LineVertexF(x+1           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    
+    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-1     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    
+    //top
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    
+    //inner part low
+    ptsB[index++] = LineVertexF(x+width/16           , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    //bottom high
+    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+1       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    //bottom low
+    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/16       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //shadow
+    if (shadow_type) {
+        if (shadow_type&PR_SHADOW_WHITE) {
+            ptsB[index++] = LineVertexF(x+1       , y+height*3/4    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+width/4 , y+height2+height2       ,0,0,0,16);
+            ptsB[index++] = LineVertexF(x+1       , y+height2           ,0,0,0,128);
+        }
+        
+        if (shadow_type&PR_SHADOW_SMALL_BLACK) {
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs       , y+height    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/8 , y+height*2/5+height2       ,0,0,0,16);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs       , y+height*2/5           ,0,0,0,128);
+        }
+        
+        if (shadow_type&PR_SHADOW_LARGE_BLACK) {
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/8+width/8 , y+height*2/5+height2       ,0,0,0,16);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs        , y+height*2/5           ,0,0,0,128);
+        }
+    }
+    
+    return index;
+}
+
+
+int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel) {
+    int crtp[6],cgtp[6],cbtp[6],cap[6];
+    float height2;
+    
+    bool pressed=pianoroll_key_status[channel][note_idx]&PR_KEY_PRESSED;
+    
+    if (!pressed) {
+        //y+=height/16;
+        //height=height*15/16;
+        height2=height/4;
+    } else {
+        height2=height/12;
+        crt=crt*0.8f;
+        cgt=cgt*0.8f;
+        cbt=cbt*0.8f;
+    }
+    
+    for (int ii=0;ii<4;ii++) {
+        double fact=1;
+        double ofs=0;
+        switch (ii) {
+            case 3:fact=1.5f; ofs=128; break;
+            case 2:fact=1.2f; ofs=128; break;
+            case 1:fact=1.25f; ofs=100; break;
+            case 0:fact=0.5f; ofs=0; break;
+        }
+        crtp[ii]=crt*fact+ofs;cgtp[ii]=cgt*fact+ofs;cbtp[ii]=cbt*fact+ofs;cap[ii]=ca;
+        if (crtp[ii]>255) crtp[ii]=255;if (cgtp[ii]>255) cgtp[ii]=255;if (cbtp[ii]>255) cbtp[ii]=255;
+        if (cap[ii]>255) cap[ii]=255;
+    }
+    if (subnote) {
+        if (subnote>0) {
+            float fact=1.1+(float)subnote*0.25/8.0;
+            float ofs=32+subnote*4;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        } else {
+            float fact=1;
+            float ofs=0;
+            fact=1.1-(float)subnote*0.25/8.0; ofs=32-subnote*4;
+            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+        }
+        for (int ii=4;ii<6;ii++) {
+            if (crtp[ii]>255) crtp[ii]=255;
+            if (cgtp[ii]>255) cgtp[ii]=255;
+            if (cbtp[ii]>255) cbtp[ii]=255;
+            if (cap[ii]>255) cap[ii]=255;
+        }
+    } else {
+        crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
+        crtp[5]=crt;cgtp[5]=cgt;cbtp[5]=cbt;cap[5]=ca;
+    }
+    
+    //left
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //right
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    //inner part high
+    
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height     ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    
+    //top
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    
+    //inner part low
+    ptsB[index++] = LineVertexF(x           , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    
+    //bottom high
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    
+    //bottom low
+    ptsB[index++] = LineVertexF(x      , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    ptsB[index++] = LineVertexF(x       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    
+    return index;
+}
+
+
 void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
@@ -6145,6 +6840,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     int voices_posX[SOUND_MAXVOICES_BUFFER_FX];
     //int band_width,ofs_band;
     static bool first_call=true;
+    
     
     if (first_call) {
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
@@ -6198,6 +6894,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
     
+    
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
@@ -6236,6 +6933,26 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     int num_rows=hh/(height+16);
     if (m_genNumMidiVoicesChannels<num_rows) num_rows=m_genNumMidiVoicesChannels;
     
+    //check all key status
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
+        for (int note=0;note<256;note++) {
+            bool whitekey=false;
+            int note_idx=(note%12);
+            if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
+            pianoroll_key_status[i][note]=(whitekey?PR_WHITE_KEY:0)|(note_idx<<4);
+        }
+    }
+    for (int i=0; i<256; i++) { //for each channels
+        if ((data_midifx_note[midi_data_ofs][i])&&
+            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
+            unsigned int note=data_midifx_note[midi_data_ofs][i];
+            unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
+            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) note=note%((int)note_display_range);  //limit to pianoroll size
+            
+            pianoroll_key_status[instr%num_rows][note]|=PR_KEY_PRESSED;
+        }
+    }
+    
     //draw white keys
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
@@ -6250,7 +6967,9 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 note_posX[note]=x;
                 note_posType[note]=0;
                 
-                if ((x+width>0)||(x<ww)) index=DrawBox(ptsB,index,x,y,width,height,border_size,220,220,220,255,0);
+                if ((x+width>0)||(x<ww)) {
+                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j);
+                }
                 i++;
             }
         }
@@ -6258,10 +6977,12 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //1st pass draw notes - white keys
     for (int i=0; i<256; i++) { //for each channels
-        if ((data_midifx_note[midi_data_ofs][i]/*||data_midifx_note[midi_data_ofs+1][i]*/)&&
+        if ((data_midifx_note[midi_data_ofs][i])&&
             (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
-            if (!note) note=data_midifx_note[midi_data_ofs+1][i];
+            unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
+            unsigned int vol=data_midifx_vol[midi_data_ofs][i];
+            unsigned int st=data_midifx_st[midi_data_ofs][i];
             
             if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
                 note=note%((int)note_display_range);  //limit to pianoroll size
@@ -6279,14 +7000,12 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 (note_idx==11)
                 ) { //white key
                 
-                unsigned int instr=data_midifx_instr[midi_data_ofs][i];
-                unsigned int vol=data_midifx_vol[midi_data_ofs][i];
-                unsigned int st=data_midifx_st[midi_data_ofs][i];
+                
                 
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=data_midifx_instr[midi_data_ofs][i]&63;
+                int colidx=instr&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6300,11 +7019,18 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     x=note_posX[note];
                     
+                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
+                        while (x+width<0) x+=7*width;
+                        while (x>=(int)ww) x-=7*width;
+                    }
+                    
                     //                    printf("W instr %d note %d note12 %d idx %d type %d x %f\n",instr,note,note%12,note_idx,note_posType[note],x);
                     
                     if (note_posType[note]==0) { //white key
                         y=hh-(height+16)*((instr%num_rows)+1);
-                        if ( (x+width>0)||(x<ww) ) index=DrawBox(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote);
+                        if ( (x+width>0)||(x<ww) ) {
+                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
+                        }
                     }
                 }
             }
@@ -6325,36 +7051,36 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 
                 switch (i%5) {
                     case 0: //C#
-                        xB=round(x+width*9.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                        xB=(x+width*8.0f/12);
+                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
                         
                         note_posX[note]=xB;
                         note_posType[note]=1;
                         break;
                     case 1://D#
-                        xB=round(x+width*11.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                        xB=(x+width*10.0f/12);
+                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
                         
                         note_posX[note]=xB;
                         note_posType[note]=1;
                         break;
                     case 2://F#
-                        xB=round(x+width*9.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                        xB=(x+width*8.0f/12);
+                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
                         
                         note_posX[note]=xB;
                         note_posType[note]=1;
                         break;
                     case 3://G#
-                        xB=round(x+width*10.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                        xB=(x+width*9.0f/12);
+                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
                         
                         note_posX[note]=xB;
                         note_posType[note]=1;
                         break;
                     case 4://A#
-                        xB=round(x+width*11.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
+                        xB=(x+width*10.0f/12);
+                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note_idx,j);
                         
                         note_posX[note]=xB;
                         note_posType[note]=1;
@@ -6368,10 +7094,9 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //2nd pass draw notes - black keys
     for (int i=0; i<256; i++) { //for each channels
-        if ((data_midifx_note[midi_data_ofs][i]/*||data_midifx_note[midi_data_ofs+1][i]*/)&&
+        if ((data_midifx_note[midi_data_ofs][i])&&
             (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
             unsigned int note=data_midifx_note[midi_data_ofs][i];
-            if (!note) note=data_midifx_note[midi_data_ofs+1][i];
             
             if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
                 note=note%((int)note_display_range);  //limit to pianoroll size
@@ -6381,14 +7106,14 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
             uint8_t note_idx=note%12;
             if ((note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10)) { //black key
                 
-                unsigned int instr=data_midifx_instr[midi_data_ofs][i];
+                unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
                 unsigned int vol=data_midifx_vol[midi_data_ofs][i];
                 unsigned int st=data_midifx_st[midi_data_ofs][i];
                 
                 int subnote=data_midifx_subnote[midi_data_ofs][i];
                 subnote=(subnote<8?subnote:subnote-8-7);
                 
-                int colidx=data_midifx_instr[midi_data_ofs][i]&63;
+                int colidx=instr&63;
                 int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
                 int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
                 int cbt=(data_midifx_col[colidx&31]&0xFF);
@@ -6403,9 +7128,15 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                     //                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
                     
                     x=note_posX[note];
+                    
+                    if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) {
+                        while (x+width<0) x+=7*width;
+                        while (x>=(int)ww) x-=7*width;
+                    }
+                    
                     if (note_posType[note]==1) { //back key
                         y=hh-(height+16)*((instr%num_rows)+1)+height-heightB;
-                        if ( (x+widthB>0)||(x<ww) )  index=DrawBox(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote);
+                        if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
                     }
                 }
             }
@@ -6496,8 +7227,6 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     }
     free(ptsB);
 }
-
-int txt_pianoRoll[3];
 
 void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
@@ -6595,9 +7324,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         ofsy=16*labels_lines_needed;
     }
     
-    
-    
-    
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
     texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
@@ -6607,11 +7333,8 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
-    
     glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
-    
-    
     
     data_midifx_len=MIDIFX_OFS+1; //yoyofr: to review
     band_width=(float)(hh+0*hh/4)/data_midifx_len;
@@ -6835,10 +7558,10 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 cgt=(cgt*3+255*3)/6;
                 cbt=(cbt*3+255*3)/6;
                 
-//                crt=crt*1.5f+64;
-//                cgt=cgt*1.5f+64;
-//                cbt=cbt*1.5f+64;
-//                
+                //                crt=crt*1.5f+64;
+                //                cgt=cgt*1.5f+64;
+                //                cbt=cbt*1.5f+64;
+                //
                 if (crt>255) crt=255;
                 if (cgt>255) cgt=255;
                 if (cbt>255) cbt=255;
@@ -7025,23 +7748,43 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     
     int border_size=2;
     
-    //draw white keys
-        y=ofsy+0;
-        
-        int i=0;//white key counter
-        for (int note=0;note<256;note++) {
-            int note_idx=note%12;
-            if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) { //white key
-                
-                x=(float)(ww)*i/visible_wkeys_range-note_display_offset;
-                
-                note_posX[note]=x;
-                note_posType[note]=0;
-                
-                if ((x+width>0)||(x<ww)) index=DrawBox(ptsB,index,x,y,width,height,border_size,220,220,220,255,0);
-                i++;
-            }
+    
+    //check all key status
+    for (int note=0;note<256;note++) {
+        bool whitekey=false;
+        int note_idx=(note%12);
+        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) whitekey=true;
+        pianoroll_key_status[0][note]=(whitekey?PR_WHITE_KEY:0)|(note_idx<<4);
+    }
+    for (int i=0; i<256; i++) { //for each channels
+        if ((data_midifx_note[midi_data_ofs][i])&&
+            (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
+            unsigned int note=data_midifx_note[midi_data_ofs][i];
+            unsigned int instr=data_midifx_instr[midi_data_ofs][i]&63;
+            if (settings[GLOB_FXPianoRollAllNote].detail.mdz_boolswitch.switch_value) note=note%((int)note_display_range);  //limit to pianoroll size
+            
+            pianoroll_key_status[0][note]|=PR_KEY_PRESSED;
         }
+    }
+    
+    
+    //draw white keys
+    y=ofsy+0;
+    
+    int i=0;//white key counter
+    for (int note=0;note<256;note++) {
+        int note_idx=note%12;
+        if ( (note_idx==0)||(note_idx==2)||(note_idx==4)||(note_idx==5)||(note_idx==7)||(note_idx==9)||(note_idx==11)) { //white key
+            
+            x=(float)(ww)*i/visible_wkeys_range-note_display_offset;
+            
+            note_posX[note]=x;
+            note_posType[note]=0;
+            
+            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0);
+            i++;
+        }
+    }
     
     //1st pass draw notes - white keys
     for (int i=0; i<256; i++) { //for each channels
@@ -7091,7 +7834,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     
                     if (note_posType[note]==0) { //white key
                         y=ofsy+0;
-                        if ( (x+width>0)||(x<ww) ) index=DrawBox(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote);
+                        if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0);
                     }
                 }
             }
@@ -7099,55 +7842,55 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     
     //draw black keys
-        y=ofsy+0;
-        for (int note=0,i=0,jj=0;note<256;note++) {
-            int note_idx=note%12;
-            if ( (note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10) ) { //black key
-                
-                x=(float)(ww)*(jj-1)/visible_wkeys_range-note_display_offset;
-                yB=y+height-heightB;
-                
-                switch (i%5) {
-                    case 0: //C#
-                        xB=round(x+width*9.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 1://D#
-                        xB=round(x+width*10.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 2://F#
-                        xB=round(x+width*9.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 3://G#
-                        xB=round(x+width*9.5f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                    case 4://A#
-                        xB=round(x+width*10.0f/12);
-                        if ( (xB+widthB>0)||(xB<ww) ) index=DrawBox(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0);
-                        
-                        note_posX[note]=xB;
-                        note_posType[note]=1;
-                        break;
-                }
-                
-                i++;
-            } else jj++;
-        }
+    y=ofsy+0;
+    for (int note=0,i=0,jj=0;note<256;note++) {
+        int note_idx=note%12;
+        if ( (note_idx==1)||(note_idx==3)||(note_idx==6)||(note_idx==8)||(note_idx==10) ) { //black key
+            
+            x=(float)(ww)*(jj-1)/visible_wkeys_range-note_display_offset;
+            yB=y+height-heightB;
+            
+            switch (i%5) {
+                case 0: //C#
+                    xB=round(x+width*9.0f/12);
+                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+                    
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 1://D#
+                    xB=round(x+width*10.0f/12);
+                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+                    
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 2://F#
+                    xB=round(x+width*9.0f/12);
+                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+                    
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 3://G#
+                    xB=round(x+width*9.5f/12);
+                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+                    
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+                case 4://A#
+                    xB=round(x+width*10.0f/12);
+                    if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+                    
+                    note_posX[note]=xB;
+                    note_posType[note]=1;
+                    break;
+            }
+            
+            i++;
+        } else jj++;
+    }
     
     //2nd pass draw notes - black keys
     for (int i=0; i<256; i++) { //for each channels
@@ -7194,7 +7937,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     
                     if (note_posType[note]==1) { //back key
                         y=ofsy+height-heightB+0;
-                        if ( (x+widthB>0)||(x<ww) )  index=DrawBox(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote);
+                        if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0);
                     }
                 }
             }
@@ -7208,34 +7951,34 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     //draw label small colored boxes
     if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
         x=16;
-        y=ofsy-16+4;
-        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
-            int j=i;
+    y=ofsy-16+4;
+    for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
+        int j=i;
+        
+        if (mVoicesNamePiano[i]) {
+            float widthx=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
             
-            if (mVoicesNamePiano[i]) {
-                float widthx=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
-                
-                int colidx=i&63;
-                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
-                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
-                int cbt=(data_midifx_col[colidx&31]&0xFF);
-                
-                if (colidx&0x20) {
-                    crt=(crt+255)/2;
-                    cgt=(cgt+255)/2;
-                    cbt=(cbt+255)/2;
-                }
-                
-                if (x+widthx>ww) {
-                    x=16;
-                    y-=16;
-                }
-                
-                index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
-                
-                x+=widthx;
+            int colidx=i&63;
+            int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+            int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+            int cbt=(data_midifx_col[colidx&31]&0xFF);
+            
+            if (colidx&0x20) {
+                crt=(crt+255)/2;
+                cgt=(cgt+255)/2;
+                cbt=(cbt+255)/2;
             }
+            
+            if (x+widthx>ww) {
+                x=16;
+                y-=16;
+            }
+            
+            index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
+            
+            x+=widthx;
         }
+    }
     
     glDrawArrays(GL_TRIANGLES, 0, index);
     
@@ -7421,7 +8164,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     ptsB[index+5].y+=wd_distY*(distorFactors[sp][3][0]*sin(pianoroll_cpt*distorFactors[sp][3][1]*3.14159/32)
                                                +distorFactors[sp][3][2]*sin(pianoroll_cpt*distorFactors[sp][3][3]*3.14159/32)
                                                +distorFactors[sp][3][4]*sin(pianoroll_cpt*distorFactors[sp][3][5]*3.14159/32));
-                                        
+                    
                     for (int ii=0;ii<6;ii++) {
                         if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value==2) {
                             ptsB[index+ii].r=255;
