@@ -758,6 +758,8 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
     return ret;
 }
 
+bool dbhelper_cancel;
+
 int DBHelper::cleanDB() {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -779,6 +781,13 @@ int DBHelper::cleanDB() {
         //---------------------------------------------------
         //Check if tables structure is up-to-date
         //---------------------------------------------------
+        
+        if (dbhelper_cancel) {
+            sqlite3_close(db);
+            pthread_mutex_unlock(&db_mutex);
+            fileManager=nil;
+            return -1;
+        }
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT sql FROM sqlite_schema WHERE name='user_stats'");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -804,6 +813,8 @@ int DBHelper::cleanDB() {
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
+                if (dbhelper_cancel) break;
+                
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
                 fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
@@ -821,11 +832,20 @@ int DBHelper::cleanDB() {
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
+        if (dbhelper_cancel) {
+            sqlite3_close(db);
+            pthread_mutex_unlock(&db_mutex);
+            fileManager=nil;
+            return -1;
+        }
+        
         //Second check that playlist entries still exist
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM playlists_entries");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
+                if (dbhelper_cancel) break;
+                 
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
                 fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];

@@ -512,6 +512,10 @@ int m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
 bool m_voicesWithDataAccmul[SOUND_MAXVOICES_BUFFER_FX];
 int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 int64_t m_voice_prev_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+
+unsigned int m_voice_oscillo_pal1[8];
+unsigned int m_voice_oscillo_pal2[8];
+
 int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];
 signed char m_voice_current_system,m_voice_current_systemSub;
@@ -15398,7 +15402,9 @@ extern "C" void adjust_amplification(void);
 ///
 -(void) optUpdateSystemColor {
     for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
-        m_voice_systemColor[i]=settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb;
+        if (settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value==0) m_voice_systemColor[i]=m_voice_oscillo_pal1[i];
+        else if (settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value==1) m_voice_systemColor[i]=m_voice_oscillo_pal2[i];
+        else m_voice_systemColor[i]=settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb;
     }
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[[self getSystemForVoice:i]];

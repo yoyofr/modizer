@@ -12,6 +12,8 @@
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+extern bool dbhelper_cancel;
+
 #import "TTFadeAnimator.h"
 
 @interface SettingsMaintenanceViewController ()
@@ -270,13 +272,43 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(bool) cleanDB {
-    [self showWaiting];
-    [self flushMainLoop];
+    //[self showWaiting];
+    //[self flushMainLoop];
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                   message:NSLocalizedString(@"Are you sure you want to clean the DB, it might take a while ?",@"")
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Clean",@"") style:UIAlertActionStyleDestructive
+                                                         handler:^(UIAlertAction * action) {
+        
+        [self showWaitingCancel];
+        [self hideWaitingProgress];
+        [self updateWaitingTitle:NSLocalizedString(@"Cleaning DB",@"")];
+        [self updateWaitingDetail:@""];
+        
+        [self showWaiting];
+        
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            //Background Thread
+            dbhelper_cancel=false;
+            DBHelper::cleanDB();
+            
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                //Run UI Updates
+                [self hideWaiting];
+            });
+        });
+    }];
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+    }];
+    
+    [alert addAction:cancelAction];
+    [alert addAction:deleteAction];
+    [self presentViewController:alert animated:YES completion:nil];
 	
-    DBHelper::cleanDB();
-	
-    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database cleaned",@"")];
-    [self hideWaiting];
+    //[self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database cleaned",@"")];
+    //[self hideWaiting];
 	return TRUE;
 }
 
@@ -543,6 +575,8 @@ extern pthread_mutex_t db_mutex;
     [self hideWaitingCancel];
     [self hideWaitingProgress];
     [self updateWaitingDetail:NSLocalizedString(@"Cancelling...",@"")];
+    
+    dbhelper_cancel=true;
 }
 
 -(void) updateLoadingInfos: (NSTimer *) theTimer {

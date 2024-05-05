@@ -725,12 +725,111 @@
 "Adplug priority for module"="Priorité ADPlug/OMPT pour les mods FM";
 "Visualizers"="Visualiseurs";
 
-"Disable screen auto lock"="Désactiver le verouillage automatique";
+"Disable screen auto lock"="Désactiver le verouillage auto";
 "Force Mono"="Forcer mono";
 "Panning (Stereo separation)"="Panning (Séparation stéréo)";
 "Panning value"="Niveau de panning";
 "Default Length"="Durée par défaut";
 "Audio latency in ms"="Latence audio en ms";
+"0=auto, delay rounded to a multiple of audio buffer size"="0=auto, délai arrondi au multiple de la taille du buffer audio";
+
+"Multi default action"="Multi action par défaut";
+"Default action when selecting an archive or a multisong file"="Action par défaut quand une archive ou un fichier multi morceaux est sélectionné";
+"Archive/multi play mode"="Archive/multi mode de lecture";
+"Play ony selected entry or full archive/multisong flie"="Jouer uniquement l'entrée sélectionnée ou l'ensemble";
+"Browse"="Naviguer";
+"Entry"="Entrée";
+"Full"="Tout";
+"Default Action"="Action par défaut";
+"Play"="Jouer";
+"Enqueue"="File d'attente";
+"Enq.&Play"="FdA&Jouer";
+"First"="Premier";
+"Current"="Actuelle";
+"Last"="Dernier";
+"Enqueue position"="Position d'ajout file d'attente";
+"Post download action"="Action post download";
+"Nothing"="Rien";
+"Background mode"="Mode arrière plan";
+"Partial"="Partiel";
+"Off=no background process, Partial=keep playing music, Full=keep app on in background"="Off=pas de processus en arrière plan, Partiel=continue à jouer la musique, Tout=garde l'app active en arrière plan";
+"Long name truncate"="Troncage des noms longs";
+"Head"="Début";
+"Mid."="Mil.";
+"Tail"="Fin";
+"Filename as title"="Nom de fichier comme titre";
+"Auto. restore Samples folder"="Restauration auto du dossier 'Samples'";
+"Send statistics"="Partager statistiques";
+
+
+"Stereo separation"="Séparation stéréo";
+"Master volume"="Volume principal";
+"Amiga 500 Filter"="Filtre Amiga 500";
+
+"Resampling"="Rééchantillonnage";
+"Force loop"="Forcer bouclage";
+"Max loop"="Nbre de boucles";
+"Fade out time"="Durée de fondu";
+
+"Clock"="Horloge";
+"Model"="Modèle";
+
+"Force 2nd SID"="Forcer 2e SID";
+"Address 2nd"="Adresse 2e";
+"0xD420-0xD7FF or 0xDE00-0xDFFF"="0xD420-0xD7FF ou 0xDE00-0xDFFF";
+
+"Force 3rd SID"="Forcer 3e SID";
+"Address 3rd"="Adresse 3e";
+
+"Japanese Tag"="Tag japonais";
+"Enable playback ratio"="Activer ratio de lecture";
+"Playback ratio"="Ratio de lecture";
+
+"Headphones"="Casque";
+"Normalization"="Normalisation";
+"Gain value"="Valeur de gain";
+"Force NTSC"="Forcer NTSC";
+
+"Panning"="Séparation stéréo";
+
+"MIDI polyphony"="Polyphonie MIDI";
+"LP filter"="Filtre passe-bas";
+"HP filter"="Filtre passe-haut";
+
+"Engine"="Moteur";
+"Filter"="Filtre";
+
+"Silence detection"="Détection des silences";
+"Equalizer"="Equaliseur";
+"Bass"="Graves";
+"Treble"="Aigus";
+
+"Highpass filter type"="Type de filtre passe-haut";
+"Will skip song if nothing is played for specified duration (0=off)"="Termine le morceau si rien n'est joué dans la durée choisie (0=off)";
+
+"Harmonic"="Harmonique";
+
+"Oscillo settings"="Réglages oscillo";
+"FX Level of details"="FX niveau de détails";
+"Activate Piano roll FX, standard or 'Synthesia' like"="Active l'effet piano roll en mode 'Standard' ou 'Synthesia'";
+"Activate spark FX, colored or white"="Active l'effet étincelle, colorée ou blanche";
+"Display voices labels"="Affiche les noms des voix";
+"Display octaves labels"="Affiche les numéros d'octaves";
+
+
+"Region"="Région";
+"Force IRQ"="Forcer IRQ";
+"Quality"="Qualité";
+"VRC7 Patches"="Patches VRC7";
+"Min=off, default: 112"="Min=off, défaut: 112";
+"Max=off, default: 164"="Max=off, défaut: 164";
+"1/2/3=NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY"="1/2/3=NTSC/PAL/DENDY\n4/5/6=forcer NTSC/PAL/DENDY";
+"0 - VRC7 set by Nuke.KYT 3/15/2019\n1 - VRC7 set by rainwarrior 8/01/2012\n\
+2 - VRC7 set by quietust 1/18/2004\n3 - VRC7 set by Mitsutaka Okazaki\n4 - VRC7 set by Mitsutaka Okazaki\n5 - VRC7 set by kevtris 11/15/1999\n6 - VRC7 set by kevtris 11/14/1999\n7 - YM2413 set by Mitsutaka Okazaki 4/10/2004\n8 - YMF281B set by Chabin 4/10/2004\n9 - YMF281B set by plgDavid 2/28/2021"="0 - VRC7 set par Nuke.KYT 3/15/2019\n1 - VRC7 set par rainwarrior 8/01/2012\n2 - VRC7 set par quietust 1/18/2004\n3 - VRC7 set par Mitsutaka Okazaki\n4 - VRC7 set par Mitsutaka Okazaki\n5 - VRC7 set par kevtris 11/15/1999\n6 - VRC7 set par kevtris 11/14/1999\n7 - YM2413 set par Mitsutaka Okazaki 4/10/2004\n8 - YMF281B set par Chabin 4/10/2004\n9 - YMF281B set par plgDavid 2/28/2021";
+"Forces IRQ capability for all NSFs, not just NSF2"="Force le support IRQ pour tous les NSFs (pas uniquement les NSF2.";
+"Oversampling. Min=0, default: 10"="Suréchantillonnage. Min=0, défaut: 10";
+"prevents high frequency aliasing"="empêche l'aliasing hautes fréquences";
+"randomize triangle on reset";
 
 "Custom color 01"="Couleur personalisée 01";
 "Custom color 02"="Couleur personalisée 02";
@@ -766,3 +865,8 @@
 "Custom color 32"="Couleur personalisée 32";
 
 "Custom"="Personalisé";
+
+"Clean"="Nettoyer";
+"Are you sure you want to clean the DB, it might take a while ?"="Etes vous sûr de vouloir nettoyer la base de données, ca peut prendre un moment ?";
+"Cleaning DB"="Nettoyage de\nla BdD";
+"Please wait, it can take a while"="Veuillez patienter, cela peut prendre un moment";

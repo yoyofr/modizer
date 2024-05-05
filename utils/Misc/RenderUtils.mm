@@ -18,7 +18,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "Font.h"
 #import "GLString.h"
 
-unsigned int data_midifx_pal1[32]={
+unsigned int data_midifx_pal1[32];/*={
+    0x0000fe, 0xfd00fe, 0xfe0000, 0x0aff05, 0xff78ff, 0x7900ff, 0x0077fe, 0x9701ff, 0xfeff05, 0x0700ba, 0x77fe77, 0x4187ba, 0xb98744, 0xf034ab, 0xaa31ec, 0xaa0001, 0x00ab05, 0x0003ac, 0xedb1ff, 0x154e56, 0x8d476f, 0x6c8c60, 0xf87574, 0xf6e38b, 0x5b430b, 0xa2f0eb, 0xe3e0f5, 0x115205, 0x39eec0, 0x1f3e9e, 0x89aa0d, 0xfb7810
+};*/
+unsigned int data_midifx_pal2[32];
+
+unsigned int data_midifx_pal_custom[32]={
     0x0000fe, 0xfd00fe, 0xfe0000, 0x0aff05, 0xff78ff, 0x7900ff, 0x0077fe, 0x9701ff, 0xfeff05, 0x0700ba, 0x77fe77, 0x4187ba, 0xb98744, 0xf034ab, 0xaa31ec, 0xaa0001, 0x00ab05, 0x0003ac, 0xedb1ff, 0x154e56, 0x8d476f, 0x6c8c60, 0xf87574, 0xf6e38b, 0x5b430b, 0xa2f0eb, 0xe3e0f5, 0x115205, 0x39eec0, 0x1f3e9e, 0x89aa0d, 0xfb7810
 };
 
@@ -5648,6 +5653,10 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
             memset(data_midifx_st[j],0,256*sizeof(unsigned int));
         }
     }
+    
+    if (settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value==0) data_midifx_col=data_midifx_pal1;
+    else if (settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value==1) data_midifx_col=data_midifx_pal2;
+    else data_midifx_col=data_midifx_pal_custom;
     
     if (!paused) data_midifx_framecpt++;
 }

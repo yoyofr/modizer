@@ -423,7 +423,7 @@ void optNSFPLAYChangedC(id param) {
 }
 
 
-+(void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx {
++(void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer; {
     float start_pos,mul_factor,sat;
     
     switch (_mode) {
@@ -452,25 +452,28 @@ void optNSFPLAYChangedC(id param) {
         UIColor *col=[UIColor colorWithHue:hue saturation:sat brightness:1.0f alpha:1.0f];
         CGFloat red,green,blue;
         [col getRed:&red green:&green blue:&blue alpha:NULL];
-        CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
-        if ((color_idx<0)||(color_idx==(i+2))) settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        //CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
+        if ((color_idx<0)||(color_idx==(i+2))) {
+            if (color_buffer) color_buffer[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+            else settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        }
     }
 }
 
 
-+(void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx {
++(void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer{
     float start_pos,mul_factor,sat;
     
     switch (_mode) {
         case 1:
             start_pos=55.0f/360.0f;
             mul_factor=(5.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
-            sat=0.8f;
+            sat=1.0f;
             break;
         case 0:
             start_pos=240.0f/360.0f;
             mul_factor=(9.5f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
-            sat=0.6f;
+            sat=1.0f;
             break;
         default:
             break;
@@ -484,7 +487,10 @@ void optNSFPLAYChangedC(id param) {
         CGFloat red,green,blue;
         [col getRed:&red green:&green blue:&blue alpha:NULL];
         CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
-        if ((color_idx<0)||(color_idx==i)) settings[PIANOMIDI_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        if ((color_idx<0)||(color_idx==i)) {
+            if (color_buffer) color_buffer[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+            else settings[PIANOMIDI_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        }
     }
 }
 
@@ -583,10 +589,13 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
     settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
+    
     settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value=1;
     settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=1;
     
-    [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1];
+    [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:NULL];
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value=0;
+    
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
     settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
     
@@ -598,8 +607,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
     
-    [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1];
-    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value=0;
+    [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:NULL];
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value=1;
@@ -891,7 +900,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     
     SETTINGS_ID_DEF(GLOB_PanningValue)
-    settings[GLOB_PanningValue].label=(char*)"Panning Value";
+    settings[GLOB_PanningValue].label=(char*)"Panning value";
     settings[GLOB_PanningValue].description=NULL;
     settings[GLOB_PanningValue].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_PanningValue].sub_family=0;
@@ -1009,19 +1018,19 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_BackgroundMode)
     settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
     settings[GLOB_BackgroundMode].label=(char*)"Background mode";
-    settings[GLOB_BackgroundMode].description=NULL;
+    settings[GLOB_BackgroundMode].description=(char*)"Off=no background process, Partial=keep playing music, Full=keep app on in background";
     settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_BackgroundMode].sub_family=0;
     settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Play";
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Partial";
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
     
     SETTINGS_ID_DEF(GLOB_EnqueueMode)
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
-    settings[GLOB_EnqueueMode].label=(char*)"Enqueue mode";
+    settings[GLOB_EnqueueMode].label=(char*)"Enqueue position";
     settings[GLOB_EnqueueMode].description=NULL;
     settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_EnqueueMode].sub_family=0;
@@ -1747,6 +1756,28 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_MONO_COLOR].sub_family=0;
     settings[OSCILLO_MONO_COLOR].callback=&optOSCILLOColorChangedC;
     settings[OSCILLO_MONO_COLOR].type=MDZ_COLORPICKER;
+
+    SETTINGS_ID_DEF(OSCILLO_MULTI_COLORSET)
+    settings[OSCILLO_MULTI_COLORSET].type=MDZ_SWITCH;
+    settings[OSCILLO_MULTI_COLORSET].label=(char*)"Colors set";
+    settings[OSCILLO_MULTI_COLORSET].description=(char*)"Choose between 2 standard sets or customized colors";;
+    settings[OSCILLO_MULTI_COLORSET].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_COLORSET].sub_family=0;
+    settings[OSCILLO_MULTI_COLORSET].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=3;
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Set 2";
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Custom";
+    
+    SETTINGS_ID_DEF(OSCILLO_MULTI_RESETALL)
+    settings[OSCILLO_MULTI_RESETALL].label=(char*)"Reset all";
+    settings[OSCILLO_MULTI_RESETALL].description=(char*)"Reset all custom colors";
+    settings[OSCILLO_MULTI_RESETALL].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_MULTI_RESETALL].sub_family=0;
+    settings[OSCILLO_MULTI_RESETALL].callback=&optOSCILLOColorChangedC;
+    settings[OSCILLO_MULTI_RESETALL].mdz_selector=@selector(resetAllColor:);
+    settings[OSCILLO_MULTI_RESETALL].type=MDZ_BUTTON;
     
     SETTINGS_ID_DEF(OSCILLO_MULTI_COLOR01)
     settings[OSCILLO_MULTI_COLOR01].label=(char*)"Multi color | System 1";
@@ -1818,16 +1849,17 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     ///
     
-    SETTINGS_ID_DEF(PIANOMIDI_COLORSET)
-    settings[PIANOMIDI_COLORSET].type=MDZ_SWITCH;
-    settings[PIANOMIDI_COLORSET].label=(char*)"Oscillo labels font size";
-    settings[PIANOMIDI_COLORSET].description=NULL;
-    settings[PIANOMIDI_COLORSET].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
-    settings[PIANOMIDI_COLORSET].sub_family=0;
-    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value_nb=2;
-    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
-    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Custom";
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLORSET)
+    settings[PIANOMIDI_MULTI_COLORSET].type=MDZ_SWITCH;
+    settings[PIANOMIDI_MULTI_COLORSET].label=(char*)"Colors set";
+    settings[PIANOMIDI_MULTI_COLORSET].description=(char*)"Choose between 2 standard sets or customized colors";
+    settings[PIANOMIDI_MULTI_COLORSET].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLORSET].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=3;
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Set 2";
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Custom";
     
     SETTINGS_ID_DEF(PIANOMIDI_MULTI_RESETALL)
     settings[PIANOMIDI_MULTI_RESETALL].label=(char*)"Reset all";
@@ -2078,7 +2110,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_OMPT].sub_family=MDZ_SETTINGS_FAMILY_OMPT;
     
     SETTINGS_ID_DEF(OMPT_MasterVolume)
-    settings[OMPT_MasterVolume].label=(char*)"Master Volume";
+    settings[OMPT_MasterVolume].label=(char*)"Master volume";
     settings[OMPT_MasterVolume].description=NULL;
     settings[OMPT_MasterVolume].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[OMPT_MasterVolume].sub_family=0;
@@ -2104,7 +2136,7 @@ void optNSFPLAYChangedC(id param) {
     settings[OMPT_Sampling].detail.mdz_switch.switch_labels[4]=(char*)"Win.";
     
     SETTINGS_ID_DEF(OMPT_StereoSeparation)
-    settings[OMPT_StereoSeparation].label=(char*)"Panning";
+    settings[OMPT_StereoSeparation].label=(char*)"Panning (Stereo separation)";
     settings[OMPT_StereoSeparation].description=NULL;
     settings[OMPT_StereoSeparation].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[OMPT_StereoSeparation].sub_family=0;
@@ -2139,7 +2171,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GME_PBRATIO_ONOFF)
     settings[GME_PBRATIO_ONOFF].type=MDZ_BOOLSWITCH;
-    settings[GME_PBRATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[GME_PBRATIO_ONOFF].label=(char*)"Enable playback ratio";
     settings[GME_PBRATIO_ONOFF].description=NULL;
     settings[GME_PBRATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_PBRATIO_ONOFF].sub_family=0;
@@ -2149,14 +2181,14 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GME_IGNORESILENCE)
     settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
     settings[GME_IGNORESILENCE].label=(char*)"Silence detection";
-    settings[GME_IGNORESILENCE].description=NULL;
+    settings[GME_IGNORESILENCE].description=(char*)"Will skip song if nothing is played for specified duration (0=off)";
     settings[GME_IGNORESILENCE].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_IGNORESILENCE].sub_family=0;
     settings[GME_IGNORESILENCE].callback=&optGMEChangedC;
     settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GME_PBRATIO)
-    settings[GME_PBRATIO].label=(char*)"Playback Ratio";
+    settings[GME_PBRATIO].label=(char*)"Playback ratio";
     settings[GME_PBRATIO].description=NULL;
     settings[GME_PBRATIO].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_PBRATIO].sub_family=0;
@@ -2197,7 +2229,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_max_value=5;
     
     SETTINGS_ID_DEF(GME_STEREO_PANNING)
-    settings[GME_STEREO_PANNING].label=(char*)"Panning";
+    settings[GME_STEREO_PANNING].label=(char*)"Panning (Stereo separation)";
     settings[GME_STEREO_PANNING].description=NULL;
     settings[GME_STEREO_PANNING].family=MDZ_SETTINGS_FAMILY_GME;
     settings[GME_STEREO_PANNING].sub_family=0;
@@ -2219,7 +2251,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GSF_SOUNDQUALITY)
     settings[GSF_SOUNDQUALITY].type=MDZ_SWITCH;
-    settings[GSF_SOUNDQUALITY].label=(char*)"Sound Quality";
+    settings[GSF_SOUNDQUALITY].label=(char*)"Quality";
     settings[GSF_SOUNDQUALITY].description=NULL;
     settings[GSF_SOUNDQUALITY].family=MDZ_SETTINGS_FAMILY_GSF;
     settings[GSF_SOUNDQUALITY].sub_family=0;
@@ -2241,7 +2273,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GSF_LOWPASSFILTER)
     settings[GSF_LOWPASSFILTER].type=MDZ_BOOLSWITCH;
-    settings[GSF_LOWPASSFILTER].label=(char*)"Lowpass Filter";
+    settings[GSF_LOWPASSFILTER].label=(char*)"LP filter";
     settings[GSF_LOWPASSFILTER].description=NULL;
     settings[GSF_LOWPASSFILTER].family=MDZ_SETTINGS_FAMILY_GSF;
     settings[GSF_LOWPASSFILTER].sub_family=0;
@@ -2314,7 +2346,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(NSFPLAY_Region)
     settings[NSFPLAY_Region].type=MDZ_SWITCH;
     settings[NSFPLAY_Region].label=(char*)"Region";
-    settings[NSFPLAY_Region].description=(char*)"1/2/3=prefer NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY";
+    settings[NSFPLAY_Region].description=(char*)"1/2/3=NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY";
     settings[NSFPLAY_Region].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_Region].sub_family=0;
     settings[NSFPLAY_Region].callback=&optNSFPLAYChangedC;
@@ -2608,7 +2640,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(TIM_LPFilter)
     settings[TIM_LPFilter].type=MDZ_BOOLSWITCH;
-    settings[TIM_LPFilter].label=(char*)"LPFilter";
+    settings[TIM_LPFilter].label=(char*)"LP filter";
     settings[TIM_LPFilter].description=NULL;
     settings[TIM_LPFilter].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_LPFilter].sub_family=0;
@@ -2673,7 +2705,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(VGMPLAY_PBRATIO_ONOFF)
     settings[VGMPLAY_PBRATIO_ONOFF].type=MDZ_BOOLSWITCH;
-    settings[VGMPLAY_PBRATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[VGMPLAY_PBRATIO_ONOFF].label=(char*)"Enable playback ratio";
     settings[VGMPLAY_PBRATIO_ONOFF].description=NULL;
     settings[VGMPLAY_PBRATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_PBRATIO_ONOFF].sub_family=0;
@@ -2681,7 +2713,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(VGMPLAY_PBRATIO)
-    settings[VGMPLAY_PBRATIO].label=(char*)"Playback Ratio";
+    settings[VGMPLAY_PBRATIO].label=(char*)"Playback ratio";
     settings[VGMPLAY_PBRATIO].description=NULL;
     settings[VGMPLAY_PBRATIO].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_PBRATIO].sub_family=0;
@@ -2939,7 +2971,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(SID_ForceLoop)
     settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
-    settings[SID_ForceLoop].label=(char*)"Force Loop";
+    settings[SID_ForceLoop].label=(char*)"Force loop";
     settings[SID_ForceLoop].description=NULL;
     settings[SID_ForceLoop].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_ForceLoop].sub_family=0;
@@ -2948,7 +2980,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(SID_CLOCK)
     settings[SID_CLOCK].type=MDZ_SWITCH;
-    settings[SID_CLOCK].label=(char*)"CLOCK";
+    settings[SID_CLOCK].label=(char*)"Clock";
     settings[SID_CLOCK].description=NULL;
     settings[SID_CLOCK].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_CLOCK].sub_family=0;
@@ -3029,7 +3061,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_Gain].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(UADE_GainValue)
-    settings[UADE_GainValue].label=(char*)"Gain Value";
+    settings[UADE_GainValue].label=(char*)"Gain value";
     settings[UADE_GainValue].description=NULL;
     settings[UADE_GainValue].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_GainValue].sub_family=0;
@@ -3042,7 +3074,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(UADE_Pan)
     settings[UADE_Pan].type=MDZ_BOOLSWITCH;
-    settings[UADE_Pan].label=(char*)"Panning";
+    settings[UADE_Pan].label=(char*)"Panning (Stereo separation)";
     settings[UADE_Pan].description=NULL;
     settings[UADE_Pan].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Pan].sub_family=0;
@@ -3050,7 +3082,7 @@ void optNSFPLAYChangedC(id param) {
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     
     SETTINGS_ID_DEF(UADE_PanValue)
-    settings[UADE_PanValue].label=(char*)"Panning Value";
+    settings[UADE_PanValue].label=(char*)"Panning value";
     settings[UADE_PanValue].description=NULL;
     settings[UADE_PanValue].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_PanValue].sub_family=0;
@@ -3173,24 +3205,24 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_XMP].sub_family=MDZ_SETTINGS_FAMILY_XMP;
     
     SETTINGS_ID_DEF(XMP_MasterVolume)
-    settings[XMP_MasterVolume].label=(char*)"Master Volume";
+    settings[XMP_MasterVolume].label=(char*)"Master volume";
     settings[XMP_MasterVolume].description=NULL;
     settings[XMP_MasterVolume].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_MasterVolume].sub_family=0;
     settings[XMP_MasterVolume].callback=&optXMPChangedC;
     settings[XMP_MasterVolume].type=MDZ_SLIDER_DISCRETE;
-    settings[XMP_MasterVolume].detail.mdz_slider.slider_digits=100;
+    settings[XMP_MasterVolume].detail.mdz_slider.slider_digits=0;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_min_value=0;
     settings[XMP_MasterVolume].detail.mdz_slider.slider_max_value=200;
     
     SETTINGS_ID_DEF(XMP_StereoSeparation)
-    settings[XMP_StereoSeparation].label=(char*)"Stereo Separation";
+    settings[XMP_StereoSeparation].label=(char*)"Stereo separation";
     settings[XMP_StereoSeparation].description=NULL;
     settings[XMP_StereoSeparation].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_StereoSeparation].sub_family=0;
     settings[XMP_StereoSeparation].callback=&optXMPChangedC;
     settings[XMP_StereoSeparation].type=MDZ_SLIDER_DISCRETE;
-    settings[XMP_StereoSeparation].detail.mdz_slider.slider_digits=100;
+    settings[XMP_StereoSeparation].detail.mdz_slider.slider_digits=0;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_max_value=100;
     
@@ -3462,8 +3494,13 @@ void optNSFPLAYChangedC(id param) {
     
     
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"PIANOMIDI_MULTI_RESETALL")==0) {
-        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1];
+        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
+        [tableView reloadData];
+    }
+    if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_RESETALL")==0) {
+        [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:NULL];
+        [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
     }
 }
@@ -3488,7 +3525,7 @@ void optNSFPLAYChangedC(id param) {
     
     
     if (colidx>=0) {
-        [SettingsGenViewController oscilloGenSystemColor:0 color_idx:colidx];
+        [SettingsGenViewController oscilloGenSystemColor:0 color_idx:colidx color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
         return;
@@ -3505,7 +3542,7 @@ void optNSFPLAYChangedC(id param) {
     }
     
     if (colidx>=0) {
-        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:colidx];
+        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:colidx color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
         [tableView reloadData];
         return;
@@ -3916,7 +3953,7 @@ void optNSFPLAYChangedC(id param) {
         case MDZ_SWITCH:{
             tmpArray=[[NSMutableArray alloc] init];
             for (int i=0;i<settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value_nb;i++) {
-                [tmpArray addObject:[NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
+                [tmpArray addObject:NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]),@"")];
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
             segconview.frame=CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30);

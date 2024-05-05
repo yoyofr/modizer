@@ -39,14 +39,20 @@ missing seek support:
 
 3.6
 ---
-- [PLAYER] migration from vgmplay to libvgm with support for S98, GYM & DR0
+- [All] Bug fixes & stability improvements
 - [FX] New Piano Roll FX
 - [FX] Notes scroller FX improvements
+- [FX] ADPLUG generates detailed oscilloscope output & notes data (Woody OPL3 only)
+- [FX] ASAP generates detailed oscilloscope output & notes data
+- [FX] STSOUND generates detailed oscilloscope output & notes data
+- [FX] HVL/AHX generates detailed oscilloscope output & notes data
+- [FX] LIBVGM generates oscilloscope output & notes data (not all emulation cores)
+- [FX] MDX/PDX now generates oscilloscope output & notes data
+- [FX] Timidity now generates oscilloscope output & notes data
+- [FX] LIBKSS generates detailed oscilloscope output
+- [FX] Several oscilloscope improvements
 - [PLAYER] New player for Gameboy GBS file, GBSPLAY. Support oscilloscope FX & voices muting
-- [UI] Downloads management improved, max queue is now 16384 and pending items are saved when exiting app
-- [DB] Online collection loading optimized
-- [UI] Improved threads management to improve global application responsiveness
-- [UI] Replaykit implemented to record video
+- [PLAYER] migration from vgmplay to libvgm bringing support for S98, GYM & DR0
 - [PLAYER] WebSID re-added following request. Now possible to choose default SID player between sidplayfp & WebSID
 - [PLAYER] Issue with shuffle modes fixed 
 - [PLAYER] ADPLUG updated to latest version
@@ -57,28 +63,24 @@ missing seek support:
 - [PLAYER] MDX/PDX now supports seek
 - [PLAYER] Timidity custom soundfont support: will load sf2 files present in same directory/archive as the mid files (trying first same name as the mid file and if not found, will take first one in same dir/archive)
 - [PLAYER] PMDMINI bugfixes
+- [PLAYER] STSOUND now support voices muting
+- [UI] Downloads management improved, max queue is now 16384 and pending items are saved when exiting app
+- [UI] Improved threads management to improve global application responsiveness
+- [UI] Replaykit implemented to record video
 - [UI] Searches are now regular expression based
 - [UI] Local browser loading time optimized
-- [DB] MODLAND updated to latest version
-- [DB] Fixed some bugs in STIL data processing (HVSC, ASMA)
-- [DB] ASMA updated to latest version
-- [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [UI] Settings updated, new section for default players / main category
 - [UI] Favorites management improved to select between songs & files
 - [UI] Capacity to sort playlist by fullpath
 - [UI] Capacity to save a playlist to a new one (create a copy)
 - [UI] Playlist management improved and optimized
+- [UI] New option to manage archive/multisongs files
+- [DB] MODLAND updated to latest version (05/05/2024)
+- [DB] ASMA updated to latest version (05/05/2024)
+- [DB] Fixed some bugs in STIL data processing (HVSC, ASMA)
+- [DB] MODLAND better management of secondary files for MDX/PDX & Euphony
 - [DB] User stats management improved
-- [PLAYER] STSOUND now support voices muting
-- [FX] ADPLUG now generates detailed oscilloscope output (Woody OPL3 only)
-- [FX] LIBKSS now generates detailed oscilloscope output
-- [FX] STSOUND now generates detailed oscilloscope output
-- [FX] HVL/AHX now generates detailed oscilloscope output
-- [FX] VGMPlay/NukeOPN2 now generates oscilloscope output
-- [FX] MDX/PDX now generates oscilloscope output
-- [FX] Timidity now generates oscilloscope output
-- [FX] Several oscilloscope improvements
-- [All] Bug fixes & stability improvements
+- [DB] Online collection loading optimized
 
 
 3.5

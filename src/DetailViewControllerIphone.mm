@@ -53,6 +53,13 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 #include "RenderUtils.h"
 #include "FXFluid.h"
 
+extern unsigned int data_midifx_pal1[32];
+extern unsigned int data_midifx_pal2[32];
+extern unsigned int data_midifx_pal_custom[32];
+
+extern unsigned int m_voice_oscillo_pal1[8];
+extern unsigned int m_voice_oscillo_pal2[8];
+
 #include <QuartzCore/CADisplayLink.h>
 #import <OpenGLES/EAGLDrawable.h>
 #include <OpenGLES/ES1/glext.h>
@@ -970,6 +977,15 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_OSCILLO)) {
         [mplayer optUpdateSystemColor];
+    }
+    
+    /////////////////////
+    //PR&NS
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_PIANOMIDI)) {
+        for (int i=0;i<32;i++) {
+            data_midifx_pal_custom[i]=settings[PIANOMIDI_MULTI_COLOR01+i].detail.mdz_color.rgb;
+        }
     }
     
     /////////////////////
@@ -5616,6 +5632,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[SUBMENU8_START+1]=txtMenuHandle[11];
     txtSubMenuHandle[SUBMENU8_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
     txtSubMenuHandle[SUBMENU8_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
+    
+//Init colors
+    [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
+    [SettingsGenViewController pianomidiGenSystemColor:1 color_idx:-1 color_buffer:data_midifx_pal2];
+    
+    [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:m_voice_oscillo_pal1];
+    [SettingsGenViewController oscilloGenSystemColor:1 color_idx:-1 color_buffer:m_voice_oscillo_pal2];
     
     end_time=clock();
 #ifdef LOAD_PROFILE

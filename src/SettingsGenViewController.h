@@ -261,6 +261,8 @@ enum MDZ_SETTINGS {
         OSCILLO_GRID_COLOR,
         OSCILLO_LINE_Width,
         OSCILLO_MONO_COLOR,
+        OSCILLO_MULTI_COLORSET,
+        OSCILLO_MULTI_RESETALL,
         OSCILLO_MULTI_COLOR01,
         OSCILLO_MULTI_COLOR02,
         OSCILLO_MULTI_COLOR03,
@@ -279,7 +281,7 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern_Font,
     GLOB_FXMODPattern_FontSize,
         MDZ_SETTINGS_FAMILY_PIANOMIDI_COL,
-        PIANOMIDI_COLORSET,
+        PIANOMIDI_MULTI_COLORSET,
         PIANOMIDI_MULTI_RESETALL,
         PIANOMIDI_MULTI_COLOR01,
         PIANOMIDI_MULTI_COLOR02,
@@ -442,8 +444,8 @@ typedef struct {
 + (void) restoreSettings;
 + (void) backupSettings;
 + (void) applyDefaultSettings;
-+ (void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx;
-+ (void) pianomidiGenSystemColor:(int)mode color_idx:(int)color_idx;
++ (void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
++ (void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
 
 - (IBAction) goPlayer;
 - (void) updateMiniPlayer;
