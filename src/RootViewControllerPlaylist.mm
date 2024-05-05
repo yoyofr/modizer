@@ -2906,6 +2906,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             
             [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             /*topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,

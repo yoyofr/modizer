@@ -712,5 +712,57 @@
 /* (No Comment) */
 "Yes" = "Oui";
 
+"Default Players"="Lecteurs par défaut";
+"MOD player"="Lecteur MOD";
+"SAP player"="Lecteur SAP";
+"SID player"="Lecteur SID";
+"VGM player"="Lecteur VGM";
+"NSF player"="Lecteur NSF";
+"GBS player"="Lecteur GBS";
+"KSS player"="Lecteur KSS";
+"2SF player"="Lecteur 2SF";
+"MIDI player"="Lecteur MIDI";
+"Adplug priority for module"="Priorité ADPlug/OMPT pour les mods FM";
 "Visualizers"="Visualiseurs";
 
+"Disable screen auto lock"="Désactiver le verouillage automatique";
+"Force Mono"="Forcer mono";
+"Panning (Stereo separation)"="Panning (Séparation stéréo)";
+"Panning value"="Niveau de panning";
+"Default Length"="Durée par défaut";
+"Audio latency in ms"="Latence audio en ms";
+
+"Custom color 01"="Couleur personalisée 01";
+"Custom color 02"="Couleur personalisée 02";
+"Custom color 03"="Couleur personalisée 03";
+"Custom color 04"="Couleur personalisée 04";
+"Custom color 05"="Couleur personalisée 05";
+"Custom color 06"="Couleur personalisée 06";
+"Custom color 07"="Couleur personalisée 07";
+"Custom color 08"="Couleur personalisée 08";
+"Custom color 09"="Couleur personalisée 09";
+"Custom color 10"="Couleur personalisée 10";
+"Custom color 11"="Couleur personalisée 11";
+"Custom color 12"="Couleur personalisée 12";
+"Custom color 13"="Couleur personalisée 13";
+"Custom color 14"="Couleur personalisée 14";
+"Custom color 15"="Couleur personalisée 15";
+"Custom color 16"="Couleur personalisée 16";
+"Custom color 17"="Couleur personalisée 17";
+"Custom color 18"="Couleur personalisée 18";
+"Custom color 19"="Couleur personalisée 19";
+"Custom color 20"="Couleur personalisée 20";
+"Custom color 21"="Couleur personalisée 21";
+"Custom color 22"="Couleur personalisée 22";
+"Custom color 23"="Couleur personalisée 23";
+"Custom color 24"="Couleur personalisée 24";
+"Custom color 25"="Couleur personalisée 25";
+"Custom color 26"="Couleur personalisée 26";
+"Custom color 27"="Couleur personalisée 27";
+"Custom color 28"="Couleur personalisée 28";
+"Custom color 29"="Couleur personalisée 29";
+"Custom color 30"="Couleur personalisée 30";
+"Custom color 31"="Couleur personalisée 31";
+"Custom color 32"="Couleur personalisée 32";
+
+"Custom"="Personalisé";

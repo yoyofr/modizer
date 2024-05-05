@@ -29,7 +29,8 @@ enum MDZ_SETTINGS_TYPE {
     MDZ_SLIDER_DISCRETE_TIME,
     MDZ_TEXTBOX,
     MDZ_MSGBOX,
-    MDZ_COLORPICKER
+    MDZ_COLORPICKER,
+    MDZ_BUTTON
 };
 
 enum MDZ_SETTINGS_SCOPE {
@@ -50,7 +51,8 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_XMP,
     SETTINGS_ONLINE,
     SETTINGS_NSFPLAY,
-    SETTINGS_OSCILLO
+    SETTINGS_OSCILLO,
+    SETTINGS_PIANOMIDI
 };
 
 enum MDZ_SETTINGS {
@@ -79,15 +81,15 @@ enum MDZ_SETTINGS {
     GLOB_StatsUpload,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY,
+    GLOB_Default2SFPlayer,
+    GLOB_DefaultGBSPlayer,
+    GLOB_DefaultKSSPlayer,
+    GLOB_DefaultMIDIPlayer,
     GLOB_DefaultMODPlayer,
+    GLOB_DefaultNSFPlayer,
     GLOB_DefaultSAPPlayer,
     GLOB_DefaultSIDPlayer,
     GLOB_DefaultVGMPlayer,
-    GLOB_DefaultNSFPlayer,
-    GLOB_DefaultGBSPlayer,
-    GLOB_DefaultKSSPlayer,
-    GLOB_Default2SFPlayer,
-    GLOB_DefaultMIDIPlayer,
     ADPLUG_PriorityOMPT,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_FTP,
@@ -276,6 +278,41 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern_CurrentLineMode,
     GLOB_FXMODPattern_Font,
     GLOB_FXMODPattern_FontSize,
+        MDZ_SETTINGS_FAMILY_PIANOMIDI_COL,
+        PIANOMIDI_COLORSET,
+        PIANOMIDI_MULTI_RESETALL,
+        PIANOMIDI_MULTI_COLOR01,
+        PIANOMIDI_MULTI_COLOR02,
+        PIANOMIDI_MULTI_COLOR03,
+        PIANOMIDI_MULTI_COLOR04,
+        PIANOMIDI_MULTI_COLOR05,
+        PIANOMIDI_MULTI_COLOR06,
+        PIANOMIDI_MULTI_COLOR07,
+        PIANOMIDI_MULTI_COLOR08,
+        PIANOMIDI_MULTI_COLOR09,
+        PIANOMIDI_MULTI_COLOR10,
+        PIANOMIDI_MULTI_COLOR11,
+        PIANOMIDI_MULTI_COLOR12,
+        PIANOMIDI_MULTI_COLOR13,
+        PIANOMIDI_MULTI_COLOR14,
+        PIANOMIDI_MULTI_COLOR15,
+        PIANOMIDI_MULTI_COLOR16,
+        PIANOMIDI_MULTI_COLOR17,
+        PIANOMIDI_MULTI_COLOR18,
+        PIANOMIDI_MULTI_COLOR19,
+        PIANOMIDI_MULTI_COLOR20,
+        PIANOMIDI_MULTI_COLOR21,
+        PIANOMIDI_MULTI_COLOR22,
+        PIANOMIDI_MULTI_COLOR23,
+        PIANOMIDI_MULTI_COLOR24,
+        PIANOMIDI_MULTI_COLOR25,
+        PIANOMIDI_MULTI_COLOR26,
+        PIANOMIDI_MULTI_COLOR27,
+        PIANOMIDI_MULTI_COLOR28,
+        PIANOMIDI_MULTI_COLOR29,
+        PIANOMIDI_MULTI_COLOR30,
+        PIANOMIDI_MULTI_COLOR31,
+        PIANOMIDI_MULTI_COLOR32,
     GLOB_FXPianoRoll,
     GLOB_FXPianoRollSpark,
     GLOB_FXPianoRollVoicesLabels,
@@ -349,6 +386,7 @@ typedef struct {
     unsigned short int family;
     unsigned short int sub_family;
     void (*callback)(id);
+    SEL mdz_selector;
     union {
         t_setting_slider mdz_slider;
         t_setting_switch mdz_switch;
@@ -397,7 +435,6 @@ typedef struct {
 @property (nonatomic,retain) IBOutlet TPKeyboardAvoidingTableView *tableView;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 
-
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
@@ -405,11 +442,10 @@ typedef struct {
 + (void) restoreSettings;
 + (void) backupSettings;
 + (void) applyDefaultSettings;
-+(void) oscilloGenSystemColor:(int)mode;
++ (void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx;
++ (void) pianomidiGenSystemColor:(int)mode color_idx:(int)color_idx;
 
--(IBAction) goPlayer;
--(void) updateMiniPlayer;
-
-
+- (IBAction) goPlayer;
+- (void) updateMiniPlayer;
 
 @end

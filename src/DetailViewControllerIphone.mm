@@ -1765,7 +1765,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         // Set new directory
         ((RootViewControllerPlaylist*)nowplayingPL)->browse_depth = 1;
         ((RootViewControllerPlaylist*)nowplayingPL)->detailViewController=self;
-        ((RootViewControllerPlaylist*)nowplayingPL)->playlist=temp_playlist;
         ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
         ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
         ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=mPlaylist_pos+1;
@@ -5274,10 +5273,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
      btnPrevSubCFlow.titleEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
      btnNextSubCFlow.titleEdgeInsets =UIEdgeInsetsMake(16,8,0,8);
      */
-    lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==DEVICE_IPHONE?16:32)];
-    lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
-    lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
-    lblTimeFCflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:20)];
+    lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==DEVICE_IPHONE?16:18)];
+    lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:12)];
+    lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:12)];
+    lblTimeFCflow.font=[UIFont systemFontOfSize:(mDeviceType==DEVICE_IPHONE?10:12)];
     
     lblMainCoverflow.backgroundColor=[UIColor clearColor];
     lblSecCoverflow.backgroundColor=[UIColor clearColor];

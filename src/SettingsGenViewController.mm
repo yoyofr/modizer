@@ -94,38 +94,38 @@ volatile t_settings settings[MAX_SETTINGS];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath != nil) {
         //if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
-            int crow=indexPath.row;
-            int csection=indexPath.section;
-            if (csection>=0) {
-                //display popup
+        //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
+        int crow=indexPath.row;
+        int csection=indexPath.section;
+        if (csection>=0) {
+            //display popup
+            
+            //get info
+            NSError *err;
+            NSDictionary *dict;
+            
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
                 
-                //get info
-                NSError *err;
-                NSDictionary *dict;
-                
-                if (settings[cur_settings_idx[indexPath.section]].description) {
-                    NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+                if (self.popTipView == nil) {
+                    self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
+                    self.popTipView.delegate = self;
+                    self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                    self.popTipView.textColor = [UIColor darkTextColor];
                     
-                    if (self.popTipView == nil) {
-                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
-                        self.popTipView.delegate = self;
-                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
-                        self.popTipView.textColor = [UIColor darkTextColor];
-                        
+                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    popTipViewRow=crow;
+                    popTipViewSection=csection;
+                } else {
+                    if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                        self.popTipView.message=str;
                         [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
                         popTipViewRow=crow;
                         popTipViewSection=csection;
-                    } else {
-                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
-                            self.popTipView.message=str;
-                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
-                            popTipViewRow=crow;
-                            popTipViewSection=csection;
-                        }
                     }
                 }
-           // }
+            }
+            // }
         } else {
             //hide popup
             if (popTipView!=nil) {
@@ -154,6 +154,14 @@ volatile t_settings settings[MAX_SETTINGS];
 }
 void optOSCILLOColorChangedC(id param) {
     [param optOSCILLOColorChanged];
+}
+
+//PR & NS Colors
+-(void) optPIANOMIDIColorChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
+}
+void optPIANOMIDIColorChangedC(id param) {
+    [param optPIANOMIDIColorChanged];
 }
 
 //FTP
@@ -293,11 +301,11 @@ void optNSFPLAYChangedC(id param) {
             str=[NSString stringWithFormat:@"%s",settings[i].setting_id];
             
             /*str=[NSString stringWithFormat:@"%s",settings[i].label];
-            int j=settings[i].family;
-            while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-                str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
-                j=settings[j].family;
-            }*/
+             int j=settings[i].family;
+             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
+             str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
+             j=settings[j].family;
+             }*/
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -347,6 +355,8 @@ void optNSFPLAYChangedC(id param) {
                     break;
                 case MDZ_FAMILY:
                     break;
+                case MDZ_BUTTON:
+                    break;
             }
         }
     [SettingsGenViewController ONLINEswitchChanged];
@@ -364,11 +374,11 @@ void optNSFPLAYChangedC(id param) {
             
             //NSLog(@"backup settings: %@",str);
             /*str=[NSString stringWithFormat:@"%s",settings[i].label];
-            int j=settings[i].family;
-            while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-                str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
-                j=settings[j].family;
-            }*/
+             int j=settings[i].family;
+             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
+             str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
+             j=settings[j].family;
+             }*/
             //NSLog(@"got: %@",str);
             
             switch (settings[i].type) {
@@ -404,6 +414,8 @@ void optNSFPLAYChangedC(id param) {
                 case MDZ_MSGBOX:
                     break;
                 case MDZ_FAMILY:
+                    break;
+                case MDZ_BUTTON:
                     break;
             }
         }
@@ -446,6 +458,37 @@ void optNSFPLAYChangedC(id param) {
 }
 
 
++(void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx {
+    float start_pos,mul_factor,sat;
+    
+    switch (_mode) {
+        case 1:
+            start_pos=55.0f/360.0f;
+            mul_factor=(5.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.8f;
+            break;
+        case 0:
+            start_pos=240.0f/360.0f;
+            mul_factor=(9.5f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.6f;
+            break;
+        default:
+            break;
+    }
+    
+    for (int i=0;i<32;i++) {
+        CGFloat hue=start_pos+i*mul_factor;
+        while (hue>1.0) hue-=1.0f;
+        while (hue<0.0) hue+=1.0f;
+        UIColor *col=[UIColor colorWithHue:hue saturation:sat brightness:1.0f alpha:1.0f];
+        CGFloat red,green,blue;
+        [col getRed:&red green:&green blue:&blue alpha:NULL];
+        CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
+        if ((color_idx<0)||(color_idx==i)) settings[PIANOMIDI_MULTI_COLOR01+i].detail.mdz_color.rgb=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+    }
+}
+
+
 
 + (void) applyDefaultSettings {
     /////////////////////////////////////
@@ -469,7 +512,7 @@ void optNSFPLAYChangedC(id param) {
     
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_value=0;
-        
+    
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value=0;
@@ -554,6 +597,9 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
+    
+    [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1];
+    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value=1;
@@ -791,6 +837,13 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].sub_family=MDZ_SETTINGS_FAMILY_OSCILLO;
     
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PIANOMIDI_COL)
+    settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].label=(char*)"PR & NS colors settings";
+    settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].sub_family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    
     
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PLUGINS)
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
@@ -858,7 +911,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_digits=60;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
-        
+    
     SETTINGS_ID_DEF(GLOB_AudioLatency)
     settings[GLOB_AudioLatency].type=MDZ_SWITCH;
     settings[GLOB_AudioLatency].label=(char*)"Audio latency in ms";
@@ -1759,6 +1812,257 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_MULTI_COLOR08].callback=&optOSCILLOColorChangedC;
     settings[OSCILLO_MULTI_COLOR08].type=MDZ_COLORPICKER;
     
+    
+    /////////////////////////////////////
+    //PR & NS Colors
+    /////////////////////////////////////
+    ///
+    
+    SETTINGS_ID_DEF(PIANOMIDI_COLORSET)
+    settings[PIANOMIDI_COLORSET].type=MDZ_SWITCH;
+    settings[PIANOMIDI_COLORSET].label=(char*)"Oscillo labels font size";
+    settings[PIANOMIDI_COLORSET].description=NULL;
+    settings[PIANOMIDI_COLORSET].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_COLORSET].sub_family=0;
+    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value_nb=2;
+    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
+    settings[PIANOMIDI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Custom";
+    
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_RESETALL)
+    settings[PIANOMIDI_MULTI_RESETALL].label=(char*)"Reset all";
+    settings[PIANOMIDI_MULTI_RESETALL].description=(char*)"Reset all custom colors";
+    settings[PIANOMIDI_MULTI_RESETALL].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_RESETALL].sub_family=0;
+    settings[PIANOMIDI_MULTI_RESETALL].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_RESETALL].mdz_selector=@selector(resetAllColor:);
+    settings[PIANOMIDI_MULTI_RESETALL].type=MDZ_BUTTON;
+    
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR01)
+    settings[PIANOMIDI_MULTI_COLOR01].label=(char*)"Custom color 01";
+    settings[PIANOMIDI_MULTI_COLOR01].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR01].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR01].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR01].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR01].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR02)
+    settings[PIANOMIDI_MULTI_COLOR02].label=(char*)"Custom color 02";
+    settings[PIANOMIDI_MULTI_COLOR02].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR02].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR02].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR02].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR02].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR03)
+    settings[PIANOMIDI_MULTI_COLOR03].label=(char*)"Custom color 03";
+    settings[PIANOMIDI_MULTI_COLOR03].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR03].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR03].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR03].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR03].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR04)
+    settings[PIANOMIDI_MULTI_COLOR04].label=(char*)"Custom color 04";
+    settings[PIANOMIDI_MULTI_COLOR04].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR04].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR04].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR04].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR04].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR05)
+    settings[PIANOMIDI_MULTI_COLOR05].label=(char*)"Custom color 05";
+    settings[PIANOMIDI_MULTI_COLOR05].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR05].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR05].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR05].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR05].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR06)
+    settings[PIANOMIDI_MULTI_COLOR06].label=(char*)"Custom color 06";
+    settings[PIANOMIDI_MULTI_COLOR06].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR06].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR06].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR06].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR06].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR07)
+    settings[PIANOMIDI_MULTI_COLOR07].label=(char*)"Custom color 07";
+    settings[PIANOMIDI_MULTI_COLOR07].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR07].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR07].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR07].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR07].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR08)
+    settings[PIANOMIDI_MULTI_COLOR08].label=(char*)"Custom color 08";
+    settings[PIANOMIDI_MULTI_COLOR08].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR08].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR08].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR08].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR08].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR09)
+    settings[PIANOMIDI_MULTI_COLOR09].label=(char*)"Custom color 09";
+    settings[PIANOMIDI_MULTI_COLOR09].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR09].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR09].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR09].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR09].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR10)
+    settings[PIANOMIDI_MULTI_COLOR10].label=(char*)"Custom color 10";
+    settings[PIANOMIDI_MULTI_COLOR10].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR10].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR10].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR10].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR10].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR11)
+    settings[PIANOMIDI_MULTI_COLOR11].label=(char*)"Custom color 11";
+    settings[PIANOMIDI_MULTI_COLOR11].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR11].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR11].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR11].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR11].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR12)
+    settings[PIANOMIDI_MULTI_COLOR12].label=(char*)"Custom color 12";
+    settings[PIANOMIDI_MULTI_COLOR12].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR12].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR12].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR12].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR12].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR13)
+    settings[PIANOMIDI_MULTI_COLOR13].label=(char*)"Custom color 13";
+    settings[PIANOMIDI_MULTI_COLOR13].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR13].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR13].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR13].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR13].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR14)
+    settings[PIANOMIDI_MULTI_COLOR14].label=(char*)"Custom color 14";
+    settings[PIANOMIDI_MULTI_COLOR14].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR14].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR14].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR14].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR14].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR15)
+    settings[PIANOMIDI_MULTI_COLOR15].label=(char*)"Custom color 15";
+    settings[PIANOMIDI_MULTI_COLOR15].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR15].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR15].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR15].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR15].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR16)
+    settings[PIANOMIDI_MULTI_COLOR16].label=(char*)"Custom color 16";
+    settings[PIANOMIDI_MULTI_COLOR16].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR16].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR16].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR16].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR16].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR17)
+    settings[PIANOMIDI_MULTI_COLOR17].label=(char*)"Custom color 17";
+    settings[PIANOMIDI_MULTI_COLOR17].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR17].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR17].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR17].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR17].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR18)
+    settings[PIANOMIDI_MULTI_COLOR18].label=(char*)"Custom color 18";
+    settings[PIANOMIDI_MULTI_COLOR18].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR18].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR18].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR18].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR18].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR19)
+    settings[PIANOMIDI_MULTI_COLOR19].label=(char*)"Custom color 19";
+    settings[PIANOMIDI_MULTI_COLOR19].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR19].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR19].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR19].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR19].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR20)
+    settings[PIANOMIDI_MULTI_COLOR20].label=(char*)"Custom color 20";
+    settings[PIANOMIDI_MULTI_COLOR20].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR20].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR20].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR20].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR20].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR21)
+    settings[PIANOMIDI_MULTI_COLOR21].label=(char*)"Custom color 21";
+    settings[PIANOMIDI_MULTI_COLOR21].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR21].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR21].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR21].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR21].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR22)
+    settings[PIANOMIDI_MULTI_COLOR22].label=(char*)"Custom color 22";
+    settings[PIANOMIDI_MULTI_COLOR22].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR22].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR22].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR22].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR22].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR23)
+    settings[PIANOMIDI_MULTI_COLOR23].label=(char*)"Custom color 23";
+    settings[PIANOMIDI_MULTI_COLOR23].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR23].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR23].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR23].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR23].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR24)
+    settings[PIANOMIDI_MULTI_COLOR24].label=(char*)"Custom color 24";
+    settings[PIANOMIDI_MULTI_COLOR24].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR24].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR24].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR24].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR24].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR25)
+    settings[PIANOMIDI_MULTI_COLOR25].label=(char*)"Custom color 25";
+    settings[PIANOMIDI_MULTI_COLOR25].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR25].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR25].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR25].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR25].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR26)
+    settings[PIANOMIDI_MULTI_COLOR26].label=(char*)"Custom color 26";
+    settings[PIANOMIDI_MULTI_COLOR26].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR26].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR26].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR26].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR26].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR27)
+    settings[PIANOMIDI_MULTI_COLOR27].label=(char*)"Custom color 27";
+    settings[PIANOMIDI_MULTI_COLOR27].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR27].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR27].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR27].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR27].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR28)
+    settings[PIANOMIDI_MULTI_COLOR28].label=(char*)"Custom color 28";
+    settings[PIANOMIDI_MULTI_COLOR28].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR28].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR28].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR28].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR28].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR29)
+    settings[PIANOMIDI_MULTI_COLOR29].label=(char*)"Custom color 29";
+    settings[PIANOMIDI_MULTI_COLOR29].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR29].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR29].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR29].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR29].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR30)
+    settings[PIANOMIDI_MULTI_COLOR30].label=(char*)"Custom color 30";
+    settings[PIANOMIDI_MULTI_COLOR30].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR30].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR30].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR30].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR30].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR31)
+    settings[PIANOMIDI_MULTI_COLOR31].label=(char*)"Custom color 31";
+    settings[PIANOMIDI_MULTI_COLOR31].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR31].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR31].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR31].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR31].type=MDZ_COLORPICKER;
+    SETTINGS_ID_DEF(PIANOMIDI_MULTI_COLOR32)
+    settings[PIANOMIDI_MULTI_COLOR32].label=(char*)"Custom color 32";
+    settings[PIANOMIDI_MULTI_COLOR32].description=NULL;
+    settings[PIANOMIDI_MULTI_COLOR32].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    settings[PIANOMIDI_MULTI_COLOR32].sub_family=0;
+    settings[PIANOMIDI_MULTI_COLOR32].callback=&optPIANOMIDIColorChangedC;
+    settings[PIANOMIDI_MULTI_COLOR32].type=MDZ_COLORPICKER;
+    
     /////////////////////////////////////
     //PLUGINS
     /////////////////////////////////////
@@ -2071,7 +2375,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_APU_OPTION4].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_APU_OPTION4].sub_family=0;
     settings[NSFPLAY_APU_OPTION4].callback=&optNSFPLAYChangedC;
-        
+    
     SETTINGS_ID_DEF(NSFPLAY_DMC_OPTION0)
     settings[NSFPLAY_DMC_OPTION0].type=MDZ_BOOLSWITCH;
     settings[NSFPLAY_DMC_OPTION0].label=(char*)"DMC enable $4011 writes";
@@ -2143,7 +2447,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_DMC_OPTION8].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_DMC_OPTION8].sub_family=0;
     settings[NSFPLAY_DMC_OPTION8].callback=&optNSFPLAYChangedC;
-        
+    
     SETTINGS_ID_DEF(NSFPLAY_MMC5_OPTION0)
     settings[NSFPLAY_MMC5_OPTION0].type=MDZ_BOOLSWITCH;
     settings[NSFPLAY_MMC5_OPTION0].label=(char*)"MMC5 non linear mixing";
@@ -2186,7 +2490,7 @@ void optNSFPLAYChangedC(id param) {
     settings[NSFPLAY_FDS_OPTION2].family=MDZ_SETTINGS_FAMILY_NSFPLAY;
     settings[NSFPLAY_FDS_OPTION2].sub_family=0;
     settings[NSFPLAY_FDS_OPTION2].callback=&optNSFPLAYChangedC;
-            
+    
     SETTINGS_ID_DEF(NSFPLAY_VRC7_Patch)
     settings[NSFPLAY_VRC7_Patch].type=MDZ_SWITCH;
     settings[NSFPLAY_VRC7_Patch].label=(char*)"VRC7 Patches";
@@ -2902,7 +3206,7 @@ void optNSFPLAYChangedC(id param) {
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Near.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin.";
     settings[XMP_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Spl.";
-        
+    
     SETTINGS_ID_DEF(XMP_Amplification)
     settings[XMP_Amplification].type=MDZ_SWITCH;
     settings[XMP_Amplification].label=(char*)"Amplification";
@@ -3044,7 +3348,7 @@ void optNSFPLAYChangedC(id param) {
     [self.tableView reloadData];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {    
+- (void)viewDidDisappear:(BOOL)animated {
     [repeatingTimer invalidate];
     repeatingTimer = nil;
     
@@ -3100,7 +3404,7 @@ void optNSFPLAYChangedC(id param) {
                                           context:LoadingProgressObserverContext];
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
- 
+    
     
     [self.tableView reloadData];
     
@@ -3151,12 +3455,25 @@ void optNSFPLAYChangedC(id param) {
     if (refresh) [tableView reloadData];
 }
 
+-(void) resetAllColor:(id)sender {
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[((UIButton*)sender).description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    
+    if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"PIANOMIDI_MULTI_RESETALL")==0) {
+        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1];
+        [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
+        [tableView reloadData];
+    }
+}
+
 -(void) resetColor:(id)sender {
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[((UIButton*)sender).description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    //NSLog(@"reset: %s",settings[cur_settings_idx[indexPath.section]].label);
+    //Check OSCILLO part
     int colidx=-1;
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MONO_COLOR")==0) colidx=0;
     else if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_GRID_COLOR")==0) colidx=1;
@@ -3174,8 +3491,25 @@ void optNSFPLAYChangedC(id param) {
         [SettingsGenViewController oscilloGenSystemColor:0 color_idx:colidx];
         [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
+        return;
     }
     
+    //Check PR&NS part
+    for (int i=0;i<32;i++) {
+        char str_tmp[32];
+        snprintf(str_tmp,32,"PIANOMIDI_MULTI_COLOR%.2d",i+1);
+        if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,str_tmp)==0) {
+            colidx=i;
+            break;
+        }
+    }
+    
+    if (colidx>=0) {
+        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:colidx];
+        [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
+        [tableView reloadData];
+        return;
+    }
 }
 
 
@@ -3429,7 +3763,7 @@ void optNSFPLAYChangedC(id param) {
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
-    const NSInteger RESET_BTN_TAG = 1003;
+    const NSInteger BTN_TAG = 1003;
     UILabel *topLabel,*bottomLabel;
     UITextField *msgLabel;
     
@@ -3438,7 +3772,7 @@ void optNSFPLAYChangedC(id param) {
     UITextField *txtfield;
     NSMutableArray *tmpArray;
     OBSlider *sliderview;
-    UIButton *resetBtn;
+    UIButton *btn;
     UITapGestureRecognizer *tapLabelDesc;
     
     if (forceReloadCells) {
@@ -3498,13 +3832,13 @@ void optNSFPLAYChangedC(id param) {
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
         
-        resetBtn=[UIButton buttonWithType:UIButtonTypeCustom];
-        [cell.contentView addSubview:resetBtn];
-        resetBtn.tag=RESET_BTN_TAG;
+        btn=[UIButton buttonWithType:UIButtonTypeCustom];
+        [cell.contentView addSubview:btn];
+        btn.tag=BTN_TAG;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
-        resetBtn = (UIButton *)[cell viewWithTag:RESET_BTN_TAG];
+        btn = (UIButton *)[cell viewWithTag:BTN_TAG];
         
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
@@ -3522,7 +3856,7 @@ void optNSFPLAYChangedC(id param) {
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
-    resetBtn.hidden=TRUE;
+    btn.hidden=TRUE;
     
     if (settings[cur_settings_idx[indexPath.section]].description) {
         topLabel.frame= CGRectMake(4,
@@ -3604,7 +3938,7 @@ void optNSFPLAYChangedC(id param) {
                 tapLabelDesc.delegate = self;
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
-                                                
+            
         }
             break;
         case MDZ_SLIDER_CONTINUOUS:{
@@ -3765,34 +4099,34 @@ void optNSFPLAYChangedC(id param) {
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
             break;
-        case MDZ_COLORPICKER:
+        case MDZ_COLORPICKER:{
             
             //UIControlState
-            [resetBtn setTitle:@"Reset" forState:UIControlStateNormal];
-            [resetBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [btn setTitle:@"Reset" forState:UIControlStateNormal];
+            [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             if (darkMode) {
-                resetBtn.backgroundColor=[UIColor darkGrayColor];
-                resetBtn.layer.borderColor = [UIColor grayColor].CGColor;
+                btn.backgroundColor=[UIColor darkGrayColor];
+                btn.layer.borderColor = [UIColor grayColor].CGColor;
             }
             else {
-                resetBtn.backgroundColor=[UIColor lightGrayColor];
-                resetBtn.layer.borderColor = [UIColor grayColor].CGColor;
+                btn.backgroundColor=[UIColor lightGrayColor];
+                btn.layer.borderColor = [UIColor grayColor].CGColor;
             }
             
-            resetBtn.layer.borderWidth = 0.5f;
-            resetBtn.layer.cornerRadius = 10.0f;
+            btn.layer.borderWidth = 0.5f;
+            btn.layer.cornerRadius = 10.0f;
             
             
-            [resetBtn addTarget:self action: @selector(resetColor:) forControlEvents: UIControlEventTouchUpInside];
-            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[resetBtn.description componentsSeparatedByString:@";"] firstObject]];
+            [btn addTarget:self action: @selector(resetColor:) forControlEvents: UIControlEventTouchUpInside];
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[btn.description componentsSeparatedByString:@";"] firstObject]];
             
             int icon_posx=tabView.bounds.size.width-2-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
             icon_posx-=32+32+60;
-            resetBtn.frame = CGRectMake(icon_posx,14,60,28);
-            resetBtn.titleLabel.font=[resetBtn.titleLabel.font fontWithSize:14];
+            btn.frame = CGRectMake(icon_posx,14,60,28);
+            btn.titleLabel.font=[btn.titleLabel.font fontWithSize:14];
             
-            resetBtn.enabled=YES;
-            resetBtn.hidden=NO;
+            btn.enabled=YES;
+            btn.hidden=NO;
             
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
                 if (@available(iOS 14.0, *)) {
@@ -3836,6 +4170,44 @@ void optNSFPLAYChangedC(id param) {
                 [topLabel addGestureRecognizer:tapLabelDesc];
             }
             break;
+        }
+        case MDZ_BUTTON:
+            //UIControlState
+            cell.accessoryView=nil;
+            if (settings[cur_settings_idx[indexPath.section]].mdz_selector) {
+                [btn setTitle:@"Reset" forState:UIControlStateNormal];
+                [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+                if (darkMode) {
+                    btn.backgroundColor=[UIColor darkGrayColor];
+                    btn.layer.borderColor = [UIColor grayColor].CGColor;
+                }
+                else {
+                    btn.backgroundColor=[UIColor lightGrayColor];
+                    btn.layer.borderColor = [UIColor grayColor].CGColor;
+                }
+                
+                btn.layer.borderWidth = 0.5f;
+                btn.layer.cornerRadius = 10.0f;
+                
+                
+                [btn addTarget:self action:settings[cur_settings_idx[indexPath.section]].mdz_selector forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[btn.description componentsSeparatedByString:@";"] firstObject]];
+                
+                int icon_posx=tabView.bounds.size.width-2-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
+                icon_posx-=32+32+60;
+                btn.frame = CGRectMake(icon_posx,14,60,28);
+                btn.titleLabel.font=[btn.titleLabel.font fontWithSize:14];
+                
+                btn.enabled=YES;
+                btn.hidden=NO;
+                
+                if (settings[cur_settings_idx[indexPath.section]].description) {
+                    tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                    tapLabelDesc.delegate = self;
+                    [topLabel addGestureRecognizer:tapLabelDesc];
+                }
+                break;
+        }
     }
     
     bottomLabel.frame= CGRectMake(4,

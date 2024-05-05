@@ -846,6 +846,7 @@
 		CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100B1221788200E8DE4E /* Ymload.cpp */; };
 		CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100D1221788200E8DE4E /* YmMusic.cpp */; };
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
+		CCC3A3C32BE77F8700710980 /* libliblzma_mdz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */; };
 		CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC541BB2B89DD1800E97EC1 /* libadplug.a */; };
 		CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC543DB2B89E83400E97EC1 /* libbinio.a */; };
 		CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC544332B8BFC9900E97EC1 /* libavfilter.xcframework */; };
@@ -903,7 +904,6 @@
 		CCEB4DFF2BAE00CC004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E012BAE00ED004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
-		CCEB59052BAF1D18004831C6 /* liblzma.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB59032BAF1CD5004831C6 /* liblzma.tbd */; };
 		CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB5A492BB01040004831C6 /* libUnrarKIT.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
@@ -1135,6 +1135,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCB816ED2B7196A500364D64;
 			remoteInfo = libpixel;
+		};
+		CCC3A1C62BE77E6A00710980 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCC3A1B62BE77E4F00710980;
+			remoteInfo = liblzma_mdz;
 		};
 		CCC541BA2B89DD1800E97EC1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2220,6 +2227,9 @@
 		CC4F49D82B7021A0002A9309 /* c6410.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6410.fnt; sourceTree = "<group>"; };
 		CC4F49D92B7021A0002A9309 /* tracking10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking10.fnt; sourceTree = "<group>"; };
 		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
+		CC4F64B12BE77D5300566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC4F64B32BE77DD800566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC4F64B52BE77E0100566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC5333582B7E938B009ED5D7 /* tracking12.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking12.fnt; sourceTree = "<group>"; };
 		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12c_2x.png; sourceTree = "<group>"; };
@@ -2577,6 +2587,7 @@
 		CCBF100E1221788200E8DE4E /* YmMusic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmMusic.h; sourceTree = "<group>"; };
 		CCBF100F1221788200E8DE4E /* YmTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmTypes.h; sourceTree = "<group>"; };
 		CCBF10101221788200E8DE4E /* YmUserInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YmUserInterface.cpp; sourceTree = "<group>"; };
+		CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = liblzma_mdz.xcodeproj; path = liblzma_mdz/liblzma_mdz.xcodeproj; sourceTree = "<group>"; };
 		CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = adplug.xcodeproj; path = adplug/adplug.xcodeproj; sourceTree = "<group>"; };
 		CCC543D62B89E83400E97EC1 /* binio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = binio.xcodeproj; path = binio/binio.xcodeproj; sourceTree = "<group>"; };
 		CCC543F92B8B66F700E97EC1 /* SearchCommonFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchCommonFunctions.h; sourceTree = "<group>"; };
@@ -2629,8 +2640,6 @@
 		CCE8D7502B929CDF0076D8C0 /* websid.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = websid.xcodeproj; sourceTree = "<group>"; };
 		CCEB46F92BADF7A7004831C6 /* libarchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libarchive.xcodeproj; path = libarchive/libarchive.xcodeproj; sourceTree = "<group>"; };
 		CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
-		CCEB59032BAF1CD5004831C6 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
-		CCEB59042BAF1CF2004831C6 /* liblzma.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.5.tbd; path = usr/lib/liblzma.5.tbd; sourceTree = SDKROOT; };
 		CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnrarKIT.xcodeproj; path = UnrarKIT/UnrarKIT.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
@@ -2679,7 +2688,6 @@
 				CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */,
 				CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */,
 				CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */,
-				CCEB59052BAF1D18004831C6 /* liblzma.tbd in Frameworks */,
 				CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */,
 				CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */,
 				CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */,
@@ -2732,6 +2740,7 @@
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
 				CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */,
+				CCC3A3C32BE77F8700710980 /* libliblzma_mdz.a in Frameworks */,
 				CC1E56C51200B391000A8A4E /* CFNetwork.framework in Frameworks */,
 				5966D0C725CFEE3600520777 /* libtim.a in Frameworks */,
 				CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */,
@@ -2779,8 +2788,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CCEB59042BAF1CF2004831C6 /* liblzma.5.tbd */,
-				CCEB59032BAF1CD5004831C6 /* liblzma.tbd */,
+				CC4F64B52BE77E0100566BD3 /* libliblzma.a */,
+				CC4F64B32BE77DD800566BD3 /* libliblzma.a */,
+				CC4F64B12BE77D5300566BD3 /* libliblzma.a */,
 				CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */,
 				CCB4C4662BA0F1F300695908 /* ReplayKit.framework */,
 				59047C7426331C0100623C08 /* libc++abi.tbd */,
@@ -3394,6 +3404,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */,
 				CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */,
 				CCEB46F92BADF7A7004831C6 /* libarchive.xcodeproj */,
 				CCE8D74B2B8F11340076D8C0 /* Animation */,
@@ -4873,6 +4884,14 @@
 			path = LZH;
 			sourceTree = "<group>";
 		};
+		CCC3A1C32BE77E6A00710980 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCC541B72B89DD1700E97EC1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -5157,6 +5176,10 @@
 				{
 					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
+				},
+				{
+					ProductGroup = CCC3A1C32BE77E6A00710980 /* Products */;
+					ProjectRef = CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */;
 				},
 				{
 					ProductGroup = CC1638532B7CDF91003323FD /* Products */;
@@ -5467,6 +5490,13 @@
 			fileType = archive.ar;
 			path = liblibpixel.a;
 			remoteRef = CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libliblzma_mdz.a;
+			remoteRef = CCC3A1C62BE77E6A00710980 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CCC541BB2B89DD1800E97EC1 /* libadplug.a */ = {
