@@ -6809,13 +6809,9 @@ static void do_compute_data_midi(int32 count)
     //TODO:  MODIZER changes start / YOYOFR
     //printf("advance ptr by %d\n",count);
     for (int ii=0;ii<m_genNumVoicesChannels;ii++) {
-
-        /*int mcnt=m_voice_buff_accumul_temp_cnt[ii][(00+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-        if (mcnt) {
-            //printf("voice %d cnt %d\n",ii,mcnt);
-        }*/
         for (int jj=0;jj<count;jj++) {
             int val=m_voice_buff_accumul_temp[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+            if (generic_mute_mask&(1<<ii)) val=0;
             int mcnt=m_voice_buff_accumul_temp_cnt[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
             if (mcnt) {
                 m_voice_buff[ii][(jj+(m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(val/4);

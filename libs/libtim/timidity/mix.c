@@ -132,8 +132,10 @@ void mix_voice(int32 *buf, int v, int32 c)
     int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
     //printf("advance voice ptr %d %d\n",vp->channel,c);
     currentVoice=m_channel_voice_mapping[currentVoice];
-    m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
-    m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    for (int jj=0;jj<c;jj++) {
+        m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((jj+(m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
+        m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((jj+(m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
+    }
     //TODO:  MODIZER changes end / YOYOFR
 
 	if (vp->status == VOICE_DIE) {
@@ -141,8 +143,10 @@ void mix_voice(int32 *buf, int v, int32 c)
 			c = MAX_DIE_TIME;
 		sp = resample_voice(v, &c);
 		if (do_voice_filter(v, sp, filter_buffer, c)) {sp = filter_buffer;}
-		if (c > 0)
-			ramp_out(sp, buf, v, c);
+        if (!(generic_mute_mask&(1<<currentVoice))) {
+            if (c > 0)
+                ramp_out(sp, buf, v, c);
+        }
 		free_voice(v);
 	} else {
 		vp->delay_counter = c;
@@ -165,37 +169,38 @@ void mix_voice(int32 *buf, int v, int32 c)
 		sp = resample_voice(v, &c);
 		if (do_voice_filter(v, sp, filter_buffer, c)) {sp = filter_buffer;}
         
-        
-        
-		if (play_mode->encoding & PE_MONO) {
-			/* Mono output. */
-			if (vp->envelope_increment || vp->tremolo_phase_increment)
-				mix_mono_signal(sp, buf, v, c);
-			else
-				mix_mono(sp, buf, v, c);
-		} else {
-			if (vp->panned == PANNED_MYSTERY) {
-				if (vp->envelope_increment || vp->tremolo_phase_increment)
-					mix_mystery_signal(sp, buf, v, c);
-				else
-					mix_mystery(sp, buf, v, c);
-			} else if (vp->panned == PANNED_CENTER) {
-				if (vp->envelope_increment || vp->tremolo_phase_increment)
-					mix_center_signal(sp, buf, v, c);
-				else
-					mix_center(sp, buf, v, c);
-			} else {
-				/* It's either full left or full right. In either case,
-				 * every other sample is 0. Just get the offset right:
-				 */
-				if (vp->panned == PANNED_RIGHT)
-					buf++;
-				if (vp->envelope_increment || vp->tremolo_phase_increment)
-					mix_single_signal(sp, buf, v, c);
-				else
-					mix_single(sp, buf, v, c);
-			}
-		}
+        if (!(generic_mute_mask&(1<<currentVoice))) {
+            
+            if (play_mode->encoding & PE_MONO) {
+                /* Mono output. */
+                if (vp->envelope_increment || vp->tremolo_phase_increment)
+                    mix_mono_signal(sp, buf, v, c);
+                else
+                    mix_mono(sp, buf, v, c);
+            } else {
+                if (vp->panned == PANNED_MYSTERY) {
+                    if (vp->envelope_increment || vp->tremolo_phase_increment)
+                        mix_mystery_signal(sp, buf, v, c);
+                    else
+                        mix_mystery(sp, buf, v, c);
+                } else if (vp->panned == PANNED_CENTER) {
+                    if (vp->envelope_increment || vp->tremolo_phase_increment)
+                        mix_center_signal(sp, buf, v, c);
+                    else
+                        mix_center(sp, buf, v, c);
+                } else {
+                    /* It's either full left or full right. In either case,
+                     * every other sample is 0. Just get the offset right:
+                     */
+                    if (vp->panned == PANNED_RIGHT)
+                        buf++;
+                    if (vp->envelope_increment || vp->tremolo_phase_increment)
+                        mix_single_signal(sp, buf, v, c);
+                    else
+                        mix_single(sp, buf, v, c);
+                }
+            }
+        }
 	}
 }
 

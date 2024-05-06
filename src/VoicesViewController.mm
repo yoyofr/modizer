@@ -269,21 +269,21 @@ extern volatile t_settings settings[MAX_SETTINGS];
         voicesAllOn.frame=CGRectMake(xpos,ypos,100,32);
         voicesAllOff.frame=CGRectMake(xpos+100+8,ypos,100,32);
         
-        ypos+=32+4;
+        ypos+=32+8;
         
         sep1.frame=CGRectMake(0, ypos, self.view.frame.size.width, 1);
         
-        ypos+=4;
-        
-        pbRatioSwitch.frame=CGRectMake(xpos,ypos,100,32);
-        pbRatioLblValue.frame=CGRectMake(xpos+100+8,ypos,30,32);
-        pbRatioValue.frame=CGRectMake(xpos+100+8+30,ypos,self.view.frame.size.width-(xpos+100+8+30+4),32);
-        
-        ypos+=32+4;
+        if (pbRatioSwitch) {
+            ypos+=8;
+            pbRatioSwitch.frame=CGRectMake(xpos,ypos,100,32);
+            pbRatioLblValue.frame=CGRectMake(xpos+100+8,ypos,30,32);
+            pbRatioValue.frame=CGRectMake(xpos+100+8+30,ypos,self.view.frame.size.width-(xpos+100+8+30+4),32);
+            ypos+=32+8;
+        }
         
         sep2.frame=CGRectMake(0, ypos, self.view.frame.size.width, 1);
         
-        ypos+=4;
+        ypos+=8;
         
         for (int i=0;i<systemsNb;i++) {
             voicesChip[i].frame=CGRectMake(xpos,ypos,115,32);
@@ -292,14 +292,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 xpos+=cols_width;
             } else {
                 xpos=(self.scrollView.frame.size.width-cols_nb*cols_width)/2;
-                ypos+=40;
+                ypos+=32+8;
             }
         }
         
-        if (xpos!=(self.scrollView.frame.size.width-cols_nb*cols_width)/2) ypos+=40;
-        ypos+=10;
+        if (xpos!=(self.scrollView.frame.size.width-cols_nb*cols_width)/2) ypos+=32;
+        ypos+=8;
         
-        sep3.frame=CGRectMake(0, ypos-9, self.view.frame.size.width, 1);
+        sep3.frame=CGRectMake(0, ypos, self.view.frame.size.width, 1);
+        
+        ypos+=8;
         
         cols_nb=self.scrollView.frame.size.width/(180);
         cols_width=self.scrollView.frame.size.width/cols_nb;
@@ -311,7 +313,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             if (voices[i]) voices[i].frame=CGRectMake(xpos+32+4,ypos,140,32);
             
             if ((i+1)%rows_nb) {                
-                ypos+=40;
+                ypos+=32+8;
             } else {
                 xpos+=cols_width;
                 ypos=ystart;
@@ -380,7 +382,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [self.scrollView addSubview:voicesAllOff];
             
             sep1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-            sep1.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
+            sep1.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
             [self.scrollView addSubview:sep1];
             
             if ([detailViewController.mplayer isPBRatioSupported]) {
@@ -409,11 +411,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             
             sep2 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-            sep2.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
+            sep2.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
             [self.scrollView addSubview:sep2];
             
             sep3 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-            sep3.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
+            sep3.backgroundColor = [UIColor colorWithWhite:0.5 alpha:1];
             [self.scrollView addSubview:sep3];
             
             

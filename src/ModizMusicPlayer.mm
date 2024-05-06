@@ -2167,15 +2167,17 @@ static int tim_output_data(char *buf, int32 nbytes) {
                 int note=vgm_getNoteFromFreq(voice[i].frequency/1000);
                 int subnote=vgm_getSubNoteFromFreq(voice[i].frequency/1000);
                 int chan=(voice[i].channel)%SOUND_MAXVOICES_BUFFER_FX;
-                chan=m_channel_voice_mapping[chan];
+                chan=(m_channel_voice_mapping[chan]);
                 
-                if (vol) {
-                    tim_notes[buffer_ana_gen_ofs][voices++]=
-                    note|
-                    ((unsigned int)chan<<8)|
-                    ((unsigned int)1<<16)|
-                    ((unsigned int)(1<<1)<<24)|
-                    ((unsigned int)subnote<<28);
+                if (!(generic_mute_mask&(1<<chan))) {
+                    if (vol) {
+                        tim_notes[buffer_ana_gen_ofs][voices++]=
+                        note|
+                        ((unsigned int)chan<<8)|
+                        ((unsigned int)1<<16)|
+                        ((unsigned int)(1<<1)<<24)|
+                        ((unsigned int)subnote<<28);
+                    }
                 }
             }
         }
@@ -10979,6 +10981,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     tim_pending_seek=-1;
     iCurrentTime=0;
     mCurrentSamples=0;
+    generic_mute_mask=0;
     
     numChannels=64;
     
@@ -11542,7 +11545,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     v2m_player->Open(mp_data,PLAYBACK_FREQ);
     
     
-    generic_mute_mask=0xFFFFFFFF;
+    generic_mute_mask=0;
     v2m_player->Play(0);
     
     v2m_sample_data_float=(float*)calloc(1,sizeof(float)*2*SOUND_BUFFER_SIZE_SAMPLE);
@@ -15519,6 +15522,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_TIMIDITY:
         case MMP_KSS:
         case MMP_NSFPLAY:
         case MMP_PIXEL:
@@ -15686,6 +15690,7 @@ extern "C" void adjust_amplification(void);
         case MMP_OPENMPT:
         case MMP_XMP:
         case MMP_GME:
+        case MMP_TIMIDITY:
             return 1;
         case MMP_MDXPDX:
             if (numChannels==8) return 1;
@@ -15743,6 +15748,8 @@ extern "C" void adjust_amplification(void);
         case MMP_MDXPDX:
             if (systemIdx==0) return @"YM2151";
             else return @"PCM";
+        case MMP_TIMIDITY:
+            return @"MIDI";
         case MMP_ADPLUG:
             return @"OPL3";
         case MMP_STSOUND:
@@ -15804,6 +15811,7 @@ extern "C" void adjust_amplification(void);
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
+        case MMP_TIMIDITY:
             return 0;
         case MMP_MDXPDX:
             if (voiceIdx<8) return 0;
@@ -15910,6 +15918,7 @@ extern "C" void adjust_amplification(void);
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
+        case MMP_TIMIDITY:
             tmp=0;
             for (int i=0;i<numChannels;i++) {
                 tmp+=(m_voicesStatus[i]?1:0);
@@ -16029,6 +16038,7 @@ extern "C" void adjust_amplification(void);
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
+        case MMP_TIMIDITY:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_MDXPDX:
@@ -16162,11 +16172,13 @@ extern "C" void adjust_amplification(void);
             nsfPlayer->Notify(-1);
         }
             break;
+        case MMP_TIMIDITY:
         case MMP_PMDMINI:
         case MMP_MDXPDX:
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
+        case MMP_V2M:
             if (active) generic_mute_mask&=~(1<<channel);
             else generic_mute_mask|=(1<<channel);
             break;
@@ -16179,10 +16191,6 @@ extern "C" void adjust_amplification(void);
             break;
         case MMP_NCSF:
             xSFPlayer->MuteChannels(channel,active);
-            break;
-        case MMP_V2M:
-            if (active) generic_mute_mask|=1<<channel;
-            else generic_mute_mask&=~(1<<channel);
             break;
         case MMP_PIXEL:
             if (pixel_organya_mode) {
