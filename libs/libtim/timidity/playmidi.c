@@ -6531,6 +6531,22 @@ static int apply_controls(void)
 	    jump_flag = 1;
 	    ctl_mode_event(CTLE_TIME_RATIO, 0, 100 / midi_time_ratio + 0.5, 0);
 	    continue;
+            //YOYOFR
+        case RC_SPEEDCHANGE: {
+            float valf;
+            memcpy(&valf,&val,4);
+            //r= valf;
+            r=valf/midi_time_ratio;
+            sync_restart(0);
+            midi_time_ratio *= r;
+            tim_tempo_ratio = midi_time_ratio;
+            current_sample = (int32)(current_sample * r + 0.5);
+            trace_offset(current_sample);
+            jump_flag = 1;
+            ctl_mode_event(CTLE_TIME_RATIO, 0, 100 / midi_time_ratio + 0.5, 0);
+            continue;
+        }
+            //YOYOFR
 
 	  case RC_VOICEINCR:
 	    restore_voices(0);

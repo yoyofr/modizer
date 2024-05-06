@@ -1206,6 +1206,7 @@ bool tim_force_soundfont;
 char tim_force_soundfont_path[1024];
 char tim_config_file_path[1024];
 int mdz_tim_only_precompute;
+float tim_tempo_ratio;
 
 static char tim_filepath[1024];
 static char tim_filepath_orgfile[1024];
@@ -2139,7 +2140,8 @@ static int tim_output_data(char *buf, int32 nbytes) {
         
         nbytes-=to_fill;
         buffer_ana_subofs=0;
-        mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+        if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+        else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
         
         
         for (int j=0;j<m_genNumVoicesChannels;j++) {
@@ -10937,7 +10939,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     BOOL isDir;
     BOOL fileExist;
     
+    midi_time_ratio=1;
     tim_force_soundfont=false;
+    float newvalue;
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) newvalue=1.0/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+    else newvalue=1;
+    if (newvalue<0.25) newvalue=0.25;
+    if (newvalue>10) newvalue=10;
+    tim_tempo_ratio=newvalue;
     
     cpath=[filePath stringByDeletingLastPathComponent];
     //test if a sf2 exist with same name
@@ -15216,6 +15225,16 @@ extern bool icloud_available;
 extern "C" int amplification;
 extern "C" void adjust_master_volume(void);
 extern "C" void adjust_amplification(void);
+
+-(void) optTIM_PBRatio {
+    float newvalue;
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) newvalue=1.0/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+    else newvalue=1;
+    if (newvalue<0.25) newvalue=0.25;
+    if (newvalue>10) newvalue=10;
+    tim_tempo_ratio=newvalue;
+}
+
 -(void) optTIM_Amplification:(int)val {
     amplification=val;
     //    adjust_master_volume();
@@ -15454,7 +15473,8 @@ extern "C" void adjust_amplification(void);
 
 
 -(BOOL) isPBRatioSupported {
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)) return TRUE;
+    if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
+        (mPlayType==MMP_TIMIDITY) ) return TRUE;
     return FALSE;
 }
 

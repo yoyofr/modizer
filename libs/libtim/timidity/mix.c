@@ -132,10 +132,8 @@ void mix_voice(int32 *buf, int v, int32 c)
     int currentVoice=(vp->channel)%SOUND_MAXVOICES_BUFFER_FX;
     //printf("advance voice ptr %d %d\n",vp->channel,c);
     currentVoice=m_channel_voice_mapping[currentVoice];
-    for (int jj=0;jj<c;jj++) {
-        m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+((jj+(m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
-        m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+((jj+(m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
-    }
+        m_vb_acc_ptr=m_voice_buff_accumul_temp[currentVoice]+(((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
+        m_vb_acc_cnt_ptr=m_voice_buff_accumul_temp_cnt[currentVoice]+(((m_voice_current_ptr[currentVoice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1));
     //TODO:  MODIZER changes end / YOYOFR
 
 	if (vp->status == VOICE_DIE) {

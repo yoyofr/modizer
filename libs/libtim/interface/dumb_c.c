@@ -44,6 +44,8 @@
 #include "wrd.h"
 #endif /* __W32__ */
 
+#include <math.h> //YOYOFR
+
 static int ctl_open(int using_stdin, int using_stdout);
 static void ctl_close(void);
 static int ctl_read(int32 *valp);
@@ -105,7 +107,14 @@ static int ctl_read(int32 *valp)
         *valp=tim_pending_seek*play_mode->rate;
         tim_pending_seek=-1;
         return RC_JUMP;
-    }    
+    }
+    //YOYOFR
+    if (roundf(tim_tempo_ratio*100)!=roundf(midi_time_ratio*100)) {
+        float *valpf=(float*)valp;
+        *valpf=tim_tempo_ratio;
+        tim_tempo_ratio=midi_time_ratio; //realign to avoid issues, will be updated in playmidi based on valpf
+        return RC_SPEEDCHANGE;
+    }
   return RC_NONE;
 }
 

@@ -527,6 +527,7 @@ extern int max_voices;
 extern int voices, upper_voices;
 extern int note_key_offset;
 extern FLOAT_T midi_time_ratio;
+extern float tim_tempo_ratio; //YOYOFR
 extern int opt_modulation_wheel;
 extern int opt_portamento;
 extern int opt_nrpn_vibrato;

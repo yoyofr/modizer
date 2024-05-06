@@ -253,6 +253,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)sliderPBRatioChanged:(OBSlider*)sender {
     settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
     pbRatioLblValue.text=[NSString stringWithFormat:@"%.1f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
+}
+
+- (void)sliderPBRatioEndChange:(OBSlider*)sender {
     [detailViewController settingsChanged:SETTINGS_ALL];
 }
 
@@ -405,6 +408,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 [pbRatioValue setContinuous:true];
                 pbRatioValue.value=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                 [pbRatioValue addTarget:self action:@selector(sliderPBRatioChanged:) forControlEvents:UIControlEventValueChanged];
+                [pbRatioValue addTarget:self action:@selector(sliderPBRatioEndChange:) forControlEvents:UIControlEventTouchUpOutside];
+                [pbRatioValue addTarget:self action:@selector(sliderPBRatioEndChange:) forControlEvents:UIControlEventTouchUpInside];
                 [self.scrollView addSubview:pbRatioValue];
                 
                 

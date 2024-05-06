@@ -1113,6 +1113,8 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optTIM_Resample:(int)(settings[TIM_Resample].detail.mdz_switch.switch_value)];
         [mplayer optTIM_LPFilter:(int)(settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value)];
         [mplayer optTIM_Amplification:(int)(settings[TIM_Amplification].detail.mdz_slider.slider_value)];
+        [mplayer optTIM_PBRatio];
+        
     }
     
     /////////////////////

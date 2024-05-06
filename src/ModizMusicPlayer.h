@@ -351,6 +351,7 @@ extern "C" {
 -(void) optTIM_LPFilter:(int)val;
 -(void) optTIM_Resample:(int)val;
 -(void) optTIM_Amplification:(int)val;
+-(void) optTIM_PBRatio;
 
 -(void) optSIDSecondSIDAddress:(int)addr;
 -(void) optSIDThirdSIDAddress:(int)addr;

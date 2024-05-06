@@ -68,6 +68,7 @@
 #define RC_TOGGLE_MUTE	31
 #define RC_SOLO_PLAY	32
 #define RC_MUTE_CLEAR	33
+#define RC_SPEEDCHANGE 34 //YOYOFR
 
 #define CMSG_INFO	0
 #define CMSG_WARNING	1
