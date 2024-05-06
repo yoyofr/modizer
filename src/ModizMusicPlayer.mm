@@ -10940,13 +10940,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     BOOL fileExist;
     
     midi_time_ratio=1;
-    tim_force_soundfont=false;
-    float newvalue;
-    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) newvalue=1.0/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
-    else newvalue=1;
-    if (newvalue<0.25) newvalue=0.25;
-    if (newvalue>10) newvalue=10;
-    tim_tempo_ratio=newvalue;
     
     cpath=[filePath stringByDeletingLastPathComponent];
     //test if a sf2 exist with same name
@@ -11028,6 +11021,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         tim_main(1, argv);
     }
     
+    tim_force_soundfont=false;
+    float newvalue;
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) newvalue=1.0/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+    else newvalue=1;
+    if (newvalue<0.25) newvalue=0.25;
+    if (newvalue>10) newvalue=10;
+    tim_tempo_ratio=newvalue;
+    
     iModuleLength=tim_midilength;
     numChannels=m_genNumVoicesChannels;
     
@@ -11044,8 +11045,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    
-    
     
     return 0;
 }
