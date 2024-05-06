@@ -558,7 +558,7 @@ int gesture_move_file_min_trans;
     // Add the gesture to the view
     [labelTime addGestureRecognizer:tapGesture];
     
-    if (![[[self parentViewController] title] isEqualToString:@"Now playing"]) {
+    if (![[[self parentViewController] title] isEqualToString:NSLocalizedString(@"Now playing",@"")]) {
         //not already on the NowPlaying screen, allow button activtation
         tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedPlaylist)];
         // Set required taps and number of touches

@@ -1781,6 +1781,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         // Set new directory
         ((RootViewControllerPlaylist*)nowplayingPL)->browse_depth = 1;
         ((RootViewControllerPlaylist*)nowplayingPL)->detailViewController=self;
+        ((RootViewControllerPlaylist*)nowplayingPL)->playlist=temp_playlist;
         ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
         ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
         ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=mPlaylist_pos+1;
