@@ -1358,6 +1358,8 @@ uint32_t module_impl::get_current_channel_note( std::int32_t channel ) const {
         note = m_sndFile->GetFreqFromPeriod(m_sndFile->m_PlayState.Chn[channel].nPeriod, m_sndFile->m_PlayState.Chn[channel].nC5Speed, 0);
     else
         note = m_sndFile->m_PlayState.Chn[channel].nPeriod;*/
+    
+    if ((m_sndFile->m_PlayState.Chn[channel].nLOfs==0)&&(m_sndFile->m_PlayState.Chn[channel].nROfs==0)) return 0;
 
     uint32_t freq = 0;
     if (m_sndFile->m_PlayState.Chn[channel].nPeriod) freq = m_sndFile->m_PlayState.Chn[channel].nFreq;

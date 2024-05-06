@@ -29,6 +29,11 @@
 
 #include "text_scope.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 extern int quit_program;
 
 struct audio_channel_data audio_channel[4];
@@ -143,6 +148,12 @@ static void check_sound_buffers (void)
 	if (bytes == uade_read_size) {
 	    uade_check_sound_buffers(uade_read_size);
 	    sndbufpt = sndbuffer;
+        
+//        //YOYOFR
+        memset(vgm_last_note,0,sizeof(vgm_last_note));
+        memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+//        //YOYOFR
+        
 	}
     } else {
 	uade_audio_skip += bytes;
@@ -156,9 +167,6 @@ static void check_sound_buffers (void)
     }
 }
 
-//TODO:  MODIZER changes start / YOYOFR
-#include "../../../src/ModizerVoicesData.h"
-//TODO:  MODIZER changes end / YOYOFR
 
 
 static inline void sample_backend(int left1,int left2, int right1,int right2) //0,3 1,2
@@ -641,12 +649,15 @@ void update_audio (void)
     last_audio_cycles = cycles - n_cycles;
     
     //YOYOFR
+    static int last_output[4];
         for (int i=0;i<4;i++) {
-            if (audio_channel[i].per && audio_channel[i].vol) {
+            int output=(audio_channel[i].current_sample * audio_channel[i].vol) & audio_channel[i].adk_mask;
+            if (audio_channel[i].per && audio_channel[i].vol && audio_channel[i].state && audio_channel[i].adk_mask && (last_output[i]!=output)) {
                 vgm_last_note[i]=440.0f*SOUNDTICKS/audio_channel[i].per/8287;
                 vgm_last_sample_addr[i]=i;
                 vgm_last_vol[i]=1;
             }
+            last_output[i]=output;
         }
     //YOYOFR
 }

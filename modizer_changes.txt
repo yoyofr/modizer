@@ -37,6 +37,10 @@ missing seek support:
 => HC /PSF2 fadeout for oscillo
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 
+3.7
+---
+- 
+
 3.6
 ---
 - [All] Bug fixes & stability improvements
@@ -69,7 +73,7 @@ missing seek support:
 - [UI] Replaykit implemented to record video
 - [UI] Searches are now regular expression based
 - [UI] Local browser loading time optimized
-- [UI] Settings updated, new section for default players / main category
+- [UI] Settings updated, new section for default players
 - [UI] Favorites management improved to select between songs & files
 - [UI] Capacity to sort playlist by fullpath
 - [UI] Capacity to save a playlist to a new one (create a copy)

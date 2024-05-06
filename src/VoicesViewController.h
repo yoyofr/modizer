@@ -21,8 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
     UIColor *voicesChipColHalf[SOUND_VOICES_MAX_ACTIVE_CHIPS];
     BButton *voicesAllOn;
     BButton *voicesAllOff;
-    UIView *sep1,*sep2;
+    UIView *sep1,*sep2,*sep3;
     int systemsNb;
+    
+    BButton *pbRatioSwitch;
+    OBSlider *pbRatioValue;
+    UILabel *pbRatioLblValue;
     
     NSString *currentPlayingFile;
     

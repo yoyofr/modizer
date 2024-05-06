@@ -736,7 +736,7 @@
 "Multi default action"="Multi action par défaut";
 "Default action when selecting an archive or a multisong file"="Action par défaut quand une archive ou un fichier multi morceaux est sélectionné";
 "Archive/multi play mode"="Archive/multi mode de lecture";
-"Play ony selected entry or full archive/multisong flie"="Jouer uniquement l'entrée sélectionnée ou l'ensemble";
+"Play only selected entry or full archive/multisong file"="Jouer uniquement l'entrée sélectionnée ou l'ensemble";
 "Browse"="Naviguer";
 "Entry"="Entrée";
 "Full"="Tout";
@@ -865,6 +865,8 @@
 "Custom color 32"="Couleur personalisée 32";
 
 "Custom"="Personalisé";
+
+"Only for plugins supporting this feature (GME, NSFPLAY, LIBVGM)"="Seulement pour les plugins supportant cette fonctionnalité (GME, NSFPLAY, LIBVGM)";
 
 "Clean"="Nettoyer";
 "Are you sure you want to clean the DB, it might take a while ?"="Etes vous sûr de vouloir nettoyer la base de données, ca peut prendre un moment ?";

@@ -256,6 +256,8 @@ extern "C" {
 -(NSString*) getModType;
 -(NSString*) getPlayerName;
 
+-(BOOL) isPBRatioSupported;
+
 -(BOOL) isMultiSongs;
 -(BOOL) isArchive;
 -(bool) isArchiveFullyPlayed;

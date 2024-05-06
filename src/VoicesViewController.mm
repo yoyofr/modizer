@@ -6,8 +6,9 @@
 //
 
 #import "VoicesViewController.h"
-
 #include "ModizerVoicesData.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
 @interface VoicesViewController ()
 
@@ -44,6 +45,9 @@
     }
     voicesAllOn=NULL;
     voicesAllOff=NULL;
+    pbRatioSwitch=NULL;
+    pbRatioValue=NULL;
+    pbRatioLblValue=NULL;
     
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
@@ -232,6 +236,26 @@
     }
 }
 
+-(void)pushedPBRatioSwitch:(id)sender {
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+        settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
+        [pbRatioSwitch setType:BButtonTypeInverse];
+        [pbRatioSwitch setTitle:[NSString stringWithFormat:@"%C %@",FAIconHourglass,NSLocalizedString(@"Tempo",@"")] forState:UIControlStateNormal];
+        
+    } else {
+        settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=1;
+        [pbRatioSwitch setType:BButtonTypePrimary];
+        [pbRatioSwitch setTitle:[NSString stringWithFormat:@"%C %@",FAIconHourglass,NSLocalizedString(@"Tempo",@"")] forState:UIControlStateNormal];
+    }
+    [detailViewController settingsChanged:SETTINGS_ALL];
+}
+
+- (void)sliderPBRatioChanged:(OBSlider*)sender {
+    settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
+    pbRatioLblValue.text=[NSString stringWithFormat:@"%.1f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
+    [detailViewController settingsChanged:SETTINGS_ALL];
+}
+
 - (void) recomputeFrames {
     static bool no_reentrant=false;
     if (no_reentrant) return;
@@ -245,9 +269,21 @@
         voicesAllOn.frame=CGRectMake(xpos,ypos,100,32);
         voicesAllOff.frame=CGRectMake(xpos+100+8,ypos,100,32);
         
-        ypos+=50;
+        ypos+=32+4;
         
-        sep1.frame=CGRectMake(0, ypos-9, self.view.frame.size.width, 1);
+        sep1.frame=CGRectMake(0, ypos, self.view.frame.size.width, 1);
+        
+        ypos+=4;
+        
+        pbRatioSwitch.frame=CGRectMake(xpos,ypos,100,32);
+        pbRatioLblValue.frame=CGRectMake(xpos+100+8,ypos,30,32);
+        pbRatioValue.frame=CGRectMake(xpos+100+8+30,ypos,self.view.frame.size.width-(xpos+100+8+30+4),32);
+        
+        ypos+=32+4;
+        
+        sep2.frame=CGRectMake(0, ypos, self.view.frame.size.width, 1);
+        
+        ypos+=4;
         
         for (int i=0;i<systemsNb;i++) {
             voicesChip[i].frame=CGRectMake(xpos,ypos,115,32);
@@ -263,7 +299,7 @@
         if (xpos!=(self.scrollView.frame.size.width-cols_nb*cols_width)/2) ypos+=40;
         ypos+=10;
         
-        sep2.frame=CGRectMake(0, ypos-9, self.view.frame.size.width, 1);
+        sep3.frame=CGRectMake(0, ypos-9, self.view.frame.size.width, 1);
         
         cols_nb=self.scrollView.frame.size.width/(180);
         cols_width=self.scrollView.frame.size.width/cols_nb;
@@ -307,13 +343,23 @@
     if (voicesAllOn) [voicesAllOn removeFromSuperview];
     if (voicesAllOff) [voicesAllOff removeFromSuperview];
     
+    if (pbRatioSwitch) [pbRatioSwitch removeFromSuperview];
+    if (pbRatioValue) [pbRatioValue removeFromSuperview];
+    if (pbRatioLblValue) [pbRatioLblValue removeFromSuperview];
+    
     if (sep1) [sep1 removeFromSuperview];
     if (sep2) [sep2 removeFromSuperview];
+    if (sep3) [sep3 removeFromSuperview];
     sep1=NULL;
     sep2=NULL;
+    sep3=NULL;
     
     voicesAllOn=NULL;
     voicesAllOff=NULL;
+    
+    pbRatioSwitch=NULL;
+    pbRatioValue=NULL;
+    pbRatioLblValue=NULL;
 }
 
 - (void) resetVoicesButtons {
@@ -337,9 +383,38 @@
             sep1.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
             [self.scrollView addSubview:sep1];
             
+            if ([detailViewController.mplayer isPBRatioSupported]) {
+                pbRatioSwitch=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:(settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?BButtonTypePrimary:BButtonTypeInverse) style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
+                [pbRatioSwitch addTarget:self action:@selector(pushedPBRatioSwitch:) forControlEvents:UIControlEventTouchUpInside];
+                [pbRatioSwitch setTitle:NSLocalizedString(@"Tempo",@"") forState:UIControlStateNormal];
+                [pbRatioSwitch addAwesomeIcon:FAIconHourglass beforeTitle:true];
+                [self.scrollView addSubview:pbRatioSwitch];
+                
+                pbRatioLblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,32,12)];
+                pbRatioLblValue.font=[[pbRatioLblValue font] fontWithSize:12];
+                pbRatioLblValue.textColor=[UIColor whiteColor];
+                pbRatioLblValue.text=[NSString stringWithFormat:@"%.1f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
+                [self.scrollView addSubview:pbRatioLblValue];
+                
+                pbRatioValue=[[OBSlider alloc] initWithFrame:CGRectMake(0,0,self.view.frame.size.width-32-8,30)];
+                pbRatioValue.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+                [pbRatioValue setMaximumValue:5];
+                [pbRatioValue setMinimumValue:0.1];
+                [pbRatioValue setContinuous:true];
+                pbRatioValue.value=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                [pbRatioValue addTarget:self action:@selector(sliderPBRatioChanged:) forControlEvents:UIControlEventValueChanged];
+                [self.scrollView addSubview:pbRatioValue];
+                
+                
+            }
+            
             sep2 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
             sep2.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
             [self.scrollView addSubview:sep2];
+            
+            sep3 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
+            sep3.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1];
+            [self.scrollView addSubview:sep3];
             
             
             systemsNb=[detailViewController.mplayer getSystemsNb];

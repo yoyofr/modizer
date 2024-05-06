@@ -5043,6 +5043,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 } else {
                                     int64_t mStartPosSamples;
+                                    
+                                    vgm_player.SetPlaybackSpeed(1.0);
                                     if (mSeekSamples<mCurrentSamples) {
                                         //reset
                                         vgm_player.Reset();
@@ -5071,6 +5073,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             mSeekSamples=mCurrentSamples;
                                             break;
                                         }
+                                    }
+                                    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+                                        vgm_player.SetPlaybackSpeed(settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
+                                    } else {
+                                        vgm_player.SetPlaybackSpeed(1.0);
                                     }
                                 }
                             }
@@ -5843,7 +5850,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     gme_start_track(gme_emu,mod_currentsub);
                                     gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                    mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                                    else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 } else if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                                     else {
@@ -5858,7 +5866,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                                else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
                                 //midi like notes data
                                 int voices_idx=0;
@@ -5948,6 +5957,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         double subnote_adj=(xmp_fi.channel_info[j].pitchbend-note_adj*100.0f)*7.0f/100.0f;
                                         //if (vol) printf("%d %d -> %lf / %lf\n",j,xmp_fi.channel_info[j].pitchbend,note_adj,subnote_adj);
                                         vol=(xmp_fi.channel_info[j].event.note?2:1);
+                                        if (xmp_fi.channel_info[j].volume==0) vol=0;
                                         idx+=note_adj;
                                         if ((idx>0)&&(vol>0)) {
                                             int subidx=subnote_adj;
@@ -5959,7 +5969,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)(idx&0xFF)|
-                                            ((unsigned int)(instr&0xFF)<<8)|
+                                            ((unsigned int)(j&0xFF)<<8)|
                                             ((unsigned int)(vol&0xFF)<<16)|
                                             ((unsigned int)(1<<1)<<24)|
                                             ((unsigned int)(subidx&15)<<28);
@@ -6037,7 +6047,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
-                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)(j)<<8)|
                                         ((unsigned int)(vol)<<16)|
                                         ((unsigned int)(1<<1)<<24)|
                                         ((unsigned int)(subidx)<<28);
@@ -6158,12 +6168,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     NSLog(@"%d",nbBytes);
                                 }
                                 OSMutex_Unlock(vgm_renderMtx);
-                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
-                                
-                                //                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                //                                    buffer_ana[buffer_ana_gen_ofs][i*2+0]=vgm_renderBuffer[i].L;
-                                //                                    buffer_ana[buffer_ana_gen_ofs][i*2+1]=vgm_renderBuffer[i].R;
-                                //                                }
+                                if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                                else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
                                 //midi like notes data
                                 int voices_idx=0;
@@ -7108,7 +7114,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             nbBytes=nsfPlayer->Render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes*=4;
-                            mCurrentSamples+=nbBytes/4;
+                            if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=(nbBytes/4)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                            else mCurrentSamples+=(nbBytes/4);
                             
                             if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
                                 //end reached
@@ -8584,6 +8591,9 @@ typedef struct {
     nsfPlayerConfig=new xgm::NSFPlayerConfig();
     (*nsfPlayerConfig)["RATE"]=44100;
     (*nsfPlayerConfig)["MASTER_VOLUME"]=256;
+    
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) (*nsfPlayerConfig)["MULT_SPEED"]=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value*256;
+    else (*nsfPlayerConfig)["MULT_SPEED"]=256;
     
     (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
     (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
@@ -11992,7 +12002,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         pCfg.loopCount = settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
         pCfg.fadeSmpls = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
         pCfg.endSilenceSmpls = 0;
-        pCfg.pbSpeed = (settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_value: 1.0);
+        pCfg.pbSpeed = (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?settings[GLOB_PBRATIO].detail.mdz_slider.slider_value: 1.0);
         vgm_player.SetConfiguration(pCfg);
     }
     
@@ -15108,6 +15118,9 @@ extern bool icloud_available;
         (*nsfPlayerConfig)["LPF"]=settings[NSFPLAY_LowPass_Filter_Strength].detail.mdz_slider.slider_value;
         (*nsfPlayerConfig)["HPF"]=settings[NSFPLAY_HighPass_Filter_Strength].detail.mdz_slider.slider_value;
         
+        if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) (*nsfPlayerConfig)["MULT_SPEED"]=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value*256;
+        else (*nsfPlayerConfig)["MULT_SPEED"]=256;
+        
         (*nsfPlayerConfig)["REGION"]=settings[NSFPLAY_Region].detail.mdz_switch.switch_value;
         (*nsfPlayerConfig)["IRQ_ENABLE"]=settings[NSFPLAY_ForceIRQ].detail.mdz_boolswitch.switch_value;
         (*nsfPlayerConfig)["QUALITY"]=settings[NSFPLAY_Quality].detail.mdz_slider.slider_value;
@@ -15230,7 +15243,7 @@ extern "C" void adjust_amplification(void);
         
         gme_set_stereo_depth(gme_emu,settings[GME_STEREO_PANNING].detail.mdz_slider.slider_value);
         
-        if(settings[GME_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) gme_set_tempo(gme_emu, settings[GME_PBRATIO].detail.mdz_slider.slider_value);
+        if(settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) gme_set_tempo(gme_emu, settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
         else gme_set_tempo(gme_emu, 1);
     }
     
@@ -15242,8 +15255,8 @@ extern "C" void adjust_amplification(void);
 -(void) optVGMPLAY_Update {
     if (vgm_renderMtx==NULL) return;
     OSMutex_Lock(vgm_renderMtx);
-        if (settings[VGMPLAY_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
-            vgm_player.SetPlaybackSpeed(settings[VGMPLAY_PBRATIO].detail.mdz_slider.slider_value);
+        if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+            vgm_player.SetPlaybackSpeed(settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
         } else {
             vgm_player.SetPlaybackSpeed(1.0);
         }
@@ -15434,6 +15447,12 @@ extern "C" void adjust_amplification(void);
     iCurrentTime=mNeedSeekTime;
     mNeedSeek=1;
     
+}
+
+
+-(BOOL) isPBRatioSupported {
+    if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)) return TRUE;
+    return FALSE;
 }
 
 //*****************************************

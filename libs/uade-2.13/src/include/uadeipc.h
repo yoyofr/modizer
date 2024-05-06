@@ -6,7 +6,7 @@
 
 #include "uadeutils.h"
 
-#define UADE_MAX_MESSAGE_SIZE (8192) 
+#define UADE_MAX_MESSAGE_SIZE (2048+8) //(8192) 
 //(4096)
 
 enum uade_msgtype {
