@@ -324,7 +324,6 @@ extern "C" int sid_v4;
 extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
 extern char mSIDSeekInProgress;
-extern int m_voice_current_sample;
 extern void* m_sid_chipId[MAXSID_CHIPS];
 char sid_firstcall[MAXSID_CHIPS];
 }
@@ -394,37 +393,80 @@ int SID::clock(unsigned int cycles, short* buf)
                 if (!mSIDSeekInProgress) {
                     if ((unlikely(resampler->input(output()))))
                     {
+                        int cnt=0;
                         if (all_muted) {
-                            buf[s++]=0;
+                            buf[s]=0;
+                            if (mdz_ratio_fp_inc) {
+                                mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
+                                while (mdz_ratio_fp_cnt>(1<<16)) {
+                                    mdz_ratio_fp_cnt-=1<<16;
+                                    s++;
+                                    cnt++;
+                                    buf[s]=buf[s-1];
+                                }
+                            } else {
+                                s++;
+                                cnt++;
+                            }
                             sid_v4=0;
-                        } else buf[s++] = resampler->getOutput(scaleFactor);
+                        } else {
+                            
+                            buf[s] = resampler->getOutput(scaleFactor);
+                            if (mdz_ratio_fp_inc) {
+                                mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
+                                while (mdz_ratio_fp_cnt>(1<<16)) {
+                                    mdz_ratio_fp_cnt-=1<<16;
+                                    s++;
+                                    cnt++;
+                                    buf[s]=buf[s-1];
+                                }
+                            } else {
+                                s++;
+                                cnt++;
+                            }
+                        }
                         
-                        m_voice_current_sample++;
-                        
-                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
-                        m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
-                        
-                        for (int j=0;j<4;j++) {
-                            m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                            if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        for (int jj=0;jj<cnt;jj++) {
+                            for (int j=0;j<4;j++) {
+                                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
+                                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
+                                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+                                m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
+                                
+                                
+                                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            }
                         }
                         
                         //TODO:  MODIZER changes end / YOYOFR
                     }
                 } else {
                     if (unlikely(resampler->input(0))) {
+                        int cnt=0;
                         //s++;
-                        buf[s++]=0;
+                        buf[s]=0;
+                        if (mdz_ratio_fp_inc) {
+                            mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
+                            while (mdz_ratio_fp_cnt>(1<<16)) {
+                                mdz_ratio_fp_cnt-=1<<16;
+                                s++;
+                                cnt++;
+                                buf[s]=buf[s-1];
+                            }
+                        } else {
+                            s++;
+                            cnt++;
+                        }
                         
                         //TODO:  MODIZER changes start / YOYOFR
-                        m_voice_current_sample++;
-                        for (int j=0;j<4;j++) {
-                            m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                            
-                            m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                            if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        for (int jj=0;jj<cnt;jj++) {
+                            for (int j=0;j<4;j++) {
+                                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                                
+                                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+                                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            }
                         }
                     }
                 }
@@ -433,6 +475,7 @@ int SID::clock(unsigned int cycles, short* buf)
             
             cycles -= delta_t;
             nextVoiceSync -= delta_t;
+            if (nextVoiceSync<0) nextVoiceSync=0;
         }
         
         if (unlikely(nextVoiceSync == 0))

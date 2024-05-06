@@ -257,6 +257,9 @@ extern "C" {
 -(NSString*) getPlayerName;
 
 -(BOOL) isPBRatioSupported;
+-(float) pbRatioSupportedMin;
+-(float) pbRatioSupportedMax;
+
 
 -(BOOL) isMultiSongs;
 -(BOOL) isArchive;
@@ -321,6 +324,8 @@ extern "C" {
 
 -(int) getCurrentPlayedBufferIdx;
 -(int) getCurrentGenBufferIdx;
+
+-(void) optGENPBRatio;
 
 -(void) optUADE_Led:(int)isOn;
 -(void) optUADE_Norm:(int)isOn;

@@ -256,6 +256,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 - (void)sliderPBRatioEndChange:(OBSlider*)sender {
+    ((OBSlider*)sender).value=round(((OBSlider*)sender).value*10)/10; //limit to 1 digit
+    [self sliderPBRatioChanged:sender]; //take update into account
     [detailViewController settingsChanged:SETTINGS_ALL];
 }
 
@@ -403,8 +405,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 
                 pbRatioValue=[[OBSlider alloc] initWithFrame:CGRectMake(0,0,self.view.frame.size.width-32-8,30)];
                 pbRatioValue.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
-                [pbRatioValue setMaximumValue:5];
-                [pbRatioValue setMinimumValue:0.1];
+                [pbRatioValue setMaximumValue:[detailViewController.mplayer pbRatioSupportedMax]];
+                [pbRatioValue setMinimumValue:[detailViewController.mplayer pbRatioSupportedMin]];
                 [pbRatioValue setContinuous:true];
                 pbRatioValue.value=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                 [pbRatioValue addTarget:self action:@selector(sliderPBRatioChanged:) forControlEvents:UIControlEventValueChanged];

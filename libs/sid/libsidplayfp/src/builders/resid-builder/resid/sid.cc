@@ -877,7 +877,7 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
     //TODO:  MODIZER changes end / YOYOFR
     
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + cycles_per_sample + (1 << (FIXP_SHIFT - 1));
+        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inc>>16) + (1 << (FIXP_SHIFT - 1));
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -889,12 +889,11 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
             //YOYOFR
-            m_voice_current_sample++;
-            for (int j=0;j<4;j++) {
-                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            }
+//            for (int j=0;j<4;j++) {
+//                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+//                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+//                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            }
             //YOYOFR
             break;
         }
@@ -904,7 +903,6 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (!mSIDSeekInProgress && !all_muted) {
-            m_voice_current_sample++;
             
             //YOYOFR
             sid_v1=voice[0].output();
@@ -921,7 +919,6 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-            m_voice_current_sample++;
             for (int j=0;j<4;j++) {
                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                 
@@ -974,7 +971,7 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
     //TODO:  MODIZER changes end / YOYOFR
     
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
+        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inc>>16);
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -992,12 +989,11 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
         if ((delta_t -= delta_t_sample) == 0) {
             sample_offset -= delta_t_sample << FIXP_SHIFT;
             //YOYOFR
-            m_voice_current_sample++;
-            for (int j=0;j<4;j++) {
-                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            }
+//            for (int j=0;j<4;j++) {
+//                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+//                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+//                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            }
             //YOYOFR
             break;
         }
@@ -1010,7 +1006,6 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
         
         //TODO:  MODIZER changes start / YOYOFR
         if (!mSIDSeekInProgress && !all_muted) {
-            m_voice_current_sample++;
             
             //YOYOFR
             sid_v1=voice[0].output();
@@ -1027,7 +1022,6 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-            m_voice_current_sample++;
             for (int j=0;j<4;j++) {
                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                 
@@ -1107,7 +1101,7 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
     //TODO:  MODIZER changes end / YOYOFR
     
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
+        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inc>>16);
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -1124,12 +1118,11 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
             sample_offset -= delta_t_sample << FIXP_SHIFT;
             
             //YOYOFR
-            m_voice_current_sample++;
-            for (int j=0;j<4;j++) {
-                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            }
+//            for (int j=0;j<4;j++) {
+//                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+//                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+//                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            }
             //YOYOFR
             
             break;
@@ -1173,7 +1166,6 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (!mSIDSeekInProgress && !all_muted) {
-            m_voice_current_sample++;
             
             //YOYOFR
             sid_v1=voice[0].output();
@@ -1190,7 +1182,6 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-            m_voice_current_sample++;
             for (int j=0;j<4;j++) {
                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                 
@@ -1237,7 +1228,7 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
     //TODO:  MODIZER changes end / YOYOFR
     
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
+        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inc>>16);
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -1254,12 +1245,11 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
             sample_offset -= delta_t_sample << FIXP_SHIFT;
             
             //YOYOFR
-            m_voice_current_sample++;
-            for (int j=0;j<4;j++) {
-                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                m_voice_current_ptr[sid_idx+j]+=smplIncr;
-                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-            }
+//            for (int j=0;j<4;j++) {
+//                m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+//                m_voice_current_ptr[sid_idx+j]+=smplIncr;
+//                if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//            }
             //YOYOFR
             break;
         }
@@ -1282,7 +1272,6 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
         
         //TODO:  MODIZER changes start / YOYOFR
         if (!mSIDSeekInProgress && !all_muted) {
-            m_voice_current_sample++;
             
             //YOYOFR
             sid_v1=voice[0].output();
@@ -1299,7 +1288,6 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             }
         } else {
-            m_voice_current_sample++;
             for (int j=0;j<4;j++) {
                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                 

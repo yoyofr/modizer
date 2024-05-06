@@ -939,6 +939,8 @@ static float movePinchScale,movePinchScaleOld;
             }
             lblCurrentSongCFlow.text=labelModuleName.text;
         }
+        
+        [mplayer optGENPBRatio];
     }
     
     /////////////////////
@@ -1049,9 +1051,6 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
-        
-        
-        
     }
     
     /////////////////////

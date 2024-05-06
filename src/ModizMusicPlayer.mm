@@ -527,7 +527,6 @@ char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
 double m_voice_current_rateratio;
-int m_voice_current_sample;
 int m_genNumVoicesChannels,m_genNumMidiVoicesChannels;
 int m_genMasterVol;
 int64_t generic_mute_mask;
@@ -594,6 +593,8 @@ static bool mdz_ShufflePlayMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
+
+uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc;
 
 //vgmplay
 
@@ -2756,7 +2757,6 @@ void propertyListenerCallback (void                   *inUserData,              
         mLoadModuleStatus=0;
         mLoopMode=0;
         mCurrentSamples=0;
-        m_voice_current_sample=0;
         
         snprintf(bundlePath,sizeof(bundlePath),"%s/",[[[NSBundle mainBundle] resourcePath] UTF8String]);
         
@@ -4699,7 +4699,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
                                     SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
                                     mCurrentSamples=0;
-                                    m_voice_current_sample=0;
                                 }
                                 mStartPosSamples=mCurrentSamples;
                                 
@@ -4752,9 +4751,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                     mCurrentSamples=0;
-                                    m_voice_current_sample=0;
                                 }
                                 mStartPosSamples=mCurrentSamples;
+                                
+                                //stop playback rate change for the time it will take to seek position
+                                mdz_ratio_fp_inc=0;
                                 
                                 mSIDSeekInProgress=1;
                                 mSidEmuEngine->fastForward( 100 * 32 );
@@ -4774,7 +4775,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 
-                                
                                 mSidEmuEngine->fastForward( 100 );
                                 while (mCurrentSamples<mSeekSamples) {
                                     nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
@@ -4792,7 +4792,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 mSIDSeekInProgress=0;
-                                
+                             
+                                //restore playback ratio change if needed
+                                [self optGENPBRatio];
                             }
                             if (mPlayType==MMP_GME) {   //GME
                                 bGlobalSeekProgress=-1;
@@ -5687,7 +5689,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
-                                m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 else if (iModuleLength==0) iModuleLength=1000;
@@ -5765,7 +5766,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 mCurrentSamples=0;
-                                m_voice_current_sample=0;
                                 iModuleLength=info.playerTickCount*1000/info.playerTickRate;
                                 if (iModuleLength<=0) {
                                     unsigned int frames;
@@ -6778,7 +6778,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
                                     SidSnapshot::init(SOUND_BUFFER_SIZE_SAMPLE, SOUND_BUFFER_SIZE_SAMPLE);
                                     mCurrentSamples=0;
-                                    m_voice_current_sample=0;
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 }
                             }
@@ -6791,10 +6790,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             memset(vgm_last_vol,0,sizeof(vgm_last_vol));
                             memset(sid_firstcall,1,sizeof(sid_firstcall));
                             
-                            m_voice_current_sample=0;
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
-                            mCurrentSamples+=nbBytes/4;
-                            //m_voice_current_sample+=nbBytes/4;
+                            if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                            else mCurrentSamples+=nbBytes/4;
                             //copy voice data for oscillo view
                             
                             for (int j=0;j<m_genNumVoicesChannels;j++) {
@@ -6851,7 +6849,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                     mCurrentSamples=0;
-                                    m_voice_current_sample=0;
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 }
                             }
@@ -7131,7 +7128,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         //reset NSF
                                         nsfPlayer->Reset();
                                         mCurrentSamples=0;
-                                        m_voice_current_sample=0;
                                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     }
                                 } else nbBytes=0;
@@ -9744,6 +9740,11 @@ char* loadRom(const char* path, size_t romSize)
     
     md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
     free(tmp_md5_data);
+    
+    
+    
+    //get updated playback ratio
+    [self optGENPBRatio];
     
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
@@ -13646,7 +13647,6 @@ extern bool icloud_available;
     memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
     m_voice_current_system=0;
     mSIDSeekInProgress=0;
-    m_voice_current_sample=0;
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     mod_title=nil;
     
@@ -15087,6 +15087,21 @@ extern bool icloud_available;
     sid_interpolation=mode;
 }
 
+-(void) optGENPBRatio {
+    float min=[self pbRatioSupportedMin];
+    float max=[self pbRatioSupportedMax];
+    
+    if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value<min) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=min;
+    if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value>max) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=max;
+    
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+        
+        if (sid_engine==0) mdz_ratio_fp_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+        else mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+        mdz_ratio_fp_cnt=0;
+    } else mdz_ratio_fp_inc=0;
+}
+
 ///////////////////////////
 //GLOBAL
 ///////////////////////////
@@ -15473,8 +15488,34 @@ extern "C" void adjust_amplification(void);
 
 -(BOOL) isPBRatioSupported {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
-        (mPlayType==MMP_TIMIDITY) ) return TRUE;
+        (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY) ) return TRUE;
     return FALSE;
+}
+
+-(float) pbRatioSupportedMin {
+    switch (mPlayType) {
+        case MMP_GME:
+        case MMP_NSFPLAY:
+        case MMP_VGMPLAY:
+        case MMP_TIMIDITY:
+            return 0.1;
+        case MMP_SIDPLAY:
+            return 0.5;
+    }
+    return 1;
+}
+
+-(float) pbRatioSupportedMax {
+    switch (mPlayType) {
+        case MMP_GME:
+        case MMP_NSFPLAY:
+        case MMP_VGMPLAY:
+        case MMP_TIMIDITY:
+            return 5;
+        case MMP_SIDPLAY:
+            return 4;
+    }
+    return 1;
 }
 
 //*****************************************
