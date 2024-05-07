@@ -6029,8 +6029,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             genNextPattern[buffer_ana_gen_ofs]=order_idx;
                             
                             nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
+                            if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                            else mCurrentSamples+=nbBytes;
                             nbBytes*=4;
-                            mCurrentSamples+=nbBytes/4;
+                            
                             for (int i=0;i<numChannels;i++) {
                                 int v=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),i)*255;
                                 genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
@@ -10637,6 +10639,10 @@ char* loadRom(const char* path, size_t romSize)
     numPatterns=xmp_mi->mod->pat;
     
     ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
+    
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+        xmp_set_tempo_factor(xmp_ctx,1/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
+    } else xmp_set_tempo_factor(xmp_ctx,1.0);
     
     return 0;
 }
@@ -15428,7 +15434,13 @@ extern "C" void adjust_amplification(void);
     optXMP_MasterVol=value;
     if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_VOLUME,optXMP_MasterVol);
 }
-
+-(void) optXMP_SetTempo {
+    if (xmp_ctx) {
+        if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+            xmp_set_tempo_factor(xmp_ctx,1/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
+        } else xmp_set_tempo_factor(xmp_ctx,1.0);
+    }
+}
 
 ///////////////////////////
 //Openmpt
@@ -15511,7 +15523,7 @@ extern "C" void adjust_amplification(void);
 -(BOOL) isPBRatioSupported {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||
-        (mPlayType==MMP_OPENMPT) ) return TRUE;
+        (mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP) ) return TRUE;
     return FALSE;
 }
 
@@ -15525,6 +15537,7 @@ extern "C" void adjust_amplification(void);
         case MMP_TIMIDITY:
         case MMP_WEBSID:
         case MMP_OPENMPT:
+        case MMP_XMP:
             return 0.2;
     }
     return 1;
@@ -15536,6 +15549,7 @@ extern "C" void adjust_amplification(void);
         case MMP_NSFPLAY:
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
+        case MMP_XMP:
             return 5;
         case MMP_OPENMPT:
             return 4;

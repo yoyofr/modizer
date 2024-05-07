@@ -1237,7 +1237,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="316"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <mutableString key="text">v3.6 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v3.7 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html

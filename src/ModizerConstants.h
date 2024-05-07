@@ -145,8 +145,8 @@ extern void *LoadingProgressObserverContext;
 
 #define VERSION_MAJOR 3
 #define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 6
-#define VERSION_MINOR_STR "6"
+#define VERSION_MINOR 7
+#define VERSION_MINOR_STR "7"
 
 #define MAX_PL_ENTRIES 65536*2
 

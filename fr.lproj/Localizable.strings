@@ -707,7 +707,7 @@
 "Web browser" = "Navigateur web";
 
 /* (No Comment) */
-"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Mauvaise version : %d.%d. Veuillez valider et patienter pour mettre à jour en %d.%d svp.";
+"Old database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Ancienne version de la BdD: %d.%d. Veuillez valider et patienter pour mettre à jour en %d.%d svp.";
 
 /* (No Comment) */
 "Yes" = "Oui";

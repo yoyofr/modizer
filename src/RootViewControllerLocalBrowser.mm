@@ -337,7 +337,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         else {
             if (wrongversion) {
                 alert1 = [[UIAlertView alloc] initWithTitle:@"Info" message:
-                          [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
+                          [NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
                 [alert1 show];
             }
             else  {
@@ -2181,7 +2181,8 @@ static int shouldRestart=1;
     
     if ([detailViewController not_expected_version]==1) {
         NSLog(@"change of version");
-        
+        detailViewController.not_expected_version=0;
+#if 0
         UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Modizer v%d.%d",@""),VERSION_MAJOR,VERSION_MINOR]
                                                                         message:NSLocalizedString(@"\
 Due to internal changes, settings will be reseted to default and database will be cleaned.\n\
@@ -2192,7 +2193,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
                                                             handler:^(UIAlertAction * action) {
             
-            [self updateWaitingTitle:NSLocalizedString(@"Cleaning DB & \nreseting settings",@"")];
+//            [self updateWaitingTitle:NSLocalizedString(@"Cleaning DB & \nreseting settings",@"")];
             [self updateWaitingDetail:NSLocalizedString(@"please wait",@"")];
             
             [self showWaiting];
@@ -2200,6 +2201,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             DBHelper::cleanDB();
             
+#if 0
             //remove settings from userpref
             NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
             [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
@@ -2207,7 +2209,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             //load default
             [SettingsGenViewController applyDefaultSettings];
             [detailViewController settingsChanged:(int)SETTINGS_ALL];
-            
+#endif
             detailViewController.not_expected_version=0;
             
             [self hideWaiting];
@@ -2224,6 +2226,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             alertC.popoverPresentationController.permittedArrowDirections=0;
             [self presentViewController:alertC animated:YES completion:nil];
         }
+#endif
     }
 }
 

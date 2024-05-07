@@ -221,6 +221,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
     int err,ret;
     
     if (fullpath==nil) return -1;
+    fullpath=[ModizFileHelper getFilePathFromDocuments:fullpath];
     
     pthread_mutex_lock(&db_mutex);
     ret=1;
@@ -231,7 +232,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[fullpath UTF8String]);
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -247,6 +248,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
     int err,ret;
     
     if (fullpath==nil) return -1;
+    fullpath=[ModizFileHelper getFilePathFromDocuments:fullpath];
     
     pthread_mutex_lock(&db_mutex);
     ret=1;
@@ -257,7 +259,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[fullpath UTF8String]);
+        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;NSLog(@"ErrSQL : %d",err);}

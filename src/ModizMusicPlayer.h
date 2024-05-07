@@ -396,6 +396,7 @@ extern "C" {
 -(void) optXMP_SetAmp:(int) value;
 -(void) optXMP_SetDSP:(bool) value;
 -(void) optXMP_SetFLAGS:(bool) value;
+-(void) optXMP_SetTempo;
 
 -(void) setLoopInf:(int)val;
 

@@ -1153,6 +1153,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optXMP_SetAmp:settings[XMP_Amplification].detail.mdz_switch.switch_value];
         //[mplayer optXMP_SetDSP:settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value];
         [mplayer optXMP_SetFLAGS:settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value];
+        [mplayer optXMP_SetTempo];
     }
 }
 

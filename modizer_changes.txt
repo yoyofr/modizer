@@ -40,10 +40,11 @@ missing seek support:
 3.7
 ---
 - [UI] Crash bug when accessing the "now playing" playlist from player screen is fixed
-- [UI] Settings: playback ratio now at global level, supported by GME, LIBVGM, NSFPLAY & TIMIDITY
+- [UI] Settings: playback ratio now at global level (available for some plugins only)
 - [UI] PB Ratio can now be controlled from "voices" screen
 - [UI] some typo fixes
 - [PLAYER] UADE/XMP/OPENMPT improvements for notes gen data
+
 3.6
 ---
 - [All] Bug fixes & stability improvements

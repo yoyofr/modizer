@@ -27,6 +27,7 @@ enum MDZ_SETTINGS_TYPE {
     MDZ_SLIDER_CONTINUOUS,
     MDZ_SLIDER_DISCRETE,
     MDZ_SLIDER_DISCRETE_TIME,
+    MDZ_SLIDER_DISCRETE_TIME_LONG,
     MDZ_TEXTBOX,
     MDZ_MSGBOX,
     MDZ_COLORPICKER,
@@ -355,6 +356,7 @@ typedef struct {
     float slider_value;
     //unsigned int slider_value_nb;
     float slider_min_value;
+    float slider_mid_value;
     float slider_max_value;
     char slider_digits; //100:percentage, 60:time, 1:1 digit, 2:2 digits
 } t_setting_slider;
