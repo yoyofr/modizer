@@ -10829,6 +10829,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
     
+    
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+        ompt_mod_interactive->set_tempo_factor(ompt_mod,settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
+    } else ompt_mod_interactive->set_tempo_factor(ompt_mod,1.0);
+    
     return 0;
 }
 
@@ -15454,6 +15459,14 @@ extern "C" void adjust_amplification(void);
     if (ompt_mod) openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
 }
 
+-(void) optOMPT_Tempo {
+    if (ompt_mod_interactive) {
+        if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
+            ompt_mod_interactive->set_tempo_factor(ompt_mod,settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
+        } else ompt_mod_interactive->set_tempo_factor(ompt_mod,1.0);
+    }
+}
+
 ///////////////////////////
 /////
 ///////////////////////
@@ -15497,20 +15510,22 @@ extern "C" void adjust_amplification(void);
 
 -(BOOL) isPBRatioSupported {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
-        (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID) ) return TRUE;
+        (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||
+        (mPlayType==MMP_OPENMPT) ) return TRUE;
     return FALSE;
 }
 
 -(float) pbRatioSupportedMin {
     switch (mPlayType) {
+        case MMP_SIDPLAY:
+            return 0.3;
         case MMP_GME:
         case MMP_NSFPLAY:
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
         case MMP_WEBSID:
+        case MMP_OPENMPT:
             return 0.2;
-        case MMP_SIDPLAY:
-            return 0.3;
     }
     return 1;
 }
@@ -15522,9 +15537,8 @@ extern "C" void adjust_amplification(void);
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
             return 5;
-        case MMP_WEBSID:
-        case MMP_SIDPLAY:
-            return 5;
+        case MMP_OPENMPT:
+            return 4;
     }
     return 1;
 }

@@ -341,6 +341,7 @@ extern "C" {
 -(void) optOMPT_MasterVol:(float)mstVol;
 -(void) optOMPT_Sampling:(int) mode;
 -(void) optOMPT_StereoSeparation:(float) val;
+-(void) optOMPT_Tempo;
 
 -(void) optUpdateSystemColor;
 

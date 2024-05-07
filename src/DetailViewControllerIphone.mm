@@ -979,6 +979,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_OSCILLO)) {
         [mplayer optUpdateSystemColor];
+        [mplayer optOMPT_Tempo];
     }
     
     /////////////////////
