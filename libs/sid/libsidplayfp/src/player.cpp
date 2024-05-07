@@ -32,6 +32,14 @@
 
 #include "sidcxx11.h"
 
+//YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+char sid_firstcall[MAXSID_CHIPS];
+}
+//YOYOFR
+
+
 namespace libsidplayfp
 {
 
@@ -201,6 +209,10 @@ void Player::run(unsigned int events)
 
 uint_least32_t Player::play(short *buffer, uint_least32_t count)
 {
+    //YOYOFR
+    int count_org=count;
+    //YOYOFR
+    
     // Make sure a tune is loaded
     if (m_tune == nullptr)
         return 0;
@@ -225,9 +237,19 @@ uint_least32_t Player::play(short *buffer, uint_least32_t count)
                     // Clock chips and mix into output buffer
                     while (m_isPlaying && m_mixer.notFinished())
                     {
-                        run(sidemu::OUTPUTBUFFERSIZE);
-
-                        m_mixer.clockChips();
+                        //YOYOFR
+                        if (m_mixer.samplesReady()<count_org) {
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            memset(sid_firstcall,1,sizeof(sid_firstcall));
+                            
+                            run(sidemu::OUTPUTBUFFERSIZE);
+                            
+                            m_mixer.clockChips();
+                        } else {
+                            //printf("smpl: %d\n",m_mixer.samplesReady());
+                        }
+                        //YOYOFR
                         m_mixer.doMix();
                     }
                     count = m_mixer.samplesGenerated();

@@ -485,7 +485,7 @@ int SID::clock(unsigned int cycles, short* buf)
     }
     
     if (sid_firstcall[sid_idx]) {
-        sid_firstcall[sid_idx]=0;
+        //sid_firstcall[sid_idx]=0;
         for (int j=0;j<3;j++) {
             if (voice[j]->wave()->readFreq()) {
                 vgm_last_note[sid_idx+j]=voice[j]->wave()->readFreq();

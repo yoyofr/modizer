@@ -193,6 +193,10 @@ public:
      */
     void doMix();
 
+    //YOYOFR
+    int samplesReady();
+    //YOYOFR
+    
     /**
      * This clocks the SID chips to the present moment, if they aren't already.
      */

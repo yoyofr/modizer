@@ -39,6 +39,12 @@ extern "C" {
 #include "sid.h"
 #include "loaders.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 // the clocks used in the emulation do not usually match the used audio
 // output sample rate and fractional overflows are handled here:
 static double _sample_cycles;
@@ -111,7 +117,9 @@ void runEmulation(uint8_t is_simple_sid_mode, int16_t* synth_buffer,
 				// the "silence detection" from 33 sec to 19 secs
 
 				sysClockOpt();
-				_sample_cycles++;
+				//_sample_cycles++; //YOYOFR
+                if (mdz_ratio_fp_inc) _sample_cycles+=(double)mdz_ratio_fp_inc/65536.0;
+                else _sample_cycles++;
 			}
 			_sample_cycles -= n;	// keep overflow
 
@@ -126,7 +134,9 @@ void runEmulation(uint8_t is_simple_sid_mode, int16_t* synth_buffer,
 			for (int i= 0; i<samples_per_call; i++) {
 				while(_sample_cycles < n) {
 					sysClockOpt();
-					_sample_cycles++;
+                    //_sample_cycles++; //YOYOFR
+                    if (mdz_ratio_fp_inc) _sample_cycles+=(double)mdz_ratio_fp_inc/65536.0;
+                    else _sample_cycles++;
 				}
 				_sample_cycles -= n;	// keep overflow
 
@@ -140,7 +150,9 @@ void runEmulation(uint8_t is_simple_sid_mode, int16_t* synth_buffer,
 			for (int i= 0; i<samples_per_call; i++) {
 				while(_sample_cycles < n) {
 					sysClock();
-					_sample_cycles++;
+                    //_sample_cycles++; //YOYOFR
+                    if (mdz_ratio_fp_inc) _sample_cycles+=(double)mdz_ratio_fp_inc/65536.0;
+                    else _sample_cycles++;
 				}
 				_sample_cycles -= n;	// keep overflow
 

@@ -594,7 +594,7 @@ static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
 
-uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc;
+uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
 
 //vgmplay
 
@@ -4690,6 +4690,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                                 bGlobalSeekProgress=-1;
                                 
+                                //stop playback rate change for the time it will take to seek position
+                                mdz_ratio_fp_inc=0;
+                                mdz_ratio_fp_inv_inc=0;
+                                
                                 uint8_t is_simple_sid_mode = !FileLoader::isExtendedSidFile();
                                 uint8_t speed =    FileLoader::getCurrentSongSpeed();
                                 
@@ -4741,6 +4745,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 mSIDSeekInProgress=0;
+                                
+                                //restore playback ratio change if needed
+                                [self optGENPBRatio];
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
                                 int64_t mStartPosSamples;
@@ -4756,6 +4763,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 //stop playback rate change for the time it will take to seek position
                                 mdz_ratio_fp_inc=0;
+                                mdz_ratio_fp_inv_inc=0;
                                 
                                 mSIDSeekInProgress=1;
                                 mSidEmuEngine->fastForward( 100 * 32 );
@@ -6785,10 +6793,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
-                            
-                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            memset(sid_firstcall,1,sizeof(sid_firstcall));
                             
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
@@ -9523,6 +9527,9 @@ char* loadRom(const char* path, size_t romSize)
     uint32_t is_mus=0;
     if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"mus"]) is_mus=1;
     if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"str"]) is_mus=1;
+    
+    //init playback ratio
+    [self optGENPBRatio];
     
     websid_loader = FileLoader::getInstance(is_mus, (void*)websid_fileBuffer, websid_fileBufferLen);
     
@@ -15094,12 +15101,14 @@ extern bool icloud_available;
     if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value<min) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=min;
     if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value>max) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=max;
     
-    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
-        
-        if (sid_engine==0) mdz_ratio_fp_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
-        else mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+    if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {                
+        mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+        mdz_ratio_fp_inv_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_ratio_fp_cnt=0;
-    } else mdz_ratio_fp_inc=0;
+    } else {
+        mdz_ratio_fp_inc=0;
+        mdz_ratio_fp_inv_inc=0;
+    }
 }
 
 ///////////////////////////
@@ -15488,7 +15497,7 @@ extern "C" void adjust_amplification(void);
 
 -(BOOL) isPBRatioSupported {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
-        (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY) ) return TRUE;
+        (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID) ) return TRUE;
     return FALSE;
 }
 
@@ -15498,9 +15507,10 @@ extern "C" void adjust_amplification(void);
         case MMP_NSFPLAY:
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
-            return 0.1;
+        case MMP_WEBSID:
+            return 0.2;
         case MMP_SIDPLAY:
-            return 0.5;
+            return 0.3;
     }
     return 1;
 }
@@ -15512,8 +15522,9 @@ extern "C" void adjust_amplification(void);
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
             return 5;
+        case MMP_WEBSID:
         case MMP_SIDPLAY:
-            return 4;
+            return 5;
     }
     return 1;
 }

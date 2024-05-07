@@ -47,7 +47,7 @@ extern char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 
 extern int m_voicesForceOfs;
 
-extern uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc;
+extern uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
 

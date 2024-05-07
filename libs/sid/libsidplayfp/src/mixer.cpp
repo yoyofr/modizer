@@ -71,6 +71,12 @@ void Mixer::resetBufs()
     std::for_each(m_chips.begin(), m_chips.end(), bufferPos(0));
 }
 
+//YOYOFR
+int Mixer::samplesReady() {
+    return m_chips.front()->bufferpos();
+}
+//YOYOFR
+
 void Mixer::doMix()
 {
     short *buf = m_sampleBuffer + m_sampleIndex;
