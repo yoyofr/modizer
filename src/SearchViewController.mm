@@ -1860,6 +1860,12 @@ static NSFileManager *mFileMngr;
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
     }
+    
+    topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                            ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+    bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+                            ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+    
     bottomLabel.text=@""; //default value
     cell.accessoryType=UITableViewCellAccessoryNone;
     cell.tag=indexPath.row;
