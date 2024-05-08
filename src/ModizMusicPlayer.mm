@@ -7587,14 +7587,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
-            NSLog(@"modizemusicplayer extract cancelled");
+            //NSLog(@"modizemusicplayer extract cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
             }];
         }
 #if DEBUG_MODIZER
-        NSLog(@"extract progress: %lf",progress.fractionCompleted);
+        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
 #endif
         if (progress.fractionCompleted>=1.0f) extractDone=true;
         

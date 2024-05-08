@@ -96,11 +96,11 @@ extern bool icloud_available;
             NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
             return false;
         }
-        NSArray *filesInArchive = [archive listFilenames:&error];
+        /*NSArray *filesInArchive = [archive listFilenames:&error];
         if (!filesInArchive) {
             NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
             return false;
-        }
+        }*/
         return true;
     }
     
