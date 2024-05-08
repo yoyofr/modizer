@@ -24,11 +24,13 @@ static struct {
       char adpcmram[OPNA_ADPCM_RAM_SIZE];
     char str_error[256];
     int max_loop;
+    int mutemask;
 } g;
 
 void fmpmini_init(void) {
     g.lastopenpath=NULL;
     g.max_loop=2;
+    g.mutemask=0;
 }
 
 void fmpmini_setMaxLoop(int loop) {
@@ -40,6 +42,7 @@ void fmpmini_close(void) {
 }
 
 void fmpmini_mute(int mask) {
+    g.mutemask=mask;
     opna_set_mask(&g.opna, mask&((1<<16)-1));
     ppz8_set_mask(&g.ppz8, (mask>>16)&((1<<16)-1));
 }
@@ -77,6 +80,7 @@ int64_t fmpmini_getLength(void) {
 void fmpmini_reset(void) {
     fmpmini_close();
     fmpmini_loadFile(g.lastopenpath);
+    fmpmini_mute(g.mutemask);
 }
 
 int fmpmini_channelsNb(void){

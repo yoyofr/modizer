@@ -74,6 +74,7 @@ struct opna_fm_channel {
 #ifdef LIBOPNA_ENABLE_LEVELDATA
   struct leveldata leveldata;
 #endif
+    int chanout;  //YOYOFR
 };
 
 struct opna_fm {

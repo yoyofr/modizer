@@ -665,7 +665,26 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
-    
+    //YOYOFR
+    for (int i=0;i<6;i++) {
+        vgm_last_note[i]=0;
+        vgm_last_vol[i]=0;
+    }
+    m_voice_current_system=0;
+    static int old_out_fm[6]; //YOYOFR
+    for (int i=0;i<6;i++) {
+        if (!(fm->mask & (1<<i)) && (old_out_fm[i]!=fm->channel[i].chanout) ) {
+            double freq=((int)(fm->channel[i].fnum)<<fm->channel[i].blk);;
+            if (freq) {
+                vgm_last_note[m_voice_current_system+i]=freq*110.0f/1081.0f; //1148.0f;
+                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                int newvol=1;//h[ii].keyonff_triggered+1;
+                vgm_last_vol[m_voice_current_system+i]=newvol;
+            }
+        }
+        old_out_fm[i]=fm->channel[i].chanout;
+    }
+    //YOYOFR
     
   unsigned level[6] = {0};
   for (unsigned i = 0; i < samples; i++) {
@@ -701,7 +720,13 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
       } else {
         opna_fm_chan_phase(&fm->channel[c]);
       }
-      if (fm->mask & (1<<c)) continue;
+        if (fm->mask & (1<<c)) {
+            //TODO:  MODIZER changes start / YOYOFR
+            int64_t ofs_end=(m_voice_current_ptr[c]+smplIncr);
+            m_voice_current_ptr[c]=ofs_end;
+            //TODO:  MODIZER changes end / YOYOFR
+            continue;
+        }
       if (fm->lselect[c]) lo += o.data[1];
       if (fm->rselect[c]) ro += o.data[0];
         
@@ -711,8 +736,10 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
         int smpl=0;
         if (fm->lselect[c]) smpl+=o.data[1];
         if (fm->rselect[c]) smpl+=o.data[0];
+        
+        fm->channel[c].chanout=smpl;
         for (;;) {
-            m_voice_buff[c][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>7));
+            m_voice_buff[c][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>6));
             ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
             if (ofs_start>=ofs_end) break;
         }

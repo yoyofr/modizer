@@ -3,6 +3,11 @@
 #include "oscillo/oscillo.h"
 #endif
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 // if (i < 2) voltable[i] = 0;
 // else       voltable[i] = round((0x7fff / 3.0) * pow(2.0, (i - 31)/4.0));
 /*
@@ -320,6 +325,20 @@ void opna_ssg_mix_55466(
   (void)oscillo;
   (void)offset;
 #endif
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_current_samplerate=55467;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    for (int i=6;i<6+3;i++) {
+        vgm_last_note[i]=0;
+        vgm_last_vol[i]=0;
+    }
+    m_voice_current_system=6;
+    //YOYOFR
+    
   unsigned level[3] = {0};
   for (int i = 0; i < samples; i++) {
     {
@@ -366,6 +385,20 @@ void opna_ssg_mix_55466(
       if (nlevel < 0) nlevel = -nlevel;
       if (((unsigned)nlevel) > level[ch]) level[ch] = nlevel;
       if (!(ssg->mask & (1<<ch))) sample += outbuf[ch];
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        int64_t ofs_start=m_voice_current_ptr[ch+6];
+        int64_t ofs_end=(m_voice_current_ptr[ch+6]+smplIncr);
+        int smpl=0;
+        if (!(ssg->mask & (1<<ch))) smpl += outbuf[ch];
+        for (;;) {
+            m_voice_buff[ch+6][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>5));
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            if (ofs_start>=ofs_end) break;
+        }
+        //while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        m_voice_current_ptr[ch+6]=ofs_end;
+        //TODO:  MODIZER changes end / YOYOFR
     }
 
     int32_t lo = buf[i*2+0];
@@ -378,6 +411,33 @@ void opna_ssg_mix_55466(
     if (ro > INT16_MAX) ro = INT16_MAX;
     buf[i*2+0] = lo;
     buf[i*2+1] = ro;
+      
+      for (int i=0;i<3;i++) {
+          if (!(ssg->mask & (1<<i))) {
+              
+                  if (outbuf[i]) {
+                      double freq=opna_ssg_noise_period(ssg);
+                      if (freq) {
+                          vgm_last_note[i+m_voice_current_system]=(double)3993600*2/(2*freq)/16/1024;
+                          vgm_last_sample_addr[i+m_voice_current_system]=m_voice_current_system+i;
+                          int newvol=opna_ssg_channel_level(ssg,i);
+                          vgm_last_vol[i+m_voice_current_system]=1+newvol;
+                      }
+                  }
+              
+                  if ( outbuf[i] ) {
+                      double freq=opna_ssg_tone_period(ssg, i);
+                      if (freq) {
+                          vgm_last_note[i+m_voice_current_system]=(double)3993600*2/(2*freq)/16;
+                          vgm_last_sample_addr[i+m_voice_current_system]=m_voice_current_system+i;
+                          int newvol=opna_ssg_channel_level(ssg,i);
+                          vgm_last_vol[i+m_voice_current_system]=1+newvol;
+                      }
+                  }
+          }
+          
+      }
+      //YOYOFR
   }
 #ifdef LIBOPNA_ENABLE_LEVELDATA
   for (int c = 0; c < 3; c++) {

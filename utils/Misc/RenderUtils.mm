@@ -6499,22 +6499,27 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
     //inner part
     if (subnote) {
         if (subnote>0) {
-            float fact=1.1+(float)subnote*0.25/8.0;
-            float ofs=32+subnote*4;
-            crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
+            float fact=1+(float)subnote*0.1/8.0;
+            float ofs=0+subnote*8;
+            crtp[4]=crt/fact-ofs;cgtp[4]=cgt/fact-ofs;cbtp[4]=cbt/fact-ofs;cap[4]=ca;
             crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
         } else {
             float fact=1;
             float ofs=0;
-            fact=1.1-(float)subnote*0.25/8.0; ofs=32-subnote*4;
+            fact=1-(float)subnote*0.1/8.0;
+            ofs=0-subnote*8;
             crtp[4]=crt*fact+ofs;cgtp[4]=cgt*fact+ofs;cbtp[4]=cbt*fact+ofs;cap[4]=ca;
-            crtp[5]=crt*fact+ofs;cgtp[5]=cgt*fact+ofs;cbtp[5]=cbt*fact+ofs;cap[5]=ca;
+            crtp[5]=crt/fact-ofs;cgtp[5]=cgt/fact-ofs;cbtp[5]=cbt/fact-ofs;cap[5]=ca;
         }
         for (int ii=4;ii<6;ii++) {
             if (crtp[ii]>255) crtp[ii]=255;
             if (cgtp[ii]>255) cgtp[ii]=255;
             if (cbtp[ii]>255) cbtp[ii]=255;
             if (cap[ii]>255) cap[ii]=255;
+            if (crtp[ii]<0) crtp[ii]=0;
+            if (cgtp[ii]<0) cgtp[ii]=0;
+            if (cbtp[ii]<0) cbtp[ii]=0;
+            if (cap[ii]<0) cap[ii]=0;
         }
     } else {
         crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
@@ -7540,7 +7545,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                           posStart-line_width_extra, //y
                           wd, //w
                           posEnd-posStart+line_width_extra*2, //h
-                          border_size,crt,cgt,cbt,255,0);
+                          border_size,crt,cgt,cbt,255,0/*subnote*/);
             
         }
     }

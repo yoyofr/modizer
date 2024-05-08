@@ -3165,7 +3165,8 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_GME)||(mPlayType==MMP_ASAP)||(mPlayType==MMP_PT3)||(mPlayType==MMP_V2M)||
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
-        (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG) ) return true;
+        (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG)||
+        (mPlayType==MMP_FMPMINI) ) return true;
     return false;
 }
 
@@ -12582,11 +12583,20 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         m_genNumVoicesChannels=numChannels;
         m_voicesDataAvail=1;
         
-        for (int i=0;i<13;i++) { //FM
+        for (int i=0;i<6;i++) { //FM
             m_voice_voiceColor[i]=m_voice_systemColor[0];
         }
-        for (int i=13;i<16;i++) { //SSG
+        for (int i=6;i<6+3;i++) { //SSG
             m_voice_voiceColor[i]=m_voice_systemColor[1];
+        }
+        for (int i=6+3;i<6+3+6;i++) { //DRUM
+            m_voice_voiceColor[i]=m_voice_systemColor[2];
+        }
+        for (int i=6+3+6;i<6+3+6+1;i++) { //ADPCM
+            m_voice_voiceColor[i]=m_voice_systemColor[3];
+        }
+        for (int i=16;i<m_genNumVoicesChannels;i++) { //PPZ
+            m_voice_voiceColor[i]=m_voice_systemColor[4];
         }
         //TODO: add PCM tracks
         
@@ -15998,8 +16008,8 @@ extern "C" void adjust_amplification(void);
         case MMP_ASAP:
             return numChannels/4;
         case MMP_FMPMINI:
-            if (numChannels>16) return 2;
-            return 1;
+            if (numChannels>16) return 5;
+            return 4;
         case MMP_PMDMINI:
         case MMP_VGMPLAY:
             return mod_activeChipsNb;
@@ -16070,7 +16080,10 @@ extern "C" void adjust_amplification(void);
         case MMP_PMDMINI:
             return [NSString stringWithFormat:@"%s",mod_activeChipsName[systemIdx]];
         case MMP_FMPMINI:
-            if (systemIdx==0) return @"OPNA";
+            if (systemIdx==0) return @"FM";
+            else if (systemIdx==1) return @"SSG";
+            else if (systemIdx==2) return @"DRUM";
+            else if (systemIdx==3) return @"ADPCM";
             return @"PPZ8";
         case MMP_VGMPLAY:
             return [NSString stringWithFormat:@"%s#%d",mod_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
@@ -16141,8 +16154,11 @@ extern "C" void adjust_amplification(void);
             return 0;
         }
         case MMP_FMPMINI:
-            if (voiceIdx<16) return 0; //OPNA
-            return 1; //PPZ8
+            if (voiceIdx<6) return 0; //FM
+            else if (voiceIdx<6+3) return 1; //SSG
+            else if (voiceIdx<6+3+6) return 2; //DRUM
+            else if (voiceIdx<6+3+6+1) return 3; //ADPCM
+            return 4; //PPZ8
         case MMP_WEBSID:
         case MMP_SIDPLAY:
             return voiceIdx/4;
@@ -16234,12 +16250,36 @@ extern "C" void adjust_amplification(void);
             else if (tmp>0) return 1; //partially active
             return 0; //all off
         case MMP_FMPMINI:
-            if (systemIdx==0) { //OPNA
+            if (systemIdx==0) { //FM
                 tmp=0;
-                for (int i=0;i<16;i++) {
+                for (int i=0;i<6;i++) {
                     tmp+=(m_voicesStatus[i]?1:0);
                 }
-                if (tmp==16) return 2; //all active
+                if (tmp==6) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            } else if (systemIdx==1) { //SSG
+                tmp=0;
+                for (int i=6;i<6+3;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==3) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            } else if (systemIdx==2) { //DRUM
+                tmp=0;
+                for (int i=6+3;i<6+3+6;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==6) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            } else if (systemIdx==3) { //ADPCM
+                tmp=0;
+                for (int i=6+3+6;i<6+3+6+1;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==1) return 2; //all active
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             } else { //PPZ8
@@ -16367,8 +16407,14 @@ extern "C" void adjust_amplification(void);
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_FMPMINI:
-            if (systemIdx==0) {//OPNA
-                for (int i=0;i<16;i++) [self setm_voicesStatus:active index:i];
+            if (systemIdx==0) {//FM
+                for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i];
+            } else if (systemIdx==1) {//SSG
+                for (int i=0;i<3;i++) [self setm_voicesStatus:active index:i+6];
+            } else if (systemIdx==2) {//DRUM
+                for (int i=0;i<6;i++) [self setm_voicesStatus:active index:i+6+3];
+            }  else if (systemIdx==3) {//ADPCM
+                for (int i=0;i<1;i++) [self setm_voicesStatus:active index:i+6+3+6];
             } else { //PPZ8
                 for (int i=0;i<numChannels-16;i++) [self setm_voicesStatus:active index:i+16];
             }

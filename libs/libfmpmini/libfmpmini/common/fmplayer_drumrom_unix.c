@@ -9,11 +9,17 @@ static struct {
   bool loaded;
 } g;
 
-#define DATADIR "/.local/share/98fmplayer/"
+//#define DATADIR "/.local/share/98fmplayer/"
+#define DATADIR ""
+
+//YOYOFR
+extern char bundlePath[1024];
+//YOYOFR
+
 
 static void loadfile(void) {
   const char *path = "ym2608_adpcm_rom.bin";
-  const char *home = getenv("HOME");
+    const char *home = bundlePath; //getenv("HOME");
   char *dpath = 0;
   if (home) {
     const char *datadir = DATADIR;

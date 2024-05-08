@@ -1,5 +1,10 @@
 #include "opnaadpcm.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 enum {
   C1_START = 0x80,
   C1_REC = 0x40,
@@ -185,12 +190,42 @@ void opna_adpcm_writereg(struct opna_adpcm *adpcm, unsigned reg, unsigned val) {
 
 void opna_adpcm_mix(struct opna_adpcm *adpcm, int16_t *buf, unsigned samples) {
   unsigned level = 0;
+    
+    //YOYOFR
+    for (int i=15;i<16;i++) {
+        vgm_last_note[i]=0;
+        vgm_last_vol[i]=0;
+    }
+    //YOYOFR
+    
   if (!adpcm->ram || !(adpcm->control1 & C1_START)) {
 #ifdef LIBOPNA_ENABLE_LEVELDATA
     leveldata_update(&adpcm->leveldata, level);
 #endif
     return;
   }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_current_samplerate=55467;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    //YOYOFR
+    m_voice_current_system=15;
+    for (int i=0;i<1;i++) {
+        if (!adpcm->masked && (adpcm->control2 & (C2_L|C2_R)) && adpcm->vol)  {
+            double freq=adpcm->delta;
+            if (freq) {
+                vgm_last_note[m_voice_current_system+i]=220.0f*(55555.0f * ((double)(freq) / 65535.0f))/22050.0f; //using A3 / 22Khz
+                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                int newvol=(adpcm->vol/2) + 1;//h[ii].keyonff_triggered+1;
+                vgm_last_vol[m_voice_current_system+i]=newvol;
+            }
+        }
+    }
+    //YOYOFR
+    
+    
   for (unsigned i = 0; i < samples; i++) {
     adpcm_calc(adpcm);
     {
@@ -198,6 +233,21 @@ void opna_adpcm_mix(struct opna_adpcm *adpcm, int16_t *buf, unsigned samples) {
       if (clevel < 0) clevel = -clevel;
       if (((unsigned)clevel) > level) level = clevel;
     }
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      int64_t ofs_start=m_voice_current_ptr[15];
+      int64_t ofs_end=(m_voice_current_ptr[15]+smplIncr);
+      int smpl=0;
+      if (!adpcm->masked && (adpcm->control2 & (C2_L|C2_R)) ) smpl=adpcm->out;
+      for (;;) {
+          m_voice_buff[15][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>6));
+          ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+          if (ofs_start>=ofs_end) break;
+      }
+      //while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+      m_voice_current_ptr[15]=ofs_end;
+      //TODO:  MODIZER changes end / YOYOFR
+      
     if (!adpcm->masked) {
       int32_t lo = buf[i*2+0];
       int32_t ro = buf[i*2+1];
