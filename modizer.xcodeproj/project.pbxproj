@@ -2235,9 +2235,6 @@
 		CC4F49D82B7021A0002A9309 /* c6410.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6410.fnt; sourceTree = "<group>"; };
 		CC4F49D92B7021A0002A9309 /* tracking10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking10.fnt; sourceTree = "<group>"; };
 		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
-		CC4F64B12BE77D5300566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		CC4F64B32BE77DD800566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		CC4F64B52BE77E0100566BD3 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC5333582B7E938B009ED5D7 /* tracking12.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking12.fnt; sourceTree = "<group>"; };
 		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfmpmini.xcodeproj; path = libfmpmini/libfmpmini.xcodeproj; sourceTree = "<group>"; };
@@ -2798,9 +2795,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CC4F64B52BE77E0100566BD3 /* libliblzma.a */,
-				CC4F64B32BE77DD800566BD3 /* libliblzma.a */,
-				CC4F64B12BE77D5300566BD3 /* libliblzma.a */,
 				CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */,
 				CCB4C4662BA0F1F300695908 /* ReplayKit.framework */,
 				59047C7426331C0100623C08 /* libc++abi.tbd */,

@@ -131,6 +131,9 @@ void opna_timer_nomix(struct opna_timer *timer, unsigned samples) {
       }
     }
     //opna_mix_oscillo(timer->opna, buf, generate_samples, oscillo);
+    if (timer->mix_cb) {
+        timer->mix_cb(timer->mix_userptr, NULL, generate_samples);
+    }
     samples -= generate_samples;
     if (timer->timera_load) {
       timer->timera = (timer->timera + generate_samples) & ((1<<TIMERA_BITS)-1);

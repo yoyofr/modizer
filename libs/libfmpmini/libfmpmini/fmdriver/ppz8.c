@@ -180,6 +180,8 @@ static int32_t ppz8_channel_calc(struct ppz8 *ppz8, struct ppz8_channel *channel
   return out;
 }
 
+extern int fmp_ppz8_maxChannel; //YOYOFR
+
 void ppz8_mix(struct ppz8 *ppz8, int16_t *buf, unsigned samples) {
   unsigned level[8] = {0};
   static const uint8_t pan_vol[10][2] = {
@@ -194,6 +196,18 @@ void ppz8_mix(struct ppz8 *ppz8, int16_t *buf, unsigned samples) {
     {1, 4},
     {0, 4}
   };
+    //YOYOFR
+    if (buf==NULL) {
+        for (int p = 0; p < 8; p++) {
+            struct ppz8_channel *channel = &ppz8->channel[p];
+            if (!channel->playing) continue;
+            if (fmp_ppz8_maxChannel<p) fmp_ppz8_maxChannel=p;
+        }
+        return;
+    }
+    //YOYOFR
+    
+    
   for (unsigned i = 0; i < samples; i++) {
     int32_t lo = buf[i*2+0];
     int32_t ro = buf[i*2+1];

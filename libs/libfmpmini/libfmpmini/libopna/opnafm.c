@@ -5,6 +5,11 @@
 
 #include "opnatables.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #if 1
 #define LIBOPNA_DEBUG(...)
 #else
@@ -655,6 +660,13 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
   (void)oscillo;
   (void)offset;
 #endif
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_current_samplerate=55467;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
+    
   unsigned level[6] = {0};
   for (unsigned i = 0; i < samples; i++) {
     if (!fm->env_div3) {
@@ -692,6 +704,21 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
       if (fm->mask & (1<<c)) continue;
       if (fm->lselect[c]) lo += o.data[1];
       if (fm->rselect[c]) ro += o.data[0];
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        int64_t ofs_start=m_voice_current_ptr[c];
+        int64_t ofs_end=(m_voice_current_ptr[c]+smplIncr);
+        int smpl=0;
+        if (fm->lselect[c]) smpl+=o.data[1];
+        if (fm->rselect[c]) smpl+=o.data[0];
+        for (;;) {
+            m_voice_buff[c][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(((smpl)>>7));
+            ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+            if (ofs_start>=ofs_end) break;
+        }
+        //while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+        m_voice_current_ptr[c]=ofs_end;
+        //TODO:  MODIZER changes end / YOYOFR
     }
 
     if (lo < INT16_MIN) lo = INT16_MIN;

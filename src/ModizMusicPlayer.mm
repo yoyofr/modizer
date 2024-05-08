@@ -4304,6 +4304,16 @@ int64_t src_callback_hc(void *cb_data, float **data) {
     return SOUND_BUFFER_SIZE_SAMPLE;
 }
 
+int64_t src_callback_fmpmini(void *cb_data, float **data) {
+    uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
+    fmpmini_render(hc_sample_data,howmany);
+    
+    src_short_to_float_array (hc_sample_data, hc_sample_data_float,SOUND_BUFFER_SIZE_SAMPLE*2);
+    *data=hc_sample_data_float;
+    return SOUND_BUFFER_SIZE_SAMPLE;
+}
+
+
 int64_t src_callback_vgmstream(void *cb_data, float **data) {
     // render audio into sound buffer
     int16_t *sampleData;
@@ -4914,6 +4924,37 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     int code = sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], &nbBytes);
                                     
                                     mCurrentSamples = mSeekSamples;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
+                                        mSeekSamples=mCurrentSamples;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (mPlayType==MMP_FMPMINI) {//FMPMINI
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                bGlobalSeekProgress=-1;
+                                if (mCurrentSamples > mSeekSamples) {
+                                    fmpmini_reset();
+                                    mCurrentSamples=0;
+                                }
+                                mStartPosSamples=mCurrentSamples;
+                                
+                                while (mSeekSamples > mCurrentSamples) {
+                                    int64_t bufsize=mSeekSamples - mCurrentSamples;
+                                    if (bufsize>SOUND_BUFFER_SIZE_SAMPLE) bufsize=SOUND_BUFFER_SIZE_SAMPLE;
+                                    
+                                    int howmany=bufsize*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+                                    fmpmini_render(buffer_ana[buffer_ana_gen_ofs], howmany);
+                                    
+                                    mCurrentSamples += bufsize;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
@@ -6096,7 +6137,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_FMPMINI) { //FMP
                             // render audio into sound buffer
-                            fmpmini_render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                            nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
+                            src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                            
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
@@ -6125,8 +6168,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //copy voice data for oscillo view
                             for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]);
-                                    m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]);
+                                    m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
                                 }
                                 m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             }
@@ -12500,9 +12543,20 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mp_datasize=ftell(f);
     fclose(f);
     
+    //Initi SRC samplerate converter
+    int error;
+    src_state=src_callback_new(src_callback_fmpmini,0,2,&error,NULL); //best quality
+    if (!src_state) {
+        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        return -1;
+    }
+    
+    hc_sample_rate=55467;
+    src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
     
     if (!fmpmini_loadFile((char*)[filePath UTF8String])) {
         // not FMP
+        src_delete(src_state);
         return 1;
     } else {
         //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
@@ -12524,15 +12578,31 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         mod_maxsub=1;
         mod_currentsub=1;
         
-        numChannels=2;
-        m_genNumVoicesChannels=0;//numChannels;
-        m_voicesDataAvail=0;
+        numChannels=fmpmini_channelsNb();
+        m_genNumVoicesChannels=numChannels;
+        m_voicesDataAvail=1;
+        
+        for (int i=0;i<13;i++) { //FM
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+        for (int i=13;i<16;i++) { //SSG
+            m_voice_voiceColor[i]=m_voice_systemColor[1];
+        }
+        //TODO: add PCM tracks
         
         [self mmp_updateDBStatsAtLoad];
+        
+        snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s",fmpmini_getComment(0));
+        if (fmpmini_getComment(1)) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\n%s",mod_message,fmpmini_getComment(1));
+        if (fmpmini_getComment(2)) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\n%s",mod_message,fmpmini_getComment(2));
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
+        
+        hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
         
         return 0;
     }
@@ -14833,6 +14903,11 @@ extern bool icloud_available;
         pmd_stop();
     }
     if (mPlayType==MMP_FMPMINI) { //FMP
+        mdz_safe_free(hc_sample_data);
+        mdz_safe_free(hc_sample_data_float);
+        mdz_safe_free(hc_sample_converted_data_float);
+        if (src_state) src_delete(src_state);
+        src_state=NULL;
         fmpmini_close();
     }
     if (mPlayType==MMP_VGMPLAY) { //VGM
@@ -14899,7 +14974,7 @@ extern bool icloud_available;
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
-    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)||(mPlayType==MMP_NSFPLAY)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_FMPMINI)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -15756,6 +15831,7 @@ extern "C" void adjust_amplification(void);
         case MMP_MDXPDX:
         case MMP_PMDMINI:
         case MMP_HVL:
+        case MMP_FMPMINI:
         case MMP_STSOUND:
         case MMP_WEBSID:
         case MMP_SIDPLAY:
@@ -15832,6 +15908,13 @@ extern "C" void adjust_amplification(void);
         case MMP_MDXPDX:
             if (channel<8) return [NSString stringWithFormat:@"#%d-FM",channel+1];
             else return [NSString stringWithFormat:@"#%d-PCM",channel+1];
+        case MMP_FMPMINI:
+            if (channel<16) {
+                if (channel<6) return [NSString stringWithFormat:@"#%d-FM",channel+1];
+                else if (channel<6+3) return [NSString stringWithFormat:@"#%d-SSG",channel+1-6];
+                else if (channel<6+3+6) return [NSString stringWithFormat:@"#%d-DRUM",channel+1-6-3];
+                else return [NSString stringWithFormat:@"ADPCM"];
+            } else return [NSString stringWithFormat:@"#%d-PPZ8",channel+1-16];
         case MMP_PMDMINI: {
             int idx=0;
             for (int i=0;i<mod_activeChipsNb;i++) {
@@ -15914,6 +15997,9 @@ extern "C" void adjust_amplification(void);
             return pt3_numofchips;
         case MMP_ASAP:
             return numChannels/4;
+        case MMP_FMPMINI:
+            if (numChannels>16) return 2;
+            return 1;
         case MMP_PMDMINI:
         case MMP_VGMPLAY:
             return mod_activeChipsNb;
@@ -15983,6 +16069,9 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"%s",gmetype];
         case MMP_PMDMINI:
             return [NSString stringWithFormat:@"%s",mod_activeChipsName[systemIdx]];
+        case MMP_FMPMINI:
+            if (systemIdx==0) return @"OPNA";
+            return @"PPZ8";
         case MMP_VGMPLAY:
             return [NSString stringWithFormat:@"%s#%d",mod_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
         case MMP_WEBSID:
@@ -16051,6 +16140,9 @@ extern "C" void adjust_amplification(void);
             }
             return 0;
         }
+        case MMP_FMPMINI:
+            if (voiceIdx<16) return 0; //OPNA
+            return 1; //PPZ8
         case MMP_WEBSID:
         case MMP_SIDPLAY:
             return voiceIdx/4;
@@ -16141,6 +16233,24 @@ extern "C" void adjust_amplification(void);
             if (tmp==numChannels) return 2; //all active
             else if (tmp>0) return 1; //partially active
             return 0; //all off
+        case MMP_FMPMINI:
+            if (systemIdx==0) { //OPNA
+                tmp=0;
+                for (int i=0;i<16;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==16) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            } else { //PPZ8
+                tmp=0;
+                for (int i=16;i<numChannels;i++) {
+                    tmp+=(m_voicesStatus[i]?1:0);
+                }
+                if (tmp==(numChannels-16)) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            }
         case MMP_MDXPDX:
             if (systemIdx==0) { //MDX
                 tmp=0;
@@ -16255,6 +16365,13 @@ extern "C" void adjust_amplification(void);
         case MMP_STSOUND:
         case MMP_TIMIDITY:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
+            break;
+        case MMP_FMPMINI:
+            if (systemIdx==0) {//OPNA
+                for (int i=0;i<16;i++) [self setm_voicesStatus:active index:i];
+            } else { //PPZ8
+                for (int i=0;i<numChannels-16;i++) [self setm_voicesStatus:active index:i+16];
+            }
             break;
         case MMP_MDXPDX:
             if (systemIdx==0) {//MDX
@@ -16402,6 +16519,12 @@ extern "C" void adjust_amplification(void);
             int new_2sf_mutemask=0;
             for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_2sf_mutemask|=1<<i;
             ds_set_mute_mask(new_2sf_mutemask);
+        }
+            break;
+        case MMP_FMPMINI: {
+            int new_mutemask=0;
+            for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_mutemask|=1<<i;
+            fmpmini_mute(new_mutemask);
         }
             break;
         case MMP_NCSF:

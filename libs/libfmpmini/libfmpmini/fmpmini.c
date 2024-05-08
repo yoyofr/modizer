@@ -40,16 +40,25 @@ void fmpmini_close(void) {
 }
 
 void fmpmini_mute(int mask) {
-    opna_set_mask(&g.opna, mask);
-    ppz8_set_mask(&g.ppz8, mask>>16);
+    opna_set_mask(&g.opna, mask&((1<<16)-1));
+    ppz8_set_mask(&g.ppz8, (mask>>16)&((1<<16)-1));
 }
 
 const char *fmpmini_getName(void) {
     return g.fmfile->filename_sjis;
 }
 
+const char *fmpmini_getComment(int line) {
+    return g.work.get_comment(&(g.work),line);
+}
+
+
+int fmp_ppz8_maxChannel;
+
 int64_t fmpmini_getLength(void) {
     if (!(g.lastopenpath)) return 0;
+    
+    fmp_ppz8_maxChannel=0;
     
     int64_t total_smpl=0;
     while (g.work.playing) {
@@ -58,7 +67,23 @@ int64_t fmpmini_getLength(void) {
         if (g.work.loop_cnt>g.max_loop) break;
     }
     int64_t length=total_smpl*1000/44100;
+    
+    printf("Max ppz8: %d\n",fmp_ppz8_maxChannel);
+    
+    fmpmini_reset();
     return length;
+}
+
+void fmpmini_reset(void) {
+    fmpmini_close();
+    fmpmini_loadFile(g.lastopenpath);
+}
+
+int fmpmini_channelsNb(void){
+    if (!(g.lastopenpath)) return 0;
+    
+    if (g.fmfile->driver.fmp.pvi_name[0] || g.fmfile->driver.fmp.ppz_name[0]) return 16+fmp_ppz8_maxChannel;
+    else return 16;
 }
   
 int fmpmini_loadFile(const char *path) {

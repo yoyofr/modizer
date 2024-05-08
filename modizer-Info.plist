@@ -64,6 +64,20 @@
 				<string>com.yoyofr.modizer.pmd</string>
 			</array>
 		</dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>FMP File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.fmp</string>
+            </array>
+        </dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -577,6 +591,25 @@
 				</array>
 			</dict>
 		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>FMP File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.fmp</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>opi</string>
+                    <string>ovi</string>
+                    <string>ozi</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
