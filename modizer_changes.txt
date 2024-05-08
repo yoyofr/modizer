@@ -39,11 +39,14 @@ missing seek support:
 
 3.7
 ---
+- [PLAYER] New player: FMPMini (based on 98FMPlayer) to support OVI, OPI & OZI files (PC-98)
+- [PLAYER] UADE/XMP/OPENMPT improvements for notes gen data
 - [UI] Crash bug when accessing the "now playing" playlist from player screen is fixed
 - [UI] Settings: playback ratio now at global level (available for some plugins only)
 - [UI] PB Ratio can now be controlled from "voices" screen
 - [UI] some typo fixes
-- [PLAYER] UADE/XMP/OPENMPT improvements for notes gen data
+- [ALL] Several small bug fixes
+
 
 3.6
 ---
