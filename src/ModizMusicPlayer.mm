@@ -7587,14 +7587,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
-            //NSLog(@"modizemusicplayer extract cancelled");
+            NSLog(@"modizemusicplayer extract cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
             }];
         }
 #if DEBUG_MODIZER
-        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
+        NSLog(@"extract progress: %lf",progress.fractionCompleted);
 #endif
         if (progress.fractionCompleted>=1.0f) extractDone=true;
         
@@ -7651,6 +7651,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             ret=-1;
         }
     }
+    [NSThread sleepForTimeInterval:0.1]; //required when extracting a .rar or .rsn as it seems it goes too fast and prevent 1st file to be read/played
     // }
     return ret;
 #if 0
@@ -14150,6 +14151,8 @@ extern bool icloud_available;
         }
     }
     if (startPos<0) startPos=0;
+    
+    
     
     switch (mPlayType) {
         case MMP_GME:  //GME

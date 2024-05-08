@@ -1009,11 +1009,12 @@ extern bool icloud_available;
             NSError *error;
             
             [extractProgress becomeCurrentWithPendingUnitCount:[filesInArchive count]];
+            [extractProgress setCompletedUnitCount:0];
             
             [archive extractFilesTo:[NSString stringWithUTF8String:extractPath] overwrite:YES error:&error];
             if (error) {
                 NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
-            }
+            }            
             [extractProgress removeObserver:caller
                                      forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                                         context:context];
