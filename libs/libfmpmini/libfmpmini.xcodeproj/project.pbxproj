@@ -1,0 +1,440 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC57D4FF2BEB5FE9004629AA /* opna.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4D02BEB5FE9004629AA /* opna.c */; };
+		CC57D5002BEB5FE9004629AA /* opnaadpcm.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4D22BEB5FE9004629AA /* opnaadpcm.c */; };
+		CC57D5012BEB5FE9004629AA /* opnadrum.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4D42BEB5FE9004629AA /* opnadrum.c */; };
+		CC57D5022BEB5FE9004629AA /* opnafm.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4D62BEB5FE9004629AA /* opnafm.c */; };
+		CC57D5032BEB5FE9004629AA /* opnassg-sinc-c.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4D82BEB5FE9004629AA /* opnassg-sinc-c.c */; };
+		CC57D5062BEB5FE9004629AA /* opnassg.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4DB2BEB5FE9004629AA /* opnassg.c */; };
+		CC57D5072BEB5FE9004629AA /* opnatimer.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4DE2BEB5FE9004629AA /* opnatimer.c */; };
+		CC57D5082BEB5FE9004629AA /* s98gen.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4E02BEB5FE9004629AA /* s98gen.c */; };
+		CC57D5092BEB5FE9004629AA /* fmplayer_drumrom_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4E42BEB5FE9004629AA /* fmplayer_drumrom_unix.c */; };
+		CC57D50C2BEB5FE9004629AA /* fmplayer_file_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4E82BEB5FE9004629AA /* fmplayer_file_unix.c */; };
+		CC57D50E2BEB5FE9004629AA /* fmplayer_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4EA2BEB5FE9004629AA /* fmplayer_file.c */; };
+		CC57D5112BEB5FE9004629AA /* fmplayer_work_opna.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4EF2BEB5FE9004629AA /* fmplayer_work_opna.c */; };
+		CC57D5132BEB5FE9004629AA /* fmdriver_common.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4F32BEB5FE9004629AA /* fmdriver_common.c */; };
+		CC57D5142BEB5FE9004629AA /* fmdriver_fmp.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4F52BEB5FE9004629AA /* fmdriver_fmp.c */; };
+		CC57D5152BEB5FE9004629AA /* fmdriver_pmd.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4F72BEB5FE9004629AA /* fmdriver_pmd.c */; };
+		CC57D5172BEB5FE9004629AA /* ppz8.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D4FC2BEB5FE9004629AA /* ppz8.c */; };
+		CC57D51E2BEB70FE004629AA /* fmpmini.c in Sources */ = {isa = PBXBuildFile; fileRef = CC57D51D2BEB70FE004629AA /* fmpmini.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC57D4BC2BEB5DDD004629AA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC57D4BE2BEB5DDD004629AA /* liblibfmpmini.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibfmpmini.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC57D4D02BEB5FE9004629AA /* opna.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opna.c; sourceTree = "<group>"; };
+		CC57D4D12BEB5FE9004629AA /* opna.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opna.h; sourceTree = "<group>"; };
+		CC57D4D22BEB5FE9004629AA /* opnaadpcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opnaadpcm.c; sourceTree = "<group>"; };
+		CC57D4D32BEB5FE9004629AA /* opnaadpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnaadpcm.h; sourceTree = "<group>"; };
+		CC57D4D42BEB5FE9004629AA /* opnadrum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opnadrum.c; sourceTree = "<group>"; };
+		CC57D4D52BEB5FE9004629AA /* opnadrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnadrum.h; sourceTree = "<group>"; };
+		CC57D4D62BEB5FE9004629AA /* opnafm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opnafm.c; sourceTree = "<group>"; };
+		CC57D4D72BEB5FE9004629AA /* opnafm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnafm.h; sourceTree = "<group>"; };
+		CC57D4D82BEB5FE9004629AA /* opnassg-sinc-c.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "opnassg-sinc-c.c"; sourceTree = "<group>"; };
+		CC57D4DB2BEB5FE9004629AA /* opnassg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opnassg.c; sourceTree = "<group>"; };
+		CC57D4DC2BEB5FE9004629AA /* opnassg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnassg.h; sourceTree = "<group>"; };
+		CC57D4DD2BEB5FE9004629AA /* opnatables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnatables.h; sourceTree = "<group>"; };
+		CC57D4DE2BEB5FE9004629AA /* opnatimer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opnatimer.c; sourceTree = "<group>"; };
+		CC57D4DF2BEB5FE9004629AA /* opnatimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnatimer.h; sourceTree = "<group>"; };
+		CC57D4E02BEB5FE9004629AA /* s98gen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s98gen.c; sourceTree = "<group>"; };
+		CC57D4E12BEB5FE9004629AA /* s98gen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = s98gen.h; sourceTree = "<group>"; };
+		CC57D4E32BEB5FE9004629AA /* fmplayer_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmplayer_common.h; sourceTree = "<group>"; };
+		CC57D4E42BEB5FE9004629AA /* fmplayer_drumrom_unix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmplayer_drumrom_unix.c; sourceTree = "<group>"; };
+		CC57D4E62BEB5FE9004629AA /* fmplayer_drumrom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmplayer_drumrom.h; sourceTree = "<group>"; };
+		CC57D4E82BEB5FE9004629AA /* fmplayer_file_unix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmplayer_file_unix.c; sourceTree = "<group>"; };
+		CC57D4EA2BEB5FE9004629AA /* fmplayer_file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmplayer_file.c; sourceTree = "<group>"; };
+		CC57D4EB2BEB5FE9004629AA /* fmplayer_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmplayer_file.h; sourceTree = "<group>"; };
+		CC57D4EF2BEB5FE9004629AA /* fmplayer_work_opna.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmplayer_work_opna.c; sourceTree = "<group>"; };
+		CC57D4F32BEB5FE9004629AA /* fmdriver_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmdriver_common.c; sourceTree = "<group>"; };
+		CC57D4F42BEB5FE9004629AA /* fmdriver_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmdriver_common.h; sourceTree = "<group>"; };
+		CC57D4F52BEB5FE9004629AA /* fmdriver_fmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmdriver_fmp.c; sourceTree = "<group>"; };
+		CC57D4F62BEB5FE9004629AA /* fmdriver_fmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmdriver_fmp.h; sourceTree = "<group>"; };
+		CC57D4F72BEB5FE9004629AA /* fmdriver_pmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fmdriver_pmd.c; sourceTree = "<group>"; };
+		CC57D4F82BEB5FE9004629AA /* fmdriver_pmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmdriver_pmd.h; sourceTree = "<group>"; };
+		CC57D4F92BEB5FE9004629AA /* fmdriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmdriver.h; sourceTree = "<group>"; };
+		CC57D4FA2BEB5FE9004629AA /* pmd_ssgeff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmd_ssgeff.h; sourceTree = "<group>"; };
+		CC57D4FC2BEB5FE9004629AA /* ppz8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ppz8.c; sourceTree = "<group>"; };
+		CC57D4FD2BEB5FE9004629AA /* ppz8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppz8.h; sourceTree = "<group>"; };
+		CC57D5182BEB64A5004629AA /* oscillo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oscillo.h; sourceTree = "<group>"; };
+		CC57D51A2BEB64E7004629AA /* leveldata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = leveldata.h; sourceTree = "<group>"; };
+		CC57D51C2BEB70FE004629AA /* fmpmini.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmpmini.h; sourceTree = "<group>"; };
+		CC57D51D2BEB70FE004629AA /* fmpmini.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fmpmini.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC57D4BB2BEB5DDD004629AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC57D4B52BEB5DDD004629AA = {
+			isa = PBXGroup;
+			children = (
+				CC57D4C02BEB5DDD004629AA /* libfmpmini */,
+				CC57D4BF2BEB5DDD004629AA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC57D4BF2BEB5DDD004629AA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D4BE2BEB5DDD004629AA /* liblibfmpmini.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC57D4C02BEB5DDD004629AA /* libfmpmini */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D4F22BEB5FE9004629AA /* common */,
+				CC57D4FE2BEB5FE9004629AA /* fmdriver */,
+				CC57D51B2BEB64E7004629AA /* leveldata */,
+				CC57D4E22BEB5FE9004629AA /* libopna */,
+				CC57D5192BEB64A5004629AA /* oscillo */,
+				CC57D51C2BEB70FE004629AA /* fmpmini.h */,
+				CC57D51D2BEB70FE004629AA /* fmpmini.c */,
+			);
+			path = libfmpmini;
+			sourceTree = "<group>";
+		};
+		CC57D4E22BEB5FE9004629AA /* libopna */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D4D02BEB5FE9004629AA /* opna.c */,
+				CC57D4D12BEB5FE9004629AA /* opna.h */,
+				CC57D4D22BEB5FE9004629AA /* opnaadpcm.c */,
+				CC57D4D32BEB5FE9004629AA /* opnaadpcm.h */,
+				CC57D4D42BEB5FE9004629AA /* opnadrum.c */,
+				CC57D4D52BEB5FE9004629AA /* opnadrum.h */,
+				CC57D4D62BEB5FE9004629AA /* opnafm.c */,
+				CC57D4D72BEB5FE9004629AA /* opnafm.h */,
+				CC57D4D82BEB5FE9004629AA /* opnassg-sinc-c.c */,
+				CC57D4DB2BEB5FE9004629AA /* opnassg.c */,
+				CC57D4DC2BEB5FE9004629AA /* opnassg.h */,
+				CC57D4DD2BEB5FE9004629AA /* opnatables.h */,
+				CC57D4DE2BEB5FE9004629AA /* opnatimer.c */,
+				CC57D4DF2BEB5FE9004629AA /* opnatimer.h */,
+				CC57D4E02BEB5FE9004629AA /* s98gen.c */,
+				CC57D4E12BEB5FE9004629AA /* s98gen.h */,
+			);
+			path = libopna;
+			sourceTree = "<group>";
+		};
+		CC57D4F22BEB5FE9004629AA /* common */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D4E32BEB5FE9004629AA /* fmplayer_common.h */,
+				CC57D4E42BEB5FE9004629AA /* fmplayer_drumrom_unix.c */,
+				CC57D4E62BEB5FE9004629AA /* fmplayer_drumrom.h */,
+				CC57D4E82BEB5FE9004629AA /* fmplayer_file_unix.c */,
+				CC57D4EA2BEB5FE9004629AA /* fmplayer_file.c */,
+				CC57D4EB2BEB5FE9004629AA /* fmplayer_file.h */,
+				CC57D4EF2BEB5FE9004629AA /* fmplayer_work_opna.c */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		CC57D4FE2BEB5FE9004629AA /* fmdriver */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D4F32BEB5FE9004629AA /* fmdriver_common.c */,
+				CC57D4F42BEB5FE9004629AA /* fmdriver_common.h */,
+				CC57D4F52BEB5FE9004629AA /* fmdriver_fmp.c */,
+				CC57D4F62BEB5FE9004629AA /* fmdriver_fmp.h */,
+				CC57D4F72BEB5FE9004629AA /* fmdriver_pmd.c */,
+				CC57D4F82BEB5FE9004629AA /* fmdriver_pmd.h */,
+				CC57D4F92BEB5FE9004629AA /* fmdriver.h */,
+				CC57D4FA2BEB5FE9004629AA /* pmd_ssgeff.h */,
+				CC57D4FC2BEB5FE9004629AA /* ppz8.c */,
+				CC57D4FD2BEB5FE9004629AA /* ppz8.h */,
+			);
+			path = fmdriver;
+			sourceTree = "<group>";
+		};
+		CC57D5192BEB64A5004629AA /* oscillo */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D5182BEB64A5004629AA /* oscillo.h */,
+			);
+			name = oscillo;
+			path = libfmpmini/oscillo;
+			sourceTree = SOURCE_ROOT;
+		};
+		CC57D51B2BEB64E7004629AA /* leveldata */ = {
+			isa = PBXGroup;
+			children = (
+				CC57D51A2BEB64E7004629AA /* leveldata.h */,
+			);
+			path = leveldata;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC57D4BD2BEB5DDD004629AA /* libfmpmini */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC57D4C72BEB5DDD004629AA /* Build configuration list for PBXNativeTarget "libfmpmini" */;
+			buildPhases = (
+				CC57D4BA2BEB5DDD004629AA /* Sources */,
+				CC57D4BB2BEB5DDD004629AA /* Frameworks */,
+				CC57D4BC2BEB5DDD004629AA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libfmpmini;
+			productName = libfmpmini;
+			productReference = CC57D4BE2BEB5DDD004629AA /* liblibfmpmini.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC57D4B62BEB5DDD004629AA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					CC57D4BD2BEB5DDD004629AA = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = CC57D4B92BEB5DDD004629AA /* Build configuration list for PBXProject "libfmpmini" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC57D4B52BEB5DDD004629AA;
+			productRefGroup = CC57D4BF2BEB5DDD004629AA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC57D4BD2BEB5DDD004629AA /* libfmpmini */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC57D4BA2BEB5DDD004629AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC57D5092BEB5FE9004629AA /* fmplayer_drumrom_unix.c in Sources */,
+				CC57D5132BEB5FE9004629AA /* fmdriver_common.c in Sources */,
+				CC57D4FF2BEB5FE9004629AA /* opna.c in Sources */,
+				CC57D5172BEB5FE9004629AA /* ppz8.c in Sources */,
+				CC57D5082BEB5FE9004629AA /* s98gen.c in Sources */,
+				CC57D5142BEB5FE9004629AA /* fmdriver_fmp.c in Sources */,
+				CC57D5032BEB5FE9004629AA /* opnassg-sinc-c.c in Sources */,
+				CC57D5002BEB5FE9004629AA /* opnaadpcm.c in Sources */,
+				CC57D50C2BEB5FE9004629AA /* fmplayer_file_unix.c in Sources */,
+				CC57D5112BEB5FE9004629AA /* fmplayer_work_opna.c in Sources */,
+				CC57D5022BEB5FE9004629AA /* opnafm.c in Sources */,
+				CC57D5152BEB5FE9004629AA /* fmdriver_pmd.c in Sources */,
+				CC57D51E2BEB70FE004629AA /* fmpmini.c in Sources */,
+				CC57D5072BEB5FE9004629AA /* opnatimer.c in Sources */,
+				CC57D5062BEB5FE9004629AA /* opnassg.c in Sources */,
+				CC57D5012BEB5FE9004629AA /* opnadrum.c in Sources */,
+				CC57D50E2BEB5FE9004629AA /* fmplayer_file.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC57D4C52BEB5DDD004629AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = libfmpmini;
+			};
+			name = Debug;
+		};
+		CC57D4C62BEB5DDD004629AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = libfmpmini;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC57D4C82BEB5DDD004629AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC57D4C92BEB5DDD004629AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC57D4B92BEB5DDD004629AA /* Build configuration list for PBXProject "libfmpmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC57D4C52BEB5DDD004629AA /* Debug */,
+				CC57D4C62BEB5DDD004629AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC57D4C72BEB5DDD004629AA /* Build configuration list for PBXNativeTarget "libfmpmini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC57D4C82BEB5DDD004629AA /* Debug */,
+				CC57D4C92BEB5DDD004629AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC57D4B62BEB5DDD004629AA /* Project object */;
+}

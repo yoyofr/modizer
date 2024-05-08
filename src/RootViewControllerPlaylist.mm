@@ -1093,6 +1093,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     NSString *file,*cpath;
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extFMP=[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","];
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
@@ -1201,6 +1202,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     
     [filetype_ext addObjectsFromArray:filetype_extMDX];
     [filetype_ext addObjectsFromArray:filetype_extPMD];
+    [filetype_ext addObjectsFromArray:filetype_extFMP];
     [filetype_ext addObjectsFromArray:filetype_extSID];
     [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
     [filetype_ext addObjectsFromArray:filetype_extATARISOUND];

@@ -131,6 +131,7 @@ extern bool icloud_available;
         case FTYPE_PLAYABLEFILE: {
             NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
             NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+            NSArray *filetype_extFMP=[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","];
             NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
             NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
             NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
@@ -160,6 +161,7 @@ extern bool icloud_available;
             
             filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+
                           [filetype_extPMD count]+
+                          [filetype_extFMP count]+
                           [filetype_extSID count]+
                           [filetype_extSTSOUND count]+
                           [filetype_extATARISOUND count]+
@@ -188,6 +190,7 @@ extern bool icloud_available;
                           [filetype_extVGM count]];
             [filetype_ext addObjectsFromArray:filetype_extMDX];
             [filetype_ext addObjectsFromArray:filetype_extPMD];
+            [filetype_ext addObjectsFromArray:filetype_extFMP];
             [filetype_ext addObjectsFromArray:filetype_extSID];
             [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
             [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
@@ -225,6 +228,7 @@ extern bool icloud_available;
         case FTYPE_PLAYABLEFILE_AND_DATAFILE: {
             NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD_EXT componentsSeparatedByString:@","];
+            NSArray *filetype_extFMP=[SUPPORTED_FILETYPE_FMP_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
             NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
             NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
@@ -254,6 +258,7 @@ extern bool icloud_available;
             
             filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+
                           [filetype_extPMD count]+
+                          [filetype_extFMP count]+
                           [filetype_extSID count]+
                           [filetype_extSTSOUND count]+
                           [filetype_extATARISOUND count]+
@@ -282,6 +287,7 @@ extern bool icloud_available;
                           [filetype_extVGM count]];
             [filetype_ext addObjectsFromArray:filetype_extMDX];
             [filetype_ext addObjectsFromArray:filetype_extPMD];
+            [filetype_ext addObjectsFromArray:filetype_extFMP];
             [filetype_ext addObjectsFromArray:filetype_extSID];
             [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
             [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
@@ -333,6 +339,7 @@ extern bool icloud_available;
         case FTYPE_SINGLE_FILETYPE:{
             filetype_ext=[NSMutableArray arrayWithCapacity:64];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","]];
+            [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","]];
@@ -413,6 +420,7 @@ extern bool icloud_available;
 +(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file {
     NSArray *filetype_extMDX=(no_aux_file?[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_MDX_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPMD=(no_aux_file?[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_PMD_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extFMP=(no_aux_file?[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_FMP_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
@@ -513,6 +521,26 @@ extern bool icloud_available;
                         break;
                     }
                 found=MMP_PMDMINI;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extFMP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extFMP objectAtIndex:i]]==NSOrderedSame) {
+                NSArray *singlefile=[SUPPORTED_FILETYPE_FMP_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_FMPMINI;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extFMP objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_FMP_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_FMPMINI;break;
             }
         }
     if (!found)

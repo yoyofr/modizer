@@ -56,6 +56,8 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #import "EQViewController.h"
 
+#include "fmpmini.h"
+
 int pmd_real_tracks_used;
 signed char pmd_system_voice_idx[3];  //FM, SSG, PPZ
 signed char pmd_system_voice_nb[3];  //FM, SSG, PPZ
@@ -6092,14 +6094,48 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             
                         }
+                        if (mPlayType==MMP_FMPMINI) { //FMP
+                            // render audio into sound buffer
+                            fmpmini_render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    unsigned int idx=vgm_getNote(j);
+                                    if ((idx>0)) {
+                                        unsigned int subidx=vgm_getSubNote(j);
+                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        unsigned int instr=vgm_last_sample_addr[j];
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)idx|
+                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)vgm_last_vol[j]<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)subidx<<28);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
+                            //copy voice data for oscillo view
+                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]);
+                                    m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+                                }
+                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                            }
+                            
+                            if (mCurrentSamples>=mTgtSamples) {
+                                nbBytes=0;
+                            }
+                        }
                         if (mPlayType==MMP_PMDMINI) { //PMD
-//                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-//                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            
-//                            printf("B ptr: %d prev:%d\n",
-//                                   m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
-//                                   m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-                            
                             // render audio into sound buffer
                             pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -6127,15 +6163,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
-                            //memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            //memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            
-//                            printf("A diff: %d ptr: %d prev:%d\n",
-//                                   (m_voice_current_ptr[0]-m_voice_prev_current_ptr[0])>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
-//                                   m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,
-//                                   m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
-//                            
-                            
                             //copy voice data for oscillo view
                             for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
@@ -6143,7 +6170,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
                                 }
                                 m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-                                //if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*4)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             }
                             
                             // pmd_renderer gives no useful information on when song is done
@@ -12453,6 +12480,65 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     }
 }
 
+-(int) mmp_fmpminiLoad:(NSString*)filePath {
+    char tmp_mod_name[1024];
+    tmp_mod_name[0] = 0;
+    char tmp_mod_message[1024];
+    tmp_mod_message[0] = 0;
+    
+    mPlayType=MMP_FMPMINI;
+    fmpmini_init();
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"PMDMini Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    
+    if (!fmpmini_loadFile((char*)[filePath UTF8String])) {
+        // not FMP
+        return 1;
+    } else {
+        //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
+        iModuleLength=fmpmini_getLength();
+        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
+        iCurrentTime=0;
+        mCurrentSamples=0;
+        
+        // these strings are SJIS
+        const char *title=fmpmini_getName();
+        
+        //printf("tmp_mod_name: %s",tmp_mod_name);
+        if (title && title[0]) sprintf(mod_name," %s",[[self sjisToNS:title] UTF8String]);
+        else sprintf(mod_name," %s",mod_filename);
+        
+        // FMP doesn't have subsongs
+        mod_subsongs=1;
+        mod_minsub=1;
+        mod_maxsub=1;
+        mod_currentsub=1;
+        
+        numChannels=2;
+        m_genNumVoicesChannels=0;//numChannels;
+        m_voicesDataAvail=0;
+        
+        [self mmp_updateDBStatsAtLoad];
+        
+        mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
+        
+        return 0;
+    }
+}
+
+
 -(int) mmp_asapLoad:(NSString*)filePath { //ASAP
     mPlayType=MMP_ASAP;
     FILE *f;
@@ -13015,6 +13101,7 @@ extern bool icloud_available;
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extFMP=[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","];
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
@@ -13638,6 +13725,17 @@ extern bool icloud_available;
         //        }
     }
     
+    for (int i=0;i<[filetype_extFMP count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extFMP objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_FMPMINI] atIndex:0];
+            break;
+        }
+        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
+        //            [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
+        //            break;
+        //        }
+    }
+    
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
@@ -13706,6 +13804,9 @@ extern bool icloud_available;
                 break;
             case MMP_PMDMINI:
                 retval=[self mmp_pmdminiLoad:filePath];
+                break;
+            case MMP_FMPMINI:
+                retval=[self mmp_fmpminiLoad:filePath];
                 break;
             case MMP_ASAP:
                 retval=[self mmp_asapLoad:filePath];
@@ -14399,6 +14500,10 @@ extern bool icloud_available;
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
+        case MMP_FMPMINI: //FMP
+            [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
+            [self Play];
+            break;
         case MMP_VGMPLAY: //VGM
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
@@ -14727,6 +14832,9 @@ extern bool icloud_available;
     if (mPlayType==MMP_PMDMINI) { //PMD
         pmd_stop();
     }
+    if (mPlayType==MMP_FMPMINI) { //FMP
+        fmpmini_close();
+    }
     if (mPlayType==MMP_VGMPLAY) { //VGM
         //        StopVGM();
         //        CloseVGMFile();
@@ -14844,6 +14952,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_ASAP) return @"ASAP";
     if (mPlayType==MMP_TIMIDITY) return @"Timidity";
     if (mPlayType==MMP_PMDMINI) return @"PMDMini";
+    if (mPlayType==MMP_FMPMINI) return @"FMPMini";
     if (mPlayType==MMP_VGMPLAY) return @"VGMPlay";
     if (mPlayType==MMP_2SF) return @"VIO2SF";
     if (mPlayType==MMP_NCSF) {
@@ -15045,6 +15154,9 @@ extern bool icloud_available;
     if (mPlayType==MMP_ASAP) return [NSString stringWithFormat:@"%s",ASAPInfo_GetExtDescription(mmp_fileext)];
     if (mPlayType==MMP_TIMIDITY) return @"MIDI";
     if (mPlayType==MMP_PMDMINI) return @"PMD";
+    if (mPlayType==MMP_FMPMINI) {
+        return [NSString stringWithFormat:@"FMP/%s",mmp_fileext];
+    }
     if (mPlayType==MMP_VGMPLAY) return @"VGM";
     if (mPlayType==MMP_2SF) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_NCSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
