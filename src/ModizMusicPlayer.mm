@@ -594,7 +594,7 @@ static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
 
-uint64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
+int64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
 
 //vgmplay
 
@@ -690,6 +690,7 @@ extern    int ds_load_file(const char *uri);
 extern    int ds_read(int16_t *output_buffer, uint16_t outSize);
 extern    int ds_seek_position (int ms);
 extern    int ds_set_mute_mask (int mask);
+extern    void ds_set_loop(bool loop);
 
 auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
@@ -11344,6 +11345,9 @@ void ds_meta_set(const char * tag, const char * value) {
     mod_message[0]=0;
     
     ds_setup();
+    
+    ds_set_loop(mLoopMode);
+    
     if (ds_load_file([filePath UTF8String])) {
         NSLog(@"2SF Cannot open file %@",filePath);
         mPlayType=0;

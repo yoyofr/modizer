@@ -13,7 +13,13 @@
 
 /* Define to 1 if ARM64 CRC32 instruction is supported. See configure.ac for
    details. */
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_SIMULATOR
+#else
 #define HAVE_ARM64_CRC32 1
+#endif
 
 /* Define to 1 if bswap_16 is available. */
 /* #undef HAVE_BSWAP_16 */

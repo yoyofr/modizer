@@ -20,12 +20,6 @@
     playmidi.c -- random stuff in need of rearrangement
 */
 
-//TODO:  MODIZER changes start / YOYOFR
-#include "../../../src/ModizerVoicesData.h"
-extern int mdz_tim_only_precompute;
-//TODO:  MODIZER changes end / YOYOFR
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
@@ -66,6 +60,12 @@ extern int mdz_tim_only_precompute;
 #include "aq.h"
 #include "freq.h"
 #include "quantity.h"
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+extern int mdz_tim_only_precompute;
+//TODO:  MODIZER changes end / YOYOFR
+
 
 //extern int convert_mod_to_midi_file(MidiEvent * ev);
 

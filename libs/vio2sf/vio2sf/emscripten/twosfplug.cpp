@@ -742,6 +742,8 @@ public:
 		memset(&m_output, 0, sizeof(m_output));		
 	}
 
+    void set_no_loop(int value) {no_loop=value;}
+    
 	void resetPlayback() {
 		ds_emu_pos = 0.;
 
@@ -1261,6 +1263,12 @@ void ds_setup (void) {
 		g_file->fclose= em_fclose;		
 		g_file->fgetlength= em_fgetlength;
 	}
+}
+
+//yoyofr
+void ds_set_loop(bool loop) {
+    if (loop) g_input_2sf.set_no_loop(0);
+    else g_input_2sf.set_no_loop(1);
 }
 
 

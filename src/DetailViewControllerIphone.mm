@@ -6393,12 +6393,18 @@ extern "C" int current_sample;
     static float piano_rotx=0;
     static float piano_roty=0;
     float fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    static int frameToUpdate=0;
+    
+    frameToUpdate++;
     
     if (no_reentrant) return;
     no_reentrant=1;
-    
-    RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearFXbuffer,mPaused);
-    RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearFXbuffer,mPaused);
+//    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
+    while (frameToUpdate) {
+        RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearFXbuffer,mPaused);
+        RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearFXbuffer,mPaused);
+        frameToUpdate--;
+    }
     clearFXbuffer=false;
     
     switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
