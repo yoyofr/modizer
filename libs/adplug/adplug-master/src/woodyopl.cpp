@@ -1015,24 +1015,25 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                 int64_t oct = ((((Bit32u)adlibreg[ARC_KON_BNUM+idx])>>2)&7);
                 int keyon=((((Bit32u)adlibreg[ARC_KON_BNUM+idx])>>5)&1);
                 
-                
-                if (!(frn)) {
-                    //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
-                    {
-                        vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii]=ii;
-                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
-                        vgm_last_vol[ii]=newvol;
-                    }
-                } else {
-                    //if ((OPL->chan_out[ii]!=old_out_fm[ii]))
-                    {
-                        int64_t note=frn*(1<<oct)*INTFREQU/(1<<18);
-                        
-                        vgm_last_note[ii]=note;
-                        vgm_last_sample_addr[ii]=ii;
-                        int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
-                        vgm_last_vol[ii]=newvol;
+                if (keyon) {
+                    if (!(frn)) {
+                        //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
+                        {
+                            vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
+                            vgm_last_sample_addr[ii]=ii;
+                            int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                            vgm_last_vol[ii]=newvol;
+                        }
+                    } else {
+                        //if ((OPL->chan_out[ii]!=old_out_fm[ii]))
+                        {
+                            int64_t note=frn*(1<<oct)*INTFREQU/(1<<18);
+                            
+                            vgm_last_note[ii]=note;
+                            vgm_last_sample_addr[ii]=ii;
+                            int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
+                            vgm_last_vol[ii]=newvol;
+                        }
                     }
                 }
                 //old_out_fm[ii]=OPL->chan_out[ii];
