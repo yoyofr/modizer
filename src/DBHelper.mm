@@ -761,6 +761,7 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
 }
 
 bool dbhelper_cancel;
+char cleanDB_Status[256];
 
 int DBHelper::cleanDB() {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -785,11 +786,16 @@ int DBHelper::cleanDB() {
         //---------------------------------------------------
         
         if (dbhelper_cancel) {
+            printf("Cancelling\n");
             sqlite3_close(db);
             pthread_mutex_unlock(&db_mutex);
             fileManager=nil;
             return -1;
         }
+        
+        printf("checking structure\n");
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checking structure");
+        
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT sql FROM sqlite_schema WHERE name='user_stats'");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -809,13 +815,21 @@ int DBHelper::cleanDB() {
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
-        
+        int checked_entries=0;
+        int cleaned_entries=0;
+        printf("checking user_stats entries\n");
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checking user_stats entries");
         //First check that user_stats entries still exist
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM user_stats");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                if (dbhelper_cancel) break;
+                if (dbhelper_cancel) {
+                    printf("Cancelling\n");
+                    break;
+                }
+                
+                checked_entries++;
                 
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
@@ -823,6 +837,7 @@ int DBHelper::cleanDB() {
                 success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:fullpath]];
                 if (!success) {//file does not exist
                     //NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
+                    cleaned_entries++;
                     
                     snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",sqlite3_column_text(stmt, 0));
                     err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
@@ -830,23 +845,37 @@ int DBHelper::cleanDB() {
                         NSLog(@"Issue during delete of user_Stats");
                     }
                 }
+                
+                snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checked: %d, removed: %d",checked_entries,cleaned_entries);
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
+        printf("checked: %d, removed: %d\n",checked_entries,cleaned_entries);
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checked: %d, removed: %d",checked_entries,cleaned_entries);
+        
         if (dbhelper_cancel) {
+            printf("Cancelling\n");
             sqlite3_close(db);
             pthread_mutex_unlock(&db_mutex);
             fileManager=nil;
             return -1;
         }
         
+        checked_entries=0;
+        cleaned_entries=0;
+        printf("checking playlists entries\n");
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checking playlists entries");
         //Second check that playlist entries still exist
         snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM playlists_entries");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                if (dbhelper_cancel) break;
+                if (dbhelper_cancel) {
+                    printf("Cancelling\n");
+                    break;
+                }
+                checked_entries++;
                  
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
@@ -855,16 +884,25 @@ int DBHelper::cleanDB() {
                 if (!success) {//file does not exist
                     NSLog(@"missing : %s",sqlite3_column_text(stmt, 0));
                     
-                    sprintf(sqlStatement2,"DELETE FROM playlists_entries WHERE fullpath=\"%s\"",sqlite3_column_text(stmt, 0));
+                    cleaned_entries++;
+                    
+                    snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM playlists_entries WHERE fullpath=\"%s\"",sqlite3_column_text(stmt, 0));
                     err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
                     if (err!=SQLITE_OK) {
                         NSLog(@"Issue during delete of playlists_entries");
                     }
                 }
+                
+                snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checked: %d, removed: %d",checked_entries,cleaned_entries);
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
+        printf("checked: %d, removed: %d\n",checked_entries,cleaned_entries);
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checked: %d, removed: %d",checked_entries,cleaned_entries);
+        
+        printf("updating playlists size\n");
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"updating playlists size");
         //update playlist table / entries
         snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
                 (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist)");
@@ -873,13 +911,18 @@ int DBHelper::cleanDB() {
             NSLog(@"ErrSQL : %d",err);
         }
         
+        
+        printf("compressing DB\n");
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"compressing DB");
         //No defrag DB
-        sprintf(sqlStatement2,"VACUUM");
+        snprintf(sqlStatement2,sizeof(sqlStatement2),"VACUUM");
         err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
         if (err!=SQLITE_OK) {
             NSLog(@"Issue during VACUUM");
         }
-    };
+    } else {
+        printf("Cannot open DB\n");
+    }
     sqlite3_close(db);
     
     

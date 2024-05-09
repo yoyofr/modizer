@@ -172,15 +172,10 @@ extern void *LoadingProgressObserverContext;
 #define HVSC_HOST_ALT1 "https://www.sannic.nl/hvsc/?dir=C64Music"
 #define HVSC_HOST_ALT2 "https://mirror.mos6581.de/hvsc/"
 
-
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 #define ASMA_HOST_DEFAULT "http://asma.atari.org/asma"
 #define ASMA_HOST_ALT1 "http://asma.scene.pl/export/1674/trunk/asma"
 #define ASMA_HOST_ALT2 "http://asma.atariportal.cz/ASMA"
-
-
-
-//#define ASMA_FTPHOST "aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 
 #define SUPPORTED_FILETYPE_COVER @"GIF,JPEG,JPG,PNG"
 

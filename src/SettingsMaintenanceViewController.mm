@@ -271,14 +271,20 @@ extern bool dbhelper_cancel;
     }
 }
 
+extern char cleanDB_Status[256];
+-(void) cleanDBUpdStatus {
+    [self updateWaitingDetail:[NSString stringWithFormat:@"%s",cleanDB_Status]];
+}
+
 -(bool) cleanDB {
     //[self showWaiting];
     //[self flushMainLoop];
+    dbhelper_cancel=false;
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
                                                                    message:NSLocalizedString(@"Are you sure you want to clean the DB, it might take a while ?",@"")
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Clean",@"") style:UIAlertActionStyleDestructive
+    UIAlertAction* cleanAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Clean",@"") style:UIAlertActionStyleDestructive
                                                          handler:^(UIAlertAction * action) {
         
         [self showWaitingCancel];
@@ -288,6 +294,8 @@ extern bool dbhelper_cancel;
         
         [self showWaiting];
         
+        repeatingTimerCleanDB = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(cleanDBUpdStatus) userInfo:nil repeats: YES]; //5 times/second
+        
         dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             //Background Thread
             dbhelper_cancel=false;
@@ -296,6 +304,9 @@ extern bool dbhelper_cancel;
             dispatch_async(dispatch_get_main_queue(), ^(void){
                 //Run UI Updates
                 [self hideWaiting];
+                
+                [repeatingTimerCleanDB invalidate];
+                repeatingTimerCleanDB = nil;
             });
         });
     }];
@@ -304,7 +315,7 @@ extern bool dbhelper_cancel;
     }];
     
     [alert addAction:cancelAction];
-    [alert addAction:deleteAction];
+    [alert addAction:cleanAction];
     [self presentViewController:alert animated:YES completion:nil];
 	
     //[self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database cleaned",@"")];

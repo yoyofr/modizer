@@ -24,6 +24,8 @@
     
     bool darkMode;
     bool forceReloadCells;
+    
+    NSTimer *repeatingTimerCleanDB;
 
 @public
     DetailViewControllerIphone *detailViewController;
