@@ -15788,9 +15788,9 @@ extern "C" void adjust_amplification(void);
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
         case MMP_XMP:
-            return 5;
+            return 3;
         case MMP_OPENMPT:
-            return 4;
+            return 3;
     }
     return 1;
 }

@@ -905,9 +905,9 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PBRATIO].sub_family=0;
     settings[GLOB_PBRATIO].callback=&optGLOBALChangedC;
     settings[GLOB_PBRATIO].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GLOB_PBRATIO].detail.mdz_slider.slider_digits=1;
-    settings[GLOB_PBRATIO].detail.mdz_slider.slider_min_value=0.1;
-    settings[GLOB_PBRATIO].detail.mdz_slider.slider_max_value=5;
+    settings[GLOB_PBRATIO].detail.mdz_slider.slider_digits=20;
+    settings[GLOB_PBRATIO].detail.mdz_slider.slider_min_value=0.2;
+    settings[GLOB_PBRATIO].detail.mdz_slider.slider_max_value=3;
     
     SETTINGS_ID_DEF(GLOB_ForceMono)
     settings[GLOB_ForceMono].setting_id=STRINGIZE2(GLOB_ForceMono);
@@ -935,6 +935,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_digits=100;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
     
     SETTINGS_ID_DEF(GLOB_DefaultLength)
     settings[GLOB_DefaultLength].label=(char*)"Default Length";
@@ -3659,6 +3660,9 @@ void optNSFPLAYChangedC(id param) {
         case 2:
             lblValue.text=[NSString stringWithFormat:@"%.2lf",value];
             break;
+        case 20:
+            lblValue.text=[NSString stringWithFormat:@"%.2lf",round(value*20)/20];
+            break;
         case 60:
             lblValue.text=[NSString stringWithFormat:@"%2d:%.2d",(int)(value/60),(int)(value)%60];
             break;
@@ -3678,7 +3682,7 @@ void optNSFPLAYChangedC(id param) {
     
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
+    //settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
     
 //    if (settings[cur_settings_idx[indexPath.section]].callback) {
 //        settings[cur_settings_idx[indexPath.section]].callback(self);
@@ -3704,11 +3708,32 @@ void optNSFPLAYChangedC(id param) {
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
     if ((settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==0)||
-        (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==60)||
-        (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100) ){
-        ((OBSlider*)sender).value=round(((OBSlider*)sender).value);
-        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value);
+        (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==60) ){
+        
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value);
+    
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+    } else if (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100 ){
+        
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*100);
+        
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value/100;
+    }else if (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==20 ){
+        
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits)/settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits;
+        
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+    } else if ( settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits<9 ){
+        
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*pow(10,settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits))/pow(10,settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits);
+        
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+    } else {
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
     }
+    
+    
     
     if (settings[cur_settings_idx[indexPath.section]].callback) {
         settings[cur_settings_idx[indexPath.section]].callback(self);
@@ -4008,6 +4033,8 @@ void optNSFPLAYChangedC(id param) {
             [sliderview setContinuous:true];
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpOutside];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
             
             [accview addSubview:lblValue];

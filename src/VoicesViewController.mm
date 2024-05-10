@@ -251,12 +251,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 - (void)sliderPBRatioChanged:(OBSlider*)sender {
-    settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=((OBSlider*)sender).value;
-    pbRatioLblValue.text=[NSString stringWithFormat:@"%.1f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
+    settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*20)/20;
+    pbRatioLblValue.text=[NSString stringWithFormat:@"%.2f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
 }
 
 - (void)sliderPBRatioEndChange:(OBSlider*)sender {
-    ((OBSlider*)sender).value=round(((OBSlider*)sender).value*10)/10; //limit to 1 digit
+    ((OBSlider*)sender).value=round(((OBSlider*)sender).value*20)/20; //limit to 1 digit
     [self sliderPBRatioChanged:sender]; //take update into account
     [detailViewController settingsChanged:SETTINGS_ALL];
 }
@@ -400,7 +400,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 pbRatioLblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,32,12)];
                 pbRatioLblValue.font=[[pbRatioLblValue font] fontWithSize:12];
                 pbRatioLblValue.textColor=[UIColor whiteColor];
-                pbRatioLblValue.text=[NSString stringWithFormat:@"%.1f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
+                pbRatioLblValue.text=[NSString stringWithFormat:@"%.2f",settings[GLOB_PBRATIO].detail.mdz_slider.slider_value];
                 [self.scrollView addSubview:pbRatioLblValue];
                 
                 pbRatioValue=[[OBSlider alloc] initWithFrame:CGRectMake(0,0,self.view.frame.size.width-32-8,30)];
