@@ -15788,7 +15788,8 @@ extern "C" void adjust_amplification(void);
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
         case MMP_XMP:
-            return 3;
+        case MMP_SIDPLAY:
+        case MMP_WEBSID:
         case MMP_OPENMPT:
             return 3;
     }

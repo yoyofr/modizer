@@ -3715,9 +3715,9 @@ void optNSFPLAYChangedC(id param) {
         ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
     } else if (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100 ){
         
-        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*100);
+        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*100)/100;
         
-        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value/100;
+        ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
     }else if (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==20 ){
         
         settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value*settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits)/settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits;

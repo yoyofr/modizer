@@ -37,6 +37,14 @@ missing seek support:
 => HC /PSF2 fadeout for oscillo
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 
+3.8
+---
+- [UI] Playback ratio management now allow 0.05 steps
+- [UI] Fixed an issue with some settings sliders
+- [PLAYER] Lazyusf: issue with some files fixed
+- [PLAYER] Timidity: issue with sf2 files not loaded fixed
+
+
 3.7
 ---
 - [PLAYER] New player: FMPMini (based on 98FMPlayer) to support OVI, OPI & OZI files (PC-98)
