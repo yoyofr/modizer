@@ -1965,7 +1965,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
 #include <arm_neon.h>
 #endif
 
-#include "usf/misc.h"
+#include "usf/usf.h"
 
 int32_t hc_sample_rate;
 int64_t hc_currentSample,hc_fadeStart,hc_fadeLength;
@@ -1974,9 +1974,39 @@ int16_t *hc_sample_data;
 float *hc_sample_data_float;
 float *hc_sample_converted_data_float;
 
+//usf_loader_state * lzu_state;
+unsigned char * lzu_state = 0;
+
+unsigned int usf_enable_compare = 0;
+unsigned int usf_enable_fifo_full = 0;
+
+unsigned long usf_length_ms = 0;
+unsigned long usf_fade_ms = 0;
 
 
-usf_loader_state * lzu_state;
+static int usf_loader(void * context, const uint8_t * exe, size_t exe_size,
+                      const uint8_t * reserved, size_t reserved_size)
+{
+    if ( exe && exe_size > 0 ) return -1;
+
+    return usf_upload_section( lzu_state, reserved, reserved_size );
+}
+
+static int usf_info(void * context, const char * name, const char * value)
+{
+    if (!strcasecmp(name, "length"))
+        usf_length_ms += parse_time_crap([NSString stringWithUTF8String:value]);
+    else if (!strcasecmp(name, "fade"))
+        usf_fade_ms += parse_time_crap([NSString stringWithUTF8String:value]);
+    else if (!strcasecmp(name, "_enablecompare") && *value)
+        usf_enable_compare = 1;
+    else if (!strcasecmp(name, "_enablefifofull") && *value)
+        usf_enable_fifo_full = 1;
+    
+    return 0;
+}
+
+
 
 uint32 psfTimeToMS(char *str)
 {
@@ -4266,7 +4296,7 @@ int64_t src_callback_hc(void *cb_data, float **data) {
             if ( sega_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
         case 0x21:
-            if (usf_render(lzu_state->emu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
+            if (usf_render(lzu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
             break;
         case 0x23:
             dwChannelMute=HC_voicesMuteMask1;
@@ -5237,7 +5267,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //
                                     // RESTART required
                                     //
-                                    if (HC_type==0x21) usf_restart(lzu_state->emu_state);
+                                    if (HC_type==0x21) usf_restart(lzu_state);
                                     else {
                                         [self MMP_HCClose];
                                         [self MMP_HCLoad:mod_currentfile];
@@ -5270,7 +5300,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             sega_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                             break;
                                         case 0x21:
-                                            usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
+                                            usf_render(lzu_state, hc_sample_data, howmany, &hc_sample_rate);
                                             break;
                                         case 0x23:
                                             snsf_gen(hc_sample_data, howmany);
@@ -5326,7 +5356,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             sega_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                             break;
                                         case 0x21:
-                                            usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
+                                            usf_render(lzu_state, hc_sample_data, howmany, &hc_sample_rate);
                                             break;
                                         case 0x23:
                                             snsf_gen(hc_sample_data, howmany);
@@ -11011,6 +11041,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     max_voices = voices = tim_max_voices;  //polyphony : MOVE TO SETTINGS
     set_current_resampler(tim_resampler);
     opt_reverb_control=tim_reverb;
+    tim_force_soundfont=false;
     //set_current_resampler (RESAMPLE_LINEAR); //resample : MOVE TO SETTINGS
     
     FILE *f=fopen([filePath UTF8String],"rb");
@@ -11113,7 +11144,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         tim_main(1, argv);
     }
     
-    tim_force_soundfont=false;
+    
     float newvalue;
     if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) newvalue=1.0/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
     else newvalue=1;
@@ -11856,30 +11887,32 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         }
         
     } else if (HC_type == 0x21) { //USF
-        lzu_state = new usf_loader_state;
-        lzu_state->emu_state = malloc( usf_get_state_size() );
-        usf_clear( lzu_state->emu_state );
-        
+        lzu_state = (unsigned char *) malloc(usf_get_state_size());
+        usf_clear(lzu_state);
+
+        usf_length_ms=0;
+        usf_fade_ms=0;
         //usf_set_hle_audio( lzu_state->emu_state, 1 );
         
-        usf_info_data=(corlett_t*)calloc(1,sizeof(corlett_t));
+//        usf_info_data=(corlett_t*)calloc(1,sizeof(corlett_t));
         
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state,1 ) < 0 ) {
             NSLog(@"Error loading USF");
             mPlayType=0;
-            usf_shutdown(lzu_state->emu_state);
+            usf_shutdown(lzu_state);
             
             src_delete(src_state);
-            mdz_safe_free(lzu_state->emu_state);
-            mdz_safe_free(usf_info_data);
-            delete lzu_state;
-            lzu_state=NULL;
+            mdz_safe_free(lzu_state);
+//            mdz_safe_free(usf_info_data);
             return -1;
         }
-        usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
-        usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
+        usf_set_compare( lzu_state, usf_enable_compare );
+        usf_set_fifo_full( lzu_state, usf_enable_fifo_full );
+        usf_set_hle_audio(lzu_state, 1);
         
-        usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
+        usf_render(lzu_state, 0, 0, &hc_sample_rate);
+        
+        iModuleLength=usf_length_ms;
         
         m_voice_current_samplerate=hc_sample_rate;
         
@@ -11948,36 +11981,37 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     }
     src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
     
-    if (HC_type==0x21) {
-        sprintf(mod_name,"");
-        
-        //        if (usf_info_data->inf_title)
-        //            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
-        if (usf_info_data->inf_title)
-            if (usf_info_data->inf_title[0]) mod_title=[NSString stringWithUTF8String:usf_info_data->inf_title];
-        
-        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
-        
-        if (usf_info_data->inf_game)
-            if (usf_info_data->inf_game[0]) snprintf(mod_name, sizeof(mod_name), " %s",usf_info_data->inf_game);
-        
-        sprintf(mod_message,"Game.......:\t%s\nTitle......:\t%s\nArtist.....:\t%s\nYear.......:\t%s\nGenre......:\t%s\nRipper.....:\t%s\nCopyright..:\t%s\nTrack......:\t%s\nSample rate: %dHz\nLength: %ds\n",
-                (usf_info_data->inf_game?usf_info_data->inf_game:""),
-                (usf_info_data->inf_title?usf_info_data->inf_title:""),
-                (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
-                (usf_info_data->inf_year?usf_info_data->inf_year:""),
-                (usf_info_data->inf_genre?usf_info_data->inf_genre:""),
-                (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
-                (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
-                (usf_info_data->inf_track?usf_info_data->inf_track:""),
-                hc_sample_rate,
-                iModuleLength/1000);
-        
-        //        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
-        
-        if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
-        if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
-    } else {
+//    if (HC_type==0x21) {
+//        sprintf(mod_name,"");
+//        
+//        //        if (usf_info_data->inf_title)
+//        //            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
+//        if (usf_info_data->inf_title)
+//            if (usf_info_data->inf_title[0]) mod_title=[NSString stringWithUTF8String:usf_info_data->inf_title];
+//        
+//        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+//        
+//        if (usf_info_data->inf_game)
+//            if (usf_info_data->inf_game[0]) snprintf(mod_name, sizeof(mod_name), " %s",usf_info_data->inf_game);
+//        
+//        sprintf(mod_message,"Game.......:\t%s\nTitle......:\t%s\nArtist.....:\t%s\nYear.......:\t%s\nGenre......:\t%s\nRipper.....:\t%s\nCopyright..:\t%s\nTrack......:\t%s\nSample rate: %dHz\nLength: %ds\n",
+//                (usf_info_data->inf_game?usf_info_data->inf_game:""),
+//                (usf_info_data->inf_title?usf_info_data->inf_title:""),
+//                (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
+//                (usf_info_data->inf_year?usf_info_data->inf_year:""),
+//                (usf_info_data->inf_genre?usf_info_data->inf_genre:""),
+//                (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
+//                (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
+//                (usf_info_data->inf_track?usf_info_data->inf_track:""),
+//                hc_sample_rate,
+//                iModuleLength/1000);
+//        
+//        //        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
+//        
+//        if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
+//        if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
+//    } else 
+    {
         sprintf(mod_name," %s",mod_filename);
         
         sprintf(mod_message,"\n");
@@ -13830,7 +13864,9 @@ extern bool icloud_available;
     mod_title=nil;
     
     m_genNumMidiVoicesChannels=0;
+    m_genNumVoicesChannels=0;
     m_voicesDataAvail=0;
+    numChannels=0;
     m_voicesForceOfs=-1;
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
     for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
@@ -14628,12 +14664,10 @@ extern bool icloud_available;
         HC_emulatorExtra = NULL;
     } else if (HC_type==0x21) {
         if (lzu_state) {
-            if (lzu_state->emu_state) usf_shutdown(lzu_state->emu_state);
-            mdz_safe_free(lzu_state->emu_state);
-            delete lzu_state;
+            usf_shutdown(lzu_state);
+            mdz_safe_free(lzu_state);
         }
-        lzu_state=NULL;
-        mdz_safe_free(usf_info_data);
+//        mdz_safe_free(usf_info_data);
     } else if ( HC_type==0x23) {
         if (snsf_rom) {
             snsf_term();

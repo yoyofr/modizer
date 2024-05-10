@@ -16,8 +16,6 @@
 
 #include "resampler.h"
 
-#include "barray.h"
-
 size_t usf_get_state_size()
 {
     return sizeof(usf_state_t) + 8192;
@@ -40,9 +38,6 @@ void usf_clear(void * state)
     USF_STATE->round_mode = 0x33F;
     USF_STATE->ceil_mode = 0xB3F;
     USF_STATE->floor_mode = 0x73F;
-#ifdef DYNAREC
-	USF_STATE->precomp_instr_size = sizeof(precomp_instr);
-#endif
 
     // USF_STATE->g_rom = 0;
     // USF_STATE->g_rom_size = 0;
@@ -50,15 +45,12 @@ void usf_clear(void * state)
     USF_STATE->save_state = calloc( 1, 0x80275c );
     USF_STATE->save_state_size = 0x80275c;
 
-    for (offset = 0; offset < 0x10000; offset += 4)
-    {
-        USF_STATE->EmptySpace[offset / 4] = (uint32_t)((offset << 16) | offset);
-    }
-
     USF_STATE->resampler = resampler_create();
+    
+    create_memory(USF_STATE);
 
 #ifdef DEBUG_INFO
-    USF_STATE->debug_log = 0;
+    USF_STATE->debug_log = fopen("lazyusf.log", "wt");
 #endif
 }
 
@@ -75,11 +67,6 @@ void usf_set_fifo_full(void * state, int enable)
 void usf_set_hle_audio(void * state, int enable)
 {
     USF_STATE->enable_hle_audio = enable;
-}
-
-void usf_set_trimming_mode(void * state, int enable)
-{
-    USF_STATE->enable_trimming_mode = enable;
 }
 
 static uint32_t get_le32( const void * _p )
@@ -212,13 +199,6 @@ static int usf_startup(usf_state_t * state)
         return -1;
     }
 
-    if (state->enable_trimming_mode)
-    {
-        state->barray_rom = bit_array_create(state->g_rom_size / 4);
-        state->barray_ram_read = bit_array_create(get_le32(state->save_state + 4) / 4);
-        state->barray_ram_written_first = bit_array_create(get_le32(state->save_state + 4) / 4);
-    }
-
     state->MemoryState = 1;
 
     return 0;
@@ -346,7 +326,6 @@ const char * usf_render_resampled(void * state, int16_t * buffer, size_t count, 
             unsigned long samples_to_remove = samples_buffered;
             if (samples_to_remove > count)
                 samples_to_remove = count;
-            count -= samples_to_remove;
             while (samples_to_remove--)
                 resampler_remove_sample(USF_STATE->resampler);
             if (!count)
@@ -414,15 +393,6 @@ void usf_restart(void * state)
     if ( USF_STATE->MemoryState )
     {
         r4300_end(USF_STATE);
-        if (USF_STATE->enable_trimming_mode)
-        {
-            bit_array_destroy(USF_STATE->barray_rom);
-            bit_array_destroy(USF_STATE->barray_ram_read);
-            bit_array_destroy(USF_STATE->barray_ram_written_first);
-            USF_STATE->barray_rom = 0;
-            USF_STATE->barray_ram_read = 0;
-            USF_STATE->barray_ram_written_first = 0;
-        }
         USF_STATE->MemoryState = 0;
     }
 
@@ -435,18 +405,6 @@ void usf_restart(void * state)
 void usf_shutdown(void * state)
 {
     r4300_end(USF_STATE);
-    if (USF_STATE->enable_trimming_mode)
-    {
-        if (USF_STATE->barray_rom)
-            bit_array_destroy(USF_STATE->barray_rom);
-        if (USF_STATE->barray_ram_read)
-            bit_array_destroy(USF_STATE->barray_ram_read);
-        if (USF_STATE->barray_ram_written_first)
-            bit_array_destroy(USF_STATE->barray_ram_written_first);
-        USF_STATE->barray_rom = 0;
-        USF_STATE->barray_ram_read = 0;
-        USF_STATE->barray_ram_written_first = 0;
-    }
     USF_STATE->MemoryState = 0;
     free(USF_STATE->save_state);
     USF_STATE->save_state = 0;
@@ -457,16 +415,8 @@ void usf_shutdown(void * state)
 #endif
     resampler_delete(USF_STATE->resampler);
     USF_STATE->resampler = 0;
-}
-
-void * usf_get_rom_coverage_barray(void * state)
-{
-    return USF_STATE->barray_rom;
-}
-
-void * usf_get_ram_coverage_barray(void * state)
-{
-    return USF_STATE->barray_ram_read;
+    
+    shutdown_memory(USF_STATE);
 }
 
 #ifdef DEBUG_INFO

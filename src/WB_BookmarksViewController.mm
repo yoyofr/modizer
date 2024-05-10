@@ -224,14 +224,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [repeatingTimer invalidate];
-    repeatingTimer = nil;
-    
-    NSString *observedSelector = NSStringFromSelector(@selector(hidden));
-    [detailViewController.waitingView removeObserver:self
-                                          forKeyPath:observedSelector
-                                             context:LoadingProgressObserverContext];
-    
     [super viewDidAppear:animated];
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }

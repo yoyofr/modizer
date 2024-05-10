@@ -1,8 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Mupen64plus - assemble_struct.h                                       *
+ *   Mupen64plus-rsp-hle - stdbool.h                                       *
  *   Mupen64Plus homepage: http://code.google.com/p/mupen64plus/           *
- *   Copyright (C) 2007 Richard Goedeken (Richard42)                       *
- *   Copyright (C) 2002 Hacktarux                                          *
+ *   Copyright (C) 2014 Bobby Smiles                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -20,15 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef M64P_R4300_ASSEMBLE_STRUCT_H
-#define M64P_R4300_ASSEMBLE_STRUCT_H
+/* This header is only intended to be used with msvc compilers */
 
-typedef struct _reg_cache_struct
-{
-   int need_map;
-   void *needed_registers[8];
-   unsigned char jump_wrapper[84];
-   int need_cop1_check;
-} reg_cache_struct;
+#pragma once
 
-#endif /* M64P_R4300_ASSEMBLE_STRUCT_H */
+typedef int _Bool;
+
+/**
+ * The standard states that "an application may undefine and then possibly redefine the macro
+ * bool, true and false". However, such feature might be withdrawn in a future version.
+ **/
+#define bool _Bool
+#define true 1
+#define false 0
+
+#define __bool_true_false_are_defined 1
+
