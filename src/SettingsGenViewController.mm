@@ -438,9 +438,9 @@ void optNSFPLAYChangedC(id param) {
     
     switch (_mode) {
         case 1:
-            start_pos=55.0f/360.0f;
-            mul_factor=(5.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
-            sat=0.8f;
+            start_pos=130.0f/360.0f;
+            mul_factor=(1.7f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.7f;
             if ((color_idx<0)||(color_idx==0)) settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb=0x00FF00;
             break;
         case 0:
@@ -476,8 +476,8 @@ void optNSFPLAYChangedC(id param) {
     
     switch (_mode) {
         case 1:
-            start_pos=55.0f/360.0f;
-            mul_factor=(5.0f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            start_pos=220.0f/360.0f;
+            mul_factor=(0.4f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=1.0f;
             break;
         case 0:
@@ -3481,12 +3481,13 @@ void optNSFPLAYChangedC(id param) {
     
     
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"PIANOMIDI_MULTI_RESETALL")==0) {
-        [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:NULL];
+        
+        [SettingsGenViewController pianomidiGenSystemColor:(settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value%2) color_idx:-1 color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
         [tableView reloadData];
     }
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_RESETALL")==0) {
-        [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:NULL];
+        [SettingsGenViewController oscilloGenSystemColor:(settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value%2) color_idx:-1 color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
     }

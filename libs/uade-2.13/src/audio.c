@@ -366,6 +366,9 @@ static void audio_handler (int nr)
 {
     struct audio_channel_data *cdp = audio_channel + nr;
 
+    
+    int oldpos=cdp->vol;
+    
     switch (cdp->state) {
      case 0:
 	fprintf(stderr, "Bug in sound code\n");
@@ -482,6 +485,8 @@ static void audio_handler (int nr)
 	cdp->state = 0;
 	break;
     }
+    
+    //if (cdp->vol>oldpos) cdp->keyon=1; //YOYOFR
 }
 
 
@@ -652,10 +657,11 @@ void update_audio (void)
     static int last_output[4];
         for (int i=0;i<4;i++) {
             int output=(audio_channel[i].current_sample * audio_channel[i].vol) & audio_channel[i].adk_mask;
-            if (audio_channel[i].per && audio_channel[i].vol && audio_channel[i].state && audio_channel[i].adk_mask && (last_output[i]!=output)) {
+            if (audio_channel[i].per &&(audio_channel[i].per<65535) && audio_channel[i].vol && audio_channel[i].state && audio_channel[i].adk_mask && (last_output[i]!=output)) {
                 vgm_last_note[i]=440.0f*SOUNDTICKS/audio_channel[i].per/8287;
                 vgm_last_sample_addr[i]=i;
-                vgm_last_vol[i]=1;
+                if (vgm_last_vol[i]<1+audio_channel[i].keyon) vgm_last_vol[i]=1+audio_channel[i].keyon;
+                audio_channel[i].keyon=0;
             }
             last_output[i]=output;
         }
@@ -690,6 +696,8 @@ void AUDxLCH (int nr, uae_u16 v)
     update_audio ();
 
     audio_channel[nr].lc = (audio_channel[nr].lc & 0xffff) | ((uae_u32)v << 16);
+    
+    audio_channel[nr].keyon=1;
 }
 
 
@@ -700,6 +708,8 @@ void AUDxLCL (int nr, uae_u16 v)
     update_audio ();
 
     audio_channel[nr].lc = (audio_channel[nr].lc & ~0xffff) | (v & 0xFFFE);
+    
+    audio_channel[nr].keyon=1;
 }
 
 
@@ -721,6 +731,7 @@ void AUDxPER (int nr, uae_u16 v)
 	}
 	v = 16;
     }
+    
     audio_channel[nr].per = v;
 }
 

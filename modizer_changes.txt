@@ -39,10 +39,11 @@ missing seek support:
 
 3.8
 ---
-- [UI] Playback ratio management now allow 0.05 steps
+- [UI] Playback ratio management now supports 0.05 steps
 - [UI] Fixed an issue with some settings sliders
 - [PLAYER] Lazyusf: issue with some files fixed
 - [PLAYER] Timidity: issue with sf2 files not loaded fixed
+- [DB] ASMA & MODLAND updated with latest files
 
 
 3.7

@@ -3838,7 +3838,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             for (int j=0; j < m_genNumVoicesChannels; j++) {
                 if (m_voicesStatus[j]) {
                     unsigned int idx=vgm_getNote(j);
-                    if ((idx>0)) {
+                    if ((idx>0)&&vgm_last_vol[j]) {
                         unsigned int subidx=vgm_getSubNote(j);
                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                         unsigned int instr=vgm_last_sample_addr[j];

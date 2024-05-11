@@ -150,9 +150,9 @@
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"Computers",@"Amiga,FM Towns,MSX,PC"},
+        {@"Computers",@"Amiga,FM Towns,Hoot,MSX,PC,S98"},
         {@"Consoles",@"3DO,CD-i,DC,GC,Genesis/SegaCD,MS,N64,NeoGeoCD,Nes,PCE,PS1,PS2,PS3,PS4,Saturn,Snes,Switch,Wii,WiiU,Xbox,X360"},
-        {@"Portables",@"3DS,GBA,GB,Mobile,NDS,PSP,PSVita,SGG"}
+        {@"Portables",@"3DS,GBA,GB,Mobile,NDS,PSP,PSVita,SGG,WSR"}
         
     };
     
@@ -283,8 +283,8 @@
         {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers"},
         {@"http://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers"},
         {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers"},
-        //{@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot",@"Computers"},
-        //{@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers"},
+        {@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot",@"Computers"},
+        {@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers"},
         {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers"},
         //consoles
         {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles"},
@@ -309,13 +309,14 @@
         {@"http://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles"},
         {@"http://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles"},
         {@"http://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles"},
+        {@"http://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles"},
         //portables
         {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables"},
         {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables"},
         {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables"},
         {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables"},
         {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables"},
-        //{@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables"},
+        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables"},
         {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables"},
         {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables"},
         {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables"}

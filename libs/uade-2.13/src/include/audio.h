@@ -38,6 +38,8 @@ extern struct audio_channel_data {
 
     /* Debug variables */
     uaecptr ptend, nextdatpt, nextdatptend, datpt, datptend;
+    
+    int keyon; //yoyofr
 } audio_channel[4];
 
 // struct audio_channel_date audio_channel[4];
