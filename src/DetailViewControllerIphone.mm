@@ -1591,7 +1591,7 @@ static float movePinchScale,movePinchScaleOld;
     
     if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
         //have to update the pause button
-        mSendStatTimer=0;
+        //mSendStatTimer=0;
         mIsPlaying=FALSE;
         mPaused=1;
         self.pauseBarSub.hidden=YES;
@@ -2583,7 +2583,7 @@ int recording=0;
     
     mOnlyCurrentEntry=0;
     mOnlyCurrentSubEntry=0;
-    mSendStatTimer=0;
+    //mSendStatTimer=0;
     
     // if already playing, stop
     if (repeatingTimer) {
@@ -4950,6 +4950,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     start_time=clock();
     [super viewDidLoad];
     
+    mSendStatTimer=0;
     loadRequestInProgress=0;
     //NSLocale* locale = [NSLocale autoupdatingCurrentLocale];
     //located_country=[NSString stringWithString:locale.countryCode];

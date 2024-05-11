@@ -70,7 +70,7 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/SMSP" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=4;
-            strPath=[filePath substringFromIndex:strlen("Documents/SMSP")+1];
+            strPath=[[[[filePath substringFromIndex:strlen("Documents/SMSP")+1] lastPathComponent] stringByDeletingPathExtension] stringByReplacingOccurrencesOfString:@" " withString:@""];
         }
     }
     //SNESMusic?
@@ -78,7 +78,7 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/SNESM" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=5;
-            strPath=[filePath substringFromIndex:strlen("Documents/SNESM")+1];
+            strPath=[[[filePath substringFromIndex:strlen("Documents/SNESM")+1] lastPathComponent] stringByDeletingPathExtension];
         }
     }
     //P2612?
@@ -86,7 +86,7 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/P2612" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=6;
-            strPath=[filePath substringFromIndex:strlen("Documents/P2612")+1];
+            strPath=[[[filePath substringFromIndex:strlen("Documents/P2612")+1] lastPathComponent] stringByDeletingPathExtension];
         }
     }
     //VGMRips?
@@ -94,7 +94,7 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/VGMRips" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=7;
-            strPath=[filePath substringFromIndex:strlen("Documents/VGMRips")+1];
+            strPath=[[[filePath substringFromIndex:strlen("Documents/VGMRips")+1] lastPathComponent] stringByDeletingPathExtension];
         }
     }
     //JoshW?
@@ -189,7 +189,7 @@ typedef struct  {
                          VERSION_MINOR_STR
     ];
     NSURL *url=[NSURL URLWithString:urlString];
-    NSLog(@"%@",[url absoluteString]);
+    //NSLog(@"%@",[url absoluteString]);
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer.acceptableContentTypes=[NSSet setWithObject:@"application/json"];

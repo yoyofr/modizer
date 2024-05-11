@@ -475,12 +475,12 @@ void optNSFPLAYChangedC(id param) {
     float start_pos,mul_factor,sat;
     
     switch (_mode) {
-        case 1:
+        case 0:
             start_pos=220.0f/360.0f;
             mul_factor=(0.4f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=1.0f;
             break;
-        case 0:
+        case 1:
             start_pos=240.0f/360.0f;
             mul_factor=(9.5f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=1.0f;

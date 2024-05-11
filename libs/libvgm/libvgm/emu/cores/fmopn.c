@@ -2431,7 +2431,7 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 } else {
                     if ((OPN->out_fm[ii]!=old_out_fm[ii])) {
@@ -2441,7 +2441,7 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 }
             }
@@ -3158,7 +3158,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 } else {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
@@ -3168,7 +3168,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 }
             }
@@ -3839,7 +3839,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 } else {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
@@ -3849,7 +3849,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 }
             }
@@ -4125,7 +4125,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 } else {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
@@ -4135,7 +4135,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
-                        vgm_last_vol[ii+m_voice_ofs]=newvol;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
                 }
             }
