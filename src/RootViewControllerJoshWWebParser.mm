@@ -283,7 +283,6 @@
         {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers"},
         {@"http://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers"},
         {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers"},
-        {@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot",@"Computers"},
         {@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers"},
         {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers"},
         //consoles

@@ -140,6 +140,7 @@ extern bool icloud_available;
             NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
             NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","];
             NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
+            NSArray *filetype_extWSR=[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","];
             NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
             NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
             NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -170,6 +171,7 @@ extern bool icloud_available;
                           [filetype_extGBS count]+
                           [filetype_extNSFPLAY count]+
                           [filetype_extPIXEL count]+
+                          [filetype_extWSR count]+
                           [filetype_extUADE count]+
                           [filetype_extMODPLUG count]+
                           [filetype_extXMP count]+
@@ -199,6 +201,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extGBS];
             [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
             [filetype_ext addObjectsFromArray:filetype_extPIXEL];
+            [filetype_ext addObjectsFromArray:filetype_extWSR];
             [filetype_ext addObjectsFromArray:filetype_extUADE];
             [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
             [filetype_ext addObjectsFromArray:filetype_extXMP];
@@ -237,6 +240,7 @@ extern bool icloud_available;
             NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
             NSArray *filetype_extNSFPLAY=[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
+            NSArray *filetype_extWSR=[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","];
             NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
             NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -267,6 +271,7 @@ extern bool icloud_available;
                           [filetype_extGBS count]+
                           [filetype_extNSFPLAY count]+
                           [filetype_extPIXEL count]+
+                          [filetype_extWSR count]+
                           [filetype_extUADE count]+
                           [filetype_extMODPLUG count]+
                           [filetype_extXMP count]+
@@ -296,6 +301,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extGBS];
             [filetype_ext addObjectsFromArray:filetype_extNSFPLAY];
             [filetype_ext addObjectsFromArray:filetype_extPIXEL];
+            [filetype_ext addObjectsFromArray:filetype_extWSR];
             [filetype_ext addObjectsFromArray:filetype_extUADE];
             [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
             [filetype_ext addObjectsFromArray:filetype_extXMP];
@@ -349,6 +355,7 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","]];
+            [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","]];
             [filetype_ext addObjectsFromArray:[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","]];
@@ -429,6 +436,7 @@ extern bool icloud_available;
     NSArray *filetype_extGBS=[SUPPORTED_FILETYPE_GBS componentsSeparatedByString:@","];
     NSArray *filetype_extNSFPLAY=(no_aux_file?[SUPPORTED_FILETYPE_NSFPLAY componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_NSFPLAY_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPIXEL=[SUPPORTED_FILETYPE_PIXEL componentsSeparatedByString:@","];
+    NSArray *filetype_extWSR=[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
@@ -602,6 +610,11 @@ extern bool icloud_available;
         for (int i=0;i<[filetype_extPIXEL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {found=MMP_PIXEL;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {found=MMP_PIXEL;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extWSR count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extWSR objectAtIndex:i]]==NSOrderedSame) {found=MMP_WSR;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extWSR objectAtIndex:i]]==NSOrderedSame) {found=MMP_WSR;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_ext2SF count];i++) {

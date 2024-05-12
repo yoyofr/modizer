@@ -214,6 +214,8 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_ASAP @"SAP,CMC,CM3,CMR,CMS,DMC,DLT,MPT,MPD,RMT,TMC,TM8,TM2"
 
+#define SUPPORTED_FILETYPE_WSR @"WSR"
+
 #define SUPPORTED_FILETYPE_PIXEL @"ORG,PTCOP,PTTUNE"
 
 #define SUPPORTED_FILETYPE_VGM @"DR0,DRO,GYM,S98,VGM,VGZ"
@@ -377,7 +379,8 @@ enum MMP_PLAYER_TYPE {
     MMP_KSS,
     MMP_PT3,
     MMP_PIXEL,
-    MMP_GBS
+    MMP_GBS,
+    MMP_WSR
 };
 
 typedef enum {

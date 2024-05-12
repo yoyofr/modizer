@@ -1,0 +1,409 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC47A49F2BF0A70200472202 /* nec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4772BF0A70200472202 /* nec.cpp */; };
+		CC47A4A02BF0A70200472202 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A47E2BF0A70200472202 /* audio.cpp */; };
+		CC47A4A12BF0A70200472202 /* config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4802BF0A70200472202 /* config.cpp */; };
+		CC47A4A32BF0A70200472202 /* gpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4842BF0A70200472202 /* gpu.cpp */; };
+		CC47A4A42BF0A70200472202 /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4872BF0A70200472202 /* input.cpp */; };
+		CC47A4A52BF0A70200472202 /* io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4892BF0A70200472202 /* io.cpp */; };
+		CC47A4A62BF0A70200472202 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A48D2BF0A70200472202 /* log.cpp */; };
+		CC47A4A82BF0A70200472202 /* oswan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4912BF0A70200472202 /* oswan.cpp */; };
+		CC47A4A92BF0A70200472202 /* rom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A4932BF0A70200472202 /* rom.cpp */; };
+		CC47A4AB2BF0A70200472202 /* ws.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A49B2BF0A70200472202 /* ws.cpp */; };
+		CC47A4AE2BF0B7DC00472202 /* wsr_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47A49D2BF0A70200472202 /* wsr_player.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC47A4632BF024F300472202 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CC47A4652BF024F300472202 /* liblibwonderswan.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibwonderswan.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC47A4772BF0A70200472202 /* nec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nec.cpp; sourceTree = "<group>"; };
+		CC47A4782BF0A70200472202 /* nec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nec.h; sourceTree = "<group>"; };
+		CC47A4792BF0A70200472202 /* necea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = necea.h; sourceTree = "<group>"; };
+		CC47A47A2BF0A70200472202 /* necinstr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = necinstr.h; sourceTree = "<group>"; };
+		CC47A47B2BF0A70200472202 /* necintrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = necintrf.h; sourceTree = "<group>"; };
+		CC47A47C2BF0A70200472202 /* necmodrm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = necmodrm.h; sourceTree = "<group>"; };
+		CC47A47E2BF0A70200472202 /* audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio.cpp; sourceTree = "<group>"; };
+		CC47A47F2BF0A70200472202 /* audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio.h; sourceTree = "<group>"; };
+		CC47A4802BF0A70200472202 /* config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = config.cpp; sourceTree = "<group>"; };
+		CC47A4812BF0A70200472202 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		CC47A4842BF0A70200472202 /* gpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gpu.cpp; sourceTree = "<group>"; };
+		CC47A4852BF0A70200472202 /* gpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gpu.h; sourceTree = "<group>"; };
+		CC47A4862BF0A70200472202 /* initialIo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = initialIo.h; sourceTree = "<group>"; };
+		CC47A4872BF0A70200472202 /* input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = input.cpp; sourceTree = "<group>"; };
+		CC47A4882BF0A70200472202 /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = input.h; sourceTree = "<group>"; };
+		CC47A4892BF0A70200472202 /* io.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = io.cpp; sourceTree = "<group>"; };
+		CC47A48A2BF0A70200472202 /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
+		CC47A48B2BF0A70200472202 /* keycode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keycode.h; sourceTree = "<group>"; };
+		CC47A48C2BF0A70200472202 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CC47A48D2BF0A70200472202 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
+		CC47A48E2BF0A70200472202 /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
+		CC47A4912BF0A70200472202 /* oswan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oswan.cpp; sourceTree = "<group>"; };
+		CC47A4922BF0A70200472202 /* oswan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oswan.h; sourceTree = "<group>"; };
+		CC47A4932BF0A70200472202 /* rom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rom.cpp; sourceTree = "<group>"; };
+		CC47A4942BF0A70200472202 /* rom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rom.h; sourceTree = "<group>"; };
+		CC47A4952BF0A70200472202 /* segment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segment.h; sourceTree = "<group>"; };
+		CC47A4962BF0A70200472202 /* segment.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segment.txt; sourceTree = "<group>"; };
+		CC47A4972BF0A70200472202 /* segmentM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmentM.h; sourceTree = "<group>"; };
+		CC47A4982BF0A70200472202 /* segmentM.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segmentM.txt; sourceTree = "<group>"; };
+		CC47A49B2BF0A70200472202 /* ws.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ws.cpp; sourceTree = "<group>"; };
+		CC47A49C2BF0A70200472202 /* ws.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ws.h; sourceTree = "<group>"; };
+		CC47A49D2BF0A70200472202 /* wsr_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wsr_player.cpp; sourceTree = "<group>"; };
+		CC47A4AD2BF0A8AD00472202 /* wsr_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wsr_types.h; sourceTree = "<group>"; };
+		CC47A4B22BF0C95200472202 /* wsr_player_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wsr_player_common.h; sourceTree = "<group>"; };
+		CC47A4B32BF0C95200472202 /* wsr_player_intf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wsr_player_intf.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC47A4622BF024F300472202 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC47A45C2BF024F300472202 = {
+			isa = PBXGroup;
+			children = (
+				CC47A4672BF024F300472202 /* libwonderswan */,
+				CC47A4662BF024F300472202 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC47A4662BF024F300472202 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A4652BF024F300472202 /* liblibwonderswan.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC47A4672BF024F300472202 /* libwonderswan */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A4B42BF0C95200472202 /* wsr_player_common */,
+				CC47A49E2BF0A70200472202 /* oswan */,
+			);
+			path = libwonderswan;
+			sourceTree = "<group>";
+		};
+		CC47A47D2BF0A70200472202 /* nec */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A4772BF0A70200472202 /* nec.cpp */,
+				CC47A4782BF0A70200472202 /* nec.h */,
+				CC47A4792BF0A70200472202 /* necea.h */,
+				CC47A47A2BF0A70200472202 /* necinstr.h */,
+				CC47A47B2BF0A70200472202 /* necintrf.h */,
+				CC47A47C2BF0A70200472202 /* necmodrm.h */,
+			);
+			path = nec;
+			sourceTree = "<group>";
+		};
+		CC47A49E2BF0A70200472202 /* oswan */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A47D2BF0A70200472202 /* nec */,
+				CC47A47E2BF0A70200472202 /* audio.cpp */,
+				CC47A47F2BF0A70200472202 /* audio.h */,
+				CC47A4802BF0A70200472202 /* config.cpp */,
+				CC47A4812BF0A70200472202 /* config.h */,
+				CC47A4AD2BF0A8AD00472202 /* wsr_types.h */,
+				CC47A4842BF0A70200472202 /* gpu.cpp */,
+				CC47A4852BF0A70200472202 /* gpu.h */,
+				CC47A4862BF0A70200472202 /* initialIo.h */,
+				CC47A4872BF0A70200472202 /* input.cpp */,
+				CC47A4882BF0A70200472202 /* input.h */,
+				CC47A4892BF0A70200472202 /* io.cpp */,
+				CC47A48A2BF0A70200472202 /* io.h */,
+				CC47A48B2BF0A70200472202 /* keycode.h */,
+				CC47A48C2BF0A70200472202 /* LICENSE */,
+				CC47A48D2BF0A70200472202 /* log.cpp */,
+				CC47A48E2BF0A70200472202 /* log.h */,
+				CC47A4912BF0A70200472202 /* oswan.cpp */,
+				CC47A4922BF0A70200472202 /* oswan.h */,
+				CC47A4932BF0A70200472202 /* rom.cpp */,
+				CC47A4942BF0A70200472202 /* rom.h */,
+				CC47A4952BF0A70200472202 /* segment.h */,
+				CC47A4962BF0A70200472202 /* segment.txt */,
+				CC47A4972BF0A70200472202 /* segmentM.h */,
+				CC47A4982BF0A70200472202 /* segmentM.txt */,
+				CC47A49B2BF0A70200472202 /* ws.cpp */,
+				CC47A49C2BF0A70200472202 /* ws.h */,
+				CC47A49D2BF0A70200472202 /* wsr_player.cpp */,
+			);
+			path = oswan;
+			sourceTree = "<group>";
+		};
+		CC47A4B42BF0C95200472202 /* wsr_player_common */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A4B22BF0C95200472202 /* wsr_player_common.h */,
+				CC47A4B32BF0C95200472202 /* wsr_player_intf.h */,
+			);
+			path = wsr_player_common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC47A4642BF024F300472202 /* libwonderswan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC47A46E2BF024F300472202 /* Build configuration list for PBXNativeTarget "libwonderswan" */;
+			buildPhases = (
+				CC47A4612BF024F300472202 /* Sources */,
+				CC47A4622BF024F300472202 /* Frameworks */,
+				CC47A4632BF024F300472202 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libwonderswan;
+			productName = libwonderswan;
+			productReference = CC47A4652BF024F300472202 /* liblibwonderswan.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC47A45D2BF024F300472202 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					CC47A4642BF024F300472202 = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = CC47A4602BF024F300472202 /* Build configuration list for PBXProject "libwonderswan" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC47A45C2BF024F300472202;
+			productRefGroup = CC47A4662BF024F300472202 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC47A4642BF024F300472202 /* libwonderswan */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC47A4612BF024F300472202 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC47A4AB2BF0A70200472202 /* ws.cpp in Sources */,
+				CC47A4A82BF0A70200472202 /* oswan.cpp in Sources */,
+				CC47A4A02BF0A70200472202 /* audio.cpp in Sources */,
+				CC47A4AE2BF0B7DC00472202 /* wsr_player.cpp in Sources */,
+				CC47A49F2BF0A70200472202 /* nec.cpp in Sources */,
+				CC47A4A62BF0A70200472202 /* log.cpp in Sources */,
+				CC47A4A42BF0A70200472202 /* input.cpp in Sources */,
+				CC47A4A32BF0A70200472202 /* gpu.cpp in Sources */,
+				CC47A4A12BF0A70200472202 /* config.cpp in Sources */,
+				CC47A4A92BF0A70200472202 /* rom.cpp in Sources */,
+				CC47A4A52BF0A70200472202 /* io.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC47A46C2BF024F300472202 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SYSTEM_HEADER_SEARCH_PATHS = libwonderswan/oswan;
+				USER_HEADER_SEARCH_PATHS = libwonderswan/oswan;
+			};
+			name = Debug;
+		};
+		CC47A46D2BF024F300472202 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SYSTEM_HEADER_SEARCH_PATHS = libwonderswan/oswan;
+				USER_HEADER_SEARCH_PATHS = libwonderswan/oswan;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC47A46F2BF024F300472202 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC47A4702BF024F300472202 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC47A4602BF024F300472202 /* Build configuration list for PBXProject "libwonderswan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC47A46C2BF024F300472202 /* Debug */,
+				CC47A46D2BF024F300472202 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC47A46E2BF024F300472202 /* Build configuration list for PBXNativeTarget "libwonderswan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC47A46F2BF024F300472202 /* Debug */,
+				CC47A4702BF024F300472202 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC47A45D2BF024F300472202 /* Project object */;
+}

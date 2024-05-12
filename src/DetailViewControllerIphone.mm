@@ -209,9 +209,9 @@ static int display_length_mode=0;
 
 -(void)didSelectRowInAlertSubController:(NSInteger)row {
     mPaused=0;
-    [self play_curEntry:(int)row+mplayer.mod_minsub];
+    //[self play_curEntry:(int)row+mplayer.mod_minsub];
+    [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
     clearFXbuffer=true;
-    //[mplayer playGoToSub:(int)row+mplayer.mod_minsub];
 }
 
 -(void) cancelSubSel {
