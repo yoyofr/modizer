@@ -37,6 +37,10 @@ missing seek support:
 => HC /PSF2 fadeout for oscillo
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 
+3.9
+---
+- [PLAYER] New player for WSR/Wonderswan, based on Oswan. Oscilloscope, piano rolls FX & playback speed supported
+
 3.8
 ---
 - [UI] Playback ratio management now supports 0.05 steps

@@ -876,8 +876,10 @@ int SID::clock_fast(cycle_count& delta_t, short* buf, int n, int interleave)
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
+    delta_t/=mdz_pbratio;//YOYOFR
+    
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inv_inc>>16) + (1 << (FIXP_SHIFT - 1));
+        cycle_count next_sample_offset = sample_offset + cycles_per_sample + (1 << (FIXP_SHIFT - 1));
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -963,8 +965,10 @@ int SID::clock_interpolate(cycle_count& delta_t, short* buf, int n, int interlea
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
+    delta_t/=mdz_pbratio;//YOYOFR
+    
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inv_inc>>16);
+        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -1086,8 +1090,10 @@ int SID::clock_resample(cycle_count& delta_t, short* buf, int n, int interleave)
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
+    delta_t/=mdz_pbratio; //YOYOFR
+    
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inv_inc>>16);
+        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {
@@ -1204,8 +1210,10 @@ int SID::clock_resample_fastmem(cycle_count& delta_t, short* buf, int n, int int
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
+    delta_t/=mdz_pbratio;//YOYOFR
+    
     for (s = 0; s < n; s++) {
-        cycle_count next_sample_offset = sample_offset + ((int64_t)cycles_per_sample*mdz_ratio_fp_inv_inc>>16);
+        cycle_count next_sample_offset = sample_offset + cycles_per_sample;
         cycle_count delta_t_sample = next_sample_offset >> FIXP_SHIFT;
         
         if (delta_t_sample > delta_t) {

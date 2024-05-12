@@ -8,6 +8,13 @@
 * (http://creativecommons.org/licenses/by-nc-sa/4.0/).
 */
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 extern "C" {
 #include "system.h"
 #include "cpu.h"
@@ -64,11 +71,17 @@ extern "C" void sysClockOpt() {
 	vicClock();
 	ciaClock();
 	if (SID::isAudible()) {
-		SID::clockAll(); 
+        SID::clockAll();
 	}
 	cpuClock();
 	
-	_cycles += 1;
+    if (mdz_ratio_fp_inv_inc) {
+        mdz_ratio_fp_cnt+=mdz_ratio_fp_inv_inc;
+        while (mdz_ratio_fp_cnt>=65536) {
+            mdz_ratio_fp_cnt-=65536;
+            _cycles += 1;
+        }
+    } else _cycles += 1;
 }
 
 extern "C" void sysClock() {

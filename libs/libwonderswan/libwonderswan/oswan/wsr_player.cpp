@@ -4,6 +4,11 @@
 //#include <Windows.h>
 #include "wsr_types.h" //YOYOFR
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "../wsr_player_common/wsr_player_intf.h"
 #include "../wsr_player_common/wsr_player_common.h"
 namespace oswan
@@ -83,15 +88,23 @@ namespace oswan
 	void SetChannelMuting(unsigned int Mute)
 	{
 		g_channel_mute = Mute;
-		for (unsigned i = 0; i < 4; i++)
-		{
-			ws_audio_set_channel_enabled(i, (Mute & (1 << i)) ? 0 : 1);
-		}
-
-		ws_audio_set_channel_enabled(4, (Mute & (1 << 1)) ? 0 : 1);	//voice
-		ws_audio_set_channel_enabled(5, (Mute & (1 << 3)) ? 0 : 1);	//noise
-		ws_audio_set_channel_enabled(6, (Mute & (1 << 2)) ? 0 : 1);	//sweep
-		ws_audio_set_channel_enabled(7, (Mute & (1 << 1)) ? 0 : 1);	//hyper voice
+//		for (unsigned i = 0; i < 4; i++)
+//		{
+//			ws_audio_set_channel_enabled(i, (Mute & (1 << i)) ? 0 : 1);
+//		}
+//
+//		ws_audio_set_channel_enabled(4, (Mute & (1 << 1)) ? 0 : 1);	//voice
+//		ws_audio_set_channel_enabled(5, (Mute & (1 << 3)) ? 0 : 1);	//noise
+//		ws_audio_set_channel_enabled(6, (Mute & (1 << 2)) ? 0 : 1);	//sweep
+//		ws_audio_set_channel_enabled(7, (Mute & (1 << 1)) ? 0 : 1);	//hyper voice
+        
+        for (unsigned i = 0; i < 4; i++) {
+            ws_audio_set_channel_enabled(i, (Mute & (1 << i)) ? 0 : 1);
+        }
+        ws_audio_set_channel_enabled(4, (Mute & (1 << 4)) ? 0 : 1);    //voice
+        ws_audio_set_channel_enabled(5, (Mute & (1 << 5)) ? 0 : 1);    //noise
+        ws_audio_set_channel_enabled(6, (Mute & (1 << 2)) ? 0 : 1);    //sweep
+        ws_audio_set_channel_enabled(7, (Mute & (1 << 4)) ? 0 : 1);    //hyper voice
 
 		return;
 	}
@@ -130,6 +143,7 @@ namespace oswan
 	//refferd to viogsf's drvimpl.cpp. thanks the author.
 	int UpdateWSR(void* pBuf, unsigned Buflen, unsigned Samples)
 	{
+        int vgm_cleaned=0;//YOYOFR
 		int ret = 0;
 		uint32_t bytes = Samples << 2;
 		uint8_t* des = (uint8_t*)pBuf;
@@ -144,6 +158,12 @@ namespace oswan
 			{
 				g_buffer.cur = 0;
 				g_buffer.fil = 0;
+                
+                if (!vgm_cleaned) {
+                    memset(vgm_last_note,0,sizeof(vgm_last_note));
+                    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                    vgm_cleaned=1;
+                }
 
 				WsExecuteLine(NULL, FALSE);
 

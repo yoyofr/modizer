@@ -1292,11 +1292,14 @@ static void WsWaveSet(BYTE voice, BYTE hvoice_l, BYTE hvoice_r)
     
     //YOYOFR
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/48000;
-    for (int jj=0;jj<5;jj++) {
+    for (int jj=0;jj<6;jj++) {
         int64_t ofs_start=m_voice_current_ptr[jj];
         int64_t ofs_end=(m_voice_current_ptr[jj]+smplIncr);
         
-    int val=((MAXVAL(lVol[jj],rVol[jj])+VV+MAXVAL(HVL,HVR))*WsWaveVol)>>6;
+        int val;
+        if (jj<4) val=(MAXVAL(lVol[jj],rVol[jj])*WsWaveVol)>>5;
+        else if (jj==4) val=((VV+MAXVAL(HVL,HVR))*WsWaveVol)>>5;
+        else if (jj==5) val=(MAXVAL(lVol[4],rVol[4])*WsWaveVol)>>5;
         if (ofs_end>ofs_start)
             for (;;) {
                 m_voice_buff[jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val );
@@ -1305,6 +1308,28 @@ static void WsWaveSet(BYTE voice, BYTE hvoice_l, BYTE hvoice_r)
             }
         while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
         m_voice_current_ptr[jj]=ofs_end;
+    }
+    //YOYOFR
+    
+    //YOYOFR
+    static int last_chanout[6];
+    for (int ii=0;ii<6;ii++) {
+        int val;
+        if (ii<4) val=MAXVAL(lVol[ii],rVol[ii])*WsWaveVol;
+        else if( ii==4) val=MAXVAL(MAXVAL(VV,HVL),HVR)*WsWaveVol;
+        else val=MAXVAL(lVol[4],rVol[4])*WsWaveVol;
+        if ( channel_is_playing[ii] && (val!=last_chanout[ii])) {
+            int vol=0;
+            vol=MAXVAL(ChCurLVol[ii],ChCurRVol[ii]);
+            
+            if (vol) {
+                if ( (ii==0)||(ii==1)||(ii==2)||(ii==3)||(ii==5)) vgm_last_note[ii]=440.0*(double)ws_audio[ii].delta/65536.0;
+                else vgm_last_note[ii]=220;
+                vgm_last_sample_addr[ii]=ii;
+                vgm_last_vol[ii]=1;
+            }
+        }
+        last_chanout[ii]=val;
     }
     //YOYOFR
 

@@ -597,6 +597,7 @@ static int *mdz_ArchiveEntryPlayed;
 static int *mdz_SubsongPlayed;
 
 int64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
+double mdz_pbratio;
 
 //vgmplay
 
@@ -3201,7 +3202,7 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
         (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG)||
-        (mPlayType==MMP_FMPMINI) ) return true;
+        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR) ) return true;
     return false;
 }
 
@@ -5013,6 +5014,54 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                             }
+                            if (mPlayType==MMP_WSR) {//WSR
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
+                                bGlobalSeekProgress=-1;
+                                
+                                //stop playback rate change for the time it will take to seek position
+                                mdz_ratio_fp_inc=0;
+                                mdz_ratio_fp_inv_inc=0;
+                                
+                                if (mCurrentSamples > mSeekSamples) {
+                                    if (m3uReader.size()) {
+                                        s_coreSwan->pResetWSR(m3uReader[mod_currentsub].track);
+                                    } else {
+                                        s_coreSwan->pResetWSR(wsr_tracks[mod_currentsub-mod_minsub]);
+                                    }
+                                    mCurrentSamples=0;
+                                }
+                                mStartPosSamples=mCurrentSamples;
+                                
+                                while (mSeekSamples > mCurrentSamples) {
+                                    int64_t bufsize=mSeekSamples - mCurrentSamples;
+                                    if (bufsize>SOUND_BUFFER_SIZE_SAMPLE) bufsize=SOUND_BUFFER_SIZE_SAMPLE;
+                                    
+                                    int howmany=bufsize*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+                                    s_coreSwan->pUpdateWSR(buffer_ana[buffer_ana_gen_ofs], howmany*4, howmany);
+                                    mCurrentSamples += bufsize;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
+                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
+                                        mSeekSamples=mCurrentSamples;
+                                        break;
+                                    }
+                                }
+                                
+                                for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                    m_voice_prev_current_ptr[j]=0;
+                                    m_voice_current_ptr[j]=1024<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                }
+                                
+                                //restore PB ratio
+                                [self optGENPBRatio];
+                                
+                            }
                             if (mPlayType==MMP_PT3) {//PT3
                                 int64_t mStartPosSamples;
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
@@ -5411,8 +5460,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE*4*4);
                                     }
                                 }
-                                
-                                
                                 
                                 mCurrentSamples=hc_currentSample;
                             }
@@ -7052,15 +7099,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                         }
                         if (mPlayType==MMP_WSR) { //WSR
-                            
-                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                             
-                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                            else mCurrentSamples+=nbBytes/4;
                             
                             //copy voice data for oscillo view
                             for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -9114,6 +9157,9 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     }
     s_coreSwan->pSetFrequency(48000);
     
+    //reset pb ratio
+    mdz_ratio_fp_inc=0;
+    mdz_ratio_fp_inv_inc=0;
     
     //Initi SRC samplerate converter
     int error;
@@ -9157,11 +9203,11 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
             s_coreSwan->pSetFrequency(48000);
             
             uint64_t smp = 0;
-            auto numSamples = (48000 * 4) & ~(kBufSamples - 1); // around 4 seconds check
+            auto numSamples = (48000 * 3) & ~(kBufSamples - 1); // around 3 seconds check
             while (numSamples)
             {
                 s_coreSwan->pUpdateWSR(buf, sizeof(buf), kBufSamples);
-                if (numSamples == ((48000 * 4) & ~(kBufSamples - 1)))
+                if (numSamples == ((48000 * 3) & ~(kBufSamples - 1)))
                     smp = buf[0];
                 numSamples -= kBufSamples;
                 
@@ -9205,7 +9251,23 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     
     // song info
+    mod_message[0]=0;
+    
     sprintf(mod_name," %s",mod_filename);
+    
+    if (m3uReader.info().title)
+        if (m3uReader.info().title[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,   "%sTitle...: %s\n",mod_message,m3uReader.info().title);
+    if (m3uReader.info().artist)
+        if (m3uReader.info().artist[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,  "%sArtist..: %s\n",mod_message,m3uReader.info().artist);
+    if (m3uReader.info().composer)
+        if (m3uReader.info().composer[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sComposer: %s\n",mod_message,m3uReader.info().composer);
+    if (m3uReader.info().date)
+        if (m3uReader.info().date[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,    "%sDate....: %s\n",mod_message,m3uReader.info().date);
+    if (m3uReader.info().ripping)
+        if (m3uReader.info().ripping[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2, "%sRipping.: %s\n",mod_message,m3uReader.info().ripping);
+    if (m3uReader.info().tagging)
+        if (m3uReader.info().tagging[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2, "%sTagging.: %s\n",mod_message,m3uReader.info().tagging);
+    
     mod_title=[NSString stringWithUTF8String:mod_name];
     
     if (m3uReader.info().artist)
@@ -9217,8 +9279,6 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (m3uReader.size()) {
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
     }
-    mod_message[0]=0;
-    
     
     mCurrentSamples=0;
     
@@ -9239,7 +9299,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     iCurrentTime=0;
     mCurrentSamples=0;
     
-    numChannels=5; //4channels + noise
+    numChannels=6; //4channels + voice + noise
     m_voicesDataAvail=1;
     m_genNumVoicesChannels=numChannels;
     for (int i=0;i<m_genNumVoicesChannels;i++) {
@@ -9274,6 +9334,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         [self mmp_updateDBStatsAtLoad];
     }
     
+    [self optGENPBRatio];
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
@@ -15718,10 +15779,14 @@ extern bool icloud_available;
         mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_ratio_fp_inv_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_ratio_fp_cnt=0;
+        mdz_pbratio=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
     } else {
         mdz_ratio_fp_inc=0;
         mdz_ratio_fp_inv_inc=0;
+        mdz_pbratio=1;
     }
+    
+    
 }
 
 ///////////////////////////
@@ -16125,7 +16190,7 @@ extern "C" void adjust_amplification(void);
 -(BOOL) isPBRatioSupported {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||
-        (mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP) ) return TRUE;
+        (mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||(mPlayType==MMP_WSR) ) return TRUE;
     return FALSE;
 }
 
@@ -16140,6 +16205,7 @@ extern "C" void adjust_amplification(void);
         case MMP_WEBSID:
         case MMP_OPENMPT:
         case MMP_XMP:
+        case MMP_WSR:
             return 0.2;
     }
     return 1;
@@ -16155,6 +16221,7 @@ extern "C" void adjust_amplification(void);
         case MMP_SIDPLAY:
         case MMP_WEBSID:
         case MMP_OPENMPT:
+        case MMP_WSR:
             return 3;
     }
     return 1;
@@ -16271,7 +16338,9 @@ extern "C" void adjust_amplification(void);
         case MMP_V2M:
             return [NSString stringWithFormat:@"#%d-V2",channel+1];
         case MMP_WSR:
-            return [NSString stringWithFormat:@"#%d-WSR",channel+1];
+            if (channel<4) return [NSString stringWithFormat:@"#%d-PCM",channel+1];
+            else if (channel<5) return [NSString stringWithFormat:@"#%d-Voice",channel+1];
+            else return [NSString stringWithFormat:@"#%d-Noise",channel+1];
         case MMP_PIXEL: {
             if (pixel_organya_mode) {
                 return [NSString stringWithFormat:@"#%d-Organya",channel+1];
@@ -16889,6 +16958,7 @@ extern "C" void adjust_amplification(void);
 }
 
 -(void) setm_voicesStatus:(bool)active index:(unsigned int)channel {
+    int new_mutemask=0;
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
@@ -16972,17 +17042,16 @@ extern "C" void adjust_amplification(void);
             else generic_mute_mask|=(1<<channel);
             break;
         case MMP_2SF:
-        {
-            int new_2sf_mutemask=0;
-            for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_2sf_mutemask|=1<<i;
-            ds_set_mute_mask(new_2sf_mutemask);
-        }
+            for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_mutemask|=1<<i;
+            ds_set_mute_mask(new_mutemask);
             break;
-        case MMP_FMPMINI: {
-            int new_mutemask=0;
+        case MMP_FMPMINI:
             for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_mutemask|=1<<i;
             fmpmini_mute(new_mutemask);
-        }
+            break;
+        case MMP_WSR:
+            for (int i=0;i<m_genNumVoicesChannels;i++) if (!(m_voicesStatus[i])) new_mutemask|=1<<i;
+            s_coreSwan->pSetChannelMuting(new_mutemask);
             break;
         case MMP_NCSF:
             xSFPlayer->MuteChannels(channel,active);
@@ -16995,11 +17064,6 @@ extern "C" void adjust_amplification(void);
                 if (!active) pixel_pxtn->mute_mask|=1<<channel;
                 else pixel_pxtn->mute_mask&=~1<<channel;
             }
-            break;
-        case MMP_WSR:
-            //TODO
-            //if (active) HC_voicesMuteMask1|=1<<channel;
-            //else HC_voicesMuteMask1&=~(1<<channel);
             break;
         case MMP_UADE:
             if (active) HC_voicesMuteMask1|=1<<channel;

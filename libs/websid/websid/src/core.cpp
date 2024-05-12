@@ -111,21 +111,17 @@ void runEmulation(uint8_t is_simple_sid_mode, int16_t* synth_buffer,
 		// most relevant case.. only one SID
 		for (int i= 0; i<samples_per_call; i++) {
 			while(_sample_cycles < n) {
-
 				// clocking used for "normal" songs". note: for a slow garbage song
 				// like Baroque_Music_64_BASIC the sysClockOpt()/SID::isAudible()  bring down
 				// the "silence detection" from 33 sec to 19 secs
 
 				sysClockOpt();
-				//_sample_cycles++; //YOYOFR
-                if (mdz_ratio_fp_inc) _sample_cycles+=(double)mdz_ratio_fp_inc/65536.0;
-                else _sample_cycles++;
+				_sample_cycles++;
 			}
 			_sample_cycles -= n;	// keep overflow
 
 			SID::synthSamplesSingleSID(synth_buffer, synth_trace_bufs, i);
 		}
-
 	} else {
 
 		if (is_simple_sid_mode) {

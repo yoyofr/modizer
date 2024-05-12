@@ -49,6 +49,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
     pbRatioValue=NULL;
     pbRatioLblValue=NULL;
     
+    self.view.backgroundColor=[UIColor colorWithWhite:0 alpha:0.2];
+    self.scrollView.backgroundColor=[UIColor colorWithWhite:0 alpha:0];
+    
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 }
@@ -435,9 +438,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 red=(float)((m_voice_systemColor[i]>>16)&255)/255.0f;
                 green=(float)((m_voice_systemColor[i]>>8)&255)/255.0f;
                 blue=(float)((m_voice_systemColor[i]>>0)&255)/255.0f;
-                voicesChipCol[i]=[UIColor colorWithRed:red*2/3
-                                                 green:green*2/3
-                                                  blue:blue*2/3
+                voicesChipCol[i]=[UIColor colorWithRed:red*4/5
+                                                 green:green*4/5
+                                                  blue:blue*4/5
                                                  alpha:1];  //[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.9f brightness:0.8f alpha:1.0f];
                 voicesChipColHalf[i]=[UIColor colorWithRed:red/3
                                                      green:green/3

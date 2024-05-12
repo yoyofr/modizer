@@ -375,58 +375,38 @@ int SID::clock(unsigned int cycles, short* buf)
         {
             for (unsigned int i = 0; i < delta_t; i++)
             {
-                // clock waveform generators
-                voice[0]->wave()->clock();
-                voice[1]->wave()->clock();
-                voice[2]->wave()->clock();
+                if (mdz_ratio_fp_inc==0) mdz_ratio_fp_cnt+=65536;
+                else mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
                 
-                // clock envelope generators
-                voice[0]->envelope()->clock();
-                voice[1]->envelope()->clock();
-                voice[2]->envelope()->clock();
-                
-                //TODO:  MODIZER changes start / YOYOFR
-                /*if (unlikely(resampler->input(output())))
-                 {
-                 buf[s++] = resampler->getOutput(scaleFactor);
-                 }*/
-                if (!mSIDSeekInProgress) {
-                    if ((unlikely(resampler->input(output()))))
-                    {
-                        int cnt=0;
-                        if (all_muted) {
-                            buf[s]=0;
-                            if (mdz_ratio_fp_inc) {
-                                mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
-                                while (mdz_ratio_fp_cnt>(1<<16)) {
-                                    mdz_ratio_fp_cnt-=1<<16;
-                                    s++;
-                                    cnt++;
-                                    buf[s]=buf[s-1];
-                                }
+                while (mdz_ratio_fp_cnt>=65536) {
+                    mdz_ratio_fp_cnt-=65536;
+                    
+                    // clock waveform generators
+                    voice[0]->wave()->clock();
+                    voice[1]->wave()->clock();
+                    voice[2]->wave()->clock();
+                    
+                    // clock envelope generators
+                    voice[0]->envelope()->clock();
+                    voice[1]->envelope()->clock();
+                    voice[2]->envelope()->clock();
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    /*if (unlikely(resampler->input(output())))
+                     {
+                     buf[s++] = resampler->getOutput(scaleFactor);
+                     }*/
+                    if (!mSIDSeekInProgress) {
+                        if ((unlikely(resampler->input(output()))))
+                        {
+                            if (all_muted) {
+                                buf[s]=0;
+                                sid_v4=0;
                             } else {
+                                buf[s] = resampler->getOutput(scaleFactor);
                                 s++;
-                                cnt++;
                             }
-                            sid_v4=0;
-                        } else {
                             
-                            buf[s] = resampler->getOutput(scaleFactor);
-                            if (mdz_ratio_fp_inc) {
-                                mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
-                                while (mdz_ratio_fp_cnt>(1<<16)) {
-                                    mdz_ratio_fp_cnt-=1<<16;
-                                    s++;
-                                    cnt++;
-                                    buf[s]=buf[s-1];
-                                }
-                            } else {
-                                s++;
-                                cnt++;
-                            }
-                        }
-                        
-                        for (int jj=0;jj<cnt;jj++) {
                             for (int j=0;j<4;j++) {
                                 m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
                                 m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
@@ -437,30 +417,17 @@ int SID::clock(unsigned int cycles, short* buf)
                                 m_voice_current_ptr[sid_idx+j]+=smplIncr;
                                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             }
+                            
+                            //TODO:  MODIZER changes end / YOYOFR
                         }
-                        
-                        //TODO:  MODIZER changes end / YOYOFR
-                    }
-                } else {
-                    if (unlikely(resampler->input(0))) {
-                        int cnt=0;
-                        //s++;
-                        buf[s]=0;
-                        if (mdz_ratio_fp_inc) {
-                            mdz_ratio_fp_cnt+=mdz_ratio_fp_inc;
-                            while (mdz_ratio_fp_cnt>(1<<16)) {
-                                mdz_ratio_fp_cnt-=1<<16;
-                                s++;
-                                cnt++;
-                                buf[s]=buf[s-1];
-                            }
-                        } else {
+                    } else {
+                        if (unlikely(resampler->input(0))) {
+                            int cnt=0;
+                            //s++;
+                            buf[s]=0;
                             s++;
-                            cnt++;
-                        }
-                        
-                        //TODO:  MODIZER changes start / YOYOFR
-                        for (int jj=0;jj<cnt;jj++) {
+                            
+                            //TODO:  MODIZER changes start / YOYOFR
                             for (int j=0;j<4;j++) {
                                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
                                 
