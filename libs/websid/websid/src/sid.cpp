@@ -51,6 +51,13 @@
 // todo: with the added external filter Hermit's antialiasing might no longer make sense
 // and the respective handling may be the source of high-pitched noise during PWM/FM digis..
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
@@ -331,7 +338,7 @@ uint8_t SID::setSID6581(bool set_6581) {
 
     //YOYOFR
     for (int i=0;i<MAX_SIDS;i++) _sid_is_6581[i]  = set_6581;
-    //YOYOFR
+    //
 	SID::setModels(_sid_is_6581);
 	return 0;
 }
@@ -607,6 +614,8 @@ void SID::synthSample(int16_t** synth_trace_bufs, uint32_t offset, int32_t *s_l,
             
 			int32_t o = _vol_scale * ( env_out * (outv + _wf_zero) + _dac_offset);
 			vout[voice_idx]= _filter->getVoiceOutput(voice_idx, &o);
+            
+            vgm_last_vol[m_voice_current_system*4+voice_idx]= env_out;//YOYOFR
 
 			// trace output (always make it 16-bit)
 			if (synth_trace_bufs) {
@@ -783,6 +792,8 @@ void SID::synthSamplesSingleSID(int16_t* buffer, int16_t** synth_trace_bufs, uin
 	// most relevant: single-SID case
 
 	int16_t *dest = buffer + (offset << 1);
+    
+    m_voice_current_system=0; //YOYOFR
 
 	if (SID::isAudible()) {
 		const uint8_t i= 0;
@@ -814,6 +825,9 @@ void SID::synthSamplesMultiSID(int16_t* buffer, int16_t** synth_trace_bufs, uint
 			int16_t **sub_buf = !synth_trace_bufs ? 0 : &synth_trace_bufs[i << 2];	// each sid uses 4 entries..
 
 			int32_t s_l, s_r;
+            
+            m_voice_current_system=i; //YOYOFR
+            
 			sid.synthSample(sub_buf, offset, &s_l, &s_r);
 
 			final_sample_l += s_l;

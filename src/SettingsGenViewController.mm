@@ -436,7 +436,13 @@ void optNSFPLAYChangedC(id param) {
 +(void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer; {
     float start_pos,mul_factor,sat;
     
-    switch (_mode) {
+    switch (_mode%3) {
+        case 2:
+            start_pos=240.0f/360.0f;
+            mul_factor=(1.45f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=0.7f;
+            if ((color_idx<0)||(color_idx==0)) settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb=0x00FF00;
+            break;
         case 1:
             start_pos=130.0f/360.0f;
             mul_factor=(1.7f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
@@ -474,7 +480,7 @@ void optNSFPLAYChangedC(id param) {
 +(void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer{
     float start_pos,mul_factor,sat;
     
-    switch (_mode) {
+    switch (_mode%3) {
         case 0:
             start_pos=220.0f/360.0f;
             mul_factor=(0.4f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
@@ -482,7 +488,12 @@ void optNSFPLAYChangedC(id param) {
             break;
         case 1:
             start_pos=240.0f/360.0f;
-            mul_factor=(9.5f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            mul_factor=(9.3f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            sat=1.0f;
+            break;
+        case 2:
+            start_pos=120.0f/360.0f;
+            mul_factor=(1.7f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=1.0f;
             break;
         default:
@@ -1789,11 +1800,12 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_MULTI_COLORSET].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[OSCILLO_MULTI_COLORSET].sub_family=0;
     settings[OSCILLO_MULTI_COLORSET].callback=&optOSCILLOColorChangedC;
-    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=3;
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=4;
     settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
     settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Set 2";
-    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Custom";
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Set 3";
+    settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
     SETTINGS_ID_DEF(OSCILLO_MULTI_RESETALL)
     settings[OSCILLO_MULTI_RESETALL].label=(char*)"Reset all";
@@ -1880,11 +1892,12 @@ void optNSFPLAYChangedC(id param) {
     settings[PIANOMIDI_MULTI_COLORSET].description=(char*)"Choose between 2 standard sets or customized colors";
     settings[PIANOMIDI_MULTI_COLORSET].family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
     settings[PIANOMIDI_MULTI_COLORSET].sub_family=0;
-    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=3;
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value_nb=4;
     settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels=(char**)malloc(settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[0]=(char*)"Set 1";
     settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[1]=(char*)"Set 2";
-    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Custom";
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[2]=(char*)"Set 3";
+    settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_labels[3]=(char*)"Cust.";
     
     SETTINGS_ID_DEF(PIANOMIDI_MULTI_RESETALL)
     settings[PIANOMIDI_MULTI_RESETALL].label=(char*)"Reset all";
@@ -3482,12 +3495,12 @@ void optNSFPLAYChangedC(id param) {
     
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"PIANOMIDI_MULTI_RESETALL")==0) {
         
-        [SettingsGenViewController pianomidiGenSystemColor:(settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value%2) color_idx:-1 color_buffer:NULL];
+        [SettingsGenViewController pianomidiGenSystemColor:(settings[PIANOMIDI_MULTI_COLORSET].detail.mdz_switch.switch_value) color_idx:-1 color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_PIANOMIDI];
         [tableView reloadData];
     }
     if (strcmp(settings[cur_settings_idx[indexPath.section]].setting_id,"OSCILLO_MULTI_RESETALL")==0) {
-        [SettingsGenViewController oscilloGenSystemColor:(settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value%2) color_idx:-1 color_buffer:NULL];
+        [SettingsGenViewController oscilloGenSystemColor:(settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value) color_idx:-1 color_buffer:NULL];
         [detailViewController settingsChanged:(int)SETTINGS_OSCILLO];
         [tableView reloadData];
     }

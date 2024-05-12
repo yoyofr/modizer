@@ -517,6 +517,7 @@ int64_t m_voice_prev_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 
 unsigned int m_voice_oscillo_pal1[8];
 unsigned int m_voice_oscillo_pal2[8];
+unsigned int m_voice_oscillo_pal3[8];
 
 int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];
@@ -6918,7 +6919,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             {
                                 Core::runOneFrame(is_simple_sid_mode, speed, buffer_ana[buffer_ana_gen_ofs],
                                                   websid_scope_buffers, SOUND_BUFFER_SIZE_SAMPLE);
-                                mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                                if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                                else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
                                 if (websid_sound_started || SID::isAudible())
                                 {
@@ -6944,14 +6946,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //int idx=SID::getFreq(i) ;//sidplay_getNote(registers[0x00 + i * 0x07] | (registers[0x01 + i * 0x07] << 8));
                                     if ((idx>=0)&&m_voicesStatus[i+j*4]) {
                                         unsigned int vol=websid::SidSnapshot::getRegister(j,(0x04 + i * 0x07),0xFF,0xFF) & 0x01;
+                                        vol=vgm_last_vol[i+j*4];
                                         unsigned int subidx=vgm_getSubNote(i+j*4);
                                         
-                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
-                                        idx|
-                                        ((i+j*3)<<8)|
-                                        (vol<<16)|
-                                        ((1<<1)<<24)|
-                                        (subidx<<28);
+                                        if (idx && vol) {
+                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                            idx|
+                                            ((i+j*3)<<8)|
+                                            (vol<<16)|
+                                            ((1<<1)<<24)|
+                                            (subidx<<28);
+                                        }
                                     }
                                     voices_idx++;
                                 }
@@ -7023,12 +7028,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             unsigned int subidx=vgm_getSubNote(i+j*4);
                                             unsigned int vol=vgm_last_vol[i+j*4];//(registers[0x04 + i * 0x07] & 0x01);
                                             //printf("ch %d note %d vol %d\n",i,idx,vol);
-                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
-                                            idx|
-                                            ((i+j*3)<<8)|
-                                            (vol<<16)|
-                                            ((1<<1)<<24)|
-                                            (subidx<<28);
+                                            
+                                            if (idx && vol) {
+                                                tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                                idx|
+                                                ((i+j*3)<<8)|
+                                                (vol<<16)|
+                                                ((1<<1)<<24)|
+                                                (subidx<<28);
+                                            }
                                         }
                                         voices_idx++;
                                     }
@@ -16154,6 +16162,7 @@ extern "C" void adjust_amplification(void);
     for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
         if (settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value==0) m_voice_systemColor[i]=m_voice_oscillo_pal1[i];
         else if (settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value==1) m_voice_systemColor[i]=m_voice_oscillo_pal2[i];
+        else if (settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value==2) m_voice_systemColor[i]=m_voice_oscillo_pal3[i];
         else m_voice_systemColor[i]=settings[OSCILLO_MULTI_COLOR01+i].detail.mdz_color.rgb;
     }
     for (int i=0;i<m_genNumVoicesChannels;i++) {

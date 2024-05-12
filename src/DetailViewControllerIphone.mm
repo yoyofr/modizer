@@ -55,10 +55,12 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 
 extern unsigned int data_midifx_pal1[32];
 extern unsigned int data_midifx_pal2[32];
+extern unsigned int data_midifx_pal3[32];
 extern unsigned int data_midifx_pal_custom[32];
 
 extern unsigned int m_voice_oscillo_pal1[8];
 extern unsigned int m_voice_oscillo_pal2[8];
+extern unsigned int m_voice_oscillo_pal3[8];
 
 #include <QuartzCore/CADisplayLink.h>
 #import <OpenGLES/EAGLDrawable.h>
@@ -5641,9 +5643,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
     [SettingsGenViewController pianomidiGenSystemColor:1 color_idx:-1 color_buffer:data_midifx_pal2];
+    [SettingsGenViewController pianomidiGenSystemColor:2 color_idx:-1 color_buffer:data_midifx_pal3];
     
     [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:m_voice_oscillo_pal1];
     [SettingsGenViewController oscilloGenSystemColor:1 color_idx:-1 color_buffer:m_voice_oscillo_pal2];
+    [SettingsGenViewController oscilloGenSystemColor:2 color_idx:-1 color_buffer:m_voice_oscillo_pal3];
     
     end_time=clock();
 #ifdef LOAD_PROFILE
