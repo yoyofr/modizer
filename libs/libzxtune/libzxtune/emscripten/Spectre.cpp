@@ -44,6 +44,8 @@
 #include "sound/service.h"
 #include "sound/render_params.h"
 
+#include "core/plugins/enumerator.h"
+
 
 //std includes
 #include <map>
@@ -294,7 +296,33 @@ public:
 	int getSampleRate() {
 		return _sampleRate;
 	}
-protected: 
+    
+    char *get_all_extension() {
+        std::cout<<"Player plugins\n";
+        const ZXTune::PlayerPluginsEnumerator::Ptr usedPlugins = ZXTune::PlayerPluginsEnumerator::Create();
+        for (ZXTune::PlayerPlugin::Iterator::Ptr iter = usedPlugins->Enumerate(); iter->IsValid(); iter->Next())
+        {
+          const ZXTune::PlayerPlugin::Ptr plugin = iter->Get();
+            std::cout<<plugin->GetDescription()->Id()<<",";
+//          if (DataLocation::Ptr result = plugin->Open(coreParams, location, subPath))
+//          {
+//            return result;
+//          }
+        }
+        std::cout<<"\nArchive plugins\n";
+        const ZXTune::ArchivePluginsEnumerator::Ptr usedAPlugins = ZXTune::ArchivePluginsEnumerator::Create();
+        for (ZXTune::ArchivePlugin::Iterator::Ptr iter = usedAPlugins->Enumerate(); iter->IsValid(); iter->Next())
+        {
+          const ZXTune::ArchivePlugin::Ptr plugin = iter->Get();
+            std::cout<<plugin->GetDescription()->Description()<<"\n";
+//          if (DataLocation::Ptr result = plugin->Open(coreParams, location, subPath))
+//          {
+//            return result;
+//          }
+        }
+        return NULL;
+    }
+protected:
 	std::string get_subpath(unsigned int p_subsong, SongInfo & p_info) {
 		const char* subpath = p_info.get_subpath();
 		if(subpath && strlen(subpath))
@@ -372,3 +400,6 @@ int ZxTuneWrapper::get_channels_count() {
 }
 
 
+char *ZxTuneWrapper::get_all_extension() {
+    return _pimpl->get_all_extension();
+}

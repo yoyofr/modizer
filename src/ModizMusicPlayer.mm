@@ -10939,6 +10939,8 @@ char* loadRom(const char* path, size_t romSize)
     try {
         mdz_zxtune=new ZxTuneWrapper(std::string([filePath UTF8String]),mdz_fileBuffer,mdz_fileBufferLen,PLAYBACK_FREQ);
         mdz_zxtune->parseModules();
+        
+        mdz_zxtune->get_all_extension();
     }
     catch (const std::exception&) {
         NSLog(@"ZXTune: cannot read file %@",filePath);

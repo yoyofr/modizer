@@ -58,6 +58,8 @@ public:
 	int getSampleRate();
     
     int get_channels_count();
+    
+    char *get_all_extension();
 protected:
 	class ZxTuneWrapperImpl;
     ZxTuneWrapperImpl* _pimpl;
