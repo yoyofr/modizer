@@ -252,6 +252,7 @@
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].info=dbWEB_entries[i][j].info;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].has_letter_index=dbWEB_entries[i][j].has_letter_index;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -275,50 +276,51 @@
         NSString *webSite_name;
         NSString *webSite_baseDir;
         NSString *category;
+        bool has_letter_index;
     } t_webSite_entry;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_webSite_entry webs_entry[]= {
         //computers
-        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers"},
-        {@"http://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers"},
-        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers"},
-        {@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers"},
-        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers"},
+        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE},
+        {@"http://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE},
+        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE},
+        {@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE},
+        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE},
         //consoles
-        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles"},
-        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles"},
-        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles"},
-        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles"},
-        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles"},
-        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles"},
-        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles"},
-        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles"},
-        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles"},
-        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles"},
-        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles"},
-        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles"},
-        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles"},
-        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles"},
-        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles"},
-        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles"},
-        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles"},
-        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles"},
-        {@"http://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles"},
-        {@"http://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles"},
-        {@"http://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles"},
-        {@"http://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles"},
-        {@"http://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles"},
+        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE},
+        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE},
+        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE},
+        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE},
+        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE},
+        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE},
+        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE},
+        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE},
+        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE},
+        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE},
+        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE},
+        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",TRUE},
+        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE},
+        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE},
+        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE},
+        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE},
+        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE},
+        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE},
+        {@"http://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE},
+        {@"http://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE},
+        {@"http://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles",TRUE},
+        {@"http://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles",TRUE},
+        {@"http://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE},
         //portables
-        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables"},
-        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables"},
-        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables"},
-        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables"},
-        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables"},
-        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables"},
-        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables"},
-        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables"},
-        {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables"}
+        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE},
+        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE},
+        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE},
+        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE},
+        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE},
+        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE},
+        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE},
+        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE},
+        {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE}
     };
     
     //NSLog(@"categ: %@",mWebBaseDir);
@@ -374,6 +376,8 @@
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->webSite_URL];
         
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
+        
+        dbWEB_entries[index][dbWEB_entries_count[index]].has_letter_index=wentry->has_letter_index;
         
         /*        dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
          dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
@@ -471,24 +475,43 @@
     
     
     //1st get the data
+    int total_url;
     data_cnt=0;
-    for (int i=0;i<27;i++) {
-        we_nb[i]=0;
-        if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",mWebBaseURL]];
-        else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",mWebBaseURL,'a'+i-1]];
-        
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-            NSData *reqData = [NSData dataWithContentsOfURL:url];
+    if (has_letter_index) {
+        total_url=27;
+        for (int i=0;i<27;i++) {
+            we_nb[i]=0;
+            if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",mWebBaseURL]];
+            else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",mWebBaseURL,'a'+i-1]];
             
-            dispatch_async(dispatch_get_main_queue(), ^(void){
-                [self fillUrlData:reqData idx:i];
+            dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                NSData *reqData = [NSData dataWithContentsOfURL:url];
+                
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self fillUrlData:reqData idx:i];
+                });
             });
-        });
+        }
+    } else {
+        total_url=1;
+        for (int i=0;i<1;i++) {
+            we_nb[i]=0;
+            url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/",mWebBaseURL]];
+            
+            dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                NSData *reqData = [NSData dataWithContentsOfURL:url];
+                
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self fillUrlData:reqData idx:i];
+                });
+            });
+        }
     }
     
     NSDate *start_date=[NSDate date];
     bool timeout_msg=false;
-    while (data_cnt<27) {
+    
+    while (data_cnt<total_url) {
         [NSThread sleepForTimeInterval:0.1f];
         NSDate *now=[NSDate date];
         if ([now timeIntervalSinceDate:start_date]>PARSER_TIMEOUT) {
@@ -506,7 +529,7 @@
         }
     }
     
-    for (int i=0;i<27;i++) {
+    for (int i=0;i<total_url;i++) {
         we_nb[i]=0;
         /*dispatch_async(dispatch_get_main_queue(), ^(void){
             [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",i+1]];
@@ -582,11 +605,13 @@
         dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithFormat:@"Documents/%@/%@",mWebBaseDir,dbWEB_entries[index][dbWEB_entries_count[index]].label];
         
         
-        if (index==0) {
-            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/0-9/%@",mWebBaseURL,wef->file_URL];
-        } else {
-            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/%c/%@",mWebBaseURL,'a'+index-1,wef->file_URL];
-        }
+        if (has_letter_index) {
+            if (index==0) {
+                dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/0-9/%@",mWebBaseURL,wef->file_URL];
+            } else {
+                dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/%c/%@",mWebBaseURL,'a'+index-1,wef->file_URL];
+            }
+        } else dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/%@",mWebBaseURL,wef->file_URL];
         
         if (str[strlen(str)-1]!='/') dbWEB_entries[index][dbWEB_entries_count[index]].isFile=1;
         else dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
@@ -599,7 +624,7 @@
         dbWEB_entries_index++;
     }
     
-    for (int i=0;i<27;i++) {
+    for (int i=0;i<total_url;i++) {
         for (int j=0;j<we_nb[i];j++) {
             we[i][j].file_URL=nil;
             we[i][j].file_size=nil;
@@ -968,6 +993,7 @@
         childController.title = cur_db_entries[section][indexPath.row].fullpath;
         // Set new directory
         ((RootViewControllerJoshWWebParser*)childController)->browse_depth = browse_depth+1;
+        ((RootViewControllerJoshWWebParser*)childController)->has_letter_index = cur_db_entries[section][indexPath.row].has_letter_index;
         ((RootViewControllerJoshWWebParser*)childController)->detailViewController=detailViewController;
         ((RootViewControllerJoshWWebParser*)childController)->downloadViewController=downloadViewController;
         ((RootViewControllerJoshWWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;

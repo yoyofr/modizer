@@ -1,0 +1,36 @@
+/**
+*
+* @file
+*
+* @brief  DirectSound subsystem API gate implementation
+*
+* @author vitamin.caig@gmail.com
+*
+**/
+
+//local includes
+#include "dsound_api.h"
+//library includes
+#include <debug/log.h>
+#include <platform/shared_library_adapter.h>
+//boost includes
+#include <boost/make_shared.hpp>
+
+namespace
+{
+  using namespace Sound::DirectSound;
+
+<TMPL_INCLUDE NAME="api_dynamic.cpp.templ">
+}
+
+namespace Sound
+{
+  namespace DirectSound
+  {
+    Api::Ptr LoadDynamicApi()
+    {
+      const Platform::SharedLibrary::Ptr lib = Platform::SharedLibrary::Load("dsound");
+      return boost::make_shared<DynamicApi>(lib);
+    }
+  }
+}

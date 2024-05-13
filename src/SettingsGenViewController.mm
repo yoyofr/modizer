@@ -533,6 +533,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultKSSPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_value=0;
@@ -1186,6 +1187,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[0]=(char*)"NSFPLAY";
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    SETTINGS_ID_DEF(GLOB_DefaultPT3Player)
+    settings[GLOB_DefaultPT3Player].type=MDZ_SWITCH;
+    settings[GLOB_DefaultPT3Player].label=(char*)"PT3 player";
+    settings[GLOB_DefaultPT3Player].description=NULL;
+    settings[GLOB_DefaultPT3Player].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultPT3Player].sub_family=0;
+    settings[GLOB_DefaultPT3Player].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_labels[0]=(char*)"ZXTune";
+    settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_labels[1]=(char*)"PT3Player";
     
     SETTINGS_ID_DEF(GLOB_DefaultGBSPlayer)
     settings[GLOB_DefaultGBSPlayer].type=MDZ_SWITCH;

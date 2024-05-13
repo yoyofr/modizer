@@ -1,0 +1,62 @@
+/**
+*
+* @file
+*
+* @brief  FLAC subsystem API gate implementation
+*
+* @author vitamin.caig@gmail.com
+*
+**/
+
+//local includes
+#include "flac_api.h"
+//library includes
+#include <debug/log.h>
+#include <platform/shared_library_adapter.h>
+//boost includes
+#include <boost/make_shared.hpp>
+#include <boost/range/end.hpp>
+
+namespace
+{
+  using namespace Sound::Flac;
+
+  class FlacName : public Platform::SharedLibrary::Name
+  {
+  public:
+    virtual std::string Base() const
+    {
+      return "FLAC";
+    }
+    
+    virtual std::vector<std::string> PosixAlternatives() const
+    {
+      static const std::string ALTERNATIVES[] =
+      {
+        "libFLAC.so.7",
+        "libFLAC.so.8"
+      };
+      return std::vector<std::string>(ALTERNATIVES, boost::end(ALTERNATIVES));
+    }
+    
+    virtual std::vector<std::string> WindowsAlternatives() const
+    {
+      return std::vector<std::string>();
+    }
+  };
+
+<TMPL_INCLUDE NAME="api_dynamic.cpp.templ">
+}
+
+namespace Sound
+{
+  namespace Flac
+  {
+    Api::Ptr LoadDynamicApi()
+    {
+      static const FlacName NAME;
+      const Platform::SharedLibrary::Ptr lib = Platform::SharedLibrary::Load(NAME);
+      return boost::make_shared<DynamicApi>(lib);
+    }
+  }
+}

@@ -135,7 +135,7 @@ namespace oswan
 		}
 		if (length > 0)
 		{
-			memcpy(g_buffer.ptr + g_buffer.fil, finalWave, length);
+			if (finalWave) memcpy(g_buffer.ptr + g_buffer.fil, finalWave, length);
 			g_buffer.fil += length;
 		}
 	}

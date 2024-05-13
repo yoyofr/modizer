@@ -216,6 +216,8 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_WSR @"WSR"
 
+#define SUPPORTED_FILETYPE_ZXTUNE @"PT1,PT2,PT3"
+
 #define SUPPORTED_FILETYPE_PIXEL @"ORG,PTCOP,PTTUNE"
 
 #define SUPPORTED_FILETYPE_VGM @"DR0,DRO,GYM,S98,VGM,VGZ"
@@ -380,7 +382,8 @@ enum MMP_PLAYER_TYPE {
     MMP_PT3,
     MMP_PIXEL,
     MMP_GBS,
-    MMP_WSR
+    MMP_WSR,
+    MMP_ZXTUNE
 };
 
 typedef enum {

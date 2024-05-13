@@ -706,6 +706,7 @@
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC47A4AF2BF0B85700472202 /* liblibwonderswan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC47A4762BF024F400472202 /* liblibwonderswan.a */; };
+		CC47EA542BF21FD000472202 /* liblibzxtune.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC47A4CF2BF1FB3500472202 /* liblibzxtune.a */; };
 		CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE352A52B79704200E06DE1 /* liblibopenmpt-modizer.a */; };
 		CC4884AC2B7A609100BCFFCC /* 05-shuffleone-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */; };
 		CC4884AD2B7A609100BCFFCC /* 05-shuffleone-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */; };
@@ -1074,6 +1075,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC47A4652BF024F300472202;
 			remoteInfo = libwonderswan;
+		};
+		CC47A4CE2BF1FB3500472202 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC47A4BE2BF1FB3500472202;
+			remoteInfo = libzxtune;
 		};
 		CC4AF40C2BC09067006D7EFC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2231,6 +2239,7 @@
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libwonderswan.xcodeproj; path = libwonderswan/libwonderswan.xcodeproj; sourceTree = "<group>"; };
+		CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libzxtune.xcodeproj; path = libzxtune/libzxtune.xcodeproj; sourceTree = "<group>"; };
 		CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green.png"; sourceTree = "<group>"; };
 		CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green@2x.png"; sourceTree = "<group>"; };
 		CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vio2sf.xcodeproj; path = vio2sf/vio2sf.xcodeproj; sourceTree = "<group>"; };
@@ -2700,6 +2709,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC47EA542BF21FD000472202 /* liblibzxtune.a in Frameworks */,
 				CC47A4AF2BF0B85700472202 /* liblibwonderswan.a in Frameworks */,
 				CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */,
 				CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */,
@@ -3135,6 +3145,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */,
 				CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */,
 				CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */,
 				CC9A50B72BE36C8200CED1F0 /* libpmdmini.xcodeproj */,
@@ -4388,6 +4399,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CC47A4CB2BF1FB3500472202 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC47A4CF2BF1FB3500472202 /* liblibzxtune.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC4AF4092BC09067006D7EFC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -5250,6 +5269,10 @@
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
 				{
+					ProductGroup = CC47A4CB2BF1FB3500472202 /* Products */;
+					ProjectRef = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
+				},
+				{
 					ProductGroup = CC7BBD342B800AF600D8CAAE /* Products */;
 					ProjectRef = CC7BBD332B800AF600D8CAAE /* mpg123-openmpt.xcodeproj */;
 				},
@@ -5467,6 +5490,13 @@
 			fileType = archive.ar;
 			path = liblibwonderswan.a;
 			remoteRef = CC47A4752BF024F400472202 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC47A4CF2BF1FB3500472202 /* liblibzxtune.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibzxtune.a;
+			remoteRef = CC47A4CE2BF1FB3500472202 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC4AF40D2BC09067006D7EFC /* libvio2sf.a */ = {
@@ -6413,6 +6443,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
+					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",
 					"-D",
@@ -6434,6 +6465,10 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					libs/libzxtune/libzxtune/include,
+					libs/libzxtune/libzxtune/,
+				);
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = (
 					utils/libarchive/libarchive/libarchive,
@@ -6475,6 +6510,7 @@
 					libs/libvgm/libvgm,
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
+					libs/libzxtune/libzxtune/emscripten,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6533,6 +6569,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				OTHER_CFLAGS = (
+					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",
 					"-D",
@@ -6556,6 +6593,10 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					libs/libzxtune/libzxtune/include,
+					libs/libzxtune/libzxtune/,
+				);
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = (
 					utils/libarchive/libarchive/libarchive,
@@ -6597,6 +6638,7 @@
 					libs/libvgm/libvgm,
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
+					libs/libzxtune/libzxtune/emscripten,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6654,6 +6696,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				OTHER_CFLAGS = (
+					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",
 					"-D",
@@ -6677,6 +6720,10 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					libs/libzxtune/libzxtune/include,
+					libs/libzxtune/libzxtune/,
+				);
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = (
 					utils/libarchive/libarchive/libarchive,
@@ -6718,6 +6765,7 @@
 					libs/libvgm/libvgm,
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
+					libs/libzxtune/libzxtune/emscripten,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

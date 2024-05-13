@@ -90,6 +90,7 @@ enum MDZ_SETTINGS {
     GLOB_DefaultMIDIPlayer,
     GLOB_DefaultMODPlayer,
     GLOB_DefaultNSFPlayer,
+    GLOB_DefaultPT3Player,
     GLOB_DefaultSAPPlayer,
     GLOB_DefaultSIDPlayer,
     GLOB_DefaultVGMPlayer,

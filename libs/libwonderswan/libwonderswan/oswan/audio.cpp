@@ -1323,7 +1323,7 @@ static void WsWaveSet(BYTE voice, BYTE hvoice_l, BYTE hvoice_r)
             vol=MAXVAL(ChCurLVol[ii],ChCurRVol[ii]);
             
             if (vol) {
-                if ( (ii==0)||(ii==1)||(ii==2)||(ii==3)||(ii==5)) vgm_last_note[ii]=440.0*(double)ws_audio[ii].delta/65536.0;
+                if ( (ii==0)||(ii==1)||(ii==2)||(ii==3)||(ii==5)) vgm_last_note[ii]=3*440.0*(double)ws_audio[ii].delta/65536.0;
                 else vgm_last_note[ii]=220;
                 vgm_last_sample_addr[ii]=ii;
                 vgm_last_vol[ii]=1;

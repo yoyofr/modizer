@@ -109,6 +109,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int mClickedPrimAction;    
 @public
     int browse_depth;
+    bool has_letter_index;
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet DownloadViewController *downloadViewController;
     NSString *mWebBaseURL;

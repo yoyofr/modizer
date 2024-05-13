@@ -1,0 +1,15 @@
+CALLTYPE=WINAPI
+DEBUGMODULE=Sound::Backend::Win32
+UINT waveOutGetNumDevs()
+MMRESULT waveOutGetDevCapsA(UINT_PTR uDeviceID, LPWAVEOUTCAPSA pwoc, UINT cbwoc)
+MMRESULT waveOutOpen(LPHWAVEOUT phwo, UINT uDeviceID, LPCWAVEFORMATEX pwfx, DWORD_PTR dwCallback, DWORD_PTR dwInstance, DWORD fdwOpen)
+MMRESULT waveOutClose(HWAVEOUT hwo)
+MMRESULT waveOutPrepareHeader(HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
+MMRESULT waveOutUnprepareHeader(HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
+MMRESULT waveOutWrite(HWAVEOUT hwo, LPWAVEHDR pwh, IN UINT cbwh)
+MMRESULT waveOutGetErrorTextA(MMRESULT mmrError, LPSTR pszText, UINT cchText)
+MMRESULT waveOutPause(HWAVEOUT hwo)
+MMRESULT waveOutRestart(HWAVEOUT hwo)
+MMRESULT waveOutReset(HWAVEOUT hwo)
+MMRESULT waveOutGetVolume(HWAVEOUT hwo, LPDWORD pdwVolume)
+MMRESULT waveOutSetVolume(HWAVEOUT hwo, DWORD dwVolume)

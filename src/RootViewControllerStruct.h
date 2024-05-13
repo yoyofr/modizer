@@ -88,4 +88,5 @@ typedef struct {
     short int playcount;
     signed char rating;
     char channels_nb;    
+    bool has_letter_index;
 } t_WEB_browse_entry;
