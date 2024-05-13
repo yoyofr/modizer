@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include <devices/dac.h>
 #include <devices/details/freq_table.h>
@@ -400,6 +405,29 @@ namespace DAC
           ChannelState& state = State[chan];
           result[chan] = state.GetNearest();
           state.Next();
+            
+            //YOYOFR
+            int64_t smplIncr;
+            smplIncr=1<<16;
+            int m_voice_ofs=0;
+            int j=chan;
+                int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                int chanout;
+
+                chanout = result[chan];
+                
+                if (ofs_end>ofs_start)
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (chanout>>10) );
+                        ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                //YOYOFR
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
+            //YOYOFR
         }
         target.Add(Mixer.ApplyData(result));
       }

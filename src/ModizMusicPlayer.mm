@@ -4755,6 +4755,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 v2m_player->Play(mNeedSeekTime);
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                             }
+                            if (mPlayType==MMP_ZXTUNE) { //ZXTUNE
+                                bGlobalSeekProgress=-1;
+                                mdz_zxtune->seek_position(mNeedSeekTime);
+                                mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                            }
                             if (mPlayType==MMP_WEBSID) { //WEBSID
                                 int64_t mStartPosSamples;
                                 int64_t mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
@@ -5942,6 +5947,38 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_PT3) {//PT3
                                 //subsong not supported
+                            } else if (mPlayType==MMP_ZXTUNE) {//ZXTUNE
+                                zxtune_song_info.reset();
+                                mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
+                                mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+                                
+                                if (zxtune_song_info.get_title())
+                                    if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
+                                
+                                iModuleLength=mdz_zxtune->get_max_position();
+                                
+                                for (int j=0;j<m_genNumVoicesChannels;j++) {
+                                    m_voice_prev_current_ptr[j]=0;
+                                    m_voice_current_ptr[j]=0<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                }
+                                
+                                iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
+                                mCurrentSamples=0;
+                                
+                                if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
+                                
+                                mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+                                if (mLoopMode) iModuleLength=-1;
+                                
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
+                                // song info
+                                
+                                while (mod_message_updated) {
+                                    usleep(1);
+                                }
+                                mod_message_updated=2;
                             } else if (mPlayType==MMP_WSR) {//WSR
                                 if (m3uReader.size()) {
                                     s_coreSwan->pResetWSR(m3uReader[mod_currentsub].track); //s_coreSwan->pGetFirstSong()
@@ -10940,7 +10977,7 @@ char* loadRom(const char* path, size_t romSize)
         mdz_zxtune=new ZxTuneWrapper(std::string([filePath UTF8String]),mdz_fileBuffer,mdz_fileBufferLen,PLAYBACK_FREQ);
         mdz_zxtune->parseModules();
         
-        mdz_zxtune->get_all_extension();
+        //mdz_zxtune->get_all_extension();
     }
     catch (const std::exception&) {
         NSLog(@"ZXTune: cannot read file %@",filePath);
@@ -10992,6 +11029,9 @@ char* loadRom(const char* path, size_t romSize)
     zxtune_song_info.reset();
     mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
     mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+    
+    if (zxtune_song_info.get_title())
+        if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
     
     mod_subsongs=atoi(zxtune_song_info.get_total_tracks());
     mod_minsub=0;
@@ -15224,7 +15264,14 @@ extern bool icloud_available;
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-            iModuleLength=0;
+            zxtune_song_info.reset();
+            mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
+            mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+            
+            if (zxtune_song_info.get_title())
+                if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
+            
+            iModuleLength=mdz_zxtune->get_max_position();
             if (iModuleLength==0) iModuleLength=optGENDefaultLength;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
