@@ -11,6 +11,11 @@
 
 #define YM2610B_WARNING
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /* this is not part of the C/C++ standards and is not present on */
 /* strict ANSI compilers or when compiling under GCC with -ansi */
 #ifndef M_PI
@@ -1233,6 +1238,10 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
 	cch[0]   = &F2203->CH[0];
 	cch[1]   = &F2203->CH[1];
 	cch[2]   = &F2203->CH[2];
+    
+    //YOYOFR
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/44100;
+    //YOYOFR
 
 	/* refresh PG and EG */
 	refresh_fc_eg_chan( cch[0] );
@@ -1270,7 +1279,25 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
 		chan_calc(state, cch[0] );
 		chan_calc(state, cch[1] );
 		chan_calc(state, cch[2] );
-
+        
+        //YOYOFR
+        int m_voice_ofs=m_voice_current_system*3;
+        for (int jj=0;jj<3;jj++) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+            
+            int val=(state->out_fm[jj])>>7;
+            if (ofs_end>ofs_start)
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val );
+                    ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                    if (ofs_start>=ofs_end) break;
+                }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
+        }
+        //YOYOFR
+        
 		*buf += state->out_fm[0] + state->out_fm[1] + state->out_fm[2];
 	}
 }

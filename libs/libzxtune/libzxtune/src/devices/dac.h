@@ -123,6 +123,8 @@ namespace Devices
 
       /// reset internal state to initial
       virtual void Reset() = 0;
+        
+        virtual int GetHWChannels() = 0;
     };
 
     class ChipParameters

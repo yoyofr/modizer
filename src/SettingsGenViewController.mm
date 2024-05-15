@@ -532,6 +532,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value=0;
@@ -1175,6 +1176,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
     settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    SETTINGS_ID_DEF(GLOB_DefaultYMPlayer)
+    settings[GLOB_DefaultYMPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultYMPlayer].label=(char*)"VGM player";
+    settings[GLOB_DefaultYMPlayer].description=NULL;
+    settings[GLOB_DefaultYMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
+    settings[GLOB_DefaultYMPlayer].sub_family=0;
+    settings[GLOB_DefaultYMPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ZXTune";
+    settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"STSound";
     
     SETTINGS_ID_DEF(GLOB_DefaultNSFPlayer)
     settings[GLOB_DefaultNSFPlayer].type=MDZ_SWITCH;

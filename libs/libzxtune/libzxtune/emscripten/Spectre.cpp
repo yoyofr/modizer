@@ -286,7 +286,7 @@ public:
 	}
     
     int get_channels_count() {
-        return _moduleHolder->GetModuleInformation()->ChannelsCount();
+        return _player->GetRenderer()->GetHWChannels();;
     }
 	
 	void seek_position(int ms) {

@@ -102,6 +102,10 @@ namespace Module
     {
       return SAA::CreateAnalyzer(Device);
     }
+      
+      virtual int GetHWChannels() {
+          return 6;
+      }
 
     virtual bool RenderFrame()
     {

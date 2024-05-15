@@ -40,6 +40,8 @@ missing seek support:
 3.9
 ---
 - [PLAYER] New player for WSR/Wonderswan, based on Oswan. Oscilloscope, piano rolls FX & playback speed supported
+- [PLAYER] New player for ZX Spectrum & related hardware, ZXTune.
+- [PLAYER] Better playback speed management for SID/Sidplayfp
 
 3.8
 ---

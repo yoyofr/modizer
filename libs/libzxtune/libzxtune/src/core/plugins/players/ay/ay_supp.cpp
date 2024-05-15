@@ -585,6 +585,10 @@ namespace AY
     {
       return Device->GetAnalyzer();
     }
+      
+      virtual int GetHWChannels() {
+          return 3+1;
+      }
 
     virtual bool RenderFrame()
     {

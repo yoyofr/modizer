@@ -576,6 +576,10 @@ namespace DAC
       std::for_each(src.Data.begin(), src.Data.end(),
         boost::bind(&FixedChannelsChip::UpdateChannelState, this, _1));
     }
+      
+      virtual int GetHWChannels() {
+          return State.size();
+      }
 
     virtual void GetState(MultiChannelState& state) const
     {

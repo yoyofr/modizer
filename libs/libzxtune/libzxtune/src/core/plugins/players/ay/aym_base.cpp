@@ -93,6 +93,12 @@ namespace Module
     {
       return AYM::CreateAnalyzer(Device);
     }
+      
+      virtual int GetHWChannels() {
+          return 3;
+      }
+      
+      
 
     virtual bool RenderFrame()
     {

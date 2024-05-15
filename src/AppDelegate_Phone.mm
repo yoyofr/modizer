@@ -11,8 +11,6 @@
 #import "AppDelegate_Phone.h"
 #import <MediaPlayer/MediaPlayer.h>
 
-
-
 #import "ModizerWin.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"

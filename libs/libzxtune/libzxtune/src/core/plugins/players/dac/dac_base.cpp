@@ -105,6 +105,10 @@ namespace Module
     {
       return CreateAnalyzer(Device);
     }
+      
+      virtual int GetHWChannels() {
+          return Device->GetHWChannels();
+      }
 
     virtual bool RenderFrame()
     {

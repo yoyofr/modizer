@@ -587,6 +587,9 @@ static int mSingleSubMode;
 #define DEFAULT_VGMVGM 0
 #define DEFAULT_VGMGME 1
 
+#define DEFAULT_YMZXTUNE 0
+#define DEFAULT_YMSTSOUND 1
+
 #define DEFAULT_NSFNSFPLAY 0
 #define DEFAULT_NSFGME 1
 
@@ -13840,7 +13843,7 @@ extern bool icloud_available;
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-    char mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultPT3PLAYER;
+    char mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER,mdz_defaultYMPLAYER,mdz_defaultNSFPLAYER,mdz_defaultPT3PLAYER;
     char mdz_defaultKSSPLAYER,mdz_defaultMIDIPLAYER,mdz_defaultSIDPLAYER,mdz_defaultGBSPLAYER;
     char mdz_default2SFPLAYER;
     
@@ -13870,6 +13873,7 @@ extern bool icloud_available;
     mdz_defaultMODPLAYER=settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value;
     mdz_defaultSAPPLAYER=settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value;
     mdz_defaultVGMPLAYER=settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value;
+    mdz_defaultYMPLAYER=settings[GLOB_DefaultYMPlayer].detail.mdz_switch.switch_value;
     mdz_defaultNSFPLAYER=settings[GLOB_DefaultNSFPlayer].detail.mdz_switch.switch_value;
     mdz_defaultPT3PLAYER=settings[GLOB_DefaultPT3Player].detail.mdz_switch.switch_value;
     mdz_defaultGBSPLAYER=settings[GLOB_DefaultGBSPlayer].detail.mdz_switch.switch_value;
@@ -14155,7 +14159,8 @@ extern bool icloud_available;
     
     for (int i=0;i<[filetype_extSTSOUND count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
+            if (mdz_defaultVGMPLAYER==DEFAULT_YMSTSOUND) [available_player insertObject:[NSNumber numberWithInt:MMP_STSOUND] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
             break;
         }
         //        if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {
@@ -14217,10 +14222,16 @@ extern bool icloud_available;
     for (int i=0;i<[filetype_extZXTUNE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extZXTUNE objectAtIndex:i]]==NSOrderedSame) {
             bool is_pt3=false;
+            bool is_ym=false;
             if ([extension caseInsensitiveCompare:@"PT3"]==NSOrderedSame) {
                 is_pt3=true;
+            } else if ([extension caseInsensitiveCompare:@"YM"]==NSOrderedSame) {
+                is_ym=true;
             }
             if (is_pt3 && (mdz_defaultPT3PLAYER==DEFAULT_PT3ZXTUNE)) [available_player insertObject:[NSNumber numberWithInt:MMP_ZXTUNE] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
+            
+            if (is_ym && (mdz_defaultPT3PLAYER==DEFAULT_YMZXTUNE)) [available_player insertObject:[NSNumber numberWithInt:MMP_ZXTUNE] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
             break;
         }

@@ -397,6 +397,10 @@ namespace TurboSound
     {
       return TurboSound::CreateAnalyzer(Device);
     }
+      
+      virtual int GetHWChannels() {
+          return 6;
+      }
 
     virtual bool RenderFrame()
     {

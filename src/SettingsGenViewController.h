@@ -94,6 +94,7 @@ enum MDZ_SETTINGS {
     GLOB_DefaultSAPPlayer,
     GLOB_DefaultSIDPlayer,
     GLOB_DefaultVGMPlayer,
+    GLOB_DefaultYMPlayer,
     ADPLUG_PriorityOMPT,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_FTP,

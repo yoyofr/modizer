@@ -44,6 +44,10 @@ namespace Module
     {
       return TFM::CreateAnalyzer(Device);
     }
+      
+      virtual int GetHWChannels() {
+          return Devices::TFM::VOICES;
+      }
 
     virtual bool RenderFrame()
     {

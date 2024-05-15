@@ -42,5 +42,8 @@ namespace Module
     //! @note Seeking out of range is safe, but state will be MODULE_PLAYING untill next RenderFrame call happends.
     //! @note It produces only the flush
     virtual void SetPosition(uint_t frame) = 0;
+      
+    virtual int GetHWChannels() = 0;
+    
   };
 }

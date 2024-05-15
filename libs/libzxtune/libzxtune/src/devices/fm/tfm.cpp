@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "chip.h"
 //library includes
@@ -53,7 +58,13 @@ namespace TFM
     {
       Sound::Sample* const out = tgt.Allocate(count);
       FM::Details::YM2203SampleType* const outRaw = safe_ptr_cast<FM::Details::YM2203SampleType*>(out);
+        
+        m_voice_current_system=0;//YOYOFR
+        
       ::YM2203UpdateOne(Chips[0].get(), outRaw, count);
+        
+        m_voice_current_system=1;//YOYOFR
+        
       ::YM2203UpdateOne(Chips[1].get(), outRaw, count);
       Helper.ConvertSamples(outRaw, outRaw + count, out);
     }
