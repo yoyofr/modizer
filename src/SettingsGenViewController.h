@@ -211,6 +211,7 @@ enum MDZ_SETTINGS {
         SID_ThirdSIDAddress,
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
+        TIM_Maxloop,
         TIM_Polyphony,
         TIM_Amplification,
         TIM_Chorus,

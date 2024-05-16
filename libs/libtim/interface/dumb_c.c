@@ -103,11 +103,6 @@ static void ctl_close(void)
 /*ARGSUSED*/
 static int ctl_read(int32 *valp)
 {
-    if (tim_pending_seek!=-1){
-        *valp=tim_pending_seek*play_mode->rate;
-        tim_pending_seek=-1;
-        return RC_JUMP;
-    }
     //YOYOFR
     if (roundf(tim_tempo_ratio*100)!=roundf(midi_time_ratio*100)) {
         float *valpf=(float*)valp;
@@ -115,6 +110,12 @@ static int ctl_read(int32 *valp)
         tim_tempo_ratio=midi_time_ratio; //realign to avoid issues, will be updated in playmidi based on valpf
         return RC_SPEEDCHANGE;
     }
+    if (tim_pending_seek!=-1){
+        *valp=tim_pending_seek*play_mode->rate;
+        tim_pending_seek=-1;
+        return RC_JUMP;
+    }
+    
   return RC_NONE;
 }
 

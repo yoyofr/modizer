@@ -674,6 +674,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //TIMIDITY
     /////////////////////////////////////
+    settings[TIM_Maxloop].detail.mdz_slider.slider_value=0;
     settings[TIM_Polyphony].detail.mdz_slider.slider_value=128;
     settings[TIM_Amplification].detail.mdz_slider.slider_value=100;
     settings[TIM_Chorus].detail.mdz_boolswitch.switch_value=1;
@@ -2642,6 +2643,17 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].sub_family=MDZ_SETTINGS_FAMILY_TIMIDITY;
+    
+    SETTINGS_ID_DEF(TIM_Maxloop)
+    settings[TIM_Maxloop].label=(char*)"Max loop";
+    settings[TIM_Maxloop].description=NULL;
+    settings[TIM_Maxloop].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
+    settings[TIM_Maxloop].sub_family=0;
+    settings[TIM_Maxloop].callback=&optTIMIDITYChangedC;
+    settings[TIM_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[TIM_Maxloop].detail.mdz_slider.slider_digits=0;
+    settings[TIM_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[TIM_Maxloop].detail.mdz_slider.slider_max_value=16;
     
     SETTINGS_ID_DEF(TIM_Polyphony)
     settings[TIM_Polyphony].label=(char*)"Midi polyphony";

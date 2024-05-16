@@ -140,6 +140,11 @@ enum midi_event_t
 	ME_SHERRY,				/* for Sherry WRD tracer */
 	ME_BARMARKER,
 	ME_STEP,				/* for Metronome */
+    
+    //YOYOFR
+    ME_LOOP_START,
+    ME_LOOP_END,
+    //YOYOFR
 	
 	ME_LAST = 254,			/* Last sequence of MIDI list.
 							 * This event is reserved for realtime player.

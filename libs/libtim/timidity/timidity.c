@@ -21,6 +21,8 @@
 //YOYOFR
 extern char tim_config_file_path[1024];
 extern int mdz_tim_only_precompute;
+extern int tim_loop_max,tim_loop_cnt;
+extern int tim_loop_point;
 //YOYOFR
 
 #ifdef HAVE_CONFIG_H
@@ -5484,6 +5486,11 @@ MAIN_INTERFACE int timidity_play_main(int nfiles, char **files)
 
     if(nfiles == 0 && !strchr(INTERACTIVE_INTERFACE_IDS, ctl->id_character))
 	return 0;
+    
+    //YOYOFR
+    tim_loop_cnt=0;
+    tim_loop_point=0;
+    //YOYOFR
 
     if(opt_output_name)
     {

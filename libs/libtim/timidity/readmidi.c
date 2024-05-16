@@ -561,6 +561,13 @@ struct ctl_chg_types {
       { 99, ME_NRPN_MSB },
       { 100, ME_RPN_LSB },
       { 101, ME_RPN_MSB },
+    //YOYOFR
+    { 111, ME_LOOP_START },
+    { 116, ME_LOOP_START },
+    { 117, ME_LOOP_END },
+    { 118, ME_LOOP_START },
+    { 119, ME_LOOP_END },
+    //YOYOFR
       { 120, ME_ALL_SOUNDS_OFF },
       { 121, ME_RESET_CONTROLLERS },
       { 123, ME_ALL_NOTES_OFF },
