@@ -729,7 +729,7 @@ void Filter::writeRES_FILT(reg8 res_filt)
   res = (res_filt >> 4) & 0x0f;
 
   filt = res_filt & 0x0f;
-  set_sum_mix();    
+  set_sum_mix();
 }
 
 void Filter::writeMODE_VOL(reg8 mode_vol)

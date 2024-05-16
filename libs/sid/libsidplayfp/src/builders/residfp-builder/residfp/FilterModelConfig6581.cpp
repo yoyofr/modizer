@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2010 Dag Lem
  *
@@ -30,6 +30,7 @@
 #ifdef HAVE_CXX11
 #  include <mutex>
 #endif
+#include <algorithm>
 #include <cmath>
 
 namespace reSIDfp
@@ -113,6 +114,21 @@ FilterModelConfig6581* FilterModelConfig6581::getInstance()
     return instance.get();
 }
 
+void FilterModelConfig6581::setFilterRange(double adjustment)
+{
+    // clamp into allowed range
+     adjustment = std::max(std::min(adjustment, 1.0), 0.);
+
+     // Get the new uCox value, in the range [1,40]
+     const double new_uCox = (1. + 39. * adjustment) * 1e-6;
+
+    // Ignore small changes
+    if (std::abs(uCox - new_uCox) < 1e-12)
+        return;
+
+    setUCox(new_uCox);
+}
+
 FilterModelConfig6581::FilterModelConfig6581() :
     FilterModelConfig(
         1.5,     // voice voltage range
@@ -157,27 +173,7 @@ FilterModelConfig6581::FilterModelConfig6581() :
                 vmin,
                 vmax);
 #endif
-            // The filter summer operates at n ~ 1, and has 5 fundamentally different
-            // input configurations (2 - 6 input "resistors").
-            //
-            // Note that all "on" transistors are modeled as one. This is not
-            // entirely accurate, since the input for each transistor is different,
-            // and transistors are not linear components. However modeling all
-            // transistors separately would be extremely costly.
-            for (int i = 0; i < 5; i++)
-            {
-                const int idiv = 2 + i;        // 2 - 6 input "resistors".
-                const int size = idiv << 16;
-                const double n = idiv;
-                opampModel.reset();
-                summer[i] = new unsigned short[size];
-
-                for (int vi = 0; vi < size; vi++)
-                {
-                    const double vin = vmin + vi / N16 / idiv; /* vmin .. vmax */
-                    summer[i][vi] = getNormalizedValue(opampModel.solve(n, vin));
-                }
-            }
+            buildSummerTable(opampModel);
         }
 
         #pragma omp section
@@ -191,25 +187,7 @@ FilterModelConfig6581::FilterModelConfig6581() :
                 vmin,
                 vmax);
 #endif
-            // The audio mixer operates at n ~ 8/6, and has 8 fundamentally different
-            // input configurations (0 - 7 input "resistors").
-            //
-            // All "on", transistors are modeled as one - see comments above for
-            // the filter summer.
-            for (int i = 0; i < 8; i++)
-            {
-                const int idiv = (i == 0) ? 1 : i;
-                const int size = (i == 0) ? 1 : i << 16;
-                const double n = i * 8.0 / 6.0;
-                opampModel.reset();
-                mixer[i] = new unsigned short[size];
-
-                for (int vi = 0; vi < size; vi++)
-                {
-                    const double vin = vmin + vi / N16 / idiv; /* vmin .. vmax */
-                    mixer[i][vi] = getNormalizedValue(opampModel.solve(n, vin));
-                }
-            }
+            buildMixerTable(opampModel, 8.0 / 6.0);
         }
 
         #pragma omp section
@@ -223,55 +201,28 @@ FilterModelConfig6581::FilterModelConfig6581() :
                 vmin,
                 vmax);
 #endif
-            // 4 bit "resistor" ladders in the audio output gain
-            // necessitate 16 gain tables.
-            // From die photographs of the volume "resistor" ladders
-            // it follows that gain ~ vol/12 (assuming ideal
-            // op-amps and ideal "resistors").
+            buildVolumeTable(opampModel, 12.0);
+        }
+
+        #pragma omp section
+        {
+#ifdef _OPENMP
+            OpAmp opampModel(
+                std::vector<Spline::Point>(
+                    std::begin(opamp_voltage),
+                    std::end(opamp_voltage)),
+                Vddt,
+                vmin,
+                vmax);
+#endif
+            // build temp n table
+            double resonance_n[16];
             for (int n8 = 0; n8 < 16; n8++)
             {
-                const int size = 1 << 16;
-                const double n = n8 / 12.0;
-                opampModel.reset();
-                gain_vol[n8] = new unsigned short[size];
-
-                for (int vi = 0; vi < size; vi++)
-                {
-                    const double vin = vmin + vi / N16; /* vmin .. vmax */
-                    gain_vol[n8][vi] = getNormalizedValue(opampModel.solve(n, vin));
-                }
+                resonance_n[n8] = (~n8 & 0xf) / 8.0;
             }
-        }
 
-        #pragma omp section
-        {
-#ifdef _OPENMP
-            OpAmp opampModel(
-                std::vector<Spline::Point>(
-                    std::begin(opamp_voltage),
-                    std::end(opamp_voltage)),
-                Vddt,
-                vmin,
-                vmax);
-#endif
-            // 4 bit "resistor" ladders in the bandpass resonance gain
-            // necessitate 16 gain tables.
-            // From die photographs of the bandpass "resistor" ladders
-            // it follows that 1/Q ~ ~res/8 (assuming ideal
-            // op-amps and ideal "resistors").
-            for (int n8 = 0; n8 < 16; n8++)
-            {
-                const int size = 1 << 16;
-                const double n = (~n8 & 0xf) / 8.0;
-                opampModel.reset();
-                gain_res[n8] = new unsigned short[size];
-
-                for (int vi = 0; vi < size; vi++)
-                {
-                    const double vin = vmin + vi / N16; /* vmin .. vmax */
-                    gain_res[n8][vi] = getNormalizedValue(opampModel.solve(n, vin));
-                }
-            }
+            buildResonanceTable(opampModel, resonance_n);
         }
 
         #pragma omp section
@@ -298,7 +249,8 @@ FilterModelConfig6581::FilterModelConfig6581() :
             //  ir = ln^2(1 + e^((k*(Vg - Vt) - Vd)/(2*Ut))
 
             // moderate inversion characteristic current
-            const double Is = (2. * uCox * Ut * Ut) * WL_vcr;
+            // will be multiplied by uCox later
+            const double Is = (2. * Ut * Ut) * WL_vcr;
 
             // Normalized current factor for 1 cycle at 1MHz.
             const double N15 = norm * ((1 << 15) - 1);
@@ -311,9 +263,7 @@ FilterModelConfig6581::FilterModelConfig6581() :
                 const int kVgt_Vx = i - (1 << 15);
                 const double log_term = log1p(exp((kVgt_Vx / N16) / (2. * Ut)));
                 // Scaled by m*2^15
-                const double tmp = n_Is * log_term * log_term;
-                assert(tmp > -0.5 && tmp < 65535.5);
-                vcr_n_Ids_term[i] = static_cast<unsigned short>(tmp + 0.5);
+                vcr_n_Ids_term[i] = n_Is * log_term * log_term;
             }
         }
     }
@@ -328,15 +278,15 @@ unsigned short* FilterModelConfig6581::getDAC(double adjustment) const
     for (unsigned int i = 0; i < (1 << DAC_BITS); i++)
     {
         const double fcd = dac.getOutput(i);
-        f0_dac[i] = getNormalizedValue(dac_zero + fcd * dac_scale / (1 << DAC_BITS));
+        f0_dac[i] = getNormalizedValue(dac_zero + fcd * dac_scale);
     }
 
     return f0_dac;
 }
 
-std::unique_ptr<Integrator6581> FilterModelConfig6581::buildIntegrator()
+Integrator* FilterModelConfig6581::buildIntegrator()
 {
-    return MAKE_UNIQUE(Integrator6581, this, WL_snake);
+    return new Integrator6581(this, WL_snake);
 }
 
 } // namespace reSIDfp

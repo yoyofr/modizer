@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2021 Leandro Nini <drfiemost@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,14 @@
 #  include "config.h"
 #endif
 
+#include "sidcxx11.h"
+
 /*
  * Adjust these paths to point to existing ROM dumps
  */
-#define KERNAL_PATH "/usr/share/vice/C64/kernal"
-#define BASIC_PATH "/usr/share/vice/C64/basic"
-#define CHARGEN_PATH "/usr/share/vice/C64/chargen"
+#define KERNAL_PATH "/usr/share/vice/C64/kernal-901227-03.bin"
+#define BASIC_PATH "/usr/share/vice/C64/basic-901226-01.bin"
+#define CHARGEN_PATH "/usr/share/vice/C64/chargen-901225-01.bin"
 
 void loadRom(const char* path, char* buffer)
 {
@@ -63,15 +65,17 @@ int main(int argc, char* argv[])
 
     sidplayfp m_engine;
 
-    char kernal[8192];
-    char basic[8192];
-    char chargen[4096];
+    char rom[8192];
 
-    loadRom(KERNAL_PATH, kernal);
-    loadRom(BASIC_PATH, basic);
-    loadRom(CHARGEN_PATH, chargen);
+    loadRom(KERNAL_PATH, rom);
+    m_engine.setKernal((const uint8_t*)rom);
 
-    m_engine.setRoms((const uint8_t*)kernal, (const uint8_t*)basic, (const uint8_t*)chargen);
+    loadRom(BASIC_PATH, rom);
+    m_engine.setBasic((const uint8_t*)rom);
+
+    loadRom(CHARGEN_PATH, rom);
+    m_engine.setChargen((const uint8_t*)rom);
+
     SidConfig config = m_engine.config();
     config.powerOnDelay = 0x1267;
 
@@ -100,6 +104,11 @@ int main(int argc, char* argv[])
                     config.forceSidModel = true;
                     config.defaultSidModel = SidConfig::MOS8580;
                 }
+                else
+                {
+                    std::cerr << "Error: unrecognized SID model" << std::endl;
+                    return -1;
+                }
             }
             if (!strcmp(&argv[i][1], "-cia"))
             {
@@ -112,6 +121,16 @@ int main(int argc, char* argv[])
                 if (!strcmp(&argv[i][0], "new"))
                 {
                     config.ciaModel = SidConfig::MOS8521;
+                }
+                else
+                if (!strcmp(&argv[i][0], "4485"))
+                {
+                    config.ciaModel = SidConfig::MOS6526W4485;
+                }
+                else
+                {
+                    std::cerr << "Error: unrecognized CIA model" << std::endl;
+                    return -1;
                 }
             }
             if (!strcmp(&argv[i][1], "-vic"))
@@ -134,6 +153,17 @@ int main(int argc, char* argv[])
                     config.defaultC64Model = SidConfig::OLD_NTSC;
                     config.forceC64Model = true;
                 }
+                else
+                if (!strcmp(&argv[i][0], "drean"))
+                {
+                    config.defaultC64Model = SidConfig::DREAN;
+                    config.forceC64Model = true;
+                }
+                else
+                {
+                    std::cerr << "Error: unrecognized VIC II model" << std::endl;
+                    return -1;
+                }
             }
         }
         else
@@ -145,7 +175,7 @@ int main(int argc, char* argv[])
     }
 
     m_engine.config(config);
-    std::auto_ptr<SidTune> tune(new SidTune(name.c_str()));
+    std::unique_ptr<SidTune> tune(new SidTune(name.c_str()));
 
     if (!tune->getStatus())
     {

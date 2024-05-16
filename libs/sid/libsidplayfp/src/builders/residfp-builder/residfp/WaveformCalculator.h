@@ -108,9 +108,10 @@ public:
      * Build pulldown table for use by WaveformGenerator.
      *
      * @param model Chip model to use
+     * @param cws strength of combined waveforms
      * @return Pulldown table
      */
-    matrix_t* buildPulldownTable(ChipModel model);
+    matrix_t* buildPulldownTable(ChipModel model, CombinedWaveforms cws);
 };
 
 } // namespace reSIDfp

@@ -95,7 +95,7 @@
 #define PACKAGE_NAME "libsidplayfp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libsidplayfp 2.6.0"
+#define PACKAGE_STRING "libsidplayfp 2.7.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libsidplayfp"
@@ -104,7 +104,7 @@
 #define PACKAGE_URL "https://github.com/libsidplayfp/libsidplayfp/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.6.0"
+#define PACKAGE_VERSION "2.7.0"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -125,7 +125,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "2.6.0"
+#define VERSION "2.7.0"
 
 /* Path to VICE testsuite. */
 /* #undef VICE_TESTSUITE */

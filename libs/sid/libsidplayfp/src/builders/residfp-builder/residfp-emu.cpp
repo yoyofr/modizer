@@ -36,6 +36,8 @@
 namespace libsidplayfp
 {
 
+const char ERR_INVALID_CW[]     = "Invalid combined waveforms strength.";
+
 const char* ReSIDfp::getCredits()
 {
     return
@@ -44,7 +46,7 @@ const char* ReSIDfp::getCredits()
         "MOS6581/CSG8580 (SID) Emulation:\n"
         "\t(C) 1999-2002 Dag Lem\n"
         "\t(C) 2005-2011 Antti S. Lankila\n"
-        "\t(C) 2010-2023 Leandro Nini\n";
+        "\t(C) 2010-2024 Leandro Nini\n";
 }
 
 ReSIDfp::ReSIDfp(sidbuilder *builder) :
@@ -64,6 +66,11 @@ ReSIDfp::~ReSIDfp()
 void ReSIDfp::filter6581Curve(double filterCurve)
 {
    m_sid.setFilter6581Curve(filterCurve);
+}
+
+void ReSIDfp::filter6581Range(double adjustment)
+{
+   m_sid.setFilter6581Range(adjustment);
 }
 
 void ReSIDfp::filter8580Curve(double filterCurve)
@@ -157,6 +164,31 @@ void ReSIDfp::model(SidConfig::sid_model_t model, bool digiboost)
     }
 
     m_sid.setChipModel(chipModel);
+    m_status = true;
+}
+
+// Set the emulated SID combined waveforms
+void ReSIDfp::combinedWaveforms(SidConfig::sid_cw_t cws)
+{
+    reSIDfp::CombinedWaveforms combinedWaveforms;
+    switch (cws)
+    {
+        case SidConfig::AVERAGE:
+            combinedWaveforms = reSIDfp::AVERAGE;
+            break;
+        case SidConfig::WEAK:
+            combinedWaveforms = reSIDfp::WEAK;
+            break;
+        case SidConfig::STRONG:
+            combinedWaveforms = reSIDfp::STRONG;
+            break;
+        default:
+            m_status = false;
+            m_error = ERR_INVALID_CW;
+            return;
+    }
+
+    m_sid.setCombinedWaveforms(combinedWaveforms);
     m_status = true;
 }
 

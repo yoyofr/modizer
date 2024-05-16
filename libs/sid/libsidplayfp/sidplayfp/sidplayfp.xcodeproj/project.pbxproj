@@ -195,6 +195,8 @@
 		CC2978E72B8682DE00BBBC8C /* FilterModelConfig6581.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */; };
 		CCC5419F2B895DDE00E97EC1 /* filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCC5419D2B895DDE00E97EC1 /* filter.cc */; };
 		CCC541A02B895DDE00E97EC1 /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = CCC5419E2B895DDE00E97EC1 /* filter.h */; };
+		CCCFB6BA2BF54CDE0026F1F7 /* filter8580new.h in Headers */ = {isa = PBXBuildFile; fileRef = CCCFB6B82BF54CDE0026F1F7 /* filter8580new.h */; };
+		CCCFB6BB2BF54CDE0026F1F7 /* filter8580new.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCCFB6B92BF54CDE0026F1F7 /* filter8580new.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -397,6 +399,8 @@
 		CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterModelConfig6581.h; sourceTree = "<group>"; };
 		CCC5419D2B895DDE00E97EC1 /* filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cc; sourceTree = "<group>"; };
 		CCC5419E2B895DDE00E97EC1 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
+		CCCFB6B82BF54CDE0026F1F7 /* filter8580new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter8580new.h; sourceTree = "<group>"; };
+		CCCFB6B92BF54CDE0026F1F7 /* filter8580new.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter8580new.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -578,6 +582,8 @@
 		59BE8B2A26000D8000414A42 /* resid */ = {
 			isa = PBXGroup;
 			children = (
+				CCCFB6B92BF54CDE0026F1F7 /* filter8580new.cc */,
+				CCCFB6B82BF54CDE0026F1F7 /* filter8580new.h */,
 				CCC5419D2B895DDE00E97EC1 /* filter.cc */,
 				CCC5419E2B895DDE00E97EC1 /* filter.h */,
 				59BE8B4426000D8000414A42 /* dac.cc */,
@@ -625,10 +631,6 @@
 		59BE8B7026000D8000414A42 /* residfp */ = {
 			isa = PBXGroup;
 			children = (
-				CC2978E22B8682DD00BBBC8C /* FilterModelConfig6581.cpp */,
-				CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */,
-				CC2978E12B8682DD00BBBC8C /* Integrator6581.cpp */,
-				CC2978E02B8682DD00BBBC8C /* Integrator6581.h */,
 				59BE8B9026000D8000414A42 /* array.h */,
 				59BE8B8226000D8000414A42 /* AUTHORS */,
 				59BE8B8D26000D8000414A42 /* COPYING */,
@@ -646,8 +648,12 @@
 				59BE8BB026000D8000414A42 /* Filter8580.h */,
 				59BE8B8726000D8000414A42 /* FilterModelConfig.cpp */,
 				59BE8B9A26000D8000414A42 /* FilterModelConfig.h */,
+				CC2978E22B8682DD00BBBC8C /* FilterModelConfig6581.cpp */,
+				CC2978E32B8682DD00BBBC8C /* FilterModelConfig6581.h */,
 				59BE8B9326000D8000414A42 /* FilterModelConfig8580.cpp */,
 				59BE8B9426000D8000414A42 /* FilterModelConfig8580.h */,
+				CC2978E12B8682DD00BBBC8C /* Integrator6581.cpp */,
+				CC2978E02B8682DD00BBBC8C /* Integrator6581.h */,
 				59BE8B9126000D8000414A42 /* Integrator8580.cpp */,
 				59BE8B8426000D8000414A42 /* Integrator8580.h */,
 				59BE8B7226000D8000414A42 /* OpAmp.cpp */,
@@ -897,6 +903,7 @@
 				59BE8CD926000D8000414A42 /* sidplayfp.h in Headers */,
 				59BE8CAC26000D8000414A42 /* SidTuneInfoImpl.h in Headers */,
 				59BE8C7026000D8000414A42 /* wave.h in Headers */,
+				CCCFB6BA2BF54CDE0026F1F7 /* filter8580new.h in Headers */,
 				59BE8CC326000D8000414A42 /* MD5_Defs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -990,6 +997,7 @@
 				59BE8CB526000D8000414A42 /* prg.cpp in Sources */,
 				59BE8C3726000D8000414A42 /* tod.cpp in Sources */,
 				59BE8C7926000D8000414A42 /* resid-builder.cpp in Sources */,
+				CCCFB6BB2BF54CDE0026F1F7 /* filter8580new.cc in Sources */,
 				59BE8C6326000D8000414A42 /* voice.cc in Sources */,
 				59BE8CC126000D8000414A42 /* MD5.cpp in Sources */,
 				59BE8C8926000D8000414A42 /* Dac.cpp in Sources */,

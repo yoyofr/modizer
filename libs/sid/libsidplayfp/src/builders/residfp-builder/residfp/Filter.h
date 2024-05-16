@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2017 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -23,107 +23,117 @@
 #ifndef FILTER_H
 #define FILTER_H
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" int sid_v4;
+//TODO:  MODIZER changes start / YOYOFR
+
+#include "FilterModelConfig.h"
+
+#include "siddefs-fp.h"
+
 namespace reSIDfp
 {
+
+class Integrator;
 
 /**
  * SID filter base class
  */
 class Filter
 {
+private:
+    FilterModelConfig* fmc;
+
+    unsigned short** mixer;
+    unsigned short** summer;
+    unsigned short** resonance;
+    unsigned short** volume;
+
 protected:
-    /// Current volume amplifier setting.
-    unsigned short* currentGain;
-    
+    /// VCR + associated capacitor connected to highpass output.
+    Integrator* const hpIntegrator;
+
+    /// VCR + associated capacitor connected to bandpass output.
+    Integrator* const bpIntegrator;
+
+private:
     /// Current filter/voice mixer setting.
     unsigned short* currentMixer;
-    
+
     /// Filter input summer setting.
     unsigned short* currentSummer;
-    
+
     /// Filter resonance value.
     unsigned short* currentResonance;
-    
+
+    /// Current volume amplifier setting.
+    unsigned short* currentVolume;
+
     /// Filter highpass state.
     int Vhp;
-    
+
     /// Filter bandpass state.
     int Vbp;
-    
+
     /// Filter lowpass state.
     int Vlp;
-    
+
     /// Filter external input.
-    int ve;
+    int Ve;
     
     //YOYOFR
     int Vhp2,Vbp2,Vlp2;
     //YOYOFR
     
-    
     /// Filter cutoff frequency.
     unsigned int fc;
-    
+
     /// Routing to filter or outside filter
     bool filt1, filt2, filt3, filtE;
-    
+
     /// Switch voice 3 off.
     bool voice3off;
-    
+
     /// Highpass, bandpass, and lowpass filter modes.
     bool hp, bp, lp;
-    
+
     /// Current volume.
     unsigned char vol;
-    
-private:
+
     /// Filter enabled.
     bool enabled;
-    
+
     /// Selects which inputs to route through filter.
     unsigned char filt;
-    
+
 protected:
     /**
-     * Set filter cutoff frequency.
+     * Update filter cutoff frequency.
      */
-    virtual void updatedCenterFrequency() = 0;
-    
+    virtual void updateCenterFrequency() = 0;
+
     /**
-     * Set filter resonance.
+     * Update filter resonance.
+     *
+     * @param res the new resonance value
      */
-    virtual void updateResonance(unsigned char res) = 0;
-    
+    void updateResonance(unsigned char res) { currentResonance = resonance[res]; }
+
     /**
      * Mixing configuration modified (offsets change)
      */
-    virtual void updatedMixing() = 0;
-    
+    void updateMixing();
+
+    /**
+     * Get the filter cutoff register value
+     */
+    unsigned int getFC() const { return fc; }
+
 public:
-    Filter() :
-    currentGain(nullptr),
-    currentMixer(nullptr),
-    currentSummer(nullptr),
-    currentResonance(nullptr),
-    Vhp(0),
-    Vbp(0),
-    Vlp(0),
-    ve(0),
-    fc(0),
-    filt1(false),
-    filt2(false),
-    filt3(false),
-    filtE(false),
-    voice3off(false),
-    hp(false),
-    bp(false),
-    lp(false),
-    vol(0),
-    enabled(true),
-    filt(0) {}
-    
-    virtual ~Filter() {}
-    
+    Filter(FilterModelConfig* fmc);
+
+    virtual ~Filter();
+
     /**
      * SID clocking - 1 cycle
      *
@@ -132,51 +142,106 @@ public:
      * @param v3 voice 3 in
      * @return filtered output
      */
-    virtual unsigned short clock(int v1, int v2, int v3) = 0;
-    
+    unsigned short clock(float v1, float v2, float v3);
+
     /**
      * Enable filter.
      *
      * @param enable
      */
     void enable(bool enable);
-    
+
     /**
      * SID reset.
      */
     void reset();
-    
+
     /**
      * Write Frequency Cutoff Low register.
      *
      * @param fc_lo Frequency Cutoff Low-Byte
      */
     void writeFC_LO(unsigned char fc_lo);
-    
+
     /**
      * Write Frequency Cutoff High register.
      *
      * @param fc_hi Frequency Cutoff High-Byte
      */
     void writeFC_HI(unsigned char fc_hi);
-    
+
     /**
      * Write Resonance/Filter register.
      *
      * @param res_filt Resonance/Filter
      */
     void writeRES_FILT(unsigned char res_filt);
-    
+
     /**
      * Write filter Mode/Volume register.
      *
      * @param mode_vol Filter Mode/Volume
      */
     void writeMODE_VOL(unsigned char mode_vol);
-    
-    virtual void input(int input) = 0;
+
+    /**
+     * Apply a signal to EXT-IN
+     *
+     * @param input a signed 16 bit sample
+     */
+    void input(int input) { Ve = fmc->getNormalizedVoice(input/65536.f); }
 };
 
 } // namespace reSIDfp
+
+#if RESID_INLINING || defined(FILTER_CPP)
+
+#include "Integrator.h"
+
+namespace reSIDfp
+{
+
+RESID_INLINE
+unsigned short Filter::clock(float voice1, float voice2, float voice3)
+{
+    const int V1 = fmc->getNormalizedVoice(voice1);
+    const int V2 = fmc->getNormalizedVoice(voice2);
+    // Voice 3 is silenced by voice3off if it is not routed through the filter.
+    const int V3 = (filt3 || !voice3off) ? fmc->getNormalizedVoice(voice3) : 0;
+
+    int Vsum = 0;
+    int Vmix = 0;
+
+    (filt1 ? Vsum : Vmix) += V1;
+    (filt2 ? Vsum : Vmix) += V2;
+    (filt3 ? Vsum : Vmix) += V3;
+    (filtE ? Vsum : Vmix) += Ve;
+
+    Vhp = currentSummer[currentResonance[Vbp] + Vlp + Vsum];
+    Vbp = hpIntegrator->solve(Vhp);
+    Vlp = bpIntegrator->solve(Vbp);
+
+    if (lp) Vmix += Vlp;
+    if (bp) Vmix += Vbp;
+    if (hp) Vmix += Vhp;
+    
+    
+    //YOYOFR
+//    return currentVolume[currentMixer[Vmix]];
+    unsigned short ret=currentVolume[currentMixer[Vmix]];
+    
+    Vsum = 0;
+    Vmix = 0;
+    
+    (filtE ? Vsum : Vmix) += Ve;
+    
+    sid_v4=currentVolume[currentMixer[Vmix]];
+    return ret;
+    //YOYOFR
+}
+
+} // namespace reSIDfp
+
+#endif
 
 #endif

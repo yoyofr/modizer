@@ -2,7 +2,12 @@
 general/banking00/banking00
 #general/fuxxortest/test-fuxxored
 general/fuxxortest/ef1-nmi
-#general/fuxxortest/ef2-inst4b
+# sprite collision, won't work
+#general/fuxxortest/ef2-inst2
+#general/fuxxortest/ef2-inst3
+#general/fuxxortest/ef2-inst4a
+#general/fuxxortest/ef2-inst4c
+general/fuxxortest/ef2-inst4b                        --sid old
 general/Lorenz-2.15/src/start
 general/Lorenz-2.15/src/ldab
 general/Lorenz-2.15/src/ldaz
@@ -289,11 +294,11 @@ general/Lorenz-2.15/src/cia1tbnew                    --cia new
 #general/Lorenz-2.15/src/cia2tanew                    --cia new
 #general/Lorenz-2.15/src/cia2tbnew                    --cia new
 general/Lorenz-2.15/src/finish
-# won't work as VIC II emulation is incomplete
+# sprite collision, won't work
 #general/ram0001/test1
 ### C64 ###
 C64/bankio/bankio
-#C64/openio/gauntlet
+C64/openio/gauntlet
 C64/raminitpattern/cyberloadtest
 C64/raminitpattern/darkstarbbstest
 C64/raminitpattern/platoontest
@@ -328,8 +333,8 @@ CIA/ciavarious/cia13
 CIA/ciavarious/cia14
 CIA/ciavarious/cia15
 CIA/dd0drw/dd0drw
-# FIXME
-#CIA/dd0dtest/dd0dtest
+CIA/dd0dtest/dd0dtest                                --cia old
+CIA/dd0dtest/dd0dtest                                --cia new
 CIA/mirrors/ciamirrors
 CIA/irqdelay/irqdelay                                --cia old
 CIA/irqdelay/irqdelay-new                            --cia new
@@ -347,6 +352,7 @@ CIA/irqdelay/irqdelay-cia2
 CIA/irqdelay/irqdelay-cia2-4
 CIA/irqdelay/irqdelay-cia2-oneshot
 CIA/irqdelay/irqdelay-cia2-oneshot-4
+CIA/pb6pb7/main
 CIA/reload0/reload0a
 CIA/reload0/reload0b
 CIA/shiftregister/cia-icr-test-continues-old         --cia old
@@ -390,22 +396,20 @@ CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-generic-3
 CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-generic-4_7f
 CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-generic-19
 CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-generic-39
-###                                                   --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-0    --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-0_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-1_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-3    --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-4_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-19   --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-39   --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-0    --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-0_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-1_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-3    --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-4_7f --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-19   --cia 4485
-#CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-39   --cia 4485
-###
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-0    --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-0_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-1_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-3    --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-4_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-19   --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia1-sdr-icr-4485-39   --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-0    --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-0_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-1_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-3    --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-4_7f --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-19   --cia 4485
+CIA/shiftregister/cia-sdr-icr/cia2-sdr-icr-4485-39   --cia 4485
 CIA/timerbasics/test                                 --cia old
 CIA/timerbasics/test_new                             --cia new
 CIA/timerbasics/timer                                --cia old
@@ -435,11 +439,13 @@ CIA/tod/hzsync2
 CIA/tod/hzsync3
 CIA/tod/hzsync4
 CIA/tod/hzsync5
+CIA/tod/hzsync6
 CIA/tod/powerup
 CIA/tod/read-latch
 CIA/tod/stability
 CIA/tod/stability-ntsc                --vic ntsc
 CIA/tod/write-stop
+CIA/tod/ampmtest
 ### CPU ###
 CPU/64doc/dadc
 CPU/64doc/dincsbc
@@ -458,8 +464,7 @@ CPU/Acid800/cpu_flags
 CPU/Acid800/cpu_illegal
 CPU/Acid800/cpu_insn
 CPU/Acid800/cpu_timing
-# FIXME
-#CPU/Acid800/cpu_timing_ntsc                   --vic ntsc
+CPU/Acid800/cpu_timing_ntsc                   --vic ntsc
 CPU/ane/ane
 CPU/ane/ane-border
 CPU/ane/ane-none
@@ -544,8 +549,7 @@ CPU/shs/shsabsy2
 CPU/shs/shsabsy3
 CPU/shs/shsabsy4
 CPU/shs/shsabsy5
-# FIXME
-#CPU/shxy/shx-test
+CPU/shxy/shx-test
 CPU/shxy/shxy1
 CPU/shxy/shxy2
 CPU/shxy/shxy3
@@ -569,9 +573,12 @@ interrupts/irq-ackn-bug/cia1                         --cia old
 interrupts/irq-ackn-bug/cia1new                      --cia new
 interrupts/irq-ackn-bug/cia2                         --cia old
 interrupts/irq-ackn-bug/cia2new                      --cia new
+# sprite collision, won't work
 #interrupts/irq-ackn-bug/irq-ack-vicii
-interrupts/irqdma/nmitest6
-interrupts/irqdma/nmitest6b
+interrupts/irqdma/nmitest6                           --cia old
+interrupts/irqdma/nmitest6                           --cia new
+interrupts/irqdma/nmitest6b                          --cia old
+interrupts/irqdma/nmitest6b                          --cia new
 interrupts/irqdma/test1
 interrupts/irqdma/test1b
 interrupts/irqdma/test2
@@ -583,7 +590,8 @@ interrupts/irqdma/test4b
 interrupts/irqdma/test5
 interrupts/irqdma/test5b
 interrupts/irqdma/test6
-interrupts/irqdma/test6b
+interrupts/irqdma/test6b                             --cia old
+interrupts/irqdma/test6b                             --cia new
 interrupts/irqdma/test7
 interrupts/irqdma/test7b
 interrupts/irqdummy/irqdummy
@@ -642,7 +650,7 @@ SID/wb_testsuite/noise_writeback_check_8_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_8_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_8_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_D_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_8_to_F_old    --sid old
@@ -650,7 +658,7 @@ SID/wb_testsuite/noise_writeback_check_9_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_9_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_9_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_D_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_9_to_F_old    --sid old
@@ -658,7 +666,7 @@ SID/wb_testsuite/noise_writeback_check_A_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_A_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_A_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_D_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_A_to_F_old    --sid old
@@ -673,7 +681,7 @@ SID/wb_testsuite/noise_writeback_check_C_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_C_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_C_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_D_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_C_to_F_old    --sid old
@@ -681,22 +689,22 @@ SID/wb_testsuite/noise_writeback_check_D_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_D_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_D_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_D_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_D_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_D_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_D_to_D_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_D_to_E_old   --sid old
+SID/wb_testsuite/noise_writeback_check_D_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_D_to_F_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_E_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_E_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_E_to_F_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_8_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_9_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_A_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_B_old    --sid old
-#SID/wb_testsuite/noise_writeback_check_F_to_C_old   --sid old
+SID/wb_testsuite/noise_writeback_check_F_to_C_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_D_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_E_old    --sid old
 SID/wb_testsuite/noise_writeback_check_F_to_F_old    --sid old
@@ -726,10 +734,10 @@ SID/wb_testsuite/noise_writeback_check_B_to_D_new    --sid new
 SID/wb_testsuite/noise_writeback_check_B_to_E_new    --sid new
 SID/wb_testsuite/noise_writeback_check_B_to_F_new    --sid new
 SID/wb_testsuite/noise_writeback_check_C_to_8_new    --sid new
-#SID/wb_testsuite/noise_writeback_check_C_to_9_new    --sid new
+SID/wb_testsuite/noise_writeback_check_C_to_9_new    --sid new
 SID/wb_testsuite/noise_writeback_check_C_to_A_new    --sid new
-#SID/wb_testsuite/noise_writeback_check_C_to_E_new    --sid new
-#SID/wb_testsuite/noise_writeback_check_C_to_F_new    --sid new
+SID/wb_testsuite/noise_writeback_check_C_to_E_new    --sid new
+SID/wb_testsuite/noise_writeback_check_C_to_F_new    --sid new
 SID/wb_testsuite/noise_writeback_check_D_to_8_new    --sid new
 SID/wb_testsuite/noise_writeback_check_D_to_9_new    --sid new
 SID/wb_testsuite/noise_writeback_check_D_to_B_new    --sid new
@@ -749,21 +757,27 @@ SID/wb_testsuite/noise_writeback_check_F_to_E_new    --sid new
 SID/wb_testsuite/noise_writeback_check_F_to_F_new    --sid new
 SID/writedelay/writedelay                            --sid old
 SID/wf12nsr/wf12nsr                                  --sid old
-#SID/wf12nsr/wf12nsr-8580                             --sid new
+SID/wf12nsr/wf12nsr-8580                             --sid new
+SID/noiselfsrinit/simple                             --sid old
+SID/noiselfsrinit/scan                               --sid old
 ### VICII ###
 VICII/colorram/test
 VICII/split-tests/bascan/bascan
-#VICII/split-tests/lightpen/lightpen
-#VICII/split-tests/spritescan/spritescan
+VICII/split-tests/lightpen/lightpen                  --vic pal
+VICII/split-tests/lightpen/lightpen                  --vic ntsc
+VICII/split-tests/lightpen/lightpen                  --vic drean
+# are these supposed to work?
+#VICII/split-tests/spritescan/spritescan              --vic pal
+#VICII/split-tests/spritescan/spritescan_drean        --vic drean
 VICII/vspbug/vsp_bug
 VICII/spritesteal/spritesteal                        --vic pal
 VICII/spritesteal/spritesteal_ntsc                   --vic ntsc
 VICII/spritesteal/spritesteal_ntscold                --vic oldntsc
 # sprite collision, won't work
 #VICII/spritex/demusinterruptus
-#VICII/spritex/testsuite
-#VICII/spritex/testsuite_ntsc
-#VICII/spritex/testsuite_ntscold
+#VICII/spritex/testsuite                              --vic pal
+#VICII/spritex/testsuite_ntsc                         --vic ntsc
+#VICII/spritex/testsuite_ntscold                      --vic oldntsc
 #VICII/spritey/spritey
 VICII/lplatency/lplatency
 VICII/lp-trigger/test2

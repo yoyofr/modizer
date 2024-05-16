@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004,2010 Dag Lem <resid@nimrod.no>
  *
@@ -23,15 +23,7 @@
 #ifndef FILTER6581_H
 #define FILTER6581_H
 
-//TODO:  MODIZER changes start / YOYOFR
-extern "C" int sid_v4;
-//TODO:  MODIZER changes start / YOYOFR
-
-
-#include "siddefs-fp.h"
-
-#include <memory>
-
+#include "Integrator.h"
 #include "Filter.h"
 #include "FilterModelConfig6581.h"
 
@@ -77,7 +69,7 @@ class Integrator6581;
  * Tommi Lempinen has done an impressive work on re-vectorizing and annotating
  * the die photographs, substantially simplifying further analysis of the
  * filter circuit.
- *
+ * 
  * The filter schematics below are reverse engineered from these re-vectorized
  * and annotated die photographs. While the filter first depicted in reSID 0.9
  * is a correct model of the basic filter, the schematics are now completed
@@ -239,8 +231,8 @@ class Integrator6581;
  * which varies with the input signals to the VCRs. This can be seen from the
  * VCR figure above.
  *
- *
- *
+ * 
+ * 
  * "Op-amp" (self-biased NMOS inverter)
  * ------------------------------------
  * ~~~
@@ -295,7 +287,7 @@ class Integrator6581;
  * ~~~
  *
  *            12V
- *
+ * 
  *             |
  *             |
  *         ||--+
@@ -307,7 +299,7 @@ class Integrator6581;
  *            Rext    OUT)
  *             |
  *             |
- *
+ * 
  *            GND
  *
  * vi   - input
@@ -328,122 +320,38 @@ class Filter6581 final : public Filter
 {
 private:
     const unsigned short* f0_dac;
-    
-    unsigned short** mixer;
-    unsigned short** summer;
-    unsigned short** gain_res;
-    unsigned short** gain_vol;
-    
-    const int voiceScaleS11;
-    const int voiceDC;
-    
-    /// VCR + associated capacitor connected to highpass output.
-    std::unique_ptr<Integrator6581> const hpIntegrator;
-    
-    /// VCR + associated capacitor connected to bandpass output.
-    std::unique_ptr<Integrator6581> const bpIntegrator;
-    
+
 protected:
     /**
      * Set filter cutoff frequency.
      */
-    void updatedCenterFrequency() override;
-    
-    /**
-     * Set filter resonance.
-     *
-     * In the MOS 6581, 1/Q is controlled linearly by res.
-     */
-    void updateResonance(unsigned char res) override { currentResonance = gain_res[res]; }
-    
-    void updatedMixing() override;
-    
+    void updateCenterFrequency() override;
+
 public:
     Filter6581() :
-    f0_dac(FilterModelConfig6581::getInstance()->getDAC(0.5)),
-    mixer(FilterModelConfig6581::getInstance()->getMixer()),
-    summer(FilterModelConfig6581::getInstance()->getSummer()),
-    gain_res(FilterModelConfig6581::getInstance()->getGainRes()),
-    gain_vol(FilterModelConfig6581::getInstance()->getGainVol()),
-    voiceScaleS11(FilterModelConfig6581::getInstance()->getVoiceScaleS11()),
-    voiceDC(FilterModelConfig6581::getInstance()->getNormalizedVoiceDC()),
-    hpIntegrator(FilterModelConfig6581::getInstance()->buildIntegrator()),
-    bpIntegrator(FilterModelConfig6581::getInstance()->buildIntegrator())
-    {
-        input(0);
-    }
-    
+        Filter(FilterModelConfig6581::getInstance()),
+        f0_dac(FilterModelConfig6581::getInstance()->getDAC(0.5))
+    {}
+
     ~Filter6581();
-    
-    unsigned short clock(int voice1, int voice2, int voice3) override;
-    
-    void input(int sample) override { ve = (sample * voiceScaleS11 * 3 >> 11) + mixer[0][0]; }
-    
+
     /**
      * Set filter curve type based on single parameter.
      *
-     * @param curvePosition 0 .. 1, where 0 sets center frequency high ("light") and 1 sets it low ("dark"), default is 0.5
+     * @param curvePosition 0 .. 1, where 0 sets center frequency high ("bright") and 1 sets it low ("dark").
+     *                      Default is 0.5
      */
     void setFilterCurve(double curvePosition);
+
+    /**
+     * Set filter offset and range based on single parameter.
+     *
+     * @param adjustment 0 .. 1, where 0 sets center frequency low ("dark"), 1 sets it high ("bright").
+     *                   This also affects the range. Default is 0.5
+     */
+    void setFilterRange(double adjustment);
 };
 
 } // namespace reSIDfp
-
-#if RESID_INLINING || defined(FILTER6581_CPP)
-
-#include "Integrator6581.h"
-
-namespace reSIDfp
-{
-
-RESID_INLINE
-unsigned short Filter6581::clock(int voice1, int voice2, int voice3)
-{
-    voice1 = (voice1 * voiceScaleS11 >> 15) + voiceDC;
-    voice2 = (voice2 * voiceScaleS11 >> 15) + voiceDC;
-    // Voice 3 is silenced by voice3off if it is not routed through the filter.
-    voice3 = (filt3 || !voice3off) ? (voice3 * voiceScaleS11 >> 15) + voiceDC : 0;
-    
-    int Vi = 0;
-    int Vo = 0;
-    
-    (filt1 ? Vi : Vo) += voice1;
-    (filt2 ? Vi : Vo) += voice2;
-    (filt3 ? Vi : Vo) += voice3;
-    (filtE ? Vi : Vo) += ve;
-    
-    Vhp = currentSummer[currentResonance[Vbp] + Vlp + Vi];
-    Vbp = hpIntegrator->solve(Vhp);
-    Vlp = bpIntegrator->solve(Vbp);
-    
-    if (lp) Vo += Vlp;
-    if (bp) Vo += Vbp;
-    if (hp) Vo += Vhp;
-    
-    //YOYOFR
-    //return currentGain[currentMixer[Vo]];
-    unsigned short ret=currentGain[currentMixer[Vo]];
-    
-    Vi = 0;
-    Vo = 0;
-    
-    (filtE ? Vi : Vo) += ve;
-    
-    /*Vhp2 = currentSummer[currentResonance[Vbp2] + Vlp2 + Vi];
-    Vbp2 = hpIntegrator->solve(Vhp2);
-    Vlp2 = bpIntegrator->solve(Vbp2);
-    
-    if (lp) Vo += Vlp2;
-    if (bp) Vo += Vbp2;
-    if (hp) Vo += Vhp2;*/
-    
-    sid_v4=currentGain[currentMixer[Vo]];
-    return ret;
-    //YOYOFR
-}
-
-} // namespace reSIDfp
-
-#endif
 
 #endif

@@ -10404,28 +10404,47 @@ char* loadRom(const char* path, size_t romSize)
     // Init ReSID
     if (sid_engine==0) {
         mBuilder = new ReSIDBuilder("resid");
+        cfg.sidEmulation  = mBuilder;
+        // Check if builder is ok
+        if (!mBuilder->getStatus()) {
+            NSLog(@"issue in creating sid builder");
+            return -1;
+        }
+        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+        mBuilder->create(maxsids);
+        
+        // Check if builder is ok
+        if (!mBuilder->getStatus()) {
+            NSLog(@"issue in creating sid builder");
+            return -1;
+        }
+        
         ((ReSIDBuilder*)mBuilder)->bias(0.5f);
     } else {
         mBuilder = new ReSIDfpBuilder("residfp");
+        cfg.sidEmulation  = mBuilder;
+        // Check if builder is ok
+        if (!mBuilder->getStatus()) {
+            NSLog(@"issue in creating sid builder");
+            return -1;
+        }
+        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+        mBuilder->create(maxsids);
+        
+        // Check if builder is ok
+        if (!mBuilder->getStatus()) {
+            NSLog(@"issue in creating sid builder");
+            return -1;
+        }
+        
         ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
-    }
-    cfg.sidEmulation  = mBuilder;
-    
-    // Check if builder is ok
-    if (!mBuilder->getStatus()) {
-        NSLog(@"issue in creating sid builder");
-        return -1;
+        ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
+        ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
     }
     
-    unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-    mBuilder->create(maxsids);
     
-    // Check if builder is ok
-    if (!mBuilder->getStatus()) {
-        NSLog(@"issue in creating sid builder");
-        return -1;
-    }
+    
     
     // setup resid
     if (mSIDFilterON) mBuilder->filter(true);

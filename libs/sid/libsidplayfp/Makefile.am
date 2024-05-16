@@ -13,14 +13,8 @@ if MINGW32
   W32_LDFLAGS = -no-undefined
 endif
 
-if MACOS
-  OD = god
-else
-  OD = od
-endif
-
 if HAVE_VISIBILITY
-  AM_CXXFLAGS = -fvisibility=hidden -fvisibility-inlines-hidden
+  VISIBILITY_CXXFLAGS = -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
 AM_CPPFLAGS = -I $(top_builddir)/src/builders/residfp-builder \
@@ -35,6 +29,8 @@ $(EXSID_CFLAGS) \
 $(PTHREAD_CFLAGS) \
 $(FTDI_CFLAGS) \
 @debug_flags@
+
+AM_CXXFLAGS = $(VISIBILITY_CXXFLAGS) $(OPENMP_CXXFLAGS)
 
 #=========================================================
 EXTRA_DIST = \
@@ -135,6 +131,7 @@ src/c64/Banks/DisconnectedBusBank.h \
 src/c64/Banks/ExtraSidBank.h \
 src/c64/Banks/IOBank.h \
 src/c64/Banks/NullSid.h \
+src/c64/Banks/pla.h \
 src/c64/Banks/SidBank.h \
 src/c64/Banks/SystemRAMBank.h \
 src/c64/Banks/SystemROMBanks.h \
@@ -151,8 +148,8 @@ src/c64/CPU/mos6510debug.h \
 src/c64/CPU/opcodes.h \
 src/c64/CIA/interrupt.cpp \
 src/c64/CIA/interrupt.h \
-src/c64/CIA/mos6526.cpp \
-src/c64/CIA/mos6526.h \
+src/c64/CIA/mos652x.cpp \
+src/c64/CIA/mos652x.h \
 src/c64/CIA/SerialPort.h \
 src/c64/CIA/SerialPort.cpp \
 src/c64/CIA/timer.cpp \
@@ -210,9 +207,9 @@ src/sidplayfp/sidversion.h
 src_libsidplayfp_la_LIBADD = \
 src/builders/residfp-builder/libsidplayfp-residfp.la \
 src/builders/resid-builder/libsidplayfp-resid.la \
-$(GCRYPT_LIBS)
+$(LIBGCRYPT_LIBS)
 
-src_libsidplayfp_la_CPPFLAGS = $(GCRYPT_CFLAGS) $(AM_CPPFLAGS)
+src_libsidplayfp_la_CPPFLAGS = $(LIBGCRYPT_CFLAGS) $(AM_CPPFLAGS)
 
 if HARDSID
   src_libsidplayfp_la_LIBADD += src/builders/hardsid-builder/libsidplayfp-hardsid.la
@@ -229,22 +226,25 @@ src_builders_residfp_builder_residfp_libresidfp_la_SOURCES = \
 src/builders/residfp-builder/residfp/array.h \
 src/builders/residfp-builder/residfp/Dac.cpp \
 src/builders/residfp-builder/residfp/Dac.h \
-src/builders/residfp-builder/residfp/Integrator.cpp \
-src/builders/residfp-builder/residfp/Integrator.h \
 src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp \
 src/builders/residfp-builder/residfp/EnvelopeGenerator.h \
 src/builders/residfp-builder/residfp/ExternalFilter.cpp \
 src/builders/residfp-builder/residfp/ExternalFilter.h \
-src/builders/residfp-builder/residfp/FilterModelConfig.cpp \
-src/builders/residfp-builder/residfp/FilterModelConfig.h \
 src/builders/residfp-builder/residfp/Filter.cpp \
 src/builders/residfp-builder/residfp/Filter.h \
 src/builders/residfp-builder/residfp/Filter6581.cpp \
 src/builders/residfp-builder/residfp/Filter6581.h \
 src/builders/residfp-builder/residfp/Filter8580.cpp \
 src/builders/residfp-builder/residfp/Filter8580.h \
+src/builders/residfp-builder/residfp/FilterModelConfig.cpp \
+src/builders/residfp-builder/residfp/FilterModelConfig.h \
+src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp \
+src/builders/residfp-builder/residfp/FilterModelConfig6581.h \
 src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp \
 src/builders/residfp-builder/residfp/FilterModelConfig8580.h \
+src/builders/residfp-builder/residfp/Integrator.h \
+src/builders/residfp-builder/residfp/Integrator6581.cpp \
+src/builders/residfp-builder/residfp/Integrator6581.h \
 src/builders/residfp-builder/residfp/Integrator8580.cpp \
 src/builders/residfp-builder/residfp/Integrator8580.h \
 src/builders/residfp-builder/residfp/OpAmp.cpp \
@@ -461,6 +461,8 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 .a65.bin:
 	o65file=`echo $@ | sed 's/bin/o65/'`;\
-	xa -R -G $< -o $$o65file &&\
+	[ -n "$(OD)" ] || { echo "od not found"; false; } &&\
+	[ -n "$(XA)" ] || { echo "xa not found"; false; } &&\
+	${XA} -R -G $< -o $$o65file &&\
 	${OD} -v -An -w8 -tx1 $$o65file | sed -re 's/[[:alnum:]]+/0x&,/g' > $@ &&\
 	${RM} $$o65file

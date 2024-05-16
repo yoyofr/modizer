@@ -67,14 +67,14 @@ public:
      * @return the voice analog output
      */
     RESID_INLINE
-    int output(const WaveformGenerator* ringModulator) const
+    float output(const WaveformGenerator* ringModulator) const
     {
         unsigned int const wav = waveformGenerator->output(ringModulator);
         unsigned int const env = envelopeGenerator->output();
 
         // DAC imperfections are emulated by using the digital output
         // as an index into a DAC lookup table.
-        return static_cast<int>(wavDAC[wav] * envDAC[env]);
+        return wavDAC[wav] * envDAC[env];
     }
 
     /**

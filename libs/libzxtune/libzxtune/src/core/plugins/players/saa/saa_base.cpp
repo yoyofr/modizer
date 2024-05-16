@@ -102,11 +102,11 @@ namespace Module
     {
       return SAA::CreateAnalyzer(Device);
     }
-      
+      //YOYOFR
       virtual int GetHWChannels() {
           return 6;
       }
-
+      //YOYOFR
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())

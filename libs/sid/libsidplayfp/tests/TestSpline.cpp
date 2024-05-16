@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- *  Copyright (C) 2014-2015 Leandro Nini
+ *  Copyright (C) 2014-2022 Leandro Nini
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include "UnitTest++/TestReporter.h"
 
 #include <limits>
+#include <vector>
 
 #include "../src/builders/residfp-builder/residfp/Spline.h"
 #include "../src/builders/residfp-builder/residfp/Spline.cpp"
@@ -73,7 +74,7 @@ SUITE(Spline)
 
 TEST(TestMonotonicity)
 {
-    Spline s(opamp_voltage, OPAMP_SIZE);
+    Spline s(std::vector<Spline::Point>(std::begin(opamp_voltage), std::end(opamp_voltage)));
 
     double old = std::numeric_limits<double>::max();
     for (double x = 0.0; x < 12.0; x+=0.01)
@@ -88,7 +89,7 @@ TEST(TestMonotonicity)
 
 TEST(TestPoints)
 {
-    Spline s(opamp_voltage, OPAMP_SIZE);
+    Spline s(std::vector<Spline::Point>(std::begin(opamp_voltage), std::end(opamp_voltage)));
 
     for (int i = 0; i < OPAMP_SIZE; i++)
     {
@@ -108,7 +109,7 @@ TEST(TestInterpolateOutsideBounds)
         { 30, 45 },
     };
 
-    Spline s(values, 5);
+    Spline s(std::vector<Spline::Point>(std::begin(values), std::end(values)));
 
     Spline::Point out;
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- *  Copyright (C) 2014-2016 Leandro Nini
+ *  Copyright (C) 2014-2024 Leandro Nini
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -69,6 +69,14 @@ TEST(TestDac8580)
     // Test the linearity of the 8580 DACs
 
     CHECK(isDacLinear(MOS8580));
+}
+
+TEST(TestLeak)
+{
+    float dac[1 << DAC_BITS];
+    buildDac(dac, MOS6581);
+
+    CHECK(dac[0] > 0);
 }
 
 }

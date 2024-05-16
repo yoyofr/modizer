@@ -60,7 +60,7 @@ public:
      *
      * @return the integrator
      */
-    std::unique_ptr<Integrator8580> buildIntegrator();
+    Integrator* buildIntegrator() override;
 };
 
 } // namespace reSIDfp

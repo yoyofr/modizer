@@ -1,8 +1,9 @@
 m4_define([lib_major], [2])
-m4_define([lib_minor], [1])
-m4_define([lib_level], [1])
+m4_define([lib_minor], [7])
+m4_define([lib_level], [0])
 m4_define([lib_version], [lib_major.lib_minor.lib_level])
 
+AC_PREREQ([2.62])
 AC_INIT([libsidplayfp],[lib_version],[],[],[https://github.com/libsidplayfp/libsidplayfp/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIRS([m4 src/builders/exsid-builder/driver/m4])
@@ -36,7 +37,13 @@ AC_PROG_CXX
 dnl Use C++ for tests.
 AC_LANG([C++])
 
-AX_CXX_COMPILE_STDCXX_11([noext], [optional])
+AX_CXX_COMPILE_STDCXX_17([noext], [optional])
+AS_IF([test $ax_cv_cxx_compile_cxx17__std_cpp17 != "yes"], [
+    AX_CXX_COMPILE_STDCXX_14([noext], [optional])
+    AS_IF([test $ax_cv_cxx_compile_cxx14__std_cpp14 != "yes"],
+        AX_CXX_COMPILE_STDCXX_11([noext], [optional])
+    )
+])
 
 dnl check for hidden visibility support
 AX_CHECK_COMPILE_FLAG([-fvisibility=hidden -fvisibility-inlines-hidden], [has_visibility=yes], [has_visibility=no])
@@ -60,29 +67,28 @@ AS_IF([test "x${ac_cv_header_stdint_h}" != "xyes"],
   [AC_MSG_ERROR([Required header stdint.h not found])]
 )
 
+AC_OPENMP
+
 dnl Checks for non-standard functions.
 
 AC_CHECK_DECL(
     [strcasecmp],
-    [AC_CHECK_FUNCS([strcasecmp])],
-    [AC_CHECK_DECL(
-        [stricmp],
-        [AC_CHECK_FUNCS([stricmp])]
-    )]
+    [AC_CHECK_FUNCS([strcasecmp])]
 )
 
 AC_CHECK_DECL(
     [strncasecmp],
-    [AC_CHECK_FUNCS([strncasecmp])],
-    [AC_CHECK_DECL(
-        [strnicmp],
-        [AC_CHECK_FUNCS([strnicmp])]
-    )]
+    [AC_CHECK_FUNCS([strncasecmp])]
 )
 
-AX_LIB_GCRYPT([auto])
-AM_CONDITIONAL([LIBGCRYPT], [test "x$have_libgcrypt" = "xyes"])
+AC_CHECK_PROGS([XA], [xa])
 
+# od on macOS doesn't support the -w parameter
+AC_CACHE_CHECK([for od that supports -w], [ac_cv_path_OD],
+  [AC_PATH_PROGS_FEATURE_CHECK([OD], [od god],
+    [[$ac_path_OD -w > /dev/null 2>&1 && ac_cv_path_OD=$ac_path_OD ac_path_OD_found=:]])]
+)
+AC_SUBST([OD], [$ac_cv_path_OD])
 
 dnl libtool-style version-info number
 #
@@ -94,9 +100,9 @@ dnl libtool-style version-info number
 #
 # Increase the age value only if the changes made to the ABI are backward compatible.
 
-LIBSIDPLAYCUR=8
-LIBSIDPLAYREV=17
-LIBSIDPLAYAGE=2
+LIBSIDPLAYCUR=10
+LIBSIDPLAYREV=30
+LIBSIDPLAYAGE=4
 LIBSIDPLAYVERSION=$LIBSIDPLAYCUR:$LIBSIDPLAYREV:$LIBSIDPLAYAGE
 
 LIBSTILVIEWCUR=0
@@ -134,25 +140,32 @@ AS_IF([test x"$enable_inline" != "xno"],
   [RESID_INLINE=""; RESID_INLINING=0]
 )
 
-AC_ARG_ENABLE([mmx],
-  [AS_HELP_STRING([--enable-mmx],
-    [enable MMX optimization [default=no]])]
+AC_ARG_WITH(
+    [simd],
+    [AS_HELP_STRING([--with-simd], [Build with SIMD optimizations [@<:@sse2/mmx/neon/none, default=none@:>@]])],
+    [],
+    [with_simd=none]
 )
 
-AS_IF([test x"$enable_mmx" = xyes],
-# Testing for mmintrin.h requires compiler support
-# for mmx support activated by specific flags
-# these are most probably defined in CXXFLAGS
-# but AC_CHECK_HEADERS uses only CPPFLAGS
-# so we need a workaround
-  [saveCPPFLAGS=$CPPFLAGS
-   CPPFLAGS="$CPPFLAGS $CXXFLAGS"
+AS_IF([test x"$with_simd" != xnone],
+    # Testing for intrinsic headers requires compiler
+    # support activated by specific flags.
+    # These are most likely defined in CXXFLAGS
+    # but AC_CHECK_HEADERS uses only CPPFLAGS
+    # so we need a workaround.
+    [saveCPPFLAGS=$CPPFLAGS
+    CPPFLAGS="$CPPFLAGS $CXXFLAGS"
 
-   AC_CHECK_HEADERS([mmintrin.h])
+    AS_CASE([$with_simd],
+        [sse2], [AC_CHECK_HEADERS([emmintrin.h])],
+        [mmx],  [AC_CHECK_HEADERS([mmintrin.h])],
+        [neon], [AC_CHECK_HEADERS([arm_neon.h])],
+        [AC_MSG_ERROR([Unrecognized SIMD specified])]
+    )
 
-   CPPFLAGS=$saveCPPFLAGS]
+    CPPFLAGS=$saveCPPFLAGS]
 )
- 
+
 AC_CACHE_CHECK([for working bool], ac_cv_cxx_bool,
 [AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM([],
@@ -232,24 +245,39 @@ AS_IF([test "x$enable_testsuite" != xno],
 
 AM_CONDITIONAL([TESTSUITE], [test "x$enable_testsuite" != xno])
 
-# FIXME use pkgconfig
+
+PKG_PROG_PKG_CONFIG
+
 AC_ARG_ENABLE([tests],
   [AS_HELP_STRING([--enable-tests],
     [enable unit tests [default=no]]
   )],
-  [[echo Enabling unit tests]
-    AC_CHECK_HEADERS([UnitTest++/UnitTest++.h], [], AC_MSG_ERROR([UnitTest++.h header not found]))
-        AS_IF(
-                [test "x${ac_cv_header_UnitTestpp_UnitTestpp_h}" = xyes],
-                AC_CHECK_LIB([UnitTest++], [main], [unittest_libs=-lUnitTest++], AC_MSG_ERROR([UnitTest++ library not found]))
-        )
-    [am_unittest=true]
-  ],
-  [am_unittest=false]
+  [],
+  [enable_tests=no]
 )
 
-AM_CONDITIONAL([ENABLE_TEST], [test x$am_unittest = xtrue])
-AC_SUBST([unittest_libs])
+AS_IF([test "x$enable_tests" != "xno"],
+  [[echo Enabling unit tests]
+    PKG_CHECK_MODULES(UNITTEST, [UnitTest++])
+  ]
+)
+
+AM_CONDITIONAL([ENABLE_TEST], [test x$enable_tests = xyes])
+
+
+AC_ARG_WITH([gcrypt], AS_HELP_STRING([--with-gcrypt], [Build with the gcrypt library]))
+AS_IF([test "x$with_gcrypt" != "xno"],
+  [PKG_CHECK_MODULES(LIBGCRYPT,
+    [libgcrypt >= 1.8],
+    [USE_LIBGCRYPT=yes
+    AC_DEFINE([HAVE_LIBGCRYPT], 1, [Define to 1 if you have libgcrypt (-lgcrypt).])],
+    [AS_IF([test "x$with_gcrypt" = "xyes"],
+      [AC_MSG_ERROR([gcrypt requested but not found])]
+    )]
+  )]
+)
+AM_CONDITIONAL([LIBGCRYPT], [test x$USE_LIBGCRYPT = xyes])
+
 
 NEW_8580_FILTER=1
 AM_CONDITIONAL([NEW_8580_FILTER], [test $NEW_8580_FILTER != 0])
@@ -305,8 +333,8 @@ AS_IF(
 )
 
 AS_IF(
-    [test "x$with_exsid" = "xyes" -a "x$build_exsid_driver" != xyes],
-    [AC_MSG_ERROR([Neither libexid nor ftd2xx nor libftdi1 found])]
+    [test "x$with_exsid" = "xyes" -a "x$build_exsid_builder" != xyes],
+    [AC_MSG_ERROR([Neither libexsid nor ftd2xx nor libftdi1 found])]
 )
 
 AC_SUBST([FTDI_CFLAGS])

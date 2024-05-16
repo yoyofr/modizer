@@ -1,3 +1,109 @@
+2.7.0 2024-03-29
+* residfp: refactor residfp filter (#109)
+* residfp: added ability to adjust the uCox parameter at runtime (#101)
+* residfp: allow setting the combined waveforms strength (#110)
+* resid/residfp: emulate oscillator leakage (#102)
+
+
+
+2.6.0 2024-01-01
+* residfp is now thread-safe (#71)
+* residfp: fixed SSE2 version of convolve (#105)
+* residfp: updated combined waveforms model (#97)
+* residfp: amplify the output by a model dependent scale factor (#78, #79)
+* a couple of autotools fixes (#103, #104, #108)
+
+
+
+2.5.1 2023-12-23
+* Check for {g,}od at configure time (#87)
+* residfp: fix a 6581 filter bug where values could actually go negative
+* Sync resid with upstream
+
+
+
+2.5.0 2023-06-02
+* residfp: reworked the combined waveforms model by separating pulldown effect from waveform generation
+* residfp: tweaked the 8580 filter parameters for increased volume and less distortion (#45)
+* Updated to latest resid
+* Use OpenMP to speedup LUTs initialization
+* CIA: minor rework based on chip reverse engineering
+* Use c++17 where available
+* Added sanity check for buffer size
+* Minor mixer optimizations
+* Other minor changes
+
+
+
+2.4.2 2023-01-29
+* Fixed a memory leak
+* Minor fixes
+
+
+
+2.4.1 2022-11-19
+* Fixed a memory leak introduced in 2.1.0
+
+
+
+2.4.0 2022-11-06
+* Use pkgconfig for UnitTest++ and libgcrypt support (#46)
+* residfp: correct 6581 volume gain based on schematics (issue #38)
+* residfp: fixed more PVS-Studio warnings. (issue #49)
+* residfp: refactoring, changes and cleanup
+* residfp: updated the combined waveform model
+* Synced resid with upstream
+* Fixed a comparison-with-wider-type alert in the MUS loader
+* Other minor changes
+
+
+
+2.3.1 2021-12-07
+* VIC II: check badline enabled condition on raster Y increment. Fixes CPU/shxy/shx-test
+* Disable digiboost for residfp when not required (issue #37)
+
+
+
+2.3.0 2021-09-16
+* residfp: fixed some PVS-Studio warnings. (issues #20 #21 #23 #28)
+* residfp: share dac tables between voices, saves a few Kb and some initialization time (issues #34 #26)
+* CIA: rework interrupt implementation based on Denise emu code, fixes CIA/dd0dtest/dd0dtest (issue #29)
+* c64: return pseudo random numbers when reading from the I/O Area as the VIC fetches are not emulated.
+       Fixes C64/openio/gauntlet test
+* VIC-II: fix lightpen X coordinate calculation. Makes VICII/split-tests/lightpen/lightpen test pass
+
+
+
+2.2.2 2021-08-07
+* songlengthdb: fix possible corrupted data (issue #32)
+
+
+
+2.2.1 2021-07-18
+* VIC-II: fix NTSC badline timing and improve cycle skipping
+* CIA: minor refactoring
+* Fixed a few minor PVS-Studio flagged issues
+
+
+
+2.2.0 2021-05-23
+* reSIDfp: added NEON (by Christopher Snowhill) and SSE2 version of convolution function
+  the configure option has been changed to --with-simd=<sse2/mmx/neon/none>
+* Exposed last values written to the SID registers. Based on patch by Stian Skjelstad
+* API additions:
+  - Splitted ROM functions
+  - Added CIA 6526 4485 model setting, mostly for testing
+  - Added function for loading database from unicode path on Windows
+  - Added function for loading tunes using a custom loader callback
+
+
+
+2.1.2 2021-04-19
+* configure: don't fail when --with-exsid is passed and libexsid is installed (issue #13)
+* songlength DB: fix parsing of milliseconds with leading zeroes
+
+
+
 2.1.1 2021-02-27
 * Fixed building hardsid support
 * reSIDfp: shift register regression fixes

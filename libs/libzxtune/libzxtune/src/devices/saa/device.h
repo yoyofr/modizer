@@ -116,7 +116,7 @@ public:
         }
         return out;
     }
-    
+    //YOYOFR
     FastSample GetLevelsChan(int chan) const
     {
         const uint_t noise = Noise.GetLevel();
@@ -128,6 +128,7 @@ public:
                 {
                     out.Add(Levels[0]);
                 }
+                
                 break;
             case 1:
                 if (noise & Tones[1].GetLevel<2>())
@@ -142,12 +143,9 @@ public:
                 }
                 break;
         }
-        
-        
-        
-        
         return out;
     }
+    //YOYOFR
     
     void GetState(MultiChannelState& state) const
     {
@@ -276,12 +274,15 @@ public:
         return out.Convert();
     }
     
+    //YOYOFR
     Sound::Sample GetLevelsChan(int chan) const
     {
-        FastSample out = Subdevices[0].GetLevelsChan(chan);
-        out.Add(Subdevices[1].GetLevelsChan(chan));
+        FastSample out;
+        if (chan<3) out = Subdevices[0].GetLevelsChan(chan);
+        else out = Subdevices[1].GetLevelsChan(chan-3);
         return out.Convert();
     }
+    //YOYOFR
     
     void GetState(MultiChannelState& state) const
     {

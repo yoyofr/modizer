@@ -43,6 +43,8 @@ namespace reSIDfp {
 
 typedef enum { MOS6581=1, MOS8580 } ChipModel;
 
+typedef enum { AVERAGE=1, WEAK, STRONG } CombinedWaveforms;
+
 typedef enum { DECIMATE=1, RESAMPLE } SamplingMethod;
 }
 
@@ -51,7 +53,7 @@ extern "C"
 #ifndef __VERSION_CC__
 extern const char* residfp_version_string;
 #else
-const char* residfp_version_string = "2.6.0";
+const char* residfp_version_string = "2.7.0";
 #endif
 }
 

@@ -182,7 +182,7 @@ unsigned short Filter::vcr_n_Ids_term[1 << 16];
 #undef HAS_LOG1P
 #endif
 
-#ifndef HAS_LO1P
+#ifndef HAS_LOG1P
 static double log1p(double x)
 {
     return log(1 + x) - (((1 + x) - 1) - x) / (1 + x);

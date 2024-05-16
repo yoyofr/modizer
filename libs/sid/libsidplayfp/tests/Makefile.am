@@ -5,9 +5,10 @@ if ENABLE_TEST
 
 AM_CPPFLAGS = \
 -I$(top_srcdir)/src \
--I$(top_builddir)/src/builders/residfp-builder/residfp
+-I$(top_builddir)/src/builders/residfp-builder/residfp \
+$(UNITTEST_CFLAGS)
 
-AM_LDFLAGS = @unittest_libs@
+AM_LDFLAGS = $(UNITTEST_LIBS)
 
 TESTS = \
 TestEnvelopeGenerator \
@@ -16,7 +17,8 @@ TestSpline \
 TestDac \
 TestPSID \
 TestMUS \
-TestMos6510
+TestMos6510 \
+TestResampler
 
 check_PROGRAMS = $(TESTS)
 
@@ -49,5 +51,9 @@ TestMUS_LDADD = $(top_builddir)/src/libsidplayfp.la
 TestMos6510_SOURCES = \
 Main.cpp \
 TestMos6510.cpp
+
+TestResampler_SOURCES = \
+Main.cpp \
+TestResampler.cpp
 
 endif

@@ -119,7 +119,10 @@ void build_dac_table(unsigned short* dac, int bits, double _2R_div_R, bool term)
     int x = i;
     double Vo = 0;
     for (int j = 0; j < bits; j++) {
-      Vo += (x & 0x1)*vbit[j];
+      // "Even in standard transistors a small amount of current leaks
+      //  even when they are technically switched off."
+      // https://en.wikipedia.org/wiki/Subthreshold_conduction
+      Vo += ((x & 0x1) ? 1. : 0.01)*vbit[j];
       x >>= 1;
     }
 

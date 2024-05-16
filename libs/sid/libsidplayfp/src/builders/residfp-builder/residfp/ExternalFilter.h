@@ -72,7 +72,7 @@ class ExternalFilter
 private:
     /// Lowpass filter voltage
     int Vlp;
-    
+
     /// Highpass filter voltage
     int Vhp;
     //YOYOFR
@@ -81,9 +81,9 @@ private:
     
     
     int w0lp_1_s7;
-    
+
     int w0hp_1_s17;
-    
+
 public:
     /**
      * SID clocking.
@@ -91,19 +91,19 @@ public:
      * @param input
      */
     int clock(int input);
-    
+
     /**
      * Constructor.
      */
     ExternalFilter();
-    
+
     /**
      * Setup of the external filter sampling parameters.
      *
      * @param frequency the main system clock frequency
      */
     void setClockFrequency(double frequency);
-    
+
     /**
      * SID reset.
      */

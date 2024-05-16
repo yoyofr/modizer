@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2016 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004,2010 Dag Lem <resid@nimrod.no>
  *
@@ -22,10 +22,13 @@
 
 #include "Dac.h"
 
+#include "sidcxx11.h"
+
 namespace reSIDfp
 {
 
 Dac::Dac(unsigned int bits) :
+    leakage(0.01),
     dac(new double[bits]),
     dacLength(bits)
 {}
@@ -41,10 +44,8 @@ double Dac::getOutput(unsigned int input) const
 
     for (unsigned int i = 0; i < dacLength; i++)
     {
-        if ((input & (1 << i)) != 0)
-        {
-            dacValue += dac[i];
-        }
+        const bool transistor_on = (input & (1 << i)) != 0;
+        dacValue += transistor_on ? dac[i] : dac[i] * leakage;
     }
 
     return dacValue;
@@ -52,7 +53,7 @@ double Dac::getOutput(unsigned int input) const
 
 void Dac::kinkedDac(ChipModel chipModel)
 {
-    const double R_INFINITY = 1e6;
+    constexpr double R_INFINITY = 1e6;
 
     // Non-linearity parameter, 8580 DACs are perfectly linear
     const double _2R_div_R = chipModel == MOS6581 ? 2.20 : 2.00;
@@ -108,8 +109,6 @@ void Dac::kinkedDac(ChipModel chipModel)
     }
 
     // Normalize to integerish behavior
-    Vsum /= 1 << dacLength;
-
     for (unsigned int i = 0; i < dacLength; i++)
     {
         dac[i] /= Vsum;

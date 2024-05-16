@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2016 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -47,10 +47,10 @@ class SIDError
 {
 private:
     const char* message;
-    
+
 public:
     SIDError(const char* msg) :
-    message(msg) {}
+        message(msg) {}
     const char* getMessage() const { return message; }
 };
 
@@ -62,66 +62,69 @@ class SID
 private:
     /// Currently active filter
     Filter* filter;
-    
+
     /// Filter used, if model is set to 6581
-    std::unique_ptr<Filter6581> const filter6581;
-    
+    Filter6581* const filter6581;
+
     /// Filter used, if model is set to 8580
-    std::unique_ptr<Filter8580> const filter8580;
-    
+    Filter8580* const filter8580;
+
     /**
      * External filter that provides high-pass and low-pass filtering
      * to adjust sound tone slightly.
      */
-    std::unique_ptr<ExternalFilter> const externalFilter;
-    
+    ExternalFilter* const externalFilter;
+
     /// Resampler used by audio generation code.
     std::unique_ptr<Resampler> resampler;
-    
+
     /// Paddle X register support
-    std::unique_ptr<Potentiometer> const potX;
-    
+    Potentiometer* const potX;
+
     /// Paddle Y register support
-    std::unique_ptr<Potentiometer> const potY;
-    
+    Potentiometer* const potY;
+
     /// SID voices
     std::unique_ptr<Voice> voice[3];
-    
+
     /// Used to amplify the output by x/2 to get an adequate playback volume
     int scaleFactor;
-    
+
     /// Time to live for the last written value
     int busValueTtl;
-    
+
     /// Current chip model's bus value TTL
     int modelTTL;
-    
+
     /// Time until #voiceSync must be run.
     unsigned int nextVoiceSync;
-    
+
     /// Currently active chip model.
     ChipModel model;
-    
+
+    /// Currently selected combined waveforms strength.
+    CombinedWaveforms cws;
+
     /// Last written value
     unsigned char busValue;
-    
+
     /// Flags for muted channels
     bool muted[3];
-    
+
     /**
      * Emulated nonlinearity of the envelope DAC.
      *
      * @See Dac
      */
     float envDAC[256];
-    
+
     /**
      * Emulated nonlinearity of the oscillator DAC.
      *
      * @See Dac
      */
     float oscDAC[4096];
-    
+
 private:
     /**
      * Age the bus value and zero it if it's TTL has expired.
@@ -129,14 +132,14 @@ private:
      * @param n the number of cycles
      */
     void ageBusValue(unsigned int n);
-    
+
     /**
      * Get output sample.
      *
      * @return the output sample
      */
     int output() const;
-    
+
     /**
      * Calculate the numebr of cycles according to current parameters
      * that it takes to reach sync.
@@ -144,11 +147,11 @@ private:
      * @param sync whether to do the actual voice synchronization
      */
     void voiceSync(bool sync);
-    
+
 public:
     SID();
     ~SID();
-    
+
     /**
      * Set chip model.
      *
@@ -156,17 +159,25 @@ public:
      * @throw SIDError
      */
     void setChipModel(ChipModel model);
-    
+
     /**
      * Get currently emulated chip model.
      */
     ChipModel getChipModel() const { return model; }
-    
+
+    /**
+     * Set combined waveforms strength.
+     *
+     * @param cws strength of combined waveforms
+     * @throw SIDError
+     */
+    void setCombinedWaveforms(CombinedWaveforms cws);
+
     /**
      * SID reset.
      */
     void reset();
-    
+
     /**
      * 16-bit input (EXT IN). Write 16-bit sample to audio input. NB! The caller
      * is responsible for keeping the value within 16 bits. Note that to mix in
@@ -176,7 +187,7 @@ public:
      * @param value input level to set
      */
     void input(int value);
-    
+
     /**
      * Read registers.
      *
@@ -198,7 +209,7 @@ public:
      * @return value read from chip
      */
     unsigned char read(int offset);
-    
+
     /**
      * Write registers.
      *
@@ -206,7 +217,7 @@ public:
      * @param value value to write
      */
     void write(int offset, unsigned char value);
-    
+
     /**
      * SID voice muting.
      *
@@ -214,7 +225,7 @@ public:
      * @param enable is muted?
      */
     void mute(int channel, bool enable) { muted[channel] = enable; }
-    
+
     /**
      * Setting of SID sampling parameters.
      *
@@ -241,7 +252,7 @@ public:
      * @throw SIDError
      */
     void setSamplingParameters(double clockFrequency, SamplingMethod method, double samplingFrequency, double highestAccurateFrequency);
-    
+
     /**
      * Clock SID forward using chosen output sampling algorithm.
      *
@@ -250,7 +261,7 @@ public:
      * @return number of samples produced
      */
     int clock(unsigned int cycles, short* buf);
-    
+
     /**
      * Clock SID forward with no audio production.
      *
@@ -262,21 +273,28 @@ public:
      * @param cycles c64 clocks to clock.
      */
     void clockSilent(unsigned int cycles);
-    
+
     /**
      * Set filter curve parameter for 6581 model.
      *
      * @see Filter6581::setFilterCurve(double)
      */
     void setFilter6581Curve(double filterCurve);
-    
+
+    /**
+    * Set filter range parameter for 6581 model
+    *
+    * @see Filter6581::setFilterRange(double)
+    */
+    void setFilter6581Range ( double adjustment );
+
     /**
      * Set filter curve parameter for 8580 model.
      *
      * @see Filter8580::setFilterCurve(double)
      */
     void setFilter8580Curve(double filterCurve);
-    
+
     /**
      * Enable filter emulation.
      *
@@ -305,7 +323,7 @@ void SID::ageBusValue(unsigned int n)
     if (likely(busValueTtl != 0))
     {
         busValueTtl -= n;
-        
+
         if (unlikely(busValueTtl <= 0))
         {
             busValue = 0;
@@ -315,9 +333,9 @@ void SID::ageBusValue(unsigned int n)
 }
 
 //TODO:  MODIZER changes start / YOYOFR
-static int sid_v1;
-static int sid_v2;
-static int sid_v3;
+static float sid_v1;
+static float sid_v2;
+static float sid_v3;
 extern "C" int sid_v4;
 
 
@@ -333,14 +351,17 @@ char sid_firstcall[MAXSID_CHIPS];
 RESID_INLINE
 int SID::output() const
 {
-    //TODO:  MODIZER changes start / YOYOFR
-    /*const int*/ sid_v1 = voice[0]->output(voice[2]->wave());
-    /*const int*/ sid_v2 = voice[1]->output(voice[0]->wave());
-    /*const int*/ sid_v3 = voice[2]->output(voice[1]->wave());
-    
-    //const int input = (scaleFactor * static_cast<unsigned int>(filter->clock(v1, v2, v3))) / 2;
-    const int input = (scaleFactor * static_cast<unsigned int>(filter->clock(sid_v1, sid_v2, sid_v3))) / 2;
-    //TODO:  MODIZER changes end / YOYOFR
+//    const float v1 = voice[0]->output(voice[2]->wave());
+//    const float v2 = voice[1]->output(voice[0]->wave());
+//    const float v3 = voice[2]->output(voice[1]->wave());
+    //YOYOFR
+    sid_v1 = voice[0]->output(voice[2]->wave());
+    sid_v2 = voice[1]->output(voice[0]->wave());
+    sid_v3 = voice[2]->output(voice[1]->wave());
+
+//    const int input = static_cast<int>(filter->clock(v1, v2, v3));
+    const int input = static_cast<int>(filter->clock(sid_v1, sid_v2, sid_v3));
+    //YOYOFR
     
     return externalFilter->clock(input);
 }
@@ -408,9 +429,9 @@ int SID::clock(unsigned int cycles, short* buf)
                             }
                             
                             for (int j=0;j<4;j++) {
-                                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v1>>13));
-                                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v2>>13));
-                                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v3>>13));
+                                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v1*127));
+                                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v2*127));
+                                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v3*127));
                                 m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
                                 
                                 
@@ -442,9 +463,8 @@ int SID::clock(unsigned int cycles, short* buf)
             
             cycles -= delta_t;
             nextVoiceSync -= delta_t;
-            if (nextVoiceSync<0) nextVoiceSync=0;
         }
-        
+
         if (unlikely(nextVoiceSync == 0))
         {
             voiceSync(true);

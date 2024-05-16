@@ -43,6 +43,8 @@ namespace reSIDfp {
 
 typedef enum { MOS6581=1, MOS8580 } ChipModel;
 
+typedef enum { AVERAGE=1, WEAK, STRONG } CombinedWaveforms;
+
 typedef enum { DECIMATE=1, RESAMPLE } SamplingMethod;
 }
 
