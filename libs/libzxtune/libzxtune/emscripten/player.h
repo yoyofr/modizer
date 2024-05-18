@@ -92,7 +92,7 @@
         samples -= got;
         result += got;
           
-          m_voice_current_system=0; //YOYOFR
+          m_voicesForceOfs=0; //YOYOFR
         if (0 == samples || !Renderer->RenderFrame())
         {
           break;

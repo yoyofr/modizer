@@ -1180,7 +1180,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_DefaultYMPlayer)
     settings[GLOB_DefaultYMPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultYMPlayer].label=(char*)"VGM player";
+    settings[GLOB_DefaultYMPlayer].label=(char*)"YM player";
     settings[GLOB_DefaultYMPlayer].description=NULL;
     settings[GLOB_DefaultYMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY;
     settings[GLOB_DefaultYMPlayer].sub_family=0;

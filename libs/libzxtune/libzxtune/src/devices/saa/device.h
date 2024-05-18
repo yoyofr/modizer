@@ -10,6 +10,11 @@
 
 #pragma once
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "generators.h"
 
@@ -97,51 +102,61 @@ public:
         Envelope.Tick(ticks);
     }
     
+    
+    
     FastSample GetLevels() const
     {
         const uint_t noise = Noise.GetLevel();
         
         FastSample out;
-        if (noise & Tones[0].GetLevel<1>())
+        if ( !(generic_mute_mask&(1<<(m_voicesForceOfs+0))) &&  (noise & Tones[0].GetLevel<1>()))
         {
             out.Add(Levels[0]);
         }
-        if (noise & Tones[1].GetLevel<2>())
+        if ( !(generic_mute_mask&(1<<(m_voicesForceOfs+1))) &&  (noise & Tones[1].GetLevel<2>()))
         {
             out.Add(Levels[1]);
         }
-        if (noise & Tones[2].GetLevel<4>())
+        if ( !(generic_mute_mask&(1<<(m_voicesForceOfs+2))) &&  (noise & Tones[2].GetLevel<4>()))
         {
             out.Add(Envelope.GetLevel(Levels[2]));
         }
         return out;
     }
+    
     //YOYOFR
+    uint_t GetPeriod(int chan) const {
+        if ((chan<0)||(chan>=3)) return 0;
+        return Tones[chan].GetHalfPeriod();
+    }
+    
     FastSample GetLevelsChan(int chan) const
     {
         const uint_t noise = Noise.GetLevel();
         
         FastSample out;
-        switch (chan) {
-            case 0:
-                if (noise & Tones[0].GetLevel<1>())
-                {
-                    out.Add(Levels[0]);
-                }
-                
-                break;
-            case 1:
-                if (noise & Tones[1].GetLevel<2>())
-                {
-                    out.Add(Levels[1]);
-                }
-                break;
-            case 2:
-                if (noise & Tones[2].GetLevel<4>())
-                {
-                    out.Add(Envelope.GetLevel(Levels[2]));
-                }
-                break;
+        if ( !(generic_mute_mask&(1<<(m_voicesForceOfs+chan))) ) {
+            switch (chan) {
+                case 0:
+                    if (noise & Tones[0].GetLevel<1>())
+                    {
+                        out.Add(Levels[0]);
+                    }
+                    
+                    break;
+                case 1:
+                    if (noise & Tones[1].GetLevel<2>())
+                    {
+                        out.Add(Levels[1]);
+                    }
+                    break;
+                case 2:
+                    if (noise & Tones[2].GetLevel<4>())
+                    {
+                        out.Add(Envelope.GetLevel(Levels[2]));
+                    }
+                    break;
+            }
         }
         return out;
     }
@@ -269,8 +284,34 @@ public:
     
     Sound::Sample GetLevels() const
     {
+        m_voicesForceOfs=0;//YOYOFR
         FastSample out = Subdevices[0].GetLevels();
+        m_voicesForceOfs=3;//YOYOFR
         out.Add(Subdevices[1].GetLevels());
+        
+        m_voicesForceOfs=0;//YOYOFR
+        
+        for (int i=0;i<6;i++) {
+            float period=0;
+            int vol=0;
+            
+            if (generic_mute_mask&(1<<(i))) {
+            } else {
+                if (i<3) m_voicesForceOfs=0;
+                else m_voicesForceOfs=3;
+                period=Subdevices[i/3].GetPeriod(i%3);
+                vol=MAXVAL(Subdevices[i/3].GetLevelsChan(i%3).Left(),Subdevices[i/3].GetLevelsChan(i%3).Right());
+                
+                if (period && vol) {
+                    float freq=m_voice_current_samplerate/period;
+                    vgm_last_note[i]=freq;
+                    vgm_last_sample_addr[i]=i;
+                    vgm_last_vol[i]=1;
+                }
+            }
+        }
+        m_voicesForceOfs=0;//YOYOFR
+        
         return out.Convert();
     }
     
@@ -278,8 +319,14 @@ public:
     Sound::Sample GetLevelsChan(int chan) const
     {
         FastSample out;
-        if (chan<3) out = Subdevices[0].GetLevelsChan(chan);
-        else out = Subdevices[1].GetLevelsChan(chan-3);
+        if (chan<3) {
+            m_voicesForceOfs=0;
+            out = Subdevices[0].GetLevelsChan(chan);
+        }
+        else {
+            m_voicesForceOfs=3;
+            out = Subdevices[1].GetLevelsChan(chan-3);
+        }
         return out.Convert();
     }
     //YOYOFR

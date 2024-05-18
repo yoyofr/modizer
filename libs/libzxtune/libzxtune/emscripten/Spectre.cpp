@@ -288,6 +288,14 @@ public:
     int get_channels_count() {
         return _player->GetRenderer()->GetHWChannels();;
     }
+    
+    const char *get_channel_name(int chan) {
+        return _player->GetRenderer()->GetHWChannelName(chan);
+    }
+    
+    const char *get_system_name() {
+        return _player->GetRenderer()->GetHWSystemName();
+    }
 	
 	void seek_position(int ms) {
 	   _player->GetRenderer()->SetPosition(ms/_frameDurationMs);
@@ -397,6 +405,14 @@ int ZxTuneWrapper::getSampleRate() {
 
 int ZxTuneWrapper::get_channels_count() {
     return _pimpl->get_channels_count();
+}
+
+const char *ZxTuneWrapper::get_channel_name(int chan) {
+    return _pimpl->get_channel_name(chan);
+}
+
+const char *ZxTuneWrapper::get_system_name() {
+    return _pimpl->get_system_name();
 }
 
 

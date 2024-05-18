@@ -22,7 +22,10 @@ namespace Beeper
   public:
     void SetNewData(bool level)
     {
-      Levels = level ? Sound::Sample(Sound::Sample::MAX / 2, Sound::Sample::MAX / 2) : Sound::Sample();
+        //YOYOFR
+        if (generic_mute_mask&(1<<m_voicesForceOfs)) Levels = Sound::Sample();
+      else Levels = level ? Sound::Sample(Sound::Sample::MAX / 2, Sound::Sample::MAX / 2) : Sound::Sample();
+        //YOYOFR
     }
     
     void Tick(uint_t /*ticks*/)

@@ -5151,7 +5151,7 @@ static void play_midi_prescan(MidiEvent *ev) {
                             m_voice_channel_mapping[ch_idx]=ch;
                             ch_idx++;
                             if (ch_idx>=TIM_MAX_CHANNELS) {
-                                printf("reaching channel limit\n");
+//                                printf("reaching channel limit\n");
                                 ch_idx--;
                             }
                         }
@@ -5227,11 +5227,11 @@ static void play_midi_prescan(MidiEvent *ev) {
                         }
                         break;
                     case ME_LOOP_START:
-                        printf("loop start detected\n");
+//                        printf("loop start detected\n");
                         tim_loop_point=ev->time;
                         break;
                     case ME_LOOP_END:
-                        printf("loop end detected\n");
+//                        printf("loop end detected\n");
                         if (tim_loop_cnt<tim_loop_max) {
                             tim_loop_cnt++;
                             tim_loop_time+=(ev->time-tim_loop_point);
@@ -8227,11 +8227,11 @@ int play_event(MidiEvent *ev)
                     break;
                     //YOYOFR
                 case ME_LOOP_START:
-                    printf("loop start detected\n");
+//                    printf("loop start detected\n");
                     tim_loop_point=ev->time;
                     break;
                 case ME_LOOP_END:
-                    printf("loop end detected\n");
+//                    printf("loop end detected\n");
                     if ((tim_loop_max<0)||(tim_loop_cnt<tim_loop_max)) {
                         tim_loop_cnt++;
                         skip_to(tim_loop_point);

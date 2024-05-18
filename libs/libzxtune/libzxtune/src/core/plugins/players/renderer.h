@@ -44,6 +44,10 @@ namespace Module
     virtual void SetPosition(uint_t frame) = 0;
       
     virtual int GetHWChannels() = 0;
+      
+      virtual const char *GetHWChannelName(int chan) = 0;
+      
+      virtual const char *GetHWSystemName() = 0;
     
   };
 }

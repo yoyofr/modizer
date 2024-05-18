@@ -59,6 +59,9 @@ public:
     
     int get_channels_count();
     
+    const char *get_channel_name(int chan);
+    const char *get_system_name();
+    
     char *get_all_extension();
 protected:
 	class ZxTuneWrapperImpl;

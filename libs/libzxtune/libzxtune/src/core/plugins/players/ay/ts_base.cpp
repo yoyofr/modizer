@@ -401,6 +401,22 @@ namespace TurboSound
       virtual int GetHWChannels() {
           return 6;
       }
+      
+      virtual const char *GetHWChannelName(int chan) {
+          switch (chan) {
+              case 0:return "AY1";
+              case 1:return "AY2";
+              case 2:return "AY3";
+              case 3:return "AY4";
+              case 4:return "AY5";
+              case 5:return "AY6";
+              default:return "AY";
+          }
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return "2xAY";
+      }
 
     virtual bool RenderFrame()
     {

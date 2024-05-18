@@ -63,8 +63,11 @@ namespace TurboSound
           using namespace Sound;
           
         Sample s;
-        if (chan<3) s = Chip0.GetLevelsChan(chan);
-        else s = Chip1.GetLevelsChan(chan-3);
+          if (chan<3) {
+              s = Chip0.GetLevelsChan(chan);
+          } else {
+              s = Chip1.GetLevelsChan(chan);
+          }
           
           return s;
       }
@@ -73,10 +76,15 @@ namespace TurboSound
     {
       using namespace Sound;
         
+        m_voicesForceOfs=0;
+        m_voice_current_total=3;
       const Sample s0 = Chip0.GetLevels();
         
-        
+        m_voicesForceOfs=3;
+        m_voice_current_total=3;
       const Sample s1 = Chip1.GetLevels();
+        m_voicesForceOfs=0;
+        m_voice_current_total=6;
       return Sound::Sample::FastAdd(s0, s1);
     }
 

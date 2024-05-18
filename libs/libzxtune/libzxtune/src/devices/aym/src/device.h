@@ -129,18 +129,55 @@ public:
         const uint_t toneB = GenB.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_B, HIGH_LEVEL>();
         const uint_t toneC = GenC.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_C, HIGH_LEVEL>();
         
-        if (chan==0) return  ((level & toneA & noise)>>0)&((1<<(BITS_PER_LEVEL+1))-1);
-        if (chan==1) return  ((level & toneB & noise)>>(BITS_PER_LEVEL))&((1<<(BITS_PER_LEVEL+1))-1);
+        if (generic_mute_mask&(1<<(m_voicesForceOfs+chan))) return 0;
+        
+        if ((chan==0)||(chan==3)) return ((level & toneA & noise)>>0)&((1<<(BITS_PER_LEVEL+1))-1);
+        if ((chan==1)||(chan==4)) return ((level & toneB & noise)>>(BITS_PER_LEVEL))&((1<<(BITS_PER_LEVEL+1))-1);
         return ((level & toneC & noise)>>(BITS_PER_LEVEL*2))&((1<<(BITS_PER_LEVEL+1))-1);
     }
     
     uint_t GetLevels() const
     {
+        static uint_t last_level[3];
         const uint_t level = EnvelopeMask ? (EnvelopeMask * GenE.GetLevel()) | Levels : Levels;
         const uint_t noise = NoiseMask != HIGH_LEVEL ? (NoiseMask | GenN.GetLevel()) : NoiseMask;
-        const uint_t toneA = GenA.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_A, HIGH_LEVEL>();
-        const uint_t toneB = GenB.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_B, HIGH_LEVEL>();
-        const uint_t toneC = GenC.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_C, HIGH_LEVEL>();
+        /*const*/ uint_t toneA = GenA.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_A, HIGH_LEVEL>();
+         /*const*/ uint_t toneB = GenB.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_B, HIGH_LEVEL>();
+         /*const*/ uint_t toneC = GenC.GetLevel<HIGH_LEVEL ^ HIGH_LEVEL_C, HIGH_LEVEL>();
+        for (int i=0;i<3;i++) {
+            float period=0;
+            int vol=0;
+            
+            if (generic_mute_mask&(1<<(m_voicesForceOfs+i))) {
+                if (i==0) toneA&=~((1<<(BITS_PER_LEVEL+1))-1);
+                else if (i==1) toneB=~(((1<<(BITS_PER_LEVEL+1))-1)<<BITS_PER_LEVEL);
+                else if (i==2) toneC=~(((1<<(BITS_PER_LEVEL+1))-1)<<(BITS_PER_LEVEL*2));
+            }
+            
+            if (i==0) {
+                period=(float)(GenA.getDoublePeriod());
+                vol=(level & toneA & noise);
+            } else if (i==1) {
+                period=(float)(GenB.getDoublePeriod());
+                vol=(level & toneB & noise);
+            } else if (i==2) {
+                period=(float)(GenC.getDoublePeriod());
+                vol=(level & toneC & noise);
+            }
+            
+            if (period && vol && (vol!=last_level[i])) {
+                //ay->clock_rate/freq/16;
+                float freq=m_voice_current_samplerate/period;
+                vgm_last_note[m_voicesForceOfs+i]=freq;
+                vgm_last_sample_addr[m_voicesForceOfs+i]=m_voicesForceOfs+i;
+                vgm_last_vol[m_voicesForceOfs+i]=1;
+            }
+                
+                last_level[i]=vol;
+        }
+        
+        
+        
         return level & toneA & toneB & toneC & noise;
     }
 private:

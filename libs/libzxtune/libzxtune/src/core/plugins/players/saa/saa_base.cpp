@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "saa_base.h"
 #include "core/plugins/players/analyzer.h"
@@ -107,10 +112,31 @@ namespace Module
           return 6;
       }
       //YOYOFR
+      
+      virtual const char *GetHWChannelName(int chan) {
+          switch (chan) {
+              case 0:return "SAA1";
+              case 1:return "SAA2";
+              case 2:return "SAA3";
+              case 3:return "SAA4";
+              case 4:return "SAA5";
+              case 5:return "SAA6";
+              default:return "SAA";
+          }
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return "SAA";
+      }
+      
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())
       {
+          //YOYOFR
+          memset(vgm_last_note,0,sizeof(vgm_last_note));
+          memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+          //YOYOFR
         SynchronizeParameters();
         if (LastChunk.TimeStamp == Devices::SAA::Stamp())
         {

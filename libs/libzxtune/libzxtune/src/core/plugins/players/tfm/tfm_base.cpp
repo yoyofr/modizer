@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "tfm_base.h"
 #include "core/plugins/players/analyzer.h"
@@ -48,11 +53,32 @@ namespace Module
       virtual int GetHWChannels() {
           return Devices::TFM::VOICES;
       }
+      
+      virtual const char *GetHWChannelName(int chan) {
+          switch (chan) {
+              case 0:return "FM1";
+              case 1:return "FM2";
+              case 2:return "FM3";
+              case 3:return "FM4";
+              case 4:return "FM5";
+              case 5:return "FM6";
+              default:return "FM";
+          }
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return "YM2203";
+      }
 
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())
       {
+          //YOYOFR
+          memset(vgm_last_note,0,sizeof(vgm_last_note));
+          memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+          //YOYOFR
+          
         SynchronizeParameters();
         if (LastChunk.TimeStamp == Devices::TFM::Stamp())
         {

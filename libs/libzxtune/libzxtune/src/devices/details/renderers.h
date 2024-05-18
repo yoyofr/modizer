@@ -91,14 +91,15 @@ private:
         if (m_voice_current_samplerate==0) m_voice_current_samplerate=44100;
         int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/(m_voice_current_samplerate);
         smplIncr=1<<16;
-        int m_voice_ofs=0;
+        int m_voice_ofs=m_voicesForceOfs;
         int j;
-        for (j=0;j<6;j++) {
+        for (j=0;j<m_voice_current_total;j++) {
             int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+j];
             int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
             int chanout;
 
-            chanout = MAXVAL(PSG.GetLevelsChan(j).Left(),PSG.GetLevelsChan(j).Right());
+            if (generic_mute_mask&(1<<m_voice_ofs+j)) chanout=0;
+            else chanout = MAXVAL(PSG.GetLevelsChan(j+m_voicesForceOfs).Left(),PSG.GetLevelsChan(j+m_voicesForceOfs).Right());
             
             if (ofs_end>ofs_start)
                 for (;;) {
@@ -129,6 +130,10 @@ private:
     
     void RenderMultipleSamples(uint_t samples, Sound::ChunkBuilder& target)
     {
+        //YOYOFR
+        memset(vgm_last_note,0,sizeof(vgm_last_note));
+        memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+        //YOYOFR
         for (uint_t count = samples; count != 0; --count)
         {
             const uint_t ticksPassed = Clock.AllocateSample();
@@ -270,8 +275,8 @@ public:
         {
             Filter.Feed(Delegate.GetLevels());
             
-            for (int i=0;i<6;i++)
-                Filter_mdz[i].Feed(Delegate.GetLevelsChan(i));
+            for (int i=0;i<m_voice_current_total;i++)
+                Filter_mdz[(i+m_voicesForceOfs)%6].Feed(Delegate.GetLevelsChan(i));
             
             Delegate.Tick(1);
         }

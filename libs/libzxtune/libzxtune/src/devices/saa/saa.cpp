@@ -139,6 +139,7 @@ namespace SAA
 
     void SetClockFrequency(uint64_t clockFreq)
     {
+        m_voice_current_samplerate=clockFreq; //YOYOFR
       Filter.SetParameters(clockFreq / FREQ_DIVIDER, Details::SOUND_CUTOFF_FREQUENCY);
     }
 
@@ -305,6 +306,12 @@ namespace SAA
       const uint_t samples = Clock.SamplesTill(stamp);
       Sound::ChunkBuilder builder;
       builder.Reserve(samples);
+        
+        //YOYOFR
+        m_voice_current_total=6;
+        m_voicesForceOfs=0;
+        //YOYOFR
+        
       Renderers.Render(stamp, samples, builder);
       Target->ApplyData(builder.GetResult());
       Target->Flush();

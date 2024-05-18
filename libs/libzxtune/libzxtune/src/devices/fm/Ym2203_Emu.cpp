@@ -1281,7 +1281,7 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
 		chan_calc(state, cch[2] );
         
         //YOYOFR
-        int m_voice_ofs=m_voice_current_system*3;
+        int m_voice_ofs=m_voicesForceOfs;
         for (int jj=0;jj<3;jj++) {
             int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
             int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);

@@ -2271,7 +2271,6 @@ static int tim_output_data(char *buf, int32 nbytes) {
             tim_tempo_ratio=newvalue;
         }
         
-        
         buffer_ana_gen_ofs++;
         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
         
@@ -3236,7 +3235,7 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
         (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG)||
-        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR) ) return true;
+        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR)||(mPlayType==MMP_ZXTUNE) ) return true;
     return false;
 }
 
@@ -7688,9 +7687,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                         }
                         if (mPlayType==MMP_ZXTUNE) { //ZXTUNE
-                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            
                             mdz_zxtune->render_sound(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
@@ -11030,6 +11026,14 @@ char* loadRom(const char* path, size_t romSize)
         return -1;
     }
     
+    mod_currentsub=0;
+    zxtune_song_info.reset();
+    mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
+    
+    mod_subsongs=atoi(zxtune_song_info.get_total_tracks());
+    mod_minsub=0;
+    mod_maxsub=mod_subsongs-1;
+    
     snprintf(mod_name,sizeof(mod_name)," %s",[[filePath lastPathComponent] UTF8String]);
     
     
@@ -11075,9 +11079,7 @@ char* loadRom(const char* path, size_t romSize)
     if (zxtune_song_info.get_title())
         if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
     
-    mod_subsongs=atoi(zxtune_song_info.get_total_tracks());
-    mod_minsub=0;
-    mod_maxsub=mod_subsongs-1;
+    
     mod_currentsub=0;
     numChannels=2;
     iModuleLength=mdz_zxtune->get_max_position();
@@ -11102,6 +11104,8 @@ char* loadRom(const char* path, size_t romSize)
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
+    
+    generic_mute_mask=0;
     
     return 0;
 }
@@ -14197,7 +14201,7 @@ extern bool icloud_available;
     
     for (int i=0;i<[filetype_extSTSOUND count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultVGMPLAYER==DEFAULT_YMSTSOUND) [available_player insertObject:[NSNumber numberWithInt:MMP_STSOUND] atIndex:0];
+            if (mdz_defaultYMPLAYER==DEFAULT_YMSTSOUND) [available_player insertObject:[NSNumber numberWithInt:MMP_STSOUND] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_STSOUND]];
             break;
         }
@@ -14269,7 +14273,7 @@ extern bool icloud_available;
             if (is_pt3 && (mdz_defaultPT3PLAYER==DEFAULT_PT3ZXTUNE)) [available_player insertObject:[NSNumber numberWithInt:MMP_ZXTUNE] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
             
-            if (is_ym && (mdz_defaultPT3PLAYER==DEFAULT_YMZXTUNE)) [available_player insertObject:[NSNumber numberWithInt:MMP_ZXTUNE] atIndex:0];
+            if (is_ym && (mdz_defaultYMPLAYER==DEFAULT_YMZXTUNE)) [available_player insertObject:[NSNumber numberWithInt:MMP_ZXTUNE] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
             break;
         }
@@ -16624,6 +16628,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_ZXTUNE:
         case MMP_TIMIDITY:
         case MMP_KSS:
         case MMP_NSFPLAY:
@@ -16665,6 +16670,8 @@ extern "C" void adjust_amplification(void);
         case MMP_NSFPLAY: {
             return [NSString stringWithFormat:@"%s",modizVoicesName[channel]];
         }
+        case MMP_ZXTUNE:
+            return [NSString stringWithFormat:@"%s",mdz_zxtune->get_channel_name(channel)];
         case MMP_NCSF:
         case MMP_2SF:
             return [NSString stringWithFormat:@"#%d-NDS",channel+1];
@@ -16782,6 +16789,8 @@ extern "C" void adjust_amplification(void);
         case MMP_GBS:
         case MMP_NSFPLAY:
             return modizChipsetCount;
+        case MMP_ZXTUNE:
+            return 1;
         case MMP_HC:
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
@@ -16835,6 +16844,8 @@ extern "C" void adjust_amplification(void);
         case MMP_GBS:
         case MMP_NSFPLAY:
             return [NSString stringWithFormat:@"%s",modizChipsetName[systemIdx]];
+        case MMP_ZXTUNE:
+            return [NSString stringWithFormat:@"%s",mdz_zxtune->get_system_name()];
         case MMP_2SF:
         case MMP_NCSF:
             return @"NDS";
@@ -16940,6 +16951,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HVL:
         case MMP_STSOUND:
         case MMP_TIMIDITY:
+        case MMP_ZXTUNE:
             return 0;
         case MMP_MDXPDX:
             if (voiceIdx<8) return 0;
@@ -17054,6 +17066,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HVL:
         case MMP_STSOUND:
         case MMP_TIMIDITY:
+        case MMP_ZXTUNE:
             tmp=0;
             for (int i=0;i<numChannels;i++) {
                 tmp+=(m_voicesStatus[i]?1:0);
@@ -17217,6 +17230,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HVL:
         case MMP_STSOUND:
         case MMP_TIMIDITY:
+        case MMP_ZXTUNE:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_FMPMINI:
@@ -17364,6 +17378,7 @@ extern "C" void adjust_amplification(void);
             nsfPlayer->Notify(-1);
         }
             break;
+        case MMP_ZXTUNE:
         case MMP_TIMIDITY:
         case MMP_PMDMINI:
         case MMP_MDXPDX:

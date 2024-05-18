@@ -104,7 +104,6 @@
 		CC47E7512BF21A7300472202 /* ascscreencrusher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6DB2BF21A7300472202 /* ascscreencrusher.cpp */; };
 		CC47E7522BF21A7300472202 /* lasercompact40.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6DE2BF21A7300472202 /* lasercompact40.cpp */; };
 		CC47E7532BF21A7300472202 /* lasercompact52.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6DF2BF21A7300472202 /* lasercompact52.cpp */; };
-		CC47E7542BF21A7300472202 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6E02BF21A7300472202 /* Makefile */; };
 		CC47E7572BF21A7300472202 /* charpres.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6E62BF21A7300472202 /* charpres.cpp */; };
 		CC47E7582BF21A7300472202 /* codecruncher3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6E72BF21A7300472202 /* codecruncher3.cpp */; };
 		CC47E7592BF21A7300472202 /* compiledasc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC47E6E82BF21A7300472202 /* compiledasc.cpp */; };
@@ -10661,7 +10660,6 @@
 				CC47E8982BF21D3500472202 /* zdata_supp.cpp in Sources */,
 				CC47E9CC2BF21EA000472202 /* register_plugins.cpp in Sources */,
 				CC47E76F2BF21A7300472202 /* powerfullcodedecreaser6.cpp in Sources */,
-				CC47E7542BF21A7300472202 /* Makefile in Sources */,
 				CC47E7312BF21A7300472202 /* fasttracker.cpp in Sources */,
 				CC47E8A52BF21D3500472202 /* psm_supp.cpp in Sources */,
 				CC47E5262BF2193900472202 /* composite.cpp in Sources */,

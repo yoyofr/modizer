@@ -125,6 +125,10 @@ namespace Devices
       virtual void Reset() = 0;
         
         virtual int GetHWChannels() = 0;
+        
+        virtual const char *GetHWChannelName(int chan) = 0;
+        
+        virtual const char *GetHWSystemName() = 0;
     };
 
     class ChipParameters

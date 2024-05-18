@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "dac_base.h"
 #include "core/plugins/players/analyzer.h"
@@ -109,11 +114,24 @@ namespace Module
       virtual int GetHWChannels() {
           return Device->GetHWChannels();
       }
+      
+      virtual const char *GetHWChannelName(int chan) {
+          return Device->GetHWChannelName(chan);
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return Device->GetHWSystemName();
+      }
 
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())
       {
+          //YOYOFR
+          memset(vgm_last_note,0,sizeof(vgm_last_note));
+          memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+          //YOYOFR
+          
         SynchronizeParameters();
         if (LastChunk.TimeStamp == Devices::DAC::Stamp())
         {

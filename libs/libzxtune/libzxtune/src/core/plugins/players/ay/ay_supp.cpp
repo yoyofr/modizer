@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "aym_base.h"
 #include "core/plugins/registrator.h"
@@ -244,7 +249,11 @@ namespace AY
 
     void RenderFrame(const Devices::Z80::Stamp& till)
     {
+        m_voicesForceOfs=0;
+        m_voice_current_total=3;
       Ay.RenderFrame(till);
+        m_voicesForceOfs=3;
+        m_voice_current_total=1;
       Beeper.RenderFrame(till);
     }
 
@@ -589,11 +598,30 @@ namespace AY
       virtual int GetHWChannels() {
           return 3+1;
       }
+      
+      virtual const char *GetHWChannelName(int chan) {
+          switch (chan) {
+              case 0:return "AY1";
+              case 1:return "AY2";
+              case 2:return "AY3";
+              case 3:return "Beeper";
+              default:return "AY";
+          }
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return "AY&Beeper";
+      }
 
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())
       {
+          //YOYOFR
+          memset(vgm_last_note,0,sizeof(vgm_last_note));
+          memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+          //YOYOFR
+          
         SynchronizeParameters();
         LastTime += FrameDuration;
         Comp->NextFrame(LastTime);

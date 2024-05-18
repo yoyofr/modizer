@@ -8,6 +8,11 @@
 *
 **/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //local includes
 #include "aym_base.h"
 #include "core/plugins/players/analyzer.h"
@@ -98,12 +103,29 @@ namespace Module
           return 3;
       }
       
+      virtual const char *GetHWChannelName(int chan) {
+          switch (chan) {
+              case 0:return "AY1";
+              case 1:return "AY2";
+              case 2:return "AY3";
+              default:return "AY";
+          }
+      }
+      
+      virtual const char *GetHWSystemName() {
+          return "AY";
+      }
       
 
     virtual bool RenderFrame()
     {
       if (Iterator->IsValid())
       {
+          //YOYOFR
+          memset(vgm_last_note,0,sizeof(vgm_last_note));
+          memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+          //YOYOFR
+          
         SynchronizeParameters();
         if (LastChunk.TimeStamp == Devices::AYM::Stamp())
         {
@@ -155,6 +177,7 @@ namespace Module
     void TransferChunk()
     {
       LastChunk.Data = Iterator->GetData();
+        m_voice_current_total=3;//YOYOFR
       Device->RenderData(LastChunk);
     }
   private:

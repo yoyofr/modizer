@@ -7531,16 +7531,15 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         if (note_posType[note]==0) wd=width+line_width_extra*2;
         else wd=widthB+line_width_extra*2;
         
-        //if (wd>=3) wd-=2;
-        
-        
-        
-        //posNote+=2;
+        float wd_ofs=wd*subnote/16;
+        wd-=wd_ofs;
+        posNote+=wd_ofs/2;
         
         float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
         float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;
         if ( (posNote-line_width_extra+wd>=0) && (posNote-line_width_extra<(int)ww)) {
             int border_size=(line_width>=8?2:1);
+            
             
             index=DrawBox(ptsB,index,
                           posNote-line_width_extra, //x

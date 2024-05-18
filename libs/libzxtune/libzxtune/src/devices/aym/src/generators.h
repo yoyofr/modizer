@@ -67,6 +67,8 @@ namespace Devices
         , Counter()
       {
       }
+        
+        
 
       void Reset()
       {
@@ -89,6 +91,10 @@ namespace Devices
         UpdateMiddle();
         Counter = lowPart ? correction : MiddlePeriod + correction;
       }
+        
+        uint_t getDoublePeriod() const {
+            return DoublePeriod;
+        }
 
       void SetDutyCycle(uint_t dutyCycle)
       {
@@ -101,12 +107,12 @@ namespace Devices
       {
         Counter += ticks;
       }
-
       template<uint_t Lo, uint_t Hi>
       uint_t GetLevel() const
       {
         return (Masked || GetFlip()) ? Hi : Lo;
       }
+        
     private:
       void UpdateMiddle()
       {
@@ -174,7 +180,7 @@ namespace Devices
         UpdateIndex();
         Period = std::max<uint_t>(1, period);
       }
-
+        
       void Tick(uint_t ticks)
       {
         Counter += ticks;
@@ -271,7 +277,7 @@ namespace Devices
         Update();
         CountingGenerator::SetPeriod(period);
       }
-
+        
       uint_t GetLevel() const
       {
         Update();
