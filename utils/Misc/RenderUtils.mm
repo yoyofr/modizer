@@ -7531,9 +7531,9 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         if (note_posType[note]==0) wd=width+line_width_extra*2;
         else wd=widthB+line_width_extra*2;
         
-        float wd_ofs=wd*subnote/16;
-        wd-=wd_ofs;
-        posNote+=wd_ofs/2;
+        float wd_ofs=wd*subnote/10;
+        wd+=wd_ofs;
+        posNote-=wd_ofs/2;
         
         float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
         float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;
@@ -7968,12 +7968,12 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     texcoords[index+5].u=1.0f; texcoords[index+5].v=0.0/128;
                     
                     
-                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height-wd/2+height/32+height/16;
+                    ptsB[index+0].x=posNote;ptsB[index+0].y=ofsy+0+height-wd*3/4+height/32+height/16;
                     ptsB[index+1].x=posNote;ptsB[index+1].y=ofsy+0+height+wd/2+height/32+height/16;
-                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height-wd/2+height/32+height/16;
+                    ptsB[index+2].x=posNote+wd;ptsB[index+2].y=ofsy+0+height-wd*3/4+height/32+height/16;
                     
                     ptsB[index+3].x=posNote;ptsB[index+3].y=ofsy+0+height+wd/2+height/32+height/16;
-                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height-wd/2+height/32+height/16;
+                    ptsB[index+4].x=posNote+wd;ptsB[index+4].y=ofsy+0+height-wd*3/4+height/32+height/16;
                     ptsB[index+5].x=posNote+wd;ptsB[index+5].y=ofsy+0+height+wd/2+height/32+height/16;
                     
                     //apply some distortion

@@ -295,6 +295,8 @@ typedef struct
 
 	uint32_t	fc;			/* fnum,blk:adjusted to sample rate */
 	uint_t	kcode;		/* key code:                        */
+    
+    uint8_t keyonff_triggered;//YOYOFR
 } FM_CH;
 
 
@@ -368,6 +370,7 @@ inline void set_timers( FM_ST *ST, int v )
 
 inline void FM_KEYON(FM_CH *CH , int s )
 {
+    CH->keyonff_triggered=1;
 	FM_SLOT *SLOT = &CH->SLOT[s];
 	if( !SLOT->key )
 	{
@@ -380,6 +383,7 @@ inline void FM_KEYON(FM_CH *CH , int s )
 
 inline void FM_KEYOFF(FM_CH *CH , int s )
 {
+    CH->keyonff_triggered=1;
 	FM_SLOT *SLOT = &CH->SLOT[s];
 	if( SLOT->key )
 	{
@@ -1286,6 +1290,10 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
             int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
             int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
             
+            if (generic_mute_mask&1<<(m_voice_ofs+jj)) {
+                state->out_fm[jj]=0;
+            }
+            
             int val=(state->out_fm[jj])>>7;
             if (ofs_end>ofs_start)
                 for (;;) {
@@ -1300,6 +1308,35 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
         
 		*buf += state->out_fm[0] + state->out_fm[1] + state->out_fm[2];
 	}
+    
+    
+    //YOYOFR
+    static int32_t old_out_fm[3]; //YOYOFR
+    int m_voice_ofs=m_voicesForceOfs;
+        for (int ii=0;ii<3;ii++) {
+            if (!(generic_mute_mask&1<<(m_voice_ofs+ii))  ) {
+                if (cch[ii]->fc==0 ) {
+                    if ((state->out_fm[ii]!=old_out_fm[ii])) {
+                        vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=cch[ii]->keyonff_triggered+1;
+                        cch[ii]->keyonff_triggered=0;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                } else {
+                    if ((state->out_fm[ii]!=old_out_fm[ii])) {
+                        double freq=cch[ii]->fc;
+                        vgm_last_note[ii+m_voice_ofs]=freq*110.0f/65536; //1148.0f;
+                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        int newvol=cch[ii]->keyonff_triggered+1;
+                        cch[ii]->keyonff_triggered=0;
+                        if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
+                    }
+                }
+            }
+            old_out_fm[ii]=state->out_fm[ii];
+        }
+    //YOYOFR
 }
 
 /* ---------- reset one of chip ---------- */
