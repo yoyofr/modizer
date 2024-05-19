@@ -42,7 +42,7 @@ NSString *weblinks_MODS[WEBLINKS_MODS_NB][2]={
     {@"http://amp.dascene.net/",@"Amiga Music Preservation"},
     {@"http://2a03.free.fr/",@"2A03 - Chiptunes"},
     {@"http://sc68.atari.org/musics.html",@"Atari ST - SC68"},
-    {@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F",@"Atari ST SNDH Archive"},
+    {@"http://sndh.atari.org",@"Atari ST SNDH Archive"},
     {@"https://www.exotica.org.uk/wiki/Main_Page",@"Exotica"}
 };
 NSString *weblinks_Others[WEBLINKS_Others_NB][2]={

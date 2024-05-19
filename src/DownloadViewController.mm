@@ -1367,11 +1367,22 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
     mCurrentURLIsImage=mURLIsImage[0];
     
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        
     AFmanager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    
     AFmanager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
     NSURL *URL = [NSURL URLWithString:mURL[0]];
-    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    
+    //set url host as referer as some downloads won't work without it (ex: sndh website)
+    NSString *baseURL;
+    if ([[[URL absoluteString] lowercaseString] containsString:@"https"]) baseURL=[NSString stringWithFormat:@"https://%@",URL.host];
+    else baseURL=[NSString stringWithFormat:@"http://%@",URL.host];
+    //NSLog(@"baseurl: %@",baseURL);
+    
+    [request setValue:baseURL forHTTPHeaderField:@"referer"];
     
     
     NSURLSessionDownloadTask *downloadTask = [AFmanager downloadTaskWithRequest:request

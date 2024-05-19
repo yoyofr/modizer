@@ -321,11 +321,12 @@ static int int_log( blargg_long x, int step, int unit )
 
 void Music_Emu::handle_fade( long out_count, sample_t* out )
 {
+    int gain;
+    int const shift = 14;
+    int const unit = 1 << shift;
 	for ( int i = 0; i < out_count; i += fade_block_size )
 	{
-		int const shift = 14;
-		int const unit = 1 << shift;
-		int gain = int_log( (out_time + i - fade_start) / fade_block_size,
+        gain = int_log( (out_time + i - fade_start) / fade_block_size,
 				fade_step, unit );
 		if ( gain < (unit >> fade_shift) )
 			track_ended_ = emu_track_ended_ = true;
@@ -337,14 +338,12 @@ void Music_Emu::handle_fade( long out_count, sample_t* out )
 			++io;
 		}
         
-        //YOYOFR
-        //Handle fade for oscilloscope
-        for (int jj=0;jj<m_genNumVoicesChannels;jj++) {
-            int val=m_voice_buff[jj][((m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+i)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)];
-            val=(val*gain)>>shift;
-            m_voice_buff[jj][((m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+i)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=val;
-        }
+        
 	}
+    
+    //YOYOFR
+    m_voice_fadeout_factor=(gain*256)>>shift;
+    //YOYOFR
 }
 
 // Silence detection

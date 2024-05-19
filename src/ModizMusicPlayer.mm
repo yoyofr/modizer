@@ -509,6 +509,7 @@ unsigned char *m_voice_buff_accumul_temp_cnt[SOUND_MAXVOICES_BUFFER_FX];
 int m_voice_buff_adjustement;
 unsigned char m_voice_channel_mapping[256]; //used for timidity to map channels used to voices
 unsigned char m_channel_voice_mapping[256]; //used for timidity to map channels used to voices
+int m_voice_fadeout_factor;
 
 unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
@@ -3477,7 +3478,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
         for (int j=0; j < m_genNumVoicesChannels; j++) {
             if (m_voicesStatus[j]) {
                 unsigned int idx=vgm_getNote(j);
-                if ((idx>0)) {
+                if ((idx>0)&&vgm_last_vol[j]) {
                     unsigned int subidx=vgm_getSubNote(j);
                     // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                     unsigned int instr=vgm_last_sample_addr[j];
@@ -6130,7 +6131,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (m_voicesStatus[j]) {
                                         unsigned int idx=vgm_getNote(j);
                                         
-                                        if ((idx>0)) {
+                                        if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             
@@ -6165,9 +6166,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     //copy voice data for oscillo view
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)];
-                                            m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+                                        if (m_voice_fadeout_factor==256) {
+                                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)];
+                                                m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+                                            }
+                                        } else {
+                                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=(m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]*m_voice_fadeout_factor)>>8;
+                                                m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=0;
+                                            }
                                         }
                                         m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                                         //                                        if ((m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*4) m_voice_prev_current_ptr[j]-=SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
@@ -6347,7 +6355,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -6388,7 +6396,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -6460,7 +6468,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     if (m_voicesStatus[j]) {
                                         unsigned int idx=vgm_getNote(j);
-                                        if ((idx>0)) {
+                                        if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_sample_addr[j];
@@ -6553,7 +6561,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int instr=vgm_last_sample_addr[j];
                                     unsigned int vol=vgm_last_vol[j];
                                     
-                                    if ((idx>0)&&m_voicesStatus[j]) {
+                                    if ((idx>0)&&m_voicesStatus[j]&&vol) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -6704,7 +6712,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 unsigned int idx=vgm_getNote(j);;//vgm_last_note[j];//
                                 unsigned int vol=vgm_last_vol[j];
                                 
-                                if ((idx>0)&&m_voicesStatus[j]) {
+                                if ((idx>0)&&m_voicesStatus[j]&&vol) {
                                     unsigned int subidx=vgm_getSubNote(j);
                                     unsigned int instr=vgm_last_sample_addr[j];
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -6820,7 +6828,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     if (m_voicesStatus[j]) {
                                         unsigned int idx=vgm_getNote(j);
-                                        if ((idx>0)) {
+                                        if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_sample_addr[j];
@@ -6913,7 +6921,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -7163,7 +7171,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -7201,7 +7209,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -7238,7 +7246,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     int voices_idx=0;
                                     memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
                                     for (int j=0; j < m_genNumVoicesChannels; j++) {
-                                        if (m_voicesStatus[j]) {
+                                        if (m_voicesStatus[j]&&vgm_last_vol[j]) {
                                             unsigned int idx=vgm_getNote(j);
                                             if ((idx>0)) {
                                                 unsigned int subidx=vgm_getSubNote(j);
@@ -7284,7 +7292,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     for (int j=0; j < m_genNumVoicesChannels; j++) {
                                         if (m_voicesStatus[j]) {
                                             unsigned int idx=vgm_getNote(j);
-                                            if ((idx>0)) {
+                                            if ((idx>0)&&vgm_last_vol[j]) {
                                                 unsigned int subidx=vgm_getSubNote(j);
                                                 // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                                 unsigned int instr=vgm_last_sample_addr[j];
@@ -7349,7 +7357,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
                                     if (m_voicesStatus[j]) {
                                         unsigned int idx=vgm_getNote(j);
-                                        if ((idx>0)) {
+                                        if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
                                             // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_sample_addr[j];
@@ -7663,7 +7671,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         unsigned int instr=vgm_last_sample_addr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -7700,7 +7708,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -7784,7 +7792,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
                                     unsigned int idx=vgm_getNote(j);
-                                    if ((idx>0)) {
+                                    if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_sample_addr[j];
@@ -14539,6 +14547,8 @@ extern bool icloud_available;
     artist=@"";
     album=[filePath lastPathComponent];
     mod_title=nil;
+    
+    m_voice_fadeout_factor=256;
     
     m_genNumMidiVoicesChannels=0;
     m_genNumVoicesChannels=0;

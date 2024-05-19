@@ -220,6 +220,9 @@
     int err;
     bool result;
     pthread_mutex_lock(&db_mutex);
+    
+    label=[label lastPathComponent]; //clean label
+    
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
         
@@ -269,7 +272,7 @@
         } else NSLog(@"ErrSQL : %d",err);
         
         for (int i=0;i<[labels count];i++) {
-            sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+            snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
                     [id_playlist UTF8String],[[labels objectAtIndex:i] UTF8String],[[fullPaths objectAtIndex:i] UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
@@ -281,7 +284,7 @@
         }
         
         if (result) {
-            sprintf(sqlStatement,"UPDATE playlists SET num_files=\
+            snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE playlists SET num_files=\
                     (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
                     WHERE id=%s",
                     [id_playlist UTF8String],[id_playlist UTF8String]);
@@ -393,6 +396,7 @@
     for (int i=0;i<plListsize;i++) {
         UIAlertAction* userplaylistAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%s",plList[i].pl_name] style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {
+            
                 [self addToPlaylistDB:[NSString stringWithFormat:@"%d",plList[i].pl_id]  label:label fullPath:fullPath];
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
                 //free playlists list

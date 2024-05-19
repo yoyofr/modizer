@@ -74,31 +74,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [prefs synchronize];
 }
 
--(void) addbuiltinURL:(NSString *)URL name:(NSString *)name{
-    builtin_URL[builtin_url_count]=URL;
-    builtin_URL_name[builtin_url_count]=name;
-    builtin_url_count++;
-}
--(void) loadBuiltinBookmarks {
-    builtin_url_count=0;
-    /*[self addbuiltinURL:@"http://www.exotica.org.uk/" name:@"Exotica"];
-    [self addbuiltinURL:@"http://amp.dascene.net/" name:@"Amiga Music Preservation"];
-    [self addbuiltinURL:@"http://modarchive.org/" name:@"MOD Archive"];
-    [self addbuiltinURL:@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F" name:@"Atari ST SNDH Archive"];    
-    [self addbuiltinURL:@"http://2a03.free.fr/" name:@"2A03"];
-    [self addbuiltinURL:@"http://vgmrips.net/packs/" name:@"VGM Rips (Arcade, Computers, Consoles)"];
-    [self addbuiltinURL:@"http://snesmusic.org/v2/" name:@"SNES Music"];
-    [self addbuiltinURL:@"http://snesmusic.org/pmh/" name:@"Portable Music History"];
-    [self addbuiltinURL:@"http://project2612.org/" name:@"Megadrive/Genesis Music"];
-    
-    [self addbuiltinURL:@"http://www.mirsoft.info/gamemods-archive.php" name:@"Mirsoft MODS"];
-    [self addbuiltinURL:@"http://www.scene.org/dir.php?dir=/music" name:@"Scene.org"];
-    [self addbuiltinURL:@"http://www.vgmusic.com/" name:@"VGMusic"];
-    [self addbuiltinURL:@"http://www.mirsoft.info/gamemids-archive.php" name:@"Mirsoft Midis"];
-    [self addbuiltinURL:@"http://www.midishrine.com/" name:@"Midishrine"];
-    [self addbuiltinURL:@"http://www.lvbeethoven.com/Midi/index.html" name:@"Beethoven Midis"];
-    */
-}
 -(void) loadBookmarks {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
@@ -139,7 +114,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewDidDisappear:animated];
     
 }
-
 
 - (void)viewDidLoad
 {
@@ -187,22 +161,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     
     
-    [self loadBuiltinBookmarks];
     [self loadBookmarks];
     
-    /*    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
-     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
-     btn.adjustsImageWhenHighlighted = YES;
-     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
-     self.navigationItem.rightBarButtonItem = item;*/
-    
-    //    UIBarButtonItem *btnBar=[toolBar.items objectAtIndex:0];
-    if( list_builtin==0) {
         NSMutableArray *toolBarItems=[[NSMutableArray alloc] init];
         [toolBarItems addObject:self.editButtonItem];
         [toolBar setItems:toolBarItems animated:NO];
-    }
     
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
@@ -227,7 +190,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewDidAppear:animated];
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
-
 
 - (void)viewWillAppear:(BOOL)animated {
     self.navigationController.delegate = self;
@@ -329,9 +291,76 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    if (list_builtin) return builtin_url_count;
-    return custom_url_count;//+1;
+    return custom_url_count;
 }
+
+- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
+    
+        //File or Directory
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+        
+        switch (buttonIndex) {
+            case 0: {//rename
+                break;
+            }
+            case 1:{//cut
+                break;
+            }
+            case 2:{//extract
+                break;
+            }
+        }
+    
+    [self.tableView reloadData];
+}
+/**
+ Tells the delegate that a button of the right side is triggered.
+ 
+ @param cell The cell informing the delegate of the event.
+ @param buttonIndex The index of the button which is triggered.
+ */
+- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+        
+        //delete entry
+    [self.tableView reloadData];
+}
+/**
+ Asks the delegate if the cell can be a slide-state.
+ 
+ The result of this function is not reflected to the slide indicators of the cell.
+ You should set "showsLeftSlideIndicator" or "showsRightSlideIndicator" property of SESlideTableViewCell manually.
+ 
+ @return YES if the cell can be the state, otherwise NO.
+ @param cell The cell that is making this request.
+ @param slideState The state that the cell want to be.
+ */
+//- (BOOL)slideTableViewCell:(SESlideTableViewCell*)cell canSlideToState:(SESlideTableViewCellSlideState)slideState;
+/**
+ Tells the delegate that the slide state of the cell will change.
+ 
+ Even when this function is called, the cell's slide state may not be the state which this function tells.
+ To know the cell's slide state, use slideTableViewCell:DidSlideToState: instead.
+ 
+ @param cell The cell informing the delegate of the event.
+ @param slideState The slide state which the cell may become.
+ */
+//- (void)slideTableViewCell:(SESlideTableViewCell*)cell willSlideToState:(SESlideTableViewCellSlideState)slideState;
+/**
+ Tells the delegate that the slide state of the cell did change.
+ 
+ @param cell The cell informing the delegate of the event.
+ @param slideState The slide state which the cell became.
+ */
+//- (void)slideTableViewCell:(SESlideTableViewCell*)cell didSlideToState:(SESlideTableViewCellSlideState)slideState;
+/**
+ Tells the delegate that the cell will show buttons of the side.
+ 
+ @param cell The cell informing the delegate of the event.
+ @param side The side of the buttons which the cell will show.
+ */
+//- (void)slideTableViewCell:(SESlideTableViewCell *)cell wilShowButtonsOfSide:(SESlideTableViewCellSide)side;
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -348,65 +377,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
         forceReloadCells=false;
     }
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    SESlideTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         //        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell.delegate=self;
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = CGRectMake(0,0,tableView.frame.size.width*2,40);
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        UIView *bgview=[[UIView alloc] init];
-        bgview.autoresizingMask=UIViewAutoresizingFlexibleWidth;
-        [cell setBackgroundView:bgview];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = CGRectMake(0,0,tableView.frame.size.width*2,40);
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        
-        
-        bgview=[[UIView alloc] init];
-        bgview.autoresizingMask=UIViewAutoresizingFlexibleWidth;
-        [cell setSelectedBackgroundView:bgview];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         
         NSString *imgFilename=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
         UIImage *image = [UIImage imageNamed:imgFilename];
@@ -483,31 +463,22 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     
-    if (list_builtin) {
-        topLabel.text=builtin_URL_name[indexPath.row];
-        bottomLabel.text=builtin_URL[indexPath.row];
-    } else {
-        /*if (indexPath.row==0) {
-            topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
-            topLabel.text=NSLocalizedString(@"Builtin URLs", @"");
-            bottomLabel.text=NSLocalizedString(@"Mods, spc, vgm, midis, ...", @"");
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        } else {*/
+    [cell layoutIfNeeded];
+    
             topLabel.text=custom_URL_name[indexPath.row];//-1];
             bottomLabel.text=custom_URL[indexPath.row];//-1];
-        //}
-    }
-    
+        
+        [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+        
     return cell;
 }
 
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Return NO if you do not want the specified item to be editable.
-    if (list_builtin) return NO;
-    //if (indexPath.row==0) return NO;
-    return YES;
+    return NO;
+    //return YES;
 }
 
 // Override to support editing the table view.
@@ -559,32 +530,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (list_builtin) return NO;
-    return YES;
+    return NO;
+    //return YES;
 }
 
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    /*if (list_builtin) {
-        [webBrowser goToURL:builtin_URL[indexPath.row]];
-        [self closeBookmarks];
-    } else {*/
-        /*if (indexPath.row==0) {
-            //display builtin
-            WB_BookmarksViewController *bookmarksVC = [[[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]] autorelease];
-            //set new title
-            bookmarksVC.title = NSLocalizedString(@"Builtin Bookmarks",@"");
-            bookmarksVC->detailViewController = detailViewController;
-            bookmarksVC->webBrowser=webBrowser;
-            bookmarksVC->list_builtin=1;
-            [self.navigationController pushViewController:bookmarksVC animated:YES];
-        }
-        if (indexPath.row>=1) {*/
         [webBrowser goToURL:custom_URL[indexPath.row]];//-1]];
         [self closeBookmarks];
-      //  }
-    //}
 }
 
 -(void) refreshMiniplayer {

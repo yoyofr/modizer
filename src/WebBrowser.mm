@@ -112,6 +112,12 @@ static UIAlertView *alertChooseName;
     [webView reload];
 }
 
+-(void) refresh_webpage {
+    if (self.webView.scrollView.refreshControl.refreshing==false) [self.webView.scrollView.refreshControl beginRefreshing];
+    [webView reload];
+    [self.webView.scrollView.refreshControl endRefreshing];
+}
+
 
 -(IBAction) newBookmark:(id)sender {
 	if ([addressTestField.text length]) {
@@ -198,9 +204,9 @@ static UIAlertView *alertChooseName;
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     
     //update addressfield indicator
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,28,28)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
@@ -870,9 +876,9 @@ didCommitNavigation:(WKNavigation *)navigation {
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
     //update addressfield indicator
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,28,28)];
     [button setImage:[UIImage imageNamed:@"bb_stop.png"] forState:UIControlStateNormal];
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(stopLoading:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
@@ -903,9 +909,9 @@ didCommitNavigation:(WKNavigation *)navigation {
 didFinishNavigation:(WKNavigation *)navigation {
     
     //update addressfield indicator
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,28,28)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
@@ -1242,7 +1248,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     CGFloat statusbarHeight;
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:0.96 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
     [self.view addConstraint:topConstraint];
@@ -1302,9 +1308,9 @@ didFinishNavigation:(WKNavigation *)navigation {
     self.navigationItem.rightBarButtonItem = item;
 	
 	
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,28,28)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
@@ -1337,6 +1343,16 @@ didFinishNavigation:(WKNavigation *)navigation {
 
 
 	
+    
+    // Initialize the refresh control.
+    self.webView.scrollView.refreshControl = [[UIRefreshControl alloc] init];
+    self.webView.scrollView.refreshControl.backgroundColor = [UIColor lightGrayColor];
+    self.webView.scrollView.refreshControl.tintColor = [UIColor purpleColor];
+    [self.webView.scrollView.refreshControl addTarget:self
+                                      action:@selector(refresh_webpage)
+                            forControlEvents:UIControlEventValueChanged];
+    
+    
 	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"webbro : %d",end_time-start_time);

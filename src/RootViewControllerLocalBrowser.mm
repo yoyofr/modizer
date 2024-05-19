@@ -225,7 +225,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                     
                                     sprintf(sqlStatementW,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
                                             id_playlist,
-                                            (char*)sqlite3_column_text(stmt2, 0),
+                                            [[[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt2, 0)] lastPathComponent] UTF8String],
                                             (char*)sqlite3_column_text(stmt2, 1));
                                     err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
                                     if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
@@ -480,7 +480,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
--(void) refreshMiniplayer {
+-(void) searchbarMiniplayer {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
@@ -2071,8 +2071,9 @@ static int shouldRestart=1;
     
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        
         if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
+        
+        self.sBar.enabled=false;//disable search bar
         
         [self hideWaitingCancel];
         [self hideWaitingProgress];
@@ -2108,6 +2109,8 @@ static int shouldRestart=1;
                 [self.tableView.refreshControl endRefreshing];
                 [self hideWaiting];
                 [self.tableView reloadData];
+                
+                self.sBar.enabled=true;//enable search bar
             });
         });
     }
@@ -2606,6 +2609,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     UILabel *bottomLabel;
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
+    
+    
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     SESlideTableViewCell *cell;
@@ -2741,18 +2746,18 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
             
-            if (self.tableView.refreshControl.isRefreshing==false)
-                
+            if (self.tableView.refreshControl.isRefreshing==false) {
                 if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
-            
-            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                
+                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                }
+                
+                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
             }
-            
-            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         } else {
             [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
             [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];

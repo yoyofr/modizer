@@ -867,7 +867,7 @@ int DBHelper::cleanDB() {
         printf("checking playlists entries\n");
         snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checking playlists entries");
         //Second check that playlist entries still exist
-        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath FROM playlists_entries");
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT fullpath,name FROM playlists_entries");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -890,6 +890,17 @@ int DBHelper::cleanDB() {
                     err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
                     if (err!=SQLITE_OK) {
                         NSLog(@"Issue during delete of playlists_entries");
+                    }
+                } else {
+                    NSString *tmpns=[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 1)];
+                    if ([tmpns containsString:@"/"]) {
+                        snprintf(sqlStatement2,sizeof(sqlStatement2),"UPDATE playlists_entries SET name=\"%s\" WHERE fullpath=\"%s\"",
+                                 [[tmpns lastPathComponent] UTF8String],
+                                 sqlite3_column_text(stmt, 0));
+                        err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
+                        if (err!=SQLITE_OK) {
+                            NSLog(@"Issue during delete of playlists_entries");
+                        }
                     }
                 }
                 

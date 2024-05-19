@@ -798,13 +798,17 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 _playlist->entries[_playlist->nb_entries].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 _playlist->entries[_playlist->nb_entries].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
                 
+                //NSLog(@"got: %@ / %@",_playlist->entries[_playlist->nb_entries].label,_playlist->entries[_playlist->nb_entries].fullpath);
+                
                 //adjust label
                 if ([_playlist->entries[_playlist->nb_entries].fullpath rangeOfString:@"?"].location!=NSNotFound) {
                     _playlist->entries[_playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[_playlist->entries[_playlist->nb_entries].fullpath lastPathComponent]] ,_playlist->entries[_playlist->nb_entries].label];
+                    //NSLog(@"updating to : %@ ",_playlist->entries[_playlist->nb_entries].label);
                 } else {
                     
                     if ([_playlist->entries[_playlist->nb_entries].fullpath rangeOfString:@"@"].location!=NSNotFound) {
                         _playlist->entries[_playlist->nb_entries].label=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getFullCleanFilePath:[_playlist->entries[_playlist->nb_entries].fullpath lastPathComponent]],_playlist->entries[_playlist->nb_entries].label];
+                        //NSLog(@"updating to : %@ ",_playlist->entries[_playlist->nb_entries].label);
                     }
                 }
                 
@@ -896,7 +900,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         for (int i=0;i<playlist->nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-                     [playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
+                     [playlist->playlist_id UTF8String],[[playlist->entries[i].label lastPathComponent] UTF8String],[playlist->entries[i].fullpath UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
                 result=TRUE;
@@ -939,7 +943,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         for (int i=0;i<nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-                     [id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
+                     [id_playlist UTF8String],[[pl_entries[i].mPlaylistFilename lastPathComponent] UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
                 result=TRUE;
@@ -1018,7 +1022,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
         
         for (int i=0;i<playlist->nb_entries;i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-                     [playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
+                     [playlist->playlist_id UTF8String],[[playlist->entries[i].label lastPathComponent] UTF8String],[playlist->entries[i].fullpath UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
