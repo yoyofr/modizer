@@ -39,7 +39,7 @@ namespace Beeper
       
       Sound::Sample GetLevelsChan(int chan) const
       {
-        return Levels;
+          return Sound::Sample(Levels.Left()/2,Levels.Right()/2);
       }
     
     void Reset()

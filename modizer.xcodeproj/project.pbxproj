@@ -880,6 +880,7 @@
 		CCCCB22A2BDE8DB400A18848 /* txt_pianoSpark.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCCB2272BDE8DB400A18848 /* txt_pianoSpark.png */; };
 		CCCE26D612588EA100741F5A /* rating0.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE26D512588EA100741F5A /* rating0.png */; };
 		CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE9BF3123D7CA6007D9462 /* modizer_logo.png */; };
+		CCCFB6C02BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */; };
 		CCD00F7F1209EA92002A1D61 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F7E1209EA92002A1D61 /* cancel.png */; };
 		CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F801209EAF5002A1D61 /* mini_cancel.png */; };
 		CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
@@ -2638,6 +2639,8 @@
 		CCCCB2272BDE8DB400A18848 /* txt_pianoSpark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txt_pianoSpark.png; sourceTree = "<group>"; };
 		CCCE26D512588EA100741F5A /* rating0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rating0.png; sourceTree = "<group>"; };
 		CCCE9BF3123D7CA6007D9462 /* modizer_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = modizer_logo.png; sourceTree = "<group>"; };
+		CCCFB6BE2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerZXArtWebParser.h; sourceTree = "<group>"; };
+		CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerZXArtWebParser.mm; sourceTree = "<group>"; };
 		CCD00F7E1209EA92002A1D61 /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cancel.png; sourceTree = "<group>"; };
 		CCD00F801209EAF5002A1D61 /* mini_cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_cancel.png; sourceTree = "<group>"; };
 		CCD4631D123CB8F600D063FE /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
@@ -2878,6 +2881,8 @@
 				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
 				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
 				591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */,
+				CCCFB6BE2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.h */,
+				CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */,
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
@@ -6151,6 +6156,7 @@
 				CC83686C2B57CA9A0035A4DA /* conf68.c in Sources */,
 				CC1E624A12041177000A8A4E /* WebBrowser.mm in Sources */,
 				59B9996B25CFE45D0071E144 /* FXFluid.cpp in Sources */,
+				CCCFB6C02BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm in Sources */,
 				591D8E4725DC63620013E19F /* scale_factors.c in Sources */,
 				CC8368602B57CA9A0035A4DA /* paula_io.c in Sources */,
 				CC8368E12B57CA9B0035A4DA /* error68.c in Sources */,
@@ -6312,7 +6318,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.8.0;
+				CURRENT_PROJECT_VERSION = 3.9.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6331,7 +6337,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				MARKETING_VERSION = 3.8;
+				MARKETING_VERSION = 3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -6354,7 +6360,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3.8.0;
+				CURRENT_PROJECT_VERSION = 3.9.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6372,7 +6378,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				MARKETING_VERSION = 3.8;
+				MARKETING_VERSION = 3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -6781,7 +6787,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 3.8.0;
+				CURRENT_PROJECT_VERSION = 3.9.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -6798,7 +6804,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				MARKETING_VERSION = 3.8;
+				MARKETING_VERSION = 3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";

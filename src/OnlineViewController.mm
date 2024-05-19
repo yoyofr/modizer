@@ -15,6 +15,7 @@ enum {
     ONLINE_COLLECTIONS_P2612,
     ONLINE_COLLECTIONS_SNESM,
     ONLINE_COLLECTIONS_SMSP,
+    ONLINE_COLLECTIONS_ZXART,
     ONLINE_COLLECTIONS_NUMBER
 };
 
@@ -506,6 +507,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_SMSP:topLabel.text=NSLocalizedString(@"SMS Power! collection",@"");
                     bottomLabel.text=NSLocalizedString(@"Master System & Game gear sets",@"");
                     break;
+                case ONLINE_COLLECTIONS_ZXART:topLabel.text=NSLocalizedString(@"ZXArt collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"ZX Spectrum",@"");
+                    break;
             }
         }
             break;
@@ -682,6 +686,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerSMSPWebParser*)collectionViewController)->browse_depth = 0;
                     ((RootViewControllerSMSPWebParser*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerSMSPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_ZXART: //SMS Power!
+                    collectionViewController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"ZXArt";
+                    // Set new directory
+                    ((RootViewControllerZXArtWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerZXArtWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerZXArtWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window
