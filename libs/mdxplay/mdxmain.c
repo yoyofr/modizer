@@ -61,7 +61,7 @@ static int   fm_waveform;
 static int   pcm_volume;
 static int   fm_volume;
 static int   volume;
-static int   max_infinite_loops;
+/*static */int   max_infinite_loops;
 static int   fade_out_speed;
 static int   dump_voice;
 static int   output_titles;

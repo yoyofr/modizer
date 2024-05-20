@@ -86,10 +86,14 @@ char org_filename[1024];
 
 //ZXTUNE
 #include "Spectre.h"
+extern "C" {
+    #include "chp2ym.h"
+}
 ZxTuneWrapper* mdz_zxtune;
 SongInfo zxtune_song_info;
 char*            mdz_fileBuffer;
 uint32_t        mdz_fileBufferLen;
+int mdz_amstrad_cph_hack;
 
 //WEBSID
 extern "C" {
@@ -5974,6 +5978,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 zxtune_song_info.reset();
                                 mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
                                 mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+                                mdz_zxtune->setLoopMode(mLoopMode);
                                 
                                 if (zxtune_song_info.get_title())
                                     if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
@@ -11000,24 +11005,36 @@ char* loadRom(const char* path, size_t romSize)
 -(int) mmp_zxtuneLoad:(NSString*)filePath {  //HVL
     mPlayType=MMP_ZXTUNE;
     
-    FILE *f=fopen([filePath UTF8String],"rb");
-    if (f==NULL) {
-        NSLog(@"ZXTUNE Cannot open file %@",filePath);
-        mPlayType=0;
-        return -1;
-    }
-    fseek(f,0L,SEEK_END);
-    mp_datasize=ftell(f);
-    mdz_fileBufferLen=mp_datasize;
-    mdz_fileBuffer=(char*)malloc(mdz_fileBufferLen);
-    if (!mdz_fileBuffer) {
-        NSLog(@"cannot allocate mdz_fileBuffer");
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"chp"]) {
+        mdz_fileBufferLen=chp2ym((char*)[filePath UTF8String], (uint8_t**)&mdz_fileBuffer);
+        if (!mdz_fileBufferLen) {
+            NSLog(@"ZXTUNE Cannot open/convert file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        mdz_amstrad_cph_hack=1;
+    } else {
+        FILE *f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"ZXTUNE Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,0L,SEEK_END);
+        mp_datasize=ftell(f);
+        mdz_fileBufferLen=mp_datasize;
+        mdz_fileBuffer=(char*)malloc(mdz_fileBufferLen);
+        if (!mdz_fileBuffer) {
+            NSLog(@"cannot allocate mdz_fileBuffer");
+            fclose(f);
+            return -1;
+        }
+        fseek(f,0L,SEEK_SET);
+        fread(mdz_fileBuffer,1,mdz_fileBufferLen,f);
         fclose(f);
-        return -1;
+        
+        mdz_amstrad_cph_hack=0;
     }
-    fseek(f,0L,SEEK_SET);
-    fread(mdz_fileBuffer,1,mdz_fileBufferLen,f);
-    fclose(f);
     
     try {
         mdz_zxtune=new ZxTuneWrapper(std::string([filePath UTF8String]),mdz_fileBuffer,mdz_fileBufferLen,PLAYBACK_FREQ);
@@ -11053,6 +11070,7 @@ char* loadRom(const char* path, size_t romSize)
             zxtune_song_info.reset();
             mdz_zxtune->get_song_info(i+1,zxtune_song_info);
             mdz_zxtune->decodeInitialize(i+1,zxtune_song_info);
+            mdz_zxtune->setLoopMode(mLoopMode);
             
             int subsong_length=mdz_zxtune->get_max_position();
             mod_total_length+=subsong_length;
@@ -11083,6 +11101,7 @@ char* loadRom(const char* path, size_t romSize)
     zxtune_song_info.reset();
     mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
     mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+    mdz_zxtune->setLoopMode(mLoopMode);
     
     if (zxtune_song_info.get_title())
         if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
@@ -15330,6 +15349,7 @@ extern bool icloud_available;
             zxtune_song_info.reset();
             mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
             mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+            mdz_zxtune->setLoopMode(mLoopMode);
             
             if (zxtune_song_info.get_title())
                 if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
@@ -16522,9 +16542,11 @@ extern "C" void adjust_amplification(void);
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
     }
     
-    if (seek_time>iModuleLength-SEEK_START_MARGIN_FROM_END) {
-        seek_time=iModuleLength-SEEK_START_MARGIN_FROM_END;
-        if (seek_time<0) seek_time=0;
+    if (iModuleLength>0) {
+        if (seek_time>iModuleLength-SEEK_START_MARGIN_FROM_END) {
+            seek_time=iModuleLength-SEEK_START_MARGIN_FROM_END;
+            if (seek_time<0) seek_time=0;
+        }
     }
     
     mNeedSeekTime=seek_time;

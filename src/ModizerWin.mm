@@ -12,12 +12,80 @@
 @implementation ModizerWin
 @synthesize detailViewControllerIphone;
 
+- (NSArray *)keyCommands
+{
+    return @[ [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierShift action:@selector(leftShiftPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierShift action:@selector(rightShiftPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierCommand action:@selector(leftCmdPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow   modifierFlags:0 action:@selector(upPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow   modifierFlags:0 action:@selector(downPressed)],
+              [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
+              [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)]];
+}
+
+-(void)leftPressed {
+    [detailViewControllerIphone jumpSeekBwd];
+}
+-(void)rightPressed {
+    [detailViewControllerIphone jumpSeekFwd];
+}
+-(void)leftCmdPressed {
+    [detailViewControllerIphone playPrev];
+}
+-(void)rightCmdPressed {
+    [detailViewControllerIphone playNext];
+}
+-(void)leftShiftPressed {
+    if ((detailViewControllerIphone.mplayer.mod_subsongs>1)&&
+        (detailViewControllerIphone.mplayer.mod_currentsub>detailViewControllerIphone.mplayer.mod_minsub)&&(detailViewControllerIphone.mOnlyCurrentSubEntry==0))
+        [detailViewControllerIphone playPrevSub]; //should handle sub ?
+    else {//no more subsongs, check if within an archive to play prev entry
+        if ([detailViewControllerIphone.mplayer isArchive]&&([detailViewControllerIphone.mplayer getArcEntriesCnt]>1)&&([detailViewControllerIphone.mplayer getArcIndex]>0)&&(detailViewControllerIphone.mOnlyCurrentEntry==0)) {
+            [detailViewControllerIphone.mplayer selectPrevArcEntry];
+            [detailViewControllerIphone play_loadArchiveModule];
+        } else [detailViewControllerIphone play_prevEntry];
+    }
+}
+-(void)rightShiftPressed {
+    //1st check if there are more subsongs
+    if ((detailViewControllerIphone.mplayer.mod_subsongs>1)&&
+        (detailViewControllerIphone.mplayer.mod_currentsub<detailViewControllerIphone.mplayer.mod_maxsub)&&(detailViewControllerIphone.mOnlyCurrentSubEntry==0))
+        [detailViewControllerIphone playNextSub];
+    else {
+        //no more subsongs, check if within an archive to play next entry
+        
+        if ([detailViewControllerIphone.mplayer isArchive]&&([detailViewControllerIphone.mplayer getArcEntriesCnt]>1)&&(detailViewControllerIphone.mOnlyCurrentEntry==0)) {
+            if ([detailViewControllerIphone.mplayer selectNextArcEntry]<0) [detailViewControllerIphone play_nextEntry];
+            else [detailViewControllerIphone play_loadArchiveModule];
+        } else [detailViewControllerIphone play_nextEntry];
+    }
+}
+
+-(void)upPressed {
+    [detailViewControllerIphone restartCurrent];
+}
+-(void)downPressed {
+    
+}
+-(void)spacePressed {
+    if (detailViewControllerIphone.mPaused) [detailViewControllerIphone playPushed:nil];
+    else [detailViewControllerIphone pausePushed:nil];
+}
+
+- (void)enterPressed
+{
+    NSLog(@"Enter pressed");
+}
+
 - (void)pressesBegan:(NSSet<UIPress *> *)presses
            withEvent:(UIPressesEvent *)event {
     if (@available(iOS 13.4, *)) {
     for (UIPress *press in presses) {
         UIKey *key=press.key;
-/*        NSLog(@"key: %@ %@",key.characters,key.charactersIgnoringModifiers);
+        /*        NSLog(@"key: %@ %@",key.characters,key.charactersIgnoringModifiers);
         if ([key.charactersIgnoringModifiers isEqualToString:@" "]) {
             if (detailViewControllerIphone.mPaused) {
                 detailViewControllerIphone.mPaused=0;

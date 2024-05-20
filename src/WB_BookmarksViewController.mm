@@ -294,24 +294,77 @@ extern volatile t_settings settings[MAX_SETTINGS];
     return custom_url_count;
 }
 
+-(void) showAlert:(UIAlertController*)alertC {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
+        [self presentViewController:alertC animated:YES completion:nil];
+    } else { //if iPad
+        alertC.modalPresentationStyle = UIModalPresentationPopover;
+        alertC.popoverPresentationController.sourceView = self.view;
+        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
+        alertC.popoverPresentationController.permittedArrowDirections=0;
+        [self presentViewController:alertC animated:YES completion:nil];
+    }
+}
+
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
     
         //File or Directory
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    UIAlertController *alertC;
+    if (buttonIndex==0) {
+        alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
+                                                     message:nil
+                                              preferredStyle:UIAlertControllerStyleAlert];
+        __weak UIAlertController *weakAlert = alertC;
+        [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.text = [NSString stringWithString:custom_URL_name[indexPath.row]];
+        }];
         
-        switch (buttonIndex) {
-            case 0: {//rename
-                break;
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [alertC addAction:cancelAction];
+        
+        UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            UITextField *wbBmName = weakAlert.textFields.firstObject;
+            if (![wbBmName.text isEqualToString:@""]) {
+                custom_URL_name[indexPath.row]=[NSString stringWithString:wbBmName.text];
+                [self saveBookmarks];
+                [self.tableView reloadData];
             }
-            case 1:{//cut
-                break;
+            else{
+                [self presentViewController:weakAlert animated:YES completion:nil];
             }
-            case 2:{//extract
-                break;
+        }];
+        [alertC addAction:saveAction];
+    } else {
+        alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Edit URL",@"")
+                                                     message:nil
+                                              preferredStyle:UIAlertControllerStyleAlert];
+        __weak UIAlertController *weakAlert = alertC;
+        [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.text = [NSString stringWithString:custom_URL[indexPath.row]];
+        }];
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [alertC addAction:cancelAction];
+        
+        UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            UITextField *wbBmName = weakAlert.textFields.firstObject;
+            if (![wbBmName.text isEqualToString:@""]) {
+                custom_URL[indexPath.row]=[NSString stringWithString:wbBmName.text];
+                [self saveBookmarks];
+                [self.tableView reloadData];
             }
-        }
+            else{
+                [self presentViewController:weakAlert animated:YES completion:nil];
+            }
+        }];
+        [alertC addAction:saveAction];
+    }
     
-    [self.tableView reloadData];
+    
+    [self showAlert:alertC];
 }
 /**
  Tells the delegate that a button of the right side is triggered.
@@ -323,6 +376,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
         
         //delete entry
+     for (int i=indexPath.row;i<custom_url_count-1;i++) {
+        custom_URL_name[i]=custom_URL_name[i+1];
+        custom_URL[i]=custom_URL[i+1];
+    }
+    custom_URL_name[custom_url_count-1]=nil;
+    custom_URL[custom_url_count-1]=nil;
+    custom_url_count--;
+    
+    [self saveBookmarks];
+    
     [self.tableView reloadData];
 }
 /**
@@ -467,8 +530,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
             topLabel.text=custom_URL_name[indexPath.row];//-1];
             bottomLabel.text=custom_URL[indexPath.row];//-1];
-        
+    
+    [cell removeAllLeftButtons];
+    [cell removeAllRightButtons];
+    
         [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+    [cell addLeftButtonWithText:NSLocalizedString(@"Edit URL",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
         [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         
     return cell;

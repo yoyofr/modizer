@@ -140,6 +140,8 @@
       holder->GetModuleProperties()->Process(*params);
 	  
       params->SetValue(Parameters::ZXTune::Sound::FREQUENCY, sampleRate);
+        
+        //params->SetValue(Parameters::ZXTune::Sound::LOOPED, 1);
 		
       const BufferRender::Ptr buffer = boost::make_shared<BufferRender>();
       const Module::Renderer::Ptr renderer = holder->CreateRenderer(params, buffer);

@@ -725,6 +725,7 @@
 		CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333592B7E938C009ED5D7 /* tracking14.fnt */; };
 		CC57D51F2BEB89C9004629AA /* liblibfmpmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC57D4CF2BEB5DDD004629AA /* liblibfmpmini.a */; };
 		CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */; };
+		CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5BAD522BFB818A007A3920 /* liblibchpconv.a */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
 		CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */; };
@@ -1104,6 +1105,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC57D4BE2BEB5DDD004629AA;
 			remoteInfo = libfmpmini;
+		};
+		CC5BAD512BFB818A007A3920 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC5BAD412BFB818A007A3920;
+			remoteInfo = libchpconv;
 		};
 		CC7BBD252B800AC600D8CAAE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2258,6 +2266,7 @@
 		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfmpmini.xcodeproj; path = libfmpmini/libfmpmini.xcodeproj; sourceTree = "<group>"; };
 		CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12c_2x.png; sourceTree = "<group>"; };
+		CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libchpconv.xcodeproj; path = libchpconv/libchpconv.xcodeproj; sourceTree = "<group>"; };
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
 		CC5C709A17CD1BAE00DC7197 /* FFTAccelerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFTAccelerate.h; sourceTree = "<group>"; };
 		CC5C709C17CD1D7900DC7197 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -2765,6 +2774,7 @@
 				CCB4C4672BA0F1F300695908 /* ReplayKit.framework in Frameworks */,
 				CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */,
 				5980544E262F221600BB0309 /* libxmp.a in Frameworks */,
+				CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */,
 				CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
@@ -3150,6 +3160,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */,
 				CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */,
 				CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */,
 				CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */,
@@ -4436,6 +4447,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CC5BAD4E2BFB818A007A3920 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC5BAD522BFB818A007A3920 /* liblibchpconv.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC6BE1F612FF3CCD0035A210 /* libgme */ = {
 			isa = PBXGroup;
 			children = (
@@ -5226,6 +5245,10 @@
 					ProjectRef = CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */;
 				},
 				{
+					ProductGroup = CC5BAD4E2BFB818A007A3920 /* Products */;
+					ProjectRef = CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */;
+				},
+				{
 					ProductGroup = CC4F49F22B704F4C002A9309 /* Products */;
 					ProjectRef = CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */;
 				},
@@ -5523,6 +5546,13 @@
 			fileType = archive.ar;
 			path = liblibfmpmini.a;
 			remoteRef = CC57D4CE2BEB5DDD004629AA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC5BAD522BFB818A007A3920 /* liblibchpconv.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibchpconv.a;
+			remoteRef = CC5BAD512BFB818A007A3920 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC7BBD262B800AC600D8CAAE /* libvorbis-openmpt.a */ = {
@@ -6517,6 +6547,7 @@
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
 					libs/libzxtune/libzxtune/emscripten,
+					libs/libchpconv/libchpconv,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6645,6 +6676,7 @@
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
 					libs/libzxtune/libzxtune/emscripten,
+					libs/libchpconv/libchpconv,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6772,6 +6804,7 @@
 					libs/libfmpmini/libfmpmini,
 					libs/libwonderswan/libwonderswan,
 					libs/libzxtune/libzxtune/emscripten,
+					libs/libchpconv/libchpconv,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

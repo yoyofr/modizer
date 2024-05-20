@@ -35,6 +35,8 @@
                (tvp)->tv_usec cmp (uvp)->tv_usec)
 #endif
 
+extern int max_infinite_loops;
+
 /* ------------------------------------------------------------------ */
 /* export symbols */
 
@@ -299,6 +301,9 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
     
     realtracks=0;//YOYOFR
     
+    infinite_loops=max_infinite_loops;
+    max_infinite_loops=1;
+    
     mdx_parse_mml_ym2151_async_initialize(orig_mdx,orig_pdx);
     while (mdx_parse_mml_ym2151_async(self)) {
     }
@@ -306,6 +311,8 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
     mdx_parse_mml_ym2151_async_finalize(self);
 	
 	mdx_init_track_work_area_ym2151();
+    
+    max_infinite_loops=infinite_loops;
     
     return length_ms;
 	

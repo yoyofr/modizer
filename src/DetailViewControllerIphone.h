@@ -388,5 +388,7 @@ enum {
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 -(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 
+-(void) jumpSeekFwd;
+-(void) jumpSeekBwd;
 
 @end

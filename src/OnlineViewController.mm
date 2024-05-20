@@ -169,6 +169,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
+    [self.webBrowser loadBookmarks];
     
     //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -230,8 +231,6 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                                           context:LoadingProgressObserverContext];
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
-    
-
     
     [self.tableView reloadData];
     collectionViewController=nil;
@@ -314,12 +313,15 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
             lbl= NSLocalizedString(@"Browse Internet", @"");
             break;
         case 2:
-            lbl= NSLocalizedString(@"Games Music", @"");
+            lbl= NSLocalizedString(@"Bookmarks", @"");
             break;
         case 3:
-            lbl= NSLocalizedString(@"Mods & chiptunes", @"");
+            lbl= NSLocalizedString(@"Games Music", @"");
             break;
         case 4:
+            lbl= NSLocalizedString(@"Mods & chiptunes", @"");
+            break;
+        case 5:
             lbl= NSLocalizedString(@"Other", @"");
             break;
         default:
@@ -334,28 +336,10 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     return customView;
 }
 
-/*
- - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
- switch (section) {
- case 0:
- return NSLocalizedString(@"Collections", @"");
- case 1:
- return NSLocalizedString(@"Browse Internet", @"");
- case 2:
- return NSLocalizedString(@"Games Music", @"");
- case 3:
- return NSLocalizedString(@"Mods & chiptunes", @"");
- case 4:
- return NSLocalizedString(@"Other", @"");
- default:
- return nil;
- }
- }*/
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 5;
+    return 6;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -366,11 +350,13 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
             return ONLINE_COLLECTIONS_NUMBER;
         case 1: //internet
             return 2;
-        case 2: //VGM
+        case 2: //internet custom URLs
+            return self.webBrowser.custom_url_count;
+        case 3: //VGM
             return WEBLINKS_VGM_NB;
-        case 3: //MODS
+        case 4: //MODS
             return WEBLINKS_MODS_NB;
-        case 4: //OThers
+        case 5: //OThers
             return WEBLINKS_Others_NB;
         default:
             return 0;
@@ -525,15 +511,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
             }
         }
             break;
-        case 2: //VGM
+        case 2: //custom internet URLs
+            topLabel.text=[self.webBrowser.custom_URL_name objectAtIndex:indexPath.row];
+            bottomLabel.text=[self.webBrowser.custom_URL objectAtIndex:indexPath.row];
+            break;
+        case 3: //VGM
             topLabel.text=weblinks_VGM[indexPath.row][1];
             bottomLabel.text=weblinks_VGM[indexPath.row][0];
             break;
-        case 3: //MODS & Chptunes
+        case 4: //MODS & Chptunes
             topLabel.text=weblinks_MODS[indexPath.row][1];
             bottomLabel.text=weblinks_MODS[indexPath.row][0];
             break;
-        case 4: //Others
+        case 5: //Others
             topLabel.text=weblinks_Others[indexPath.row][1];
             bottomLabel.text=weblinks_Others[indexPath.row][0];
             break;
@@ -720,15 +710,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
             }
         }
             break;
-        case 2: //VGM
+        case 2: //internet custom URLs
+            [webBrowser goToURLwithLoad:webBrowser.custom_URL[indexPath.row]];
+            [self.navigationController pushViewController:webBrowser animated:YES];
+            break;
+        case 3: //VGM
             [webBrowser goToURLwithLoad:weblinks_VGM[indexPath.row][0]];
             [self.navigationController pushViewController:webBrowser animated:YES];
             break;
-        case 3: //MODS & Chiptunes
+        case 4: //MODS & Chiptunes
             [webBrowser goToURL:weblinks_MODS[indexPath.row][0]];
             [self.navigationController pushViewController:webBrowser animated:YES];
             break;
-        case 4: //Others
+        case 5: //Others
             [webBrowser goToURL:weblinks_Others[indexPath.row][0]];
             [self.navigationController pushViewController:webBrowser animated:YES];
             break;

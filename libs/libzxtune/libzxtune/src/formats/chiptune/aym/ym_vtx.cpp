@@ -8,6 +8,8 @@
 *
 **/
 
+extern bool mdz_amstrad_cph_hack;
+
 //local includes
 #include "ym.h"
 #include "formats/chiptune/container.h"
@@ -50,7 +52,11 @@ namespace Chiptune
     const uint_t CLOCKRATE_MAX = 10000000;//10MHz
 
     const uint_t INTFREQ_MIN = 25;
+    const uint_t INTFREQ_DEFAULT = 50;
     const uint_t INTFREQ_MAX = 100;
+  
+  const uint_t DURATION_MIN = 1;
+  const uint_t DURATION_MAX = 30 * 60;
 
     const std::size_t MAX_STRING_SIZE = 254;
 		
@@ -73,7 +79,15 @@ namespace Chiptune
         IdentifierType Signature;
         RegistersDump Row;
       } PACK_POST;
+    
+    const std::size_t MIN_SIZE = sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MIN;
+    const std::size_t MAX_SIZE = sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MAX;
 
+    bool CheckMinSize(std::size_t size)
+    {
+      return size >= MIN_SIZE;
+    }
+    
       bool CheckSize(std::size_t size)
       {
         return size >= sizeof(RawHeader) + sizeof(RegistersDump) * INTFREQ_MIN;
@@ -94,6 +108,14 @@ namespace Chiptune
         IdentifierType Signature;
         RegistersDump Row;
       } PACK_POST;
+    
+    const std::size_t MIN_SIZE = sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MIN;
+    const std::size_t MAX_SIZE = sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MAX;
+
+    bool CheckMinSize(std::size_t size)
+    {
+      return size >= MIN_SIZE;
+    }
 
       bool CheckSize(std::size_t size)
       {
@@ -115,7 +137,16 @@ namespace Chiptune
         IdentifierType Signature;
         RegistersDump Row;
       } PACK_POST;
+    
+    const std::size_t MIN_SIZE =
+        sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MIN + sizeof(uint32_t);
+    const std::size_t MAX_SIZE =
+        sizeof(IdentifierType) + sizeof(RegistersDump) * INTFREQ_DEFAULT * DURATION_MAX + sizeof(uint32_t);
 
+    bool CheckMinSize(std::size_t size)
+    {
+      return size >= MIN_SIZE;
+    }
       bool CheckSize(std::size_t size)
       {
         return size >= sizeof(RawHeader) + sizeof(RegistersDump) * INTFREQ_MIN + sizeof(uint32_t);
@@ -160,6 +191,14 @@ namespace Chiptune
           return 0 != (Attrs & 0x04000000);
         }
       } PACK_POST;
+    
+    const std::size_t MIN_SIZE = sizeof(RawHeader) + sizeof(RegistersDump) * INTFREQ_MIN * DURATION_MIN;
+    const std::size_t MAX_SIZE = sizeof(RawHeader) + sizeof(RegistersDump) * INTFREQ_MAX * DURATION_MAX;
+
+    bool CheckMinSize(std::size_t size)
+    {
+      return size >= MIN_SIZE;
+    }
 
       bool CheckSize(std::size_t size)
       {
@@ -217,10 +256,10 @@ namespace Chiptune
           return false;
         }
         const std::size_t origSize = fromLE(hdr.OriginalSize);
-        return Ver2::CheckSize(origSize)
-            || Ver3::CheckSize(origSize)
-            || Ver3b::CheckSize(origSize)
-            || Ver5::CheckSize(origSize);
+          return Math::InRange(origSize, Ver2::MIN_SIZE, Ver2::MAX_SIZE)
+                 || Math::InRange(origSize, Ver3::MIN_SIZE, Ver3::MAX_SIZE)
+                 || Math::InRange(origSize, Ver3b::MIN_SIZE, Ver3b::MAX_SIZE)
+                 || Math::InRange(origSize, Ver5::MIN_SIZE, Ver5::MAX_SIZE);
       }
     }
 #ifdef USE_PRAGMA_PACK
@@ -313,6 +352,8 @@ namespace Chiptune
           String vers;
           for (int i= 0; i<sizeof(IdentifierType); i++) vers.push_back(type[i]);
           target.SetVersion(vers);
+        
+            if (mdz_amstrad_cph_hack) target.SetClockrate(2000000);
 
           const std::size_t dumpOffset = sizeof(IdentifierType);
           const std::size_t dumpSize = size - dumpOffset;
@@ -324,7 +365,8 @@ namespace Chiptune
           if (Ver3b::FastCheck(data, size))
           {
             const uint_t loop = fromBE(stream.ReadField<RawInt32>().Val);	// avoid alignment issues
-            target.SetLoop(loop);
+            //target.SetLoop(loop);
+              target.SetLoop(std::min(loop, swapBytes(loop)));
           }
           const Binary::Container::Ptr subData = stream.GetReadData();
           return CreateCalculatingCrcContainer(subData, dumpOffset, matrixSize);

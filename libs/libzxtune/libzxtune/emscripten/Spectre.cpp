@@ -181,6 +181,11 @@ public:
 			throw  std::invalid_argument("io unsupported format");
 		}
 	}
+    
+    void setLoopMode(int loop) {
+        Parameters::Container::Ptr params= _player->GetParameters();
+        params->SetValue(Parameters::ZXTune::Sound::LOOPED, 1);
+    }
 		
 	void decodeInitialize(unsigned int p_subsong, SongInfo & p_info) {
 		std::string subpath = get_subpath(p_subsong, p_info);
@@ -374,6 +379,11 @@ ZxTuneWrapper::~ZxTuneWrapper() {
 void ZxTuneWrapper::parseModules() {
 	_pimpl->parseModules();
 }
+
+void ZxTuneWrapper::setLoopMode(int loop) {
+    _pimpl->setLoopMode(loop);
+}
+
 
 void ZxTuneWrapper::decodeInitialize(unsigned int p_subsong, SongInfo & p_info) {
 	_pimpl->decodeInitialize(p_subsong, p_info);

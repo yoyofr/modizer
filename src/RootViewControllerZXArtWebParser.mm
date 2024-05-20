@@ -409,7 +409,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         }
     } else if (browse_mode==BROWSE_ALL_AUTHORS_SONGS) {
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
+        urlData = [NSData dataWithContentsOfURL:url options:NSUTF8StringEncoding error:nil];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
         NSArray *arr_realauthor=[doc searchWithXPathQuery:@"//table[contains(@class, 'author_details_info')]//tr/td[1]"];
@@ -431,12 +431,25 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         
         
         
-        NSArray *arr_musicrating=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[5]/div"];
-        if ([arr_musicrating count]>=1) NSLog(@"content: %@",[[arr_musicrating objectAtIndex:0] content]);
+        
         
         NSArray *arr_musicformat=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[4]"];
         
         NSArray *arr_url=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[11]/a[1]"];
+        
+        //XPath doesn't work for some reason, so instead check html page source code directly to get ratings
+        NSMutableArray *arr_musicrating=[NSMutableArray arrayWithCapacity:[arr_url count]];
+        char *dataptr=(char*)[urlData bytes];
+        char subptr[32];
+        while (dataptr=strstr(dataptr,"\"votes\":\"")) {
+            dataptr+=strlen("\"votes\":\"");
+            int i=0;
+            while (dataptr[i] && dataptr[i]!='"') i++;
+            if (i>31) break;
+            strncpy(subptr,dataptr,i);
+            float rating=atof(subptr);
+            [arr_musicrating addObject:[NSNumber numberWithFloat:rating]];
+        }
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
@@ -465,15 +478,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                 } else we[we_index].file_format=nil;
                 
                 if (j<[arr_musicrating count]) {
-                    el=[arr_musicrating objectAtIndex:j];
-                    
-                    if ([el hasChildren]) {
-                        NSArray *tmparr=[el children];
-                        TFHppleElement *elchild=(TFHppleElement *)[[el children] lastObject];
-                    }
-                    
-                    NSLog(@"style: %@",[el objectForKey:@"style"]);
-                    we[we_index].file_rating=0;//[[NSString stringWithFormat:@"%@",] floatValue];
+                    we[we_index].file_rating=[[arr_musicrating objectAtIndex:j] floatValue];
                 } else we[we_index].file_rating=0;
                 
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
@@ -618,8 +623,14 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=(wef->file_type==1);
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
         if (wef->file_type) {
-            if (wef->file_format) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%@・%.1f",wef->file_author,wef->file_format,wef->file_rating];
-            else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%.1f",wef->file_author,wef->file_rating];
+            if (wef->file_format) {
+                if (wef->file_author) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%@・%.1f",wef->file_author,wef->file_format,wef->file_rating];
+                else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%.1f",wef->file_format,wef->file_rating];
+            }
+            else {
+                if (wef->file_author) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%.1f",wef->file_author,wef->file_rating];
+                else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%.1f",wef->file_rating];
+            }
             dbWEB_entries[index][dbWEB_entries_count[index]].webRating=wef->file_rating;
         }
         else {

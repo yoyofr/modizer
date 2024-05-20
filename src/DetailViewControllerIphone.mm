@@ -1059,8 +1059,8 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     //GME
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {                
-        [mplayer optGME_Update];                
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {
+        [mplayer optGME_Update];
     }
     
     /////////////////////
@@ -1293,6 +1293,19 @@ static float movePinchScale,movePinchScaleOld;
     return;
 }
 
+-(void) jumpSeekFwd {
+    int64_t itime=[mplayer getCurrentTime];
+    itime+=10000;
+    [mplayer Seek:itime];
+}
+
+-(void) jumpSeekBwd {
+    int64_t itime=[mplayer getCurrentTime];
+    itime-=10000;
+    if (itime<0) itime=0;
+    [mplayer Seek:itime];
+}
+
 -(void) seek:(NSNumber*)seekTime {
     int curTime;
     if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
@@ -1389,7 +1402,6 @@ static float movePinchScale,movePinchScaleOld;
     
     if (mPaused) [self playPushed:self];
     
-    //NSLog(@"initiate seek: %lld",curTime);
     [mplayer Seek:curTime];
     
     

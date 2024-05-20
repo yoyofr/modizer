@@ -13,7 +13,7 @@
 #import "WaitingView.h"
 #import "SESlideTableViewCell.h"
 
-#define MAX_CUSTOM_URL 256
+#define MAX_CUSTOM_URL 5
 
 @interface WB_BookmarksViewController : UIViewController <UINavigationControllerDelegate,SESlideTableViewCellDelegate>{
     IBOutlet UITableView *tableView;

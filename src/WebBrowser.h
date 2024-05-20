@@ -41,12 +41,17 @@
 	IBOutlet UIView *infoDownloadView;
 	IBOutlet UILabel *infoDownloadLbl;
 	NSString *home;
-	NSString *custom_URL[MAX_CUSTOM_URL];
-	NSString *custom_URL_name[MAX_CUSTOM_URL];
-	int custom_url_count;
 	
     NSLayoutConstraint *bottomConstraint,*topConstraint;
+    
+    NSMutableArray *custom_URL;
+    NSMutableArray *custom_URL_name;
+    int custom_url_count;
 }
+
+@property (strong) NSMutableArray *custom_URL;
+@property (strong) NSMutableArray *custom_URL_name;
+@property int custom_url_count;
 
 @property (nonatomic,retain) IBOutlet UIView *infoDownloadView;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;

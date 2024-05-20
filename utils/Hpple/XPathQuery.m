@@ -20,16 +20,22 @@ NSArray *PerformXPathQuery(xmlDocPtr doc, NSString *query);
 NSDictionary *DictionaryForNode(xmlNodePtr currentNode, NSMutableDictionary *parentResult,BOOL parentContent)
 {
     NSMutableDictionary *resultForNode = [NSMutableDictionary dictionary];
+    
+//    NSLog(@"new node");
+    
     if (currentNode->name) {
         NSString *currentNodeContent = [NSString stringWithCString:(const char *)currentNode->name
                                                           encoding:NSUTF8StringEncoding];
         resultForNode[@"nodeName"] = currentNodeContent;
+//        NSLog(@"name: %s",(const char*)currentNode->name);
     }
 
     xmlChar *nodeContent = xmlNodeGetContent(currentNode);
     if (nodeContent != NULL) {
         NSString *currentNodeContent = [NSString stringWithCString:(const char *)nodeContent
                                                           encoding:NSUTF8StringEncoding];
+//        NSLog(@"content: %s",(const char*)nodeContent);
+        
         if ([resultForNode[@"nodeName"] isEqual:@"text"] && parentResult) {
             if (parentContent) {
                 NSCharacterSet *charactersToTrim = [NSCharacterSet whitespaceAndNewlineCharacterSet];
@@ -106,10 +112,39 @@ NSDictionary *DictionaryForNode(xmlNodePtr currentNode, NSMutableDictionary *par
     return resultForNode;
 }
 
+
+/**
+ * print_element_names:
+ * @a_node: the initial xml node to consider.
+ *
+ * Prints the names of the all the xml elements
+ * that are siblings or children of a given xml node.
+ */
+static void
+print_element_names(xmlNode * a_node)
+{
+    xmlNode *cur_node = NULL;
+
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            xmlChar *nodeContent = xmlNodeGetContent(cur_node);
+            printf("node type: Element, name: %s, content: %s\n", cur_node->name,nodeContent);
+            if (nodeContent) xmlFree(nodeContent);
+        }
+
+        print_element_names(cur_node->children);
+    }
+}
+
 NSArray *PerformXPathQuery(xmlDocPtr doc, NSString *query)
 {
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
+    
+    
+//    xmlNode *root_element = NULL;
+//    root_element=xmlDocGetRootElement(doc);
+//    print_element_names(root_element);
 
     /* Make sure that passed query is non-nil and is NSString object */
     if (query == nil || ![query isKindOfClass:[NSString class]]) {
@@ -163,15 +198,22 @@ NSArray *PerformHTMLXPathQueryWithEncoding(NSData *document, NSString *query,NSS
     xmlDocPtr doc;
 
     /* Load XML document */
-    const char *encoded = encoding ? [encoding cStringUsingEncoding:NSUTF8StringEncoding] : NULL;
+    const char *encoded = encoding ? [encoding cStringUsingEncoding:NSUTF8StringEncoding] : "UTF-8";//NULL;
+    
+//    NSLog(@"query: %@",query);
 
-    doc = htmlReadMemory([document bytes], (int)[document length], "", encoded, HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR);
+    //doc = htmlReadMemory([document bytes], (int)[document length], "", encoded, HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR);
+    doc = htmlReadMemory([document bytes], (int)[document length], "", encoded, HTML_PARSE_RECOVER|HTML_PARSE_NOWARNING | HTML_PARSE_NOERROR);
     if (doc == NULL) {
         NSLog(@"Unable to parse.");
         return nil;
     }
     
     NSArray *result = PerformXPathQuery(doc, query);
+    
+//    if (result) NSLog(@"Got: array of %d elements",[result count]);
+//    else NSLog(@"Got: null array!");
+    
     xmlFreeDoc(doc);
     
     return result;

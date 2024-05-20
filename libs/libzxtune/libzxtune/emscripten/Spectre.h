@@ -45,6 +45,8 @@ class ZxTuneWrapper {
 public:
 	ZxTuneWrapper(std::string modulePath, const void* data, size_t size, int sampleRate);
 	virtual ~ZxTuneWrapper();
+    
+    void setLoopMode(int loop);
 
 	void parseModules();
 	void decodeInitialize(unsigned int p_subsong, SongInfo & p_info);

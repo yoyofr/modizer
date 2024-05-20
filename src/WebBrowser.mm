@@ -47,6 +47,9 @@ static UIAlertView *alertChooseName;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
+@synthesize custom_URL,custom_URL_name;
+@synthesize custom_url_count;
+
 #include "MiniPlayerImplementNoTableView.h"
 
 -(void) adjustViewForMiniplayer:(NSNumber*)value {
@@ -120,26 +123,40 @@ static UIAlertView *alertChooseName;
 
 
 -(IBAction) newBookmark:(id)sender {
-	if ([addressTestField.text length]) {
-        NSString *tmpStr;
-        if ([addressTestField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTestField.text substringToIndex:24-3]];
-        else tmpStr=[NSString stringWithString:addressTestField.text];
-        alertChooseName=[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
-        [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-        UITextField *tf=[alertChooseName textFieldAtIndex:0];
-        tf.text=addressTestField.text;
-        [alertChooseName show];
-	}
+    if (custom_url_count<MAX_CUSTOM_URL) {
+        if ([addressTestField.text length]) {
+            NSString *tmpStr;
+            if ([addressTestField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTestField.text substringToIndex:24-3]];
+            else tmpStr=[NSString stringWithString:addressTestField.text];
+            alertChooseName=[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
+            [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
+            UITextField *tf=[alertChooseName textFieldAtIndex:0];
+            tf.text=addressTestField.text;
+            [alertChooseName show];
+        }
+    } else {
+        UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                       message:[NSString stringWithFormat:NSLocalizedString(@"Too many favorites",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                       preferredStyle:UIAlertControllerStyleAlert];
+        
+        
+        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleDefault
+           handler:^(UIAlertAction * action) {
+            }];
+        [msgAlert addAction:cancelAction];
+        
+        [self presentViewController:msgAlert animated:YES completion:nil];
+    }
 }
 
 -(void) deleteBookmark:(int)index {
 	if (index>=custom_url_count) return;
-	//[custom_URL[index] release];
-	//[custom_URL_name[index] release];
-	for (int i=index;i<custom_url_count-1;i++) {
-		custom_URL[i]=custom_URL[i+1];
-		custom_URL_name[i]=custom_URL_name[i+1];
-	}
+    [custom_URL removeObjectAtIndex:index];
+    [custom_URL_name removeObjectAtIndex:index];
+//	for (int i=index;i<custom_url_count-1;i++) {
+//		custom_URL[i]=custom_URL[i+1];
+//		custom_URL_name[i]=custom_URL_name[i+1];
+//	}
 	custom_url_count--;
 	[self saveBookmarks];
 	[self loadHome];
@@ -152,8 +169,8 @@ static UIAlertView *alertChooseName;
 	valNb=[[NSNumber alloc] initWithInt:custom_url_count];
 	[prefs setObject:valNb forKey:@"Bookmarks_count"];//[valNb autorelease];
 	for (int i=0;i<custom_url_count;i++) {
-		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
-		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
+        [prefs setObject:[custom_URL objectAtIndex:i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
+		[prefs setObject:[custom_URL_name objectAtIndex:i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
 	}
     
     [prefs synchronize];
@@ -168,14 +185,21 @@ static UIAlertView *alertChooseName;
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
 	if (valNb == nil) custom_url_count = 0;
 	else custom_url_count = [valNb intValue];
+    if (custom_url_count>MAX_CUSTOM_URL) custom_url_count=MAX_CUSTOM_URL;
     int custom_url_count_tmp=0;
+    
+    [custom_URL removeAllObjects];
+    [custom_URL_name removeAllObjects];
+    
     for (int i=0;i<custom_url_count;i++) {
         NSString *tmpstr1,*tmpstr2;
         tmpstr1=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
         tmpstr2=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
         if (tmpstr1 && tmpstr2) {
-            custom_URL[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr1];
-            custom_URL_name[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr2];
+            //custom_URL[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr1];
+            [custom_URL addObject:[[NSString alloc] initWithString:tmpstr1]];
+            //custom_URL_name[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr2];
+            [custom_URL_name addObject:[[NSString alloc] initWithString:tmpstr2]];
             custom_url_count_tmp++;
         }
 	}
@@ -379,8 +403,10 @@ static UIAlertView *alertChooseName;
     if (alertView==alertChooseName) {
         if (buttonIndex==1) {
         UITextField *name = [alertView textFieldAtIndex:0];
-        custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
-		custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:name.text];
+        //custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
+            [custom_URL addObject:[[NSString alloc] initWithString:addressTestField.text]];
+		//custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:name.text];
+            [custom_URL_name addObject:[[NSString alloc] initWithString:name.text]];
 		custom_url_count++;
 		[self saveBookmarks];
 		[self openPopup:@"Bookmark updated"];
@@ -1197,6 +1223,9 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     self.navigationController.delegate = self;
     
+    custom_URL=[NSMutableArray arrayWithCapacity:MAX_CUSTOM_URL];
+    custom_URL_name=[NSMutableArray arrayWithCapacity:MAX_CUSTOM_URL];
+    
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -1499,9 +1528,11 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     //if (lastURL) [lastURL release];
     lastURL=nil;
 	for (int i=0;i<custom_url_count;i++) {
-        custom_URL[i]=nil;
-        custom_URL_name[i]=nil;
-	}	
+        //custom_URL[i]=nil;
+        //custom_URL_name[i]=nil;
+	}
+    [custom_URL removeAllObjects];
+    [custom_URL_name removeAllObjects];
     //[super dealloc];
 }
 
