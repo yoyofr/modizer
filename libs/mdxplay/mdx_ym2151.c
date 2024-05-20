@@ -2375,10 +2375,10 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
     static INT32 last_chanout[8]; //YOYOFR
     for (int ii=0;ii<8;ii++) {
         if ( !(generic_mute_mask&(1<<ii)) && (PSG->pan[2*ii]|PSG->pan[2*ii+1]) && (chanout[ii]!=last_chanout[ii]) ) {
-            if (PSG->oper[ii*4].freq==0) {
+            if (PSG->oper[ii*4+3].freq==0) {
                 
             } else {
-                float freq=PSG->oper[ii*4].freq;
+                float freq=PSG->oper[ii*4+3].freq;
                 vgm_last_note[ii]=freq/604.0/2.0;
                 vgm_last_sample_addr[ii]=ii;
                 

@@ -1229,19 +1229,19 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
             break;
         case 2:
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
             break;
         case 3:
             settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
             break;
         case 4:
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%3;
             break;
         case 5:
-            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%3;
             break;
         case 6:
-            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value+1)%7;
             break;
         case 7:
             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
@@ -7387,7 +7387,7 @@ extern "C" int current_sample;
                 
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
                 
-                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
                 else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
                 
                 if (currentNotes) {

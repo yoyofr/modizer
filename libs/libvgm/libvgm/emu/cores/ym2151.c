@@ -1989,10 +1989,10 @@ static void ym2151_update_one(void *chip, UINT32 length, DEV_SMPL **buffers)
     if (m_voice_ofs>=0) {
         for (int ii=0;ii<8;ii++) {
             if (!(PSG->Muted[ii]) && (PSG->pan[2*ii]|PSG->pan[2*ii+1]) && (PSG->chanout[ii]!=last_chanout[ii])) {
-                if (PSG->oper[ii*4].freq==0) {
+                if (PSG->oper[ii*4+3].freq==0) {
                     
                 } else {
-                    int freq=PSG->oper[ii*4].freq;
+                    int freq=PSG->oper[ii*4+3].freq;
                     vgm_last_note[ii+m_voice_ofs]=freq/604.0f/2;
                     vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
                     
