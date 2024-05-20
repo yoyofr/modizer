@@ -1223,19 +1223,23 @@ static float movePinchScale,movePinchScaleOld;
 -(void) switchFX:(int)fxNb {
     switch (fxNb) {
         case 0:
-            settings[GLOB_FX1].detail.mdz_switch.switch_value=(settings[GLOB_FX1].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+1)%3;
+            //settings[GLOB_FX1].detail.mdz_switch.switch_value=(settings[GLOB_FX1].detail.mdz_switch.switch_value+1)%2;
             break;
         case 1:
-            settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
+            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
+            
             break;
         case 2:
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
+            settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
+            
             break;
         case 3:
-            settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
+            
             break;
         case 4:
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%3;
+            settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
             break;
         case 5:
             settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%3;
@@ -1247,10 +1251,10 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
             break;
         case 8:
-            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
+            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
             break;
         case 9:
-            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+1)%3;
+            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%3;
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
@@ -5197,7 +5201,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         else mDeviceType=DEVICE_MACOS;
         UIScreen* mainscr = [UIScreen mainScreen];
         
-        UIWindow *win=[UIApplication sharedApplication].keyWindow;
+        //UIWindow *win=[UIApplication sharedApplication].keyWindow;
+        UIWindow *win;
+        if (@available(iOS 13.0, *)) {
+            win=[UIApplication sharedApplication].windows.firstObject;
+        } else win=[UIApplication sharedApplication].keyWindow;
+        
+        //        NSLog(@"mscr w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        //        NSLog(@"win  w %f h %f",win.bounds.size.width,win.bounds.size.height);
         
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (win.bounds.size.height>win.bounds.size.width) {
@@ -5219,8 +5230,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         mDevice_hh=480;
         mDevice_ww=320;
         UIScreen* mainscr = [UIScreen mainScreen];
-        UIWindow *win=[UIApplication sharedApplication].keyWindow;
-        //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        UIWindow *win;
+        if (@available(iOS 13.0, *)) {
+            win=[UIApplication sharedApplication].windows.firstObject;
+        } else win=[UIApplication sharedApplication].keyWindow;
+        
+//        NSLog(@"mscr w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+//        NSLog(@"win  w %f h %f",win.bounds.size.width,win.bounds.size.height);
+        
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
             mDevice_ww=win.bounds.size.width;
@@ -5596,9 +5613,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //    BlurTexture=EmptyTexture(128,128);
     //    FxTexture=EmptyTexture(512,512);
     
-    tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES;
+    tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES*mDevice_ww/640;
+    if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
+    if (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
+    
+    movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-tim_midifx_note_range)/64.0;
+    
     tim_midifx_note_offset_reset=true;
     tim_midifx_length=MAX_MIDIFX_LENGTH;
+    
+//    NSLog(@"ww: %d, note range %f",mDevice_ww,tim_midifx_note_range);
     
     clearFXbuffer=true;
     
