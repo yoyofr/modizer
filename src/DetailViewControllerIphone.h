@@ -390,5 +390,7 @@ enum {
 
 -(void) jumpSeekFwd;
 -(void) jumpSeekBwd;
+-(void) oglViewSwitchFS;
+-(void) switchFX:(int)fxNb;
 
 @end

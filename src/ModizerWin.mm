@@ -22,8 +22,76 @@
               [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow   modifierFlags:0 action:@selector(upPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow   modifierFlags:0 action:@selector(downPressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"1"   modifierFlags:0 action:@selector(key1Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"&"   modifierFlags:0 action:@selector(key1Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"2"   modifierFlags:0 action:@selector(key2Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"é"   modifierFlags:0 action:@selector(key2Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"3"   modifierFlags:0 action:@selector(key3Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"\""   modifierFlags:0 action:@selector(key3Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"4"   modifierFlags:0 action:@selector(key4Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"'"   modifierFlags:0 action:@selector(key4Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"5"   modifierFlags:0 action:@selector(key5Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"("   modifierFlags:0 action:@selector(key5Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"6"   modifierFlags:0 action:@selector(key6Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"§"   modifierFlags:0 action:@selector(key6Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"7"   modifierFlags:0 action:@selector(key7Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"è"   modifierFlags:0 action:@selector(key7Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"8"   modifierFlags:0 action:@selector(key8Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"!"   modifierFlags:0 action:@selector(key8Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"9"   modifierFlags:0 action:@selector(key9Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"ç"   modifierFlags:0 action:@selector(key9Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"0"   modifierFlags:0 action:@selector(key0Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:0 action:@selector(key0Pressed)],
+              
+              [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
               [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)]];
+}
+-(void)key1Pressed {
+    [detailViewControllerIphone switchFX:0];
+}
+-(void)key2Pressed {
+    [detailViewControllerIphone switchFX:1];
+}
+-(void)key3Pressed {
+    [detailViewControllerIphone switchFX:2];
+}
+-(void)key4Pressed {
+    [detailViewControllerIphone switchFX:3];
+}
+-(void)key5Pressed {
+    [detailViewControllerIphone switchFX:4];
+}
+-(void)key6Pressed {
+    [detailViewControllerIphone switchFX:5];
+}
+-(void)key7Pressed {
+    [detailViewControllerIphone switchFX:6];
+}
+-(void)key8Pressed {
+    [detailViewControllerIphone switchFX:7];
+}
+-(void)key9Pressed {
+    [detailViewControllerIphone switchFX:8];
+}
+-(void)key0Pressed {
+    [detailViewControllerIphone switchFX:9];
+}
+-(void)keyFPressed {
+    [detailViewControllerIphone oglButtonPushed];
+}
+- (void)enterPressed{
+    [detailViewControllerIphone oglViewSwitchFS];
 }
 
 -(void)leftPressed {
@@ -75,10 +143,6 @@
     else [detailViewControllerIphone pausePushed:nil];
 }
 
-- (void)enterPressed
-{
-    NSLog(@"Enter pressed");
-}
 
 - (void)pressesBegan:(NSSet<UIPress *> *)presses
            withEvent:(UIPressesEvent *)event {

@@ -1220,6 +1220,55 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 
+-(void) switchFX:(int)fxNb {
+    switch (fxNb) {
+        case 0:
+            settings[GLOB_FX1].detail.mdz_switch.switch_value=(settings[GLOB_FX1].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 1:
+            settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
+            break;
+        case 2:
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 3:
+            settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 4:
+            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 5:
+            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 6:
+            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value+1)%2;
+            break;
+        case 7:
+            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
+            break;
+        case 8:
+            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
+            break;
+        case 9:
+            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+1)%3;
+            break;
+    }
+    [self settingsChanged:SETTINGS_VISU];
+    /*settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;*/
+}
+
 - (void)oglViewSwitchFS {
     oglViewFullscreen^=1;
     oglViewFullscreenChanged=1;

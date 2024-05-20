@@ -7555,7 +7555,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     
     
     //Draw spark fx
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
+    //glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_SPARK]);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
@@ -7901,7 +7901,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     
     
     //Draw light fx
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
+    //glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_LIGHT]);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
