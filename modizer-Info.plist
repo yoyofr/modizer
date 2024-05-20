@@ -162,20 +162,20 @@
 				<string>com.yoyofr.modizer.vgm</string>
 			</array>
 		</dict>
-		<dict>
-			<key>CFBundleTypeIconFile</key>
-			<string>AppStore512.png</string>
-			<key>CFBundleTypeName</key>
-			<string>PT3 File</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.yoyofr.modizer.pt3</string>
-			</array>
-		</dict>
+        <dict>
+            <key>CFBundleTypeIconFile</key>
+            <string>AppStore512.png</string>
+            <key>CFBundleTypeName</key>
+            <string>ZXTune File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.yoyofr.modizer.zxtune</string>
+            </array>
+        </dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -734,23 +734,76 @@
 				</array>
 			</dict>
 		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>PT3 File</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.yoyofr.modizer.pt3</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>pt3</string>
-				</array>
-			</dict>
-		</dict>
+        <dict>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>ZXTune File</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.yoyofr.modizer.zxtune</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>as0</string>
+                    <string>asc</string>
+                    <string>ay</string>
+                    <string>chi</string>
+                    <string>chp</string>
+                    <string>cop</string>
+                    <string>dmm</string>
+                    <string>dst</string>
+                    <string>et1</string>
+                    <string>ftc</string>
+                    <string>gtr</string>
+                    <string>m</string>
+                    <string>pdt</string>
+                    <string>psc</string>
+                    <string>psg</string>
+                    <string>psm</string>
+                    <string>pt1</string>
+                    <string>pt2</string>
+                    <string>pt3</string>
+                    <string>sqd</string>
+                    <string>sqt</string>
+                    <string>st1</string>
+                    <string>st3</string>
+                    <string>stc</string>
+                    <string>stp</string>
+                    <string>str</string>
+                    <string>tf0</string>
+                    <string>tfc</string>
+                    <string>tfd</string>
+                    <string>tfe</string>
+                    <string>trd</string>
+                    <string>ts</string>
+                    <string>txt</string>
+                    <string>vtx</string>
+                    <string>szx</string>
+                    <string>scl</string>
+                    <string>hrp</string>
+                    <string>fdi</string>
+                    <string>p</string>
+                    <string>hbt</string>
+                    <string>hrm</string>
+                    <string>dsq</string>
+                    <string>esv</string>
+                    <string>tlz</string>
+                    <string>tlzp</string>
+                    <string>trs</string>
+                    <string>cc3</string>
+                    <string>gam</string>
+                    <string>gamplus</string>
+                    <string>lzs</string>
+                    <string>msp</string>
+                    <string>td0</string>
+                    <string>pcd</string>
+                    <string>zxzip</string>
+                </array>
+            </dict>
+        </dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -816,9 +869,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>ay</string>
 					<string>gbs</string>
-					<string>gym</string>
 					<string>hes</string>
 					<string>sfm</string>
 					<string>sgc</string>

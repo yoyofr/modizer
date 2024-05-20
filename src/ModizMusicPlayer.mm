@@ -87,7 +87,7 @@ char org_filename[1024];
 //ZXTUNE
 #include "Spectre.h"
 extern "C" {
-    #include "chp2ym.h"
+#include "chp2ym.h"
 }
 ZxTuneWrapper* mdz_zxtune;
 SongInfo zxtune_song_info;
@@ -10606,8 +10606,10 @@ char* loadRom(const char* path, size_t romSize)
             //                }
             //            }
             if (mod_name[0]==0) {
-                if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-                else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+                if (sidtune_info->infoString(0)[0]) {
+                    NSString *str_tmp=[NSString stringWithFormat:@"%@",[NSString stringWithCString:sidtune_info->infoString(0) encoding:NSWindowsCP1252StringEncoding]];
+                    snprintf(mod_name,sizeof(mod_name)," %s",[[str_tmp stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                } else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
             }
             
             if (sidtune_name) {
@@ -15136,7 +15138,8 @@ extern bool icloud_available;
             if (mod_name[0]==0) {
                 const SidTuneInfo *sidtune_info;
                 sidtune_info=mSidTune->getInfo();
-                if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                if (sidtune_info->infoString(0)[0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithCString:sidtune_info->infoString(0) encoding:NSWindowsCP1252StringEncoding]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+                
             }
             
             
@@ -15794,6 +15797,10 @@ extern bool icloud_available;
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
     if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_PIXEL)||(mPlayType==MMP_WSR)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_FMPMINI)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    
+    if ((mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)) {
+        return [NSString stringWithCString:mod_message encoding:NSWindowsCP1252StringEncoding];
+    }
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -15946,7 +15953,8 @@ extern bool icloud_available;
         
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
-        if (sidtune_info->infoString(0)[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        if (sidtune_info->infoString(0)[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:sidtune_info->infoString(0) encoding:NSWindowsCP1252StringEncoding]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        
     } else if (mPlayType==MMP_ASAP) {
         NSString *subtitle=NULL;
         if (sidtune_name) {

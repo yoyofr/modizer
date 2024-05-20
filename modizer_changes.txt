@@ -39,10 +39,18 @@ missing seek support:
 
 3.9
 ---
+- [PLAYER] Now reaching 1090 different formats supported
+- [PLAYER] New player for ZX Spectrum & related hardware, ZXTune with some improvements to cover also CPH (Amstrad soundtracker).
+- [ONLINE] ZXArt added to collections
 - [PLAYER] New player for WSR/Wonderswan, based on Oswan. Oscilloscope, piano rolls FX & playback speed supported
-- [PLAYER] New player for ZX Spectrum & related hardware, ZXTune.
 - [PLAYER] Better playback speed management for SID/Sidplayfp
 - [PLAYER] SID/Sidplayfp updated to v2.7.0 and accuracy issue fixed (CW model forced to 'strong')
+- [PLAYER] Timidity now supports infinite loop mode
+- [UI] Preliminary physical keyboard support (including Mac M series)
+- [UI] Integrated web browser: favorites management improved
+- [DB] ASMA updated to latest version (2024/05/20)
+- [DB] MODLAND updated to latest version (2024/05/20)
+- [ALL] Several bugfixes
 
 3.8
 ---
