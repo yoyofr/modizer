@@ -610,7 +610,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
-    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
     settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
@@ -648,7 +648,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
@@ -1455,13 +1454,16 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
     
-    SETTINGS_ID_DEF(GLOB_FXBeat)
-    settings[GLOB_FXBeat].label=(char*)"Beat FX";
-    settings[GLOB_FXBeat].description=NULL;
-    settings[GLOB_FXBeat].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXBeat].sub_family=0;
-    settings[GLOB_FXBeat].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+    SETTINGS_ID_DEF(GLOB_FXAlphaFS)
+    settings[GLOB_FXAlphaFS].label=(char*)"FX Alpha Fullscreen";
+    settings[GLOB_FXAlphaFS].description=NULL;
+    settings[GLOB_FXAlphaFS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXAlphaFS].sub_family=0;
+    settings[GLOB_FXAlphaFS].callback=&optVISUChangedC;
+    settings[GLOB_FXAlphaFS].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_digits=100;
+    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_max_value=1;
     
     SETTINGS_ID_DEF(GLOB_FXOscillo)
     settings[GLOB_FXOscillo].type=MDZ_SWITCH;
@@ -1678,14 +1680,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
-    
-    SETTINGS_ID_DEF(GLOB_FX1)
-    settings[GLOB_FX1].label=(char*)"FX1";
-    settings[GLOB_FX1].description=NULL;
-    settings[GLOB_FX1].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX1].sub_family=0;
-    settings[GLOB_FX1].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FX2)
     settings[GLOB_FX2].type=MDZ_SWITCH;

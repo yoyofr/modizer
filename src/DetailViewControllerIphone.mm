@@ -531,18 +531,15 @@ static int display_length_mode=0;
 
 -(int) computeActiveFX {
     int active_idx=0;
-    if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
     if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<1;
     if (settings[GLOB_FX3].detail.mdz_switch.switch_value) active_idx|=1<<2;
     if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<3;
     
     if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<4;
-    if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<7;
     
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
-    if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<10;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<11;
     
@@ -949,23 +946,16 @@ static float movePinchScale,movePinchScaleOld;
     //VISU
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
-        if (settings[GLOB_FXAlpha].detail.mdz_slider.slider_value==1.0f) m_oglView.layer.opaque = YES;
-        else m_oglView.layer.opaque = NO;
+//        if (settings[GLOB_FXAlpha].detail.mdz_slider.slider_value==1.0f) m_oglView.layer.opaque = YES;
+//        else m_oglView.layer.opaque = NO;
         
         if (settings[GLOB_FX2].detail.mdz_switch.switch_value&&settings[GLOB_FX3].detail.mdz_switch.switch_value) {
             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
         }
         if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-        }
-        if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
-            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
         }
         [self updateVisibleChan];
         
@@ -1224,7 +1214,6 @@ static float movePinchScale,movePinchScaleOld;
     switch (fxNb) {
         case 0:
             settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+1)%3;
-            //settings[GLOB_FX1].detail.mdz_switch.switch_value=(settings[GLOB_FX1].detail.mdz_switch.switch_value+1)%2;
             break;
         case 1:
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
@@ -1254,16 +1243,12 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
             break;
         case 9:
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=(settings[GLOB_FX5].detail.mdz_switch.switch_value+1)%3;
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
-    /*settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+/*    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
@@ -1276,6 +1261,12 @@ static float movePinchScale,movePinchScaleOld;
 - (void)oglViewSwitchFS {
     oglViewFullscreen^=1;
     oglViewFullscreenChanged=1;
+    if (oglViewFullscreen) {
+        if (mOglViewIsHidden) {
+            mOglViewIsHidden=NO;
+            [self checkGLViewCanDisplay];
+        }
+    }
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 
@@ -1709,12 +1700,9 @@ static float movePinchScale,movePinchScaleOld;
             mRandomFXCptRev=0;
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
             switch (arc4random()%19) {
                 case 0:
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1723,10 +1711,9 @@ static float movePinchScale,movePinchScaleOld;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 2:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+                    settings[GLOB_FXPianoRoll].detail.mdz_boolswitch.switch_value=(arc4random()&1)+1;
                     break;
                 case 3:
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
                     break;
                 case 4:
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
@@ -1735,23 +1722,17 @@ static float movePinchScale,movePinchScaleOld;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 6:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 7:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 8:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
                     break;
                 case 9:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 10:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 11:
@@ -1768,25 +1749,19 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 14:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
                     break;
                 case 15:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 16:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
                     break;
                 case 17:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 18:
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
@@ -1916,76 +1891,13 @@ int recording=0;
     [self adjustTextMessageFont];
     
     
-    /*mInWasView=m_oglView;
-     mInWasViewHidden=m_oglView.hidden;
-     [UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //	[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mInWasView cache:YES];
-     mInWasView.hidden=YES;
-     [UIView commitAnimations];
-     if (infoIsFullscreen) {
-     [UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //		[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];
-     mainView.hidden=YES;
-     [UIView commitAnimations];
-     }
-     */
     infoView.hidden=NO;
-    /*[UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //	[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
-     [UIView commitAnimations];*/
-    
 }
 
 - (IBAction)hideInfo {
     
-    /*[UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //	[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoView cache:YES];
-     infoView.hidden=YES;
-     [UIView commitAnimations];*/
-    
     infoView.hidden=YES;
     
-    
-    /*if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
-     
-     if (mOglViewIsHidden) mInWasViewHidden=YES;
-     else mInWasViewHidden=NO;
-     }
-     if (!mInWasViewHidden) {
-     [UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //		[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mInWasView cache:YES];
-     mInWasView.hidden=NO;
-     if (infoIsFullscreen) {
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-     mainView.hidden=NO;
-     }
-     [UIView commitAnimations];
-     } else if (infoIsFullscreen) {
-     [UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDuration:0.50];
-     //		[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-     mainView.hidden=NO;
-     [UIView commitAnimations];
-     }
-     
-     
-     [UIView beginAnimations:nil context:nil];
-     [UIView setAnimationDelay:1.00];
-     [UIView setAnimationDuration:0.70];
-     //	[UIView setAnimationDelegate:self];
-     [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-     [UIView commitAnimations];*/
 }
 
 - (void)restartCurrent {
@@ -2997,6 +2909,17 @@ int recording=0;
         cover_img=[self getArchiveCover:[self getFullFilePath:filePath]];
     }
     
+    if (cover_img==nil) {
+        //generate default cover, use black image
+        /*CGSize size = CGSizeMake(64, 64);
+        UIGraphicsBeginImageContextWithOptions(size, YES, 0);
+        [[UIColor blackColor] setFill];
+        UIRectFill(CGRectMake(0, 0, size.width, size.height));
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();*/
+        //cover_img=default_cover;
+    }
+    
     if (cover_img) {
         
         if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
@@ -3784,6 +3707,7 @@ int recording=0;
             mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
             m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_ww, mDevice_hh);
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
+            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
             
         } else {
             if (mHasFocus) {
@@ -4034,6 +3958,7 @@ int recording=0;
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
+                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
                 
                 //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
@@ -4139,10 +4064,10 @@ int recording=0;
     if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
         
         if (is_macOS) {
-            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+6), mDevice_ww, 44);
-            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+6), mDevice_ww, 44);
-            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+6), mDevice_ww, 44);
-            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+6), mDevice_ww, 44);
+            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+6), mDevice_ww, 44+2);
+            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+6), mDevice_ww, 44+2);
+            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+6), mDevice_ww, 44+2);
+            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+6), mDevice_ww, 44+2);
         } else {
             playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
             pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
@@ -4432,38 +4357,6 @@ void ViewPerspective()
 
 
 
-void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spectrumDataR,int numval,float alphaval) {
-    /* Set The Clear Color To Black */
-    glClearColor(0.0f, 0.0f, 0.0f, alphaval);
-    /* Clear Screen And Depth Buffer */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    /* Reset The View */
-    glLoadIdentity();
-    
-    switch (fxtype) {
-        case 0:
-            ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
-            break;
-            /*case 1:
-             DrawBlur1(0.95f,0.009f, _ww, _hh);
-             ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
-             glBindTexture(GL_TEXTURE_2D, FxTexture);
-             glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 512, 512, 0);
-             glBindTexture(GL_TEXTURE_2D, 0);
-             break;*/
-        case 1:
-            /*RenderToTexture(_ww, _hh,spectrumDataL,spectrumDataR,numval);
-             ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
-             DrawBlur(8, 0.04f, _ww, _hh);*/
-            break;
-    }
-    
-    
-    glFlush();
-}
-
-/**************************************************/
-/**************************************************/
 /**************************************************/
 
 -(void)updateFlagOnExit{
@@ -5640,12 +5533,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
     
-    txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
+    //txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
     txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
     txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
     txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
     txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
-    txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
+    //txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
     txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
@@ -6302,9 +6195,6 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value];
     else txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+1];
     
-    if (settings[GLOB_FX5].detail.mdz_switch.switch_value) txtMenuHandle[9]=txtSubMenuHandle[SUBMENU6_START+settings[GLOB_FX5].detail.mdz_switch.switch_value];
-    else txtMenuHandle[9]=txtSubMenuHandle[SUBMENU6_START+1];
-    
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
     else txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+1];
     
@@ -6482,7 +6372,7 @@ extern "C" int current_sample;
     static float piano_posz=0;
     static float piano_rotx=0;
     static float piano_roty=0;
-    float fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    float fxalpha;
     static int frameToUpdate=0;
     
     frameToUpdate++;
@@ -6515,6 +6405,17 @@ extern "C" int current_sample;
     framecpt++;  //TODO: check dependency / FPS (30, 60)
     
     
+    if (oglViewFullscreen) {
+        cover_viewBG.layer.zPosition=MAXFLOAT-10;
+        cover_view.layer.zPosition=MAXFLOAT-9;
+        m_oglView.layer.zPosition=MAXFLOAT-8;
+    } else {
+        cover_viewBG.layer.zPosition=0;
+        cover_view.layer.zPosition=1;
+        m_oglView.layer.zPosition=2;
+    }
+    
+    
     if (self.mainView.hidden) {
         no_reentrant=0;
         return;
@@ -6528,7 +6429,14 @@ extern "C" int current_sample;
         return;
     }
     
-    if (oglViewFullscreen) fxalpha=1.0;
+    if (oglViewFullscreen) {
+        if (cover_img==nil) fxalpha=1;
+        else fxalpha=settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value;
+    }
+    else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    
+    if (fxalpha==1.0f) m_oglView.layer.opaque = YES;
+    else m_oglView.layer.opaque = NO;
     
     if (!mFont || !mFontMenu ) {
         no_reentrant=0;
@@ -6710,10 +6618,6 @@ extern "C" int current_sample;
                 int touched_coord=(touched_cellX<<4)|(touched_cellY);
                 
                 if (touched_coord==0x00) {
-                    int val=settings[GLOB_FX1].detail.mdz_boolswitch.switch_value;
-                    val++;
-                    if (val>=2) val=0;
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=val;
                 } else if (touched_coord==0x10) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
@@ -6735,10 +6639,6 @@ extern "C" int current_sample;
                     viewTapHelpShow_SubStart=SUBMENU3_START;
                     viewTapHelpShow_SubNb=SUBMENU3_SIZE;
                 } else if (touched_coord==0x11) {
-                    int val=settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value;
-                    val++;
-                    if (val>=2) val=0;
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=val;
                 } else if (touched_coord==0x21) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
@@ -6756,7 +6656,6 @@ extern "C" int current_sample;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                 } else if (touched_coord==0x12) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
@@ -6779,12 +6678,9 @@ extern "C" int current_sample;
                     oglViewFullscreenChanged=1;
                     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
                 } else if (touched_coord==0x23) {
-                    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
                     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
@@ -6828,7 +6724,6 @@ extern "C" int current_sample;
                             movePxMID=movePyMID=0;
                             break;
                         case SUBMENU6_START://24: //3D Sphere/Torus
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU7_START://27: //Piano
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
@@ -6844,13 +6739,11 @@ extern "C" int current_sample;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=1;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU1_START://4: //FX3
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=1;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU2_START://8: //Spectrum
                             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
@@ -6870,7 +6763,6 @@ extern "C" int current_sample;
                             movePxMID=movePyMID=0;
                             break;
                         case SUBMENU6_START://24: //3D Sphere/Torus
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=1;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
@@ -6889,13 +6781,11 @@ extern "C" int current_sample;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=2;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU1_START://4: //FX3
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=2;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU2_START://8: //Spectrum
                             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
@@ -6915,7 +6805,6 @@ extern "C" int current_sample;
                             movePxMID=movePyMID=0;
                             break;
                         case SUBMENU6_START://24: //3D Sphere/Torus
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=2;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
@@ -6934,13 +6823,11 @@ extern "C" int current_sample;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=3;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU1_START://4: //FX3
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=3;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START://11: //Oscillo
                             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
@@ -6965,7 +6852,6 @@ extern "C" int current_sample;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=4;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START://11: //Oscillo
                             if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
@@ -6989,7 +6875,6 @@ extern "C" int current_sample;
                             settings[GLOB_FX2].detail.mdz_switch.switch_value=5;
                             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START://11: //Oscillo
                             if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
@@ -7103,14 +6988,12 @@ extern "C" int current_sample;
     hasdrawnotes=0;
     
     //update spectrum data
-    if ( ((settings[GLOB_FX1].detail.mdz_boolswitch.switch_value)||
+    if (
           (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX3].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
-          (settings[GLOB_FX5].detail.mdz_switch.switch_value)||
-          (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)||
           (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
-          (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value))  ) {
+          (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)  ) {
         //compute new spectrum data
         if ([mplayer isPlaying]){
             //FFT: build audio buffer
@@ -7292,14 +7175,25 @@ extern "C" int current_sample;
     }
     
     angle+=(float)4.0f;
-    if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) {
-        /* Update Angle Based On The Clock */
-        
-        fxRadial(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,fxalpha);
-    } else {
         glClearColor(0.0f, 0.0f, 0.0f, fxalpha);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    }
+    
+        if ((fxalpha<1)&&oglViewFullscreen) {
+            /*CGPoint pos=cover_view.frame.origin;
+            UIView *sview=cover_view.superview;
+            while (sview!=nil) {
+                pos.x+=sview.frame.origin.x;
+                pos.y+=sview.frame.origin.y;
+                sview=sview.superview;
+            }
+            
+            //NSLog(@"yo %f x %f",pos.x,pos.y);
+            float top_size=pos.y;
+            float bottom_size=m_oglView.frame.size.height-(pos.y+cover_view.frame.size.height);
+            
+            
+            //RenderUtils::ClearUI(ww,hh,top_size,bottom_size);*/
+        }
     
     RenderUtils::SetUpOrtho(0,ww,hh);
     
@@ -7604,20 +7498,10 @@ extern "C" int current_sample;
     if ([mplayer isPlaying]){
         short int **snd_buffer;
         int cur_pos,prev_pos;
-        int pos_fx;
         snd_buffer=[mplayer buffer_ana_cpy];
         cur_pos=[mplayer getCurrentPlayedBufferIdx];
         short int *curBuffer=snd_buffer[cur_pos];
-        pos_fx=0;
-        if ((settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
-        if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
-        if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) pos_fx=1;
-        if (hasdrawnotes) pos_fx=1;
-        if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
         
-        //if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
-        //                                  settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
-        if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
@@ -7661,15 +7545,12 @@ extern "C" int current_sample;
             RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
-        } else if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,nb_spectrum_bands/2);
         }
         
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
             int mirror=1;
             if (settings[GLOB_FX2].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FX3].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FX5].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
@@ -7789,7 +7670,6 @@ extern "C" int current_sample;
                     active_idx=1<<settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
                     break;
                 case SUBMENU6_START: //3D Sphere/Torus
-                    active_idx=1<<settings[GLOB_FX5].detail.mdz_switch.switch_value;
                     break;
                 case SUBMENU7_START: //Piano
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;

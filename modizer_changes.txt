@@ -40,7 +40,7 @@ missing seek support:
 3.9
 ---
 - [PLAYER] Now reaching 1090 different formats supported
-- [PLAYER] New player for ZX Spectrum & related hardware, ZXTune with some improvements to cover also CPH (Amstrad soundtracker).
+- [PLAYER] New player for ZX Spectrum & related hardware based on ZXTune with some improvements to cover also CPH (Amstrad soundtracker).
 - [ONLINE] ZXArt added to collections
 - [PLAYER] New player for WSR/Wonderswan, based on Oswan. Oscilloscope, piano rolls FX & playback speed supported
 - [PLAYER] Better playback speed management for SID/Sidplayfp

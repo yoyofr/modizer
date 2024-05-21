@@ -275,6 +275,7 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR08,
     GLOB_FXOscillo,
     GLOB_FXAlpha,
+    GLOB_FXAlphaFS,
     GLOB_FXLOD,
     GLOB_FXFPS,
     GLOB_FXMSAA,
@@ -331,8 +332,6 @@ enum MDZ_SETTINGS {
     GLOB_FX3DSpectrum,
         
     GLOB_FXSpectrum,
-    GLOB_FXBeat,
-    GLOB_FX1,
     GLOB_FX2,
     GLOB_FX3,
     GLOB_FX4,

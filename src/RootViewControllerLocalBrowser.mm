@@ -3602,7 +3602,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
-                
                 free(pl);
                 
             } else {
@@ -3906,6 +3905,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 -(void) updateLoadingInfos: (NSTimer *) theTimer {
     [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
+    
+    if ([detailViewController.mplayer isPlaying]&& (miniplayerVC==nil) ) [self showMiniPlayer];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath
