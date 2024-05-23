@@ -70,7 +70,12 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/SMSP" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=4;
-            strPath=[[[[filePath substringFromIndex:strlen("Documents/SMSP")+1] lastPathComponent] stringByDeletingPathExtension] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            if ([[[[[filePath substringFromIndex:strlen("Documents/SMSP")+1] lastPathComponent] pathExtension] lowercaseString] isEqualToString:@"zip"]) {
+                strPath=[[[[filePath substringFromIndex:strlen("Documents/SMSP")+1] lastPathComponent] stringByDeletingPathExtension] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            } else {
+                //extracted file, use directory instead
+                strPath=[[[filePath substringFromIndex:strlen("Documents/SMSP")+1] stringByDeletingLastPathComponent] lastPathComponent];
+            }
         }
     }
     //SNESMusic?
@@ -78,7 +83,12 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/SNESM" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=5;
-            strPath=[[[filePath substringFromIndex:strlen("Documents/SNESM")+1] lastPathComponent] stringByDeletingPathExtension];
+            if ([[[[[filePath substringFromIndex:strlen("Documents/SNESM")+1] lastPathComponent] pathExtension] lowercaseString] isEqualToString:@"rsn"]) {
+                strPath=[[[filePath substringFromIndex:strlen("Documents/SNESM")+1] lastPathComponent] stringByDeletingPathExtension];
+            } else {
+                //extracted file, use directory instead
+                strPath=[[[filePath substringFromIndex:strlen("Documents/SNESM")+1] stringByDeletingLastPathComponent] lastPathComponent];
+            }
         }
     }
     //P2612?
@@ -86,7 +96,12 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/P2612" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=6;
-            strPath=[[[filePath substringFromIndex:strlen("Documents/P2612")+1] lastPathComponent] stringByDeletingPathExtension];
+            if ([[[[[filePath substringFromIndex:strlen("Documents/P2612")+1] lastPathComponent] pathExtension] lowercaseString] isEqualToString:@"zip"]) {
+                strPath=[[[filePath substringFromIndex:strlen("Documents/P2612")+1] lastPathComponent] stringByDeletingPathExtension];
+            } else {
+                //extracted file, use directory instead
+                strPath=[[[filePath substringFromIndex:strlen("Documents/P2612")+1] stringByDeletingLastPathComponent] lastPathComponent];
+            }
         }
     }
     //VGMRips?
@@ -94,7 +109,12 @@ typedef struct  {
         r=[filePath rangeOfString:@"Documents/VGMRips" options:NSCaseInsensitiveSearch];
         if (r.location!=NSNotFound) {
             collectionType=7;
-            strPath=[[[filePath substringFromIndex:strlen("Documents/VGMRips")+1] lastPathComponent] stringByDeletingPathExtension];
+            if ([[[[[filePath substringFromIndex:strlen("Documents/VGMRips")+1] lastPathComponent] pathExtension] lowercaseString] isEqualToString:@"zip"]) {
+                strPath=[[[filePath substringFromIndex:strlen("Documents/VGMRips")+1] lastPathComponent] stringByDeletingPathExtension];
+            } else {
+                //extracted file, use directory instead
+                strPath=[[[filePath substringFromIndex:strlen("Documents/VGMRips")+1] stringByDeletingLastPathComponent] lastPathComponent];
+            }
         }
     }
     //JoshW?
@@ -104,6 +124,11 @@ typedef struct  {
             collectionType=8;
             strPath=[filePath substringFromIndex:strlen("Documents/JoshW")+1];
             
+            if ([[[[[filePath substringFromIndex:strlen("Documents/JoshW")+1] lastPathComponent] pathExtension] lowercaseString] isEqualToString:@"7z"]) {
+            } else {
+                //extracted file, use directory instead
+                strPath=[[[filePath substringFromIndex:strlen("Documents/JoshW")+1] stringByDeletingLastPathComponent] stringByAppendingString:@".7z"];
+            }
             
             t_joshw_path josh_path[]=
             {

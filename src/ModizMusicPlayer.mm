@@ -13365,7 +13365,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mod_subsongs=mod_maxsub+1;
     
     mod_currentsub = ASAPInfo_GetDefaultSong(ASAP_GetInfo(asap));
-    mod_currentsub = ASAPInfo_GetDefaultSong(ASAP_GetInfo(asap));
     
     duration = ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
     

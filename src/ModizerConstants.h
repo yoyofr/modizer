@@ -11,8 +11,8 @@
 #ifndef MODIZER_CONSTANTS_H
 #define MODIZER_CONSTANTS_H
 
-//#define STATISTICS_URL @"http://localhost:8080"
-#define STATISTICS_URL @"https://modizerdb.appspot.com"
+#define STATISTICS_URL @"http://localhost:8080"
+//#define STATISTICS_URL @"https://modizerdb.appspot.com"
 
 extern void *ExtractProgressObserverContext;
 extern void *LoadingProgressObserverContext;
