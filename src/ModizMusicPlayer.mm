@@ -5772,7 +5772,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 memset(m_voice_prev_current_ptr,0,sizeof(m_voice_current_ptr));
                                 
                                 gme_start_track(gme_emu,mod_currentsub);
-                                //sprintf(mod_name," %s",mod_filename);
                                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
                                     strcpy(gmetype,gme_info->system);
                                     iModuleLength=gme_info->play_length;
@@ -5787,13 +5786,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             gme_track_count( gme_emu ),
                                             (gme_info->comment?gme_info->comment:" "));
                                     
-                                    //                                    if (gme_info->song){
-                                    //                                        if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
-                                    //                                    }
                                     if (gme_info->song){
                                         if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
                                         else mod_title=NULL;
-                                        //if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                                     }
                                     gme_free_info(gme_info);
                                 } else {
@@ -5946,8 +5941,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
                                              info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                                 
-                                if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
-                                else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+                                if (info.musicSubTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicSubTitle);
+                                else if (info.musicTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicTitle);
                                 
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
@@ -8534,11 +8529,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     m_voicesDataAvail=1;
     
     mod_name[0]=0;
-    if (game_str[0]) sprintf(mod_name," %s",game_str);
+    if (game_str[0]) snprintf(mod_name,sizeof(mod_name)," %s",game_str);
     
     if (title_str[0]) mod_title=[NSString stringWithUTF8String:title_str];
     
-    if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+    if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     
     free(tag);
@@ -8647,9 +8642,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     fread(mp_data, 1, mp_datasize, f);
     fclose(f);
     
-    
-    
-    
     if (!(atariSndh.Load(mp_data,mp_datasize,PLAYBACK_FREQ))) {
         NSLog(@"AtariSound load error");
         mPlayType=0;
@@ -8674,8 +8666,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             atariSndh_hash ^= atariSndh_hash >> 6;
         }
         
-        
-        
         mod_subsongs=atariSndh.GetSubsongCount();
         mod_minsub=1;
         mod_maxsub=1+mod_subsongs-1;
@@ -8689,8 +8679,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         atariSndh.InitSubSong(mod_subsongs);
         
-        if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
-        else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+        if (info.musicSubTitle && info.musicSubTitle[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.musicSubTitle);
+        else if (info.musicTitle && info.musicTitle[0]) snprintf(mod_name,sizeof(mod_name)," %s",info.musicTitle);
         
         iModuleLength=info.playerTickCount*1000/info.playerTickRate;
         
@@ -8795,7 +8785,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
         ret=sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
         
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         if (info.title[0]) mod_title=[NSString stringWithUTF8String:info.title];
         
         mod_subsongs=info.tracks;
@@ -9398,7 +9388,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     // song info
     mod_message[0]=0;
     
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     if (m3uReader.info().title)
         if (m3uReader.info().title[0]) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,   "%sTitle...: %s\n",mod_message,m3uReader.info().title);
@@ -9419,7 +9409,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
     
     if (m3uReader.info().title)
-        if (m3uReader.info().title[0]) sprintf(mod_name," %s",m3uReader.info().title);
+        if (m3uReader.info().title[0]) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader.info().title);
     
     if (m3uReader.size()) {
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
@@ -9545,7 +9535,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     fclose(f);
     
     // song info
-    sprintf(mod_name," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+    snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
     mod_title=[NSString stringWithUTF8String:mod_name];
     strncpy(mod_message,pt3_music_buf,99);
     mod_message[99]=0;
@@ -9948,9 +9938,8 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         ymMusicSetLoopMode(ymMusic,(mLoopMode==1?YMTRUE:YMFALSE));
         ymMusicSetLowpassFiler(ymMusic,YMTRUE);
         ymMusicPlay(ymMusic);
-        
-        if (info.pSongName[0]) sprintf(mod_name," %s",info.pSongName);
-        else sprintf(mod_name," %s",mod_filename);
+        if (info.pSongName[0] && strcasecmp((const char*)info.pSongName,"unknown")) snprintf(mod_name,sizeof(mod_name)," %s",info.pSongName);
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         mod_subsongs=1;
         mod_minsub=0;
         mod_maxsub=0;
@@ -10712,10 +10701,10 @@ char* loadRom(const char* path, size_t romSize)
     
     kssOptLoopNb=1;
     
-    sprintf(mod_name," %s",mod_filename);
-    if (kss->title[0]) sprintf(mod_name," %s",kss->title);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
+    if (kss->title[0]) snprintf(mod_name,sizeof(mod_name)," %s",kss->title);
     if (m3uReader.info().title)
-        if (m3uReader.info().title[0]) sprintf(mod_name," %s",m3uReader.info().title);
+        if (m3uReader.info().title[0]) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader.info().title);
     
     if (m3uReader.size()) {
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
@@ -10917,8 +10906,8 @@ char* loadRom(const char* path, size_t romSize)
         
         
         
-        if (hvl_song->ht_Name[0]) sprintf(mod_name," %s",hvl_song->ht_Name);
-        else sprintf(mod_name," %s",[[filePath lastPathComponent] UTF8String]);
+        if (hvl_song->ht_Name[0]) snprintf(mod_name,sizeof(mod_name)," %s",hvl_song->ht_Name);
+        else snprintf(mod_name,sizeof(mod_name)," %s",[[filePath lastPathComponent] UTF8String]);
         
         mod_subsongs=hvl_song->ht_SubsongNr;
         mod_minsub=0;
@@ -11263,7 +11252,7 @@ char* loadRom(const char* path, size_t romSize)
     strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
     //printf("mod filename: %s\n",mod_filename);
     
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     sprintf(mod_message,"%s\n",mod_name);
     numChannels=4;
     m_genNumVoicesChannels=numChannels;
@@ -11341,9 +11330,9 @@ char* loadRom(const char* path, size_t romSize)
     xmp_mi=(struct xmp_module_info*)calloc(1,sizeof(struct xmp_module_info));
     xmp_get_module_info(xmp_ctx, xmp_mi);
     
-    sprintf(mod_name," %s",xmp_mi->mod->name);
+    snprintf(mod_name,sizeof(mod_name)," %s",xmp_mi->mod->name);
     if (xmp_mi->mod->name[0]==0) {
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     }
     
     if (xmp_mi->comment) sprintf(mod_message,"%s\n", xmp_mi->comment);
@@ -11521,11 +11510,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     modName=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"title");
     if (!modName) {
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     } else if (modName[0]==0) {
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     } else {
-        sprintf(mod_name," %s", modName);
+        snprintf(mod_name,sizeof(mod_name)," %s", modName);
     }
     mdz_safe_free(modName);
     
@@ -11828,7 +11817,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
     
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     sprintf(mod_message,"Midi Infos:");
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -11894,8 +11883,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mVGMSTREAM_decode_pos_samples=0;
     
     numChannels=vgmStream->channels;
-    if (vgmStream->stream_name[0]) sprintf(mod_name," %s",vgmStream->stream_name);
-    else sprintf(mod_name," %s",mod_filename);
+    if (vgmStream->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->stream_name);
+    else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
@@ -12001,8 +11990,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mVGMSTREAM_decode_pos_samples=0;
     
     numChannels=vgmStream->channels;
-    if (vgmStream->stream_name[0]) sprintf(mod_name," %s",vgmStream->stream_name);
-    else sprintf(mod_name," %s",mod_filename);
+    if (vgmStream->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->stream_name);
+    else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
@@ -12113,7 +12102,7 @@ void ds_meta_set(const char * tag, const char * value) {
     
     mod_fadeinMs=0;
     mod_artist=NULL;
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     mod_message[0]=0;
     
     ds_setup();
@@ -12216,7 +12205,7 @@ void ds_meta_set(const char * tag, const char * value) {
     xSFConfig->CopyConfigToMemory(xSFPlayer, false);
     xSFFile = xSFPlayer->GetXSFFile();
     
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     mod_message[0]=0;
     auto tags = xSFFile->GetAllTags();
@@ -12230,7 +12219,7 @@ void ds_meta_set(const char * tag, const char * value) {
         else if (keys[x]=="game") album=[NSString stringWithUTF8String:tags[keys[x]].c_str()];
         else if (keys[x]=="title") mod_title=[NSString stringWithUTF8String:tags[keys[x]].c_str()];
     }
-    if (album) sprintf(mod_name," %s",[album UTF8String]);
+    if (album) snprintf(mod_name,sizeof(mod_name)," %s",[album UTF8String]);
     
     int fadeInMS=xSFFile->GetFadeMS(xSFPlayer->fadeInMS);
     xSFPlayer->fadeInMS=fadeInMS;
@@ -12358,7 +12347,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     mod_maxsub=0;
     mod_currentsub=0;
     
-    sprintf(mod_name," %s",mod_filename);
+    snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     mod_message[0]=0;
     
@@ -12650,38 +12639,8 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     }
     src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
     
-    //    if (HC_type==0x21) {
-    //        sprintf(mod_name,"");
-    //
-    //        //        if (usf_info_data->inf_title)
-    //        //            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
-    //        if (usf_info_data->inf_title)
-    //            if (usf_info_data->inf_title[0]) mod_title=[NSString stringWithUTF8String:usf_info_data->inf_title];
-    //
-    //        if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
-    //
-    //        if (usf_info_data->inf_game)
-    //            if (usf_info_data->inf_game[0]) snprintf(mod_name, sizeof(mod_name), " %s",usf_info_data->inf_game);
-    //
-    //        sprintf(mod_message,"Game.......:\t%s\nTitle......:\t%s\nArtist.....:\t%s\nYear.......:\t%s\nGenre......:\t%s\nRipper.....:\t%s\nCopyright..:\t%s\nTrack......:\t%s\nSample rate: %dHz\nLength: %ds\n",
-    //                (usf_info_data->inf_game?usf_info_data->inf_game:""),
-    //                (usf_info_data->inf_title?usf_info_data->inf_title:""),
-    //                (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
-    //                (usf_info_data->inf_year?usf_info_data->inf_year:""),
-    //                (usf_info_data->inf_genre?usf_info_data->inf_genre:""),
-    //                (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
-    //                (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
-    //                (usf_info_data->inf_track?usf_info_data->inf_track:""),
-    //                hc_sample_rate,
-    //                iModuleLength/1000);
-    //
-    //        //        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithUTF8String:(const char*)(usf_info_data->inf_game)];
-    //
-    //        if (usf_info_data->inf_artist) artist=[NSString stringWithUTF8String:usf_info_data->inf_artist];
-    //        if (usf_info_data->inf_game) album=[NSString stringWithUTF8String:usf_info_data->inf_game];
-    //    } else
     {
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         
         sprintf(mod_message,"\n");
         const char *padding="...........";
@@ -13102,8 +13061,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mod_maxsub=0;
     mod_subsongs=1;
     
-    sprintf(mod_name,"");
-    //if (GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %s",[[self wcharToNS:GetTagStrEJ((bool)(settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value),VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String]);
+    snprintf(mod_name,sizeof(mod_name),"");
     if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     [self mmp_updateDBStatsAtLoad];
@@ -13163,8 +13121,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         pmd_get_title(tmp_mod_name);
         
         //printf("tmp_mod_name: %s",tmp_mod_name);
-        if (tmp_mod_name[0]) sprintf(mod_name," %s",[[self sjisToNS:tmp_mod_name] UTF8String]);
-        else sprintf(mod_name," %s",mod_filename);
+        if (tmp_mod_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",[[self sjisToNS:tmp_mod_name] UTF8String]);
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         
         pmd_get_compo(tmp_mod_message);
         if (tmp_mod_message[0]) sprintf(mod_message,"Title: %s\nComposer: %s",[[self sjisToNS:tmp_mod_name] UTF8String], [[self sjisToNS:tmp_mod_message] UTF8String]);
@@ -13274,8 +13232,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         const char *title=fmpmini_getName();
         
         //printf("tmp_mod_name: %s",tmp_mod_name);
-        if (title && title[0]) sprintf(mod_name," %s",[[self sjisToNS:title] UTF8String]);
-        else sprintf(mod_name," %s",mod_filename);
+        if (title && title[0]) snprintf(mod_name,sizeof(mod_name)," %s",[[self sjisToNS:title] UTF8String]);
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         
         // FMP doesn't have subsongs
         mod_subsongs=1;
@@ -13424,10 +13382,10 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     
     if (ASAPInfo_GetTitle(ASAP_GetInfo(asap))[0]) {
-        sprintf(mod_name," %s",ASAPInfo_GetTitle(ASAP_GetInfo(asap)));
+        snprintf(mod_name,sizeof(mod_name)," %s",ASAPInfo_GetTitle(ASAP_GetInfo(asap)));
         //mod_title=[NSString stringWithUTF8String:(const char*)ASAPInfo_GetTitle(ASAP_GetInfo(asap))];
     }
-    else sprintf(mod_name," %s",mod_filename);
+    else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
     
@@ -13529,8 +13487,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         std::string title=adPlugPlayer->gettitle();
         
-        if (title.length()) sprintf(mod_name," %s",title.c_str());
-        else sprintf(mod_name," %s",mod_filename);
+        if (title.length()) snprintf(mod_name,sizeof(mod_name)," %s",title.c_str());
+        else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         mod_message[0]=0;
         
         if ((adPlugPlayer->gettype().length()>0)) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sType.......: %s\n", mod_message,adPlugPlayer->gettype().c_str());
@@ -13710,7 +13668,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             }
         }
         
-        sprintf(mod_name," %s",mod_filename);
+        snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
             iModuleLength=gme_info->play_length;
             strcpy(gmetype,gme_info->system);
@@ -13738,10 +13696,10 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             if (gme_info->song){
                 if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
                 else mod_title=NULL;
-                //if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
+                //if (gme_info->song[0]) snprintf(mod_name,sizeof(mod_name)," %s",gme_info->song);
             }
             
-            sprintf(mod_name," %s",mod_filename);
+            snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
             if (gme_info->game){
                 if (gme_info->game[0]) {
                     //mod_title=[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding];
@@ -13762,7 +13720,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             strcpy(gmetype,"N/A");
             strcpy(mod_message,"N/A\n");
             iModuleLength=optGENDefaultLength;
-            sprintf(mod_name," %s",mod_filename);
+            snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         }
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -14912,7 +14870,6 @@ extern bool icloud_available;
                 
                 gme_start_track(gme_emu,subsong);
                 mod_currentsub=subsong;
-                //sprintf(mod_name," %s",mod_filename);
                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
                     iModuleLength=gme_info->play_length;
                     if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
@@ -14925,13 +14882,9 @@ extern bool icloud_available;
                             (gme_info->copyright?gme_info->copyright:" "),
                             gme_track_count( gme_emu ),
                             (gme_info->comment?gme_info->comment:" "));
-                    //                    if (gme_info->song){
-                    //                        if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
-                    //                    }
                     if (gme_info->song){
                         if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
                         else mod_title=NULL;
-                        //if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                     }
                     gme_free_info(gme_info);
                 } else {
@@ -15205,8 +15158,8 @@ extern bool icloud_available;
             else sprintf(mod_message,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
                          info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
             
-            if (info.musicSubTitle) sprintf(mod_name," %s",info.musicSubTitle);
-            else if (info.musicTitle) sprintf(mod_name," %s",info.musicTitle);
+            if (info.musicSubTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicSubTitle);
+            else if (info.musicTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicTitle);
             
             mod_message_updated=2;
         }
