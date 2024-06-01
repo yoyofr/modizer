@@ -9012,8 +9012,10 @@ typedef struct {
     
     nsfData=new xgm::NSF();
     
-    if (mLoopMode) nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,0,1<<16);
-    else nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
+    if (mLoopMode) (*nsfPlayerConfig)["PLAY_ADVANCE"]=1;
+    else (*nsfPlayerConfig)["PLAY_ADVANCE"]=0;
+    
+    nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
     
     //check if a playlist exists
     const char *plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".m3u"] UTF8String];

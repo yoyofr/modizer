@@ -2046,6 +2046,9 @@ int sc68_process(sc68_t * sc68, void * buf16st, int * _n)
   } else if (!buf16st) {
     ret = SC68_ERROR;
   } else {
+      
+      if (!(sc68->mus)) return SC68_ERROR;
+      
     int n = *_n;
     ret = (n < 0) ? SC68_ERROR : SC68_IDLE;
 
