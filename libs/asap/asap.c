@@ -208,7 +208,7 @@ struct Pokey {
 	int sumDACOutputs;
 	int iirRate;
 	int iirAcc;
-    int iirAcc_ch[4]; //YOYOFR
+    int64_t iirAcc_ch[4]; //YOYOFR
 	int trailing;
 };
 static void Pokey_Construct(Pokey *self);
