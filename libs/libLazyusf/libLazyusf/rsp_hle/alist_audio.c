@@ -22,6 +22,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -108,7 +109,7 @@ static void RESAMPLE(struct hle_t* hle, uint32_t w1, uint32_t w2)
     uint8_t  flags   = (w1 >> 16);
     uint16_t pitch   = w1;
     uint32_t address = get_address(hle, w2);
-
+    
     alist_resample(
             hle,
             flags & A_INIT,

@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "alist.h"
@@ -114,9 +115,12 @@ void alist_process(struct hle_t* hle, const acmd_callback_t abi[], unsigned int 
         w2 = *(alist++);
 
         acmd = (w1 >> 24) & 0x7f;
+        
+        
 
         if (acmd < abi_size)
         {
+            
             #ifdef DEBUG_INFO
               HleVerboseMessage(hle->user_defined, "HLE: %s (%08x %08x)", abi_names[acmd], w1, w2);
             #endif
