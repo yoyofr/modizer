@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "psf2fs.h"
+#include "vio_psf2fs.h"
 
 #include <ctype.h>
 #include <string.h>

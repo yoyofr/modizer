@@ -24,7 +24,7 @@
 		CC4AF44A2BC090B1006D7EFC /* state.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4342BC090B1006D7EFC /* state.c */; };
 		CC4AF44B2BC090B1006D7EFC /* thumb_instructions.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4362BC090B1006D7EFC /* thumb_instructions.c */; };
 		CC4AF4502BC0915C006D7EFC /* twosfplug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF44F2BC0915C006D7EFC /* twosfplug.cpp */; };
-		CC4AF4582BC09170006D7EFC /* psf2fs.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4522BC09170006D7EFC /* psf2fs.c */; };
+		CC4AF4582BC09170006D7EFC /* vio_psf2fs.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4522BC09170006D7EFC /* vio_psf2fs.c */; };
 		CC4AF4592BC09170006D7EFC /* vio_psflib.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4AF4542BC09170006D7EFC /* vio_psflib.c */; };
 /* End PBXBuildFile section */
 
@@ -85,8 +85,8 @@
 		CC4AF4392BC090B1006D7EFC /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		CC4AF44F2BC0915C006D7EFC /* twosfplug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = twosfplug.cpp; path = vio2sf/emscripten/twosfplug.cpp; sourceTree = "<group>"; };
 		CC4AF4512BC09170006D7EFC /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		CC4AF4522BC09170006D7EFC /* psf2fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psf2fs.c; sourceTree = "<group>"; };
-		CC4AF4532BC09170006D7EFC /* psf2fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psf2fs.h; sourceTree = "<group>"; };
+		CC4AF4522BC09170006D7EFC /* vio_psf2fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vio_psf2fs.c; sourceTree = "<group>"; };
+		CC4AF4532BC09170006D7EFC /* vio_psf2fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vio_psf2fs.h; sourceTree = "<group>"; };
 		CC4AF4542BC09170006D7EFC /* vio_psflib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vio_psflib.c; sourceTree = "<group>"; };
 		CC4AF4552BC09170006D7EFC /* vio_psflib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vio_psflib.h; sourceTree = "<group>"; };
 		CC4AF4562BC09170006D7EFC /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
@@ -174,8 +174,8 @@
 			isa = PBXGroup;
 			children = (
 				CC4AF4512BC09170006D7EFC /* LICENSE */,
-				CC4AF4522BC09170006D7EFC /* psf2fs.c */,
-				CC4AF4532BC09170006D7EFC /* psf2fs.h */,
+				CC4AF4522BC09170006D7EFC /* vio_psf2fs.c */,
+				CC4AF4532BC09170006D7EFC /* vio_psf2fs.h */,
 				CC4AF4542BC09170006D7EFC /* vio_psflib.c */,
 				CC4AF4552BC09170006D7EFC /* vio_psflib.h */,
 				CC4AF4562BC09170006D7EFC /* README.txt */,
@@ -248,7 +248,7 @@
 				CC4AF4502BC0915C006D7EFC /* twosfplug.cpp in Sources */,
 				CC4AF4402BC090B1006D7EFC /* FIFO.c in Sources */,
 				CC4AF4452BC090B1006D7EFC /* mc.c in Sources */,
-				CC4AF4582BC09170006D7EFC /* psf2fs.c in Sources */,
+				CC4AF4582BC09170006D7EFC /* vio_psf2fs.c in Sources */,
 				CC4AF43E2BC090B1006D7EFC /* bios.c in Sources */,
 				CC4AF4592BC09170006D7EFC /* vio_psflib.c in Sources */,
 				CC4AF4412BC090B1006D7EFC /* GPU.c in Sources */,

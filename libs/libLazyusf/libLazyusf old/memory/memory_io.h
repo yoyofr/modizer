@@ -66,7 +66,7 @@ static osal_inline void write_mem(usf_state_t* state, uint32_t addr, uint32_t va
 #ifdef DEBUG_INFO
     if (state->debug_log)
     {
-      fprintf(state->debug_log, "write(%08x, %08x & %08x)\n", addr, value, mask);
+      fprintf(state->debug_log, "write(%08x, %08x )\n", addr, value);
     }
 #endif    
     state->io.write[addr >> 16](state, addr, value, mask);

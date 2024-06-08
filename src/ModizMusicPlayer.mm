@@ -2024,9 +2024,9 @@ static int usf_info(void * context, const char * name, const char * value)
         usf_length_ms += parse_time_crap([NSString stringWithUTF8String:value]);
     else if (!strcasecmp(name, "fade"))
         usf_fade_ms += parse_time_crap([NSString stringWithUTF8String:value]);
-    else if (!strcasecmp(name, "_enablecompare") && *value)
+    else if (!strcasecmp(name, "_enablecompare") /*&& *value*/)
         usf_enable_compare = 1;
-    else if (!strcasecmp(name, "_enablefifofull") && *value)
+    else if (!strcasecmp(name, "_enablefifofull")/* && *value*/)
         usf_enable_fifo_full = 1;
     
     return 0;
@@ -4329,6 +4329,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 
 int64_t src_callback_hc(void *cb_data, float **data) {
+    //printf("start\n");
+    
+    if (mCurrentSamples/SOUND_BUFFER_SIZE_SAMPLE==255) {
+        printf("yo\n");
+    }
+    
     uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
     switch (HC_type) {
         case 1:
@@ -4339,8 +4345,18 @@ int64_t src_callback_hc(void *cb_data, float **data) {
         case 0x12:
             if ( sega_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
-        case 0x21:
-            if (usf_render(lzu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
+        case 0x21: {
+            const char *ret;
+            int32_t srate;
+            srate=hc_sample_rate;
+            if (ret=usf_render(lzu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &srate)) {
+                printf("usf: %s\n",ret);
+                return 0;
+            }
+            if (srate!=hc_sample_rate) {
+                printf("rate changed: %d / %d (new / old)\n",srate,hc_sample_rate);
+            }
+        }
             break;
         case 0x23:
             dwChannelMute=HC_voicesMuteMask1;
@@ -4352,6 +4368,9 @@ int64_t src_callback_hc(void *cb_data, float **data) {
     }
     hc_currentSample += howmany;
     mCurrentSamples=hc_currentSample;
+    
+    //printf("%d\n",mCurrentSamples/SOUND_BUFFER_SIZE_SAMPLE);
+    
     
     if (iModuleLength>0) {
         if (hc_fadeLength&&(hc_fadeStart>0)&&(hc_currentSample>hc_fadeStart)) {
@@ -4376,6 +4395,8 @@ int64_t src_callback_hc(void *cb_data, float **data) {
     }
     src_short_to_float_array (hc_sample_data, hc_sample_data_float,SOUND_BUFFER_SIZE_SAMPLE*2);
     *data=hc_sample_data_float;
+    
+    //printf("end\n");
     return SOUND_BUFFER_SIZE_SAMPLE;
 }
 
@@ -12547,14 +12568,20 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         }
         
     } else if (HC_type == 0x21) { //USF
+        usf_enable_compare=0;
+        usf_enable_fifo_full=0;
         lzu_state = (unsigned char *) malloc(usf_get_state_size());
         usf_clear(lzu_state);
         
         usf_length_ms=0;
         usf_fade_ms=0;
-        //usf_set_hle_audio( lzu_state->emu_state, 1 );
+//        usf_set_hle_audio( lzu_state->emu_state, 0 );
+        //usf_set_hle_audio(lzu_state, 0*1);
         
         //        usf_info_data=(corlett_t*)calloc(1,sizeof(corlett_t));
+#ifdef DEBUG_INFO
+        usf_log_start(lzu_state);
+#endif
         
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state,1 ) < 0 ) {
             NSLog(@"Error loading USF");
@@ -12572,7 +12599,10 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         
         usf_render(lzu_state, 0, 0, &hc_sample_rate);
         
+        printf("rate: %d\n",hc_sample_rate);
+        
         iModuleLength=usf_length_ms;
+        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
         
         m_voice_current_samplerate=hc_sample_rate;
         
