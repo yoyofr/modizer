@@ -66,6 +66,7 @@ enum MDZ_SETTINGS {
     GLOB_NoScreenAutoLock,
     GLOB_PBRATIO_ONOFF,
     GLOB_PBRATIO,
+    GLOB_SilenceDetection,    
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,

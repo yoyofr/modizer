@@ -526,6 +526,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value=3;
+    
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_AudioLatency].detail.mdz_slider.slider_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
@@ -949,6 +951,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_digits=100;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
+    
+    SETTINGS_ID_DEF(GLOB_SilenceDetection)
+    settings[GLOB_SilenceDetection].label=(char*)"Silence Detection";
+    settings[GLOB_SilenceDetection].description=(char*)"0: off";
+    settings[GLOB_SilenceDetection].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_SilenceDetection].sub_family=0;
+    settings[GLOB_SilenceDetection].callback=&optGLOBALChangedC;
+    settings[GLOB_SilenceDetection].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_SilenceDetection].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_SilenceDetection].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_SilenceDetection].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(GLOB_DefaultLength)
     settings[GLOB_DefaultLength].label=(char*)"Default Length";

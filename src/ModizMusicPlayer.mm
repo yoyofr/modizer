@@ -18,6 +18,8 @@ extern pthread_mutex_t play_mutex;
 
 char bundlePath[1024];
 
+int mdzSilentBufferCount,mdzSilentBufferLimit;
+
 int64_t iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
@@ -3295,6 +3297,8 @@ void propertyListenerCallback (void                   *inUserData,              
             //iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
             //iCurrentTime=buffer_ana_sample_ofs[buffer_ana_play_ofs]*1000/PLAYBACK_FREQ;
             
+            
+            
             /* Panning effect. Turns stereo into mono in a specific degree */
             if (mPanning) {
                 int i, l, r, m;
@@ -3308,6 +3312,21 @@ void propertyListenerCallback (void                   *inUserData,              
                     sm += 2;
                 }
             }
+            
+            //detect silence
+            int isSilent=1;
+            int32_t *sm32=(int32_t*)(buffer_ana[buffer_ana_play_ofs]);
+            int32_t sm32Start=*sm32;
+            for (int i = 0; i < SOUND_BUFFER_SIZE_SAMPLE; i++) {
+                if ((*sm32)!=sm32Start) {
+                    isSilent=0;
+                    break;
+                }
+                sm32++;
+            }
+            
+            if (isSilent) mdzSilentBufferCount++;
+            else mdzSilentBufferCount=0;
             
             
             if (sampleVolume<256) {
@@ -4032,6 +4051,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         }
                     }
                     
+                    mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
+                    mdzSilentBufferCount=0;
                     
                     moveToSubSong=0;
                 } else {
@@ -4667,6 +4688,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         //stop
                                     } else {
                                         moveToSubSong=2;
+                                        
                                         quit = 0;
                                     }
                                 }
@@ -4710,6 +4732,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode) iModuleLength=-1;
                                 
                                 mod_message_updated=2;
+                                
+                                mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
+                                mdzSilentBufferCount=0;
                                 
                                 moveToSubSong=0;
                             }
@@ -6109,6 +6134,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 mod_message_updated=1;
                             }
+                            
+                            mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
+                            mdzSilentBufferCount=0;
                             moveToSubSong=0;
                         }
                         
@@ -6619,6 +6647,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             if ((iModuleLength!=-1)&&(mCurrentSamples>=mTgtSamples)) nbBytes=0;
+                            if (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit)) nbBytes=0;
                         }
                         if (mPlayType==MMP_2SF) { //2SF
                             nbBytes=ds_read(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
@@ -14719,6 +14748,9 @@ extern bool icloud_available;
     
     if (m_genNumMidiVoicesChannels==0) m_genNumMidiVoicesChannels=m_genNumVoicesChannels;
     
+    mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
+    mdzSilentBufferCount=0;
+    
     //clear oscillo data ptr
     //    for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
     //        m_voice_current_ptr[i]=0;
@@ -15410,6 +15442,9 @@ extern bool icloud_available;
             [self Play];
             break;
     }
+    
+    mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
+    mdzSilentBufferCount=0;
 }
 
 -(void) MMP_HCClose {
