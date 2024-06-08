@@ -510,7 +510,7 @@ bool pxtnService::Moo( void* p_buf, int32_t  size )
             if (vol) {
                 float note=(float)(_units[u]->getCurrentKey())/256.0f; //A4: 440Hz & 69 in midi index
                 vgm_last_note[u]=pow(2,(note-96)/12)*440.0;
-                vgm_last_sample_addr[u]=u;
+                vgm_last_instr[u]=u;
                 if (!vgm_last_vol[u]) vgm_last_vol[u]=1;
                 if (_units[u]->_keyonoff_triggered) {
                     _units[u]->_keyonoff_triggered=0;

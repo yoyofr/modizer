@@ -1742,7 +1742,7 @@ static void ym2413_update_emu(void *chip, UINT32 samples, DEV_SMPL **out)
             
             if (note) {
                 vgm_last_note[ii+m_voice_ofs]=note;
-                vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                 vgm_last_vol[ii+m_voice_ofs]=newvol;
             }
             //old_out_fm[ii]=OPL->out_fm[ii];

@@ -219,13 +219,13 @@ static void PWM_Update(void* info, UINT32 length, DEV_SMPL **buf)
         if (chip->PWM_Cycle)
             if (!(chip->PWM_Mute&1) && (last_out_same_cnt[0]<limit_silence) ) {
             vgm_last_note[0+m_voice_ofs]=440.0f*((double)chip->clock/chip->PWM_Cycle)/22050.0f;
-            vgm_last_sample_addr[0+m_voice_ofs]=m_voice_ofs+0;
+            vgm_last_instr[0+m_voice_ofs]=m_voice_ofs+0;
             int newvol=1;
             vgm_last_vol[0+m_voice_ofs]=newvol;
         }
         if (!(chip->PWM_Mute&2) && (last_out_same_cnt[1]<limit_silence) ) {
             vgm_last_note[1+m_voice_ofs]=440.0f*((double)chip->clock/chip->PWM_Cycle)/22050.0f;
-            vgm_last_sample_addr[1+m_voice_ofs]=m_voice_ofs+0;
+            vgm_last_instr[1+m_voice_ofs]=m_voice_ofs+0;
             int newvol=1;
             vgm_last_vol[1+m_voice_ofs]=newvol;
         }

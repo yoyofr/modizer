@@ -419,7 +419,7 @@ void opna_ssg_mix_55466(
                       double freq=opna_ssg_noise_period(ssg);
                       if (freq) {
                           vgm_last_note[i+m_voice_current_system]=(double)3993600*2/(2*freq)/16/1024;
-                          vgm_last_sample_addr[i+m_voice_current_system]=m_voice_current_system+i;
+                          vgm_last_instr[i+m_voice_current_system]=m_voice_current_system+i;
                           int newvol=opna_ssg_channel_level(ssg,i);
                           vgm_last_vol[i+m_voice_current_system]=1+newvol;
                       }
@@ -429,7 +429,7 @@ void opna_ssg_mix_55466(
                       double freq=opna_ssg_tone_period(ssg, i);
                       if (freq) {
                           vgm_last_note[i+m_voice_current_system]=(double)3993600*2/(2*freq)/16;
-                          vgm_last_sample_addr[i+m_voice_current_system]=m_voice_current_system+i;
+                          vgm_last_instr[i+m_voice_current_system]=m_voice_current_system+i;
                           int newvol=opna_ssg_channel_level(ssg,i);
                           vgm_last_vol[i+m_voice_current_system]=1+newvol;
                       }

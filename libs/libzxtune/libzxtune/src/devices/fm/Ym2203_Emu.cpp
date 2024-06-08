@@ -1318,7 +1318,7 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
                 if (cch[ii]->fc==0 ) {
                     if ((state->out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -1327,7 +1327,7 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
                     if ((state->out_fm[ii]!=old_out_fm[ii])) {
                         double freq=cch[ii]->fc;
                         vgm_last_note[ii+m_voice_ofs]=freq*110.0f/65536; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;

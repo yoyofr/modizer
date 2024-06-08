@@ -21,6 +21,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+//YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+extern int mdz_cur_vol;
+//YOYOFR
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -368,6 +373,7 @@ void alist_envmix_exp(
     *(int32_t *)(save_buffer + 16) = (int32_t)ramps[0].value;    /* 12-13 */
     *(int32_t *)(save_buffer + 18) = (int32_t)ramps[1].value;    /* 14-15 */
     memcpy(hle->dram + address, (uint8_t *)save_buffer, sizeof(save_buffer));
+    
 }
 
 void alist_envmix_ge(
@@ -447,6 +453,7 @@ void alist_envmix_ge(
     *(int32_t *)(save_buffer + 16) = (int32_t)ramps[0].value;    /* 12-13 */
     *(int32_t *)(save_buffer + 18) = (int32_t)ramps[1].value;    /* 14-15 */
     memcpy(hle->dram + address, (uint8_t *)save_buffer, 80);
+    
 }
 
 void alist_envmix_lin(
@@ -520,6 +527,7 @@ void alist_envmix_lin(
     *(int32_t *)(save_buffer + 16) = (int32_t)ramps[0].value; /* 16-17 */
     *(int32_t *)(save_buffer + 18) = (int32_t)ramps[1].value; /* 18-19 */
     memcpy(hle->dram + address, (uint8_t *)save_buffer, 80);
+    
 }
 
 void alist_envmix_nead(
@@ -668,6 +676,45 @@ void alist_resample(
     count >>= 1;
     ipos -= 4;
 
+#define SOUND_MAXVOICES_BUFFER_FX_USF 24
+    //YOYOFR
+    //printf("resample %dbytes: %08X %d\n",count,address,pitch);
+    //check address
+    int i=0;
+    int oldestUpd=255;
+    int reuseIdx=-1;
+    while (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
+        if (vgm_last_sample_address[i]==0) vgm_last_sample_address[i]=address;
+        
+        if (vgm_last_sample_address[i]==address) {
+            vgm_last_sample_address_lastupdate[i]=255;
+            break;
+        }
+        
+        if (vgm_last_sample_address_lastupdate[i]) vgm_last_sample_address_lastupdate[i]--;
+        
+        if (oldestUpd>vgm_last_sample_address_lastupdate[i]) {
+            oldestUpd=vgm_last_sample_address_lastupdate[i];
+            reuseIdx=i;
+        }
+        
+        i++;
+    }
+    if (i==SOUND_MAXVOICES_BUFFER_FX_USF) {
+        i=reuseIdx;
+        vgm_last_sample_address[i]=address;
+        vgm_last_sample_address_lastupdate[i]=255;
+    }
+    int m_voice_ofs=-1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    if (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
+        m_voice_ofs=i;
+        vgm_last_instr[i]=i;
+        vgm_last_note[i]=440*(uint64_t)pitch/65536;
+        vgm_last_vol[i]=1+(init?1:0);
+    }
+    //YOYOFR
+    
     if (flag2)
         HleWarnMessage(hle->user_defined, "alist_resample: flag2 is not implemented");
 
@@ -679,16 +726,37 @@ void alist_resample(
     while (count != 0) {
         const int16_t* lut = RESAMPLE_LUT + ((pitch_accu & 0xfc00) >> 8);
 
-        *sample(hle, opos++) = clamp_s16( (
-            (*sample(hle, ipos    ) * lut[0]) +
-            (*sample(hle, ipos + 1) * lut[1]) +
-            (*sample(hle, ipos + 2) * lut[2]) +
-            (*sample(hle, ipos + 3) * lut[3]) ) >> 15);
+        //YOYOFR
+        int16_t sampleVal=clamp_s16( (
+                                       (*sample(hle, ipos    ) * lut[0]) +
+                                       (*sample(hle, ipos + 1) * lut[1]) +
+                                       (*sample(hle, ipos + 2) * lut[2]) +
+                                       (*sample(hle, ipos + 3) * lut[3]) ) >> 15);
+        *sample(hle, opos++) = sampleVal;
+        //YOYOFR
 
         pitch_accu += pitch;
         ipos += (pitch_accu >> 16);
         pitch_accu &= 0xffff;
         --count;
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            sampleVal=sampleVal*mdz_cur_vol>>14;
+            
+            if (ofs_end>ofs_start)
+            for (;;) {
+                m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((sampleVal>>8));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+        }
+        //YOYOFR
     }
 
     alist_resample_save(hle, address, ipos, pitch_accu);
@@ -975,6 +1043,7 @@ void alist_polef(
     } while (count != 0);
 
     dram_store_u32(hle, (uint32_t*)(dst - 4), address, 2);
+    
 }
 
 void alist_iirf(

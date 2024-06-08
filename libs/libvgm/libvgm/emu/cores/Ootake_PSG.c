@@ -682,7 +682,7 @@ OPSG_Mix(
                     if (freq) {
                         freq=info->PSG_FRQ/(32*freq);
                         vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                         int newvol=1;
                         vgm_last_vol[i+m_voice_ofs]=newvol;
                     }

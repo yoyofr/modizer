@@ -305,7 +305,7 @@ public:
                 if (period && vol) {
                     float freq=m_voice_current_samplerate/period;
                     vgm_last_note[i]=freq;
-                    vgm_last_sample_addr[i]=i;
+                    vgm_last_instr[i]=i;
                     vgm_last_vol[i]=1;
                 }
             }

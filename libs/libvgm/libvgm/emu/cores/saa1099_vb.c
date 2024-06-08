@@ -603,7 +603,7 @@ static void saa1099v_update(void* param, UINT32 samples, DEV_SMPL** outputs)
                 if (saaCh->toneOn) {
                     int freq=saa->clock / pow(2.0,(double)(17 - saaCh->oct + (1 - (double)(saaCh->freq)/255)));
                     vgm_last_note[ii+m_voice_ofs]=freq;
-                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                     vgm_last_vol[ii+m_voice_ofs]=1;
                 } else if (saaCh->noiseOn) {
                 }

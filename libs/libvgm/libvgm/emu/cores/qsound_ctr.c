@@ -317,7 +317,7 @@ static void qsoundc_update(void* param, UINT32 samples, DEV_SMPL** outputs)
                     freq=440.0f*freq/(1<<12);
                 }
                 vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                 int newvol=1;
                 vgm_last_vol[i+m_voice_ofs]=newvol;
             }
@@ -326,7 +326,7 @@ static void qsoundc_update(void* param, UINT32 samples, DEV_SMPL** outputs)
             if ( !(chip->muteMask & (1<<i)) && chip->adpcm[i-16].volume ) {
                 double freq=220.0f; //fixed, take A3 as ref
                 vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                 int newvol=1;
                 vgm_last_vol[i+m_voice_ofs]=newvol;
             }

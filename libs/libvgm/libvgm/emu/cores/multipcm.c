@@ -924,7 +924,7 @@ static void MultiPCM_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                         if (freq) {
                             freq=freq*440.0/(1<<TL_SHIFT);
                             vgm_last_note[sl+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                            vgm_last_sample_addr[sl+m_voice_ofs]=sl+m_voice_ofs;
+                            vgm_last_instr[sl+m_voice_ofs]=sl+m_voice_ofs;
                             int newvol=1;
                             vgm_last_vol[sl+m_voice_ofs]=newvol;
                         }

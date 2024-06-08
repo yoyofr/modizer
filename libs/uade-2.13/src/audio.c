@@ -659,7 +659,7 @@ void update_audio (void)
             int output=(audio_channel[i].current_sample * audio_channel[i].vol) & audio_channel[i].adk_mask;
             if (audio_channel[i].per &&(audio_channel[i].per<65535) && audio_channel[i].vol && audio_channel[i].state && audio_channel[i].adk_mask && (last_output[i]!=output)) {
                 vgm_last_note[i]=440.0f*SOUNDTICKS/audio_channel[i].per/8287;
-                vgm_last_sample_addr[i]=i;
+                vgm_last_instr[i]=i;
                 if (vgm_last_vol[i]<1+audio_channel[i].keyon) vgm_last_vol[i]=1+audio_channel[i].keyon;
                 audio_channel[i].keyon=0;
             }

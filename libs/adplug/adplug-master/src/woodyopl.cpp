@@ -1020,7 +1020,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                         //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
                         {
                             vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
-                            vgm_last_sample_addr[ii]=ii;
+                            vgm_last_instr[ii]=ii;
                             int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
                             vgm_last_vol[ii]=newvol;
                         }
@@ -1030,7 +1030,7 @@ void OPLChipClass::adlib_getsample(Bit16s* sndptr, Bits numsamples) {
                             int64_t note=frn*(1<<oct)*INTFREQU/(1<<18);
                             
                             vgm_last_note[ii]=note;
-                            vgm_last_sample_addr[ii]=ii;
+                            vgm_last_instr[ii]=ii;
                             int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
                             vgm_last_vol[ii]=newvol;
                         }

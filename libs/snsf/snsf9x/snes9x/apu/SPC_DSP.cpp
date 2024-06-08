@@ -932,7 +932,7 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
                         if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
                         if (vgm_last_vol[current_voice]<0) vgm_last_vol[current_voice]=0;
                     }
-                    vgm_last_sample_addr[current_voice]=current_voice;
+                    vgm_last_instr[current_voice]=current_voice;
                     if (vgm_last_vol[current_voice]==0) vgm_last_note[current_voice]=0;
                 } else vgm_last_note[current_voice]=0;
             } else {

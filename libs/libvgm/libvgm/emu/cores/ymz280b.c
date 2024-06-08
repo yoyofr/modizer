@@ -649,7 +649,7 @@ static void ymz280b_update(void *param, UINT32 samples, DEV_SMPL **outputs)
         if (m_voice_ofs>=0) {
             if ( voice->output_step ) {
                 vgm_last_note[v+m_voice_ofs]=440.0f*(double)voice->output_step/(1<<14);
-                vgm_last_sample_addr[v+m_voice_ofs]=m_voice_ofs+v;
+                vgm_last_instr[v+m_voice_ofs]=m_voice_ofs+v;
                 int newvol=1;
                 vgm_last_vol[v+m_voice_ofs]=newvol;
             }

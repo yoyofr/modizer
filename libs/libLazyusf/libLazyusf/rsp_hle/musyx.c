@@ -19,8 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+//YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//YOYOFR
+
+
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -688,6 +694,8 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
     const int16_t *const sample_restart = samples + (restart_point & 0x7fff) +
                                           (((restart_point & 0x8000) != 0) ? 0x000 : segbase);
 
+    //YOYOFR
+    const int16_t       *sampleId         = samples + segbase + u16_4e;
 
     uint32_t pitch_accu = pitch_q16;
     uint32_t pitch_step = pitch_shift << 4;
@@ -718,6 +726,55 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
                       end_point, restart_point,
                       v4_env[0],      v4_env[1],      v4_env[2],      v4_env[3],
                       v4_env_step[0], v4_env_step[1], v4_env_step[2], v4_env_step[3]);
+    
+//    printf(           "Voice debug: smpl=%08X,segbase=%d\tu16_4e=%04x\n\tpitch: frac0=%04x shift=%04x\n\tend_point=%04x restart_point=%04x\n\tenv      = %08x %08x %08x %08x\n\tenv_step = %08x %08x %08x %08x\n",
+//                        (unsigned int)sampleId,
+//                      segbase,
+//                      u16_4e,
+//                      pitch_q16, pitch_shift,
+//                      end_point, restart_point,
+//                      v4_env[0],      v4_env[1],      v4_env[2],      v4_env[3],
+//                      v4_env_step[0], v4_env_step[1], v4_env_step[2], v4_env_step[3]);
+    
+#define SOUND_MAXVOICES_BUFFER_FX_USF 24
+    //YOYOFR
+    //printf("resample %dbytes: %08X %d\n",count,address,pitch);
+    //check address
+    int ii=0;
+    int oldestUpd=255;
+    int reuseIdx=-1;
+    while (ii<SOUND_MAXVOICES_BUFFER_FX_USF) {
+        if (vgm_last_sample_address[ii]==0) vgm_last_sample_address[ii]=(unsigned int)sampleId;
+        
+        if (vgm_last_sample_address[ii]==(unsigned int)sampleId) {
+            vgm_last_sample_address_lastupdate[ii]=255;
+            break;
+        }
+        
+        if (vgm_last_sample_address_lastupdate[ii]) vgm_last_sample_address_lastupdate[ii]--;
+        
+        if (oldestUpd>vgm_last_sample_address_lastupdate[ii]) {
+            oldestUpd=vgm_last_sample_address_lastupdate[ii];
+            reuseIdx=ii;
+        }
+        
+        ii++;
+    }
+    if (ii==SOUND_MAXVOICES_BUFFER_FX_USF) {
+        ii=reuseIdx;
+        vgm_last_sample_address[ii]=(unsigned int)sampleId;
+        vgm_last_sample_address_lastupdate[ii]=255;
+    }
+    int m_voice_ofs=-1;
+    int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
+    if (ii<SOUND_MAXVOICES_BUFFER_FX_USF) {
+        m_voice_ofs=ii;
+        vgm_last_instr[ii]=ii;
+        vgm_last_note[ii]=440*(double)pitch_step/65536.0;
+        vgm_last_vol[ii]=1;
+    }
+    //YOYOFR
+
 
     for (i = 0; i < SUBFRAME_SIZE; ++i) {
         /* update sample and lut pointers and then pitch_accu */
@@ -737,6 +794,7 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
         /* apply resample filter */
         v = clamp_s16(dot4(sample, lut));
 
+        
         for (k = 0; k < 4; ++k) {
             /* envmix */
             int32_t accu = (v * (v4_env[k] >> 16)) >> 15;
@@ -747,6 +805,24 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
             ++(v4_dst[k]);
             v4_env[k] += v4_env_step[k];
         }
+        
+        //YOYOFR
+        if (m_voice_ofs>=0) {
+            int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            if (ofs_end>ofs_start)
+            for (;;) {
+                int32_t val=v4[0] + v4[1] + v4[2] + v4[3];
+                m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((val>>8));
+                ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*4*2) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*4*2<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
+        }
+        //YOYOFR
+        
     }
 
     /* save last resampled sample */

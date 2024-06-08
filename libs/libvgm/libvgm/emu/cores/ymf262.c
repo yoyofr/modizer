@@ -2591,7 +2591,7 @@ void ymf262_update_one(void *_chip, UINT32 length, DEV_SMPL **buffers)
                 if (!(chip->P_CH[ii].block_fnum)) {
                     if ((chip->chanout[ii] !=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=chip->P_CH[ii].keyon_triggered;//+1;
                         vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }
@@ -2602,7 +2602,7 @@ void ymf262_update_one(void *_chip, UINT32 length, DEV_SMPL **buffers)
                         int64_t note=freq*(1<<block)/2*(chip->clock)/72/(1<<19);
                         
                         vgm_last_note[ii+m_voice_ofs]=note;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=chip->P_CH[ii].keyon_triggered;//+1;
                         vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }

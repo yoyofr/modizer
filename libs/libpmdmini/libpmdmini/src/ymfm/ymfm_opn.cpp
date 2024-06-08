@@ -610,7 +610,7 @@ void ssg_resampler<OutputType, FirstOutput, MixTo1>::resample_n_1(OutputType *ou
                             int freq=m_ssg.regs().noise_period();
                             if (freq) {
                                 vgm_last_note[ii+m_voice_current_system]=(double)3993600*2/(2*freq)/16/1024;
-                                vgm_last_sample_addr[ii+m_voice_current_system]=m_voice_current_system+ii;
+                                vgm_last_instr[ii+m_voice_current_system]=m_voice_current_system+ii;
                                 int newvol=m_ssg.regs().cur_vol[ii]>>7;
                                 vgm_last_vol[ii+m_voice_current_system]=1+newvol;
                             }
@@ -623,7 +623,7 @@ void ssg_resampler<OutputType, FirstOutput, MixTo1>::resample_n_1(OutputType *ou
                             int freq=m_ssg.regs().ch_tone_period(ii);
                             if (freq) {
                                 vgm_last_note[ii+m_voice_current_system]=(double)3993600*2/(2*freq)/16;
-                                vgm_last_sample_addr[ii+m_voice_current_system]=m_voice_current_system+ii;
+                                vgm_last_instr[ii+m_voice_current_system]=m_voice_current_system+ii;
                                 int newvol=m_ssg.regs().cur_vol[ii]>>7;
                                 vgm_last_vol[ii+m_voice_current_system]=1+newvol;
                             }

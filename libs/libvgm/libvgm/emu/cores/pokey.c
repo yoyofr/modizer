@@ -980,7 +980,7 @@ void pokey_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                         if (freq && vol) {
                             freq=1/d->m_clock_period/freq/2;
                             vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                            vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                            vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                             vgm_last_vol[i+m_voice_ofs]=1;
                         }
                     }

@@ -347,7 +347,7 @@ static void okim6295_update(void* info, UINT32 samples, DEV_SMPL** outputs)
                     int divisor = chip->pin7_state ? 132 : 165;
                     int freq=chip->master_clock / divisor;
                     vgm_last_note[m_voice_ofs]=freq*440.0f/22050.0f;
-                    vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+                    vgm_last_instr[m_voice_ofs]=m_voice_ofs;
                     
                     vgm_last_vol[m_voice_ofs]=1;
                 }

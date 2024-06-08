@@ -246,7 +246,7 @@ static void ws_audio_update(void* info, UINT32 length, DEV_SMPL** buffer)
                 
                 if (vol) {
                     vgm_last_note[ii+m_voice_ofs]=440.0*(double)chip->ws_audio[ii].delta/65536.0;
-                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                     vgm_last_vol[ii+m_voice_ofs]=1;
                 }
             }

@@ -2032,7 +2032,7 @@ void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, 
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         if (!(generic_mute_mask&(1<<i)) && (panl[i]+panr[i]) && ht->ht_Voices[i].vc_AudioVolume && ht->ht_Voices[i].vc_AudioPeriod) {
             vgm_last_note[i]=440.0f*3546897.f/ht->ht_Voices[i].vc_AudioPeriod/44100.0;
-            vgm_last_sample_addr[i]=i;
+            vgm_last_instr[i]=i;
             vgm_last_vol[i]=1;
         }
     }

@@ -581,7 +581,7 @@ void	CYm2149Ex::updateStereo(ymsample *pSampleBuffer,ymint nbSample)
             if (freq && (vol>>5) ) {
                 freq=internalClock/16.0/freq;
                 vgm_last_note[i]=freq;
-                vgm_last_sample_addr[i]=i;
+                vgm_last_instr[i]=i;
                 vgm_last_vol[i]=1;
             }
         }

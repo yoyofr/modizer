@@ -493,7 +493,7 @@ static void SCD_PCM_Update(void* info, UINT32 Length, DEV_SMPL **buf)
                 if (CH->MUL_L+CH->MUL_R) {
                     int freq=440.0f*(double)(CH->Step)/(1<<11);
                     vgm_last_note[i+m_voice_ofs]=freq;
-                    vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                    vgm_last_instr[i+m_voice_ofs]=m_voice_ofs+i;
                     int newvol=1;
                     vgm_last_vol[i+m_voice_ofs]=newvol;
                 }

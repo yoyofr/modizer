@@ -217,7 +217,7 @@ void opna_adpcm_mix(struct opna_adpcm *adpcm, int16_t *buf, unsigned samples) {
             double freq=adpcm->delta;
             if (freq) {
                 vgm_last_note[m_voice_current_system+i]=220.0f*(55555.0f * ((double)(freq) / 65535.0f))/22050.0f; //using A3 / 22Khz
-                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                vgm_last_instr[m_voice_current_system+i]=m_voice_current_system+i;
                 int newvol=(adpcm->vol/2) + 1;//h[ii].keyonff_triggered+1;
                 vgm_last_vol[m_voice_current_system+i]=newvol;
             }

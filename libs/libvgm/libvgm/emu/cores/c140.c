@@ -345,7 +345,7 @@ static void c140_update(void *param, UINT32 samples, DEV_SMPL **outputs)
             //YOYOFR
             if (m_voice_ofs>=0) {
                     vgm_last_note[i+m_voice_ofs]=220.0f*(double)frequency*info->pbase/11025.0f;
-                    vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                    vgm_last_instr[i+m_voice_ofs]=m_voice_ofs+i;
                     int newvol=1;
 //                    if (last_addr[i]>v->sample_start) {
 //                        newvol=2;

@@ -230,7 +230,7 @@ void ppz8_mix(struct ppz8 *ppz8, int16_t *buf, unsigned samples) {
             double freq=ppz8->channel[i].freq;
             if (freq) {
                 vgm_last_note[m_voice_current_system+i]=440.0*(freq/65536.0);
-                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                vgm_last_instr[m_voice_current_system+i]=m_voice_current_system+i;
                 int newvol=(ppz8->channel[i].vol/2)+1;//h[ii].keyonff_triggered+1;
                 vgm_last_vol[m_voice_current_system+i]=newvol;
             }

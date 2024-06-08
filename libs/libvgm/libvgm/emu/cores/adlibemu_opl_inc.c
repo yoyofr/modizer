@@ -1344,7 +1344,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
                         //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
                         {
                             vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                            vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                            vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                             int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
                             vgm_last_vol[ii+m_voice_ofs]=newvol;
                         }
@@ -1354,7 +1354,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
                             int64_t note=frn*(1<<oct)/2*(OPL->chip_clock)/72/(1<<19);
                             
                             vgm_last_note[ii+m_voice_ofs]=note;
-                            vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                            vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                             int newvol=keyon;//chip->P_CH[ii].keyon_triggered;//+1;
                             vgm_last_vol[ii+m_voice_ofs]=newvol;
                         }

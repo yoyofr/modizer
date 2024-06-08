@@ -102,7 +102,7 @@ void opna_drum_mix(struct opna_drum *drum, int16_t *buf, int samples) {
     for (int i=0;i<6;i++) {
         if (!(drum->mask & (1u << i)) && drum->drums[i].playing && drum->drums[i].data && drum->drums[i].level) {
             vgm_last_note[m_voice_current_system+i]=220.0f;
-                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                vgm_last_instr[m_voice_current_system+i]=m_voice_current_system+i;
                 int newvol=drum->drums[i].level + 1;//h[ii].keyonff_triggered+1;
                 vgm_last_vol[m_voice_current_system+i]=newvol;
         }

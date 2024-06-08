@@ -236,7 +236,7 @@ static void rf5c68_update(void *info, UINT32 samples, DEV_SMPL **outputs)
                 if (lv+rv) {
                     int freq=440.0f*(double)(chan->step)/(1<<11);
                     vgm_last_note[i+m_voice_ofs]=freq;
-                    vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                    vgm_last_instr[i+m_voice_ofs]=m_voice_ofs+i;
                     int newvol=1;
                     vgm_last_vol[i+m_voice_ofs]=newvol;
                 }

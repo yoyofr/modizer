@@ -2380,7 +2380,7 @@ void YM2151UpdateOne(void *chip, SAMP **buffers, int length)
             } else {
                 float freq=PSG->oper[ii*4+3].freq;
                 vgm_last_note[ii]=freq/604.0/2.0;
-                vgm_last_sample_addr[ii]=ii;
+                vgm_last_instr[ii]=ii;
                 
                 int newvol=PSG->oper[ii*4].key+1;
                 vgm_last_vol[ii]=newvol;

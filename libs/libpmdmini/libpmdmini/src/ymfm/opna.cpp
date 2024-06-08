@@ -583,7 +583,7 @@ void OPNA::generate(emulated_time output_start, emulated_time output_step, int32
                 if (fnum==0) {
                     if (m_chip.m_fm.debug_channel(ii)->chanout!=old_out_fm[ii]) {
                         vgm_last_note[m_voice_current_system+ii]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[m_voice_current_system+ii]=m_voice_current_system+ii;
+                        vgm_last_instr[m_voice_current_system+ii]=m_voice_current_system+ii;
                         int newvol=1;//ch[ii].keyonff_triggered+1;
                         //ch[ii].keyonff_triggered=0;
                         vgm_last_vol[m_voice_current_system+ii]=newvol;
@@ -593,7 +593,7 @@ void OPNA::generate(emulated_time output_start, emulated_time output_step, int32
                         int freq=(fnum)&0x7FF;
                         int octave=((fnum)>>11)&0x7;
                         vgm_last_note[m_voice_current_system+ii]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[m_voice_current_system+ii]=m_voice_current_system+ii;
+                        vgm_last_instr[m_voice_current_system+ii]=m_voice_current_system+ii;
                         int newvol=1;//h[ii].keyonff_triggered+1;
                         //ch[ii].keyonff_triggered=0;
                         vgm_last_vol[m_voice_current_system+ii]=newvol;
@@ -607,7 +607,7 @@ void OPNA::generate(emulated_time output_start, emulated_time output_step, int32
             if (!(generic_mute_mask&(1<<(ii+6+m_voice_current_system)))) {
                 if ( m_chip.m_adpcm_a.debug_channel(ii)->m_playing ) {
                     vgm_last_note[6+ii+m_voice_current_system]=220.0f; //arbitrary choosing A-3
-                    vgm_last_sample_addr[6+ii+m_voice_current_system]=6+ii+m_voice_current_system;//F2610->adpcm[ii].start;
+                    vgm_last_instr[6+ii+m_voice_current_system]=6+ii+m_voice_current_system;//F2610->adpcm[ii].start;
                     int newvol=1;//+(F2608->adpcm[ii].now_step==0?1:0);
                     vgm_last_vol[6+ii+m_voice_current_system]=newvol;
                 }
@@ -620,7 +620,7 @@ void OPNA::generate(emulated_time output_start, emulated_time output_step, int32
             if ( m_chip.m_adpcm_b.debug_channel()->m_regs.execute() ) {
                 int freq=m_chip.m_adpcm_b.debug_channel()->m_regs.delta_n();
                 vgm_last_note[12+m_voice_current_system]=220.0f*(55555.0f * ((double)(freq) / 65535.0f))/22050.0f; //using A3 / 22Khz
-                vgm_last_sample_addr[12+m_voice_current_system]=12+m_voice_current_system;//DELTAT->start;
+                vgm_last_instr[12+m_voice_current_system]=12+m_voice_current_system;//DELTAT->start;
                 int newvol=1;
                 vgm_last_vol[12+m_voice_current_system]=newvol;
             }

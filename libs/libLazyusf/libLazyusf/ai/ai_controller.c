@@ -19,6 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+//YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//YOYOFR
+
+
 #include "usf/usf.h"
 
 #include "usf/usf_internal.h"
@@ -79,7 +84,7 @@ static void do_dma(struct ai_controller* ai, const struct ai_dma* dma)
     if (ai->r4300->state->debug_log)
       fprintf(ai->r4300->state->debug_log, "Audio DMA push: %d %d\n", dma->address, dma->length);
 #endif
-
+    
     /* lazy initialization of sample format */
     if (ai->samples_format_changed)
     {
@@ -106,6 +111,8 @@ static void do_dma(struct ai_controller* ai, const struct ai_dma* dma)
         remove_event(ai->r4300->state, AI_INT);
         add_interupt_event(ai->r4300->state, AI_INT, ai->r4300->state->g_delay_ai ? dma->duration : 0);
     }
+    
+    
 }
 
 void ai_fifo_queue_int(struct ai_controller* ai)

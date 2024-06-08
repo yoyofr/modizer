@@ -3132,7 +3132,7 @@ static void render_effects(
                     //if (ii==29) printf("ch %d phaseinc: %08X\n",ii,base_phaseinc);
                     
                     vgm_last_note[ii+m_voice_ofs]=440*(double)base_phaseinc/0x40000;
-                    vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                    vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                     int newvol=1;
                     vgm_last_vol[ii+m_voice_ofs]=newvol;
                 } else vgm_last_note[ii+m_voice_ofs]=0;

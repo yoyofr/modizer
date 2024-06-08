@@ -21,6 +21,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+int mdz_cur_vol=0;
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -109,6 +111,10 @@ static void RESAMPLE(struct hle_t* hle, uint32_t w1, uint32_t w2)
     uint8_t  flags   = (w1 >> 16);
     uint16_t pitch   = w1;
     uint32_t address = get_address(hle, w2);
+    
+    mdz_cur_vol=(hle->alist_audio.vol[0]+hle->alist_audio.vol[1]);
+    int mdz_cur_vol2=hle->alist_audio.target[0]+hle->alist_audio.target[1];
+    if (mdz_cur_vol2>mdz_cur_vol) mdz_cur_vol=mdz_cur_vol2;
     
     alist_resample(
             hle,
@@ -238,7 +244,7 @@ static void MIXER(struct hle_t* hle, uint32_t w1, uint32_t w2)
 
     if (hle->alist_audio.count == 0)
         return;
-
+    
     alist_mix(hle, dmemo, dmemi, align(hle->alist_audio.count, 32), gain);
 }
 

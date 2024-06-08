@@ -720,7 +720,7 @@ static inline void pcm8( int flush_for_end )
             int freq=self->work[i].freq;
             if (freq && self->work[i].volume && self->work[i].ptr) {
                 vgm_last_note[8+i]=freq*440.0f/22050.0f;
-                vgm_last_sample_addr[8+i]=8+i;
+                vgm_last_instr[8+i]=8+i;
                 int newvol=1;
                 //                if ((chip->nibble_shift==0)&&(chip->step==0)) {
                 //                    newvol=2;

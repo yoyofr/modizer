@@ -589,7 +589,7 @@ static void vsu_stream_update(void *param, UINT32 samples, DEV_SMPL **outputs)
                     freq=/*440.0**/(double)(chip->clock)/freq/8;
                     //freq=freq*440.0/22050.0;
                     vgm_last_note[jj+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                    vgm_last_sample_addr[jj+m_voice_ofs]=jj+m_voice_ofs;
+                    vgm_last_instr[jj+m_voice_ofs]=jj+m_voice_ofs;
                     int newvol=1;
                     vgm_last_vol[jj+m_voice_ofs]=newvol;
                 }

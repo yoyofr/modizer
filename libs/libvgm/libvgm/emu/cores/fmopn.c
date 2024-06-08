@@ -2428,7 +2428,7 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                     if ((OPN->out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -2438,7 +2438,7 @@ void ym2203_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -3155,7 +3155,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -3165,7 +3165,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -3179,7 +3179,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if ( (!(F2608->adpcm[ii].Muted)) && (F2608->adpcm[ii].flag) ) {
                 if (F2608->adpcm[ii].vol_mul && F2608->adpcm[ii].start ) {
                     vgm_last_note[6+ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                    vgm_last_sample_addr[6+ii+m_voice_ofs]=6+ii+m_voice_ofs;//F2610->adpcm[ii].start;
+                    vgm_last_instr[6+ii+m_voice_ofs]=6+ii+m_voice_ofs;//F2610->adpcm[ii].start;
                     int newvol=1+(F2608->adpcm[ii].now_step==0?1:0);
                     vgm_last_vol[6+ii+m_voice_ofs]=newvol;
                 }
@@ -3190,7 +3190,7 @@ void ym2608_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if (DELTAT->volume) {
                 int freq=DELTAT->delta;
                 vgm_last_note[12+m_voice_ofs]=220.0f*(55555.0f * ((double)(DELTAT->delta) / 65535.0f))/22050.0f; //using A3 / 22Khz
-                vgm_last_sample_addr[12+m_voice_ofs]=12+m_voice_ofs;//DELTAT->start;
+                vgm_last_instr[12+m_voice_ofs]=12+m_voice_ofs;//DELTAT->start;
                 int newvol=1;
                 vgm_last_vol[12+m_voice_ofs]=newvol;
             }
@@ -3836,7 +3836,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -3846,7 +3846,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -3863,7 +3863,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if ( (!(F2610->adpcm[ii].Muted)) && (F2610->adpcm[ii].flag) ) {
                 if (F2610->adpcm[ii].vol_mul && F2610->adpcm[ii].start ) {
                     vgm_last_note[4+ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                    vgm_last_sample_addr[4+ii+m_voice_ofs]=4+ii+m_voice_ofs;//F2610->adpcm[ii].start;
+                    vgm_last_instr[4+ii+m_voice_ofs]=4+ii+m_voice_ofs;//F2610->adpcm[ii].start;
                     int newvol=1+(F2610->adpcm[ii].now_step==0?1:0);
                     vgm_last_vol[4+ii+m_voice_ofs]=newvol;
                 }
@@ -3874,7 +3874,7 @@ void ym2610_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if (DELTAT->volume) {
                 int freq=DELTAT->delta;
                 vgm_last_note[10+m_voice_ofs]=220.0f*(55555.0f * ((double)(DELTAT->delta) / 65535.0f))/22050.0f; //using A3 / 22Khz
-                vgm_last_sample_addr[10+m_voice_ofs]=10+m_voice_ofs;//DELTAT->start;
+                vgm_last_instr[10+m_voice_ofs]=10+m_voice_ofs;//DELTAT->start;
                 int newvol=1;
                 vgm_last_vol[10+m_voice_ofs]=newvol;
             }
@@ -4122,7 +4122,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                     if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -4132,7 +4132,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;
@@ -4146,7 +4146,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if ( (!(F2610->adpcm[ii].Muted)) && (F2610->adpcm[ii].flag) ) {
                 if (F2610->adpcm[ii].vol_mul && F2610->adpcm[ii].start ) {
                     vgm_last_note[6+ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                    vgm_last_sample_addr[6+ii+m_voice_ofs]=6+ii+m_voice_ofs;//F2610->adpcm[ii].start;
+                    vgm_last_instr[6+ii+m_voice_ofs]=6+ii+m_voice_ofs;//F2610->adpcm[ii].start;
                     int newvol=1+(F2610->adpcm[ii].now_step==0?1:0);
                     vgm_last_vol[6+ii+m_voice_ofs]=newvol;
                 }
@@ -4157,7 +4157,7 @@ void ym2610b_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
             if (DELTAT->volume) {
                 int freq=DELTAT->delta;
                 vgm_last_note[12+m_voice_ofs]=220.0f*(55555.0f * ((double)(DELTAT->delta) / 65535.0f))/22050.0f; //using A3 / 22Khz
-                vgm_last_sample_addr[12+m_voice_ofs]=12+m_voice_ofs;//DELTAT->start;
+                vgm_last_instr[12+m_voice_ofs]=12+m_voice_ofs;//DELTAT->start;
                 int newvol=1;
                 vgm_last_vol[12+m_voice_ofs]=newvol;
             }
@@ -4988,7 +4988,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                    if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         if ((ii==5)&&(F2612->dacen)) {
                             if (!old_dacen) {
                                 vgm_last_vol[ii+m_voice_ofs]=2;
@@ -5004,7 +5004,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii+m_voice_ofs]<newvol) vgm_last_vol[ii+m_voice_ofs]=newvol;

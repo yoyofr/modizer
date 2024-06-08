@@ -734,7 +734,7 @@ static int get_samples(char *buf,int samplesNb)
                     float note=org.chan[i].playing.key;
                     vgm_last_note[i]=440.0*note/28.0*(double)org.chan[i].freq/SAMPLERATE;
                 }
-                vgm_last_sample_addr[i]=i;
+                vgm_last_instr[i]=i;
                 if (!vgm_last_vol[i]) vgm_last_vol[i]=1;
             }
         }

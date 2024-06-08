@@ -533,7 +533,7 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
                         if (freq) {
                             vgm_last_note[ii+m_voice_ofs]=psg->clk
                             /(freq*16);
-                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                             vgm_last_vol[ii+m_voice_ofs]=1;
                         }
                     } else { //noise
@@ -541,7 +541,7 @@ EPSG_calc_stereo (EPSG * psg, UINT32 samples, DEV_SMPL **out)
                         if (freq) {
                             vgm_last_note[ii+m_voice_ofs]=psg->clk
                             /(freq*16);
-                            vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                            vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                             vgm_last_vol[ii+m_voice_ofs]=1;
                         }
                     }

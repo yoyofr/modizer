@@ -281,7 +281,7 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
                     if (reg->frequency) {
                         double freqnote=(UINT32)(261.6256f*(float)info->base_clock/8192.0f*freq/(float)info->rate+0.5f); //using C4 as ref
                         vgm_last_note[ch+m_voice_ofs]=freqnote; ;//440.0f*c->v[i].freq/22050.0f;
-                        vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                        vgm_last_instr[ch+m_voice_ofs]=ch+m_voice_ofs;
                         int newvol=1;
                         vgm_last_vol[ch+m_voice_ofs]=newvol;
                     }
@@ -356,7 +356,7 @@ static void seta_update(void *param, UINT32 samples, DEV_SMPL **outputs)
                     if (freq) {
                         double freqnote=(UINT32)(261.6256f*(float)info->base_clock/128.0/1024.0/4.0*freq/(float)info->rate+0.5f); //using C4 as ref
                         vgm_last_note[ch+m_voice_ofs]=freqnote; ;//440.0f*c->v[i].freq/22050.0f;
-                        vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                        vgm_last_instr[ch+m_voice_ofs]=ch+m_voice_ofs;
                         int newvol=1;
                         vgm_last_vol[ch+m_voice_ofs]=newvol;
                     }

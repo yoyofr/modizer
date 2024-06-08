@@ -1646,7 +1646,7 @@ void nukedopn2_update(void *chip, UINT32 numsamples, DEV_SMPL **sndptr)
                 if (opn2->fnum[ii]==0) {
                     if ((opn2->ch_out[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii+m_voice_ofs]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         if ((ii==5)&&(opn2->dacen)) {
                             if (!old_dacen) {
                                 vgm_last_vol[ii+m_voice_ofs]=2;
@@ -1661,7 +1661,7 @@ void nukedopn2_update(void *chip, UINT32 numsamples, DEV_SMPL **sndptr)
                         int freq=opn2->fnum[ii];
                         int octave=opn2->block[ii];
                         vgm_last_note[ii+m_voice_ofs]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=ii+m_voice_ofs;
+                        vgm_last_instr[ii+m_voice_ofs]=ii+m_voice_ofs;
                         int newvol=1;//cch[ii]->keyon_triggered+1;
                             vgm_last_vol[ii+m_voice_ofs]=newvol;
                     }

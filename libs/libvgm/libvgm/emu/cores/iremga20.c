@@ -254,7 +254,7 @@ static void IremGA20_update(void *param, UINT32 samples, DEV_SMPL **outputs)
                     freq=(double)(chip->clock)/4/freq;
                     freq=freq*440.0/22050.0;
                     vgm_last_note[j+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                    vgm_last_sample_addr[j+m_voice_ofs]=j+m_voice_ofs;
+                    vgm_last_instr[j+m_voice_ofs]=j+m_voice_ofs;
                     int newvol=1;
                     vgm_last_vol[j+m_voice_ofs]=newvol;
                 }

@@ -335,7 +335,7 @@ static void c219_update(void *param, UINT32 samples, DEV_SMPL **outputs)
             if (v->key && ! v->Muted) {
                 UINT32 freq=(vreg->frequency_msb<<8) | vreg->frequency_lsb;
                 vgm_last_note[ii+m_voice_ofs]=440.0f* (double)(freq) / 11025.0f;
-                vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                 int newvol=1;
                 vgm_last_vol[ii+m_voice_ofs]=newvol;
             }

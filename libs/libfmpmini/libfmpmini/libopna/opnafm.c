@@ -677,7 +677,7 @@ void opna_fm_mix(struct opna_fm *fm, int16_t *buf, unsigned samples,
             double freq=((int)(fm->channel[i].fnum)<<fm->channel[i].blk);;
             if (freq) {
                 vgm_last_note[m_voice_current_system+i]=freq*110.0f/1081.0f; //1148.0f;
-                vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                vgm_last_instr[m_voice_current_system+i]=m_voice_current_system+i;
                 int newvol=1;//h[ii].keyonff_triggered+1;
                 vgm_last_vol[m_voice_current_system+i]=newvol;
             }

@@ -712,7 +712,7 @@ void PPZ8::Mix(Sample* dest, int32_t nsamples)
                 double freq=(channelwork[i].PCM_ADDS_H<<16)|channelwork[i].PCM_ADDS_L;
                 if (freq) {
                     vgm_last_note[m_voice_current_system+i]=440.0*(freq/65536.0);
-                    vgm_last_sample_addr[m_voice_current_system+i]=m_voice_current_system+i;
+                    vgm_last_instr[m_voice_current_system+i]=m_voice_current_system+i;
                     int newvol=channelwork[i].PCM_VOL+1;//h[ii].keyonff_triggered+1;
                     vgm_last_vol[m_voice_current_system+i]=newvol;
                 }

@@ -443,7 +443,7 @@ static void k054539_update(void *param, UINT32 samples, DEV_SMPL **outputs)
                         if (freq) {
                             freq=freq*440.0*2/65536.0;
                             vgm_last_note[ch+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                            vgm_last_sample_addr[ch+m_voice_ofs]=ch+m_voice_ofs;
+                            vgm_last_instr[ch+m_voice_ofs]=ch+m_voice_ofs;
                             int newvol=1;
                             vgm_last_vol[ch+m_voice_ofs]=newvol;
                         }

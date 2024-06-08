@@ -526,7 +526,7 @@ void TownsPcmEmulator::nextTick(int *outbuf, int buflen)
     //YOYOFR
         if ( !(eup_mutemask&(1<<m_voice_ofs)) && (_volL+_volR) && this->velocity() && _control7 && phaseStep) {
             vgm_last_note[m_voice_ofs]=440.0*(float)phaseStep/65536.0;
-            vgm_last_sample_addr[m_voice_ofs]=m_voice_ofs;
+            vgm_last_instr[m_voice_ofs]=m_voice_ofs;
             vgm_last_vol[m_voice_ofs]=1;
         }
     //YOYOFR

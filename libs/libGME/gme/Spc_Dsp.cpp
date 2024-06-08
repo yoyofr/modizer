@@ -600,7 +600,7 @@ skip_brr:
                         if (vgm_last_vol[current_voice]<0) vgm_last_vol[current_voice]=0;
                     }
                     if (vgm_last_vol[current_voice]==0) vgm_last_note[current_voice]=0;
-                    vgm_last_sample_addr[current_voice]=current_voice;
+                    vgm_last_instr[current_voice]=current_voice;
                 } else {
                     vgm_last_note[current_voice]=0;
                 }

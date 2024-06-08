@@ -1126,7 +1126,7 @@ static void SCSP_DoMasterSamples(void* info, UINT32 nsamples, DEV_SMPL **outputs
         for (int ii=0;ii<32;ii++) {
             if ( scsp->Slots[ii].active && ! scsp->Slots[ii].Muted ) {
                 vgm_last_note[ii+m_voice_ofs]=440*(double)scsp->Slots[ii].step/256.0;
-                vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                 vgm_last_vol[ii+m_voice_ofs]=1;
             }
         }

@@ -20,6 +20,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+extern int mdz_cur_vol;
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -227,6 +228,8 @@ static void ADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
             address);
 }
 
+
+
 static void RESAMPLE(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint32_t address = (w1 & 0xffffff);
@@ -234,6 +237,10 @@ static void RESAMPLE(struct hle_t* hle, uint32_t w1, uint32_t w2)
     uint16_t pitch   = (w2 >> 14);
     uint16_t dmemi   = ((w2 >> 2) & 0xfff) + NAUDIO_MAIN;
     uint16_t dmemo   = (w2 & 0x3) ? NAUDIO_MAIN2 : NAUDIO_MAIN;
+    
+    mdz_cur_vol=(hle->alist_naudio.vol[0]+hle->alist_naudio.vol[1]);
+    int mdz_cur_vol2=hle->alist_naudio.target[0]+hle->alist_naudio.target[1];
+    if (mdz_cur_vol2>mdz_cur_vol) mdz_cur_vol=mdz_cur_vol2;
 
     alist_resample(
             hle,

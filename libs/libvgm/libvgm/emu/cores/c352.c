@@ -255,7 +255,7 @@ static void c352_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
     if (m_voice_ofs>=0) {
         for (int i=0;i<C352_VOICES;i++) {
             vgm_last_note[i+m_voice_ofs]=440.0f*c->v[i].freq/22050.0f;
-            vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+            vgm_last_instr[i+m_voice_ofs]=m_voice_ofs+i;
             int newvol=1;
             vgm_last_vol[i+m_voice_ofs]=newvol;
         }

@@ -848,10 +848,10 @@ FORCEINLINE static void ____SPU_ChanUpdate(NDS_state *state, int CHANNELS, int F
                 if (SPU->bufpos == SPU->buflength-1) {
                     if (chan->status==CHANSTAT_PLAY) {
                         vgm_last_note[i]=440.0f*(ARM7_CLOCK / (44100.0f * 2)) / (0x10000 - (double)(chan->timer));
-                        vgm_last_sample_addr[i]=i;//(int)(chan->addr);
+                        vgm_last_instr[i]=i;//(int)(chan->addr);
                     } else {
                         vgm_last_note[i]=0;
-                        vgm_last_sample_addr[i]=0;
+                        vgm_last_instr[i]=0;
                     }
                 }
 
@@ -868,7 +868,7 @@ FORCEINLINE static void ____SPU_ChanUpdate(NDS_state *state, int CHANNELS, int F
                 
                 if (SPU->bufpos == SPU->buflength-1) {
                     vgm_last_note[i]=0;
-                    vgm_last_sample_addr[i]=0;
+                    vgm_last_instr[i]=0;
                 }
                 
                 m_voice_current_ptr[i]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;

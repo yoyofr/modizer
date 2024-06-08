@@ -222,7 +222,7 @@ static void nes_stream_update_nsfplay(void* chip, UINT32 samples, DEV_SMPL** out
                     double freq=NES_APU_np_GetFreq(info->chip_apu,i);
                     if (freq) {                        
                         vgm_last_note[i+m_voice_ofs]=freq; //440.0f*c->v[i].freq/22050.0f;
-                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                         vgm_last_vol[i+m_voice_ofs]=vol;
                     }
                 }
@@ -232,7 +232,7 @@ static void nes_stream_update_nsfplay(void* chip, UINT32 samples, DEV_SMPL** out
                     double freq=NES_DMC_np_GetFreq(info->chip_dmc,i-2);
                     if (freq) {
                         vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                        vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                        vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                         vgm_last_vol[i+m_voice_ofs]=vol;
                     }
                 }
@@ -243,7 +243,7 @@ static void nes_stream_update_nsfplay(void* chip, UINT32 samples, DEV_SMPL** out
                    double freq=NES_FDS_np_GetFreq(info->chip_fds);
                    if (freq) {
                        vgm_last_note[i+m_voice_ofs]=freq; ;//440.0f*c->v[i].freq/22050.0f;
-                       vgm_last_sample_addr[i+m_voice_ofs]=i+m_voice_ofs;
+                       vgm_last_instr[i+m_voice_ofs]=i+m_voice_ofs;
                        vgm_last_vol[i+m_voice_ofs]=vol;
                    }
                }

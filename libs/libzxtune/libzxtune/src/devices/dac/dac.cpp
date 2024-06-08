@@ -420,7 +420,7 @@ public:
                 //ay->clock_rate/freq/16;
                 double freq=440*period*2;
                 vgm_last_note[m_voicesForceOfs+i]=freq;
-                vgm_last_sample_addr[m_voicesForceOfs+i]=m_voicesForceOfs+i;
+                vgm_last_instr[m_voicesForceOfs+i]=m_voicesForceOfs+i;
                 vgm_last_vol[m_voicesForceOfs+i]=1;
             }
         }

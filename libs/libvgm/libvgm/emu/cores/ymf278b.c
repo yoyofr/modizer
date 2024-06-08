@@ -822,7 +822,7 @@ static void ymf278b_pcm_update(void *info, UINT32 samples, DEV_SMPL** outputs)
 
             if ( !(sl->state == EG_OFF || sl->Muted) && vol ) {
                 vgm_last_note[i+m_voice_ofs]=440.0f*(double)step/(1<<16);
-                vgm_last_sample_addr[i+m_voice_ofs]=m_voice_ofs+i;
+                vgm_last_instr[i+m_voice_ofs]=m_voice_ofs+i;
                 int newvol=1;
                 vgm_last_vol[i+m_voice_ofs]=newvol;
             }

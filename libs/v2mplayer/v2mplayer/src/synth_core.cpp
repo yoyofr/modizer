@@ -3236,7 +3236,7 @@ private:
                     
                     if ((voicesw[voice].curvol>0) && voicesw[voice].gate) {
                         vgm_last_note[chan]=voicesw[voice].osc[0].freq*440.0f/voicesw[voice].osc[0].inst->SRfcobasefrq;
-                        vgm_last_sample_addr[chan]=chan;//voice;
+                        vgm_last_instr[chan]=chan;//voice;
                         vgm_last_vol[chan]=1;
                     }
                 }

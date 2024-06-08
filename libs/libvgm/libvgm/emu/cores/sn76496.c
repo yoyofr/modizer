@@ -392,7 +392,7 @@ static void sn76496_update(void* param, UINT32 samples, DEV_SMPL** outputs)
                     if (!(R->sega_style_psg) && (freq==0)) freq=0x400;
                     if (freq) {
                         vgm_last_note[ii+m_voice_ofs]=R->clock/(2*freq)/16;
-                        vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                        vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                         vgm_last_vol[ii+m_voice_ofs]=1;
                     }
                 }

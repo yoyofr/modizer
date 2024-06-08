@@ -1994,7 +1994,7 @@ static void ym2151_update_one(void *chip, UINT32 length, DEV_SMPL **buffers)
                 } else {
                     int freq=PSG->oper[ii*4+3].freq;
                     vgm_last_note[ii+m_voice_ofs]=freq/604.0f/2;
-                    vgm_last_sample_addr[ii+m_voice_ofs]=m_voice_ofs+ii;
+                    vgm_last_instr[ii+m_voice_ofs]=m_voice_ofs+ii;
                     
                     int newvol=PSG->oper[ii*4].key+1;
                     vgm_last_vol[ii+m_voice_ofs]=newvol;

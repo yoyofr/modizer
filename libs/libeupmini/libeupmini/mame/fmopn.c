@@ -4628,7 +4628,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                 if (cch[ii]->block_fnum==0) {
                    if ((out_fm[ii]!=old_out_fm[ii])) {
                         vgm_last_note[ii]=220.0f; //arbitrary choosing A-3
-                        vgm_last_sample_addr[ii]=ii;
+                        vgm_last_instr[ii]=ii;
                         if ((ii==5)&&(F2612->dacen)) {
                             if (!old_dacen) {
                                 vgm_last_vol[ii]=2;
@@ -4644,7 +4644,7 @@ void ym2612_update_one(void *chip, UINT32 length, DEV_SMPL **buffer)
                         int freq=(cch[ii]->block_fnum)&0x7FF;
                         int octave=((cch[ii]->block_fnum)>>11)&0x7;
                         vgm_last_note[ii]=(freq<<octave)*110.0f/1081.0f; //1148.0f;
-                        vgm_last_sample_addr[ii]=ii;
+                        vgm_last_instr[ii]=ii;
                         int newvol=cch[ii]->keyonff_triggered+1;
                         cch[ii]->keyonff_triggered=0;
                         if (vgm_last_vol[ii]<newvol) vgm_last_vol[ii]=newvol;

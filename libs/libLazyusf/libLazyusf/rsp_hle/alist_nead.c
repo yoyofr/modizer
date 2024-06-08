@@ -20,6 +20,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+extern int mdz_cur_vol;
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -134,7 +135,10 @@ static void RESAMPLE(struct hle_t* hle, uint32_t w1, uint32_t w2)
     uint8_t  flags   = (w1 >> 16);
     uint16_t pitch   = w1;
     uint32_t address = (w2 & 0xffffff);
-
+    
+    
+    mdz_cur_vol=hle->alist_nead.env_values[0]+hle->alist_nead.env_values[1];
+    
     alist_resample(
             hle,
             flags & 0x1,
@@ -150,6 +154,8 @@ static void RESAMPLE_ZOH(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint16_t pitch      = w1;
     uint16_t pitch_accu = w2;
+    
+    mdz_cur_vol=hle->alist_nead.env_values[0]+hle->alist_nead.env_values[1];
 
     alist_resample_zoh(
             hle,

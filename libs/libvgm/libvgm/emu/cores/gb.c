@@ -1253,7 +1253,7 @@ static void gameboy_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
                         if (freq && vol) {
                             freq=131072/(2028-freq);
                             vgm_last_note[jj+m_voice_ofs]=freq;
-                            vgm_last_sample_addr[jj+m_voice_ofs]=jj+m_voice_ofs;
+                            vgm_last_instr[jj+m_voice_ofs]=jj+m_voice_ofs;
                             vgm_last_vol[jj+m_voice_ofs]=1;
                         }
                     }

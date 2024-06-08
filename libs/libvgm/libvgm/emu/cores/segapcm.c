@@ -162,7 +162,7 @@ static void SEGAPCM_update(void *chip, UINT32 samples, DEV_SMPL **outputs)
                 if ((regs[2] & 0x7F)+(regs[3] & 0x7F)) {
                     int freq=440.0f*regs[7]/256;  //use A4 as ref
                     vgm_last_note[ch+m_voice_ofs]=freq;
-                    vgm_last_sample_addr[ch+m_voice_ofs]=m_voice_ofs+ch;
+                    vgm_last_instr[ch+m_voice_ofs]=m_voice_ofs+ch;
                     
                     int newvol=1;
                     if (last_addr[ch]>addr) {
