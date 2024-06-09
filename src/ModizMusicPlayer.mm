@@ -7496,7 +7496,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=(nbBytes/4)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=(nbBytes/4);
                             
-                            if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
+                            if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()||(mdzSilentBufferCount>=mdzSilentBufferLimit)) {
                                 //end reached
                                 [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
@@ -8586,6 +8586,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     
     free(tag);
+    
+    [self mmp_updateDBStatsAtLoad];
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop

@@ -90,7 +90,7 @@ NSFPlayerConfig::NSFPlayerConfig () : PlayerConfig ()
   CreateValue("FADE_TIME", 5*1000);
   CreateValue("STOP_SEC", 3);
   CreateValue("LOOP_NUM", 2);
-  CreateValue("AUTO_STOP", 1);
+  CreateValue("AUTO_STOP", 0);
   CreateValue("AUTO_DETECT", 0);
   CreateValue("DETECT_TIME", 30*1000);
   CreateValue("DETECT_INT", 5000);
