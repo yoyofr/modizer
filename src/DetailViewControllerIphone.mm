@@ -1115,7 +1115,6 @@ static float movePinchScale,movePinchScaleOld;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMSTREAM)) {
         [mplayer optVGMSTREAM_ForceLoop:settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value];
         [mplayer optVGMSTREAM_MaxLoop:(int)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
-        [mplayer optVGMSTREAM_Fadeouttime:(int)(settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value)];
         [mplayer optVGMSTREAM_ResampleQuality:(int)(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value)];
     }
     

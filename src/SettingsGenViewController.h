@@ -66,11 +66,15 @@ enum MDZ_SETTINGS {
     GLOB_NoScreenAutoLock,
     GLOB_PBRATIO_ONOFF,
     GLOB_PBRATIO,
-    GLOB_SilenceDetection,    
+    
+    GLOB_DefaultLength,
+    GLOB_Fadeouttime,    
+    GLOB_SilenceDetection,
+    
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
-    GLOB_DefaultLength,
+    
     GLOB_AudioLatency,
     GLOB_ArcMultiDefaultAction,
     GLOB_ArcMultiPlayMode,
@@ -124,13 +128,9 @@ enum MDZ_SETTINGS {
         ADPLUG_StereoSurround,
     
         MDZ_SETTINGS_FAMILY_GBSPLAY,
-        GBSPLAY_DefaultLength,
-        GBSPLAY_Fadeouttime,
         GBSPLAY_HPFilterType,
-        GBSPLAY_SilenceTimeout,
     
         MDZ_SETTINGS_FAMILY_GME,
-        GME_FADEOUT,
         GME_STEREO_PANNING,
         GME_IGNORESILENCE,
         GME_EQ_ONOFF,
@@ -232,7 +232,6 @@ enum MDZ_SETTINGS {
         UADE_NTSC,
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
-        VGMPLAY_Fadeouttime,
         VGMPLAY_Maxloop,
         VGMPLAY_PreferJTAG,
         VGMPLAY_YM2612Emulator,
@@ -246,7 +245,6 @@ enum MDZ_SETTINGS {
         VGMSTREAM_ResampleQuality,
         VGMSTREAM_Forceloop,
         VGMSTREAM_Maxloop,
-        VGMSTREAM_Fadeouttime,
     
         MDZ_SETTINGS_FAMILY_XMP,
         XMP_Interpolation,

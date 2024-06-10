@@ -1089,7 +1089,6 @@ static VGMSTREAM* vgmStream = NULL;
 static STREAMFILE* vgmFile = NULL;
 bool optVGMSTREAM_loopmode = false;
 int optVGMSTREAM_loop_count = 2.0f;
-int optVGMSTREAM_fadeouttime=5;
 int optVGMSTREAM_resampleQuality=1;
 
 static bool mVGMSTREAM_force_loop;
@@ -4678,7 +4677,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             ///////////////////////
-                            if (!step_emulation(gbs)) {
+                            if ((!step_emulation(gbs))||(mdzSilentBufferCount>=mdzSilentBufferLimit)) {
                                 quit = 1;
                                 //break;
                             }
@@ -4705,16 +4704,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
                                     gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                                                  settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
+                                                  0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                                                  settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 } else {
                                     gbs_init(gbs,mod_currentsub);
                                     const struct gbs_status *status = gbs_get_status(gbs);
                                     iModuleLength=(status->subsong_len)*1000/1024;
                                     mod_title=[NSString stringWithUTF8String:status->songtitle];
                                     gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                                                  settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                                                  settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
+                                                  0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                                                  settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                                 }
                                 const struct gbs_metadata *metadata=gbs_get_metadata(gbs);
                                 snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nName.....:%s\nAuthor...: %s\nCopyright: %s\n",
@@ -5846,7 +5845,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode==1) iModuleLength=-1;
                                 
                                 if (iModuleLength>0) {
-                                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+                                    if (iModuleLength>settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000,settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000 +100);
                                     else gme_set_fade_msecs( gme_emu, iModuleLength ,+100);
                                 } else gme_set_fade( gme_emu, 1<<30);
                                 
@@ -9783,8 +9782,8 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         }
         if (m3uReader[mod_currentsub].name) mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
         gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                      settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout
+                      0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                      settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout
     } else {
         gbs_init(gbs, mod_currentsub);
         status = gbs_get_status(gbs);
@@ -9793,8 +9792,8 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         mod_title=[NSString stringWithUTF8String:status->songtitle];
         
         gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                      settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                      settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
+                      0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                      settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
         
     }
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title....: %s\nName.....:%s\nAuthor...: %s\nCopyright: %s\n",
@@ -11906,7 +11905,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vcfg.play_forever =(mLoopMode==1?1:0);
     
     vcfg.loop_count = optVGMSTREAM_loop_count;
-    vcfg.fade_time = optVGMSTREAM_fadeouttime;
+    vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
     vcfg.fade_delay = 0.0f;
     vcfg.ignore_fade = 0; //1;
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
@@ -12002,7 +12001,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vcfg.play_forever =(mLoopMode==1?1:0);
     
     vcfg.loop_count = optVGMSTREAM_loop_count;
-    vcfg.fade_time = optVGMSTREAM_fadeouttime;
+    vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
     vcfg.fade_delay = 0.0f;
     vcfg.ignore_fade = 0; //1;
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
@@ -12843,7 +12842,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         PlayerA::Config pCfg = vgm_player.GetConfiguration();
         pCfg.masterVol = 0x10000;    // == 1.0 == 100%
         pCfg.loopCount = settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
-        pCfg.fadeSmpls = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
+        pCfg.fadeSmpls = PLAYBACK_FREQ * settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
         pCfg.endSilenceSmpls = 0;
         pCfg.pbSpeed = (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?settings[GLOB_PBRATIO].detail.mdz_slider.slider_value: 1.0);
         vgm_player.SetConfiguration(pCfg);
@@ -12971,7 +12970,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     /* we only want to fade if there's a looping section. Assumption is
      * if the VGM doesn't specify a loop, it's a song with an actual ending */
     if(vgm_plrEngine->GetLoopTicks()) {
-        fadeFrames = PLAYBACK_FREQ * settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value;
+        fadeFrames = PLAYBACK_FREQ * settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
         totalFrames += fadeFrames;
     }
     
@@ -13802,7 +13801,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         if (iModuleLength>0) {
-            if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+            if (iModuleLength>settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000,settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000 +100);
             else gme_set_fade_msecs( gme_emu, iModuleLength,+100);
         } else gme_set_fade( gme_emu, 1<<30);
         //            else gme_set_fade_msecs( gme_emu, 1<<30);
@@ -14976,7 +14975,7 @@ extern bool icloud_available;
                 //Loop
                 if (mLoopMode==1) iModuleLength=-1;
                 if (iModuleLength>0) {
-                    if (iModuleLength>settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000,settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000 +100);
+                    if (iModuleLength>settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000) gme_set_fade_msecs( gme_emu, iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000,settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000 +100);
                     else gme_set_fade_msecs( gme_emu, iModuleLength,+100);
                 } else gme_set_fade( gme_emu, 1<<30);
                 mod_message_updated=2;
@@ -15266,8 +15265,8 @@ extern bool icloud_available;
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
                 gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
-                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                              settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
+                              0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                              settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 if (mLoopMode) iModuleLength=-1;
@@ -15279,8 +15278,8 @@ extern bool icloud_available;
                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
                 gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
-                              settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value,0,
-                              settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
+                              0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
+                              settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value); //silence timeout, subsong gap, fadeout);
                 
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 if (mLoopMode) iModuleLength=-1;
@@ -16225,7 +16224,7 @@ extern bool icloud_available;
         case 1:gbs_set_filter(gbs,FILTER_DMG);break;
         case 2:gbs_set_filter(gbs,FILTER_CGB);break;
     }
-    gbs_set_default_length(gbs,settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_value);
+    gbs_set_default_length(gbs,settings[GLOB_DefaultLength].detail.mdz_slider.slider_value);
 }
 ///////////////////////////
 //NSFPlay
@@ -16451,9 +16450,6 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 -(void) optVGMSTREAM_MaxLoop:(int)val {
     optVGMSTREAM_loop_count=val;
-}
--(void) optVGMSTREAM_Fadeouttime:(int)val {
-    optVGMSTREAM_fadeouttime=val;
 }
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val {
     optVGMSTREAM_loopmode=val;

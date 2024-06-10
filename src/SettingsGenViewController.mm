@@ -1,4 +1,3 @@
-//
 //  SettingsGenViewController.m
 //  modizer
 //
@@ -526,9 +525,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value=3;
     
-    settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    
     settings[GLOB_AudioLatency].detail.mdz_slider.slider_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
@@ -686,15 +687,11 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //GBSPLAY
     /////////////////////////////////////
-    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
-    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_value=3;
-    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value=5;
     settings[GBSPLAY_HPFilterType].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //GME
     /////////////////////////////////////
-    settings[GME_FADEOUT].detail.mdz_slider.slider_value=3;
     settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
     settings[GME_EQ_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
@@ -797,7 +794,6 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //VGMPLAY
     /////////////////////////////////////
-    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
@@ -813,7 +809,6 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=3;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
     
     
@@ -951,6 +946,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_digits=100;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
+    
+    SETTINGS_ID_DEF(GLOB_Fadeouttime)
+    settings[GLOB_Fadeouttime].label=(char*)"Fade out time";
+    settings[GLOB_Fadeouttime].description=NULL;
+    settings[GLOB_Fadeouttime].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_Fadeouttime].sub_family=0;
+    settings[GLOB_Fadeouttime].callback=&optGLOBALChangedC;
+    settings[GLOB_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_Fadeouttime].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_Fadeouttime].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_Fadeouttime].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(GLOB_SilenceDetection)
     settings[GLOB_SilenceDetection].label=(char*)"Silence Detection";
@@ -2230,17 +2236,6 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GME].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_GME].sub_family=MDZ_SETTINGS_FAMILY_GME;
     
-    SETTINGS_ID_DEF(GME_FADEOUT)
-    settings[GME_FADEOUT].label=(char*)"Fade out time";
-    settings[GME_FADEOUT].description=NULL;
-    settings[GME_FADEOUT].family=MDZ_SETTINGS_FAMILY_GME;
-    settings[GME_FADEOUT].sub_family=0;
-    settings[GME_FADEOUT].callback=&optGMEChangedC;
-    settings[GME_FADEOUT].type=MDZ_SLIDER_DISCRETE;
-    settings[GME_FADEOUT].detail.mdz_slider.slider_digits=0;
-    settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
-    settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=10;
-    
     SETTINGS_ID_DEF(GME_IGNORESILENCE)
     settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
     settings[GME_IGNORESILENCE].label=(char*)"Silence detection";
@@ -2736,17 +2731,6 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     
-    SETTINGS_ID_DEF(VGMPLAY_Fadeouttime)
-    settings[VGMPLAY_Fadeouttime].label=(char*)"Fade out time";
-    settings[VGMPLAY_Fadeouttime].description=NULL;
-    settings[VGMPLAY_Fadeouttime].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
-    settings[VGMPLAY_Fadeouttime].sub_family=0;
-    settings[VGMPLAY_Fadeouttime].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_digits=0;
-    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_min_value=0;
-    settings[VGMPLAY_Fadeouttime].detail.mdz_slider.slider_max_value=10;
-    
     SETTINGS_ID_DEF(VGMPLAY_Maxloop)
     settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
     settings[VGMPLAY_Maxloop].description=NULL;
@@ -2873,17 +2857,6 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_digits=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
-    
-    SETTINGS_ID_DEF(VGMSTREAM_Fadeouttime)
-    settings[VGMSTREAM_Fadeouttime].label=(char*)"Fade out time";
-    settings[VGMSTREAM_Fadeouttime].description=NULL;
-    settings[VGMSTREAM_Fadeouttime].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
-    settings[VGMSTREAM_Fadeouttime].sub_family=0;
-    settings[VGMSTREAM_Fadeouttime].callback=&optVGMSTREAMChangedC;
-    settings[VGMSTREAM_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_digits=0;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_min_value=0;
-    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(VGMSTREAM_ResampleQuality)
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
@@ -3191,39 +3164,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GBSPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_GBSPLAY].sub_family=MDZ_SETTINGS_FAMILY_GBSPLAY;
     
-    SETTINGS_ID_DEF(GBSPLAY_DefaultLength)
-    settings[GBSPLAY_DefaultLength].label=(char*)"Default length";
-    settings[GBSPLAY_DefaultLength].description=NULL;
-    settings[GBSPLAY_DefaultLength].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
-    settings[GBSPLAY_DefaultLength].sub_family=0;
-    settings[GBSPLAY_DefaultLength].callback=&optGBSPLAYChangedC;
-    settings[GBSPLAY_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
-    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_digits=60;
-    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_min_value=10;
-    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_mid_value=60*10;
-    settings[GBSPLAY_DefaultLength].detail.mdz_slider.slider_max_value=60*20;
     
-    SETTINGS_ID_DEF(GBSPLAY_Fadeouttime)
-    settings[GBSPLAY_Fadeouttime].label=(char*)"Fade out time";
-    settings[GBSPLAY_Fadeouttime].description=NULL;
-    settings[GBSPLAY_Fadeouttime].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
-    settings[GBSPLAY_Fadeouttime].sub_family=0;
-    settings[GBSPLAY_Fadeouttime].callback=&optGBSPLAYChangedC;
-    settings[GBSPLAY_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
-    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_digits=0;
-    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_min_value=0;
-    settings[GBSPLAY_Fadeouttime].detail.mdz_slider.slider_max_value=10;
-    
-    SETTINGS_ID_DEF(GBSPLAY_SilenceTimeout)
-    settings[GBSPLAY_SilenceTimeout].label=(char*)"Silence detection";
-    settings[GBSPLAY_SilenceTimeout].description=(char*)"Will skip song if nothing is played for specified duration (0=off)";
-    settings[GBSPLAY_SilenceTimeout].family=MDZ_SETTINGS_FAMILY_GBSPLAY;
-    settings[GBSPLAY_SilenceTimeout].sub_family=0;
-    settings[GBSPLAY_SilenceTimeout].callback=&optGBSPLAYChangedC;
-    settings[GBSPLAY_SilenceTimeout].type=MDZ_SLIDER_DISCRETE;
-    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_digits=0;
-    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_min_value=0;
-    settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_max_value=30;
     
     SETTINGS_ID_DEF(GBSPLAY_HPFilterType)
     settings[GBSPLAY_HPFilterType].type=MDZ_SWITCH;

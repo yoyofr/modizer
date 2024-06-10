@@ -375,7 +375,6 @@ extern "C" {
 
 
 -(void) optVGMSTREAM_MaxLoop:(int)val;
--(void) optVGMSTREAM_Fadeouttime:(int)val;
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
 -(void) optVGMSTREAM_preferJapTag:(bool)val;
