@@ -156,7 +156,7 @@ static void ADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint8_t  flags   = (w1 >> 16);
     uint32_t address = get_address(hle, w2);
-
+    
     alist_adpcm(
             hle,
             flags & A_INIT,
@@ -173,7 +173,7 @@ static void ADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 static void LOADBUFF(struct hle_t* hle, uint32_t UNUSED(w1), uint32_t w2)
 {
     uint32_t address = get_address(hle, w2);
-
+    
     if (hle->alist_audio.count == 0)
         return;
 
@@ -221,7 +221,7 @@ static void LOADADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint16_t count   = w1;
     uint32_t address = get_address(hle, w2);
-
+    
     dram_load_u16(hle, (uint16_t*)hle->alist_audio.table, address, align(count, 8) >> 1);
 }
 
@@ -296,6 +296,7 @@ void alist_process_audio(struct hle_t* hle)
     #ifdef DEBUG_INFO
     alist_process(hle, ABI, 0x10, ABI_names);
     #else
+    
     alist_process(hle, ABI, 0x10);
     #endif
     rsp_break(hle, SP_STATUS_TASKDONE);

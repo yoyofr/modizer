@@ -501,9 +501,16 @@ void optNSFPLAYChangedC(id param) {
     
     for (int i=0;i<32;i++) {
         CGFloat hue=start_pos+i*mul_factor;
+        
+        if (_mode==0) {
+            hue=start_pos+(i&7)*mul_factor+(float)(i/8)*21.0/360.0;
+            sat=1-(float)(i/8)*0.1;
+        }
+        
         while (hue>1.0) hue-=1.0f;
         while (hue<0.0) hue+=1.0f;
-        UIColor *col=[UIColor colorWithHue:hue saturation:sat brightness:1.0f alpha:1.0f];
+        UIColor *col;
+        col=[UIColor colorWithHue:hue saturation:sat brightness:1.0f alpha:1.0f];
         CGFloat red,green,blue;
         [col getRed:&red green:&green blue:&blue alpha:NULL];
         CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
@@ -960,7 +967,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_SilenceDetection)
     settings[GLOB_SilenceDetection].label=(char*)"Silence Detection";
-    settings[GLOB_SilenceDetection].description=(char*)"0: off";
+    settings[GLOB_SilenceDetection].description=(char*)"Stop song if silent for more than selected number of seconds. 0: off";
     settings[GLOB_SilenceDetection].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_SilenceDetection].sub_family=0;
     settings[GLOB_SilenceDetection].callback=&optGLOBALChangedC;

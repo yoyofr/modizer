@@ -239,3 +239,6 @@
 
 /*Waiting View*/
 "Cancelling..."="Cancelling...";
+
+"Silence Detection"="Silence Detection";
+"Stop song if silent for more than selected number of seconds. 0: off"="Stop song if silent for more than selected number of seconds. 0: off";

@@ -872,3 +872,6 @@
 "Are you sure you want to clean the DB, it might take a while ?"="Etes vous sûr de vouloir nettoyer la base de données, ca peut prendre un moment ?";
 "Cleaning DB"="Nettoyage de\nla BdD";
 "Please wait, it can take a while"="Veuillez patienter, cela peut prendre un moment";
+
+"Silence Detection"="Détection des silences";
+"Stop song if silent for more than selected number of seconds. 0: off"="Stop le morceau si silencieux plus longtemps que le nombre de secondes sélectionné. 0: off";

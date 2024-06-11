@@ -129,6 +129,16 @@ void alist_process(struct hle_t* hle, const acmd_callback_t abi[], unsigned int 
             #ifdef DEBUG_INFO
               HleVerboseMessage(hle->user_defined, "HLE: %s (%08x %08x)", abi_names[acmd], w1, w2);
             #endif
+            
+//            static const char * ABI_names[0x10] = {
+//              "SPNOOP",        "ADPCM",        "CLEARBUFF",    "ENVMIXER",
+//              "LOADBUFF",      "RESAMPLE",     "SAVEBUFF",     "SEGMENT",
+//              "SETBUFF",       "SETVOL",       "DMEMMOVE",     "LOADADPCM",
+//              "MIXER",         "INTERLEAVE",   "POLEF",        "SETLOOP"
+//            };
+//            
+//            printf("cmd: %s\n",ABI_names[acmd]);
+            
             (*abi[acmd])(hle, w1, w2);
         }
         else
@@ -676,6 +686,8 @@ void alist_resample(
     count >>= 1;
     ipos -= 4;
 
+//#define SOLO_VOICE 3
+    
 #define SOUND_MAXVOICES_BUFFER_FX_USF 24
     //YOYOFR
     //printf("resample %dbytes: %08X %d\n",count,address,pitch);
@@ -706,12 +718,11 @@ void alist_resample(
         vgm_last_sample_address_lastupdate[i]=255;
     }
     int m_voice_ofs=-1;
+    int lastSampleVal=1<<31;
+    bool isSilent=true;
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     if (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
         m_voice_ofs=i;
-        vgm_last_instr[i]=i;
-        vgm_last_note[i]=440*(uint64_t)pitch/65536;
-        vgm_last_vol[i]=1+(init?1:0);
     }
     //YOYOFR
     
@@ -732,6 +743,10 @@ void alist_resample(
                                        (*sample(hle, ipos + 1) * lut[1]) +
                                        (*sample(hle, ipos + 2) * lut[2]) +
                                        (*sample(hle, ipos + 3) * lut[3]) ) >> 15);
+        
+        //if (i!=SOLO_VOICE) sampleVal=0;
+        if (generic_mute_mask&(1<<i)) sampleVal=0;
+        
         *sample(hle, opos++) = sampleVal;
         //YOYOFR
 
@@ -741,15 +756,22 @@ void alist_resample(
         --count;
         
         //YOYOFR
-        if (m_voice_ofs>=0) {
+        if ( (m_voice_ofs>=0) && !(generic_mute_mask&(1<<i)) ) {
             int64_t ofs_start=m_voice_current_ptr[m_voice_ofs+0];
             int64_t ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            int32_t smplVal;
             
-            sampleVal=sampleVal*mdz_cur_vol>>14;
+            smplVal=((int32_t)(sampleVal)*mdz_cur_vol>>15)>>8;
+            
+            if (lastSampleVal==1<<31) lastSampleVal=smplVal;
+            
+            
+            if (smplVal!=lastSampleVal) isSilent=false;
+            lastSampleVal=smplVal;
             
             if (ofs_end>ofs_start)
             for (;;) {
-                m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((sampleVal>>8));
+                m_voice_buff[m_voice_ofs+0][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8((smplVal));
                 ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                 if (ofs_start>=ofs_end) break;
             }
@@ -758,7 +780,17 @@ void alist_resample(
         }
         //YOYOFR
     }
-
+    
+    //YOYOFR
+    if (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
+        if (/*(i==SOLO_VOICE)*/!(generic_mute_mask&(1<<i)) && !isSilent) {
+            m_voice_ofs=i;
+            vgm_last_instr[i]=i;
+            vgm_last_note[i]=440*(uint64_t)pitch/65536;
+            vgm_last_vol[i]=1+(init?1:0);
+        }
+    }
+    //YOYOFR
     alist_resample_save(hle, address, ipos, pitch_accu);
 }
 

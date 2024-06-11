@@ -347,8 +347,6 @@ extern "C" {
 
 -(void) optVGMPLAY_Update;
 
--(void) optGEN_DefaultLength:(float_t)val;
-
 -(void) optGBSPLAY_UpdateParam;
 
 -(void) optTIM_Poly:(int)val;
@@ -386,7 +384,6 @@ extern "C" {
 -(void) optGSF_UpdateParam;
 
 -(void) optNSFPLAY_UpdateParam;
--(void) optNSFPLAY_DefaultLength:(float_t)val;
 
 
 -(void) optXMP_SetInterpolation:(int) mode;

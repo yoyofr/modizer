@@ -926,7 +926,6 @@ static float movePinchScale,movePinchScaleOld;
             case 1:mplayer.optForceMono=1;break;
             case 0:mplayer.optForceMono=0;break;
         }
-        [mplayer optGEN_DefaultLength:settings[GLOB_DefaultLength].detail.mdz_slider.slider_value];
         
         if ((mPlaylist_pos>=0)&&(mPlaylist_pos<mPlaylist_size)) {
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
@@ -1083,7 +1082,6 @@ static float movePinchScale,movePinchScaleOld;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_NSFPLAY)) {
         [mplayer optNSFPLAY_UpdateParam];
         
-        [mplayer optNSFPLAY_DefaultLength:settings[NSFPLAY_DefaultLength].detail.mdz_slider.slider_value];
     }
     
     /////////////////////

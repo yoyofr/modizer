@@ -520,6 +520,7 @@ int m_voice_fadeout_factor;
 unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_sample_address[SOUND_MAXVOICES_BUFFER_FX];
+unsigned int vgm_last_sample_address_range[SOUND_MAXVOICES_BUFFER_FX];
 unsigned char vgm_last_sample_address_lastupdate[SOUND_MAXVOICES_BUFFER_FX];
 unsigned char vgm_last_instr[SOUND_MAXVOICES_BUFFER_FX];
 bool vgm_play_no_seek;
@@ -1230,9 +1231,6 @@ extern "C" {
 #include "wrd.h"
 extern volatile int intr;
 
-
-static int optGENDefaultLength=SONG_DEFAULT_LENGTH;
-static int optNSFPLAYDefaultLength=SONG_DEFAULT_LENGTH;
 
 bool tim_force_soundfont;
 char tim_force_soundfont_path[1024];
@@ -4726,7 +4724,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                                 
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 
@@ -5689,13 +5687,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     iModuleLength=m3uReader[mod_currentsub].length;
                                     if (iModuleLength<=0) {
                                         if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                        else iModuleLength=optGENDefaultLength;
+                                        else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                     }
                                 } else {
                                     KSSPLAY_reset(kssplay, mod_currentsub, 0);
                                     if (kss->info) {
                                         iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                    } else iModuleLength=optGENDefaultLength;
+                                    } else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 }
                                 
                                 if (m3uReader.size()) {
@@ -5819,7 +5817,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
                                     strcpy(gmetype,gme_info->system);
                                     iModuleLength=gme_info->play_length;
-                                    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                     
                                     sprintf(mod_message,"Song.......: %s\nGame.......: %s\nAuthor.....: %s\nDumper.....: %s\nCopyright..: %s\nTracks......: %d\n%s",
                                             (gme_info->song?gme_info->song:" "),
@@ -5838,7 +5836,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 } else {
                                     strcpy(gmetype,"N/A");
                                     strcpy(mod_message,"N/A\n");
-                                    iModuleLength=optGENDefaultLength;
+                                    iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 }
                                 //LOOP
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -5869,7 +5867,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 websid_sound_started=0;
                                 
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                                if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
                                 else if (iModuleLength==0) iModuleLength=1000;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -5915,7 +5913,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                                if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
                                 else if (iModuleLength==0) iModuleLength=1000;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -5952,7 +5950,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
                                 iModuleLength=info.trk.time_ms;
                                 
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SC68_DEFAULT_LENGTH;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -5999,7 +5997,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         iModuleLength=frames*1000/info.playerTickRate;
                                     }
                                 }
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -6033,7 +6031,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 mCurrentSamples=0;
                                 
-                                if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -6070,7 +6068,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 
                                 iModuleLength=0;
-                                if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -6096,7 +6094,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
                                 else iModuleLength=nsfPlayer->GetLength();
-                                if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -6122,7 +6120,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 
                                 if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -6635,7 +6633,30 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             //copy voice data for oscillo view
                             if (m_genNumVoicesChannels) {
                                 if ((HC_type==0x23)||(HC_type==0x21)||(HC_type==0x41)||(HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12))  { //SNSF, QSF, PSF, PSF2, SSF, DSF
+                                    
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                        if (HC_type==0x21) {
+                                            int newP=m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                            int prevP=m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                            if (newP>=prevP) {
+                                                if ((newP-prevP)<SOUND_BUFFER_SIZE_SAMPLE) {
+                                                    m_voice_prev_current_ptr[j]=m_voice_current_ptr[j]-(SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                                    if (m_voice_prev_current_ptr[j]<0) {
+                                                        m_voice_prev_current_ptr[j]+=(SOUND_BUFFER_SIZE_SAMPLE*4*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                    }
+                                                }
+                                            } else {
+                                                newP+=(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+                                                if ((newP-prevP)<SOUND_BUFFER_SIZE_SAMPLE) {
+                                                    m_voice_prev_current_ptr[j]=m_voice_current_ptr[j]-(SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                                                    if (m_voice_prev_current_ptr[j]) {
+                                                        m_voice_prev_current_ptr[j]+=(SOUND_BUFFER_SIZE_SAMPLE*4*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                                    }
+                                                }
+                                            }
+                                            
+                                        }
+                                        
                                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j]
                                                                                                                                                             [(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)])*vol>>8;
                                             m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=0;
@@ -8454,7 +8475,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     DetectSilence=1;
     silencelength=5;
     IgnoreTrackLength=0;
-    DefaultLength=optGENDefaultLength;
+    DefaultLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     TrailingSilence=1000;
     playforever=(mLoopMode?1:0);
     
@@ -8555,12 +8576,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //printf("%s (%d ms) ", length_str, TrackLength);
         if (IgnoreTrackLength) {
             //	printf("(ignored)");
-            TrackLength = optGENDefaultLength;
+            TrackLength = settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         }
         //printf("\n");
     }
     else {
-        TrackLength = optGENDefaultLength;
+        TrackLength = settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     }
     
     psftag_getraw(tag,mod_message,MAX_STIL_DATA_LENGTH*2-1);
@@ -8632,7 +8653,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         mod_currentsub=1;
         
         iModuleLength=mdx_get_length( mdx,pdx);
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//MDX_DEFAULT_LENGTH;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//MDX_DEFAULT_LENGTH;
         iCurrentTime=0;
         mCurrentSamples=0;
         
@@ -8742,7 +8763,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             }
         }
         
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         
         iCurrentTime=0;
         mCurrentSamples=0;
@@ -8763,7 +8784,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                 }
             }
             
-            if (subsong_length<=0) subsong_length=optGENDefaultLength;
+            if (subsong_length<=0) subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             mod_total_length+=subsong_length;
             
             int song_length;
@@ -8850,7 +8871,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         iModuleLength=info.trk.time_ms;
         
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SC68_DEFAULT_LENGTH;
         iCurrentTime=0;
         mCurrentSamples=0;
         
@@ -8862,7 +8883,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             sc68_music_info( sc68, &info_sub, i+1, NULL );
             
             int subsong_length=info_sub.trk.time_ms;
-            if (subsong_length<=0) subsong_length=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+            if (subsong_length<=0) subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SC68_DEFAULT_LENGTH;
             mod_total_length+=subsong_length;
             
             NSString *filePathMain;
@@ -8960,7 +8981,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mod_currentsub=1;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -9065,7 +9086,7 @@ typedef struct {
     if (mLoopMode) (*nsfPlayerConfig)["PLAY_ADVANCE"]=1;
     else (*nsfPlayerConfig)["PLAY_ADVANCE"]=0;
     
-    nsfData->SetDefaults(/*nsfData->default_playtime*/optNSFPLAYDefaultLength,nsfData->default_fadetime,nsfData->default_loopnum);
+    nsfData->SetDefaults(settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000,nsfData->default_fadetime,nsfData->default_loopnum);
     
     //check if a playlist exists
     const char *plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".m3u"] UTF8String];
@@ -9480,7 +9501,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     }
     
     
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     
     iCurrentTime=0;
@@ -9499,7 +9520,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
             int subsong_length=0;
             if (m3uReader.size()) subsong_length=m3uReader[i].length;
             if (subsong_length<=0) {
-                subsong_length=optGENDefaultLength;
+                subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             }
             
             mod_total_length+=subsong_length;
@@ -9637,7 +9658,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         pt3_sample[ch] = 0;
     }
     
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -9801,7 +9822,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     
     
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -9928,7 +9949,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
     
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -10280,7 +10301,7 @@ char* loadRom(const char* path, size_t romSize)
         
         
         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-        if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
         else if (iModuleLength==0) iModuleLength=1000;
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
@@ -10309,7 +10330,7 @@ char* loadRom(const char* path, size_t romSize)
         //////////////////////////////////
         for (int i=0;i<mod_subsongs; i++) {
             int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
-            if (sid_subsong_length<0) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            if (sid_subsong_length<0) sid_subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
             else if (sid_subsong_length==0) sid_subsong_length=1000;
             mod_total_length+=sid_subsong_length;
             
@@ -10567,7 +10588,7 @@ char* loadRom(const char* path, size_t romSize)
         mSidTune->selectSong(mod_currentsub-mod_minsub);
         
         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-        if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
         else if (iModuleLength==0) iModuleLength=1000;
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
@@ -10671,7 +10692,7 @@ char* loadRom(const char* path, size_t romSize)
             //////////////////////////////////
             for (int i=0;i<sidtune_info->songs(); i++) {
                 int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
-                if (sid_subsong_length<0) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                if (sid_subsong_length<0) sid_subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
                 else if (sid_subsong_length==0) sid_subsong_length=1000;
                 mod_total_length+=sid_subsong_length;
                 
@@ -10774,7 +10795,7 @@ char* loadRom(const char* path, size_t romSize)
         iModuleLength=m3uReader[mod_currentsub].length;
         if (iModuleLength<=0) {
             if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-            else iModuleLength=optGENDefaultLength;
+            else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         }
         if (iModuleLength<1000) iModuleLength=1000;
     } else {
@@ -10782,7 +10803,7 @@ char* loadRom(const char* path, size_t romSize)
         if (kss->info) {
             iModuleLength=kss->info[mod_currentsub].time_in_ms;
         }
-        else iModuleLength=optGENDefaultLength;
+        else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         if (iModuleLength<1000) iModuleLength=1000;
     }
     
@@ -10892,7 +10913,7 @@ char* loadRom(const char* path, size_t romSize)
             if (m3uReader.size()) subsong_length=m3uReader[i].length;
             if (subsong_length<=0) {
                 if (kss->info) subsong_length=kss->info[i].time_in_ms;
-                else subsong_length=optGENDefaultLength;
+                else subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             }
             if (subsong_length<1000) subsong_length=1000;
             
@@ -12182,7 +12203,7 @@ void ds_meta_set(const char * tag, const char * value) {
     }
     
     iModuleLength+=mod_fadeinMs;
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     [self mmp_updateDBStatsAtLoad];
     
@@ -12465,7 +12486,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     }
     
     if (!info.tag_length_ms) {
-        info.tag_length_ms = optGENDefaultLength;
+        info.tag_length_ms = settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         info.tag_fade_ms = 3000;
     }
     iModuleLength=info.tag_length_ms+info.tag_fade_ms;
@@ -12483,11 +12504,13 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     /////////////////////////
     HC_voicesMuteMask1=0xFFFFFFFF;
     HC_voicesMuteMask2=0xFFFFFFFF;
+    generic_mute_mask=0;
     
     memset(vgm_last_instr,0,sizeof(vgm_last_instr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
     memset(vgm_last_sample_address,0,sizeof(vgm_last_sample_address));
+    memset(vgm_last_sample_address_range,0,sizeof(vgm_last_sample_address_range));
     memset(vgm_last_sample_address_lastupdate,0,sizeof(vgm_last_sample_address_lastupdate));
     
     
@@ -12636,7 +12659,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         m_voice_current_samplerate=hc_sample_rate;
         
         iModuleLength=usf_length_ms;
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         
         if (usf_fade_ms) {
             info.tag_fade_ms=usf_fade_ms;
@@ -13126,7 +13149,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     }
     
     iModuleLength=vgm_plrEngine->Sample2Second(totalFrames)*1000.0f;
-    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -13187,7 +13210,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         
         //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
         iModuleLength=pmd_length_msec();//pmd_loop_msec();
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//PMD_DEFAULT_LENGTH;
         iCurrentTime=0;
         mCurrentSamples=0;
         
@@ -13298,7 +13321,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     } else {
         //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
         iModuleLength=fmpmini_getLength();
-        if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
+        if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//PMD_DEFAULT_LENGTH;
         iCurrentTime=0;
         mCurrentSamples=0;
         
@@ -13723,7 +13746,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                 NSString *fileName;
                 NSMutableArray *tmp_path;
                 int gme_subsong_length=gme_info->play_length;
-                if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
+                if (gme_info->play_length<=0) gme_info->play_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 mod_total_length+=gme_info->play_length;
                 
                 gme_free_info(gme_info);
@@ -13756,7 +13779,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                 m_voicesDataAvail=1;
             }
             
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             sprintf(mod_message,"Song:%s\nGame:%s\nAuthor:%s\nDumper:%s\nCopyright:%s\nTracks:%d\n%s",
                     (gme_info->song?gme_info->song:" "),
@@ -13793,7 +13816,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             mod_title=[NSString stringWithFormat:@"%.3d",mod_currentsub-mod_minsub+1];
             strcpy(gmetype,"N/A");
             strcpy(mod_message,"N/A\n");
-            iModuleLength=optGENDefaultLength;
+            iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
         }
         
@@ -14950,7 +14973,7 @@ extern bool icloud_available;
                 mod_currentsub=subsong;
                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
                     iModuleLength=gme_info->play_length;
-                    if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                     strcpy(gmetype,gme_info->system);
                     sprintf(mod_message,"Song:%s\nGame:%s\nAuthor:%s\nDumper:%s\nCopyright:%s\nTracks:%d\n%s",
                             (gme_info->song?gme_info->song:" "),
@@ -14969,7 +14992,7 @@ extern bool icloud_available;
                     mod_title=[NSString stringWithFormat:@"%.3d",mod_currentsub-mod_minsub+1];
                     strcpy(gmetype,"N/A");
                     strcpy(mod_message,"N/A\n");
-                    iModuleLength=optGENDefaultLength;
+                    iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 }
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 //Loop
@@ -15043,7 +15066,7 @@ extern bool icloud_available;
                 iModuleLength=m3uReader[mod_currentsub].length;
                 if (iModuleLength<=0) {
                     if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                    else iModuleLength=optGENDefaultLength;
+                    else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 }
                 if (iModuleLength<1000) iModuleLength=1000;
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -15054,7 +15077,7 @@ extern bool icloud_available;
                 KSSPLAY_reset(kssplay, mod_currentsub, 0);
                 if (kss->info) {
                     iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                } else iModuleLength=optGENDefaultLength;
+                } else iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 if (iModuleLength<1000) iModuleLength=1000;
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 if (mLoopMode) iModuleLength=-1;
@@ -15100,7 +15123,7 @@ extern bool icloud_available;
             websid_sound_started=0;
             
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-            if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
             else if (iModuleLength==0) iModuleLength=1000;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
@@ -15142,7 +15165,7 @@ extern bool icloud_available;
             mSidEmuEngine->load(mSidTune);
             
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-            if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            if (iModuleLength<0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SID_DEFAULT_LENGTH;
             else if (iModuleLength==0) iModuleLength=1000;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -15200,7 +15223,7 @@ extern bool icloud_available;
             if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
             else iModuleLength=nsfPlayer->GetLength();
             
-            if (iModuleLength<=0) iModuleLength=optNSFPLAYDefaultLength;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
@@ -15227,7 +15250,7 @@ extern bool icloud_available;
                     iModuleLength=frames*1000/info.playerTickRate;
                 }
             }
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SC68_DEFAULT_LENGTH;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
             
@@ -15262,7 +15285,7 @@ extern bool icloud_available;
                     const struct gbs_status *status = gbs_get_status(gbs);
                     iModuleLength=(int64_t)(status->subsong_len)*1000/1024;
                 }
-                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 
                 gbs_configure(gbs,m3uReader[mod_currentsub].track,iModuleLength/1000,
                               0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
@@ -15275,7 +15298,7 @@ extern bool icloud_available;
                 gbs_init(gbs, mod_currentsub);
                 const struct gbs_status *status = gbs_get_status(gbs);
                 iModuleLength=(int64_t)(status->subsong_len)*1000/1024;
-                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                 
                 gbs_configure(gbs,mod_currentsub,iModuleLength/1000,
                               0/*settings[GBSPLAY_SilenceTimeout].detail.mdz_slider.slider_value*/,0,
@@ -15319,7 +15342,7 @@ extern bool icloud_available;
                 iModuleLength=0;
             }
             
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
             
@@ -15342,7 +15365,7 @@ extern bool icloud_available;
             
             if (info.title[0]) mod_title=[NSString stringWithUTF8String:info.title];
             
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;//SC68_DEFAULT_LENGTH;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             //Loop
@@ -15388,7 +15411,7 @@ extern bool icloud_available;
                 if (zxtune_song_info.get_title()[0]) mod_title=[NSString stringWithUTF8String:zxtune_song_info.get_title()];
             
             iModuleLength=mdz_zxtune->get_max_position();
-            if (iModuleLength==0) iModuleLength=optGENDefaultLength;
+            if (iModuleLength==0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
             if (startPos) [self Seek:startPos];
@@ -15944,7 +15967,7 @@ extern bool icloud_available;
     } else if (mPlayType==MMP_GME) {
         if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
             int sublen=gme_info->play_length;
-            if (sublen<=0) sublen=optGENDefaultLength;
+            if (sublen<=0) sublen=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             result=nil;
             if (gme_info->song){
@@ -16229,9 +16252,6 @@ extern bool icloud_available;
 ///////////////////////////
 //NSFPlay
 ///////////////////////////
--(void) optNSFPLAY_DefaultLength:(float_t)val {
-    optNSFPLAYDefaultLength=(int)(val*1000);
-}
 
 -(void) optNSFPLAY_UpdateParam {
     if (nsfPlayerConfig) {
@@ -16292,9 +16312,7 @@ extern bool icloud_available;
 ///////////////////////////
 // GENERIC
 ///////////////////////////
--(void) optGEN_DefaultLength:(float_t)val {
-    optGENDefaultLength=(int)(val*1000);
-}
+
 
 ///////////////////////////
 // TIMIDITY
@@ -16695,6 +16713,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if ((HC_type==1)||(HC_type==2)) return true;
             if ((HC_type==0x11)||(HC_type==0x12)) return true;
+            if (HC_type==0x21) return true;
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
@@ -16771,6 +16790,7 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
             else if (HC_type==0x11) return [NSString stringWithFormat:@"#%d-SCSP",channel+1];
             else if (HC_type==0x12) return [NSString stringWithFormat:@"#%d-AICA",channel+1];
+            else if (HC_type==0x21) return [NSString stringWithFormat:@"#%d-N64",channel+1];
             else if (HC_type==0x23) return [NSString stringWithFormat:@"#%d-SPC700",channel+1];
             else if (HC_type==0x41) {
                 if (channel<16) return [NSString stringWithFormat:@"#%d-PCM",channel+1];
@@ -16865,6 +16885,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
             else if ((HC_type==0x11)||(HC_type==0x12)) return 1;
+            else if (HC_type==0x21) return 1;
             else if (HC_type==0x23) return 1;
             else if (HC_type==0x41) return 1;
             return 1;
@@ -16931,6 +16952,7 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
             else if (HC_type==0x11) return @"SCSP";
             else if (HC_type==0x12) return @"AICA";
+            else if (HC_type==0x21) return @"N64";
             else if (HC_type==0x23) return @"SPC700";
             else if (HC_type==0x41) return @"QSOUND";
             return @"";
@@ -16999,6 +17021,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==1) return 0;
             else if (HC_type==2) return voiceIdx/24;
             else if ((HC_type==0x11)||(HC_type==0x12)) return 0;
+            else if (HC_type==0x21) return 0;
             else if (HC_type==0x23) return 0;
             else if (HC_type==0x41) return 0;
             return 0;
@@ -17081,7 +17104,7 @@ extern "C" void adjust_amplification(void);
                 for (int i=0;i<24;i++) tmp+=(m_voicesStatus[i+systemIdx*24]?1:0);
                 if (tmp==24) return 2; //all active
                 else if (tmp>0) return 1; //partially active
-            } else if ((HC_type==0x11)||(HC_type==0x12)||(HC_type==0x23)||(HC_type==0x41)) { //scsp or aica or spc700 or qsound
+            } else if ((HC_type==0x11)||(HC_type==0x12)||(HC_type==0x21)||(HC_type==0x23)||(HC_type==0x41)) { //scsp or aica or n64 or spc700 or qsound
                 for (int i=0;i<numChannels;i++) tmp+=(m_voicesStatus[i]?1:0);
                 if (tmp==numChannels) return 2; //all active
                 else if (tmp>0) return 1; //partially active
@@ -17271,6 +17294,7 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) for (int i=0;i<24;i++) [self setm_voicesStatus:active index:(i+systemIdx*24)]; //PSF2, 48voices
             else if (HC_type==0x11) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //SCSP, 32voices
             else if (HC_type==0x12) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //AICA, 64voices
+            else if (HC_type==0x21) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //N64
             else if (HC_type==0x23) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //SPC700, 8voices
             else if (HC_type==0x41) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //QSound, 19voices
             break;
@@ -17504,6 +17528,9 @@ extern "C" void adjust_amplification(void);
                     if (channel<32) HC_voicesMuteMask1&=~(1<<channel);
                     else HC_voicesMuteMask2&=~(1<<(channel-32));
                 }
+            } else if (HC_type==0x21) { //USF
+                if (active) generic_mute_mask&=~(1<<channel);
+                else generic_mute_mask|=1<<channel;
             } else if (HC_type==0x23) { //SNSF
                 if (active) HC_voicesMuteMask1|=1<<channel;
                 else HC_voicesMuteMask1&=~(1<<channel);
