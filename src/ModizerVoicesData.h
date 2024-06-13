@@ -32,7 +32,7 @@ extern unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned char vgm_last_instr[SOUND_MAXVOICES_BUFFER_FX];
 extern unsigned int vgm_last_sample_address[SOUND_MAXVOICES_BUFFER_FX];
-extern unsigned int vgm_last_sample_address_range[SOUND_MAXVOICES_BUFFER_FX];
+extern unsigned int vgm_last_sample_address_inst[256];
 extern unsigned char vgm_last_sample_address_lastupdate[SOUND_MAXVOICES_BUFFER_FX];
 
 extern int64_t m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];

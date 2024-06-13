@@ -531,17 +531,15 @@ static int display_length_mode=0;
 
 -(int) computeActiveFX {
     int active_idx=0;
-    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<1;
-    if (settings[GLOB_FX3].detail.mdz_switch.switch_value) active_idx|=1<<2;
-    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<3;
+    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
+    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
+    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
+    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<3;
     
-    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<4;
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<7;
-    
-    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<10;
-    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<11;
+    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
     
     if (oglViewFullscreen) active_idx|=1<<13;
     return active_idx;
@@ -948,13 +946,11 @@ static float movePinchScale,movePinchScaleOld;
 //        if (settings[GLOB_FXAlpha].detail.mdz_slider.slider_value==1.0f) m_oglView.layer.opaque = YES;
 //        else m_oglView.layer.opaque = NO;
         
-        if (settings[GLOB_FX2].detail.mdz_switch.switch_value&&settings[GLOB_FX3].detail.mdz_switch.switch_value) {
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
         }
         if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
         }
         [self updateVisibleChan];
         
@@ -1091,8 +1087,6 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optGBSPLAY_UpdateParam];
     }
     
-    
-    
     /////////////////////
     //TIMIDITY
     /////////////////////
@@ -1221,7 +1215,7 @@ static float movePinchScale,movePinchScaleOld;
             
             break;
         case 3:
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
+            //settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
             
             break;
         case 4:
@@ -1243,16 +1237,6 @@ static float movePinchScale,movePinchScaleOld;
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
-/*    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;*/
 }
 
 - (void)oglViewSwitchFS {
@@ -1698,7 +1682,6 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
             switch (arc4random()%19) {
                 case 0:
@@ -1716,7 +1699,7 @@ static float movePinchScale,movePinchScaleOld;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 5:
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 6:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1730,7 +1713,7 @@ static float movePinchScale,movePinchScaleOld;
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 10:
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 11:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1742,7 +1725,7 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 13:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 14:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1760,7 +1743,7 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 18:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                     
             }
@@ -5531,90 +5514,99 @@ void ViewPerspective()
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
     
     //txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
-    txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
-    txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
-    txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
-    txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
-    //txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
+    
+    //Oscilloscope
+    txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
+    //Spectrum 2D
+    txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
+    //Spectrum 3D objects
+    txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12a_2x.png"]);
+    //Spectrum 3D landscape
+    txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
+    //Piano roll
+    txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
+    //Note scrollers
+    txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
+    //mod patterns
     txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
-    txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
-    txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
-    txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a_2x.png"]);
-    txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d_2x.png"]);
-    txtMenuHandle[11]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12a_2x.png"]);
+    //smoke FX
+    txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
+    
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     //    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
     
 #define SUBMENU0_START 0
-#define SUBMENU0_SIZE 6
+#define SUBMENU0_SIZE 4
+    //Oscilloscopes
     txtSubMenuHandle[SUBMENU0_START]=0;
-    txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
-    txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
-    txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
-    txtSubMenuHandle[SUBMENU0_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
-    txtSubMenuHandle[SUBMENU0_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[0];
+    txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5c_2x.png"]);
     
 #define SUBMENU1_START SUBMENU0_START+SUBMENU0_SIZE
-#define SUBMENU1_SIZE 4
+#define SUBMENU1_SIZE 3
+    //Spectrum 2D
     txtSubMenuHandle[SUBMENU1_START]=0;
-    txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
-    txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
-    txtSubMenuHandle[SUBMENU1_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
+    txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[1];
+    txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
+
 #define SUBMENU2_START SUBMENU1_START+SUBMENU1_SIZE
-#define SUBMENU2_SIZE 3
+#define SUBMENU2_SIZE 4
+    //Spectrum 3D objects
     txtSubMenuHandle[SUBMENU2_START]=0;
-    txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
-    txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
+    txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[2];
+    txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
+    txtSubMenuHandle[SUBMENU2_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
+    
     
 #define SUBMENU3_START SUBMENU2_START+SUBMENU2_SIZE
-#define SUBMENU3_SIZE 4
+#define SUBMENU3_SIZE 9
+    //Spectrum 3D landscape
     txtSubMenuHandle[SUBMENU3_START]=0;
-    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
-    txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5c_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
+    txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
+    
     
 #define SUBMENU4_START SUBMENU3_START+SUBMENU3_SIZE
 #define SUBMENU4_SIZE 7
+    //Piano FX
     txtSubMenuHandle[SUBMENU4_START]=0;
-    txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
-    txtSubMenuHandle[SUBMENU4_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[4];
+    txtSubMenuHandle[SUBMENU4_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11e_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11f_2x.png"]);
+    
+    
     
 #define SUBMENU5_START SUBMENU4_START+SUBMENU4_SIZE
 #define SUBMENU5_SIZE 3
+    //Notes scrollers
     txtSubMenuHandle[SUBMENU5_START]=0;
-    txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[7];
+    txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[5];
     txtSubMenuHandle[SUBMENU5_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
     
 #define SUBMENU6_START SUBMENU5_START+SUBMENU5_SIZE
-#define SUBMENU6_SIZE 3
+#define SUBMENU6_SIZE 7
+    //Mod patterns
     txtSubMenuHandle[SUBMENU6_START]=0;
-    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[9];
-    txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
-    
-#define SUBMENU7_START SUBMENU6_START+SUBMENU6_SIZE
-#define SUBMENU7_SIZE 7
-    txtSubMenuHandle[SUBMENU7_START]=0;
-    txtSubMenuHandle[SUBMENU7_START+1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
-    txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
-    txtSubMenuHandle[SUBMENU7_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
-    txtSubMenuHandle[SUBMENU7_START+4]=txtMenuHandle[10];
-    txtSubMenuHandle[SUBMENU7_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11e_2x.png"]);
-    txtSubMenuHandle[SUBMENU7_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11f_2x.png"]);
-    
-#define SUBMENU8_START SUBMENU7_START+SUBMENU7_SIZE
-#define SUBMENU8_SIZE 4
-    txtSubMenuHandle[SUBMENU8_START]=0;
-    txtSubMenuHandle[SUBMENU8_START+1]=txtMenuHandle[11];
-    txtSubMenuHandle[SUBMENU8_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
-    txtSubMenuHandle[SUBMENU8_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
-    
+    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
+    txtSubMenuHandle[SUBMENU6_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
+    txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
+    txtSubMenuHandle[SUBMENU6_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
+    txtSubMenuHandle[SUBMENU6_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
+            
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
     [SettingsGenViewController pianomidiGenSystemColor:1 color_idx:-1 color_buffer:data_midifx_pal2];
@@ -6174,29 +6166,29 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
     texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
     texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
     
-    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) txtMenuHandle[1]=txtSubMenuHandle[SUBMENU0_START+settings[GLOB_FX2].detail.mdz_switch.switch_value];
-    else txtMenuHandle[1]=txtSubMenuHandle[SUBMENU0_START+1];
+    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) txtMenuHandle[0]=txtSubMenuHandle[SUBMENU0_START+settings[GLOB_FXOscillo].detail.mdz_switch.switch_value];
+    else txtMenuHandle[0]=txtSubMenuHandle[SUBMENU0_START+1];
     
-    if (settings[GLOB_FX3].detail.mdz_switch.switch_value) txtMenuHandle[2]=txtSubMenuHandle[SUBMENU1_START+settings[GLOB_FX3].detail.mdz_switch.switch_value];
-    else txtMenuHandle[2]=txtSubMenuHandle[SUBMENU1_START+1];
+    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[1]=txtSubMenuHandle[SUBMENU1_START+settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value];
+    else txtMenuHandle[1]=txtSubMenuHandle[SUBMENU1_START+1];
     
-    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU2_START+settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value];
-    else txtMenuHandle[3]=txtSubMenuHandle[SUBMENU2_START+1];
+    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value];
+    else txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+1];
     
-    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FXOscillo].detail.mdz_switch.switch_value];
-    else txtMenuHandle[4]=txtSubMenuHandle[SUBMENU3_START+1];
+    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FX2].detail.mdz_switch.switch_value];
+    else txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+1];
     
-    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) txtMenuHandle[6]=txtSubMenuHandle[SUBMENU4_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
-    else txtMenuHandle[6]=txtSubMenuHandle[SUBMENU4_START+1];
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
+    else if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+4+settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value];
+    else txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+1];
     
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value];
-    else txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+1];
     
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
-    else txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+1];
     
-    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[11]=txtSubMenuHandle[SUBMENU8_START+settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value];
-    else txtMenuHandle[11]=txtSubMenuHandle[SUBMENU8_START+1];
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) txtMenuHandle[5]=txtSubMenuHandle[SUBMENU5_START+settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value];
+    else txtMenuHandle[5]=txtSubMenuHandle[SUBMENU5_START+1];
+    
+    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
+    else txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+1];
     
     int marg=4;
     for (int i=0;i<4;i++)
@@ -6615,68 +6607,57 @@ extern "C" int current_sample;
                 int touched_coord=(touched_cellX<<4)|(touched_cellY);
                 
                 if (touched_coord==0x00) {
-                } else if (touched_coord==0x10) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU0_START;
                     viewTapHelpShow_SubNb=SUBMENU0_SIZE;
-                } else if (touched_coord==0x20) {
+                } else if (touched_coord==0x10) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU1_START;
                     viewTapHelpShow_SubNb=SUBMENU1_SIZE;
-                } else if (touched_coord==0x30) {
+                } else if (touched_coord==0x20) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU2_START;
                     viewTapHelpShow_SubNb=SUBMENU2_SIZE;
-                } else if (touched_coord==0x01) {
+                } else if (touched_coord==0x30) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU3_START;
                     viewTapHelpShow_SubNb=SUBMENU3_SIZE;
-                } else if (touched_coord==0x11) {
-                } else if (touched_coord==0x21) {
+                } else if (touched_coord==0x01) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU4_START;
                     viewTapHelpShow_SubNb=SUBMENU4_SIZE;
-                } else if (touched_coord==0x31) {
+                } else if (touched_coord==0x11) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU5_START;
                     viewTapHelpShow_SubNb=SUBMENU5_SIZE;
-                } else if (touched_coord==0x02) {
-                    int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
-                    val++;
-                    if (val>=2) val=0;
-                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                } else if (touched_coord==0x12) {
+                } else if (touched_coord==0x21) {
                     viewTapHelpShow=2;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU6_START;
                     viewTapHelpShow_SubNb=SUBMENU6_SIZE;
-                } else if (touched_coord==0x22) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU7_START;
-                    viewTapHelpShow_SubNb=SUBMENU7_SIZE;
-                } else if (touched_coord==0x32) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU8_START;
-                    viewTapHelpShow_SubNb=SUBMENU8_SIZE;
+                } else if (touched_coord==0x31) {
+                    int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
+                    val++;
+                    if (val>=2) val=0;
+                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
+                    if (val) settings[GLOB_FX2].detail.mdz_boolswitch.switch_value=0;
                 } else if (touched_coord==0x03) {
+                    //HIDE FX Screen
                     shouldhide=1;
                 } else if (touched_coord==0x13) {
+                    //Fullscreen switch
                     oglViewFullscreen^=1;
                     oglViewFullscreenChanged=1;
                     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
                 } else if (touched_coord==0x23) {
+                    //ALL FX Off
                     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
@@ -6700,222 +6681,240 @@ extern "C" int current_sample;
                 int touched_coord=(touched_cellX<<4)|(touched_cellY);
                 if (touched_coord==0x00) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU1_START://4: //FX3
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU2_START://8: //Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-                            movePxMOD=movePyMOD=0;
+                        case SUBMENU1_START: //2D Spectrum
+                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
                             break;
-                        case SUBMENU5_START://21: //MIDI Pattern
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                             break;
-                        case SUBMENU6_START://24: //3D Sphere/Torus
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                             break;
-                        case SUBMENU7_START://27: //Piano
+                        case SUBMENU4_START: //Piano FX
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                             settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                             break;
-                        case SUBMENU8_START://32: //Spectrum3D
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+                        case SUBMENU5_START: //Notes scrollers
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                            movePxMID=movePyMID=0;
+                            break;
+                        case SUBMENU6_START: //Mod patterns
+                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+                            movePxMOD=movePyMOD=0;
                             break;
                     }
                 } else if (touched_coord==0x10) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START://0: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU1_START://4: //FX3
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU2_START://8: //Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            movePxMID=movePyMID=0;
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
                             size_chan=11*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU5_START://21: //MIDI Pattern
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
-                            break;
-                        case SUBMENU6_START://24: //3D Sphere/Torus
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU8_START://32: //Spectrum3D
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
-                            break;
                     }
                 } else if (touched_coord==0x20) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START://0: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU1_START://4: //FX3
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU2_START://8: //Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=2;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            movePxMID=movePyMID=0;
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
                             size_chan=6*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU5_START://21: //MIDI Pattern
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
-                            break;
-                        case SUBMENU6_START://24: //3D Sphere/Torus
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU8_START://32: //Spectrum3D
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
-                            break;
                     }
                 } else if (touched_coord==0x30) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START://0: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=3;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU1_START://4: //FX3
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=3;
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=3;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
                             size_chan=4*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                            
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU8_START://32: //Spectrum3D
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
                     }
                 } else if (touched_coord==0x01) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START://0: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=4;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
                             else settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
                             break;
-                            
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=4;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
                             size_chan=11*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
                     }
                 } else if (touched_coord==0x11) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START://0: //FX2
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=5;
-                            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
                             else settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=5;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
                             size_chan=6*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
-                            break;
                     }
                 } else if (touched_coord==0x21) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU0_START: //Oscillo
+                            break;
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=6;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
                             size_chan=4*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START://27: //Piano
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
-                            break;
                     }
                 } else if (touched_coord==0x31) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU0_START: //Oscillo
+                            break;
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=7;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
                             else settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x02) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=0;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            settings[GLOB_FX2].detail.mdz_switch.switch_value=8;
+                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -6923,10 +6922,20 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x12) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=1;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -6934,10 +6943,20 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x22) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU3_START://11: //Oscillo
+                        case SUBMENU0_START: //Oscillo
                             settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=2;
                             break;
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
                             [self updateFont];
                             [self updateVisibleChan];
@@ -6945,15 +6964,39 @@ extern "C" int current_sample;
                     }
                 } else if (touched_coord==0x32) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU0_START: //Oscillo
                             settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=3;
                             [self updateFont];
                             [self updateVisibleChan];
                             break;
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
+                            break;
                     }
                 } else if (touched_coord==0x03) {
                     switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU4_START://14: //MOD Pattern
+                        case SUBMENU0_START: //Oscillo
+                            break;
+                        case SUBMENU1_START: //2D Spectrum
+                            break;
+                        case SUBMENU2_START: //3D Spectrum Objects
+                            break;
+                        case SUBMENU3_START: //3D Spectrum Landscape
+                            break;
+                        case SUBMENU4_START: //Piano FX
+                            break;
+                        case SUBMENU5_START: //Notes scrollers
+                            break;
+                        case SUBMENU6_START: //Mod patterns
                             viewTapHelpShow=2; //keep menu visible
                             settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value++;
                             if (settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value>=MOD_PATTERN_FONT_NB) settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
@@ -6987,7 +7030,6 @@ extern "C" int current_sample;
     //update spectrum data
     if (
           (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
-          (settings[GLOB_FX3].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
           (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
           (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)  ) {
@@ -7537,9 +7579,8 @@ extern "C" int current_sample;
     if ([mplayer isPlaying]){
         if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
             if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4) RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
-            else RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
-        } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            else if (settings[GLOB_FX2].detail.mdz_switch.switch_value<6) RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
+            else RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         }
@@ -7547,7 +7588,6 @@ extern "C" int current_sample;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
             int mirror=1;
             if (settings[GLOB_FX2].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FX3].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
@@ -7636,16 +7676,7 @@ extern "C" int current_sample;
         if (viewTapHelpShowMode==2) {
             
             switch (viewTapHelpShow_SubStart) {
-                case SUBMENU0_START: //FX2
-                    active_idx=1<<settings[GLOB_FX2].detail.mdz_switch.switch_value;
-                    break;
-                case SUBMENU1_START: //FX3
-                    active_idx=1<<settings[GLOB_FX3].detail.mdz_switch.switch_value;
-                    break;
-                case SUBMENU2_START: //Spectrum
-                    active_idx=1<<settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value;
-                    break;
-                case SUBMENU3_START: //Oscillo
+                case SUBMENU0_START: //Oscillo
                     active_idx=1<<settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
                     if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
                     if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
@@ -7655,25 +7686,29 @@ extern "C" int current_sample;
                         case 2:active_idx|=1<<10;break;
                     }
                     break;
-                case SUBMENU4_START: //MOD Pattern
+                case SUBMENU1_START: //2D Spectrum
+                    active_idx=1<<settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value;
+                    break;
+                case SUBMENU2_START: //3D Spectrum object
+                    active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
+                    break;
+                case SUBMENU3_START: //3D Spectrum Landscapes
+                    active_idx=1<<settings[GLOB_FX2].detail.mdz_switch.switch_value;
+                    break;
+                case SUBMENU4_START: //Piano FX
+                    active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
+                    active_idx=1<<(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+4);
+                    break;
+                case SUBMENU5_START: //Notes scrollers
+                    active_idx=1<<settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
+                    break;
+                case SUBMENU6_START: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
                     if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) active_idx|=1<<7;
                     if (mCurrentFontSize==10) active_idx|=1<<8;
                     else if (mCurrentFontSize==16) active_idx|=1<<9;
                     else if (mCurrentFontSize==24) active_idx|=1<<10;
                     else if (mCurrentFontSize==32) active_idx|=1<<11;
-                    break;
-                case SUBMENU5_START: //MIDI Pattern
-                    active_idx=1<<settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
-                    break;
-                case SUBMENU6_START: //3D Sphere/Torus
-                    break;
-                case SUBMENU7_START: //Piano
-                    active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
-                    active_idx=1<<(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+4);
-                    break;
-                case SUBMENU8_START:
-                    active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
             }
             //if (active_idx==1) active_idx=0;
@@ -7687,13 +7722,7 @@ extern "C" int current_sample;
             glPopMatrix();
             
             switch (viewTapHelpShow_SubStart) {
-                case SUBMENU0_START: //FX2
-                    break;
-                case SUBMENU1_START: //FX3
-                    break;
-                case SUBMENU2_START: //Spectrum
-                    break;
-                case SUBMENU3_START:{ //Oscillo
+                case SUBMENU0_START:{ //Oscillo
                     int menu_cell_size=(ww<hh?ww:hh);
                     glPushMatrix();
                     glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
@@ -7723,7 +7752,17 @@ extern "C" int current_sample;
                     glPopMatrix();
                 }
                     break;
-                case SUBMENU4_START:{ //MOD Pattern
+                case SUBMENU1_START: //2D Spectrum
+                    break;
+                case SUBMENU2_START: //3D Spectrum objects
+                    break;
+                case SUBMENU3_START: //3D Spectrum landscapes
+                    break;
+                case SUBMENU4_START: //Piano FX
+                    break;
+                case SUBMENU5_START: //Notes scrollers
+                    break;
+                case SUBMENU6_START:{ //MOD Pattern
                     int menu_cell_size=(ww<hh?ww:hh);
                     glPushMatrix();
                     glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
@@ -7788,14 +7827,6 @@ extern "C" int current_sample;
                     glPopMatrix();
                     delete mFontText;
                 }
-                    break;
-                case SUBMENU5_START: //MIDI Pattern
-                    break;
-                case SUBMENU6_START: //3D Sphere/Torus
-                    break;
-                case SUBMENU7_START: //Piano
-                    break;
-                case SUBMENU8_START:
                     break;
             }
         }

@@ -345,10 +345,6 @@ void musyx_v2_task(struct hle_t* hle)
     rsp_break(hle, SP_STATUS_TASKDONE);
 }
 
-
-
-
-
 static void load_base_vol(struct hle_t* hle, int32_t *base_vol, uint32_t address)
 {
     base_vol[0] = ((uint32_t)(*dram_u16(hle, address))     << 16) | (*dram_u16(hle, address +  8));

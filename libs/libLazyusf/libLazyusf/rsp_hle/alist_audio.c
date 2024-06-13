@@ -21,7 +21,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int mdz_cur_vol=0;
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -33,6 +32,10 @@ int mdz_cur_vol=0;
 #include "hle_internal.h"
 #include "memory.h"
 #include "ucodes.h"
+
+int mdz_cur_vol=0;
+uint32_t mdz_last_pcm_address=0;
+
 
 enum { DMEM_BASE = 0x5c0 };
 
@@ -221,6 +224,8 @@ static void LOADADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint16_t count   = w1;
     uint32_t address = get_address(hle, w2);
+    
+    mdz_last_pcm_address=w2;
     
     dram_load_u16(hle, (uint16_t*)hle->alist_audio.table, address, align(count, 8) >> 1);
 }

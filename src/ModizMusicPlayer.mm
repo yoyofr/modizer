@@ -520,7 +520,7 @@ int m_voice_fadeout_factor;
 unsigned int vgm_last_note[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_vol[SOUND_MAXVOICES_BUFFER_FX];
 unsigned int vgm_last_sample_address[SOUND_MAXVOICES_BUFFER_FX];
-unsigned int vgm_last_sample_address_range[SOUND_MAXVOICES_BUFFER_FX];
+unsigned int vgm_last_sample_address_inst[256];
 unsigned char vgm_last_sample_address_lastupdate[SOUND_MAXVOICES_BUFFER_FX];
 unsigned char vgm_last_instr[SOUND_MAXVOICES_BUFFER_FX];
 bool vgm_play_no_seek;
@@ -12510,7 +12510,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
     memset(vgm_last_sample_address,0,sizeof(vgm_last_sample_address));
-    memset(vgm_last_sample_address_range,0,sizeof(vgm_last_sample_address_range));
+    memset(vgm_last_sample_address_inst,0,sizeof(vgm_last_sample_address_inst));
     memset(vgm_last_sample_address_lastupdate,0,sizeof(vgm_last_sample_address_lastupdate));
     
     

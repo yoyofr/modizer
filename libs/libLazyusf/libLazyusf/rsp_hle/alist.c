@@ -24,6 +24,7 @@
 //YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
 extern int mdz_cur_vol;
+extern uint32_t mdz_last_pcm_address;
 //YOYOFR
 
 #include <assert.h>
@@ -693,6 +694,7 @@ void alist_resample(
     //printf("resample %dbytes: %08X %d\n",count,address,pitch);
     //check address
     int i=0;
+    int inst=0;
     int oldestUpd=255;
     int reuseIdx=-1;
     while (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
@@ -717,6 +719,16 @@ void alist_resample(
         vgm_last_sample_address[i]=address;
         vgm_last_sample_address_lastupdate[i]=255;
     }
+    
+    while (inst<256) {
+        if (vgm_last_sample_address_inst[inst]==0) vgm_last_sample_address_inst[inst]=mdz_last_pcm_address;
+        if (vgm_last_sample_address_inst[inst]==mdz_last_pcm_address) {
+            break;
+        }
+        inst++;
+    }
+    inst=inst&0xFF;
+    
     int m_voice_ofs=-1;
     int lastSampleVal=1<<31;
     bool isSilent=true;
@@ -785,7 +797,7 @@ void alist_resample(
     if (i<SOUND_MAXVOICES_BUFFER_FX_USF) {
         if (/*(i==SOLO_VOICE)*/!(generic_mute_mask&(1<<i)) && !isSilent) {
             m_voice_ofs=i;
-            vgm_last_instr[i]=i;
+            vgm_last_instr[i]=inst;
             vgm_last_note[i]=440*(uint64_t)pitch/65536;
             vgm_last_vol[i]=1+(init?1:0);
         }

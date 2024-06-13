@@ -20,7 +20,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-extern int mdz_cur_vol;
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -31,6 +30,10 @@ extern int mdz_cur_vol;
 #include "hle_internal.h"
 #include "memory.h"
 #include "ucodes.h"
+
+extern int mdz_cur_vol;
+extern uint32_t mdz_last_pcm_address;
+
 
 /* remove windows define to 0x06 */
 #ifdef DUPLICATE
@@ -56,6 +59,8 @@ static void LOADADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint16_t count   = w1;
     uint32_t address = (w2 & 0xffffff);
+    
+    mdz_last_pcm_address=w2;
 
     dram_load_u16(hle, (uint16_t*)hle->alist_nead.table, address, count >> 1);
 }
@@ -76,7 +81,7 @@ static void ADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint8_t  flags   = (w1 >> 16);
     uint32_t address = (w2 & 0xffffff);
-
+    
     alist_adpcm(
             hle,
             flags & 0x1,

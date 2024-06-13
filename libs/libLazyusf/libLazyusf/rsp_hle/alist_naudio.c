@@ -20,7 +20,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-extern int mdz_cur_vol;
+
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -31,6 +31,9 @@ extern int mdz_cur_vol;
 #include "hle_internal.h"
 #include "memory.h"
 #include "ucodes.h"
+
+extern int mdz_cur_vol;
+extern uint32_t mdz_last_pcm_address;
 
 enum { NAUDIO_COUNT = 0x170 }; /* ie 184 samples */
 enum {
@@ -189,6 +192,8 @@ static void LOADADPCM(struct hle_t* hle, uint32_t w1, uint32_t w2)
 {
     uint16_t count   = w1;
     uint32_t address = (w2 & 0xffffff);
+    
+    mdz_last_pcm_address=w2;
 
     dram_load_u16(hle, (uint16_t*)hle->alist_naudio.table, address, count >> 1);
 }
