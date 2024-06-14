@@ -180,9 +180,9 @@ void alist_clear(struct hle_t* hle, uint16_t dmem, uint16_t count)
         --count;
     }
     
-    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
-    memset(vgm_last_note,0,sizeof(vgm_last_note));
-    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+//    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
+//    memset(vgm_last_note,0,sizeof(vgm_last_note));
+//    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
 }
 
 void alist_load(struct hle_t* hle, uint16_t dmem, uint32_t address, uint16_t count)

@@ -1,5 +1,6 @@
 //YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
+extern char mdz_usf_uses_musyx;
 //YOYOFR
 
 
@@ -337,9 +338,13 @@ const char * usf_render(void * state, int16_t * buffer, size_t count, int32_t * 
 
     //YOYOFR
     //printf("run\n");
-//    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
-//    memset(vgm_last_note,0,sizeof(vgm_last_note));
-//    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+    if (mdz_usf_uses_musyx==0) {
+        //if not using musyx, clear vgm_note data before main_run
+        memset(vgm_last_instr,0,sizeof(vgm_last_instr));
+        memset(vgm_last_note,0,sizeof(vgm_last_note));
+        memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+    }
+    
     //memset(vgm_last_sample_address,0,sizeof(vgm_last_sample_address));
     //memset(vgm_last_sample_address_lastupdate,0,sizeof(vgm_last_sample_address_lastupdate));
     

@@ -1994,6 +1994,8 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
 
 #include "usf/usf.h"
 
+char mdz_usf_uses_musyx;
+
 int32_t hc_sample_rate;
 int64_t hc_currentSample,hc_fadeStart,hc_fadeLength;
 
@@ -12624,6 +12626,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         }
         
     } else if (HC_type == 0x21) { //USF
+        mdz_usf_uses_musyx=0; 
         usf_enable_compare=0;
         usf_enable_fifo_full=0;
         lzu_state = (unsigned char *) malloc(usf_get_state_size());

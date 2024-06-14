@@ -23,6 +23,7 @@
 #include "../../../../src/ModizerVoicesData.h"
 extern uint32_t mdz_last_pcm_address;
 static uint32_t mdz_current_voice;
+extern char mdz_usf_uses_musyx;
 //YOYOFR
 
 
@@ -466,6 +467,8 @@ static uint32_t voice_stage(struct hle_t* hle, musyx_t *musyx,
     uint32_t output_ptr;
     int i = 0;
     
+    mdz_usf_uses_musyx=1;
+    
     memset(vgm_last_instr,0,sizeof(vgm_last_instr));
     memset(vgm_last_note,0,sizeof(vgm_last_note));
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
@@ -761,7 +764,7 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
     if (ii<SOUND_MAXVOICES_BUFFER_FX_USF) {
         m_voice_ofs=ii;
         int vol=MAXVAL(v4_env[0],v4_env[1])>>(16+8);
-        if (!(generic_mute_mask&(1<<ii)) /*&& vol*/ && pitch_step) {
+        if (!(generic_mute_mask&(1<<ii)) && vol && pitch_step) {
             vgm_last_instr[ii]=inst;
             vgm_last_note[ii]=440*(double)pitch_step/65536.0;
             vgm_last_vol[ii]=1;
