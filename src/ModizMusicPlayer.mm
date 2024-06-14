@@ -12668,8 +12668,8 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         m_voice_current_samplerate=hc_sample_rate;
         
         m_voicesDataAvail=1;
-        numChannels=24;
-        m_genNumVoicesChannels=24;
+        numChannels=32;
+        m_genNumVoicesChannels=numChannels;
         //numChannels=2;
     } else if ( HC_type == 0x23 ) { //SNSF
         hc_sample_rate=32000;

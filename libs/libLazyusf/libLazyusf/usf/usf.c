@@ -1,6 +1,5 @@
 //YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
-static uint64_t old_val[24];
 //YOYOFR
 
 
@@ -338,20 +337,11 @@ const char * usf_render(void * state, int16_t * buffer, size_t count, int32_t * 
 
     //YOYOFR
     //printf("run\n");
-    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
-    memset(vgm_last_note,0,sizeof(vgm_last_note));
-    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+//    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
+//    memset(vgm_last_note,0,sizeof(vgm_last_note));
+//    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
     //memset(vgm_last_sample_address,0,sizeof(vgm_last_sample_address));
     //memset(vgm_last_sample_address_lastupdate,0,sizeof(vgm_last_sample_address_lastupdate));
-    
-    
-    static int first_call=1;
-    if (first_call) {
-        first_call=0;
-        for (int i=0;i<24;i++) {
-            old_val[i]=0;
-        }
-    }
     
     //YOYOFR
     

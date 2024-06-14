@@ -179,6 +179,10 @@ void alist_clear(struct hle_t* hle, uint16_t dmem, uint16_t count)
         *alist_u8(hle, dmem++) = 0;
         --count;
     }
+    
+    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
+    memset(vgm_last_note,0,sizeof(vgm_last_note));
+    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
 }
 
 void alist_load(struct hle_t* hle, uint16_t dmem, uint32_t address, uint16_t count)
@@ -689,7 +693,7 @@ void alist_resample(
 
 //#define SOLO_VOICE 3
     
-#define SOUND_MAXVOICES_BUFFER_FX_USF 24
+#define SOUND_MAXVOICES_BUFFER_FX_USF 32
     //YOYOFR
     //printf("resample %dbytes: %08X %d\n",count,address,pitch);
     //check address

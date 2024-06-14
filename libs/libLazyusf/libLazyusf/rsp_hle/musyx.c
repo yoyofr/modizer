@@ -21,6 +21,8 @@
 
 //YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
+extern uint32_t mdz_last_pcm_address;
+static uint32_t mdz_current_voice;
 //YOYOFR
 
 
@@ -234,7 +236,7 @@ void musyx_v1_task(struct hle_t* hle)
         uint32_t voice_ptr       = sfd_ptr + SFD_VOICES;
         uint32_t last_sample_ptr = state_ptr + STATE_LAST_SAMPLE;
         uint32_t output_ptr;
-
+        
         /* initialize internal subframes using updated base volumes */
         update_base_vol(hle, musyx.base_vol, voice_mask, last_sample_ptr, 0, 0);
         init_subframes_v1(&musyx);
@@ -463,6 +465,10 @@ static uint32_t voice_stage(struct hle_t* hle, musyx_t *musyx,
 {
     uint32_t output_ptr;
     int i = 0;
+    
+    memset(vgm_last_instr,0,sizeof(vgm_last_instr));
+    memset(vgm_last_note,0,sizeof(vgm_last_note));
+    memset(vgm_last_vol,0,sizeof(vgm_last_vol));
 
     /* voice stage can be skipped if first voice has no samples */
     if (*dram_u16(hle, voice_ptr + VOICE_CATSRC_0 + CATSRC_SIZE1) == 0) {
@@ -484,6 +490,7 @@ static uint32_t voice_stage(struct hle_t* hle, musyx_t *musyx,
                 load_samples_ADPCM(hle, voice_ptr, samples, &segbase, &offset);
 
             /* mix them with each internal subframes */
+            mdz_current_voice=i;
             mix_voice_samples(hle, musyx, voice_ptr, samples, segbase, offset,
                               last_sample_ptr + i * 8);
 
@@ -691,7 +698,8 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
                                           (((restart_point & 0x8000) != 0) ? 0x000 : segbase);
 
     //YOYOFR
-    const int16_t       *sampleId         = samples + segbase + u16_4e;
+    const int16_t       *sampleId         = samples + segbase;// + u16_4e;
+    mdz_last_pcm_address=(uint32_t)sampleId;
 
     uint32_t pitch_accu = pitch_q16;
     uint32_t pitch_step = pitch_shift << 4;
@@ -732,42 +740,32 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
 //                      v4_env[0],      v4_env[1],      v4_env[2],      v4_env[3],
 //                      v4_env_step[0], v4_env_step[1], v4_env_step[2], v4_env_step[3]);
     
-#define SOUND_MAXVOICES_BUFFER_FX_USF 24
+#define SOUND_MAXVOICES_BUFFER_FX_USF 32
     //YOYOFR
     //printf("resample %dbytes: %08X %d\n",count,address,pitch);
     //check address
-    int ii=0;
-    int oldestUpd=255;
-    int reuseIdx=-1;
-    while (ii<SOUND_MAXVOICES_BUFFER_FX_USF) {
-        if (vgm_last_sample_address[ii]==0) vgm_last_sample_address[ii]=(unsigned int)sampleId;
-        
-        if (vgm_last_sample_address[ii]==(unsigned int)sampleId) {
-            vgm_last_sample_address_lastupdate[ii]=255;
+    int ii=mdz_current_voice;
+    int inst=0;
+    
+    while (inst<256) {
+        if (vgm_last_sample_address_inst[inst]==0) vgm_last_sample_address_inst[inst]=mdz_last_pcm_address;
+        if (vgm_last_sample_address_inst[inst]==mdz_last_pcm_address) {
             break;
         }
-        
-        if (vgm_last_sample_address_lastupdate[ii]) vgm_last_sample_address_lastupdate[ii]--;
-        
-        if (oldestUpd>vgm_last_sample_address_lastupdate[ii]) {
-            oldestUpd=vgm_last_sample_address_lastupdate[ii];
-            reuseIdx=ii;
-        }
-        
-        ii++;
+        inst++;
     }
-    if (ii==SOUND_MAXVOICES_BUFFER_FX_USF) {
-        ii=reuseIdx;
-        vgm_last_sample_address[ii]=(unsigned int)sampleId;
-        vgm_last_sample_address_lastupdate[ii]=255;
-    }
+    inst=inst&0xFF;
+    
     int m_voice_ofs=-1;
     int64_t smplIncr=(int64_t)44100*(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/m_voice_current_samplerate;
     if (ii<SOUND_MAXVOICES_BUFFER_FX_USF) {
         m_voice_ofs=ii;
-        vgm_last_instr[ii]=ii;
-        vgm_last_note[ii]=440*(double)pitch_step/65536.0;
-        vgm_last_vol[ii]=1;
+        int vol=MAXVAL(v4_env[0],v4_env[1])>>(16+8);
+        if (!(generic_mute_mask&(1<<ii)) /*&& vol*/ && pitch_step) {
+            vgm_last_instr[ii]=inst;
+            vgm_last_note[ii]=440*(double)pitch_step/65536.0;
+            vgm_last_vol[ii]=1;
+        }
     }
     //YOYOFR
 
@@ -786,9 +784,11 @@ static void mix_voice_samples(struct hle_t* hle, musyx_t *musyx,
         dist = sample - sample_end;
         if (dist >= 0)
             sample = sample_restart + dist;
-
+        
         /* apply resample filter */
         v = clamp_s16(dot4(sample, lut));
+        
+        if (generic_mute_mask&(1<<m_voice_ofs)) v=0;
 
         
         for (k = 0; k < 4; ++k) {
