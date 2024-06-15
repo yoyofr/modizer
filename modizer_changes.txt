@@ -37,6 +37,14 @@ missing seek support:
 => HC /PSF2 fadeout for oscillo
 => vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
 
+3.10
+----
+- [DB] ASMA & MODLAND updated with latest files
+- [PLAYER] Several settings moved at global level (default length, silence detection)
+- [PLAYER] Endless playback mode improvement
+- [PLAYER] Lazyusf: several bugfixes and improvements. Now generates data for oscilloscope and piano FX
+- [ALL] Several bugfixes and stability improvement
+
 3.9
 ---
 - [PLAYER] Now reaching 1090 different formats supported

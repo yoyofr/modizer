@@ -11,6 +11,12 @@
 #ifndef MODIZER_CONSTANTS_H
 #define MODIZER_CONSTANTS_H
 
+#define VERSION_MAJOR 3
+#define VERSION_MAJOR_STR "3"
+#define VERSION_MINOR 10
+#define VERSION_MINOR_STR "10"
+
+
 //#define STATISTICS_URL @"http://localhost:8080"
 #define STATISTICS_URL @"https://modizerdb.appspot.com"
 
@@ -143,10 +149,6 @@ extern void *LoadingProgressObserverContext;
 
 #define MAX_STIL_DATA_LENGTH 8192*2
 
-#define VERSION_MAJOR 3
-#define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 9
-#define VERSION_MINOR_STR "9"
 
 #define MAX_PL_ENTRIES 65536*2
 
