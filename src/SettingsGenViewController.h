@@ -145,6 +145,8 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_HC,
         HC_ResampleQuality,
+        HC_MainEnabled,
+        HC_ReverbEnabled,
     
         MDZ_SETTINGS_FAMILY_NSFPLAY,
         NSFPLAY_DefaultLength,

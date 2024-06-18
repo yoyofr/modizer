@@ -1513,6 +1513,7 @@ static int64_t psf_file_ftell( void * handle )
 #import "../libs/highlyexperimental/highlyexperimental/Core/bios.h"
 #import "../libs/highlyexperimental/highlyexperimental/Core/iop.h"
 #import "../libs/highlyexperimental/highlyexperimental/Core/r3000.h"
+#import "../libs/highlyexperimental/highlyexperimental/Core/spu.h"
 
 #import "../libs/highlytheoritical/highlytheoritical/sega.h"
 
@@ -6354,11 +6355,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if ((idx>0)) {
                                         unsigned int subidx=vgm_getSubNote(j);
                                         
-                                        unsigned int instr=openmpt_module_get_current_channel_instr(openmpt_module_ext_get_module(ompt_mod),j);
+                                        unsigned int instr=openmpt_module_get_current_channel_instr(openmpt_module_ext_get_module(ompt_mod),j)&0xFF;
                                         
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
-                                        ((unsigned int)(j)<<8)|
+                                        ((unsigned int)(/*j*/instr)<<8)|
                                         ((unsigned int)(vol)<<16)|
                                         ((unsigned int)(1<<1)<<24)|
                                         ((unsigned int)(subidx)<<28);
@@ -12578,6 +12579,11 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         //help to behave more like real hardware, fix a few recent dumps
         void * pIOP = psx_get_iop_state( HC_emulatorCore );
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
+        
+        void *spu_state = iop_get_spu_state(pIOP);
+        spu_enable_main(spu_state,(settings[HC_MainEnabled].detail.mdz_boolswitch.switch_value?1:0));
+        spu_enable_reverb(spu_state,(settings[HC_ReverbEnabled].detail.mdz_boolswitch.switch_value?1:0));
+        
     } else if ( HC_type == 0x11 || HC_type == 0x12 ) { //DSF/SSF
         hc_sample_rate=44100;
         m_voice_current_samplerate=hc_sample_rate;
@@ -16484,6 +16490,17 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 -(void) optHC_ResampleQuality:(unsigned int)val {
     optHC_ResampleQuality=val;
+    
+    if (HC_emulatorCore) {
+        void * pIOP = psx_get_iop_state( HC_emulatorCore );
+        if (pIOP) {
+            iop_set_compat( pIOP, IOP_COMPAT_HARSH );
+            
+            void *spu_state = iop_get_spu_state(pIOP);
+            spu_enable_main(spu_state,(settings[HC_MainEnabled].detail.mdz_boolswitch.switch_value?1:0));
+            spu_enable_reverb(spu_state,(settings[HC_ReverbEnabled].detail.mdz_boolswitch.switch_value?1:0));
+        }
+    }
 }
 
 ///////////////////////////

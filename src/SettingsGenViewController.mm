@@ -487,7 +487,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         case 1:
             start_pos=240.0f/360.0f;
-            mul_factor=(9.3f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
+            mul_factor=3.3/32.0;//(9.9f/SOUND_VOICES_MAX_ACTIVE_CHIPS);
             sat=1.0f;
             break;
         case 2:
@@ -823,6 +823,8 @@ void optNSFPLAYChangedC(id param) {
     //HC
     /////////////////////////////////////
     settings[HC_ResampleQuality].detail.mdz_switch.switch_value=0;
+    settings[HC_MainEnabled].detail.mdz_boolswitch.switch_value=1;
+    settings[HC_ReverbEnabled].detail.mdz_boolswitch.switch_value=1;
     
     /////////////////////////////////////
     //XMP
@@ -2905,6 +2907,22 @@ void optNSFPLAYChangedC(id param) {
     settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
     settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
     settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
+    
+    SETTINGS_ID_DEF(HC_MainEnabled)
+    settings[HC_MainEnabled].type=MDZ_BOOLSWITCH;
+    settings[HC_MainEnabled].label=(char*)"PS1/PS2 Main";
+    settings[HC_MainEnabled].description=NULL;
+    settings[HC_MainEnabled].family=MDZ_SETTINGS_FAMILY_HC;
+    settings[HC_MainEnabled].sub_family=0;
+    settings[HC_MainEnabled].callback=&optHCChangedC;
+    
+    SETTINGS_ID_DEF(HC_ReverbEnabled)
+    settings[HC_ReverbEnabled].type=MDZ_BOOLSWITCH;
+    settings[HC_ReverbEnabled].label=(char*)"PS1/PS2 Reverb";
+    settings[HC_ReverbEnabled].description=NULL;
+    settings[HC_ReverbEnabled].family=MDZ_SETTINGS_FAMILY_HC;
+    settings[HC_ReverbEnabled].sub_family=0;
+    settings[HC_ReverbEnabled].callback=&optHCChangedC;
     
     
     /////////////////////////////////////
