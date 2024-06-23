@@ -3194,6 +3194,8 @@ void propertyListenerCallback (void                   *inUserData,              
     UInt32 err;
     UInt32 i;
     
+    printf("restart\n");
+    
     mQueueIsBeingStopped = TRUE;
     AudioQueueStop( mAudioQueue, TRUE );
     AudioQueueReset( mAudioQueue );
@@ -4041,11 +4043,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_message_updated=1;
                         
                         if(moveToSubSong) {
+                            //printf("yo %d\n",moveToSubSong);
                             mod_wantedcurrentsub=-1;
                             what_was_left=0;
                             tailbytes=0;
                             
-                            [self iPhoneDrv_PlayRestart];
+                            if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
                             
                             skip_first=1;
                         }
@@ -4144,11 +4147,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }
             
         } else {
-            if (moveToSubSong) {
+            if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
                 subsong_end=1;
             }
             
-            if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
+            if (moveToSubSong) {
                 subsong_end=1;
             }
             
@@ -4253,6 +4256,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         subsong_end = 1;
                         if (mSingleSubMode==0) {
                             if (mod_currentsub<mod_maxsub) [self playNextSub]; //TODO: check if it works
+                            if (moveToSubSong) moveToSubSong=2;
                         }
                         //update song length
                         [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
@@ -4333,6 +4337,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 //printf("initsubsong / %d subsongs\n",mod_subsongs);
                 if (mdz_ShufflePlayMode) {
                     [self playNextSub];
+                    if (moveToSubSong) moveToSubSong=2;
                 }
             }
         }
