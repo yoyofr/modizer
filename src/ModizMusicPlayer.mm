@@ -7126,6 +7126,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             
+                            if (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit)) nbBytes=0;
+                            
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(mCurrentSamples>mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
                                     if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
@@ -7200,6 +7202,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
+                            if (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit)) nbBytes=0;
                             
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
                                 if (mSingleSubMode==0) {
