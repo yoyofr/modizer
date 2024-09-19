@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 80
+                                  Release 81
 
-                               December 24, 2023
+                                June 30, 2024
 
 Compiled by:
 ------------
@@ -1024,8 +1024,6 @@ Jeroen Kimmel (Red) (for checking your tunes for us)
 Jeroen Tel (for all the info on yours and various MON tunes.  Please bring
             out that 3CD set you mentioned in the Commodore Zone interview)
 Joachim Wijnhoven (for your collection and STIL information)
-Jörg Dröge (Nafcom) (for always keeping an eye on bugged or missing tunes and
-                     reporting them to us right on the spot)
 Johannes Bjerregaard (for all your information, especially the name spelling
                       ("aa"))
 Johan Åstrand (Zyron) (for your collection, information, and for sending
@@ -1147,6 +1145,7 @@ Anton van Deurzen (for rips of SIDs by Tron and yourself)
 Assiduous (for finding a lot of demos/games with missing SIDs)
 Author of Doom II FAQ (used your format for this document)
 Bacillus (for some great rips - keep up the hard work)
+Baracuda/Blazon (for various suggestions and identifying some tunes)
 Burglar (Real SIDPlay inventor, and fixing SIDs to work with it.  Thanks!)
 CJ Hammond (for some great fixes, such as Bazooka Bill)
 Dag Lem (for help with internal cleaning up of SIDs and the reSID engine)
@@ -1180,6 +1179,8 @@ Jaromir Krol (for bug spotting)
 Jason Mackenzie (Kenz) (for all the rare Feekzoid and Jon Wells SIDs, plus
                         more demos than you can handle.  Cheers pal!)
 Joost Kamp (Celtic/NoName) (for finding a lot of demos with missing SIDs)
+Jörg Dröge (Nafcom) (for always keeping an eye on bugged or missing tunes and
+                     reporting them to us right on the spot)
 Juha-Pekka Jokela (for bug spotting and supplying games with loading tunes,
                    came in very handy for fixes)
 Kai Spitzley (for a keen eye on bugs as well as credits)

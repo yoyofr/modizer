@@ -1914,7 +1914,7 @@ int recording=0;
         return;
     }
     
-    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
+    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)&&(mOnlyCurrentEntry==0)) {
         //if archive and no subsongs => change archive index
         if ([mplayer selectPrevArcEntry]<0) [self playPrev];
         else {
@@ -1926,7 +1926,7 @@ int recording=0;
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     } else {
-        if (mplayer.mod_subsongs>1) {
+        if ((mplayer.mod_subsongs>1)&&(mOnlyCurrentSubEntry==0)) {
             //Subsongs, try previous one
             if ([mplayer playPrevSub]<0) {
                 //reach end
@@ -1961,7 +1961,7 @@ int recording=0;
     }
     
     //if archive and no subsongs => change archive index
-    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
+    if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)&&(mOnlyCurrentEntry==0)) {
         if ([mplayer selectNextArcEntry]<0) [self playNext];
         else {
             [self showWaitingLoading];
@@ -1970,7 +1970,7 @@ int recording=0;
             [self refreshCurrentVC];
         }
     } else {
-        if (mplayer.mod_subsongs>1) { //subsongs
+        if ((mplayer.mod_subsongs>1)&&(mOnlyCurrentSubEntry==0)) { //subsongs
             if ([mplayer playNextSub]<0) { //end reached
                 if ([mplayer isArchive]) {
                     //it is an archive, select next entry

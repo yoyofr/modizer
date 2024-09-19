@@ -1,0 +1,364 @@
+High Voltage SID Collection: Update #81
+Date: June 30, 2024
+
+Resulting Version: 81
+ Previous Version: 80
+
+After this update, the collection should contain 58,697 SID files!
+
+This update features (all approximates):
+     549 new SIDs
+      28 fixed/better rips
+       2 repeats/bad rips eliminated
+     372 SID credit fixes
+      77 SID model/clock infos
+       5 tunes from /DEMOS/UNKNOWN/ identified
+       1 tunes from /GAMES/ identified
+      13 tunes moved out of /DEMOS/ to their composers' directories
+       6 tunes moved out of /GAMES/ to their composers' directories
+
+We are always looking for others to help make HVSC a better collection.
+If you find any errors or have new rips to add, please email:
+
+ iAN CooG  <hvsc.crew (sid) gmail.com>
+
+Thanks to all the people who have helped to make HVSC the collection that it
+is today, without your help it would be a much tougher task.
+
+
+SID RELATED NEWS:
+
+
+##############
+# CGSC v1.46 #
+##############
+
+The Compute Sidplayer Collection has been updated and contains now 16441 MUS
+files, 4357 STR files and 5556 WDS files.
+
+Get the collection here: http://www.c64music.co.uk/
+
+
+#######################################
+# Ultimate-64 firmware v3.11 & v3.11a #
+#######################################
+
+The Ultimate 64 is a main board for your beloved C64 case. This board is a
+hardware implementation (FPGA) of the entire C64, and it includes the
+Ultimate-II+ cartridge as well. An all-in-one solution.
+
+SID related changes in the update:
+
+- Fixed issue with possible tune data overwritten by the player code
+- Fixed issue with bank not set correctly for some RSID tunes
+- Fixed inverse mode to be reset at every line now for MUS tunes
+- Fixed issue for tunes that have not enough space for screen output
+- ReST API support which allows e.g. ACID64 Player to play SIDs via the network
+  (WiFi or wired) on the Ultimate device.
+
+More details can be found here:
+
+https://ultimate64.com/Firmware
+
+
+#######################
+# SIDBlaster-USB Nano #
+#######################
+
+Jaakko Oranen released a new version of the SIDBlaster-USB Nano board.
+
+Changes in V1.3:
+
+- Soft start circuit removed as some users reported it was causing connection
+  issues with their USB-hubs. It's not actually needed. USB specification
+  requires soft start circuit if initial current draw of hotplugged device is
+  over 500mA. SIDBlaster-USB Nano doesn't use that much current.
+
+More info: https://cbmretro.fi/product/sidblaster-usb-nano/
+
+
+###############
+# SIDevo v4.7 #
+###############
+
+SIDevo is a SID input plugin for XMPlay audio player written by Nathan Hindley.
+It's a partial rewrite of the SIDex plugin and it uses the most recent
+libsidplayfp library.
+
+Changes since v4.4:
+
+- libsidplayfp library updated to 2.8.0
+- sidid.cfg updated to version from 5 May 2024
+- WDS files are now shown in the Message window
+- Comments from MUS files are now showing in the Message window
+- Fixed issue with subsong STIL setting not getting sid comments
+- Fixed random scanning of invalid files causing crashes
+
+Get the new version from:
+
+https://github.com/KelticDanor/xmp-SIDevo
+
+
+########################
+# ARMSID firmware 2.16 #
+########################
+
+A new firmware update has been released for the ARMSID.
+
+ARMSID is a replacement of the MOS6581 and MOS8580 sound chip used in the
+Commodore C64. It is minimalistic (in simplicity of circuit and use, not in
+function and power).
+
+The following has been changed in the firmware:
+
+- Fix for 2 MHz mode C128. Since this firmware ARMSID is functional for all
+  modes and types of communication with C128 (even those incompatible with
+  SID documentation).
+- Added to the configuration the possibility to use the EXT IN input (pin 26)
+  as an analog input and connect it to the internal mixer, as on the original
+  chip. You should expect a slight increase in noise background from this input,
+- Also added to the configuration the possibility to change the emulation
+  detection threshold of the 6581/8580 according to the input voltage (pin 28),
+  so called autodetection. Originally this limit is set to 10.5V, what is below
+  indicates 8580 emulation, what is above so 6581. With the new setting, this
+  limit can be about 2V, so you can use logic levels of 5V or even just 3V for
+  switching the emulation type (pin 28 is not used for power supply in ARMSID,
+  only for voltage measurement, no power supply on this pin is required for
+  function).
+
+Get the new firmware here:
+
+https://www.nobomi.cz/8bit/armsid/index_en.php
+
+
+####################
+# JSidDevice v4.10 #
+####################
+
+A new version of JSidDevice has been released. JSidDevice is a network SID
+device which can be controlled by SID players like ACID64 Player. JSidDevice
+requires Java 8 or higher.
+
+Check out: https://csdb.dk/release/?id=243464
+
+
+###################
+# JSIDPlay2 v4.10 #
+###################
+
+A new version of JSidplay2 has been released. JSidplay2 is an open-source C64
+emulator specialized for sound reproduction. It is also a SID player for music
+collections like HVSC and CGSC. It is a full C64 emulator and can play games of
+the GameBase64 project as well. The emulator is written in Java and runs on any
+environment that runs Java 8 or higher and it can run in a browser with
+JavaScript or Web Assembly support.
+
+Changelog:
+
+- JSIDPlay2 goes JavaScript:
+  https://haendel.ddns.net:8443/static/teavm/c64jukebox.vue
+- Run JSIDPlay2 in a browser in JavaScript or Web Assembly (THIS IS NOT JAVA)
+- Runs out-of-the-box in all browsers (Chrome is faster than Firefox)
+- Only 2MB in size, loads very quick
+- Compatible with all SIDs (mono, stereo and 3-SID)
+- Plays mono SIDs and ONEfilers on a middle class mobile phone and multi-disk
+  demos on a PC
+- Runs near to native speed
+- Runs completely on the client side in a web worker (once in browser's cache)
+- Full emulation quality, no compromise, C64, Floppy and more
+- Developed single source in JSIDPlay2 project
+- For the first time, embed music or demos in YOUR web-site with JSIDPlay2
+
+Recently the online DeepSID player added support for JSIDPlay2, see DeepSID
+section below.
+
+Get it from: https://csdb.dk/release/?id=243463
+
+
+#################
+# SidTool 2.3.2 #
+#################
+
+SidTool is a C64 Music Player Emulator Frontend for Windows, build to explore
+large chiptune collections. It needs .NET framework 4.8 or higher.
+
+The following has been changes:
+
+- Fixed rare bug when clicking links causing sidtool to run into exception loop
+
+Get it from here: https://sidtool.de/
+
+
+################
+# Prg2Sid 1.20 #
+################
+
+Prg2Sid is a tool that attaches a PSID header to a ripped (prg) tune. It
+identifies some players and sets init/play accordingly. It also patches
+the header and code if needed.
+
+Since 1.15 the following has been changed:
+
+- param 4 only allowed capital "N" for setting NTSC flag, now also lowercase.
+- StarBars 1.4: the examples provided in 1.4 are actually made with a previous
+  beta version, while the code in the actual composer is slightly different.
+  Now both 1.4beta and 1.4 release prgs are correctly identified and patched.
+- GRG Tiny4: Workaround to support more variants.
+- new players identified:
+  DMC 4.x patched (only those needing a patch at $0ff9)
+  Anvil
+  Whittaker (2 variants)
+
+Check out: https://csdb.dk/release/?id=238521
+
+
+############
+# VICE 3.8 #
+############
+
+VICE 3.8 has been released. VICE is an open source cross-platform emulator of
+several Commodore machines.
+
+VICE also includes VSID which can be used to play SID files.
+
+SID/Audio related changes:
+
+- reSID: fixed a Noise Init problem
+- reSID: filter tweaks
+- reSID: The 6581 saw+pulse waveform was wrong
+- reSID: tweak shift register reset time for 6581
+- reSID: 8580 Filter ringing fix
+- reSID: 6581 filters: allow negative values for kVg-Vx
+- VSID: Look up STIL info for file passed on command line
+- Fix nasty buzz on sun/netbsd sound driver
+
+You can get VICE from here:
+
+https://vice-emu.sourceforge.io/
+
+
+#######################################
+# BackSID (6581/8580 SID replacement) #
+#######################################
+
+Evie Salomon released new firmware for the BackSID. BackSID is a replacement for
+the 6581/8580 SID chip. It's using the ARM Cortex M4 chip to simulate the SID.
+
+Firmware changes since v2.2.1:
+
+- Eased sound triggers to still work on Ghosts 'N' Goblins
+- Fixed Robotron 2084 sound triggers
+
+For more info: https://www.backbit.io/downloads/Firmware/BackSID/
+
+
+#########################
+# DefMONRelocator 1.1.0 #
+#########################
+
+Don Kichote released defMONRelocator 1.1.0. It's a CLI tool to relocate PRG
+music files created using defMON music editor for Commodore 64. Additionally
+you can change zero page address used by the player.
+
+Check it out: https://github.com/dkt64/defMONRelocator
+
+
+###################
+# Sidplayfp 2.8.0 #
+###################
+
+Libsidplayfp (and its console frontend sidplayfp) is a fork of sidplay2 born
+with the aim to improve the quality of emulating the 6581, 8580 chips and the
+surrounding C64 system in order to play SID music better.
+
+Changes since 2.5.1 release:
+
+- be explicit if Songlenth DB is not loaded
+- look for Songlengths file in data path
+- require a c++11 compiler
+- added sanity check for filter parameters
+- added ability to adjust the uCox parameter
+- allow setting the combined waveforms strength
+- enable libout123 by default if found
+- improved the ALSA backend
+- fixed an uninitialized variable
+- added filter curve switch plus recommended 6581 filter setting
+
+Get the new version here: https://github.com/libsidplayfp/sidplayfp
+
+
+#################
+# SIDInfo 1.0.1 #
+#################
+
+SIDInfo is a simple utility written in C by Matti Hamalainen (ccr), that
+displays information about SID files in various formats. Includes support for
+PSID and RSID files versions 1-4, HVSC songlengths database and HVSC STIL
+database.
+
+Changes:
+
+- Update included th-libs to fix broken function prototypes without void
+  arguments. This fixes building with recent clang versions which default
+  to -Wstrict-prototypes.
+- Backwards-incompatible change in UX: the 'Copyright' field has been
+  renamed to 'Released', as it should be per PSID standard.
+- Improvements in sidlib.
+- Build system improvements.
+
+Check out: https://csdb.dk/release/?id=237857
+
+
+###############
+# SID Toolbox #
+###############
+
+Stello Doussis (a.k.a. archON) released SID Toolbox. It's an online tool to
+edit and create SID files.
+
+You can find the tool here: https://www.doussis.com/sidtoolbox/
+
+
+###########
+# DeepSID #
+###########
+
+DeepSID is an online SID player made by JCH of Vibrants. It emulates music
+created for the Commodore 64 home computer. It supports nice features like:
+
+- Toggling between JSidplay2/WebSID/Hermit's jsSID/ASID(MIDI) for SID playback
+- SID player and year display for each song
+- Create and play playlists
+- Rating folders and SID files
+- Comment / Discuss SID files
+- Profile / CSDb / GB64 / Player / STIL / Piano / Graph view
+- Search through HVSC / STIL
+- and much more
+
+DeepSID now supports the JSIDPlay2 emulator for playing SID tunes in the
+browser.
+
+DeepSID is continuously updated. See the Changes tab for the full change log.
+
+Check it out: https://deepsid.chordian.net/
+
+
+###################
+# SID Known v1.27 #
+###################
+
+Wilfred Bos has released a new version of SID Known. This version supports now
+HVSC #81. SID Known is a command line tool which you can use to identify SID
+tunes from SID and PRG files.
+
+This tool can be used if e.g., you want to know which SID tune is used in a
+specific C64 demo or C64 game, or you have a SID tune found or ripped and you
+want to know if it is already in your SID collection.
+
+SID Known can be used to identify music but it also helps to find out which
+tunes are not in the High Voltage SID Collection. If you find music not found
+by SID Known, it would be appreciated if you report this to the HVSC crew
+(https://hvsc.de) or post it in one of the CSDb forums (https://csdb.dk) like
+"SIDs that aren't in HVSC yet".
+
+Get the tool here: https://csdb.dk/release/?id=243743
