@@ -1654,7 +1654,7 @@ static float movePinchScale,movePinchScaleOld;
                 if ([mplayer selectNextArcEntry]<0) [self play_nextEntry];
                 else {
                     [self showWaitingLoading];
-                    [self play_loadArchiveModule];
+                    if ([self play_loadArchiveModule]==FALSE) [self play_nextEntry];
                     [self hideWaiting];
                 }
             } else [self play_nextEntry];
@@ -2088,7 +2088,7 @@ int recording=0;
         
     [self requestLoadNewFile:filePath fname:fileName arcidx:-1 subsong:subsong];
     return true;
-    
+/*
     if ([self play_module:filePath fname:fileName subsong:subsong]==FALSE) {
         [self remove_from_playlist:mPlaylist_pos];
         
@@ -2118,6 +2118,7 @@ int recording=0;
     [self refreshCurrentVC];
     
     return TRUE;
+ */
 }
 
 -(int)play_prevEntry {
@@ -2574,7 +2575,7 @@ int recording=0;
                 
                 mRestart_arc=[mplayer getArcIndex];
                 retcode=[mplayer LoadModule:filePath archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart shuffle:mShuffle];
-            } while (retcode);
+            } while (retcode!=0);
         }
         
         if (retcode) {

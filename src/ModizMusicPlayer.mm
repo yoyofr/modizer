@@ -7533,13 +7533,20 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
                                 if (iModuleLength<0) {
-                                    if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
-                                        //loop
-                                        //reset NSF
-                                        nsfPlayer->Reset();
-                                        mCurrentSamples=0;
-                                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                    }
+                                    //if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()) {
+                                    //loop
+                                    //reset NSF
+                                    nsfPlayer->Reset();
+                                    mCurrentSamples=0;
+                                    iCurrentTime=0;
+                                    mdzSilentBufferCount=0;
+                                    
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+//                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+//                                        buffer_ana[buffer_ana_gen_ofs][i*2+0]=0;
+//                                        buffer_ana[buffer_ana_gen_ofs][i*2+1]=0;
+//                                    }
+                                    //}
                                 } else nbBytes=0;
                             }
                             
