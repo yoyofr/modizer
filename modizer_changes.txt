@@ -9,22 +9,14 @@ one liner example:
 Todo/Requested:
 ���������
 
-- Todo: keep download queue when exit program and restore at next launch
 - Todo: add PDX/MDX to keyboard visualizer
 - Todo: allmods/asma -> dynamic update ?
 
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
-- [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
-- TODO: replace vgmplay by libvgm
-- TODO: add description for Settings when relevant
-- TODO: add S98 playback library
-- TODO: add WSR playback library
-- TODO: implement libarchive & dcom fex (might impact DB stats / archive entries)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 
 - libs not generating oscilloscope output:
-  - ASAP: waiting feedback from Piotr
   - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer/synth (1/voice)
   - PMDMINI
   - SC68 // sndh & UADE are supported, not worth it
@@ -34,8 +26,13 @@ missing seek support:
 
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
-=> HC /PSF2 fadeout for oscillo
-=> vgmplay: if fade out is triggered, seeking earlier in the song won't stop it
+
+3.11
+----
+- [DB] ASMA & MODLAND updated to latest version (2024/09/29)
+- [DB] HVSC update to #81
+- [BugFix] Archive file not stopping anymore if last file isn't playable (e.g. txt file at end of vgz archive)
+- [BugFix] NSF infinite loop
 
 3.10
 ----
