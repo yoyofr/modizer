@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1754
+#  Total number of entries: 1758
 #
 ##############################################################################
 
@@ -432,6 +432,10 @@ COMMENT: Lato Ludzików 2002 music compo entry. Its full name is Skisłodrom.
  ARTIST: Gershon Kingsley
 COMMENT: Cover of original ZX Spectrum version of "Whole" soundtrack.
 
+/Composers/Ce_Pumpkin/Zbadzief.sap
+  TITLE: Heavy But Cool
+ ARTIST: Patrick Pose (Pat)
+
 ### /Composers/Chamberlain_Craig #############################################
 
 /Composers/Chamberlain_Craig/Happy_Birthday_Song.sap
@@ -689,6 +693,10 @@ COMMENT: Popular folk song. Since 1971 the "Summer with Radio" broadcast
 /Composers/Duesterhoeft_Stephan/Hobbytronic_89_4.sap
   TITLE: The Great Giana Sisters, Tune #5 [from the C64 game]
  ARTIST: Chris Hülsbeck
+
+/Composers/Duesterhoeft_Stephan/Hobbytronic_91_Vector_Part.sap
+  TITLE: Heavy But Cool
+ ARTIST: Patrick Pose (Pat)
 
 ### /Composers/Duma_Dariusz ##################################################
 
@@ -1594,6 +1602,11 @@ COMMENT: This tune takes 8 seconds to start.
 
 /Composers/Gilbertson_Gary/Alternate_Reality_City_T_W.sap
 COMMENT: This tune takes 12 seconds to start.
+
+### /Composers/Gilmore_Adam ##################################################
+
+/Composers/Gilmore_Adam/Draconus_2024.sap
+COMMENT: 1st place at Silly Venture 2024 Winter Edition music compo.
 
 ### /Composers/Golewski_Filip ################################################
 
@@ -2549,6 +2562,9 @@ COMMENT: Heavily based on /Composers/Makary_Brauner/Zybex_Remix.sap.
 /Composers/Kucisz_Tomasz/Complications.sap
   TITLE: Complications [from the Amiga MOD module]
  ARTIST: Tomas Danko
+
+/Composers/Kucisz_Tomasz/Crapetto.sap
+COMMENT: 2nd place at Last Party 2025 music compo.
 
 /Composers/Kucisz_Tomasz/Scene_Register_4_0_Intro.sap
   TITLE: Main Title [from all the Star Wars movies]

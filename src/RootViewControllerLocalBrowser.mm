@@ -1995,7 +1995,7 @@ static int shouldRestart=1;
     [self.sBar setBarStyle:UIBarStyleDefault];
     
     self.navigationController.delegate = self;
-    //[[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     [[self navigationController] setNavigationBarHidden:NO animated:YES];
     [self.navigationController setNeedsStatusBarAppearanceUpdate];
     

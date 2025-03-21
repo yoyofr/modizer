@@ -56,7 +56,7 @@
 }
 
 
-- (UIStatusBarStyle)preferredStatusBarStyle {
+- (UIStatusBarStyle)preferredStatusBarStyle {    
     return UIStatusBarStyleDefault;
 }
 
@@ -91,13 +91,13 @@
     self.navigationController.delegate = self;
     
     [self setNeedsStatusBarAppearanceUpdate];
-    
-    
 }
 
 - (void)viewDidLoad {
 	[super viewDidLoad];    
     self.navigationController.delegate = self;
+    
+    self.view.backgroundColor = [UIColor clearColor];
     
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;

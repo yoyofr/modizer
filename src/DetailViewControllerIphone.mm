@@ -4945,6 +4945,7 @@ void ViewPerspective()
     mFontMenuPath=NULL;
     
     labelModuleName=[[CBAutoScrollLabel alloc] init];
+    //labelModuleName.backgroundColor=[UIColor blackColor];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
     [labelModuleName setFont:[UIFont systemFontOfSize:18]];

@@ -20,6 +20,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 //YOYOFR
+#include <_types/_uint32_t.h>
 #include "../../../../src/ModizerVoicesData.h"
 extern uint32_t mdz_last_pcm_address;
 static uint32_t mdz_current_voice;

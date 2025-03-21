@@ -13,8 +13,8 @@
 
 #define VERSION_MAJOR 3
 #define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 11
-#define VERSION_MINOR_STR "11"
+#define VERSION_MINOR 12
+#define VERSION_MINOR_STR "12"
 
 
 //#define STATISTICS_URL @"http://localhost:8080"
