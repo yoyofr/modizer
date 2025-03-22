@@ -1404,6 +1404,8 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                 localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
             }
         }
+        localPath = [localPath stringByReplacingOccurrencesOfString: @"'" withString: @"\'"];
+        
         return [NSURL fileURLWithPath:localPath];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (error) {
