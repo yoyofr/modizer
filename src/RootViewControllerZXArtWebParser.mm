@@ -366,8 +366,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             //here we have the data
             if (i==0) we[we_index].file_name=@"#";
             else we[we_index].file_name=[NSString stringWithFormat:@"%c",i+'A'-1];
-            if (i==0) we[we_index].file_URL=@"https://zxart.ee/eng/music/authors/filter/letter:letter20332/";
-            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/eng/music/authors/filter/letter:%c/",i+'a'-1];
+            if (i==0) we[we_index].file_URL=@"https://zxart.ee/eng/authors/letter20332/";
+            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/eng/authors/%c/",i+'a'-1];
             we[we_index].file_author=nil;
             we[we_index].file_format=nil;
             we[we_index].file_rating=0;
@@ -391,20 +391,23 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             for (int j=0;j<[arr_url count];j++) {
                 TFHppleElement *el=[arr_url objectAtIndex:j];
                 
-                we[we_index].file_URL=[NSString stringWithFormat:@"%@",[el objectForKey:@"href"]];
-                we[we_index].file_name=[NSString stringWithFormat:@"%@",[el text]];
-                we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
-                
-                we[we_index].file_type=2;
-                
-                we[we_index].file_format=nil;
-                
-                el=[arr_musicrating objectAtIndex:j];
-                we[we_index].file_rating=[[NSString stringWithFormat:@"%@",[el text]] floatValue];
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                
-                we_index++;
+                if ([[NSString stringWithFormat:@"%@",[[arr_musicrating objectAtIndex:j] text]] floatValue]>0) {
+                    
+                    we[we_index].file_URL=[NSString stringWithFormat:@"%@",[el objectForKey:@"href"]];
+                    we[we_index].file_name=[NSString stringWithFormat:@"%@",[el text]];
+                    we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
+                    
+                    we[we_index].file_type=2;
+                    
+                    we[we_index].file_format=nil;
+                    
+                    el=[arr_musicrating objectAtIndex:j];
+                    we[we_index].file_rating=[[NSString stringWithFormat:@"%@",[el text]] floatValue];
+                    
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                    
+                    we_index++;
+                }
             }
         }
     } else if (browse_mode==BROWSE_ALL_AUTHORS_SONGS) {
@@ -428,10 +431,6 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             }
             
         }
-        
-        
-        
-        
         
         NSArray *arr_musicformat=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[4]"];
         
@@ -458,6 +457,10 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             for (int j=0;j<[arr_url count];j++) {
                 TFHppleElement *el=[arr_url objectAtIndex:j];
                 
+                if (j<[arr_musicrating count]) {
+                    we[we_index].file_rating=[[arr_musicrating objectAtIndex:j] floatValue];
+                } else we[we_index].file_rating=0;
+                
                 we[we_index].file_URL=[NSString stringWithFormat:@"%@",[el objectForKey:@"href"]];
                 NSLog(@"URL: %@",we[we_index].file_URL);
                 
@@ -477,9 +480,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                     we[we_index].file_format=[NSString stringWithFormat:@"%@",[el text]];
                 } else we[we_index].file_format=nil;
                 
-                if (j<[arr_musicrating count]) {
-                    we[we_index].file_rating=[[arr_musicrating objectAtIndex:j] floatValue];
-                } else we[we_index].file_rating=0;
+                
                 
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
                 
@@ -528,25 +529,36 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             NSString *filename=[tmpDict objectForKey:@"originalFileName"];
             filename=[filename stringByRemovingPercentEncoding];
             
-            NSLog(@"title: %@", [tmpDict objectForKey:@"title"]);
-            NSLog(@"url: %@", [tmpDict objectForKey:@"url"]);
-            NSLog(@"type: %@", [tmpDict objectForKey:@"type"]);
-            NSLog(@"rating: %@", [tmpDict objectForKey:@"rating"]);
-            NSLog(@"year: %@", [tmpDict objectForKey:@"year"]);
-            NSLog(@"authorIds: %@", [tmpDict objectForKey:@"authorIds"]);
-            NSLog(@"author: %@",author);
-            NSLog(@"originalFileName: %@", filename);
-            NSLog(@"originalUrl: %@", [tmpDict objectForKey:@"originalUrl"]);
-            
-            we[we_index].file_name=[NSString stringWithString:filename];
-            we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
-            we[we_index].file_URL=[NSString stringWithString:[tmpDict objectForKey:@"originalUrl"]];
-            we[we_index].file_author=[NSString stringWithString:author];
-            we[we_index].file_format=[NSString stringWithString:[tmpDict objectForKey:@"type"]];
-            we[we_index].file_rating=[[NSString stringWithString:[tmpDict objectForKey:@"rating"]] floatValue];
-            we[we_index].file_type=1;
-            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-            we_index++;
+            if ((author!=nil) && (filename!=nil)) {
+                
+                NSLog(@"title: %@", [tmpDict objectForKey:@"title"]);
+                NSLog(@"url: %@", [tmpDict objectForKey:@"url"]);
+                NSLog(@"type: %@", [tmpDict objectForKey:@"type"]);
+                NSLog(@"rating: %@", [tmpDict objectForKey:@"rating"]);
+                NSLog(@"year: %@", [tmpDict objectForKey:@"year"]);
+                NSLog(@"authorIds: %@", [tmpDict objectForKey:@"authorIds"]);
+                NSLog(@"author: %@",author);
+                NSLog(@"originalFileName: %@", filename);
+                NSLog(@"originalUrl: %@", [tmpDict objectForKey:@"originalUrl"]);
+                
+                we[we_index].file_name=[NSString stringWithString:filename];
+                we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
+                
+                if ([tmpDict objectForKey:@"originalUrl"]!=nil) we[we_index].file_URL=[NSString stringWithString:[tmpDict objectForKey:@"originalUrl"]];
+                else we[we_index].file_URL=nil;
+                
+                we[we_index].file_author=[NSString stringWithString:author];
+                
+                if ([tmpDict objectForKey:@"type"]!=nil) we[we_index].file_format=[NSString stringWithString:[tmpDict objectForKey:@"type"]];
+                else we[we_index].file_format=@"";
+                
+                if ([tmpDict objectForKey:@"rating"]!=nil) we[we_index].file_rating=[[NSString stringWithString:[tmpDict objectForKey:@"rating"]] floatValue];
+                else we[we_index].file_rating=0;
+                
+                we[we_index].file_type=1;
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                we_index++;
+            }
         }
     }
     
