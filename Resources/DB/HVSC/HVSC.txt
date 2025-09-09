@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 82
+                                  Release 83
 
-                               December 22, 2024
+                                June 28, 2025
 
 Compiled by:
 ------------

@@ -61,7 +61,7 @@ bool XSFPlayer::FillBuffer(std::vector<uint8_t> &buf, unsigned &samplesWritten)
 	bool endFlag = false;
 	unsigned detectSilence = xSFConfig->GetDetectSilenceSec();
 	unsigned pos = 0, bufsize = buf.size() >> 2;
-	auto trueBuffer = std::vector<uint8_t>(bufsize << (this->uses32BitSamplesClampedTo16Bit ? 3 : 2));
+	auto trueBuffer = std::vector<uint8_t>((bufsize+1) << (this->uses32BitSamplesClampedTo16Bit ? 3 : 2)); //YOYOFR
 	auto longBuffer = std::vector<uint8_t>(bufsize << 3);
 	auto bufLong = reinterpret_cast<int32_t *>(&longBuffer[0]);
 	while (pos < bufsize)

@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc.crew (sid) gmail.com>                #
-#   Last Updated: December 11, 2023.                                  #
+#   Last Updated: June 15, 2025.                                      #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -72,10 +72,6 @@
     BUG: File seems truncated, lacks lots of data at end. No good source known.
 (iAN CooG)
 
-/DEMOS/UNKNOWN/Master_Composer/Material_Girl.sid
-    BUG: File seems truncated, lacks lots of data at end. No good source known.
-(iAN CooG)
-
 /DEMOS/UNKNOWN/Master_Composer/Only_You.sid
     BUG: File seems truncated, lacks lots of data at end. No good source known.
 (iAN CooG)
@@ -116,10 +112,6 @@
 
 /MUSICIANS/C/Cane/Brainball.sid
     BUG: Wrong notes from 2:00. No known clean version found yet.
-
-/MUSICIANS/C/Cubehead/Hard_and_Nice.sid
-    BUG: Falls out of sync after 0:45.
-(Mariusz)
 
 /MUSICIANS/D/Digiblaster/Mix3_plus_plus.sid
     BUG: Falls out of synch from 1:13. No good version found.
@@ -188,6 +180,10 @@
 
 /MUSICIANS/S/Svensson_Roger/Walliball.sid
     BUG: Subtune #5 falls out of sync upon looping
+(Wilfred)
+
+/MUSICIANS/T/TCC/Must_ve_Been.sid
+    BUG: Falls out of synch upon looping.
 (Wilfred)
 
 /MUSICIANS/W/Wizard_Oxygen/Night.sid

@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1758
+#  Total number of entries: 1759
 #
 ##############################################################################
 
@@ -1240,9 +1240,15 @@ COMMENT: This song won the Eurovision Song Contest in 1984.
 (#5)
   TITLE: First Rendez-Vous [from Rendez-Vous]
  ARTIST: Jean Michel Jarre
+(#6)
+  TITLE: Autobahn [from Autobahn]
+ ARTIST: Kraftwerk
 (#7)
   TITLE: Oxygene (Part VI) [from Oxygene]
  ARTIST: Jean Michel Jarre
+(#8)
+  TITLE: Metropolis [from Die Mensch-Maschine]
+ ARTIST: Kraftwerk
 (#9)
   TITLE: Second Rendez-Vous Part I [from Rendez-Vous]
  ARTIST: Jean Michel Jarre
@@ -4869,6 +4875,12 @@ COMMENT: 4th place at QuaST party 1996 music compo.
 
 /Composers/Sychowicz_Lukasz/Komar.sap
 COMMENT: 2nd place at Lato Ludzików 2002 music compo.
+
+/Composers/Sychowicz_Lukasz/Korpozar.sap
+  TITLE: Titles [from Chariots of Fire]
+ ARTIST: Vangelis
+COMMENT: Soundtrack from the 256-byte intro which took 4th place
+         at the Silly Venture Summer Edition party in 2025.
 
 /Composers/Sychowicz_Lukasz/Look_Around.sap
 COMMENT: Soundtrack from the one-kilobyte intro which won at the Forever Party
