@@ -507,6 +507,8 @@ int EUPPlayer_ResetReload(){
 
 
 
+short int milkBuffer[MILK_BUFFER_SIZE];
+int milkBufferPosWrite,milkBufferPosRead;
 
 static char **sidtune_title,**sidtune_name,**sidtune_artist;
 signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
@@ -2821,6 +2823,9 @@ void propertyListenerCallback (void                   *inUserData,              
          m_voice_systemColor[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
          printf("col %d: %02X%02X%02\n",i,(int)(red*255),(int)(green*255),(int)(blue*255));
          }*/
+        
+        milkBufferPosRead=0;
+        milkBufferPosWrite=0;
         
         m_genNumVoicesChannels=0;
         m_genNumMidiVoicesChannels=0;

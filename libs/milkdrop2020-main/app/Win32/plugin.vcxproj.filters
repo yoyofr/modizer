@@ -1,0 +1,525 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="app">
+      <UniqueIdentifier>{493fb643-f2f2-4079-9021-eb8990d9cd7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app\Win32">
+      <UniqueIdentifier>{8abf54d9-6053-4777-a689-1e66047bcfbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{9358b9b3-c02c-470c-8d89-3514f213760f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\audio">
+      <UniqueIdentifier>{dcbe2912-7d03-406a-adab-ef8b3616c80d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\render">
+      <UniqueIdentifier>{a5573120-aa79-44dd-9d45-d0578dd6518c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\script">
+      <UniqueIdentifier>{4e6fc19a-7c96-4480-afa8-7e1c8f9553d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\vis_milk2">
+      <UniqueIdentifier>{fca583df-eabe-4e39-8096-d5fe6cdc4127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{f82df54f-13e4-47c7-ac15-477147636c4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\imgui">
+      <UniqueIdentifier>{2b34725b-1693-4245-ac8c-613e6a60012c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\script\mdp-eel2">
+      <UniqueIdentifier>{7cefeaf6-49d8-4905-b006-51294db7c7ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="assets">
+      <UniqueIdentifier>{c84a6cbc-0efc-49c5-b28c-e9097a77acab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="assets\data">
+      <UniqueIdentifier>{2ad83b2e-48d2-4c1e-b4f7-c32ab5c297d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\lzma">
+      <UniqueIdentifier>{ebba0bb5-7b14-4f2a-859a-01c29743f118}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="milkdropfs.cpp">
+      <Filter>src\vis_milk2</Filter>
+    </ClCompile>
+    <ClCompile Include="plugin.cpp">
+      <Filter>src\vis_milk2</Filter>
+    </ClCompile>
+    <ClCompile Include="state.cpp">
+      <Filter>src\vis_milk2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\render\context_d3d9.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\WaveInAudioSource.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="fft.cpp">
+      <Filter>src\vis_milk2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\app\Win32\MilkDropRunner.cpp">
+      <Filter>app\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\render\context_gles.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VizController.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\matrix.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\path.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\WavFileAudioSource.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioAnalyzer.cpp">
+      <Filter>src\vis_milk2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\imgui.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\imgui_demo.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\imgui_draw.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\imgui_widgets.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-caltab.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-compiler.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-context.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-eval.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-expression.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-functype.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-kernel.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-lextab.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-yylex.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ImageWriter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui_support.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\audio\NullAudioSource.cpp">
+      <Filter>src\audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\app\Win32\keycode_win32.cpp">
+      <Filter>app\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\script\mdp-eel2\script-preprocessor.cpp">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\render\DrawBuffer.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TProfiler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\render\context.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\render\context_d3d11.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ImageReader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\imgui\imgui_tables.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ArchiveReader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zAlloc.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zArcIn.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zBuf.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zBuf2.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zCrc.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zCrcOpt.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zDec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zFile.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\7zStream.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Aes.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\AesOpt.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Alloc.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Bcj2.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Bcj2Enc.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Bra.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Bra86.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\BraIA64.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\CpuArch.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Delta.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\DllSecur.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\LzFind.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Lzma2Dec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Lzma86Dec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\LzmaDec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\LzmaLib.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Ppmd7.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Ppmd7Dec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Ppmd7Enc.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Sha256.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Sort.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\Xz.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\XzCrc64.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\XzCrc64Opt.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\XzDec.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\lzma1801\C\XzIn.c">
+      <Filter>external\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PresetBundle.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="plugin.h">
+      <Filter>src\vis_milk2</Filter>
+    </ClInclude>
+    <ClInclude Include="state.h">
+      <Filter>src\vis_milk2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\render\context.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\audio\IAudioSource.h">
+      <Filter>src\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\script.h">
+      <Filter>src\script</Filter>
+    </ClInclude>
+    <ClInclude Include="fft.h">
+      <Filter>src\vis_milk2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\app\Win32\MilkDropRunner.h">
+      <Filter>app\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\app\Win32\Resource.h">
+      <Filter>app\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AutoRef.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IVisualizer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\VizController.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\matrix.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\path.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\StopWatch.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="IAudioAnalyzer.h">
+      <Filter>src\vis_milk2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imconfig.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imgui.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imgui_internal.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imstb_rectpack.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imstb_textedit.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\imstb_truetype.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-codegenerator.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-compiler.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-context.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-expression.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-functions.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-functype.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-kernel.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-lextab.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-yycontext.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ImageWriter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui_support.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\app\Win32\keycode_win32.h">
+      <Filter>app\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\script\mdp-eel2\script-preprocessor.h">
+      <Filter>src\script\mdp-eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\render\DrawBuffer.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\json.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TProfiler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\imgui\backends\imgui_impl_win32.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ImageReader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IVizController.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PresetInfo.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ArchiveReader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7z.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zAlloc.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zBuf.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zCrc.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zFile.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zTypes.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\7zVersion.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Aes.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Alloc.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Bcj2.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Bra.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Compiler.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\CpuArch.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Delta.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\DllSecur.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\LzFind.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\LzFindMt.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\LzHash.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Lzma2Dec.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Lzma86.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\LzmaDec.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\LzmaLib.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Ppmd.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Ppmd7.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Precomp.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\RotateDefs.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Sha256.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Sort.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\Xz.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\XzCrc64.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\lzma1801\C\XzEnc.h">
+      <Filter>external\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PresetBundle.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\app\Win32\MilkDropRunner.ico">
+      <Filter>app\Win32</Filter>
+    </Image>
+    <Image Include="..\..\app\Win32\small.ico">
+      <Filter>app\Win32</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\app\Win32\MilkDropRunner.rc">
+      <Filter>app\Win32</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\..\external\lzma1801\C\7zVersion.rc">
+      <Filter>external\lzma</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\external\imgui\LICENSE.txt">
+      <Filter>external\imgui</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

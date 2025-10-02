@@ -796,6 +796,7 @@ extern int ZEXPORT unzGoToFirstFile (file)
     return err;
 }
 
+
 /*
   Set the current file of the zipfile to the next file.
   return UNZ_OK if there is no problem

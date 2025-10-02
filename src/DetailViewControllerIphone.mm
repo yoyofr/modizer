@@ -79,6 +79,28 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 //#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
+/*----------------------------------------------*/
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
+#import <GLKit/GLKit.h>
+
+#import "RenderViewControllerIOS.h"
+#include "VizController.h"
+#include "audio/IAudioSource.h"
+
+#include "MDcontext.h"
+#include "context_metal.h"
+//#include "keycode_osx.h"
+//#include "../external/imgui/imgui.h"
+//#include "../external/imgui/backends/imgui_impl_osx.h"
+#include "../../libs/milkdrop2020-main/app/CommonApple/CommonApple.h"
+
+#import "ExternalViewController.h"
+
+#include "ModizerVoicesData.h"
+
+/*----------------------------------------------*/
+
 
 #import "gme.h"
 
@@ -157,6 +179,13 @@ static 	UIImage *covers_default; // album covers images
 static int display_length_mode=0;
 
 @implementation DetailViewControllerIphone
+
+/*-------------------------*/
+UIWindow * _externalWindow;
+ExternalViewController * _externalWindowController;
+render::metal::IMetalContextPtr _context;
+IVizControllerPtr _vizController;
+/*--------------------------*/
 
 @synthesize btnAddToPl;
 @synthesize mLoopMode;
@@ -3690,6 +3719,9 @@ int recording=0;
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
             
+            //milk
+            _metal_view.frame=m_oglView.frame;
+            
         } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
@@ -3719,6 +3751,9 @@ int recording=0;
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
                 oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             }
+            
+            //milk
+            _metal_view.frame=m_oglView.frame;
             
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
@@ -3941,6 +3976,9 @@ int recording=0;
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
                 cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
                 
+                //milk
+                _metal_view.frame=m_oglView.frame;
+                
                 //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
             } else {
@@ -3974,6 +4012,9 @@ int recording=0;
                     oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 }
+                
+                //milk
+                _metal_view.frame=m_oglView.frame;
                 
                 cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
                 cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
@@ -5682,6 +5723,21 @@ void ViewPerspective()
         m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
         [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 
+    
+    /*--------------------------------------*/
+    _externalWindow=nil;
+    [self initMetal];
+    
+    std::string resourceDir;
+    GetResourceDir(resourceDir);
+    std::string assetDir =  PathCombine(resourceDir, "assets");
+    std::string userDir;
+    GetApplicationSupportDir(userDir);
+
+
+    _vizController = CreateVizController(_context, assetDir, userDir);
+    
+    /*--------------------------------------*/
     
     
     //	[super viewDidLoad];
@@ -7543,6 +7599,15 @@ extern "C" int current_sample;
         cur_pos=[mplayer getCurrentPlayedBufferIdx];
         short int *curBuffer=snd_buffer[cur_pos];
         
+        /*------------------------------------------------*/
+        // Feed buffer for Milkdrop
+//        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+//            milkBuffer[milkBufferPosWrite++]=curBuffer[i*2];
+//            milkBuffer[milkBufferPosWrite++]=curBuffer[i*2+1];
+//            if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
+//        }
+//        /*------------------------------------------------*/
+        
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
@@ -8497,6 +8562,149 @@ didStopRecordingWithError:(NSError *)error
 /* @abstract Called when the view controller is finished and returns a set of activity types that the user has completed on the recording. The built in activity types are listed in UIActivity.h. */
 - (void)previewController:(RPPreviewViewController *)previewController didFinishWithActivityTypes:(NSSet <NSString *> *)activityTypes {
 }
+
+/*-----------------------------------------------------------------------------------*/
+
+-(void)initMetal
+{
+    PROFILE_FUNCTION()
+
+    id <MTLDevice> device = MTLCreateSystemDefaultDevice();
+    if(!device)
+    {
+        NSLog(@"Metal is not supported on this device");
+        return;
+    }
+    MTKView *view = _metal_view;
+    view.device = device;
+    
+    // configure view
+//    view.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+
+#if 0
+    view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+#else
+    
+#if TARGET_OS_SIMULATOR
+    view.colorPixelFormat = MTLPixelFormatRGBA16Float;
+//    view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+//    view.colorPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+//    view.colorPixelFormat = MTLPixelFormatBGR10_XR;
+
+#else
+    view.colorPixelFormat = MTLPixelFormatBGR10_XR;
+//    view.colorPixelFormat = MTLPixelFormatRGB9E5Float;
+    
+//        view.colorPixelFormat = MTLPixelFormatBGR10_XR;
+//    view.colorPixelFormat = MTLPixelFormatRGBA16Float;
+
+#endif
+    
+
+#endif
+    
+    view.depthStencilPixelFormat = MTLPixelFormatInvalid;
+    view.sampleCount = 1;
+    view.preferredFramesPerSecond = 60;
+    view.delegate = self;
+//    view.eventDelegate = self;
+//    [view registerDragDrop];
+    
+
+//    self.view = view;
+    
+    
+    
+
+
+    if (@available(tvOS 13.0, iOS 13.0, *))
+    {
+    
+        CAMetalLayer *layer = (CAMetalLayer *)view.layer;
+//        layer.wantsExtendedDynamicRangeContent= YES;
+//        layer.pixelFormat = view.colorPixelFormat;
+        const CFStringRef name = kCGColorSpaceExtendedSRGB;
+//        const CFStringRef name = kCGColorSpaceExtendedLinearSRGB;
+    //    const CFStringRef name = kCGColorSpaceSRGB;
+    //    const CFStringRef name = kCGColorSpaceSRGB;
+
+        CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(name);
+        layer.colorspace = colorspace;
+        CGColorSpaceRelease(colorspace);
+    }
+
+    _context = render::metal::MetalCreateContext(device);
+    _context->SetView( view );
+    _context->SetRenderTarget(nullptr);
+    
+}
+
+- (void)drawInMTKView:(nonnull MTKView *)view
+{
+    @autoreleasepool {
+        PROFILE_FRAME()
+        
+        /*------------------------------------------------*/
+        // Feed buffer for Milkdrop
+        if ([mplayer isPlaying]){
+            short int **snd_buffer;
+            int cur_pos,prev_pos;
+            snd_buffer=[mplayer buffer_ana_cpy];
+            cur_pos=[mplayer getCurrentPlayedBufferIdx];
+            short int *curBuffer=snd_buffer[cur_pos];
+            
+            
+            if ([mplayer isPaused]) {
+                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                    milkBuffer[milkBufferPosWrite++]=0;
+                    milkBuffer[milkBufferPosWrite++]=0;
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
+                }
+            } else {
+                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[i*2];
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[i*2+1];
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
+                }
+            }
+        }
+        /*----------------------------------------------------*/
+
+        int screenCount = 1;
+        
+        if (_externalWindow != nil)
+        {
+            // force enable debug UI if external window is up
+            _vizController->ShowDebugUI();
+            screenCount = 2;
+        }
+        
+        _context->SetView(view);
+        _context->BeginScene();
+        _vizController->Render(0, screenCount);
+        _context->EndScene();
+        _context->Present();
+/*
+        
+        // release touches
+        ImGuiIO &io = ImGui::GetIO();
+        if (!io.MouseDown[0])
+        {
+            io.MousePos = ImVec2(FLT_MAX, FLT_MAX);
+        }
+
+        
+        [self updateUI];
+*/
+    }
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
+{
+//    NSLog(@"drawableSizeWillChange: %@ %fx%f\n", view, size.width, size.height);
+
+}
+
 
 
 @end

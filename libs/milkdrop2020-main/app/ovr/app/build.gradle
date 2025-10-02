@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 29
+
+    dependencies {
+        implementation 'com.android.support:support-v4:28.0.0'
+
+    }
+
+    defaultConfig {
+        applicationId 'com.android.vrmilkdrop2'
+        minSdkVersion 18
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.1.0"
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_STL=c++_static'
+                abiFilters 'armeabi-v7a','arm64-v8a'
+            }
+        }
+        signingConfig signingConfigs.debug
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+            minifyEnabled = false
+        }
+
+        release {
+            minifyEnabled = false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path '../../../CMakeLists.txt'
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../../assets']
+            jniLibs.srcDir 'jniLibs'
+            jni.srcDirs = []
+        }
+    }
+}
