@@ -276,6 +276,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
 -(void) fillKeysWithWEBSource {
     int dbWEB_entries_index;
     int index,previndex;
+    bool no_sort=FALSE;
     
     NSRange r;
     
@@ -496,6 +497,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         __block bool op_done=false;
         __block NSDictionary *data;
         
+        if (browse_mode==BROWSE_LATEST) no_sort=TRUE;
+        
         AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
         [manager GET:[url absoluteString]
             parameters:nil
@@ -577,11 +580,15 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                 return [str2 compare:str1];
             }];
         } else {
-            sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-                NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
-                NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
-                return [str1 caseInsensitiveCompare:str2];
-            }];
+            if (no_sort) {
+                sortedArray = [NSMutableArray arrayWithArray:tmpArray];
+            } else {
+                sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+                    NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
+                    NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                }];
+            }
         }
     }
     

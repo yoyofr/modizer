@@ -360,6 +360,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSData  *urlData;
     TFHpple * doc;
     NSArray *sortedArray;
+    bool no_sort=FALSE;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
     int we_index=0;
@@ -725,7 +726,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
+                
+        if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"]) no_sort=TRUE;
         
         int pageNb=1; //top 20 to start
         //NSLog(@"Page nb: %d",pageNb);
@@ -834,11 +836,17 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     return [str1 caseInsensitiveCompare:str2];
                 }
             }];
-        } else sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-            NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
-            NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
-            return [str1 caseInsensitiveCompare:str2];
-        }];
+        } else {
+            if (no_sort) {
+                sortedArray = [NSMutableArray arrayWithArray:tmpArray];
+            } else {
+                sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+                    NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
+                    NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                }];
+            }
+        }
     }
     
     dbWEB_nb_entries=[sortedArray count];
