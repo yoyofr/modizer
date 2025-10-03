@@ -40,17 +40,18 @@ public:
         //printf("%d\n",count);
         int l,r;
         Sample s;
+        float scale=1.2f;
         for (int i=0; i < count; i++)
         {
             l=milkBuffer[milkBufferPosRead++];
             r=milkBuffer[milkBufferPosRead++];
             if (milkBufferPosRead>=MILK_BUFFER_SIZE) milkBufferPosRead=0;
-            s.ch[0]=((float)l/32768.0)*1.5f;
-            s.ch[1]=((float)r/32768.0)*1.5f;
-            if (s.ch[0]>1) s.ch[0]=1;
-            if (s.ch[1]>1) s.ch[1]=1;
-            if (s.ch[0]<-1) s.ch[0]=-1;
-            if (s.ch[1]<-1) s.ch[1]=-1;
+            s.ch[0]=(float)l*scale/32768.0f;
+            s.ch[1]=(float)r*scale/32768.0f;
+            if (s.ch[0]>1.0f) s.ch[0]=1.0f;
+            if (s.ch[1]>1.0f) s.ch[1]=1.0f;
+            if (s.ch[0]<-1.0f) s.ch[0]=-1.0f;
+            if (s.ch[1]<-1.0f) s.ch[1]=-1.0f;
             samples.push_back(s);
             //samples.push_back(Sample{0,0});
         }

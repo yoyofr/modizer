@@ -51,7 +51,7 @@ public:
         std::lock_guard<std::mutex> lock(_mutex);
         _map[name] = texture;
         
-//        LogPrint("Loaded texture '%s' (%dx%d)\n", name.c_str(), texture->GetWidth(), texture->GetHeight());
+        LogPrint("Loaded texture '%s' (%dx%d)\n", name.c_str(), texture->GetWidth(), texture->GetHeight());
     }
     
     virtual void GetTextureListWithPrefix(const std::string &prefix, std::vector<TexturePtr> &list) override
