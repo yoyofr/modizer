@@ -105,7 +105,7 @@ extern void *LoadingProgressObserverContext;
 #define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz
 
-#define MILK_BUFFER_SIZE 4096 //Milkdrop sound buffer size
+#define MILK_BUFFER_SIZE 735 //Milkdrop sound buffer size.
 
 #define TXT_PIANOROLL_LIGHT 0
 #define TXT_PIANOROLL_PARTICLE 1

@@ -13,7 +13,7 @@
 
 #define MAXVAL(a,b) (a>b?a:b)
 
-extern short int milkBuffer[MILK_BUFFER_SIZE];
+extern short int milkBuffer[MILK_BUFFER_SIZE*2];
 extern int milkBufferPosWrite,milkBufferPosRead;
 
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];

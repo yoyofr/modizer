@@ -622,6 +622,15 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+    
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=0;
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=1;
+    settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
+    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value=2.7;
+    
+    
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
     settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
     
@@ -630,11 +639,6 @@ void optNSFPLAYChangedC(id param) {
     
     [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:NULL];
     settings[OSCILLO_MULTI_COLORSET].detail.mdz_switch.switch_value=0;
-    
-    settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
-    settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
-    
-    
     
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
@@ -865,6 +869,13 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_FAMILY_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_MILKDROP)
+    settings[MDZ_SETTINGS_FAMILY_MILKDROP].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_MILKDROP].label=(char*)"Milkdrop settings";
+    settings[MDZ_SETTINGS_FAMILY_MILKDROP].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_MILKDROP].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_MILKDROP].sub_family=MDZ_SETTINGS_FAMILY_MILKDROP;
     
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_OSCILLO)
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].type=MDZ_FAMILY;
@@ -1506,6 +1517,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo";
     
+    SETTINGS_ID_DEF(GLOB_FXMilkdrop)
+    settings[GLOB_FXMilkdrop].type=MDZ_SWITCH;
+    settings[GLOB_FXMilkdrop].label=(char*)"Milkdrop FX";
+    settings[GLOB_FXMilkdrop].description=NULL;
+    settings[GLOB_FXMilkdrop].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMilkdrop].sub_family=0;
+    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels[1]=(char*)"On";
+    
     SETTINGS_ID_DEF(GLOB_FXSpectrum)
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
@@ -1783,6 +1805,59 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[1]=(char*)"60";
+    
+    /////////////////////////////////////
+    //MILKDROP
+    /////////////////////////////////////
+    ///
+    SETTINGS_ID_DEF(MILKDROP_ShowPresetLabel)
+    settings[MILKDROP_ShowPresetLabel].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_ShowPresetLabel].label=(char*)"Display preset name";
+    settings[MILKDROP_ShowPresetLabel].description=NULL;
+    settings[MILKDROP_ShowPresetLabel].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_ShowPresetLabel].sub_family=0;
+    
+    SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresets)
+    settings[MILKDROP_AutoSwitchPresets].type=MDZ_SWITCH;
+    settings[MILKDROP_AutoSwitchPresets].label=(char*)"Auto switch presets";
+    settings[MILKDROP_AutoSwitchPresets].description=NULL;
+    settings[MILKDROP_AutoSwitchPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_AutoSwitchPresets].sub_family=0;
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value_nb=3;
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[1]=(char*)"Rand";
+    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[2]=(char*)"Next";
+    
+    SETTINGS_ID_DEF(MILKDROP_BlendPresets)
+    settings[MILKDROP_BlendPresets].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_BlendPresets].label=(char*)"Blend presets";
+    settings[MILKDROP_BlendPresets].description=NULL;
+    settings[MILKDROP_BlendPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_BlendPresets].sub_family=0;
+    
+    SETTINGS_ID_DEF(MILKDROP_TimeBetweenPreset)
+    settings[MILKDROP_TimeBetweenPreset].label=(char*)"Time between presets";
+    settings[MILKDROP_TimeBetweenPreset].description=(char*)"Default is 15s";
+    settings[MILKDROP_TimeBetweenPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_TimeBetweenPreset].sub_family=0;
+    settings[MILKDROP_TimeBetweenPreset].callback=&optGLOBALChangedC;
+    settings[MILKDROP_TimeBetweenPreset].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_digits=1;
+    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_min_value=3;
+    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_max_value=60;
+    
+    SETTINGS_ID_DEF(MILKDROP_BlendTime)
+    settings[MILKDROP_BlendTime].label=(char*)"Blend time";
+    settings[MILKDROP_BlendTime].description=(char*)"Default is 2.7s";
+    settings[MILKDROP_BlendTime].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_BlendTime].sub_family=0;
+    settings[MILKDROP_BlendTime].callback=&optGLOBALChangedC;
+    settings[MILKDROP_BlendTime].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_digits=1;
+    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_min_value=0.5;
+    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_max_value=5;
+    
     
     /////////////////////////////////////
     //OSCILLO

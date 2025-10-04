@@ -750,7 +750,13 @@ void VizController::NavigateNext()
 
 void VizController::NavigateRandom(bool blend)
 {
+    blend=TRUE; //yoyofr
     auto preset = m_presetListFiltered.SelectRandom(m_random_generator);
+    //static int nb=246; //313
+//    if (nb==1089) nb=rand()%1200;
+//    else nb=1089;
+    //auto preset = m_presetListFiltered.SelectIndex(nb++);
+    
     if (preset) {
         SetSelectionLock(false);
         LoadPreset(preset, blend);

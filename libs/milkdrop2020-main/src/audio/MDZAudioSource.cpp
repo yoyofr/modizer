@@ -45,7 +45,7 @@ public:
         {
             l=milkBuffer[milkBufferPosRead++];
             r=milkBuffer[milkBufferPosRead++];
-            if (milkBufferPosRead>=MILK_BUFFER_SIZE) milkBufferPosRead=0;
+            if (milkBufferPosRead>=MILK_BUFFER_SIZE*2) milkBufferPosRead=0;
             s.ch[0]=(float)l*scale/32768.0f;
             s.ch[1]=(float)r*scale/32768.0f;
             if (s.ch[0]>1.0f) s.ch[0]=1.0f;

@@ -729,7 +729,17 @@ CodeMap * createMetalSupportLibrary(ETargetVersion targetVersion)
 
    lib->insert(EOpTranspose,
         "float2x2 xll_transpose(float2x2 m) {\n"
-        "  return float2x2( m[0][0], m[1][0], m[0][1], m[1][1]);\n"
+        "  return float2x2( m[0][0], m[1][0],\n"
+        "                   m[0][1], m[1][1]);\n"
+        "}\n\n"
+        "float2x3 xll_transpose(float2x3 m) {\n"
+        "  return float2x3( m[0][0], m[1][0],\n"
+        "                   m[0][1], m[1][1],\n"
+        "                   m[0][2], m[1][2]);\n"
+        "}\n\n"
+        "float3x2 xll_transpose(float3x2 m) {\n"
+        "  return float3x2( m[0][0], m[1][0], m[2][0],\n"
+        "                   m[0][1], m[1][1], m[2][1]);\n"
         "}\n\n"
         "float3x3 xll_transpose(float3x3 m) {\n"
         "  return float3x3( m[0][0], m[1][0], m[2][0],\n"
@@ -977,47 +987,47 @@ CodeMap * createMetalSupportLibrary(ETargetVersion targetVersion)
 	   );
 
 	// \todo [pyry] GLSL ES 3 includes built-in function for this
-   /*
+   
     lib->insert(EOpModf,
-        "float xll_modf_f_i( float x,  int &ip) {\n"
+        "float xll_modf_f_i( float x,  thread int &ip) {\n"
 		"  ip = int (x);\n"
 		"  return x-float(ip);\n"
         "}\n\n"
-        "float xll_modf_f_f( float x,float &ip) {\n"
+        "float xll_modf_f_f( float x,thread float &ip) {\n"
 		"  int i = int (x);\n"
 		"  ip = float(i);\n"
 		"  return x-ip;\n"
         "}\n\n"
-		"float2 xll_modf_vf2_vi2( float2 x, ivec2 &ip) {\n"
+		"float2 xll_modf_vf2_vi2( float2 x,thread  ivec2 &ip) {\n"
 		"  ip = ivec2 (x);\n"
 		"  return x-float2(ip);\n"
 		"}\n\n"
-		"float2 xll_modf_vf2_vf2( float2 x, float2 &ip) {\n"
+		"float2 xll_modf_vf2_vf2( float2 x, thread float2 &ip) {\n"
 		"  ivec2 i = ivec2 (x);\n"
 		"  ip = float2(i);\n"
 		"  return x-ip;\n"
 		"}\n\n"
-		"float3 xll_modf_vf3_vi3( float3 x,  int3 &ip) {\n"
+		"float3 xll_modf_vf3_vi3( float3 x,  thread int3 &ip) {\n"
 		"  ip = ivec3 (x);\n"
 		"  return x-float3(ip);\n"
 		"}\n\n"
-		"float3 xll_modf_vf3_vf3( float3 x, float3 &ip) {\n"
+		"float3 xll_modf_vf3_vf3( float3 x, thread float3 &ip) {\n"
 		"  ivec3 i = ivec3 (x);\n"
 		"  ip = float3(i);\n"
 		"  return x-ip;\n"
 		"}\n\n"
-		"float4 xll_modf_vf4_vi4( float4 x, ivec4 &ip) {\n"
+		"float4 xll_modf_vf4_vi4( float4 x, thread ivec4 &ip) {\n"
 		"  ip = ivec4 (x);\n"
 		"  return x-float4(ip);\n"
 		"}\n\n"
-        "float4 xll_modf_vf4_vf4( float4 x, float4 &ip) {\n"
+        "float4 xll_modf_vf4_vf4( float4 x, thread float4 &ip) {\n"
 		"  ivec4 i = ivec4 (x);\n"
 		"  ip = float4(i);\n"
 		"  return x-ip;\n"
 		"}\n\n"
 		
         );
-*/
+
     lib->insert(EOpEqual,
                 "bool  equal(float  a, float  b) {return a == b;}\n"
                 "bool2 equal(float2 a, float2 b) {return a == b;}\n"

@@ -6455,11 +6455,13 @@ extern "C" int current_sample;
     if (oglViewFullscreen) {
         cover_viewBG.layer.zPosition=MAXFLOAT-10;
         cover_view.layer.zPosition=MAXFLOAT-9;
-        m_oglView.layer.zPosition=MAXFLOAT-8;
+        _metal_view.layer.zPosition=MAXFLOAT-8;
+        m_oglView.layer.zPosition=MAXFLOAT-7;
     } else {
         cover_viewBG.layer.zPosition=0;
         cover_view.layer.zPosition=1;
-        m_oglView.layer.zPosition=2;
+        _metal_view.layer.zPosition=2;
+        m_oglView.layer.zPosition=3;
     }
     
     
@@ -6477,8 +6479,9 @@ extern "C" int current_sample;
     }
     
     if (oglViewFullscreen) {
-        if (cover_img==nil) fxalpha=1;
-        else fxalpha=settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value;
+        //milk
+        /*if (cover_img==nil) fxalpha=1;
+        else*/ fxalpha=settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     
@@ -7599,15 +7602,6 @@ extern "C" int current_sample;
         cur_pos=[mplayer getCurrentPlayedBufferIdx];
         short int *curBuffer=snd_buffer[cur_pos];
         
-        /*------------------------------------------------*/
-        // Feed buffer for Milkdrop
-//        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-//            milkBuffer[milkBufferPosWrite++]=curBuffer[i*2];
-//            milkBuffer[milkBufferPosWrite++]=curBuffer[i*2+1];
-//            if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
-//        }
-//        /*------------------------------------------------*/
-        
         switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
@@ -8655,47 +8649,54 @@ didStopRecordingWithError:(NSError *)error
             
             
             if ([mplayer isPaused]) {
-                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                for (int i=0;i<MILK_BUFFER_SIZE;i++) {
                     milkBuffer[milkBufferPosWrite++]=0;
                     milkBuffer[milkBufferPosWrite++]=0;
-                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
                 }
             } else {
-                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                    milkBuffer[milkBufferPosWrite++]=curBuffer[i*2];
-                    milkBuffer[milkBufferPosWrite++]=curBuffer[i*2+1];
-                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE) milkBufferPosWrite=0;
+                int posBuff=0;
+                for (int i=0;i<MILK_BUFFER_SIZE;i++) {
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2];
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2+1];
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
+                    posBuff++;
+                    if (posBuff>=SOUND_BUFFER_SIZE_SAMPLE) {
+                        posBuff=0;
+                        cur_pos++;
+                        if (cur_pos>=SOUND_BUFFER_NB) cur_pos=0;
+                        curBuffer=snd_buffer[cur_pos];
+                    }
                 }
             }
         }
         /*----------------------------------------------------*/
 
-        int screenCount = 1;
-        
-        if (_externalWindow != nil)
-        {
-            // force enable debug UI if external window is up
-            _vizController->ShowDebugUI();
-            screenCount = 2;
+//        int screenCount = 1;
+//        if (_externalWindow != nil)
+//        {
+//            // force enable debug UI if external window is up
+//            _vizController->ShowDebugUI();
+//            screenCount = 2;
+//        }
+//
+        if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
+            _context->SetView(view);
+            _context->BeginScene();
+            _vizController->Render(0, screenCount);
+            _context->EndScene();
+            _context->Present();
         }
         
-        _context->SetView(view);
-        _context->BeginScene();
-        _vizController->Render(0, screenCount);
-        _context->EndScene();
-        _context->Present();
-/*
-        
-        // release touches
-        ImGuiIO &io = ImGui::GetIO();
-        if (!io.MouseDown[0])
-        {
-            io.MousePos = ImVec2(FLT_MAX, FLT_MAX);
-        }
-
-        
-        [self updateUI];
-*/
+//        // release touches
+//        ImGuiIO &io = ImGui::GetIO();
+//        if (!io.MouseDown[0])
+//        {
+//            io.MousePos = ImVec2(FLT_MAX, FLT_MAX);
+//        }
+//
+//        
+//        [self updateUI];
     }
 }
 

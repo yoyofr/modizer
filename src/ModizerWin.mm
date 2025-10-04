@@ -136,7 +136,7 @@
     [detailViewControllerIphone restartCurrent];
 }
 -(void)downPressed {
-    
+    [self rightShiftPressed];
 }
 -(void)spacePressed {
     if (detailViewControllerIphone.mPaused) [detailViewControllerIphone playPushed:nil];

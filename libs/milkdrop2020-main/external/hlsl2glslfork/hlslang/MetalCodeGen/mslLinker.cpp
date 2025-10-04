@@ -960,8 +960,12 @@ void MslLinker::buildUniformsAndLibFunctions(const FunctionSet& calledFunctions,
 		unsigned n_symbols = symbols.size();
 		for (unsigned i = 0; i != n_symbols; ++i) {
 			MslSymbol* s = symbols[i];
-			if (s->getQualifier() == EqtUniform || s->getQualifier() == EqtMutableUniform)
+            //std::cout<<s->name<<" "<<s->getQualifier();
+            //std::cout<<"\n";
+			if (s->getQualifier() == EqtUniform || s->getQualifier() == EqtMutableUniform )
 				constants.push_back(s);
+            //else if ( s->getQualifier() == EqtConst && s->getIsGlobal())  //YOYOFR: added EqtConst
+            //    constants.push_back(s);
 		}
 		
 		//take each referenced library function, and add it to the set
@@ -1773,6 +1777,9 @@ bool MslLinker::link(MslCrossCompiler* compiler, const char* entryFunc, ETargetV
     shader << "// globals \n";
     emitGlobals (globalFunction, constants);
     
+//    std::cout<<"yoyo1\n";
+//    std::cout<<shader.str();
+    
     shader << "// uniforms \n";
     for (auto s : constants) {
         if (s->getType() >= EgstSamplerGeneric  && s->getType() <= EgstSampler2DArray ) {
@@ -1803,6 +1810,9 @@ bool MslLinker::link(MslCrossCompiler* compiler, const char* entryFunc, ETargetV
             shader << ";\n";
         }
     }
+    
+//    std::cout<<"yoyo2\n";
+//    std::cout<<shader.str();
     
     shader << "\n// functions \n";
 

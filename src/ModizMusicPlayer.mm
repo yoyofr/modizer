@@ -507,7 +507,7 @@ int EUPPlayer_ResetReload(){
 
 
 
-short int milkBuffer[MILK_BUFFER_SIZE];
+short int milkBuffer[MILK_BUFFER_SIZE*2];
 int milkBufferPosWrite,milkBufferPosRead;
 
 static char **sidtune_title,**sidtune_name,**sidtune_artist;
@@ -3199,7 +3199,7 @@ void propertyListenerCallback (void                   *inUserData,              
     UInt32 err;
     UInt32 i;
     
-    printf("restart\n");
+    //printf("restart\n");
     
     mQueueIsBeingStopped = TRUE;
     AudioQueueStop( mAudioQueue, TRUE );
