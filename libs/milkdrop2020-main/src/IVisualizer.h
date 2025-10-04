@@ -58,6 +58,8 @@ public:
 
     virtual const std::string &GetPresetName() = 0;
     virtual float GetPresetProgress() = 0;
+    
+    virtual void SetNewDuration(float duration) = 0;
 };
 
 using IVisualizerPtr = std::shared_ptr<IVisualizer>;

@@ -36,6 +36,11 @@ public:
     
 	virtual void Render(int screenId, int screenCount, float dt = (1.0f / 60.0f) ) override;
     virtual void RenderFrame(float dt);
+    
+    virtual void SetNextNoRandom(bool norand) override;
+    virtual void SetLock(bool locked) override;
+    virtual void SetBlendTime(float blendtime) override;
+    virtual void SetPresetTime(float presettime) override;
 
     void ProcessPresetLoad();
 
@@ -187,6 +192,7 @@ public:
     std::string                 m_endpoint;
 
     bool        m_navigateHistory = true;
+    bool        m_navigationNextNoRandom = false;
     PresetList	m_presetList;
     PresetList  m_presetListFiltered;
     PresetList  m_presetHistory;

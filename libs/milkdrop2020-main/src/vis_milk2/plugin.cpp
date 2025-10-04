@@ -2711,7 +2711,9 @@ void CPlugin::SetPreset(CStatePtr preset, PresetLoadArgs args)
 //    return true;
 }
 
-
+void CPlugin::SetNewDuration(float duration) {
+    m_NextPresetDuration=duration;
+}
 
 
 float CPlugin::GetImmRelTotal()

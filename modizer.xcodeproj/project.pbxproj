@@ -829,6 +829,10 @@
 		CC4FC87B2E8EC56300B3E56F /* MDunzip.c in Sources */ = {isa = PBXBuildFile; fileRef = CC4FB89F2E8EAF6200B3E56F /* MDunzip.c */; };
 		CC4FC8E72E8ED45300B3E56F /* assets in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8E62E8ED44F00B3E56F /* assets */; };
 		CC4FC8EA2E8ED72F00B3E56F /* MDZAudioSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC4FC8E92E8ED72F00B3E56F /* MDZAudioSource.cpp */; };
+		CC4FC8F92E91958900B3E56F /* txtMenu13a.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F52E91958900B3E56F /* txtMenu13a.png */; };
+		CC4FC8FA2E91958900B3E56F /* txtMenu13a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */; };
+		CC4FC8FB2E91958900B3E56F /* txtMenu13b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F72E91958900B3E56F /* txtMenu13b.png */; };
+		CC4FC8FC2E91958900B3E56F /* txtMenu13b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F82E91958900B3E56F /* txtMenu13b_2x.png */; };
 		CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333582B7E938B009ED5D7 /* tracking12.fnt */; };
 		CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333592B7E938C009ED5D7 /* tracking14.fnt */; };
 		CC57D51F2BEB89C9004629AA /* liblibfmpmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC57D4CF2BEB5DDD004629AA /* liblibfmpmini.a */; };
@@ -2618,6 +2622,10 @@
 		CC4FC8782E8EBFCD00B3E56F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		CC4FC8E62E8ED44F00B3E56F /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
 		CC4FC8E92E8ED72F00B3E56F /* MDZAudioSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MDZAudioSource.cpp; sourceTree = "<group>"; };
+		CC4FC8F52E91958900B3E56F /* txtMenu13a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu13a.png; sourceTree = "<group>"; };
+		CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu13a_2x.png; sourceTree = "<group>"; };
+		CC4FC8F72E91958900B3E56F /* txtMenu13b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu13b.png; sourceTree = "<group>"; };
+		CC4FC8F82E91958900B3E56F /* txtMenu13b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu13b_2x.png; sourceTree = "<group>"; };
 		CC5333582B7E938B009ED5D7 /* tracking12.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking12.fnt; sourceTree = "<group>"; };
 		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfmpmini.xcodeproj; path = libfmpmini/libfmpmini.xcodeproj; sourceTree = "<group>"; };
@@ -4307,6 +4315,10 @@
 		CC1E5A2C1200B3B8000A8A4E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				CC4FC8F52E91958900B3E56F /* txtMenu13a.png */,
+				CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */,
+				CC4FC8F72E91958900B3E56F /* txtMenu13b.png */,
+				CC4FC8F82E91958900B3E56F /* txtMenu13b_2x.png */,
 				CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */,
 				33C722D51691F882001D77A5 /* 02-redo-green@2x.png */,
 				CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */,
@@ -6824,6 +6836,10 @@
 				CC4FC0502E8EAF6300B3E56F /* script-functions.js in Resources */,
 				CC4FC0822E8EAF6300B3E56F /* 7zC.txt in Resources */,
 				CC4FC11B2E8EAF6300B3E56F /* 7zFormat.txt in Resources */,
+				CC4FC8F92E91958900B3E56F /* txtMenu13a.png in Resources */,
+				CC4FC8FA2E91958900B3E56F /* txtMenu13a_2x.png in Resources */,
+				CC4FC8FB2E91958900B3E56F /* txtMenu13b.png in Resources */,
+				CC4FC8FC2E91958900B3E56F /* txtMenu13b_2x.png in Resources */,
 				CC4FC1292E8EAF6300B3E56F /* Methods.txt in Resources */,
 				CC4FC2682E8EAF6300B3E56F /* LICENSE.txt in Resources */,
 				33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */,

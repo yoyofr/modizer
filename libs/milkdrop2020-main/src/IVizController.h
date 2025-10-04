@@ -61,6 +61,11 @@ public:
     virtual void GetAboutInfo(std::string &info) const = 0;
     
     virtual void Render(int screenId, int screenCount, float dt = (1.0f / 60.0f) ) = 0;
+    
+    virtual void SetNextNoRandom(bool norand) = 0;
+    virtual void SetLock(bool locked) = 0;
+    virtual void SetBlendTime(float blendtime) = 0;
+    virtual void SetPresetTime(float presettime) = 0;
 };
 
 using IVizControllerPtr = std::shared_ptr<IVizController>;

@@ -276,6 +276,8 @@ public:
 
 
    //====[ 2. methods added: ]=====================================================================================
+    
+    virtual void SetNewDuration(float duration) override;
 
 		void RenderFrame();
 		void        RandomizeBlendPattern();

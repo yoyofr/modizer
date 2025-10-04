@@ -570,6 +570,8 @@ IVizControllerPtr _vizController;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
     
+    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
+    
     if (oglViewFullscreen) active_idx|=1<<13;
     return active_idx;
 }
@@ -1237,15 +1239,12 @@ static float movePinchScale,movePinchScaleOld;
             break;
         case 1:
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
-            
             break;
         case 2:
             settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
-            
             break;
         case 3:
             //settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
-            
             break;
         case 4:
             settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
@@ -1263,6 +1262,7 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
             break;
         case 9:
+            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value+1)%2;
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
@@ -1710,9 +1710,10 @@ static float movePinchScale,movePinchScaleOld;
             mRandomFXCptRev=0;
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-            switch (arc4random()%19) {
+            switch (arc4random()%20) {
                 case 0:
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
@@ -1772,9 +1773,10 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 18:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
-                    
+                case 19:
+                    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
+                    break;
             }
         }
         
@@ -5574,6 +5576,8 @@ void ViewPerspective()
     txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
     //smoke FX
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
+    //milkdrop
+    txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13a_2x.png"]);
     
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     //    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
@@ -5649,7 +5653,18 @@ void ViewPerspective()
     txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
     txtSubMenuHandle[SUBMENU6_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
     txtSubMenuHandle[SUBMENU6_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
-            
+    
+#define SUBMENU7_START SUBMENU6_START+SUBMENU6_SIZE
+#define SUBMENU7_SIZE 2
+    //Mod patterns
+    txtSubMenuHandle[SUBMENU7_START]=0;
+    txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    //txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13b_2x.png"]);
+//    txtSubMenuHandle[SUBMENU6_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
+//    txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
+//    txtSubMenuHandle[SUBMENU6_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
+//    txtSubMenuHandle[SUBMENU6_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
+//            
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
     [SettingsGenViewController pianomidiGenSystemColor:1 color_idx:-1 color_buffer:data_midifx_pal2];
@@ -5736,6 +5751,7 @@ void ViewPerspective()
 
 
     _vizController = CreateVizController(_context, assetDir, userDir);
+    _vizController->SetNextNoRandom((settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==1));
     
     /*--------------------------------------*/
     
@@ -6248,6 +6264,9 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
     else txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+1];
     
+//    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) txtMenuHandle[7]=txtSubMenuHandle[SUBMENU7_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
+//    else txtMenuHandle[7]=txtSubMenuHandle[SUBMENU7_START+1];
+    
     int marg=4;
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++) {
@@ -6434,6 +6453,10 @@ extern "C" int current_sample;
     }
     clearFXbuffer=false;
     
+    
+    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value>0) _metal_view.hidden=FALSE;
+    else _metal_view.hidden=TRUE;
+    
     switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
         case 1:
         case 4:
@@ -6479,11 +6502,11 @@ extern "C" int current_sample;
     }
     
     if (oglViewFullscreen) {
-        //milk
-        /*if (cover_img==nil) fxalpha=1;
-        else*/ fxalpha=settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value;
+        fxalpha=settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    
+    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value==1) fxalpha=0;
     
     if (fxalpha==1.0f) m_oglView.layer.opaque = YES;
     else m_oglView.layer.opaque = NO;
@@ -6505,6 +6528,12 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[8]) viewTapInfoStr[8]= new CGLString("Labels", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[9]) viewTapInfoStr[9]= new CGLString("Fullscreen", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[10]) viewTapInfoStr[10]= new CGLString("Grid", mFontMenu,mScaleFactor);
+    
+    if (!viewTapInfoStr[11]) viewTapInfoStr[11]= new CGLString("Names", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[12]) viewTapInfoStr[12]= new CGLString("Blend", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[13]) viewTapInfoStr[13]= new CGLString("Lock", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[14]) viewTapInfoStr[14]= new CGLString("Rand", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[15]) viewTapInfoStr[15]= new CGLString("Seq", mFontMenu,mScaleFactor);
     
     
     //get ogl view dimension
@@ -6702,6 +6731,11 @@ extern "C" int current_sample;
                     viewTapHelpShowMode=2;
                     viewTapHelpShow_SubStart=SUBMENU6_START;
                     viewTapHelpShow_SubNb=SUBMENU6_SIZE;
+                } else if (touched_coord==0x02) {
+                    viewTapHelpShow=2;
+                    viewTapHelpShowMode=2;
+                    viewTapHelpShow_SubStart=SUBMENU7_START;
+                    viewTapHelpShow_SubNb=SUBMENU7_SIZE;
                 } else if (touched_coord==0x31) {
                     int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
                     val++;
@@ -6766,6 +6800,9 @@ extern "C" int current_sample;
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                             movePxMOD=movePyMOD=0;
                             break;
+                        case SUBMENU7_START: //Milkdrop
+                            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+                            break;
                     }
                 } else if (touched_coord==0x10) {
                     switch (viewTapHelpShow_SubStart) {
@@ -6796,6 +6833,9 @@ extern "C" int current_sample;
                             size_chan=11*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
+                            break;
+                        case SUBMENU7_START: //Milkdrop
+                            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x20) {
@@ -6828,6 +6868,10 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
+                        case SUBMENU7_START: //Milkdrop
+                            if (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value) settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=0;
+                            else settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=1;
+                            break;
                     }
                 } else if (touched_coord==0x30) {
                     switch (viewTapHelpShow_SubStart) {
@@ -6855,6 +6899,10 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
+                        case SUBMENU7_START: //Milkdrop
+                            if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=0;
+                            else settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+                            break;
                     }
                 } else if (touched_coord==0x01) {
                     switch (viewTapHelpShow_SubStart) {
@@ -6881,6 +6929,9 @@ extern "C" int current_sample;
                             size_chan=11*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
+                            break;
+                        case SUBMENU7_START: //Milkdrop
+                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x11) {
@@ -6910,6 +6961,9 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
+                        case SUBMENU7_START: //Milkdrop
+                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=1;
+                            break;
                     }
                 } else if (touched_coord==0x21) {
                     switch (viewTapHelpShow_SubStart) {
@@ -6935,6 +6989,9 @@ extern "C" int current_sample;
                             size_chan=4*(mFontWidth/mScaleFactor);
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
+                            break;
+                        case SUBMENU7_START: //Milkdrop
+                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=2;
                             break;
                     }
                 } else if (touched_coord==0x31) {
@@ -7771,6 +7828,12 @@ extern "C" int current_sample;
                     else if (mCurrentFontSize==24) active_idx|=1<<10;
                     else if (mCurrentFontSize==32) active_idx|=1<<11;
                     break;
+                case SUBMENU7_START: //Milkdrop
+                    active_idx=1<<settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value;
+                    if (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<2;
+                    if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<3;
+                    active_idx|=1<<(4+settings[MILKDROP_AutoSwitchPresets].detail.mdz_boolswitch.switch_value);
+                    break;
             }
             //if (active_idx==1) active_idx=0;
             
@@ -7887,6 +7950,35 @@ extern "C" int current_sample;
                     mFontText->Render(128+(fadelev/2));
                     glPopMatrix();
                     delete mFontText;
+                }
+                    break;
+                case SUBMENU7_START:{ //Milkdrop
+                    int menu_cell_size=(ww<hh?ww:hh);
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4, 0.0f);
+                    viewTapInfoStr[11]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4, 0.0f);
+                    viewTapInfoStr[12]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                    viewTapInfoStr[13]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                    viewTapInfoStr[14]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                    viewTapInfoStr[15]->Render(128+(fadelev/2));
+                    glPopMatrix();
                 }
                     break;
             }
@@ -8672,7 +8764,7 @@ didStopRecordingWithError:(NSError *)error
         }
         /*----------------------------------------------------*/
 
-//        int screenCount = 1;
+        int screenCount = 1;
 //        if (_externalWindow != nil)
 //        {
 //            // force enable debug UI if external window is up
@@ -8680,6 +8772,17 @@ didStopRecordingWithError:(NSError *)error
 //            screenCount = 2;
 //        }
 //
+        
+        _vizController->SetNextNoRandom((settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==2));
+        
+        if (settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==0) _vizController->SetLock(true);
+        else _vizController->SetLock(false);
+        
+        if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) {
+            _vizController->SetBlendTime(settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);
+        } else _vizController->SetBlendTime(0);
+        _vizController->SetPresetTime(settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);
+        
         if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
             _context->SetView(view);
             _context->BeginScene();

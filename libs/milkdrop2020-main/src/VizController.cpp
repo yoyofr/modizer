@@ -750,12 +750,17 @@ void VizController::NavigateNext()
 
 void VizController::NavigateRandom(bool blend)
 {
+    
     blend=TRUE; //yoyofr
-    auto preset = m_presetListFiltered.SelectRandom(m_random_generator);
-    //static int nb=246; //313
-//    if (nb==1089) nb=rand()%1200;
-//    else nb=1089;
-    //auto preset = m_presetListFiltered.SelectIndex(nb++);
+        
+    PresetInfoPtr preset;
+    
+    if (m_navigationNextNoRandom) {
+        preset = m_presetListFiltered.SelectNext(true);
+    } else {
+        preset = m_presetListFiltered.SelectRandom(m_random_generator);
+    }
+  
     
     if (preset) {
         SetSelectionLock(false);
@@ -2399,17 +2404,17 @@ void VizController::Render(int screenId, int screenCount, float dt)
 
     
     
-    if (screenId == 0)
-    {
-        // ImGui rendering to first screen
-        
-        ImGuiSupport_NewFrame();
-        
-        
-        DrawDebugUI();
-        m_context->SetRenderTarget(nullptr, "ImGui", (screenCount > 1) ? LoadAction::Clear : LoadAction::Load);
-        ImGuiSupport_Render();
-    }
+//    if (screenId == 0)
+//    {
+//        // ImGui rendering to first screen
+//        
+//        ImGuiSupport_NewFrame();
+//        
+//        
+//        DrawDebugUI();
+//        m_context->SetRenderTarget(nullptr, "ImGui", (screenCount > 1) ? LoadAction::Clear : LoadAction::Load);
+//        ImGuiSupport_Render();
+//    }
 }
 
 void  VizController::ToggleSettingsMenu()
@@ -2607,6 +2612,35 @@ void VizController::SaveHistory()
     writer.SaveToFile(m_historyPath);
 }
 
+void VizController::SetNextNoRandom(bool norand) {
+    m_navigationNextNoRandom=norand;
+}
+void VizController::SetLock(bool locked) {
+    if (m_selectionLocked!=locked) {
+        if (m_currentPreset) {
+            m_currentPreset->Progress = 0;
+        }
+    }
+    m_selectionLocked=locked;
+}
+void VizController::SetBlendTime(float blendtime) {
+    m_fBlendTimeAuto= blendtime;
+}
+void VizController::SetPresetTime(float presettime) {
+    if (m_fTimeBetweenPresets != presettime) {
+        m_fTimeBetweenPresets = presettime;
+        
+        float duration;
+        // determine load arguments
+        float timeDelta = 0.40f;
+        float timeMin =     m_fTimeBetweenPresets * (1.0f - timeDelta);
+        float timeMax =     m_fTimeBetweenPresets * (1.0f + timeDelta);
+
+        std::uniform_real_distribution<float> dist(timeMin, timeMax);
+        duration =  m_fBlendTimeAuto + dist(m_random_generator);
+        if (m_vizualizer) m_vizualizer->SetNewDuration(duration);
+    }
+}
 
 
 VizControllerPtr CreateVizController(ContextPtr context, std::string assetDir, std::string userDir)
