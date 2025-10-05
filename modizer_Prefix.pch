@@ -16,7 +16,7 @@
 
 #if TARGET_IPHONE_SIMULATOR
 
-#define ARCH_MIN_ARM_NEON 1
+//#define ARCH_MIN_ARM_NEON 1
 
 #else
 

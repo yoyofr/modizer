@@ -708,11 +708,11 @@ void CPlugin::AllocateOutputTexture()
     m_lpVS[1] = m_context->CreateRenderTarget("VS2", m_nTexSizeX, m_nTexSizeY, m_InternalFormat);
 	assert(m_lpVS[1]);
 
-    LogPrint("Created render target texture(%dx%dx%s)\n",
-             m_lpVS[0]->GetWidth(),
-             m_lpVS[0]->GetHeight(),
-             PixelFormatToString(m_lpVS[0]->GetFormat())
-             );
+//    LogPrint("Created render target texture(%dx%dx%s)\n",
+//             m_lpVS[0]->GetWidth(),
+//             m_lpVS[0]->GetHeight(),
+//             PixelFormatToString(m_lpVS[0]->GetFormat())
+//             );
 
 
     // create blur textures w/same format.  A complete mip chain costs 33% more video mem then 1 full-sized VS.

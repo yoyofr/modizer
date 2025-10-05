@@ -70,7 +70,9 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	textView.font=[UIFont systemFontOfSize:14];
+    
+    
+    textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
         
     darkMode=false;
@@ -115,15 +117,17 @@
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
+    
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleDefault;
 }
+
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    [super viewWillAppear:animated];
+    [super viewWillAppear:animated];        
     
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
@@ -150,6 +154,12 @@
                                           context:LoadingProgressObserverContext];
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
+         
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"yo3");
 }
 
 /*
@@ -224,7 +234,5 @@
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
-
-
 
 @end

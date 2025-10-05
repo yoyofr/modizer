@@ -5472,6 +5472,27 @@ void ViewPerspective()
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPanGesture];
     
+    // Create gesture recognizers
+    UISwipeGestureRecognizer *glViewSwipeLeftGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeLeftGesture:)];
+    UISwipeGestureRecognizer *glViewSwipeRightGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeRightGesture:)];
+    UISwipeGestureRecognizer *glViewSwipeUpGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeUpGesture:)];
+    UISwipeGestureRecognizer *glViewSwipeDownGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeDownGesture:)];
+    // Set required taps and number of touches
+    [glViewSwipeLeftGesture setNumberOfTouchesRequired:1];
+    [glViewSwipeRightGesture setNumberOfTouchesRequired:1];
+    [glViewSwipeUpGesture setNumberOfTouchesRequired:1];
+    [glViewSwipeDownGesture setNumberOfTouchesRequired:1];
+    
+    [glViewSwipeLeftGesture setDirection:UISwipeGestureRecognizerDirectionLeft];
+    [glViewSwipeRightGesture setDirection:UISwipeGestureRecognizerDirectionRight];
+    [glViewSwipeUpGesture setDirection:UISwipeGestureRecognizerDirectionUp];
+    [glViewSwipeDownGesture setDirection:UISwipeGestureRecognizerDirectionDown];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewSwipeLeftGesture];
+    [m_oglView addGestureRecognizer:glViewSwipeRightGesture];
+    [m_oglView addGestureRecognizer:glViewSwipeUpGesture];
+    [m_oglView addGestureRecognizer:glViewSwipeDownGesture];
+    
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPan2Gesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)];
     // Set required taps and number of touches
@@ -6410,6 +6431,52 @@ static int mOglView1Tap=0;
     }
 }
 
+-(void) glViewSwipeLeftGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
+    if (_metal_view.hidden==FALSE) {
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateRecognized:
+                NSLog(@"left swipe detected");
+                break;
+            default:
+                break;
+        }
+    }
+}
+-(void) glViewSwipeRightGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
+    if (_metal_view.hidden==FALSE) {
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateRecognized:
+                NSLog(@"right swipe detected");
+                break;
+            default:
+                break;
+        }
+    }
+}
+-(void) glViewSwipeUpGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
+    if (_metal_view.hidden==FALSE) {
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateRecognized:
+                NSLog(@"up swipe detected");
+                break;
+            default:
+                break;
+        }
+    }
+}
+-(void) glViewSwipeDownGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
+    if (_metal_view.hidden==FALSE) {
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateRecognized:
+                NSLog(@"down swipe detected");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
     movePx2=pt.x;
@@ -6549,6 +6616,7 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[16]) viewTapInfoStr[16]= new CGLString("Next", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[17]) viewTapInfoStr[17]= new CGLString("Prev", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[18]) viewTapInfoStr[18]= new CGLString("Preset", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[19]) viewTapInfoStr[19]= new CGLString("Limited", mFontMenu,mScaleFactor);
     
     
     //get ogl view dimension
@@ -6780,7 +6848,7 @@ extern "C" int current_sample;
             }
             
         } else if (viewTapHelpShow==2) { //sub menu
-            viewTapHelpShow=0;
+            //viewTapHelpShow=0;
             viewTapHelpShowMode=2;
             int menu_cell_size=(ww<hh?ww:hh);
             int tlx=oglTapX;
@@ -6884,8 +6952,7 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            if (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value) settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=0;
-                            else settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=1;
+                            settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=(settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value+1)%3;
                             break;
                     }
                 } else if (touched_coord==0x30) {
@@ -7130,13 +7197,17 @@ extern "C" int current_sample;
                         case SUBMENU5_START: //Notes scrollers
                             break;
                         case SUBMENU6_START: //Mod patterns
-                            viewTapHelpShow=2; //keep menu visible
+                            //viewTapHelpShow=2; //keep menu visible
                             settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value++;
                             if (settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value>=MOD_PATTERN_FONT_NB) settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
                             [self updateFont];
                             [self updateVisibleChan];
                             break;
                     }
+                } else if (touched_coord==0x33) {
+                    //Exit sub menu
+                    //viewTapHelpShow=0;
+                    viewTapHelpShow=1;viewTapHelpShowMode=1;
                 }
             }
         } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
@@ -7667,8 +7738,15 @@ extern "C" int current_sample;
         }
     }
     
-    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value)) {
+    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)) {
         if (_vizController) {
+            float x,y,w,h;
+            static float scrollx=0;
+            static int scroll_direction=1;
+            static int scroll_pause=0;
+            static int display_countdown=0;
+            LineVertexF ptsB[6];
+            
             std::string title;
             _vizController->GetPresetTitle(title);
             if (milkPresetStr) {
@@ -7678,41 +7756,69 @@ extern "C" int current_sample;
                     milkPresetStr=NULL;
                 }
             }
-            if (milkPresetStr==NULL) milkPresetStr=new CGLString(title.c_str(), mFontMenu,mScaleFactor);
-            
-            if (milkPresetStr) {
-                glPushMatrix();
-                glTranslatef(0, (mFontHeight/mScaleFactor+4), 0.0f);
+            if (milkPresetStr==NULL) {
+                milkPresetStr=new CGLString(title.c_str(), mFontMenu,mScaleFactor);
                 
-                LineVertexF ptsB[6];
+                scrollx=0;
+                scroll_direction=1;
+                display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+            }
+            
+            if (milkPresetStr&&display_countdown) {
+                //Display preset name in a small box
+                glPushMatrix();
+                glTranslatef(-scrollx, (mFontHeight/mScaleFactor+4), 0.0f);
                 
                 glEnableClientState(GL_VERTEX_ARRAY);
                 glEnableClientState(GL_COLOR_ARRAY);
                 
-              //  glEnable(GL_BLEND);
-              //  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 
                 glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
                 glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
                 
-                float x,y,w,h;
+                
                 w=milkPresetStr->xmax-milkPresetStr->xmin+8;
                 h=milkPresetStr->ymax-milkPresetStr->ymin+6;
                 x=milkPresetStr->xmin-4;
                 y=milkPresetStr->ymin-3;
-                ptsB[0]=LineVertexF(x, y,0,0,0,255*0.8);
-                ptsB[1]=LineVertexF(x+w, y,1,0,0,255*0.8);
-                ptsB[2]=LineVertexF(x+w, y+h,1,0,0,255*0.8);
+                int alpha=255*0.4;
+                ptsB[0]=LineVertexF(x, y,0,0,0,alpha);
+                ptsB[1]=LineVertexF(x+w, y,1,0,0,alpha);
+                ptsB[2]=LineVertexF(x+w, y+h,1,0,0,alpha);
                 
-                ptsB[3]=LineVertexF(x, y,0,0,0,255*0.8);
-                ptsB[4]=LineVertexF(x+w, y+h,0,0,0,255*0.8);
-                ptsB[5]=LineVertexF(x, y+h,0,0,0,255*0.8);
+                ptsB[3]=LineVertexF(x, y,0,0,0,alpha);
+                ptsB[4]=LineVertexF(x+w, y+h,0,0,0,alpha);
+                ptsB[5]=LineVertexF(x, y+h,0,0,0,alpha);
                 
                 
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 
                 milkPresetStr->Render(0);
                 glPopMatrix();
+                
+                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
+                
+                if (scroll_pause) scroll_pause--;
+                else {
+                    if (scroll_direction==1) {
+                        if (_metal_view.frame.size.width+scrollx<w) scrollx+=2;
+                        else {
+                            if (scrollx>0) {
+                                scroll_direction=-1;
+                                scroll_pause=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30);
+                            }
+                        }
+                    } else {
+                        if (scrollx>0) scrollx-=2;
+                        else {
+                            scrollx=0;
+                            scroll_direction=1;
+                            scroll_pause=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30);
+                        }
+                    }
+                }
             }
         }
     }
@@ -7809,13 +7915,13 @@ extern "C" int current_sample;
     }
     if (viewTapHelpShow) {
         if (viewTapHelpInfo<255) {
-            viewTapHelpInfo+=256;//48;
+            viewTapHelpInfo+=48;//48;
             /*			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;*/
             if (viewTapHelpInfo>255) viewTapHelpInfo=255;
         }
     } else {
         if (viewTapHelpInfo>0) {
-            viewTapHelpInfo-=256;//48;
+            viewTapHelpInfo-=48;//48;
             /*			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;*/
             if (viewTapHelpInfo<0) viewTapHelpInfo=0;
         }
@@ -7847,12 +7953,12 @@ extern "C" int current_sample;
             
             glPushMatrix();
             int menu_cell_size=(ww<hh?ww:hh);
-            glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+            glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
             viewTapInfoStr[2]->Render(128+(fadelev/2));
             glPopMatrix();
             
             glPushMatrix();
-            glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
+            glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
             viewTapInfoStr[9]->Render(128+(fadelev/2));
             glPopMatrix();
         }
@@ -7895,7 +8001,7 @@ extern "C" int current_sample;
                     break;
                 case SUBMENU7_START: //Milkdrop
                     active_idx=1<<settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value;
-                    if (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value) active_idx|=1<<2;
+                    if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value) active_idx|=1<<2;
                     if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<3;
                     active_idx|=1<<(4+settings[MILKDROP_AutoSwitchPresets].detail.mdz_boolswitch.switch_value);
                     break;
@@ -7906,7 +8012,7 @@ extern "C" int current_sample;
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             int menu_cell_size=(ww<hh?ww:hh);
             glPushMatrix();
-            glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
+            glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
             viewTapInfoStr[1]->Render(128+(fadelev/2));
             glPopMatrix();
             
@@ -7914,28 +8020,28 @@ extern "C" int current_sample;
                 case SUBMENU0_START:{ //Oscillo
                     int menu_cell_size=(ww<hh?ww:hh);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[8]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[10]->Render(128+(fadelev/2));
                     glPopMatrix();
                     
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[4]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[5]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[6]->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -7954,27 +8060,27 @@ extern "C" int current_sample;
                 case SUBMENU6_START:{ //MOD Pattern
                     int menu_cell_size=(ww<hh?ww:hh);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[3]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[3]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[4]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[4]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[5]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[5]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[6]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[6]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[7]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[7]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*1/4, 0.0f);
                     viewTapInfoStr[7]->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -7983,7 +8089,7 @@ extern "C" int current_sample;
                     snprintf(tmp_str,64,"Font:");
                     CGLString *mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4+(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
                     mFontText->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -7992,7 +8098,7 @@ extern "C" int current_sample;
                     snprintf(tmp_str,64,"%s",fontName[mCurrentFontIdx]);
                     mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
                     mFontText->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -8001,7 +8107,7 @@ extern "C" int current_sample;
                     snprintf(tmp_str,64,"Tap to");
                     mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*4/2, 0.0f);
                     mFontText->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -8010,7 +8116,7 @@ extern "C" int current_sample;
                     snprintf(tmp_str,64,"change");
                     mFontText = new CGLString(tmp_str, mFontMenu,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(mFontText->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*0/4-(mFontMenu->maxCharHeight/mScaleFactor+2)*6/2, 0.0f);
                     mFontText->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -8019,28 +8125,49 @@ extern "C" int current_sample;
                     break;
                 case SUBMENU7_START:{ //Milkdrop
                     int menu_cell_size=(ww<hh?ww:hh);
+                    
+                    //Preset names
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[8]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
-                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4, 0.0f);
-                    viewTapInfoStr[11]->Render(128+(fadelev/2));
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[18]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4+2*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[18]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[11]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[11]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1) {
+                        glPushMatrix();
+                        glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[19]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                     menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4-4*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                        viewTapInfoStr[19]->Render(128+(fadelev/2));
+                        glPopMatrix();
+                    }
+                    
+                    
+                    //Blend flag
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*3/4+menu_cell_size/8-(strlen(viewTapInfoStr[12]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*3/4, 0.0f);
                     viewTapInfoStr[12]->Render(128+(fadelev/2));
                     glPopMatrix();
+                    
+                    //Preset switch mode: Lock/Rand/Seq
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[13]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[13]->Render(128+(fadelev/2));
                     glPopMatrix();
+                    
+                    
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[14]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[14]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[10]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[15]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                                  menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
                     viewTapInfoStr[15]->Render(128+(fadelev/2));
                     glPopMatrix();
@@ -8050,7 +8177,7 @@ extern "C" int current_sample;
         }
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
-        glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*(mFontMenu->maxCharWidth/mScaleFactor),
+        glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                      menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
         viewTapInfoStr[0]->Render(128+(fadelev/2));
         glPopMatrix();
@@ -8792,8 +8919,12 @@ didStopRecordingWithError:(NSError *)error
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    _metal_view.hidden=mOglViewIsHidden;
-    if (mOglViewIsHidden) return;
+    bool mv_hidden=FALSE;
+    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value==0) mv_hidden=TRUE;
+    if (mOglViewIsHidden) mv_hidden=TRUE;
+    _metal_view.hidden=mv_hidden;
+    
+    if (mv_hidden) return;
     
     @autoreleasepool {
         PROFILE_FRAME()

@@ -124,16 +124,16 @@
                                 <viewControllerLayoutGuide type="bottom" id="cyz-3o-0H6"/>
                             </layoutGuides>
                             <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="1956">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="sQr-Jh-As6">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="583"/>
+                                        <rect key="frame" x="0.0" y="-16" width="375" height="844"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </imageView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <connections>
@@ -219,16 +219,16 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="ucP-DQ-k4m">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="844"/>
+                                        <rect key="frame" x="0.0" y="-16" width="375" height="583"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </imageView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" barStyle="black" id="716">
@@ -245,7 +245,7 @@
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -921,13 +921,13 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="300">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" id="otr-K4-9cD">
                                 <rect key="frame" x="0.0" y="60" width="320" height="84"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <color key="backgroundColor" red="0.17346938780000001" green="0.1092839401" blue="0.090279194480000005" alpha="0.25" colorSpace="custom" customColorSpace="sRGB"/>
-                                <color key="textColor" red="0.99163811339999997" green="0.93880494540000003" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <textInputTraits key="textInputTraits" autocorrectionType="no"/>
+                                <color key="backgroundColor" red="0.17254901960784313" green="0.10980392156862745" blue="0.090196078431372548" alpha="0.25129346026490068" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" white="0.94039647108843538" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1018,7 +1018,7 @@
                 <outlet property="playBarSubRewind" destination="1230" id="pVS-em-nZA"/>
                 <outlet property="playlistPos" destination="223" id="225"/>
                 <outlet property="sliderProgressModule" destination="23" id="64"/>
-                <outlet property="textMessage" destination="300" id="301"/>
+                <outlet property="textMessage" destination="otr-K4-9cD" id="5h6-3D-Zsi"/>
                 <outlet property="volWin" destination="388" id="399"/>
             </connections>
             <point key="canvasLocation" x="-70.400000000000006" y="-460.34482758620692"/>
@@ -1227,10 +1227,10 @@
                 <outlet property="toolBar" destination="1925" id="1997"/>
                 <outlet property="view" destination="445" id="x0H-ec-ei3"/>
             </connections>
-            <point key="canvasLocation" x="-195.19999999999999" y="-1380.8095952023989"/>
+            <point key="canvasLocation" x="-196" y="-1381.0344827586207"/>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
-            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="1471">
+            <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="1471">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="397"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
@@ -1238,11 +1238,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </imageView>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1468" userLabel="Text View">
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" id="MNh-QD-BfJ">
                         <rect key="frame" x="0.0" y="81" width="320" height="316"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <string key="text">v3.11 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v3.12 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
@@ -1285,15 +1285,21 @@ Integrated player libs:
 - ZXTune
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
                         <color key="textColor" systemColor="labelColor"/>
-                        <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
-                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>
-                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        <connections>
+                            <outlet property="delegate" destination="444" id="C0a-Lk-PHG"/>
+                        </connections>
                     </textView>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="oqM-p6-NS0"/>
-                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <accessibility key="accessibilityConfiguration">
+                    <accessibilityTraits key="traits" allowsDirectInteraction="YES"/>
+                    <bool key="isElement" value="YES"/>
+                </accessibility>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
@@ -1303,7 +1309,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
             <size key="freeformSize" width="320" height="480"/>
             <connections>
                 <outlet property="detailViewController" destination="11" id="n50-cJ-UpW"/>
-                <outlet property="textView" destination="1468" id="1481"/>
+                <outlet property="textView" destination="MNh-QD-BfJ" id="pYd-jC-dUE"/>
             </connections>
             <point key="canvasLocation" x="-256" y="-1871"/>
         </viewController>

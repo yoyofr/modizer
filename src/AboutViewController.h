@@ -13,7 +13,7 @@
 
 @class DetailViewControllerIphone;
 
-@interface AboutViewController : UIViewController {
+@interface AboutViewController : UIViewController <UITextViewDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet UITextView *textView;
     

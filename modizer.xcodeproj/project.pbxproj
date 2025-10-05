@@ -904,6 +904,8 @@
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
 		CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAB940C2BCBB3D20038834A /* liblibvgm.a */; };
+		CCAB9F342E92D18D00AF59B0 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
+		CCAB9F352E92D19F00AF59B0 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594E17ECABD2007638B9 /* Localizable.strings */; };
 		CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */; };
@@ -3095,6 +3097,7 @@
 				CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */,
 				CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */,
 				CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */,
+				CCAB9F342E92D18D00AF59B0 /* libLazyusf.a in Frameworks */,
 				CCC544402B8BFCDD00E97EC1 /* libavfilter.xcframework in Frameworks */,
 				CCC544412B8BFCDD00E97EC1 /* libavformat.xcframework in Frameworks */,
 				CCC544422B8BFCDD00E97EC1 /* libavutil.xcframework in Frameworks */,
@@ -3113,6 +3116,7 @@
 				CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */,
 				CC4FB2F42E8EA80A00B3E56F /* libhlsl2glsl-ios.a in Frameworks */,
 				CC4FC8792E8EBFCE00B3E56F /* Metal.framework in Frameworks */,
+				CCAB9F352E92D19F00AF59B0 /* libLazyusf.a in Frameworks */,
 				CC4FC8752E8EBF7C00B3E56F /* libhlsl2glsl-ios.a in Frameworks */,
 				59BE9380260010BD00414A42 /* libsidplayfp.a in Frameworks */,
 				59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */,
@@ -7540,6 +7544,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DMODIZER",
 					"-D",

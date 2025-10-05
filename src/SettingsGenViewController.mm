@@ -624,7 +624,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
     
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value=0;
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
     settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=1;
     settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
     settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
@@ -1811,11 +1811,16 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     ///
     SETTINGS_ID_DEF(MILKDROP_ShowPresetLabel)
-    settings[MILKDROP_ShowPresetLabel].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_ShowPresetLabel].type=MDZ_SWITCH;
     settings[MILKDROP_ShowPresetLabel].label=(char*)"Display preset name";
-    settings[MILKDROP_ShowPresetLabel].description=NULL;
+    settings[MILKDROP_ShowPresetLabel].description=(char*)"Lim: display and disappear quickly";
     settings[MILKDROP_ShowPresetLabel].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[MILKDROP_ShowPresetLabel].sub_family=0;
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value_nb=3;
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[1]=(char*)"Lim";
+    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[2]=(char*)"On";
     
     SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresets)
     settings[MILKDROP_AutoSwitchPresets].type=MDZ_SWITCH;
