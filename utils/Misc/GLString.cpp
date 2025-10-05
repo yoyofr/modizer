@@ -126,7 +126,8 @@ void CGLString::BuildString(int msg_type)
         printf("%s: cannot allocate memory\n",__func__);
         return;
     }
-	
+    xmin=0;xmax=0;
+    ymin=0;ymax=0;
 	float baseX = 0.0f;
 	float baseY = 0.0f;
 	float x = 0.0f;
@@ -184,7 +185,7 @@ void CGLString::BuildString(int msg_type)
 			mVertices[vertIndex + 1] = y - data.byteHeight/scaleFactor-adj;
 			mVertices[vertIndex + 2] = x-adj;
 			mVertices[vertIndex + 3] = y+adj;
-			
+            
 			x += data.byteWidth/scaleFactor;
 			
 			mVertices[vertIndex + 4] = x+adj;
@@ -193,6 +194,14 @@ void CGLString::BuildString(int msg_type)
 			mVertices[vertIndex + 7] = y+adj;
 			
 			memcpy(&mUVs[vertIndex], data.texCoords, sizeof(float) * 8);
+            
+            //update xmin,xmax,ymin,ymax
+            for (int a=0;a<4;a++) {
+                if (mVertices[vertIndex + a*2]<xmin) xmin=mVertices[vertIndex + a*2];
+                if (mVertices[vertIndex + a*2]>xmax) xmax=mVertices[vertIndex + a*2];
+                if (mVertices[vertIndex + a*2+1]<ymin) ymin=mVertices[vertIndex + a*2+1];
+                if (mVertices[vertIndex + a*2+1]>ymax) ymax=mVertices[vertIndex + a*2+1];
+            }
 			
 			vertIndex += 8;
             

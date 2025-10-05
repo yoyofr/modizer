@@ -51,7 +51,7 @@ public:
         std::lock_guard<std::mutex> lock(_mutex);
         _map[name] = texture;
         
-        LogPrint("Loaded texture '%s' (%dx%d)\n", name.c_str(), texture->GetWidth(), texture->GetHeight());
+        //LogPrint("Loaded texture '%s' (%dx%d)\n", name.c_str(), texture->GetWidth(), texture->GetHeight());
     }
     
     virtual void GetTextureListWithPrefix(const std::string &prefix, std::vector<TexturePtr> &list) override
@@ -147,7 +147,7 @@ VizController::VizController(ContextPtr context, std::string assetDir, std::stri
     
 //    m_contentMode = ContentMode::ScaleAspectFit;
     
-    ImGuiSupport_Init(m_context, m_assetDir);
+//    ImGuiSupport_Init(m_context, m_assetDir);
 
 
     LogPrint("Visualizer assetDir: %s\n", assetDir.c_str());
@@ -166,7 +166,7 @@ VizController::~VizController()
     }
 #endif
     
-    ImGuiSupport_Shutdown();
+//    ImGuiSupport_Shutdown();
 
     
 }
@@ -318,12 +318,12 @@ void VizController::SetPreset(PresetInfoPtr presetInfo, PresetPtr preset, Preset
 
 
     
-    LogPrint("LoadPreset: (%d/%d) '%s' (load: %fms blend:%fs duration:%.1fs)\n",
-             presetInfo->Index,
-             (int)m_presetList.size(),
-             presetInfo->Name.c_str(),
-             sw.GetElapsedMilliSeconds(),
-             args.blendTime, args.duration );
+//    LogPrint("LoadPreset: (%d/%d) '%s' (load: %fms blend:%fs duration:%.1fs)\n",
+//             presetInfo->Index,
+//             (int)m_presetList.size(),
+//             presetInfo->Name.c_str(),
+//             sw.GetElapsedMilliSeconds(),
+//             args.blendTime, args.duration );
 }
 
 

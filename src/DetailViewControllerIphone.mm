@@ -1244,7 +1244,7 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
             break;
         case 3:
-            //settings[GLOB_FX3].detail.mdz_switch.switch_value=(settings[GLOB_FX3].detail.mdz_switch.switch_value+1)%4;
+            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
             break;
         case 4:
             settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
@@ -4047,6 +4047,8 @@ int recording=0;
                 //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
                 commandViewU.frame = CGRectMake(0, 0, mDevice_hh, 32+44+8);
                 
+                
+                
                 buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
                 buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
                 buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
@@ -4987,6 +4989,8 @@ void ViewPerspective()
     mFontMenu=NULL;
     mFontMenuPath=NULL;
     
+    commandViewU.backgroundColor=[UIColor colorWithRed:0 green:0 blue:0 alpha:0.9f];
+    
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     //labelModuleName.backgroundColor=[UIColor blackColor];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
@@ -5365,6 +5369,7 @@ void ViewPerspective()
     ratingImg[2] = @"heart-filled.png";
     
     for (int i=0;i<MAX_MENU_FX_STRING;i++) viewTapInfoStr[i]=NULL;
+    milkPresetStr=NULL;
     
     mPlaylist_size=0;
     mIsPlaying=FALSE;
@@ -5580,7 +5585,6 @@ void ViewPerspective()
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13a_2x.png"]);
     
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
-    //    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
     
@@ -5613,7 +5617,7 @@ void ViewPerspective()
 #define SUBMENU3_SIZE 9
     //Spectrum 3D landscape
     txtSubMenuHandle[SUBMENU3_START]=0;
-    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
+    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[3];
     txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
     txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
     txtSubMenuHandle[SUBMENU3_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
@@ -5647,7 +5651,7 @@ void ViewPerspective()
 #define SUBMENU6_SIZE 7
     //Mod patterns
     txtSubMenuHandle[SUBMENU6_START]=0;
-    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[6];
     txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
     txtSubMenuHandle[SUBMENU6_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
     txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
@@ -5658,13 +5662,9 @@ void ViewPerspective()
 #define SUBMENU7_SIZE 2
     //Mod patterns
     txtSubMenuHandle[SUBMENU7_START]=0;
-    txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];
     //txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13b_2x.png"]);
-//    txtSubMenuHandle[SUBMENU6_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
-//    txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
-//    txtSubMenuHandle[SUBMENU6_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
-//    txtSubMenuHandle[SUBMENU6_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
-//            
+//
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
     [SettingsGenViewController pianomidiGenSystemColor:1 color_idx:-1 color_buffer:data_midifx_pal2];
@@ -5830,6 +5830,7 @@ void ViewPerspective()
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    //NSLog(@"resize event");
     if (mOglViewIsHidden==NO) {
         //YOYOFR HACK to remove one day (maybe after switch to Metal ?)
         //on macos, when switching to full screen size, a lag appears if opengl view is displayed
@@ -5863,6 +5864,8 @@ void ViewPerspective()
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
     }
+    
+    //NSLog(@"resize to %d x %d",mDevice_ww,mDevice_hh);
     
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     
@@ -5973,7 +5976,7 @@ void ViewPerspective()
             mDevice_ww=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.height-(is_macOS?60:0);
             mDevice_hh=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
@@ -5997,6 +6000,8 @@ void ViewPerspective()
         
         //if (mScaleFactor>=2) mDeviceType=2;
     }
+    
+    //NSLog(@"will appear: %d x %d",mDevice_ww,mDevice_hh);
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -6109,6 +6114,12 @@ void ViewPerspective()
     [m_oglView layoutSubviews];
     [m_oglView bind];
     
+    
+    if (milkPresetStr) {
+        delete milkPresetStr;
+        milkPresetStr=NULL;
+    }
+    
     mFont=NULL;
     mFontMenu=NULL;
     
@@ -6187,6 +6198,7 @@ void ViewPerspective()
     mHasFocus=1;
     
     nowplayingPL=nil;
+        
     //
     [super viewDidAppear:animated];
 }
@@ -6534,6 +6546,9 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[13]) viewTapInfoStr[13]= new CGLString("Lock", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[14]) viewTapInfoStr[14]= new CGLString("Rand", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[15]) viewTapInfoStr[15]= new CGLString("Seq", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[16]) viewTapInfoStr[16]= new CGLString("Next", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[17]) viewTapInfoStr[17]= new CGLString("Prev", mFontMenu,mScaleFactor);
+    if (!viewTapInfoStr[18]) viewTapInfoStr[18]= new CGLString("Preset", mFontMenu,mScaleFactor);
     
     
     //get ogl view dimension
@@ -7652,6 +7667,56 @@ extern "C" int current_sample;
         }
     }
     
+    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && (settings[MILKDROP_ShowPresetLabel].detail.mdz_boolswitch.switch_value)) {
+        if (_vizController) {
+            std::string title;
+            _vizController->GetPresetTitle(title);
+            if (milkPresetStr) {
+                if (strcmp(milkPresetStr->mText,title.c_str())) {
+                    //reset string as it has changed
+                    delete milkPresetStr;
+                    milkPresetStr=NULL;
+                }
+            }
+            if (milkPresetStr==NULL) milkPresetStr=new CGLString(title.c_str(), mFontMenu,mScaleFactor);
+            
+            if (milkPresetStr) {
+                glPushMatrix();
+                glTranslatef(0, (mFontHeight/mScaleFactor+4), 0.0f);
+                
+                LineVertexF ptsB[6];
+                
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glEnableClientState(GL_COLOR_ARRAY);
+                
+              //  glEnable(GL_BLEND);
+              //  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                
+                glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
+                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
+                
+                float x,y,w,h;
+                w=milkPresetStr->xmax-milkPresetStr->xmin+8;
+                h=milkPresetStr->ymax-milkPresetStr->ymin+6;
+                x=milkPresetStr->xmin-4;
+                y=milkPresetStr->ymin-3;
+                ptsB[0]=LineVertexF(x, y,0,0,0,255*0.8);
+                ptsB[1]=LineVertexF(x+w, y,1,0,0,255*0.8);
+                ptsB[2]=LineVertexF(x+w, y+h,1,0,0,255*0.8);
+                
+                ptsB[3]=LineVertexF(x, y,0,0,0,255*0.8);
+                ptsB[4]=LineVertexF(x+w, y+h,0,0,0,255*0.8);
+                ptsB[5]=LineVertexF(x, y+h,0,0,0,255*0.8);
+                
+                
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                
+                milkPresetStr->Render(0);
+                glPopMatrix();
+            }
+        }
+    }
+    
     if ([mplayer isPlaying]){
         short int **snd_buffer;
         int cur_pos,prev_pos;
@@ -8727,6 +8792,9 @@ didStopRecordingWithError:(NSError *)error
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    _metal_view.hidden=mOglViewIsHidden;
+    if (mOglViewIsHidden) return;
+    
     @autoreleasepool {
         PROFILE_FRAME()
         
@@ -8808,7 +8876,5 @@ didStopRecordingWithError:(NSError *)error
 //    NSLog(@"drawableSizeWillChange: %@ %fx%f\n", view, size.width, size.height);
 
 }
-
-
 
 @end

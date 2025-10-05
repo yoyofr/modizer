@@ -21,8 +21,9 @@ public:
 	
 	void Render(int msg_type);
 	char *mText;
+    
+    float xmin,xmax,ymin,ymax;
 private:
-	
 	const CFont *mFont;
     float scaleFactor;
 	GLfloat *mVertices;
@@ -30,6 +31,7 @@ private:
 	GLushort *mIndices;
 	colorData *mColors;
 	int mNumberOfQuads;
+    
 	
 	void BuildString(int msg_type);
 };

@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-#define MAX_MENU_FX_STRING 16
+#define MAX_MENU_FX_STRING 19
 
 #import "Queue.h"
 #import "DBHelper.h"
@@ -171,6 +171,7 @@ enum {
 	CGLString *mText[512];
 	CGLString *mTextLine[512];
 	CGLString *viewTapInfoStr[MAX_MENU_FX_STRING];
+    CGLString *milkPresetStr;
 	CGLString *mHeader;
 	
 	int mDeviceType;
