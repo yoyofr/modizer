@@ -625,7 +625,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
     
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=1;
+    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
+    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
     settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
     settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value=2.7;
@@ -1822,17 +1823,23 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[1]=(char*)"Lim";
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[2]=(char*)"On";
     
-    SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresets)
-    settings[MILKDROP_AutoSwitchPresets].type=MDZ_SWITCH;
-    settings[MILKDROP_AutoSwitchPresets].label=(char*)"Auto switch presets";
-    settings[MILKDROP_AutoSwitchPresets].description=NULL;
-    settings[MILKDROP_AutoSwitchPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_AutoSwitchPresets].sub_family=0;
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value_nb=3;
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[1]=(char*)"Rand";
-    settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_labels[2]=(char*)"Next";
+    SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresetsMode)
+    settings[MILKDROP_AutoSwitchPresetsMode].type=MDZ_SWITCH;
+    settings[MILKDROP_AutoSwitchPresetsMode].label=(char*)"Auto switch presets";
+    settings[MILKDROP_AutoSwitchPresetsMode].description=NULL;
+    settings[MILKDROP_AutoSwitchPresetsMode].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_AutoSwitchPresetsMode].sub_family=0;
+    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb=2;
+    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Rand";
+    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Next";
+    
+    SETTINGS_ID_DEF(MILKDROP_LockPreset)
+    settings[MILKDROP_LockPreset].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_LockPreset].label=(char*)"Lock preset";
+    settings[MILKDROP_LockPreset].description=NULL;
+    settings[MILKDROP_LockPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_LockPreset].sub_family=0;
     
     SETTINGS_ID_DEF(MILKDROP_BlendPresets)
     settings[MILKDROP_BlendPresets].type=MDZ_BOOLSWITCH;

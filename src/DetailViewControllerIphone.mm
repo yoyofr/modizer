@@ -6,6 +6,9 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define MILK_HorizontalSwipe_Threshold 160
+#define MILK_VerticalSwipe_Threshold 160
+
 #define SELECTOR_TABVIEWCELL_HEIGHT 50
 #define ARCSUB_MODE_NONE 0
 #define ARCSUB_MODE_ARC 1
@@ -933,7 +936,7 @@ static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static int currentPattern,currentRow,startChan,visibleChan;
 
-static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0;
+static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0,moveMILKnomore=0;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
 static float movePx2=0,movePy2=0,movePx2Old=0,movePy2Old=0;
@@ -1229,6 +1232,27 @@ static float movePinchScale,movePinchScaleOld;
             buttonShuffleSel.hidden=NO;
             buttonShuffleOneSel.hidden=YES;
             break;
+    }
+}
+
+-(void) mdPrevPreset {
+    if (_vizController) _vizController->NavigatePrevious();
+}
+-(void) mdNextPreset {
+    if (_vizController) _vizController->NavigateNext();
+}
+-(void) mdSwitchLockPreset {
+    if (_vizController) {
+        std::string title;
+        _vizController->GetPresetTitle(title);
+        //_vizController->SetLock(TRUE);
+        if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) {
+            settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+            [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title.c_str()] style:0];
+        } else {
+            settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+            [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title.c_str()] style:0];
+        }
     }
 }
 
@@ -5472,27 +5496,6 @@ void ViewPerspective()
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPanGesture];
     
-    // Create gesture recognizers
-    UISwipeGestureRecognizer *glViewSwipeLeftGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeLeftGesture:)];
-    UISwipeGestureRecognizer *glViewSwipeRightGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeRightGesture:)];
-    UISwipeGestureRecognizer *glViewSwipeUpGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeUpGesture:)];
-    UISwipeGestureRecognizer *glViewSwipeDownGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(glViewSwipeDownGesture:)];
-    // Set required taps and number of touches
-    [glViewSwipeLeftGesture setNumberOfTouchesRequired:1];
-    [glViewSwipeRightGesture setNumberOfTouchesRequired:1];
-    [glViewSwipeUpGesture setNumberOfTouchesRequired:1];
-    [glViewSwipeDownGesture setNumberOfTouchesRequired:1];
-    
-    [glViewSwipeLeftGesture setDirection:UISwipeGestureRecognizerDirectionLeft];
-    [glViewSwipeRightGesture setDirection:UISwipeGestureRecognizerDirectionRight];
-    [glViewSwipeUpGesture setDirection:UISwipeGestureRecognizerDirectionUp];
-    [glViewSwipeDownGesture setDirection:UISwipeGestureRecognizerDirectionDown];
-    // Add the gesture to the view
-    [m_oglView addGestureRecognizer:glViewSwipeLeftGesture];
-    [m_oglView addGestureRecognizer:glViewSwipeRightGesture];
-    [m_oglView addGestureRecognizer:glViewSwipeUpGesture];
-    [m_oglView addGestureRecognizer:glViewSwipeDownGesture];
-    
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPan2Gesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)];
     // Set required taps and number of touches
@@ -5756,7 +5759,7 @@ void ViewPerspective()
     
     //    m_displayLink=nil;
         m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
-        m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
+        m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //60 or 30 fps depending on device speed iPhone
         [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 
     
@@ -5772,7 +5775,7 @@ void ViewPerspective()
 
 
     _vizController = CreateVizController(_context, assetDir, userDir);
-    _vizController->SetNextNoRandom((settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==1));
+    _vizController->SetNextNoRandom(settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
     
     /*--------------------------------------*/
     
@@ -6177,6 +6180,7 @@ void ViewPerspective()
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
     
     movePxMID=movePyMID=0;
+    moveMILKnomore=0;
     
     //    self.navigationController.navigationBar.hidden = YES;
 //    m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
@@ -6428,54 +6432,12 @@ static int mOglView1Tap=0;
     if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
         movePxOld=movePx;
         movePyOld=movePy;
+        
+        //Also reset tracking variables related to "swipe" like gesture
+        movePxMILK=0;movePyMILK=0;
+        moveMILKnomore=0;
     }
 }
-
--(void) glViewSwipeLeftGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
-    if (_metal_view.hidden==FALSE) {
-        switch (gestureRecognizer.state) {
-            case UIGestureRecognizerStateRecognized:
-                NSLog(@"left swipe detected");
-                break;
-            default:
-                break;
-        }
-    }
-}
--(void) glViewSwipeRightGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
-    if (_metal_view.hidden==FALSE) {
-        switch (gestureRecognizer.state) {
-            case UIGestureRecognizerStateRecognized:
-                NSLog(@"right swipe detected");
-                break;
-            default:
-                break;
-        }
-    }
-}
--(void) glViewSwipeUpGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
-    if (_metal_view.hidden==FALSE) {
-        switch (gestureRecognizer.state) {
-            case UIGestureRecognizerStateRecognized:
-                NSLog(@"up swipe detected");
-                break;
-            default:
-                break;
-        }
-    }
-}
--(void) glViewSwipeDownGesture:(UISwipeGestureRecognizer *)gestureRecognizer {
-    if (_metal_view.hidden==FALSE) {
-        switch (gestureRecognizer.state) {
-            case UIGestureRecognizerStateRecognized:
-                NSLog(@"down swipe detected");
-                break;
-            default:
-                break;
-        }
-    }
-}
-
 
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
@@ -6625,6 +6587,9 @@ extern "C" int current_sample;
     
     if (mOglView1Tap) mOglView1Tap--;
     
+    movePxMILK+=movePx-movePxOld;
+    movePyMILK+=movePy-movePyOld;
+    
     movePxMOD+=movePx-movePxOld;
     movePyMOD+=movePy-movePyOld;
     movePxMID+=movePx-movePxOld;
@@ -6644,6 +6609,58 @@ extern "C" int current_sample;
     movePx2Old=movePx2;
     movePy2Old=movePy2;
     movePinchScaleOld=movePinchScale;
+    
+    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
+        //MILK is active
+        
+        //check if it is alone before processing inputs, to avoid mixing inputs with other FX
+        bool isMILKalone=TRUE;
+        
+        int activeFX=[self computeActiveFX];
+        if (activeFX&((1<<8)-1)) isMILKalone=FALSE;
+        
+        if (isMILKalone&&(moveMILKnomore==0)) {
+            if (movePxMILK>MILK_HorizontalSwipe_Threshold) {
+                movePxMILK=0;
+                movePyMILK=0;
+                moveMILKnomore=1;
+                //NSLog(@"Prev");
+                if (_vizController) _vizController->NavigatePrevious();
+            } else if (movePxMILK<-MILK_HorizontalSwipe_Threshold) {
+                movePxMILK=0;
+                movePyMILK=0;
+                moveMILKnomore=1;
+                //NSLog(@"Next");
+                if (_vizController) _vizController->NavigateNext();                
+            }
+            
+            if (movePyMILK>MILK_VerticalSwipe_Threshold) {
+                movePxMILK=0;
+                movePyMILK=0;
+                moveMILKnomore=1;
+                if (_vizController) {
+                    std::string title;
+                    
+                    _vizController->GetPresetTitle(title);
+                    //_vizController->SetLock(TRUE);
+                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                    [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title.c_str()] style:0];
+                }
+            } else if (movePyMILK<-MILK_VerticalSwipe_Threshold) {
+                movePxMILK=0;
+                movePyMILK=0;
+                moveMILKnomore=1;
+                if (_vizController) {
+                    std::string title;
+                    
+                    _vizController->GetPresetTitle(title);
+                    //_vizController->SetLock(FALSE);
+                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                    [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title.c_str()] style:0];
+                }
+            }
+        }
+    }
     
     
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
@@ -6769,7 +6786,7 @@ extern "C" int current_sample;
         mOglView1Tap=0;
         
         if (viewTapHelpShow==1) {  //Main Menu
-            viewTapHelpShow=0;
+            //viewTapHelpShow=0;
             viewTapHelpShowMode=1;
             int menu_cell_size=(ww<hh?ww:hh);
             int tlx=oglTapX;
@@ -6844,7 +6861,12 @@ extern "C" int current_sample;
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+                }  else if (touched_coord==0x33) {
+                    //Exit
+                    viewTapHelpShow=0;
                 }
+                
             }
             
         } else if (viewTapHelpShow==2) { //sub menu
@@ -7013,7 +7035,8 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=0;
+                            if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                            else settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x11) {
@@ -7044,7 +7067,7 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=1;
+                            settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x21) {
@@ -7073,7 +7096,7 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value=2;
+                            settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x31) {
@@ -7764,6 +7787,9 @@ extern "C" int current_sample;
                 display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
             }
             
+            //if not limited, reset countdown
+            if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+            
             if (milkPresetStr&&display_countdown) {
                 //Display preset name in a small box
                 glPushMatrix();
@@ -7783,7 +7809,13 @@ extern "C" int current_sample;
                 h=milkPresetStr->ymax-milkPresetStr->ymin+6;
                 x=milkPresetStr->xmin-4;
                 y=milkPresetStr->ymin-3;
-                int alpha=255*0.4;
+                int alpha;//=255*0.4;
+                
+                alpha=display_countdown*4;
+                if (alpha>255*0.4) alpha=255*0.4;
+                
+                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
+                
                 ptsB[0]=LineVertexF(x, y,0,0,0,alpha);
                 ptsB[1]=LineVertexF(x+w, y,1,0,0,alpha);
                 ptsB[2]=LineVertexF(x+w, y+h,1,0,0,alpha);
@@ -7792,13 +7824,16 @@ extern "C" int current_sample;
                 ptsB[4]=LineVertexF(x+w, y+h,0,0,0,alpha);
                 ptsB[5]=LineVertexF(x, y+h,0,0,0,alpha);
                 
-                
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 
-                milkPresetStr->Render(0);
-                glPopMatrix();
+                int milkStrAlpha=display_countdown*4;
+                if (milkStrAlpha>127) milkStrAlpha=127;
+                if (milkStrAlpha<0) milkStrAlpha=0;
                 
-                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
+                milkPresetStr->Render(128+milkStrAlpha);
+                
+                
+                glPopMatrix();
                 
                 if (scroll_pause) scroll_pause--;
                 else {
@@ -8003,7 +8038,8 @@ extern "C" int current_sample;
                     active_idx=1<<settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value;
                     if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value) active_idx|=1<<2;
                     if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<3;
-                    active_idx|=1<<(4+settings[MILKDROP_AutoSwitchPresets].detail.mdz_boolswitch.switch_value);
+                    if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
+                    active_idx|=1<<(5+settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
                     break;
             }
             //if (active_idx==1) active_idx=0;
@@ -8153,22 +8189,50 @@ extern "C" int current_sample;
                     viewTapInfoStr[12]->Render(128+(fadelev/2));
                     glPopMatrix();
                     
-                    //Preset switch mode: Lock/Rand/Seq
+                    //Preset lock
                     glPushMatrix();
                     glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[13]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
-                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4+2*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
                     viewTapInfoStr[13]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*0/4+menu_cell_size/8-(strlen(viewTapInfoStr[18]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[18]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    
+                    //Preset switch mode: Rand/Seq
+                    
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[16]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4+2*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[16]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[18]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[18]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[14]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4-4*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[14]->Render(128+(fadelev/2));
                     glPopMatrix();
                     
                     
                     glPushMatrix();
-                    glTranslatef(menu_cell_size*1/4+menu_cell_size/8-(strlen(viewTapInfoStr[14]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
-                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
-                    viewTapInfoStr[14]->Render(128+(fadelev/2));
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[16]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4+2*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[16]->Render(128+(fadelev/2));
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[18]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4-(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
+                    viewTapInfoStr[18]->Render(128+(fadelev/2));
                     glPopMatrix();
                     glPushMatrix();
                     glTranslatef(menu_cell_size*2/4+menu_cell_size/8-(strlen(viewTapInfoStr[15]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
-                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4, 0.0f);
+                                 menu_cell_size/8+(hh-menu_cell_size)/2+menu_cell_size*2/4-4*(mFontMenu->maxCharHeight/mScaleFactor+2)/2, 0.0f);
                     viewTapInfoStr[15]->Render(128+(fadelev/2));
                     glPopMatrix();
                 }
@@ -8237,7 +8301,7 @@ extern "C" int current_sample;
 
 -(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg style:(int)style{
     CGRect frame;
-    if (mPopupAnimation) return;
+    
     UIColor *bgcol;
     switch (style){
         case 0://info
@@ -8247,12 +8311,14 @@ extern "C" int current_sample;
             bgcol=[UIColor colorWithRed:(float)(0xB0)/255.0f green:(float)(0x02)/255.0f blue:(float)(0x00)/255.0f alpha:1.0];
             break;
     }
-    
     infoMsgView.backgroundColor=bgcol;
     
-    mPopupAnimation=1;
     infoMsgLbl.text=[NSString stringWithString:msg];
     infoSecMsgLbl.text=[NSString stringWithString:secmsg];
+    
+    if (mPopupAnimation) return;
+    
+    mPopupAnimation=1;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -8260,7 +8326,7 @@ extern "C" int current_sample;
     [UIView beginAnimations:@"closePopup" context:nil];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDelay:0];
-    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationDuration:0.4];
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height-144;
     infoMsgView.frame=frame;
@@ -8270,8 +8336,8 @@ extern "C" int current_sample;
     CGRect frame;
     [UIView beginAnimations:@"hidePopup" context:nil];
     [UIView setAnimationDelegate:self];
-    [UIView setAnimationDelay:2.5];
-    [UIView setAnimationDuration:1.0];
+    [UIView setAnimationDelay:2.4];
+    [UIView setAnimationDuration:0.4];
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -8919,7 +8985,15 @@ didStopRecordingWithError:(NSError *)error
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    static int fpscnt=0;
     bool mv_hidden=FALSE;
+    
+    fpscnt++;
+    if (settings[GLOB_FXFPS].detail.mdz_switch.switch_value==0) {
+        //30fps
+        if (fpscnt&1) return;
+    }
+    
     if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value==0) mv_hidden=TRUE;
     if (mOglViewIsHidden) mv_hidden=TRUE;
     _metal_view.hidden=mv_hidden;
@@ -8938,16 +9012,17 @@ didStopRecordingWithError:(NSError *)error
             cur_pos=[mplayer getCurrentPlayedBufferIdx];
             short int *curBuffer=snd_buffer[cur_pos];
             
+            int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
             
             if ([mplayer isPaused]) {
-                for (int i=0;i<MILK_BUFFER_SIZE;i++) {
+                for (int i=0;i<sample_count;i++) {
                     milkBuffer[milkBufferPosWrite++]=0;
                     milkBuffer[milkBufferPosWrite++]=0;
                     if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
                 }
             } else {
                 int posBuff=0;
-                for (int i=0;i<MILK_BUFFER_SIZE;i++) {
+                for (int i=0;i<sample_count;i++) {
                     milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2];
                     milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2+1];
                     if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
@@ -8972,10 +9047,8 @@ didStopRecordingWithError:(NSError *)error
 //        }
 //
         
-        _vizController->SetNextNoRandom((settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==2));
-        
-        if (settings[MILKDROP_AutoSwitchPresets].detail.mdz_switch.switch_value==0) _vizController->SetLock(true);
-        else _vizController->SetLock(false);
+        _vizController->SetNextNoRandom(settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
+        _vizController->SetLock(settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
         
         if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) {
             _vizController->SetBlendTime(settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);
@@ -8985,7 +9058,9 @@ didStopRecordingWithError:(NSError *)error
         if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
             _context->SetView(view);
             _context->BeginScene();
-            _vizController->Render(0, screenCount);
+            float fps=60;
+            if (settings[GLOB_FXFPS].detail.mdz_switch.switch_value==0) fps=30;
+            _vizController->Render(0, screenCount,1/fps);
             _context->EndScene();
             _context->Present();
         }

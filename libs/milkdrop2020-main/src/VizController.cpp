@@ -722,7 +722,7 @@ void VizController::NavigatePrevious()
     auto preset = m_navigateHistory ? m_presetHistory.SelectPrevious() : m_presetListFiltered.SelectPrevious();
     if (preset)
     {
-        SetSelectionLock(true);
+        //SetSelectionLock(true);
         LoadPreset(preset, false);
     }
     else
@@ -737,7 +737,7 @@ void VizController::NavigateNext()
     auto preset = m_navigateHistory ? m_presetHistory.SelectNext() : m_presetListFiltered.SelectNext();
     if (preset)
     {
-        SetSelectionLock(false);
+        //SetSelectionLock(false);
         LoadPreset(preset, false);
     }
     else
@@ -750,7 +750,6 @@ void VizController::NavigateNext()
 
 void VizController::NavigateRandom(bool blend)
 {
-    
     blend=TRUE; //yoyofr
         
     PresetInfoPtr preset;
@@ -2614,6 +2613,8 @@ void VizController::SaveHistory()
 
 void VizController::SetNextNoRandom(bool norand) {
     m_navigationNextNoRandom=norand;
+    if (m_navigationNextNoRandom) m_navigateHistory=false;
+    else m_navigateHistory=true;
 }
 void VizController::SetLock(bool locked) {
     if (m_selectionLocked!=locked) {

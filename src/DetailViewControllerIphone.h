@@ -349,6 +349,8 @@ enum {
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;
 
+-(void)initMetal;
+
 -(void) pushedRatingCommon:(signed char)rating;
 -(void) hidePopup;
 -(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg style:(int)style;
@@ -398,5 +400,8 @@ enum {
 -(void) jumpSeekBwd;
 -(void) oglViewSwitchFS;
 -(void) switchFX:(int)fxNb;
+-(void) mdPrevPreset;
+-(void) mdNextPreset;
+-(void) mdSwitchLockPreset;
 
 @end

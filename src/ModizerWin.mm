@@ -55,7 +55,11 @@
               
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
-              [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)]];
+              [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)],
+    
+              [UIKeyCommand keyCommandWithInput:@"p"   modifierFlags:0 action:@selector(keyPPressed)],
+              [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
+              [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)]];
 }
 -(void)key1Pressed {
     [detailViewControllerIphone switchFX:0];
@@ -93,6 +97,17 @@
 - (void)enterPressed{
     [detailViewControllerIphone oglViewSwitchFS];
 }
+
+- (void)keyNPressed{
+    [detailViewControllerIphone mdPrevPreset];
+}
+- (void)keyPPressed{
+    [detailViewControllerIphone mdNextPreset];
+}
+- (void)keyLPressed{
+    [detailViewControllerIphone mdSwitchLockPreset];
+}
+
 
 -(void)leftPressed {
     [detailViewControllerIphone jumpSeekBwd];
