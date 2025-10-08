@@ -27,6 +27,10 @@
 - (void)bind;
 - (bool)popTouch;
 
+-(void)setContext;
+-(void)drawContext;
+-(void)swapBuffer;
+
 
 @end
 

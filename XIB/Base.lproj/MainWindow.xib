@@ -219,16 +219,16 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="ucP-DQ-k4m">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="583"/>
+                                        <rect key="frame" x="0.0" y="-16" width="375" height="844"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </imageView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" barStyle="black" id="716">
@@ -245,7 +245,7 @@
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -803,6 +803,11 @@
                                 <rect key="frame" x="40" y="166" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </mtkView>
+                            <glkView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" id="U5z-4A-9KR" customClass="MGLKView">
+                                <rect key="frame" x="40" y="166" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <viewLayoutGuide key="safeArea" id="cxe-nL-eLA"/>
+                            </glkView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1456" userLabel="oglButton">
                                 <rect key="frame" x="0.0" y="82" width="320" height="246"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -818,11 +823,11 @@
                                     <action selector="oglButtonPushed" destination="11" eventType="touchUpInside" id="1457"/>
                                 </connections>
                             </button>
-                            <view opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="24" userLabel="openGL view" customClass="OGLView">
-                                <rect key="frame" x="0.0" y="82" width="320" height="246"/>
+                            <glkView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" id="Ddj-c9-eto" userLabel="Ogl View" customClass="MGLKView">
+                                <rect key="frame" x="40" y="166" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                            </view>
+                                <viewLayoutGuide key="safeArea" id="oxV-QG-qky"/>
+                            </glkView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
@@ -970,6 +975,7 @@
             <size key="freeformSize" width="320" height="480"/>
             <connections>
                 <outlet property="_metal_view" destination="CTp-me-UFz" id="8wb-AG-uZt"/>
+                <outlet property="_mgl_view" destination="U5z-4A-9KR" id="bfE-TK-fxZ"/>
                 <outlet property="backInfo" destination="633" id="688"/>
                 <outlet property="btnAddToPl" destination="L8O-uz-tyg" id="77a-Qg-wbp"/>
                 <outlet property="btnChangeTime" destination="1885" id="1887"/>
@@ -1003,7 +1009,7 @@
                 <outlet property="labelNumChannels" destination="30" id="62"/>
                 <outlet property="labelSeeking" destination="475" id="476"/>
                 <outlet property="labelTime" destination="27" id="63"/>
-                <outlet property="m_oglView" destination="24" id="297"/>
+                <outlet property="m_oglView" destination="Ddj-c9-eto" id="Ufn-wV-Hf7"/>
                 <outlet property="mainRating5" destination="1586" id="1611"/>
                 <outlet property="mainRating5off" destination="1591" id="1612"/>
                 <outlet property="mainView" destination="442" id="443"/>
@@ -1242,7 +1248,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="316"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <mutableString key="text">v3.12 © Yohann Magnien / YoyoFR
+                        <string key="text">v3.12 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
@@ -1285,7 +1291,7 @@ Integrated player libs:
 - ZXTune
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <color key="textColor" systemColor="labelColor"/>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>

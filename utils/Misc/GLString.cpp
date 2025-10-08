@@ -63,6 +63,8 @@ CGLString::~CGLString()
 
 void CGLString::Render(int msg_type)
 {
+    return;
+    
 	// The first time we render this text, build the set of textured quads
 	if (!mVertices) {
 		BuildString(msg_type);

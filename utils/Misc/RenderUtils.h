@@ -12,10 +12,16 @@
 
 #import "ModizerConstants.h"
 //#include "Mesh.h"
+
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
+
 #include "GlErrors.h"
 
 #include <OpenGLES/ES1/glext.h>
 #include "Queue.h"
+
 
 //struct Mesh;
 
@@ -35,11 +41,14 @@ struct LineVertex
 struct LineVertexF
 {
     LineVertexF() {}
-    LineVertexF(float _x, float _y, uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
-    : x(_x), y(_y), r(_r), g(_g), b(_b), a(_a)
+    LineVertexF(GLfloat _x, GLfloat _y, GLfloat _z,GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a)
+    : x(_x), y(_y), z(_z), r(_r), g(_g), b(_b), a(_a)
     {}
-    float x, y;
-    uint8_t r, g, b, a;
+    LineVertexF(GLfloat _x, GLfloat _y,GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a)
+    : x(_x), y(_y), z(0), r(_r), g(_g), b(_b), a(_a)
+    {}
+    GLfloat x, y, z;
+    GLfloat r, g, b, a;
 };
 
 struct vertexData {
@@ -62,6 +71,12 @@ struct coordData {
 
 namespace RenderUtils
 {
+
+GLuint LoadShader ( GLenum type, const GLchar *shaderSrc );
+
+int RenderInit();
+
+
 void drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
 void drawbar2(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
 void drawbar3(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
@@ -93,7 +108,7 @@ void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww
 void DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
-void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt,float mScaleFactor);
+void DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor);
 	
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);

@@ -9,6 +9,9 @@
 
 extern int NOTES_DISPLAY_TOPMARGIN;
 
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #include "RenderUtils.h"
 #include "TextureUtils.h"
 
@@ -105,6 +108,149 @@ float specularLight[3][4] = {
 };	// �wiat�o odbicia
 float position[] = { 0, 0, 8, 1 };
 
+
+/********************************************************************************/
+
+typedef struct
+{
+   // Handle to a program object
+   GLuint programObject;
+
+} GLUserData;
+///
+// Create a shader object, load the shader source, and
+// compile the shader.
+//
+GLuint RenderUtils::LoadShader ( GLenum type, const GLchar *shaderSrc )
+{
+   GLuint shader;
+   GLint compiled;
+   
+   // Create the shader object
+   shader = glCreateShader ( type );
+
+   if ( shader == 0 )
+       return 0;
+
+   // Load the shader source
+   glShaderSource ( shader, 1, &shaderSrc, NULL );
+   
+   // Compile the shader
+   glCompileShader ( shader );
+
+   // Check the compile status
+   glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
+
+   if ( !compiled )
+   {
+      GLint infoLen = 0;
+
+      glGetShaderiv ( shader, GL_INFO_LOG_LENGTH, &infoLen );
+      
+      if ( infoLen > 1 )
+      {
+         char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+
+         glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
+         NSLog(@"Error compiling shader:\n%s\n", infoLog );
+         
+         free ( infoLog );
+      }
+
+      glDeleteShader ( shader );
+      return 0;
+   }
+
+   return shader;
+
+}
+
+///
+// Initialize the shader and program object
+//
+GLUserData *userData_simpleRender;
+
+int RenderUtils::RenderInit() {
+    GLUserData *userData = (GLUserData*)malloc(sizeof(GLUserData));
+    
+    userData_simpleRender=userData;
+   
+   GLchar vShaderStr[] =
+      "attribute vec4 aPosition;    \n"
+      "attribute vec4 aColor;    \n"
+      "varying vec4 vColor;\n"
+      "void main()                  \n"
+      "{                            \n"
+    "   vColor = aColor;  \n"
+      "   gl_Position = aPosition;  \n"
+      "}                            \n";
+   
+    GLchar fShaderStr[] =
+      "precision mediump float;\n"
+      "varying vec4 vColor;\n"
+      "void main()                                  \n"
+      "{                                            \n"
+      "  gl_FragColor = vColor;\n"
+      "}                                            \n";
+
+   GLuint vertexShader;
+   GLuint fragmentShader;
+   GLuint programObject;
+   GLint linked;
+
+   // Load the vertex/fragment shaders
+   vertexShader = LoadShader ( GL_VERTEX_SHADER, vShaderStr );
+   fragmentShader = LoadShader ( GL_FRAGMENT_SHADER, fShaderStr );
+
+   // Create the program object
+   programObject = glCreateProgram ( );
+   
+   if ( programObject == 0 )
+      return 0;
+
+   glAttachShader ( programObject, vertexShader );
+   glAttachShader ( programObject, fragmentShader );
+
+   // Bind aPosition to attribute 0
+   glBindAttribLocation ( programObject, 0, "aPosition" );
+    
+    // Bind aColor to attribute 1
+    glBindAttribLocation ( programObject, 1, "aColor" );
+
+   // Link the program
+   glLinkProgram ( programObject );
+
+   // Check the link status
+   glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
+
+   if ( !linked )
+   {
+      GLint infoLen = 0;
+
+      glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+      
+      if ( infoLen > 1 )
+      {
+         char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+
+         glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
+         NSLog ( @"Error linking program:\n%s\n", infoLog );
+         
+         free ( infoLog );
+      }
+
+      glDeleteProgram ( programObject );
+      return GL_FALSE;
+   }
+
+   // Store the program object
+   userData->programObject = programObject;
+
+   return GL_TRUE;
+}
+
+/********************************************************************************/
+
 // Clear the top & bottom part of the UI when opengl window is not fully opaque & in fullscreen
 void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size) {
     LineVertexF ptsB[6*2];
@@ -149,13 +295,13 @@ void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size)
 
 void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glRotatef(rotation, 0, 0, 1);
-    glOrthof(0, width, 0, height, 0, 200);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    glRotatef(rotation, 0, 0, 1);
+//    glOrthof(0, width*2, 0, height*2, 0, 200);
+//    
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
     
 }
 
@@ -1161,64 +1307,107 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
 static int beatValueL_index[SPECTRUM_BANDS];
 static int beatValueR_index[SPECTRUM_BANDS];
 
-void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt,float mScaleFactor) {
-    LineVertex pts[24];
+void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor) {
+    LineVertexF pts[24];
     //set the opengl state
     
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_COLOR_ARRAY);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    
+//    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &pts[0].x);
+//    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &pts[0].r);
+    
     
     int menu_cell_size;
     if (_ww<_hh) menu_cell_size=_ww;
     else menu_cell_size=_hh;
     
-    int fade_lev=fade_level*0.75;
+    uint8_t fade_lev=fade_level*0.75f;
     if (fade_lev<+min_level) fade_lev=min_level;
-    if (fade_lev>255*0.8) fade_lev=255*0.8;
-    pts[0] = LineVertex(0, 0,		0,0,0,fade_lev);
-    pts[1] = LineVertex(_ww, 0,		0,0,0,fade_lev);
-    pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
-    pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
+    if (fade_lev>0.8f) fade_lev=0.8f;
+    uint8_t r,g,b;
+    r=255;
+    g=0;
+    b=0;
+    fade_lev=255;
+//    pts[0] = LineVertexF(0, 0,		        r,g,b,fade_lev);
+//    pts[1] = LineVertexF(_ww*2, 0,		    r,g,b,fade_lev);
+//    pts[2] = LineVertexF(0, _hh*2,		    r,g,b,fade_lev);
+//    pts[3] = LineVertexF(_ww*2, _hh*2,	    r,g,b,fade_lev);
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    GLfloat vVertices[] = {  -1.0f,  -1.0f, 0.0f,
+                              1.0f,  -1.0f, 0.0f,
+                             -1.0f,   1.0f, 0.0f,
+                              1.0f,   1.0f, 0.0f};
     
-    pts[0] = LineVertex(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
-    pts[1] = LineVertex(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_level);
-    pts[2] = LineVertex(menu_cell_size*2/4-1, 0,		55,55,155,fade_level);
-    pts[3] = LineVertex(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_level);
-    pts[4] = LineVertex(menu_cell_size*3/4-1, 0,		55,55,155,fade_level);
-    pts[5] = LineVertex(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_level);
-    pts[6] = LineVertex(menu_cell_size*1/4+1, 0,		255,255,255,fade_level/4);
-    pts[7] = LineVertex(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_level/4);
-    pts[8] = LineVertex(menu_cell_size*2/4+1, 0,		55,55,155,fade_level/4);
-    pts[9] = LineVertex(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_level/4);
-    pts[10] = LineVertex(menu_cell_size*3/4+1, 0,		55,55,155,fade_level/4);
-    pts[11] = LineVertex(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_level/4);
+    GLfloat vColors[] = {    1.0f,  0.0f, 0.0f, 1.0f,
+                            1.0f,  1.0f, 0.0f, 1.0f,
+                            1.0f,  0.0f, 1.0f, 1.0f,
+                            0.0f,  0.0f, 1.0f, 1.0f};
     
-    pts[12] = LineVertex(0,	menu_cell_size*1/4-1, 	55,55,155,fade_level);
-    pts[13] = LineVertex(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_level);
-    pts[14] = LineVertex(0,	menu_cell_size*2/4-1, 	255,255,255,fade_level);
-    pts[15] = LineVertex(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_level);
-    pts[16] = LineVertex(0,	menu_cell_size*3/4-1, 	255,255,255,fade_level);
-    pts[17] = LineVertex(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_level);
-    pts[18] = LineVertex(0,	menu_cell_size*1/4+1, 	55,55,155,fade_level/4);
-    pts[19] = LineVertex(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_level/4);
-    pts[20] = LineVertex(0,	menu_cell_size*2/4+1, 	255,255,255,fade_level/4);
-    pts[21] = LineVertex(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_level/4);
-    pts[22] = LineVertex(0,	menu_cell_size*3/4+1, 	255,255,255,fade_level/4);
-    pts[23] = LineVertex(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_level/4);
+    // Use the program object
+    glUseProgram ( userData_simpleRender->programObject );
+    
+    // Load the vertex data
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
+    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, 0, vColors );
+    glEnableVertexAttribArray ( 0 );
+    glEnableVertexAttribArray ( 1 );
+    
+    glDrawArrays ( GL_TRIANGLE_STRIP, 0, 4 );
+    
+    pts[0] = LineVertexF(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
+    pts[1] = LineVertexF(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_level);
+    pts[2] = LineVertexF(menu_cell_size*2/4-1, 0,		55,55,155,fade_level);
+    pts[3] = LineVertexF(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_level);
+    pts[4] = LineVertexF(menu_cell_size*3/4-1, 0,		55,55,155,fade_level);
+    pts[5] = LineVertexF(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_level);
+    pts[6] = LineVertexF(menu_cell_size*1/4+1, 0,		255,255,255,fade_level/4);
+    pts[7] = LineVertexF(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_level/4);
+    pts[8] = LineVertexF(menu_cell_size*2/4+1, 0,		55,55,155,fade_level/4);
+    pts[9] = LineVertexF(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_level/4);
+    pts[10] = LineVertexF(menu_cell_size*3/4+1, 0,		55,55,155,fade_level/4);
+    pts[11] = LineVertexF(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_level/4);
+    
+    pts[12] = LineVertexF(0,	menu_cell_size*1/4-1, 	55,55,155,fade_level);
+    pts[13] = LineVertexF(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_level);
+    pts[14] = LineVertexF(0,	menu_cell_size*2/4-1, 	255,255,255,fade_level);
+    pts[15] = LineVertexF(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_level);
+    pts[16] = LineVertexF(0,	menu_cell_size*3/4-1, 	255,255,255,fade_level);
+    pts[17] = LineVertexF(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_level);
+    pts[18] = LineVertexF(0,	menu_cell_size*1/4+1, 	55,55,155,fade_level/4);
+    pts[19] = LineVertexF(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_level/4);
+    pts[20] = LineVertexF(0,	menu_cell_size*2/4+1, 	255,255,255,fade_level/4);
+    pts[21] = LineVertexF(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_level/4);
+    pts[22] = LineVertexF(0,	menu_cell_size*3/4+1, 	255,255,255,fade_level/4);
+    pts[23] = LineVertexF(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_level/4);
     
     for (int i=0;i<24;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
     
-    glLineWidth(1.0f*mScaleFactor);
+    for (int i=0;i<24;i++) {
+        pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
+        pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
+        
+        pts[i].r=pts[i].r/255.0;
+        pts[i].g=pts[i].g/255.0;
+        pts[i].b=pts[i].b/255.0;
+        pts[i].a=pts[i].a/255.0;
+    }
+    
+    // Load the vertex data
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    
+    //glLineWidth(1.0f*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 24);
     
-    
+    return;
+#if 0
+
     pts[0] = LineVertex(menu_cell_size*1/4, 0,		255,255,255,fade_level/2);
     pts[1] = LineVertex(menu_cell_size*1/4, menu_cell_size,		55,55,155,fade_level/2);
     pts[2] = LineVertex(menu_cell_size*2/4, 0,		55,55,155,fade_level/2);
@@ -1276,6 +1465,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
+#endif
 }
 
 void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {

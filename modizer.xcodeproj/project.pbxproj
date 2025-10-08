@@ -468,15 +468,12 @@
 		CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C21200B391000A8A4E /* AVFoundation.framework */; };
 		CC1E56C51200B391000A8A4E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C41200B391000A8A4E /* CFNetwork.framework */; };
 		CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C61200B391000A8A4E /* MediaPlayer.framework */; };
-		CC1E56CB1200B391000A8A4E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CA1200B391000A8A4E /* OpenGLES.framework */; platformFilter = ios; };
 		CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CC1200B391000A8A4E /* QuartzCore.framework */; };
 		CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */; };
 		CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E597D1200B3B8000A8A4E /* CFtpServer.cpp */; };
 		CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A041200B3B8000A8A4E /* Font.cpp */; };
-		CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A071200B3B8000A8A4E /* FrameBuffer.mm */; };
 		CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A091200B3B8000A8A4E /* GLString.cpp */; };
 		CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A0B1200B3B8000A8A4E /* HardwareClock.cpp */; };
-		CC1E5C7E1200B3B8000A8A4E /* OGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A101200B3B8000A8A4E /* OGLView.mm */; };
 		CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A151200B3B8000A8A4E /* TextureUtils.mm */; };
 		CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */; };
 		CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */; };
@@ -828,6 +825,11 @@
 		CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5BAD522BFB818A007A3920 /* liblibchpconv.a */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
+		CC671C262E95A6870076CE1E /* libprojectm-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFAE92E959DEE00AF59B0 /* libprojectm-ios.a */; };
+		CC671C562E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; };
+		CC671C572E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC671C582E95D0470076CE1E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC671C292E95C8FF0076CE1E /* GLKit.framework */; };
+		CC671C5A2E95D17B0076CE1E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC671C292E95C8FF0076CE1E /* GLKit.framework */; };
 		CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */; };
 		CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */; };
 		CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF517DC615F006DCBC7 /* EQView.m */; };
@@ -906,6 +908,7 @@
 		CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAB940C2BCBB3D20038834A /* liblibvgm.a */; };
 		CCAB9F342E92D18D00AF59B0 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
 		CCAB9F352E92D19F00AF59B0 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
+		CCABFAEA2E959E0300AF59B0 /* libprojectm-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFAE92E959DEE00AF59B0 /* libprojectm-ios.a */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594E17ECABD2007638B9 /* Localizable.strings */; };
 		CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */; };
@@ -1280,6 +1283,13 @@
 			remoteGlobalIDString = 21A3B185229C5B7300540D1A;
 			remoteInfo = "hlsl2glsl-tvos";
 		};
+		CCABFAE82E959DEE00AF59B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCABFAE02E959DED00AF59B0 /* projectm-ios.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCABA01B2E93C66900AF59B0;
+			remoteInfo = "projectm-ios";
+		};
 		CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCB816F92B7196A500364D64 /* libpixel.xcodeproj */;
@@ -1618,6 +1628,7 @@
 			files = (
 				CCC548922B8C902B00E97EC1 /* libswscale.xcframework in Copy Files-Frameworks */,
 				CCC5488F2B8C8FEB00E97EC1 /* libavcodec.xcframework in Copy Files-Frameworks */,
+				CC671C572E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Copy Files-Frameworks */,
 				CCC544462B8BFD0700E97EC1 /* libavformat.xcframework in Copy Files-Frameworks */,
 				CCC544472B8BFD0700E97EC1 /* libavutil.xcframework in Copy Files-Frameworks */,
 				CCC544492B8BFD0700E97EC1 /* libswresample.xcframework in Copy Files-Frameworks */,
@@ -2642,6 +2653,44 @@
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
 		CC5C709A17CD1BAE00DC7197 /* FFTAccelerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFTAccelerate.h; sourceTree = "<group>"; };
 		CC5C709C17CD1D7900DC7197 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		CC671C292E95C8FF0076CE1E /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		CC671C2B2E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		CC671C2C2E95CCD20076CE1E /* egl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = egl.h; sourceTree = "<group>"; };
+		CC671C2D2E95CCD20076CE1E /* eglext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eglext.h; sourceTree = "<group>"; };
+		CC671C2E2E95CCD20076CE1E /* eglext_angle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eglext_angle.h; sourceTree = "<group>"; };
+		CC671C2F2E95CCD20076CE1E /* eglplatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eglplatform.h; sourceTree = "<group>"; };
+		CC671C312E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		CC671C322E95CCD20076CE1E /* egl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = egl.h; sourceTree = "<group>"; };
+		CC671C332E95CCD20076CE1E /* gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl.h; sourceTree = "<group>"; };
+		CC671C342E95CCD20076CE1E /* glext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glext.h; sourceTree = "<group>"; };
+		CC671C352E95CCD20076CE1E /* glext_angle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glext_angle.h; sourceTree = "<group>"; };
+		CC671C362E95CCD20076CE1E /* glext_explicit_context_autogen.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = glext_explicit_context_autogen.inc; sourceTree = "<group>"; };
+		CC671C372E95CCD20076CE1E /* glplatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glplatform.h; sourceTree = "<group>"; };
+		CC671C382E95CCD20076CE1E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CC671C3A2E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		CC671C3B2E95CCD20076CE1E /* gl2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl2.h; sourceTree = "<group>"; };
+		CC671C3C2E95CCD20076CE1E /* gl2ext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl2ext.h; sourceTree = "<group>"; };
+		CC671C3D2E95CCD20076CE1E /* gl2ext_angle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl2ext_angle.h; sourceTree = "<group>"; };
+		CC671C3E2E95CCD20076CE1E /* gl2ext_explicit_context_autogen.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = gl2ext_explicit_context_autogen.inc; sourceTree = "<group>"; };
+		CC671C3F2E95CCD20076CE1E /* gl2platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl2platform.h; sourceTree = "<group>"; };
+		CC671C412E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		CC671C422E95CCD20076CE1E /* gl3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl3.h; sourceTree = "<group>"; };
+		CC671C432E95CCD20076CE1E /* gl3ext_explicit_context_autogen.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = gl3ext_explicit_context_autogen.inc; sourceTree = "<group>"; };
+		CC671C442E95CCD20076CE1E /* gl3platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl3platform.h; sourceTree = "<group>"; };
+		CC671C452E95CCD20076CE1E /* gl31.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl31.h; sourceTree = "<group>"; };
+		CC671C462E95CCD20076CE1E /* gl31ext_explicit_context_autogen.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = gl31ext_explicit_context_autogen.inc; sourceTree = "<group>"; };
+		CC671C472E95CCD20076CE1E /* gl32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gl32.h; sourceTree = "<group>"; };
+		CC671C492E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		CC671C4A2E95CCD20076CE1E /* khrplatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = khrplatform.h; sourceTree = "<group>"; };
+		CC671C4C2E95CCD20076CE1E /* angle_gl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = angle_gl.h; sourceTree = "<group>"; };
+		CC671C4D2E95CCD20076CE1E /* export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = export.h; sourceTree = "<group>"; };
+		CC671C4E2E95CCD20076CE1E /* MetalANGLE-ios13.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = "MetalANGLE-ios13.xcframework"; sourceTree = "<group>"; };
+		CC671C4F2E95CCD20076CE1E /* MGLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLContext.h; sourceTree = "<group>"; };
+		CC671C502E95CCD20076CE1E /* MGLKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLKit.h; sourceTree = "<group>"; };
+		CC671C512E95CCD20076CE1E /* MGLKitPlatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLKitPlatform.h; sourceTree = "<group>"; };
+		CC671C522E95CCD20076CE1E /* MGLKView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLKView.h; sourceTree = "<group>"; };
+		CC671C532E95CCD20076CE1E /* MGLKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLKViewController.h; sourceTree = "<group>"; };
+		CC671C542E95CCD20076CE1E /* MGLLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MGLLayer.h; sourceTree = "<group>"; };
 		CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EQViewController.xib; sourceTree = "<group>"; };
 		CC6CBDF117DBE3A8006DCBC7 /* EQViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EQViewController.h; sourceTree = "<group>"; };
 		CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EQViewController.mm; sourceTree = "<group>"; };
@@ -2937,6 +2986,9 @@
 		CC9F0E95123DEFCC00D8EE6D /* xbiossound.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = xbiossound.bin; sourceTree = "<group>"; };
 		CC9F0E96123DEFCC00D8EE6D /* zonewarrior.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = zonewarrior.bin; sourceTree = "<group>"; };
 		CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libvgm.xcodeproj; path = libvgm/libvgm.xcodeproj; sourceTree = "<group>"; };
+		CCABFAD42E95985600AF59B0 /* MetalANGLE-ios13.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "MetalANGLE-ios13.xcframework"; path = "utils/MetalANGLE/MetalANGLE-ios13.xcframework"; sourceTree = "<group>"; };
+		CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "MetalANGLE-ios13.xcframework"; path = "MetalANGLE/MetalANGLE-ios13.xcframework"; sourceTree = "<group>"; };
+		CCABFAE02E959DED00AF59B0 /* projectm-ios.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "projectm-ios.xcodeproj"; path = "projectm-ios/projectm-ios.xcodeproj"; sourceTree = "<group>"; };
 		CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAppHelper.h; sourceTree = "<group>"; };
 		CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GoogleAppHelper.mm; sourceTree = "<group>"; };
 		CCAE594F17ECABD2007638B9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3114,6 +3166,7 @@
 				CCC548912B8C901F00E97EC1 /* libswscale.xcframework in Frameworks */,
 				CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */,
 				CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */,
+				CCABFAEA2E959E0300AF59B0 /* libprojectm-ios.a in Frameworks */,
 				CC4FB2F42E8EA80A00B3E56F /* libhlsl2glsl-ios.a in Frameworks */,
 				CC4FC8792E8EBFCE00B3E56F /* Metal.framework in Frameworks */,
 				CCAB9F352E92D19F00AF59B0 /* libLazyusf.a in Frameworks */,
@@ -3128,6 +3181,7 @@
 				5966D0FF25CFEFED00520777 /* libsqlite3.tbd in Frameworks */,
 				5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */,
 				CC4FC8762E8EBF8100B3E56F /* MetalKit.framework in Frameworks */,
+				CC671C262E95A6870076CE1E /* libprojectm-ios.a in Frameworks */,
 				59B9998D25CFE6160071E144 /* libTapkuLibrary.a in Frameworks */,
 				5905362125DBDB0500AA548E /* CoreVideo.framework in Frameworks */,
 				5966D0BB25CFEDFC00520777 /* libgsf.a in Frameworks */,
@@ -3136,6 +3190,7 @@
 				593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */,
 				5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */,
 				CC4882CE2B7973D200BCFFCC /* liblibopenmpt-modizer.a in Frameworks */,
+				CC671C562E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Frameworks */,
 				5905DE87284F12AE007DA8EE /* libpsflib.a in Frameworks */,
 				CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
@@ -3162,13 +3217,14 @@
 				CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */,
 				CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */,
 				59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */,
-				CC1E56CB1200B391000A8A4E /* OpenGLES.framework in Frameworks */,
 				CC4FC8772E8EBFC000B3E56F /* MetalKit.framework in Frameworks */,
 				5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
+				CC671C5A2E95D17B0076CE1E /* GLKit.framework in Frameworks */,
 				CCEB4DFF2BAE00CC004831C6 /* libiconv.tbd in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
+				CC671C582E95D0470076CE1E /* GLKit.framework in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3205,6 +3261,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CC671C552E95CCD20076CE1E /* MetalANGLE */,
+				CC671C292E95C8FF0076CE1E /* GLKit.framework */,
+				CCABFAD42E95985600AF59B0 /* MetalANGLE-ios13.xcframework */,
 				CC4FC8782E8EBFCD00B3E56F /* Metal.framework */,
 				CC4FC8742E8EBF7C00B3E56F /* libhlsl2glsl-ios.a */,
 				CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */,
@@ -3541,48 +3600,48 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				CC4FBBC82E8EAF6200B3E56F /* milkdrop2020-main */,
-				CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */,
-				CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */,
-				CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */,
-				CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */,
-				CC9A50B72BE36C8200CED1F0 /* libpmdmini.xcodeproj */,
-				CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */,
-				CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */,
-				CCE8D74F2B929CDF0076D8C0 /* websid */,
-				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
-				CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */,
-				CCC543D62B89E83400E97EC1 /* binio.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
-				CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */,
-				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
-				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
-				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
-				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
 				333157371207699700815317 /* AHX */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
+				CCC543D62B89E83400E97EC1 /* binio.xcodeproj */,
+				CCC5442C2B8BFC9900E97EC1 /* ffmpeg-kit */,
 				3370BC19124A858C00691400 /* freeverb */,
+				CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */,
 				59BDE7B4260F650C00FB0C69 /* highlyexperimental */,
 				59BDE949260FE33100FB0C69 /* HighlyQuixotic */,
 				59BDE8E8260FE1D000FB0C69 /* highlytheoritical */,
+				CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */,
 				591D8DE125DC63620013E19F /* LibAtrac9-master */,
+				CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */,
+				CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */,
+				CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */,
 				CC6BE1F612FF3CCD0035A210 /* libgme */,
 				CC9B17FB12FF023600985967 /* libgsf */,
 				59FF99DC263F34BD004152B8 /* libkss */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
+				CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */,
 				CC33B25F1AB81688009608E8 /* libopenmpt */,
+				CCB816F92B7196A500364D64 /* libpixel.xcodeproj */,
+				CC9A50B72BE36C8200CED1F0 /* libpmdmini.xcodeproj */,
 				59BDE859260F666C00FB0C69 /* libpsflib */,
+				CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */,
 				33B9D4CF138B92A200E8B191 /* libtim */,
+				CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */,
 				59321DCA1E25609F00020079 /* libvgmstream */,
+				CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */,
 				595F9C1C1E54B90D009DBEED /* libxmp */,
 				592862B91E2D4D6800A08A4E /* libxsf */,
+				CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */,
 				3370BBCE124A853F00691400 /* mdxplay */,
+				CC4FBBC82E8EAF6200B3E56F /* milkdrop2020-main */,
 				CCCE9C31123D807A007D9462 /* sc68 */,
 				33B1094D125BC322006D55D6 /* sid */,
 				591054D125EAC21F00A194FF /* snsf */,
 				CCBF0FF91221788200E8DE4E /* STSound */,
 				CC1E60371202F25B000A8A4E /* uade-2.13 */,
 				59BF55092628ED5D0064EF5E /* v2mplayer */,
+				CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */,
+				CCE8D74F2B929CDF0076D8C0 /* websid */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -3829,6 +3888,8 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CCABFAE02E959DED00AF59B0 /* projectm-ios.xcodeproj */,
+				CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */,
 				CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */,
 				CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */,
 				CCEB46F92BADF7A7004831C6 /* libarchive.xcodeproj */,
@@ -4144,7 +4205,6 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CC4FB2F72E8EAB2300B3E56F /* Milkdrop */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
@@ -4824,13 +4884,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CC4FB2F72E8EAB2300B3E56F /* Milkdrop */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Milkdrop;
-			sourceTree = "<group>";
-		};
 		CC4FB33B2E8EAF6200B3E56F /* CommonApple */ = {
 			isa = PBXGroup;
 			children = (
@@ -5234,6 +5287,91 @@
 				CC5BAD522BFB818A007A3920 /* liblibchpconv.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CC671C302E95CCD20076CE1E /* EGL */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C2B2E95CCD20076CE1E /* .clang-format */,
+				CC671C2C2E95CCD20076CE1E /* egl.h */,
+				CC671C2D2E95CCD20076CE1E /* eglext.h */,
+				CC671C2E2E95CCD20076CE1E /* eglext_angle.h */,
+				CC671C2F2E95CCD20076CE1E /* eglplatform.h */,
+			);
+			path = EGL;
+			sourceTree = "<group>";
+		};
+		CC671C392E95CCD20076CE1E /* GLES */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C312E95CCD20076CE1E /* .clang-format */,
+				CC671C322E95CCD20076CE1E /* egl.h */,
+				CC671C332E95CCD20076CE1E /* gl.h */,
+				CC671C342E95CCD20076CE1E /* glext.h */,
+				CC671C352E95CCD20076CE1E /* glext_angle.h */,
+				CC671C362E95CCD20076CE1E /* glext_explicit_context_autogen.inc */,
+				CC671C372E95CCD20076CE1E /* glplatform.h */,
+				CC671C382E95CCD20076CE1E /* README.md */,
+			);
+			path = GLES;
+			sourceTree = "<group>";
+		};
+		CC671C402E95CCD20076CE1E /* GLES2 */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C3A2E95CCD20076CE1E /* .clang-format */,
+				CC671C3B2E95CCD20076CE1E /* gl2.h */,
+				CC671C3C2E95CCD20076CE1E /* gl2ext.h */,
+				CC671C3D2E95CCD20076CE1E /* gl2ext_angle.h */,
+				CC671C3E2E95CCD20076CE1E /* gl2ext_explicit_context_autogen.inc */,
+				CC671C3F2E95CCD20076CE1E /* gl2platform.h */,
+			);
+			path = GLES2;
+			sourceTree = "<group>";
+		};
+		CC671C482E95CCD20076CE1E /* GLES3 */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C412E95CCD20076CE1E /* .clang-format */,
+				CC671C422E95CCD20076CE1E /* gl3.h */,
+				CC671C432E95CCD20076CE1E /* gl3ext_explicit_context_autogen.inc */,
+				CC671C442E95CCD20076CE1E /* gl3platform.h */,
+				CC671C452E95CCD20076CE1E /* gl31.h */,
+				CC671C462E95CCD20076CE1E /* gl31ext_explicit_context_autogen.inc */,
+				CC671C472E95CCD20076CE1E /* gl32.h */,
+			);
+			path = GLES3;
+			sourceTree = "<group>";
+		};
+		CC671C4B2E95CCD20076CE1E /* KHR */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C492E95CCD20076CE1E /* .clang-format */,
+				CC671C4A2E95CCD20076CE1E /* khrplatform.h */,
+			);
+			path = KHR;
+			sourceTree = "<group>";
+		};
+		CC671C552E95CCD20076CE1E /* MetalANGLE */ = {
+			isa = PBXGroup;
+			children = (
+				CC671C302E95CCD20076CE1E /* EGL */,
+				CC671C392E95CCD20076CE1E /* GLES */,
+				CC671C402E95CCD20076CE1E /* GLES2 */,
+				CC671C482E95CCD20076CE1E /* GLES3 */,
+				CC671C4B2E95CCD20076CE1E /* KHR */,
+				CC671C4C2E95CCD20076CE1E /* angle_gl.h */,
+				CC671C4D2E95CCD20076CE1E /* export.h */,
+				CC671C4E2E95CCD20076CE1E /* MetalANGLE-ios13.xcframework */,
+				CC671C4F2E95CCD20076CE1E /* MGLContext.h */,
+				CC671C502E95CCD20076CE1E /* MGLKit.h */,
+				CC671C512E95CCD20076CE1E /* MGLKitPlatform.h */,
+				CC671C522E95CCD20076CE1E /* MGLKView.h */,
+				CC671C532E95CCD20076CE1E /* MGLKViewController.h */,
+				CC671C542E95CCD20076CE1E /* MGLLayer.h */,
+			);
+			name = MetalANGLE;
+			path = utils/MetalANGLE;
 			sourceTree = "<group>";
 		};
 		CC6BE1F612FF3CCD0035A210 /* libgme */ = {
@@ -5695,6 +5833,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCABFAE12E959DED00AF59B0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCABFAE92E959DEE00AF59B0 /* libprojectm-ios.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCB21D9C124690E000A30F62 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
@@ -6104,6 +6250,10 @@
 					ProjectRef = CC7BBD392B800B0200D8CAAE /* ogg-openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CCABFAE12E959DED00AF59B0 /* Products */;
+					ProjectRef = CCABFAE02E959DED00AF59B0 /* projectm-ios.xcodeproj */;
+				},
+				{
 					ProductGroup = 596642AF2611263C007DAE70 /* Products */;
 					ProjectRef = 59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */;
 				},
@@ -6418,6 +6568,13 @@
 			fileType = archive.ar;
 			path = "libhlsl2glsl-tvos.a";
 			remoteRef = CCAB9F322E9266FC00AF59B0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCABFAE92E959DEE00AF59B0 /* libprojectm-ios.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libprojectm-ios.a";
+			remoteRef = CCABFAE82E959DEE00AF59B0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CCB816FE2B7196A500364D64 /* liblibpixel.a */ = {
@@ -6957,14 +7114,12 @@
 				591D8E4625DC63620013E19F /* decinit.c in Sources */,
 				CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */,
 				CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */,
-				CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */,
 				CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */,
 				CC8368E92B57CA9B0035A4DA /* vfs68_fd.c in Sources */,
 				CC8368662B57CA9A0035A4DA /* ym_puls.c in Sources */,
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
 				59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */,
 				59A65C882625947500BC99D1 /* CBAutoScrollLabel.m in Sources */,
-				CC1E5C7E1200B3B8000A8A4E /* OGLView.mm in Sources */,
 				CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */,
 				591D8E4025DC63620013E19F /* libatrac9.c in Sources */,
 				591D8E4425DC63620013E19F /* band_extension.c in Sources */,
@@ -7265,7 +7420,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -7289,11 +7443,13 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x64",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "";
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -7312,7 +7468,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -7335,11 +7490,13 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x64",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "";
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -7408,6 +7565,11 @@
 					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
 					"$(PROJECT_DIR)/utils/MSColorPicker-master",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/src",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -7428,6 +7590,12 @@
 					"-D",
 					LONG_IS_64BIT,
 					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "";
@@ -7540,6 +7708,11 @@
 					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
 					"$(PROJECT_DIR)/utils/MSColorPicker-master",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/src",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -7561,6 +7734,12 @@
 					"-D",
 					LONG_IS_64BIT,
 					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "";
@@ -7673,6 +7852,11 @@
 					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
 					"$(PROJECT_DIR)/utils/MSColorPicker-master",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/src",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -7693,6 +7877,12 @@
 					"-D",
 					LONG_IS_64BIT,
 					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -7760,7 +7950,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -7782,11 +7971,13 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x64",
 				);
+				MACOSX_DEPLOYMENT_TARGET = "";
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;

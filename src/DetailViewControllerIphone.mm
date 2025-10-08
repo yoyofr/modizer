@@ -52,7 +52,7 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 #define DEBUG_INFOS 0
 #define DEBUG_NO_SETTINGS 0
 
-#include "OGLView.h"
+//#include "OGLView.h"
 #include "RenderUtils.h"
 #include "FXFluid.h"
 
@@ -66,8 +66,8 @@ extern unsigned int m_voice_oscillo_pal2[8];
 extern unsigned int m_voice_oscillo_pal3[8];
 
 #include <QuartzCore/CADisplayLink.h>
-#import <OpenGLES/EAGLDrawable.h>
-#include <OpenGLES/ES1/glext.h>
+//#import <OpenGLES/EAGLDrawable.h>
+//#include <OpenGLES/ES1/glext.h>
 #import <QuartzCore/QuartzCore.h>
 
 #import "UIImage+ImageEffects.h"
@@ -85,7 +85,6 @@ extern unsigned int m_voice_oscillo_pal3[8];
 /*----------------------------------------------*/
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
-#import <GLKit/GLKit.h>
 
 #import "RenderViewControllerIOS.h"
 #include "VizController.h"
@@ -104,6 +103,28 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 /*----------------------------------------------*/
 
+#include <stdint.h>
+#include <string>
+
+#include <projectM-4/audio.h>
+#include <projectM-4/projectM.h>
+#include <projectM-4/playlist.h>
+#include <GLES3/gl3.h>
+projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
+projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
+//
+static int fps=60;
+static int meshX=48,meshY=32;
+static float glScaleFactor=1.0;
+
+void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
+    auto presetName = projectm_playlist_item(_pm_playlist, index);
+    NSLog(@"Preset switched to: %s",std::string(presetName).c_str());
+    
+    projectm_playlist_free_string(presetName);
+}
+
+/*----------------------------------------------*/
 
 #import "gme.h"
 
@@ -3747,6 +3768,7 @@ int recording=0;
             
             //milk
             _metal_view.frame=m_oglView.frame;
+            _mgl_view.frame=m_oglView.frame;
             
         } else {
             if (mHasFocus) {
@@ -3780,6 +3802,7 @@ int recording=0;
             
             //milk
             _metal_view.frame=m_oglView.frame;
+            _mgl_view.frame=m_oglView.frame;
             
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
@@ -4004,6 +4027,7 @@ int recording=0;
                 
                 //milk
                 _metal_view.frame=m_oglView.frame;
+                _mgl_view.frame=m_oglView.frame;
                 
                 //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
@@ -4041,6 +4065,7 @@ int recording=0;
                 
                 //milk
                 _metal_view.frame=m_oglView.frame;
+                _mgl_view.frame=m_oglView.frame;
                 
                 cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
                 cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
@@ -4237,155 +4262,12 @@ void calcNormal(GLfloat v[3][3], GLfloat out[3])
 }
 
 
-void ProcessSpectrum(int ww,int hh,short int *spectrumDataL,short int *spectrumDataR,int numval)
-{
-    GLfloat x,x1,x2;
-    GLfloat y,y1,y2;
-    GLfloat z;
-    GLfloat phi;        /* Angle */
-    GLfloat v;       /* Angles */
-    GLfloat r,cr,cg,cb,rf,cmax;
-    
-    //////////////////////////////
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    const float aspectRatio = (float)ww/(float)hh;
-    const float _hw = 0.1f;
-    const float _hh = _hw/aspectRatio;
-    glFrustumf(-_hw, _hw, -_hh, _hh, 0.4f, 100.0f);
-    
-    glPushMatrix();                     /* Push The Modelview Matrix */
-    
-    glTranslatef(0.0, 0.0, -50.0);      /* Translate 50 Units Into The Screen */
-    //glRotatef(30.0f*sin(angle*0.11f*3.1459f/180.0f), 1, 0 ,0);
-    //glRotatef(20.0f*sin(angle*0.17f*3.1459f/180.0f), 0, 1 ,0);
-    glRotatef(angle/20.0f, 0, 0, 1);
-    
-    
-    /* Begin Drawing Quads, setup vertex array pointer */
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(4, GL_FLOAT, 0, vertColor);
-    /* Enable Vertex Pointer */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    /* 360 Degrees In Steps Of 20 */
-    for (int i=0; i<numval*2; i++)
-    {
-        if (i<numval) {
-            r=(float)spectrumDataL[i]/512.0f;
-            cr=(float)i/(float)numval*2+0.2f;
-            cg=(float)i/(float)numval;
-            cb=(float)i/(float)numval/3;
-        }
-        else {
-            r=(float)spectrumDataR[(2*numval-1-i)]/512.0f;
-            cg=(float)(i-numval)/(float)numval*2+0.2f;
-            cr=(float)(i-numval)/(float)numval;
-            cb=(float)(i-numval)/(float)numval/3;
-        }
-        cr=cr*r/4.0f;
-        cg=cg*r/4.0f;
-        cb=cb*r/4.0f;
-        cmax=r/4.0f;
-        if (cr<0) cr=0; if (cr>1.0f) cr=1.0f;
-        if (cg<0) cg=0; if (cg>1.0f) cg=1.0f;
-        if (cb<0) cb=0; if (cb>1.0f) cb=1.0f;
-        
-        
-        vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=1.0f;
-        
-        phi=(float)i*360.0f/(float)numval/2;
-        /* Calculate Angle Of First Point (0) */
-        v=((phi)/180.0f*3.142f);
-        
-        rf=1.0f+0.4*sin(angle*0.001f)*cos(v*(8+8*sin(angle*0.0008f))+angle*0.0010f);
-        
-        /* Calculate x Position (1st Point) */
-        x1=(GLfloat)(cos(v)*(r+rf));
-        y1=(GLfloat)(sin(v)*(r+rf));
-        x2=(GLfloat)(cos(v)*(rf));
-        y2=(GLfloat)(sin(v)*(rf));
-        z=0.0f;
-        
-        x=x1+(GLfloat)(sin(v)*0.8f);
-        y=y1-(GLfloat)(cos(v)*0.8f);
-        vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-        vertices[0][0]=x;   /* Set x Value Of First Vertex */
-        vertices[0][1]=y;   /* Set y Value Of First Vertex */
-        vertices[0][2]=z-1.0f;   /* Set z Value Of First Vertex */
-        
-        x=x2;
-        y=y2;
-        vertColor[1][0]=vertColor[1][1]=vertColor[1][2]=cmax;
-        vertices[1][0]=x;   /* Set x Value Of Second Vertex */
-        vertices[1][1]=y;   /* Set y Value Of Second Vertex */
-        vertices[1][2]=z;   /* Set z Value Of Second Vertex */
-        
-        x=x1-(GLfloat)(sin(v)*0.8f);
-        y=y1+(GLfloat)(cos(v)*0.8f);
-        vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-        vertices[2][0]=x;   /* Set x Value Of First Vertex */
-        vertices[2][1]=y;   /* Set y Value Of First Vertex */
-        vertices[2][2]=z-1.0f;   /* Set z Value Of First Vertex */
-        calcNormal(vertices, normalData); /* Calculate The Quad Normal */
-        /* Set The Normal */
-        glNormal3f(normalData[0], normalData[1], normalData[2]);
-        
-        /* Render The Quad */
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-        
-        //same, but smaller
-        x1=(GLfloat)(cos(v)*(r*0.9f+rf+0.1f));
-        y1=(GLfloat)(sin(v)*(r*0.9f+rf+0.1f));
-        x2=(GLfloat)(cos(v)*(rf+0.1f));
-        y2=(GLfloat)(sin(v)*(rf+0.1f));
-        z=0.0f;
-        
-        
-        x=x1+(GLfloat)(sin(v)*0.6f);
-        y=y1-(GLfloat)(cos(v)*0.6f);
-        vertColor[0][0]=vertColor[0][1]=vertColor[0][2]=cmax;
-        vertices[0][0]=x;   /* Set x Value Of First Vertex */
-        vertices[0][1]=y;   /* Set y Value Of First Vertex */
-        vertices[0][2]=z-0.9f;   /* Set z Value Of First Vertex */
-        
-        x=x2;
-        y=y2;
-        vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-        vertices[1][0]=x;   /* Set x Value Of Second Vertex */
-        vertices[1][1]=y;   /* Set y Value Of Second Vertex */
-        vertices[1][2]=z;   /* Set z Value Of Second Vertex */
-        
-        x=x1-(GLfloat)(sin(v)*0.2f);
-        y=y1+(GLfloat)(cos(v)*0.2f);
-        vertColor[2][0]=vertColor[2][1]=vertColor[2][2]=cmax;
-        vertices[2][0]=x;   /* Set x Value Of First Vertex */
-        vertices[2][1]=y;   /* Set y Value Of First Vertex */
-        vertices[2][2]=z-0.9f;   /* Set z Value Of First Vertex */
-        calcNormal(vertices, normalData); /* Calculate The Quad Normal */
-        /* Set The Normal */
-        glNormal3f(normalData[0], normalData[1], normalData[2]);
-        
-        /* Render The Quad */
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-        
-    }
-    
-    
-    
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    /* Pop The Matrix */
-    glPopMatrix();
-}
-
 
 /* Set Up An Ortho View */
 void ViewOrtho(GLfloat window_width, GLfloat window_height)
 {
+    return;
+    
     glMatrixMode(GL_PROJECTION);        /* Select Projection */
     glPushMatrix();                     /* Push The Matrix   */
     glLoadIdentity();                   /* Reset The Matrix  */
@@ -4399,6 +4281,8 @@ void ViewOrtho(GLfloat window_width, GLfloat window_height)
 /* Set Up A Perspective View */
 void ViewPerspective()
 {
+    return;
+    
     glMatrixMode(GL_PROJECTION);        /* Select Projection */
     glPopMatrix();                      /* Pop The Matrix    */
     glMatrixMode(GL_MODELVIEW);         /* Select Modelview  */
@@ -4952,6 +4836,144 @@ void ViewPerspective()
     if (oldmode!=darkMode) forceReloadCells=true;
     if (alertTableView) [alertTableView reloadData];
 }
+-(void) presentContextOGL {
+    MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
+    [m_oglContext present:oglLayer];
+}
+-(void) setContextOGL {
+    MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
+    [MGLContext setCurrentContext:m_oglContext forLayer:oglLayer];
+    glViewport(0, 0, m_oglView.frame.size.width*glScaleFactor, m_oglView.frame.size.height*glScaleFactor);
+}
+-(void) setupOGLView {
+    MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
+    // Set the layer's scale factor as you wish
+    //oglLayer.retainedBacking = YES;
+    oglLayer.contentsScale = [[UIScreen mainScreen] scale];
+//    glScaleFactor=[[UIScreen mainScreen] scale];
+    NSLog(@"ogl scale: %f",[[UIScreen mainScreen] scale]);
+    
+    // Create OpenGL context
+    //self.glView.drawableDepthFormat = MGLDrawableDepthFormat16;
+
+    m_oglContext = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES2];
+    if (!m_oglContext || ![MGLContext setCurrentContext:m_oglContext]) {
+        NSLog(@"no OGL context!!");
+    }
+    m_oglView.context = m_oglContext;
+    
+    // Configure renderbuffers created by the view
+    m_oglView.drawableColorFormat = MGLDrawableColorFormatRGBA8888;
+    m_oglView.drawableDepthFormat = MGLDrawableDepthFormat24;
+    m_oglView.drawableStencilFormat = MGLDrawableStencilFormatNone;
+    // Enable multisampling
+    m_oglView.drawableMultisample = MGLDrawableMultisampleNone;
+    
+    
+}
+-(void) presentContextMGL {
+    MGLLayer *mglLayer = (MGLLayer *)_mgl_view.layer;
+    [_mgl_context present:mglLayer];
+}
+-(void) setContextMGL {
+    MGLLayer *mglLayer = (MGLLayer *)_mgl_view.layer;
+    [MGLContext setCurrentContext:_mgl_context forLayer:mglLayer];
+    glViewport(0, 0, _mgl_view.frame.size.width, _mgl_view.frame.size.height);
+}
+-(void) setupMGLView {
+    MGLLayer *mglLayer = (MGLLayer *)_mgl_view.layer;
+    // Set the layer's scale factor as you wish
+    //mglLayer.retainedBacking = YES;
+    mglLayer.contentsScale = [[UIScreen mainScreen] scale];
+    glScaleFactor=[[UIScreen mainScreen] scale];
+    NSLog(@"mgl scale: %f",glScaleFactor);
+    
+    // Create OpenGL context
+    //self.glView.drawableDepthFormat = MGLDrawableDepthFormat16;
+
+    _mgl_context = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES3];
+    if (!_mgl_context || ![MGLContext setCurrentContext:_mgl_context]) {
+        NSLog(@"no MGL context!!");
+    }
+    _mgl_view.context = _mgl_context;
+    
+    // Configure renderbuffers created by the view
+    _mgl_view.drawableColorFormat = MGLDrawableColorFormatRGBA8888;
+    _mgl_view.drawableDepthFormat = MGLDrawableDepthFormatNone;
+    _mgl_view.drawableStencilFormat = MGLDrawableStencilFormatNone;
+    // Enable multisampling
+    _mgl_view.drawableMultisample = MGLDrawableMultisampleNone;
+}
+- (void)pmInit {
+    MGLLayer *mglLayer = (MGLLayer *)_mgl_view.layer;
+    [MGLContext setCurrentContext:_mgl_context forLayer:mglLayer];
+//    CAEAGLLayer *mglLayer = (CAEAGLLayer *)_mgl_view.layer;
+//    [EAGLContext setCurrentContext:_mgl_context];
+    
+    _pm = projectm_create();
+    if (!_pm) {
+        NSLog(@"cannot create projectM instance");
+        return;
+    }
+    
+    int canvasWidth,canvasHeight;
+    
+    const char *texturesSearchPaths[1];
+    std::string resourceDir;
+    GetResourceDir(resourceDir);
+    std::string texturesDir = resourceDir+"/assets/textures";
+    std::string presetsDir = resourceDir+"/assets/presets";
+    
+    NSLog(@"Textures: %s",texturesDir.c_str());
+    NSLog(@"Presets: %s",presetsDir.c_str());
+    
+        
+    canvasWidth=_mgl_view.frame.size.width*glScaleFactor;
+    canvasHeight=_mgl_view.frame.size.height*glScaleFactor;
+    
+    NSLog(@"Canvas: %d x %d",canvasWidth,canvasHeight);
+
+    projectm_set_window_size(_pm, canvasWidth, canvasHeight);
+    projectm_set_fps(_pm, fps);
+    
+    projectm_set_mesh_size(_pm, meshX, meshY);
+    projectm_set_aspect_correction(_pm, true);
+    projectm_set_preset_locked(_pm, false);
+    
+
+    // Preset display settings
+    projectm_set_preset_duration(_pm, 15.0);
+    projectm_set_soft_cut_duration(_pm, 2.0);
+    projectm_set_hard_cut_enabled(_pm, false);
+    projectm_set_hard_cut_duration(_pm, 3.0);
+    projectm_set_hard_cut_sensitivity(_pm, static_cast<float>(1.0));
+    projectm_set_beat_sensitivity(_pm, static_cast<float>(1.0));
+        
+    texturesSearchPaths[0]=texturesDir.c_str();
+    projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,1);
+
+    // Playlist
+    _pm_playlist = projectm_playlist_create(_pm);
+    if (!_pm_playlist)
+    {
+        NSLog(@"Failed to create the projectM preset playlist manager instance.");
+        //Add dealloc projectM
+        return;
+    }
+
+    projectm_playlist_set_shuffle(_pm_playlist, true);
+
+    //        projectm_playlist_add_preset(_playlist, presetPath.c_str(), false);
+    projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+
+    projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FILENAME_ONLY, SORT_ORDER_ASCENDING);
+
+    projectm_playlist_set_preset_switched_event_callback(_pm_playlist, &PresetSwitchedEvent, nil);
+    
+    
+    NSLog(@"projectM initialized");
+}
+
 
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
@@ -4959,6 +4981,10 @@ void ViewPerspective()
     clock_t start_time,end_time;
     start_time=clock();
     [super viewDidLoad];
+    
+    [self setupMGLView];
+    [self pmInit];
+    if (_pm) projectm_playlist_play_next(_pm_playlist, true);
     
     mSendStatTimer=0;
     loadRequestInProgress=0;
@@ -5466,11 +5492,12 @@ void ViewPerspective()
 #ifdef LOAD_PROFILE
     NSLog(@"detail2 : %d",end_time-start_time);
 #endif
+    //
     //opengl stuff
-    m_oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
-    [EAGLContext setCurrentContext:m_oglContext];
-    [m_oglView initialize:m_oglContext scaleFactor:mScaleFactor];
-    
+    //Init OGL view
+    [self setupOGLView];
+    //Init shaders
+    RenderUtils::RenderInit();
     
     // Create gesture recognizer
     UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];
@@ -5573,12 +5600,12 @@ void ViewPerspective()
     
     clearFXbuffer=true;
     
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
-    glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
-    glDepthFunc(GL_LEQUAL);   /* The Type Of Depth Testing (Less Or Equal) */
-    glEnable(GL_DEPTH_TEST);  /* Enable Depth Testing                      */
-    /* Set Perspective Calculations To Most Accurate */
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
+//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
+//    glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
+//    glDepthFunc(GL_LEQUAL);   /* The Type Of Depth Testing (Less Or Equal) */
+//    glEnable(GL_DEPTH_TEST);  /* Enable Depth Testing                      */
+//    /* Set Perspective Calculations To Most Accurate */
+//    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
     
     memset(txt_pianoRoll,0,sizeof(txt_pianoRoll));
     txt_pianoRoll[TXT_PIANOROLL_LIGHT]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoLight.png"]);
@@ -5762,7 +5789,6 @@ void ViewPerspective()
         m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //60 or 30 fps depending on device speed iPhone
         [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 
-    
     /*--------------------------------------*/
     _externalWindow=nil;
     [self initMetal];
@@ -6134,9 +6160,7 @@ void ViewPerspective()
     }
     
     //get ogl context & bind
-    [EAGLContext setCurrentContext:m_oglContext];
-    [m_oglView layoutSubviews];
-    [m_oglView bind];
+    [self setContextOGL];
     
     
     if (milkPresetStr) {
@@ -6246,6 +6270,7 @@ void ViewPerspective()
  }*/
 
 void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
+    return;
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
@@ -6339,6 +6364,8 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
 }
 
 void infoSubMenuShowImages(int window_width,int window_height,int start_index,int nb,int alpha_byte ) {
+    return;
+    
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
@@ -6423,6 +6450,8 @@ static int mOglView1Tap=0;
     CGPoint pt=[gestureRecognizer locationInView:m_oglView];
     oglTapX=pt.x;
     oglTapY=pt.y;
+    
+    //NSLog(@"tap on %f x %f",oglTapX,oglTapY);
 }
 
 -(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
@@ -6519,15 +6548,94 @@ extern "C" int current_sample;
     if (oglViewFullscreen) {
         cover_viewBG.layer.zPosition=MAXFLOAT-10;
         cover_view.layer.zPosition=MAXFLOAT-9;
+        _mgl_view.layer.zPosition=MAXFLOAT-8;
         _metal_view.layer.zPosition=MAXFLOAT-8;
         m_oglView.layer.zPosition=MAXFLOAT-7;
     } else {
         cover_viewBG.layer.zPosition=0;
         cover_view.layer.zPosition=1;
+        _mgl_view.layer.zPosition=2;
         _metal_view.layer.zPosition=2;
         m_oglView.layer.zPosition=3;
     }
     
+    /*-------------------------------------------------------------------------------*/
+    /*  ProjectM render */
+    /*-------------------------------------------------------------------------------*/
+#if 1
+    [self setContextMGL];
+    //NSLog(@"mgl size: %f x %f",_mgl_view.frame.size.width, _mgl_view.frame.size.height);
+
+    glClearColor(0, 0 , 0, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    if (_pm) {
+        size_t currentMeshX{0};
+        size_t currentMeshY{0};
+        
+        projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
+        if (currentMeshX != meshX || currentMeshY != meshY) {
+            NSLog(@"new mesh size: %dx%d (old: %dx%d)",meshX,meshY,currentMeshX,currentMeshY);
+            projectm_set_mesh_size(_pm, meshX, meshY);
+        }
+        
+        size_t canvasWidth;
+        size_t canvasHeight;
+        projectm_get_window_size(_pm, &canvasWidth, &canvasHeight);
+        if ((_mgl_view.frame.size.width*glScaleFactor!=canvasWidth) || (_mgl_view.frame.size.height*glScaleFactor!=canvasWidth)) {
+            canvasWidth=_mgl_view.frame.size.width*glScaleFactor;
+            canvasHeight=_mgl_view.frame.size.height*glScaleFactor;
+            projectm_set_window_size(_pm, canvasWidth, canvasHeight);
+        }
+        
+        
+        /*------------------------------------------------*/
+        // Feed buffer for Milkdrop
+        if ([mplayer isPlaying]){
+            short int **snd_buffer;
+            int cur_pos,prev_pos;
+            snd_buffer=[mplayer buffer_ana_cpy];
+            cur_pos=[mplayer getCurrentPlayedBufferIdx];
+            short int *curBuffer=snd_buffer[cur_pos];
+            
+            int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
+            
+            milkBufferPosWrite=0;
+            
+            if ([mplayer isPaused]) {
+                for (int i=0;i<sample_count;i++) {
+                    milkBuffer[milkBufferPosWrite++]=0;
+                    milkBuffer[milkBufferPosWrite++]=0;
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
+                }
+            } else {
+                int posBuff=0;
+                for (int i=0;i<sample_count;i++) {
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2];
+                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2+1];
+                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
+                    posBuff++;
+                    if (posBuff>=SOUND_BUFFER_SIZE_SAMPLE) {
+                        posBuff=0;
+                        cur_pos++;
+                        if (cur_pos>=SOUND_BUFFER_NB) cur_pos=0;
+                        curBuffer=snd_buffer[cur_pos];
+                    }
+                }
+            }
+        }
+        /*----------------------------------------------------*/
+        int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
+        projectm_pcm_add_int16(_pm,(const int16_t*)milkBuffer,sample_count,PROJECTM_STEREO);
+        
+        projectm_opengl_render_frame(_pm);
+    }
+    [self presentContextMGL];
+#endif
+//    [_mgl_context presentRenderbuffer:GL_RENDERBUFFER];
+    /*-------------------------------------------------------------------------------*/
+    /*-------------------------------------------------------------------------------*/
+    /*-------------------------------------------------------------------------------*/
     
     if (self.mainView.hidden) {
         no_reentrant=0;
@@ -6547,15 +6655,25 @@ extern "C" int current_sample;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     
-    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value==1) fxalpha=0;
+    //if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value==1) fxalpha=0;
     
-    if (fxalpha==1.0f) m_oglView.layer.opaque = YES;
-    else m_oglView.layer.opaque = NO;
+    if (fxalpha==1.0f) {
+        m_oglView.layer.opaque = YES;
+        m_oglView.opaque=YES;
+    }
+    else
+    {
+        m_oglView.layer.opaque = NO;
+        m_oglView.opaque=NO;
+    }
+    
     
     if (!mFont || !mFontMenu ) {
         no_reentrant=0;
         return;
     }
+    
+    [self setContextOGL];
     
     if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFontMenu,mScaleFactor);
@@ -6662,7 +6780,9 @@ extern "C" int current_sample;
         }
     }
     
-    
+    /*******************************************************/
+    /* Compute pattern display scrolling */
+    /*******************************************************/
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
         if (visibleChan<=mplayer.numChannels+1) {
             if (movePxMOD>0) movePxMOD=0;
@@ -6673,7 +6793,9 @@ extern "C" int current_sample;
         
     }
     
-    
+    /*******************************************************/
+    /* Compute midiFX display scrolling */
+    /*******************************************************/
     if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
          (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
         float note_fx_linewidth;
@@ -7248,9 +7370,7 @@ extern "C" int current_sample;
      return;
      }
      */
-    //get ogl context & bind
-    [EAGLContext setCurrentContext:m_oglContext];
-    [m_oglView bind];
+    [self setContextOGL];
     
     hasdrawnotes=0;
     
@@ -7440,9 +7560,16 @@ extern "C" int current_sample;
             break;
     }
     
+    m_oglView.opaque=YES;
+    m_oglView.layer.opaque=YES;
+    
+    
     angle+=(float)4.0f;
-        glClearColor(0.0f, 0.0f, 0.0f, fxalpha);
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//fxalpha);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    RenderUtils::SetUpOrtho(0,ww,hh);
+    m_oglView.alpha=0.5f;
+    
     
         if ((fxalpha<1)&&oglViewFullscreen) {
             /*CGPoint pos=cover_view.frame.origin;
@@ -7461,11 +7588,13 @@ extern "C" int current_sample;
             //RenderUtils::ClearUI(ww,hh,top_size,bottom_size);*/
         }
     
-    RenderUtils::SetUpOrtho(0,ww,hh);
+    
     
     if ([mplayer isPlaying]) {
-        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
-                                                                                                         settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
+        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
+            RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
+                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
+        }
     }
     
     if (([mplayer isPlaying])&&
@@ -7571,8 +7700,11 @@ extern "C" int current_sample;
                 
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
                 
-                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
-                else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                } else {
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                }
                 
                 if (currentNotes) {
                     hasdrawnotes=1;
@@ -7877,8 +8009,12 @@ extern "C" int current_sample;
 //                        cpt++;
 //                        if (!(cpt&31)) printf("call with buff: %d\n",cur_pos);
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else {
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    }
+                } else {
+                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                }
                 break;
             case 2:
                 if ([mplayer m_voicesDataAvail]) {
@@ -7891,8 +8027,12 @@ extern "C" int current_sample;
                         }
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                } else RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    } else {
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    }
+                } else {
+                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                }
                 break;
             case 3:
                 RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
@@ -7902,9 +8042,12 @@ extern "C" int current_sample;
     
     if ([mplayer isPlaying]){
         if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4) RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
-            else if (settings[GLOB_FX2].detail.mdz_switch.switch_value<6) RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
-            else RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
+            if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4){
+                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            } else if (settings[GLOB_FX2].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
+            } else {
+                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
+            }
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         }
@@ -7973,17 +8116,19 @@ extern "C" int current_sample;
         }
     }
     
-    
+    //NSLog(@"ogl size: %f x %f",m_oglView.frame.size.width, m_oglView.frame.size.height);
     if (viewTapHelpInfo) {
-        int fadelev=255*sin(viewTapHelpInfo*3.14159/2/256);
-        RenderUtils::SetUpOrtho(0,ww,hh);
+        float fadelev=sin(viewTapHelpInfo*3.14159/2/256);
+        
         int active_idx=0;
         
         if (viewTapHelpShowMode==1) {
             active_idx=[self computeActiveFX];
             
             //NSLog(@"alpha: %d / %d",fadelev,(int)(fxalpha*255));
-            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt,mScaleFactor);
+            //NSLog(@"grid: %d x %d - %f scale %f",ww,hh,fxalpha,mScaleFactor);
+            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha,active_idx,framecpt,mScaleFactor);
+#if  0
             infoMenuShowImages(ww,hh,fadelev);
             
             glPushMatrix();
@@ -7996,6 +8141,7 @@ extern "C" int current_sample;
             glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
             viewTapInfoStr[9]->Render(128+(fadelev/2));
             glPopMatrix();
+#endif
         }
         if (viewTapHelpShowMode==2) {
             
@@ -8239,20 +8385,26 @@ extern "C" int current_sample;
                     break;
             }
         }
+#if 0
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
         glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,
                      menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
         viewTapInfoStr[0]->Render(128+(fadelev/2));
         glPopMatrix();
+#endif
     }
     
     //    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
     
     // Apple (and the khronos group) encourages you to discard depth
     // render buffer contents whenever is possible
-    FrameBufferUtils::SwapBuffer(m_oglView->m_frameBuffer,m_oglContext);
+    //[m_oglView swapBuffer];
+    [self presentContextOGL];
+    
     no_reentrant=0;
+    
+    
 }
 
 
@@ -8985,6 +9137,8 @@ didStopRecordingWithError:(NSError *)error
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    return;
+    
     static int fpscnt=0;
     bool mv_hidden=FALSE;
     

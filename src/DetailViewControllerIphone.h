@@ -20,9 +20,11 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 #import <UIKit/UIKit.h>
-#import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
+//#import <OpenGLES/EAGL.h>
+//#import <OpenGLES/ES1/gl.h>
+//#import <OpenGLES/ES1/glext.h>
+
+#import <MGLKit.h>
 
 #import <ReplayKit/ReplayKit.h>
 
@@ -73,6 +75,12 @@ enum {
     
     __weak IBOutlet MTKView *_metal_view;
     
+    __weak IBOutlet MGLKView *_mgl_view;
+    MGLContext *_mgl_context;
+    
+    __weak IBOutlet MGLKView* m_oglView;
+    MGLContext* m_oglContext;
+    
     bool darkMode;
     bool forceReloadCells;
     
@@ -116,8 +124,8 @@ enum {
 
 	int oglViewFullscreen,oglViewFullscreenChanged;
 	int orientationHV;
-    IBOutlet OGLView* m_oglView;
-	EAGLContext* m_oglContext;
+    
+	
 	st::HardwareClock m_clock;
 	CADisplayLink* m_displayLink;
 	

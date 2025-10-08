@@ -21,8 +21,8 @@
         eaglLayer.opaque = YES;
         //self.opaque=NO;
         eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-											[NSNumber numberWithBool:NO], 
-											kEAGLDrawablePropertyRetainedBacking, 
+											[NSNumber numberWithBool:YES],
+											kEAGLDrawablePropertyRetainedBacking,
 											kEAGLColorFormatRGBA8, 
 											kEAGLDrawablePropertyColorFormat, 
 											nil];  
@@ -39,11 +39,12 @@
 		self.contentScaleFactor=scaleFactor;
 	}
 	m_oglContext=oglContext;
+    [EAGLContext setCurrentContext:m_oglContext];
 	FrameBufferUtils::Create(m_frameBuffer, oglContext, (CAEAGLLayer*)self.layer);
 }
 
 - (void)layoutSubviews {
-    //[EAGLContext setCurrentContext:m_oglContext];
+    [EAGLContext setCurrentContext:m_oglContext];
     FrameBufferUtils::Destroy(m_frameBuffer);
 	FrameBufferUtils::Create(m_frameBuffer, m_oglContext, (CAEAGLLayer*)self.layer);
 }
@@ -59,6 +60,18 @@
 - (void)bind
 {
 	FrameBufferUtils::Set(m_frameBuffer);
+}
+
+-(void)setContext {
+    [EAGLContext setCurrentContext:m_oglContext];
+}
+
+-(void)drawContext {
+    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
+}
+
+-(void)swapBuffer {
+    FrameBufferUtils::SwapBuffer(m_frameBuffer,m_oglContext);
 }
 
 - (bool)popTouch

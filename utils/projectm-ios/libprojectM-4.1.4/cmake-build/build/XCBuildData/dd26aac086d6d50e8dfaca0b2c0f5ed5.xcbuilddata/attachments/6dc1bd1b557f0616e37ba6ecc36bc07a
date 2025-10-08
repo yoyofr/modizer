@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+if test "$CONFIGURATION" = "Debug,Release"; then :
+  cd /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/cmake-build
+  make -f /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/cmake-build/CMakeScripts/ReRunCMake.make
+fi
+
