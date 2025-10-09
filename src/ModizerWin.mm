@@ -99,10 +99,10 @@
 }
 
 - (void)keyNPressed{
-    [detailViewControllerIphone mdPrevPreset];
+    [detailViewControllerIphone mdNextPreset];
 }
 - (void)keyPPressed{
-    [detailViewControllerIphone mdNextPreset];
+    [detailViewControllerIphone mdPrevPreset];
 }
 - (void)keyLPressed{
     [detailViewControllerIphone mdSwitchLockPreset];

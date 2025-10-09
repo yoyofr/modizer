@@ -1,4 +1,0 @@
-// This should NOT produce an error
-#line 1337
-
-float4 main() : COLOR { return 0; }

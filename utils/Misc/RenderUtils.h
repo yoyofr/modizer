@@ -13,13 +13,20 @@
 #import "ModizerConstants.h"
 //#include "Mesh.h"
 
-#include <GLES/gl.h>
-#include <GLES/glext.h>
+#include <GLES3/gl3.h>
+
+//tmp
+//#include <OpenGLES/ES1/glext.h>
+//#include <GLES/gl.h>
+//#include <GLES/glext.h>
+
+//tmp
+
+
 
 
 #include "GlErrors.h"
 
-#include <OpenGLES/ES1/glext.h>
 #include "Queue.h"
 
 

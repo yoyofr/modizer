@@ -1,4 +1,0 @@
-#define right(   x   )       x
-float right(     RIGHT    ) ;
-
-float4 main() : COLOR { return RIGHT; }

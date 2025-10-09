@@ -1,3 +1,0 @@
-#ifdef A B
-#endif
-float4 main() : COLOR { return 0; }

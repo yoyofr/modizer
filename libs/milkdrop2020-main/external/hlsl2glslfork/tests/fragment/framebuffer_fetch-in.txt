@@ -1,5 +1,0 @@
-void main (float4 col : TEXCOORD0, inout half4 fragColor : COLOR0)
-{
-	fragColor.r = col.r;
-	fragColor.g *= 2.0;
-}

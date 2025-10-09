@@ -22,7 +22,11 @@ CGLString::CGLString(const char *text, const CFont *font,float mScaleFactor) :
 	mIndices(NULL),
 	mColors(NULL)
 {
-	mText = strdup(text);
+	if (text) mText = strdup(text);
+    else {
+        mText=(char*)malloc(1);
+        mText[0]=0;
+    }
     
     scaleFactor=mScaleFactor;
 	

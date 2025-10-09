@@ -1,3 +1,0 @@
-#undef __LINE__
-
-float4 main() : COLOR { return 0; }

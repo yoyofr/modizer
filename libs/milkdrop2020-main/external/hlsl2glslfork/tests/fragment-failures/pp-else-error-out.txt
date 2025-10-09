@@ -1,2 +1,0 @@
-(2): ERROR: '' : Invalid #else directive 
-(2): ERROR: '' : syntax error syntax error

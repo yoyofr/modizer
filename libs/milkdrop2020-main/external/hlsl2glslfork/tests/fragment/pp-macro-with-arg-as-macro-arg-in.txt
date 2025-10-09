@@ -1,7 +1,0 @@
-// Should produce "RIGHT" and not "l(b)" or whatnot.
-#define bb(l) l
-#define zz(c) c
-#define qq(b) zz(bb(b))
-float qq(RIGHT) ;
-
-float4 main() : COLOR { return RIGHT; }

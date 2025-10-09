@@ -9,9 +9,6 @@
 
 extern int NOTES_DISPLAY_TOPMARGIN;
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-
 #include "RenderUtils.h"
 #include "TextureUtils.h"
 
@@ -20,6 +17,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "Font.h"
 #import "GLString.h"
+
+
+#define glPushMatrix(...)
+#define glTranslatef(...)
+#define glPushMatrix(...)
+#define glPopMatrix(...)
+#define glEnableClientState(...)
+#define glVertexPointer(...)
+#define glColorPointer(...)
+#define glDisableClientState(...)
+
+#define glMatrixMode(...)
+#define glLoadIdentity(...)
+
+#define glFrustumf(...)
+
+
 
 unsigned int data_midifx_pal1[32];/*={
     0x0000fe, 0xfd00fe, 0xfe0000, 0x0aff05, 0xff78ff, 0x7900ff, 0x0077fe, 0x9701ff, 0xfeff05, 0x0700ba, 0x77fe77, 0x4187ba, 0xb98744, 0xf034ab, 0xaa31ec, 0xaa0001, 0x00ab05, 0x0003ac, 0xedb1ff, 0x154e56, 0x8d476f, 0x6c8c60, 0xf87574, 0xf6e38b, 0x5b430b, 0xa2f0eb, 0xe3e0f5, 0x115205, 0x39eec0, 0x1f3e9e, 0x89aa0d, 0xfb7810
@@ -175,23 +189,26 @@ int RenderUtils::RenderInit() {
     
     userData_simpleRender=userData;
    
-   GLchar vShaderStr[] =
-      "attribute vec4 aPosition;    \n"
-      "attribute vec4 aColor;    \n"
-      "varying vec4 vColor;\n"
-      "void main()                  \n"
-      "{                            \n"
+    GLchar vShaderStr[] =
+    "#version 300 es\n"
+    "in vec4 aPosition;    \n"
+    "in vec4 aColor;    \n"
+    "out vec4 vColor;\n"
+    "void main()                  \n"
+    "{                            \n"
     "   vColor = aColor;  \n"
-      "   gl_Position = aPosition;  \n"
-      "}                            \n";
-   
+    "   gl_Position = aPosition;  \n"
+    "}                            \n";
+
     GLchar fShaderStr[] =
-      "precision mediump float;\n"
-      "varying vec4 vColor;\n"
-      "void main()                                  \n"
-      "{                                            \n"
-      "  gl_FragColor = vColor;\n"
-      "}                                            \n";
+    "#version 300 es\n"
+    "precision mediump float;\n"
+    "in vec4 vColor;\n"
+    "out vec4 FragColor;\n"
+    "void main()                                  \n"
+    "{                                            \n"
+    "  FragColor = vColor;\n"
+    "}                                            \n";
 
    GLuint vertexShader;
    GLuint fragmentShader;
@@ -253,6 +270,7 @@ int RenderUtils::RenderInit() {
 
 // Clear the top & bottom part of the UI when opengl window is not fully opaque & in fullscreen
 void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size) {
+#if 0
     LineVertexF ptsB[6*2];
     int index;
     
@@ -291,6 +309,7 @@ void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size)
     
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+#endif
 }
 
 void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
@@ -325,6 +344,7 @@ static int mVoicesName_FontSize;
 
 #define FIXED_POINT_PRECISION 16
 void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame) {
+#if 0
     LineVertex *pts;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -635,9 +655,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     free(pts);
+#endif
 }
 
 void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame) {
+#if 0
     LineVertex *pts;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -935,10 +957,12 @@ void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint w
     glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     free(pts);
+#endif
 }
 
 
 void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,float mScaleFactor) {
+#if 0
     LineVertex *pts,*ptsB;
     int mulfactor;
     int dval,valL,valR,ovalL,ovalR,ospl,ospr,spl,spr,colR1,colL1,colR2,colL2,ypos;
@@ -1123,7 +1147,7 @@ void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uin
     glDisable(GL_BLEND);
     free(pts);
     free(ptsB);
-    
+#endif
 }
 
 static int DrawSpectrum_first_call=1;
@@ -1134,6 +1158,7 @@ static int spectrumPeakValueR_index[SPECTRUM_BANDS];
 
 
 void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands,float mScaleFactor) {
+#if 0
     LineVertex *pts,*ptsB,*ptsC;
     float x,y;
     int spl,spr,mulfactor,cr,cg,cb;
@@ -1302,6 +1327,7 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
     free(pts);
     free(ptsB);
     if (peaks) free(ptsC);
+#endif
 }
 
 static int beatValueL_index[SPECTRUM_BANDS];
@@ -1309,83 +1335,72 @@ static int beatValueR_index[SPECTRUM_BANDS];
 
 void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor) {
     LineVertexF pts[24];
-    //set the opengl state
-    
-    
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    
-//    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &pts[0].x);
-//    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &pts[0].r);
-    
-    
     int menu_cell_size;
     if (_ww<_hh) menu_cell_size=_ww;
     else menu_cell_size=_hh;
     
-    uint8_t fade_lev=fade_level*0.75f;
-    if (fade_lev<+min_level) fade_lev=min_level;
+    float fade_lev=fade_level*0.75f;
+    if (fade_lev<min_level) fade_lev=min_level;
     if (fade_lev>0.8f) fade_lev=0.8f;
-    uint8_t r,g,b;
-    r=255;
-    g=0;
-    b=0;
-    fade_lev=255;
-//    pts[0] = LineVertexF(0, 0,		        r,g,b,fade_lev);
-//    pts[1] = LineVertexF(_ww*2, 0,		    r,g,b,fade_lev);
-//    pts[2] = LineVertexF(0, _hh*2,		    r,g,b,fade_lev);
-//    pts[3] = LineVertexF(_ww*2, _hh*2,	    r,g,b,fade_lev);
     
-    GLfloat vVertices[] = {  -1.0f,  -1.0f, 0.0f,
-                              1.0f,  -1.0f, 0.0f,
-                             -1.0f,   1.0f, 0.0f,
-                              1.0f,   1.0f, 0.0f};
+    pts[0] = LineVertexF(0, 0,        0,0,0,fade_lev);
+    pts[1] = LineVertexF(_ww, 0,        0,0,0,fade_lev);
+    pts[2] = LineVertexF(0, _hh,        0,0,0,fade_lev);
+    pts[3] = LineVertexF(_ww, _hh,        0,0,0,fade_lev);
     
-    GLfloat vColors[] = {    1.0f,  0.0f, 0.0f, 1.0f,
-                            1.0f,  1.0f, 0.0f, 1.0f,
-                            1.0f,  0.0f, 1.0f, 1.0f,
-                            0.0f,  0.0f, 1.0f, 1.0f};
+    for (int i=0;i<4;i++) {
+        pts[i].x=((pts[i].x*2/(float)_ww)-1.0);
+        pts[i].y=((pts[i].y*2/(float)_hh)-1.0);
+        
+        pts[i].r=pts[i].r/255.0;
+        pts[i].g=pts[i].g/255.0;
+        pts[i].b=pts[i].b/255.0;
+        //pts[i].a=pts[i].a/255.0;
+    }
     
     // Use the program object
     glUseProgram ( userData_simpleRender->programObject );
     
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     // Load the vertex data
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
-    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, 0, vColors );
+    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    // Load the vertex data
     glEnableVertexAttribArray ( 0 );
     glEnableVertexAttribArray ( 1 );
-    
+//    
     glDrawArrays ( GL_TRIANGLE_STRIP, 0, 4 );
     
-    pts[0] = LineVertexF(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
-    pts[1] = LineVertexF(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_level);
-    pts[2] = LineVertexF(menu_cell_size*2/4-1, 0,		55,55,155,fade_level);
-    pts[3] = LineVertexF(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_level);
-    pts[4] = LineVertexF(menu_cell_size*3/4-1, 0,		55,55,155,fade_level);
-    pts[5] = LineVertexF(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_level);
-    pts[6] = LineVertexF(menu_cell_size*1/4+1, 0,		255,255,255,fade_level/4);
-    pts[7] = LineVertexF(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_level/4);
-    pts[8] = LineVertexF(menu_cell_size*2/4+1, 0,		55,55,155,fade_level/4);
-    pts[9] = LineVertexF(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_level/4);
-    pts[10] = LineVertexF(menu_cell_size*3/4+1, 0,		55,55,155,fade_level/4);
-    pts[11] = LineVertexF(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_level/4);
+    pts[0] = LineVertexF(menu_cell_size*1/4-1, 0,		255,255,255,fade_lev);
+    pts[1] = LineVertexF(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_lev);
+    pts[2] = LineVertexF(menu_cell_size*2/4-1, 0,		55,55,155,fade_lev);
+    pts[3] = LineVertexF(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_lev);
+    pts[4] = LineVertexF(menu_cell_size*3/4-1, 0,		55,55,155,fade_lev);
+    pts[5] = LineVertexF(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_lev);
+    pts[6] = LineVertexF(menu_cell_size*1/4+1, 0,		255,255,255,fade_lev/4);
+    pts[7] = LineVertexF(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_lev/4);
+    pts[8] = LineVertexF(menu_cell_size*2/4+1, 0,		55,55,155,fade_lev/4);
+    pts[9] = LineVertexF(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_lev/4);
+    pts[10] = LineVertexF(menu_cell_size*3/4+1, 0,		55,55,155,fade_lev/4);
+    pts[11] = LineVertexF(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_lev/4);
     
-    pts[12] = LineVertexF(0,	menu_cell_size*1/4-1, 	55,55,155,fade_level);
-    pts[13] = LineVertexF(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_level);
-    pts[14] = LineVertexF(0,	menu_cell_size*2/4-1, 	255,255,255,fade_level);
-    pts[15] = LineVertexF(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_level);
-    pts[16] = LineVertexF(0,	menu_cell_size*3/4-1, 	255,255,255,fade_level);
-    pts[17] = LineVertexF(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_level);
-    pts[18] = LineVertexF(0,	menu_cell_size*1/4+1, 	55,55,155,fade_level/4);
-    pts[19] = LineVertexF(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_level/4);
-    pts[20] = LineVertexF(0,	menu_cell_size*2/4+1, 	255,255,255,fade_level/4);
-    pts[21] = LineVertexF(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_level/4);
-    pts[22] = LineVertexF(0,	menu_cell_size*3/4+1, 	255,255,255,fade_level/4);
-    pts[23] = LineVertexF(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_level/4);
+    pts[12] = LineVertexF(0,	menu_cell_size*1/4-1, 	55,55,155,fade_lev);
+    pts[13] = LineVertexF(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_lev);
+    pts[14] = LineVertexF(0,	menu_cell_size*2/4-1, 	255,255,255,fade_lev);
+    pts[15] = LineVertexF(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_lev);
+    pts[16] = LineVertexF(0,	menu_cell_size*3/4-1, 	255,255,255,fade_lev);
+    pts[17] = LineVertexF(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_lev);
+    pts[18] = LineVertexF(0,	menu_cell_size*1/4+1, 	55,55,155,fade_lev/4);
+    pts[19] = LineVertexF(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_lev/4);
+    pts[20] = LineVertexF(0,	menu_cell_size*2/4+1, 	255,255,255,fade_lev/4);
+    pts[21] = LineVertexF(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_lev/4);
+    pts[22] = LineVertexF(0,	menu_cell_size*3/4+1, 	255,255,255,fade_lev/4);
+    pts[23] = LineVertexF(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_lev/4);
     
-    for (int i=0;i<24;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
+    for (int i=0;i<24;i++) pts[i].y+=(_hh-menu_cell_size)/2;
     
     for (int i=0;i<24;i++) {
         pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
@@ -1394,36 +1409,36 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_l
         pts[i].r=pts[i].r/255.0;
         pts[i].g=pts[i].g/255.0;
         pts[i].b=pts[i].b/255.0;
-        pts[i].a=pts[i].a/255.0;
+        //pts[i].a=pts[i].a/255.0;
     }
-    
-    // Load the vertex data
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
-    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
-    
-    
-    //glLineWidth(1.0f*mScaleFactor);
+    glLineWidth(1.0f*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 24);
     
-    return;
-#if 0
-
-    pts[0] = LineVertex(menu_cell_size*1/4, 0,		255,255,255,fade_level/2);
-    pts[1] = LineVertex(menu_cell_size*1/4, menu_cell_size,		55,55,155,fade_level/2);
-    pts[2] = LineVertex(menu_cell_size*2/4, 0,		55,55,155,fade_level/2);
-    pts[3] = LineVertex(menu_cell_size*2/4, menu_cell_size,		255,255,255,fade_level/2);
-    pts[4] = LineVertex(menu_cell_size*3/4, 0,		55,55,155,fade_level/2);
-    pts[5] = LineVertex(menu_cell_size*3/4, menu_cell_size,		255,255,255,fade_level/2);
+    pts[0] = LineVertexF(menu_cell_size*1/4, 0,		255,255,255,fade_lev/2);
+    pts[1] = LineVertexF(menu_cell_size*1/4, menu_cell_size,		55,55,155,fade_lev/2);
+    pts[2] = LineVertexF(menu_cell_size*2/4, 0,		55,55,155,fade_lev/2);
+    pts[3] = LineVertexF(menu_cell_size*2/4, menu_cell_size,		255,255,255,fade_lev/2);
+    pts[4] = LineVertexF(menu_cell_size*3/4, 0,		55,55,155,fade_lev/2);
+    pts[5] = LineVertexF(menu_cell_size*3/4, menu_cell_size,		255,255,255,fade_lev/2);
     
-    pts[6] = LineVertex(0,	menu_cell_size*1/4, 	55,55,155,fade_level/2);
-    pts[7] = LineVertex(menu_cell_size,	menu_cell_size*1/4, 	255,255,255,fade_level/2);
-    pts[8] = LineVertex(0,	menu_cell_size*2/4, 	255,255,255,fade_level/2);
-    pts[9] = LineVertex(menu_cell_size,	menu_cell_size*2/4, 	55,55,155,fade_level/2);
-    pts[10] = LineVertex(0,	menu_cell_size*3/4, 	255,255,255,fade_level/2);
-    pts[11] = LineVertex(menu_cell_size,	menu_cell_size*3/4, 	55,55,155,fade_level/2);
+    pts[6] = LineVertexF(0,	menu_cell_size*1/4, 	55,55,155,fade_lev/2);
+    pts[7] = LineVertexF(menu_cell_size,	menu_cell_size*1/4, 	255,255,255,fade_lev/2);
+    pts[8] = LineVertexF(0,	menu_cell_size*2/4, 	255,255,255,fade_lev/2);
+    pts[9] = LineVertexF(menu_cell_size,	menu_cell_size*2/4, 	55,55,155,fade_lev/2);
+    pts[10] = LineVertexF(0,	menu_cell_size*3/4, 	255,255,255,fade_lev/2);
+    pts[11] = LineVertexF(menu_cell_size,	menu_cell_size*3/4, 	55,55,155,fade_lev/2);
     
     for (int i=0;i<12;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
     
+    for (int i=0;i<12;i++) {
+        pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
+        pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
+        
+        pts[i].r=pts[i].r/255.0;
+        pts[i].g=pts[i].g/255.0;
+        pts[i].b=pts[i].b/255.0;
+        //pts[i].a=pts[i].a/255.0;
+    }
     glLineWidth(2.0f*mScaleFactor);
     glDrawArrays(GL_LINES, 0, 12);
     
@@ -1445,27 +1460,31 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_l
     if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
     if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
     glLineWidth(4.0f*mScaleFactor);
-    fade_lev=255;
+    fade_lev=1;
     glDisable(GL_BLEND);
     for (int y=0;y<4;y++)
         for (int x=0;x<4;x++) {
             if (active_idx&(1<<((3-y)*4+x))) {
-                pts[0] = LineVertex(x*menu_cell_size/4+3, y*menu_cell_size/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[1] = LineVertex((x+1)*menu_cell_size/4-3, y*menu_cell_size/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
-                pts[2] = LineVertex((x+1)*menu_cell_size/4-3, (y+1)*menu_cell_size/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[3] = LineVertex(x*menu_cell_size/4+3, (y+1)*menu_cell_size/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                pts[0] = LineVertexF(x*menu_cell_size/4+3, y*menu_cell_size/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[1] = LineVertexF((x+1)*menu_cell_size/4-3, y*menu_cell_size/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                pts[2] = LineVertexF((x+1)*menu_cell_size/4-3, (y+1)*menu_cell_size/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[3] = LineVertexF(x*menu_cell_size/4+3, (y+1)*menu_cell_size/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
                 
                 for (int i=0;i<4;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
                 
+                for (int i=0;i<4;i++) {
+                    pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
+                    pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
+                    
+                    pts[i].r=pts[i].r/255.0;
+                    pts[i].g=pts[i].g/255.0;
+                    pts[i].b=pts[i].b/255.0;
+                    //pts[i].a=pts[i].a/255.0;
+                }
+                glLineWidth(1.0f*mScaleFactor);
                 glDrawArrays(GL_LINE_LOOP, 0, 4);
             }
         }
-    
-    
-    
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-#endif
 }
 
 void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
@@ -2175,6 +2194,7 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
 
 
 void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror) {
+#if 0
     GLfloat spL,spR;
     GLfloat crt,cgt,cbt;
     GLfloat x,y,z,sx,sy,sz;
@@ -3085,10 +3105,12 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     /* Pop The Matrix */
     glPopMatrix();
+#endif
 }
 
 
 void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
+#if 0
     GLfloat y,z,z2,spL,spR;
     GLfloat cr,cg,cb,tr,tb,tg;
     
@@ -3347,9 +3369,11 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
     
     /* Pop The Matrix */
     glPopMatrix();
+#endif
 }
 
 void RenderUtils::DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
+#if 0
     GLfloat y,z,z2,spL,spR;
     GLfloat cr,cg,cb,tr,tb,tg;
     
@@ -3624,6 +3648,7 @@ void RenderUtils::DrawSpectrumLandscape3D(short int *spectrumDataL,short int *sp
     
     /* Pop The Matrix */
     glPopMatrix();
+#endif
 }
 
 
@@ -3634,6 +3659,7 @@ static GLfloat sphNorm[(SPECTRUM_BANDS/2)*(SPECTRUM_BANDS/2)*5][3];  /* Holds Fl
 
 
 void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
+#if 0
     GLfloat x1,x2,x3,x4,y1,y2,y3,y4,z1,z2,spL,spR;
     GLfloat cr,cg,cb,tr,tg,tb;
     //////////////////////////////
@@ -3828,6 +3854,7 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
     
     /* Pop The Matrix */
     glPopMatrix();
+#endif
 }
 
 #define MIDIFX_LEN 128*2
@@ -3878,6 +3905,7 @@ unsigned char piano_key_instr[128];
 //extern int texturePiano;
 
 void RenderUtils::DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+#if 0
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4234,6 +4262,7 @@ glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);  \
     glPopMatrix();
     
     //    glDisable(GL_BLEND);
+#endif
 }
 
 
@@ -4322,6 +4351,7 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
 
 
 void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
+#if 0
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -5227,6 +5257,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
     
     /* Pop The Matrix */
     glPopMatrix();
+#endif
 }
 
 void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused) {
@@ -5280,6 +5311,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
 }
 
 void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+#if 0
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -6052,6 +6084,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     
     free(ptsB);
     free(texcoords);
+#endif
 }
 
 
@@ -6160,7 +6193,9 @@ int lastkey_type;
 #define PR_SHADOW_SMALL_BLACK (1<<1)
 #define PR_SHADOW_LARGE_BLACK (1<<2)
 
-int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel) {
+int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int
+                          note_idx,int channel) {
+#if 0
     int crtp[6],cgtp[6],cbtp[6],cap[6];
     float height2;
     uint8_t shadow_type=0;
@@ -6369,12 +6404,14 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
             ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
         }
     }
-    
     return index;
+#endif
+    return 0;
 }
 
 
 int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel) {
+#if 0
     int crtp[6],cgtp[6],cbtp[6],cap[6];
     float height2;
     
@@ -6497,10 +6534,13 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
     ptsB[index++] = LineVertexF(x       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
     
     return index;
+#endif
+    return 0;
 }
 
 
 void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+#if 0
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int index;
@@ -6879,9 +6919,11 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         }
     }
     free(ptsB);
+#endif
 }
 
 void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+#if 0
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -7729,4 +7771,5 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     free(ptsB);
     free(texcoords);
+#endif
 }

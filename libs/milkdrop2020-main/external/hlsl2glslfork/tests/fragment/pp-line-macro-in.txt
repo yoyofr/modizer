@@ -1,8 +1,0 @@
-float4 main() : COLOR
-{
-	float line3 = __LINE__;
-
-	float line5 = __LINE__;
-
-	return line3 + line5;
-}

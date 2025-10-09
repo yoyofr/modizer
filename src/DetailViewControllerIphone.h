@@ -48,9 +48,6 @@
 
 #import "CBAutoScrollLabel.h"
 
-//Milkdrop
-#import <MetalKit/MetalKit.h>
-
 struct Resources;
 
 @class OGLView;
@@ -70,13 +67,7 @@ enum {
     RS_RECORDING_AND_STOP_FS
 };
 
-@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate,MTKViewDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
-//	CLLocationManager *locManager;
-    
-    __weak IBOutlet MTKView *_metal_view;
-    
-    __weak IBOutlet MGLKView *_mgl_view;
-    MGLContext *_mgl_context;
+@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate> {
     
     __weak IBOutlet MGLKView* m_oglView;
     MGLContext* m_oglContext;
@@ -196,7 +187,7 @@ enum {
 	unsigned char real_beatDetectedL[SPECTRUM_BANDS];
 	unsigned char real_beatDetectedR[SPECTRUM_BANDS];
     
-    bool clearFXbuffer;
+    bool clearAudioFXbuffer;
 	
 	t_plPlaylist_entry *mPlaylist;
 	int	mPlaylist_pos,mPlaylist_size;

@@ -799,15 +799,6 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Depth32Float" id="CTp-me-UFz">
-                                <rect key="frame" x="40" y="166" width="240" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </mtkView>
-                            <glkView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" id="U5z-4A-9KR" customClass="MGLKView">
-                                <rect key="frame" x="40" y="166" width="240" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <viewLayoutGuide key="safeArea" id="cxe-nL-eLA"/>
-                            </glkView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1456" userLabel="oglButton">
                                 <rect key="frame" x="0.0" y="82" width="320" height="246"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -974,8 +965,6 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <size key="freeformSize" width="320" height="480"/>
             <connections>
-                <outlet property="_metal_view" destination="CTp-me-UFz" id="8wb-AG-uZt"/>
-                <outlet property="_mgl_view" destination="U5z-4A-9KR" id="bfE-TK-fxZ"/>
                 <outlet property="backInfo" destination="633" id="688"/>
                 <outlet property="btnAddToPl" destination="L8O-uz-tyg" id="77a-Qg-wbp"/>
                 <outlet property="btnChangeTime" destination="1885" id="1887"/>
