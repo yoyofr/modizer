@@ -79,6 +79,7 @@ struct coordData {
 namespace RenderUtils
 {
 
+GLuint LoadShaderFromFile ( GLenum type, const char *shaderFile );
 GLuint LoadShader ( GLenum type, const GLchar *shaderSrc );
 
 int RenderInit();

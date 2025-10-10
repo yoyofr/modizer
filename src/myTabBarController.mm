@@ -99,6 +99,12 @@
     
     self.view.backgroundColor = [UIColor clearColor];
     
+    if (@available(iOS 18.0, *)) {
+        if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+        }
+    }
+    
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;

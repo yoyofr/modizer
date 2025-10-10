@@ -53,7 +53,8 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_ONLINE,
     SETTINGS_NSFPLAY,
     SETTINGS_OSCILLO,
-    SETTINGS_PIANOMIDI
+    SETTINGS_PIANOMIDI,
+    SETTINGS_MILKDROP
 };
 
 enum MDZ_SETTINGS {
@@ -264,6 +265,8 @@ enum MDZ_SETTINGS {
         MILKDROP_TimeBetweenPreset,
         MILKDROP_BlendPresets,
         MILKDROP_BlendTime,
+        MILKDROP_BundledPresets,
+        MILKDROP_CustomPresets,
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
         OSCILLO_ShowLabel,

@@ -188,6 +188,13 @@ void optGLOBALChangedC(id param) {
 void optVISUChangedC(id param) {
     [param optVISUChanged];
 }
+//MILKDROP
+-(void) optMILKDROPChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_MILKDROP];
+}
+void optMILKDROPChangedC(id param) {
+    [param optMILKDROPChanged];
+}
 //ADPLUG
 -(void) optADPLUGChanged {
     [detailViewController settingsChanged:(int)SETTINGS_ADPLUG];
@@ -630,6 +637,8 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
     settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value=2.7;
+    settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=1;
+    settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=1;
     
     
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
@@ -1809,6 +1818,22 @@ void optNSFPLAYChangedC(id param) {
     //MILKDROP
     /////////////////////////////////////
     ///
+    SETTINGS_ID_DEF(MILKDROP_BundledPresets)
+    settings[MILKDROP_BundledPresets].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_BundledPresets].label=(char*)"Bundled presets";
+    settings[MILKDROP_BundledPresets].description=NULL;
+    settings[MILKDROP_BundledPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_BundledPresets].sub_family=0;
+    settings[MILKDROP_BundledPresets].callback=&optMILKDROPChangedC;
+    
+    SETTINGS_ID_DEF(MILKDROP_CustomPresets)
+    settings[MILKDROP_CustomPresets].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_CustomPresets].label=(char*)"Custom presets";
+    settings[MILKDROP_CustomPresets].description=(char*)"Custom presets/textures should be copied in .projectm folder";
+    settings[MILKDROP_CustomPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_CustomPresets].sub_family=0;
+    settings[MILKDROP_CustomPresets].callback=&optMILKDROPChangedC;
+    
     SETTINGS_ID_DEF(MILKDROP_ShowPresetLabel)
     settings[MILKDROP_ShowPresetLabel].type=MDZ_SWITCH;
     settings[MILKDROP_ShowPresetLabel].label=(char*)"Display preset name";
@@ -1820,6 +1845,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[1]=(char*)"Lim";
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[2]=(char*)"On";
+    settings[MILKDROP_ShowPresetLabel].callback=&optMILKDROPChangedC;
     
     SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresetsMode)
     settings[MILKDROP_AutoSwitchPresetsMode].type=MDZ_SWITCH;
@@ -1831,6 +1857,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Rand";
     settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Next";
+    settings[MILKDROP_AutoSwitchPresetsMode].callback=&optMILKDROPChangedC;
     
     SETTINGS_ID_DEF(MILKDROP_LockPreset)
     settings[MILKDROP_LockPreset].type=MDZ_BOOLSWITCH;
@@ -1838,6 +1865,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_LockPreset].description=NULL;
     settings[MILKDROP_LockPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[MILKDROP_LockPreset].sub_family=0;
+    settings[MILKDROP_LockPreset].callback=&optMILKDROPChangedC;
     
     SETTINGS_ID_DEF(MILKDROP_BlendPresets)
     settings[MILKDROP_BlendPresets].type=MDZ_BOOLSWITCH;
@@ -1845,13 +1873,14 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_BlendPresets].description=NULL;
     settings[MILKDROP_BlendPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[MILKDROP_BlendPresets].sub_family=0;
+    settings[MILKDROP_BlendPresets].callback=&optMILKDROPChangedC;
     
     SETTINGS_ID_DEF(MILKDROP_TimeBetweenPreset)
     settings[MILKDROP_TimeBetweenPreset].label=(char*)"Time between presets";
     settings[MILKDROP_TimeBetweenPreset].description=(char*)"Default is 15s";
     settings[MILKDROP_TimeBetweenPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[MILKDROP_TimeBetweenPreset].sub_family=0;
-    settings[MILKDROP_TimeBetweenPreset].callback=&optGLOBALChangedC;
+    settings[MILKDROP_TimeBetweenPreset].callback=&optMILKDROPChangedC;
     settings[MILKDROP_TimeBetweenPreset].type=MDZ_SLIDER_CONTINUOUS;
     settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_digits=1;
     settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_min_value=3;
@@ -1862,7 +1891,7 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_BlendTime].description=(char*)"Default is 2.7s";
     settings[MILKDROP_BlendTime].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[MILKDROP_BlendTime].sub_family=0;
-    settings[MILKDROP_BlendTime].callback=&optGLOBALChangedC;
+    settings[MILKDROP_BlendTime].callback=&optMILKDROPChangedC;
     settings[MILKDROP_BlendTime].type=MDZ_SLIDER_CONTINUOUS;
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_digits=1;
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_min_value=0.5;

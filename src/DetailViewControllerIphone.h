@@ -170,7 +170,7 @@ enum {
 	CGLString *mText[512];
 	CGLString *mTextLine[512];
 	CGLString *viewTapInfoStr[MAX_MENU_FX_STRING];
-    CGLString *milkPresetStr;
+    char *milkPresetStr;
 	CGLString *mHeader;
 	
 	int mDeviceType;

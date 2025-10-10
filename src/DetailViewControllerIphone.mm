@@ -96,6 +96,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #include <GLES3/gl3.h>
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
+bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 //
 static int fps=60;
 static int meshX=48,meshY=32;
@@ -108,11 +109,15 @@ bool GetResourceDir(std::string &outdir) {
     return true;
 }
 
+bool GetHomeDir(std::string &outdir) {
+    outdir = [NSHomeDirectory() UTF8String];
+    return true;
+}
+
 
 void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
-    NSLog(@"Preset switched to: %s",presetName);
-    
+    //NSLog(@"Preset switched to: %s",presetName);
     projectm_playlist_free_string(presetName);
 }
 
@@ -578,6 +583,26 @@ static int display_length_mode=0;
     }
 }
 
+-(bool) isMilkDropAlone {
+    bool ret=true;
+    //if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) ret=false;
+    //if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) ret=false;
+    //if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) ret=false;
+    //if (settings[GLOB_FX2].detail.mdz_switch.switch_value) ret=false;
+    
+    //Only Piano, Midi & MOD are using screen touches
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) ret=false;
+    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) ret=false;
+    //if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) ret=false;
+    
+    //if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) ret=false;
+    
+    //if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) ret=false;
+    
+    return ret;
+}
+
 -(int) computeActiveFX {
     int active_idx=0;
     if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
@@ -954,7 +979,10 @@ static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static int currentPattern,currentRow,startChan,visibleChan;
 
-static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0,moveMILKnomore=0;
+static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0;
+static float startPx=0,startPy=0;
+static int moveMILKnomore=0;
+static int panGesture1Tap;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
 static float movePx2=0,movePy2=0,movePx2Old=0,movePy2Old=0;
@@ -1187,6 +1215,14 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optXMP_SetFLAGS:settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value];
         [mplayer optXMP_SetTempo];
     }
+    
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MILKDROP)) {
+        if (_pm && _pm_playlist) {
+            pmSoftReinit();
+//            if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+//            if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        }
+    }
 }
 
 -(void) checkGLViewCanDisplay{
@@ -1266,16 +1302,22 @@ static float movePinchScale,movePinchScaleOld;
         uint32_t index=projectm_playlist_get_position(_pm_playlist);
         title = projectm_playlist_item(_pm_playlist, index);
         if (title) {
+            char *name=strrchr(title,'/');
+            if (!name) name=title;
+            char *tmp_str=(char*)malloc(strlen(name)+32);
+            sprintf(tmp_str,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
             
             if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
                 settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",tmp_str] style:0];
             } else {
                 projectm_set_preset_locked(_pm, true);
                 settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",tmp_str] style:0];
             }
+            
+            free(tmp_str);
             projectm_playlist_free_string(title);
         }
         
@@ -2720,6 +2762,7 @@ int recording=0;
     //Visiulization stuff
     startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
+    startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
     sliderProgressModuleEdit=0;
@@ -3076,6 +3119,7 @@ int recording=0;
     //Visiulization stuff
     startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
+    startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
     sliderProgressModuleEdit=0;
@@ -3528,6 +3572,7 @@ int recording=0;
     //Visiulization stuff
     startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
+    startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
     sliderProgressModuleEdit=0;
@@ -4773,6 +4818,36 @@ void ViewPerspective()
     
     
 }
+
+void pmSoftReinit() {
+    projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
+    
+    projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
+    projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value);//false);
+ 
+    if ((_pm_playlist_loadBundled!=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value)
+        || (_pm_playlist_loadCustom!=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value)) {
+        
+        std::string resourceDir;
+        GetResourceDir(resourceDir);
+        std::string homeDir;
+        GetHomeDir(homeDir);
+        std::string presetsDir = resourceDir+"/projectm/assets/presets";
+        std::string presetsCustomDir = homeDir+"/Documents/.projectm/presets";
+        
+        projectm_playlist_clear(_pm_playlist);
+        
+        if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+        if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        
+        _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
+        _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
+        
+        if (_pm) projectm_playlist_play_next(_pm_playlist, true);
+    }
+}
+
 - (void)pmInit {
     _pm = projectm_create();
     if (!_pm) {
@@ -4782,11 +4857,15 @@ void ViewPerspective()
     
     int canvasWidth,canvasHeight;
     
-    const char *texturesSearchPaths[1];
+    const char *texturesSearchPaths[2];
     std::string resourceDir;
     GetResourceDir(resourceDir);
+    std::string homeDir;
+    GetHomeDir(homeDir);
     std::string texturesDir = resourceDir+"/projectm/assets/textures";
     std::string presetsDir = resourceDir+"/projectm/assets/presets";
+    std::string texturesCustomDir = homeDir+"/Documents/.projectm/textures";
+    std::string presetsCustomDir = homeDir+"/Documents/.projectm/presets";
     
 //    NSLog(@"Textures: %s",texturesDir.c_str());
 //    NSLog(@"Presets: %s",presetsDir.c_str());
@@ -4802,19 +4881,24 @@ void ViewPerspective()
     
     projectm_set_mesh_size(_pm, meshX, meshY);
     projectm_set_aspect_correction(_pm, true);
-    projectm_set_preset_locked(_pm, false);
+    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
     
 
     // Preset display settings
-    projectm_set_preset_duration(_pm, 15.0);
-    projectm_set_soft_cut_duration(_pm, 2.0);
-    projectm_set_hard_cut_enabled(_pm, false);
+    projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
+    projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value);//false);
+    
     projectm_set_hard_cut_duration(_pm, 3.0);
     projectm_set_hard_cut_sensitivity(_pm, static_cast<float>(1.0));
     projectm_set_beat_sensitivity(_pm, static_cast<float>(1.0));
-        
-    texturesSearchPaths[0]=texturesDir.c_str();
-    projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,1);
+    
+    
+    int textureDirNb=0;
+    if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesDir.c_str();
+    if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesCustomDir.c_str();
+    
+    projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,textureDirNb);
 
     // Playlist
     _pm_playlist = projectm_playlist_create(_pm);
@@ -4825,10 +4909,15 @@ void ViewPerspective()
         return;
     }
 
-    projectm_playlist_set_shuffle(_pm_playlist, true);
+    projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
 
-    //        projectm_playlist_add_preset(_playlist, presetPath.c_str(), false);
-    projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+    if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+    if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+    
+    _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
+    _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
+    
+    NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
 
     projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FILENAME_ONLY, SORT_ORDER_ASCENDING);
 
@@ -4837,6 +4926,8 @@ void ViewPerspective()
     
     
     NSLog(@"projectM initialized");
+    
+    if (_pm) projectm_playlist_play_next(_pm_playlist, true);
 }
 
 
@@ -4857,7 +4948,7 @@ void ViewPerspective()
     // ProjectM
     //--------------------------------//
     [self pmInit];
-    if (_pm) projectm_playlist_play_next(_pm_playlist, true);
+    
     
     //--------------------------------//
     // ImGui init
@@ -5788,7 +5879,7 @@ void ViewPerspective()
             mDevice_ww=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=win.bounds.size.height-(is_macOS?60:0);
+            mDevice_ww=win.bounds.size.height;//-(is_macOS?60:0);
             mDevice_hh=win.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
@@ -5926,7 +6017,7 @@ void ViewPerspective()
     
     
     if (milkPresetStr) {
-        delete milkPresetStr;
+        free(milkPresetStr);
         milkPresetStr=NULL;
     }
     
@@ -6214,16 +6305,30 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint starting_pt;
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
     movePx=pt.x;
     movePy=pt.y;
-    if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
-        movePxOld=movePx;
-        movePyOld=movePy;
-        
-        //Also reset tracking variables related to "swipe" like gesture
-        movePxMILK=0;movePyMILK=0;
-        moveMILKnomore=0;
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            
+            starting_pt=[gestureRecognizer locationOfTouch:0 inView:m_oglView];
+            startPx=starting_pt.x;
+            startPy=starting_pt.y;
+            
+            panGesture1Tap=1;
+            movePxOld=movePx;
+            movePyOld=movePy;
+            //Also reset tracking variables related to "swipe" like gesture
+            movePxMILK=0;movePyMILK=0;
+            moveMILKnomore=0;
+            break;
+        case UIGestureRecognizerStateChanged:
+            panGesture1Tap=2;
+            break;
+        default:
+            panGesture1Tap=0;
+            break;
     }
 }
 
@@ -6295,7 +6400,7 @@ extern "C" int current_sample;
     ww=m_oglView.frame.size.width;
     hh=m_oglView.frame.size.height;
     
-//    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
+    //    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
     while (frameToUpdate) {
         RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
@@ -6346,6 +6451,13 @@ extern "C" int current_sample;
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
+//        NSLog(@"A:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
+    }
+    if (panGesture1Tap) {
+        imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
+        imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
+        imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
+//        NSLog(@"B:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
     }
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
     ImGui_ImplOpenGL3_NewFrame();
@@ -6469,23 +6581,20 @@ extern "C" int current_sample;
         //MILK is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
-        bool isMILKalone=TRUE;
-        
-        int activeFX=[self computeActiveFX];
-        if (activeFX&((1<<8)-1)) isMILKalone=FALSE;
+        bool isMILKalone=[self isMilkDropAlone];
         
         if (isMILKalone&&(moveMILKnomore==0)) {
             if (movePxMILK>MILK_HorizontalSwipe_Threshold) {
                 movePxMILK=0;
                 movePyMILK=0;
                 moveMILKnomore=1;
-                //NSLog(@"Prev");
+                NSLog(@"Prev");
                 if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, TRUE);
             } else if (movePxMILK<-MILK_HorizontalSwipe_Threshold) {
                 movePxMILK=0;
                 movePyMILK=0;
                 moveMILKnomore=1;
-                //NSLog(@"Next");
+                NSLog(@"Next");
                 if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, TRUE);
             }
             
@@ -6493,43 +6602,27 @@ extern "C" int current_sample;
                 movePxMILK=0;
                 movePyMILK=0;
                 moveMILKnomore=1;
+                NSLog(@"Lock");
                 if (_pm) {
                     //////////////
                     //Lock Preset
                     //////////////
-                    char *title;
-                    uint32_t index=projectm_playlist_get_position(_pm_playlist);
-                    title = projectm_playlist_item(_pm_playlist, index);
-                    if (title) {
-                        
-                        projectm_set_preset_locked(_pm, true);
-                        
-                        settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                        [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
-                        
-                        projectm_playlist_free_string(title);
-                    }
+                    
+                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                    [self mdSwitchLockPreset];
                 }
             } else if (movePyMILK<-MILK_VerticalSwipe_Threshold) {
                 movePxMILK=0;
                 movePyMILK=0;
                 moveMILKnomore=1;
+                NSLog(@"Unlock");
                 if (_pm) {
                     //////////////
                     //Unlock Preset
                     //////////////
-                    char *title;
-                    uint32_t index=projectm_playlist_get_position(_pm_playlist);
-                    title = projectm_playlist_item(_pm_playlist, index);
-                    if (title) {
-                        
-                        projectm_set_preset_locked(_pm, false);
-                        
-                        settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                        [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
-                        
-                        projectm_playlist_free_string(title);
-                    }
+                    
+                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                    [self mdSwitchLockPreset];
                 }
             }
         }
@@ -6552,7 +6645,7 @@ extern "C" int current_sample;
     /* Compute midiFX display scrolling */
     /*******************************************************/
     if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
-         (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
+        (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
         float note_fx_linewidth;
         float noteroll_fx_keywidth;
         //scroll  & get current note bar width
@@ -7124,140 +7217,140 @@ extern "C" int current_sample;
     
     //update spectrum data
     if (
-          (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
-          (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
-          (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
-          (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)  ) {
-        //compute new spectrum data
-        if ([mplayer isPlaying]){
-            //FFT: build audio buffer
-            short int **snd_buffer;
-            int cur_pos;
-            snd_buffer=[mplayer buffer_ana_cpy];
-            cur_pos=[mplayer getCurrentPlayedBufferIdx];
-            short int *curBuffer=snd_buffer[cur_pos];
-            // COMPUTE FFT
+        (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
+        (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
+        (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
+        (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)  ) {
+            //compute new spectrum data
+            if ([mplayer isPlaying]){
+                //FFT: build audio buffer
+                short int **snd_buffer;
+                int cur_pos;
+                snd_buffer=[mplayer buffer_ana_cpy];
+                cur_pos=[mplayer getCurrentPlayedBufferIdx];
+                short int *curBuffer=snd_buffer[cur_pos];
+                // COMPUTE FFT
 #define SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM 512
-            /////////////////////////////////////////
-            //Number of Samples for input(time domain)/output(frequency domain)
-            int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
-            int idx;
-            //Fill Input Array with Left channel
-            for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2]/32768.0f;
-            }
-            memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
-            memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
-            fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
-            
-            const float log2FrameSize = log2f(numSamples);
-            
-            int lowfreq,highfreq,tmpfreq;
-            float sum;
-            
-            double Xfactor=powl(10.l,log10l(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM/2)/(double)(SPECTRUM_BANDS-1));
-            highfreq=1;
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                //lowfreq=1.l*powl(Xfactor,i+6);
-                lowfreq=highfreq;
-                //highfreq=1.l*powl(Xfactor,i+1+6);
-                highfreq+=1.0;
-                tmpfreq=1.l*powl(Xfactor,i);
-                if (highfreq<tmpfreq) highfreq=tmpfreq;
+                /////////////////////////////////////////
+                //Number of Samples for input(time domain)/output(frequency domain)
+                int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
+                int idx;
+                //Fill Input Array with Left channel
+                for (int i=0; i<numSamples; i++) {
+                    fft_time[i]=(float)curBuffer[i*2]/32768.0f;
+                }
+                memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
+                memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
+                fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
                 
-                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                const float log2FrameSize = log2f(numSamples);
                 
-                //sum=0;
-                for (int k=lowfreq;k<highfreq;k++) {
-                    fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-                    //sum+=fft_frequency[k];
+                int lowfreq,highfreq,tmpfreq;
+                float sum;
+                
+                double Xfactor=powl(10.l,log10l(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM/2)/(double)(SPECTRUM_BANDS-1));
+                highfreq=1;
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    //lowfreq=1.l*powl(Xfactor,i+6);
+                    lowfreq=highfreq;
+                    //highfreq=1.l*powl(Xfactor,i+1+6);
+                    highfreq+=1.0;
+                    tmpfreq=1.l*powl(Xfactor,i);
+                    if (highfreq<tmpfreq) highfreq=tmpfreq;
+                    
+                    if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                    
+                    //sum=0;
+                    for (int k=lowfreq;k<highfreq;k++) {
+                        fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                        //sum+=fft_frequency[k];
+                    }
+                    
+                    fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
+                    
+                    //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
+                    
+                    if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
+                    
+                    //NSLog(@"/idx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
                 }
                 
-                fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    float t=64.0f*fft_frequencyAvg[i];
+                    //if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
+                    //else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
+                    oreal_spectrumL[i]=t;
+                }
+                //Fill Input Array with Right channel
+                for (int i=0; i<numSamples; i++) {
+                    fft_time[i]=(float)curBuffer[i*2+1]/32768.0f;
+                }
+                memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
+                memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
+                fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
                 
-                //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
-                
-                if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
-                
-                //NSLog(@"/idx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
-            }
-            
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=64.0f*fft_frequencyAvg[i];
-                //if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
-                //else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
-                oreal_spectrumL[i]=t;
-            }
-            //Fill Input Array with Right channel
-            for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2+1]/32768.0f;
-            }
-            memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
-            memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
-            fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
-            
-            highfreq=1;
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                //lowfreq=1.l*powl(Xfactor,i+6);
-                lowfreq=highfreq;
-                //highfreq=1.l*powl(Xfactor,i+1+6);
-                highfreq+=1.0;
-                tmpfreq=1.l*powl(Xfactor,i);
-                if (highfreq<tmpfreq) highfreq=tmpfreq;
-                
-                
-                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
-                
-                //sum=0;
-                for (int k=lowfreq;k<highfreq;k++) {
-                    fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-                    //sum+=fft_frequency[k];
+                highfreq=1;
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    //lowfreq=1.l*powl(Xfactor,i+6);
+                    lowfreq=highfreq;
+                    //highfreq=1.l*powl(Xfactor,i+1+6);
+                    highfreq+=1.0;
+                    tmpfreq=1.l*powl(Xfactor,i);
+                    if (highfreq<tmpfreq) highfreq=tmpfreq;
+                    
+                    
+                    if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                    
+                    //sum=0;
+                    for (int k=lowfreq;k<highfreq;k++) {
+                        fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                        //sum+=fft_frequency[k];
+                    }
+                    
+                    fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
+                    
+                    //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
+                    
+                    if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
+                    
+                    //NSLog(@"Ridx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
                 }
                 
-                fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
-                
-                //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
-                
-                if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
-                
-                //NSLog(@"Ridx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
-            }
-            
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=64.0f*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
-                //if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
-                //else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
-                oreal_spectrumR[i]=t;
-            }
-            
-            
-            // COMPUTE FINAL FFT & BEAT DETECTION
-            int newSpecL,newSpecR,sumL,sumR;
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                newSpecL=oreal_spectrumL[i];
-                newSpecR=oreal_spectrumR[i];
-                //SUM THE LAST 8 FFT & COMPUTE AVERAGE
-                sumL=newSpecL;
-                sumR=newSpecR;
-                for (int j=0;j<7;j++) {
-                    real_spectrumSumL[i][j]=real_spectrumSumL[i][j+1];
-                    sumL+=real_spectrumSumL[i][j];
-                    real_spectrumSumR[i][j]=real_spectrumSumR[i][j+1];
-                    sumR+=real_spectrumSumR[i][j];
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    float t=64.0f*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
+                    //if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
+                    //else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
+                    oreal_spectrumR[i]=t;
                 }
-                real_spectrumSumL[i][7]=newSpecL;
-                real_spectrumSumR[i][7]=newSpecR;
-                sumL>>=3;sumR>>=3;
-                real_beatDetectedL[i]=0;
-                real_beatDetectedR[i]=0;
                 
-                //APPLY THRESHOLDS (MIN VALUE & FACTOR/AVERAGE)
-                if ((sumL>BEAT_THRESHOLD_MIN)&&(newSpecL>sumL*BEAT_THRESHOLD_FACTOR)) real_beatDetectedL[i]=1;
-                if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;
+                
+                // COMPUTE FINAL FFT & BEAT DETECTION
+                int newSpecL,newSpecR,sumL,sumR;
+                for (int i=0;i<SPECTRUM_BANDS;i++) {
+                    newSpecL=oreal_spectrumL[i];
+                    newSpecR=oreal_spectrumR[i];
+                    //SUM THE LAST 8 FFT & COMPUTE AVERAGE
+                    sumL=newSpecL;
+                    sumR=newSpecR;
+                    for (int j=0;j<7;j++) {
+                        real_spectrumSumL[i][j]=real_spectrumSumL[i][j+1];
+                        sumL+=real_spectrumSumL[i][j];
+                        real_spectrumSumR[i][j]=real_spectrumSumR[i][j+1];
+                        sumR+=real_spectrumSumR[i][j];
+                    }
+                    real_spectrumSumL[i][7]=newSpecL;
+                    real_spectrumSumR[i][7]=newSpecR;
+                    sumL>>=3;sumR>>=3;
+                    real_beatDetectedL[i]=0;
+                    real_beatDetectedR[i]=0;
+                    
+                    //APPLY THRESHOLDS (MIN VALUE & FACTOR/AVERAGE)
+                    if ((sumL>BEAT_THRESHOLD_MIN)&&(newSpecL>sumL*BEAT_THRESHOLD_FACTOR)) real_beatDetectedL[i]=1;
+                    if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;
+                }
+                /////////////////////////////////////////
             }
-            /////////////////////////////////////////
         }
-    }
     
     int detail_lvl=settings[GLOB_FXLOD].detail.mdz_switch.switch_value;
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) detail_lvl=0; //force low for fx4
@@ -7308,8 +7401,8 @@ extern "C" int current_sample;
             break;
     }
     
-//    m_oglView.opaque=YES;
-//    m_oglView.layer.opaque=YES;
+    //    m_oglView.opaque=YES;
+    //    m_oglView.layer.opaque=YES;
     
     
     angle+=(float)4.0f;
@@ -7617,29 +7710,46 @@ extern "C" int current_sample;
         }
     }
     
-    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)) {
+//    ImGui::SetNextWindowPos(ImVec2(0,0));
+//    //ImGui::SetNextWindowSize(ImVec2(500*glScaleFactor,500*glScaleFactor));
+//    ImGui::GetStyle().Alpha=1.0f;
+//        ImGui::Begin("On screen debug info",0,0);
+//    
+//        ImGuiStyle& style = ImGui::GetStyle();
+//        style.FontSizeBase=36;//*menu_win_size/512;
+//        style._NextFrameFontSizeBase = style.FontSizeBase;
+//    
+//        ImGui::Text("%.2f x %.2f %d",movePxMILK,movePyMILK,moveMILKnomore);
+//    float f;
+//    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+//    ImGui::End();
+    
+    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
-            float x,y,w,h;
+            //float x,y,w,h;
             static float scrollx=0;
             static int scroll_direction=1;
             static int scroll_pause=0;
             static int display_countdown=0;
-            LineVertexF ptsB[6];
             
             char *title;
             uint32_t index=projectm_playlist_get_position(_pm_playlist);
             title = projectm_playlist_item(_pm_playlist, index);
             if (title) {
-                
+                char *name=strrchr(title,'/');
+                if (name==NULL) name=title;
+                else name++;
                 if (milkPresetStr) {
-                    if (strcmp(milkPresetStr->mText,title)) {
+                    if (strcmp(milkPresetStr,name)) {
                         //reset string as it has changed
-                        delete milkPresetStr;
+                        free(milkPresetStr);
                         milkPresetStr=NULL;
                     }
                 }
                 if (milkPresetStr==NULL) {
-                    milkPresetStr=new CGLString(title, mFontMenu,mScaleFactor);
+                    //milkPresetStr=strdup(name);
+                    milkPresetStr=(char*)malloc(strlen(name)+32);
+                    sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
                     
                     scrollx=0;
                     scroll_direction=1;
@@ -7647,60 +7757,58 @@ extern "C" int current_sample;
                 }
                 
                 projectm_playlist_free_string(title);
+            } else if (projectm_playlist_size(_pm_playlist)==0) {
+                title="No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.";
+                char *name=title;
+                if (milkPresetStr) {
+                    if (strcmp(milkPresetStr,name)) {
+                        //reset string as it has changed
+                        free(milkPresetStr);
+                        milkPresetStr=NULL;
+                    }
+                }
+                if (milkPresetStr==NULL) {
+                    milkPresetStr=(char*)malloc(strlen(name)+32);
+                    sprintf(milkPresetStr,"%s",name);
+                    
+                    scrollx=0;
+                    scroll_direction=1;
+                    display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+                }
             }
             
             //if not limited, reset countdown
-            if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+            if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2)||(projectm_playlist_size(_pm_playlist)==0)) display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+            
             
             if (milkPresetStr&&display_countdown) {
-                //Display preset name in a small box
-//                glPushMatrix();
-//                glTranslatef(-scrollx, (mFontHeight/mScaleFactor+4), 0.0f);
-//                
-//                glEnableClientState(GL_VERTEX_ARRAY);
-//                glEnableClientState(GL_COLOR_ARRAY);
-//                
-//                glEnable(GL_BLEND);
-//                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-//                
-//                glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
-//                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
-//                
-//                
-//                w=milkPresetStr->xmax-milkPresetStr->xmin+8;
-//                h=milkPresetStr->ymax-milkPresetStr->ymin+6;
-//                x=milkPresetStr->xmin-4;
-//                y=milkPresetStr->ymin-3;
-//                int alpha;//=255*0.4;
-//                
-//                alpha=display_countdown*4;
-//                if (alpha>255*0.4) alpha=255*0.4;
-//                
-//                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
-//                
-//                ptsB[0]=LineVertexF(x, y,0,0,0,alpha);
-//                ptsB[1]=LineVertexF(x+w, y,1,0,0,alpha);
-//                ptsB[2]=LineVertexF(x+w, y+h,1,0,0,alpha);
-//                
-//                ptsB[3]=LineVertexF(x, y,0,0,0,alpha);
-//                ptsB[4]=LineVertexF(x+w, y+h,0,0,0,alpha);
-//                ptsB[5]=LineVertexF(x, y+h,0,0,0,alpha);
-//                
-//                glDrawArrays(GL_TRIANGLES, 0, 6);
-//                
-//                int milkStrAlpha=display_countdown*4;
-//                if (milkStrAlpha>127) milkStrAlpha=127;
-//                if (milkStrAlpha<0) milkStrAlpha=0;
-//                
-//                milkPresetStr->Render(128+milkStrAlpha);
-//                
-//                
-//                glPopMatrix();
+                float alpha_val=(float)(display_countdown*4)/255.0;
+                if (alpha_val>0.8) alpha_val=0.8;
+                
+                ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
+                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
+                ImGui::GetStyle().Alpha=alpha_val;
+                ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+                
+                ImGuiStyle& style = ImGui::GetStyle();
+                style.FontSizeBase=36;//*menu_win_size/512;
+                style._NextFrameFontSizeBase = style.FontSizeBase;
+                
+                
+                ImVec2 milkPresetStr_size=ImGui::CalcTextSize(milkPresetStr);
+                milkPresetStr_size.x+=18;
+                
+                ImGui::Text(milkPresetStr);
+                
+                ImGui::SetScrollX(scrollx);
+                ImGui::End();
+                
+                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
                 
                 if (scroll_pause) scroll_pause--;
                 else {
                     if (scroll_direction==1) {
-                        if (m_oglView.frame.size.width+scrollx<w) scrollx+=2;
+                        if (m_oglView.frame.size.width*glScaleFactor+scrollx<milkPresetStr_size.x) scrollx+=2;
                         else {
                             if (scrollx>0) {
                                 scroll_direction=-1;
@@ -7835,11 +7943,10 @@ extern "C" int current_sample;
         }
     }
     
-    //NSLog(@"ogl size: %f x %f",m_oglView.frame.size.width, m_oglView.frame.size.height);
     if (viewTapHelpInfo) {
         float fadelev=sin(viewTapHelpInfo*3.14159/2/256);
         if (fadelev<0) fadelev=0;
-        if (fadelev>0.8f) fadelev=0.8f;
+        if (fadelev>0.6f) fadelev=0.6f;
         
         //specific case for fullscreen switch change
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
@@ -7855,7 +7962,7 @@ extern "C" int current_sample;
             }
         } else if (ret==0) {
             viewTapHelpShow=0;
-            NSLog(@"close");
+//            NSLog(@"close");
         }
         
         //specific case for fullscreen switch change

@@ -910,6 +910,7 @@
 		CCE0257B2E98F7EB008B7070 /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */; };
 		CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025752E98F7EB008B7070 /* ProggyClean.ttf */; };
 		CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */; };
+		CCE025B12E994C82008B7070 /* MDZShaders in Resources */ = {isa = PBXBuildFile; fileRef = CCE025B02E9949E0008B7070 /* MDZShaders */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
@@ -2769,6 +2770,7 @@
 		CCE025752E98F7EB008B7070 /* ProggyClean.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyClean.ttf; sourceTree = "<group>"; };
 		CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
 		CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
+		CCE025B02E9949E0008B7070 /* MDZShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MDZShaders; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
 		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
 		CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimatedLaunchVC.mm; sourceTree = "<group>"; };
@@ -3131,6 +3133,7 @@
 		33BA5B4F1431B3F200C87F5B /* VisuFX */ = {
 			isa = PBXGroup;
 			children = (
+				CCE025B02E9949E0008B7070 /* MDZShaders */,
 				59B9996925CFE45D0071E144 /* FXFluid.cpp */,
 				59B9996A25CFE45D0071E144 /* FXFluid.h */,
 				59B9996F25CFE4680071E144 /* RenderUtils.h */,
@@ -6229,6 +6232,7 @@
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
+				CCE025B12E994C82008B7070 /* MDZShaders in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
 				CC1E6397120423E0000A8A4E /* SoundMaster in Resources */,
 				CC1E6398120423E0000A8A4E /* SoundMon2.0 in Resources */,

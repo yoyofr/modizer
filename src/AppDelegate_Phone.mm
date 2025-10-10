@@ -140,6 +140,11 @@ pthread_mutex_t play_mutex;
     NSLog(@"%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
 #endif
     
+    //create dir for projectm custom assets
+    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/.projectm"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/.projectm/presets"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/.projectm/textures"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {

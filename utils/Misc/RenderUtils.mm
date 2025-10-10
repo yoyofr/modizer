@@ -131,6 +131,7 @@ typedef struct
    GLuint programObject;
 
 } GLUserData;
+
 ///
 // Create a shader object, load the shader source, and
 // compile the shader.
@@ -151,6 +152,73 @@ GLuint RenderUtils::LoadShader ( GLenum type, const GLchar *shaderSrc )
    
    // Compile the shader
    glCompileShader ( shader );
+
+   // Check the compile status
+   glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
+
+   if ( !compiled )
+   {
+      GLint infoLen = 0;
+
+      glGetShaderiv ( shader, GL_INFO_LOG_LENGTH, &infoLen );
+      
+      if ( infoLen > 1 )
+      {
+         char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+
+         glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
+         NSLog(@"Error compiling shader:\n%s\n", infoLog );
+         
+         free ( infoLog );
+      }
+
+      glDeleteShader ( shader );
+      return 0;
+   }
+
+   return shader;
+
+}
+
+
+GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
+{
+   GLuint shader;
+   GLint compiled;
+    
+    //allocate shader source code buffer & read file
+    FILE *f;
+    f=fopen(shaderFile,"rb");
+    if (!f) return 0;
+    
+    fseek(f,0,SEEK_END);
+    size_t fsize=ftell(f);
+    fseek(f,0,SEEK_SET);
+    if (!fsize) {
+        fclose(f);
+        return 0;
+    }
+    char *shaderData=(char*)malloc(fsize);
+    fread(shaderData, 1, fsize, f);
+    fclose(f);
+    
+   // Create the shader object
+   shader = glCreateShader ( type );
+
+    if ( shader == 0 ) {
+        free(shaderData);
+        return 0;
+    }
+       
+
+   // Load the shader source
+   glShaderSource ( shader, 1, (const GLchar**) &shaderData, NULL );
+   
+   // Compile the shader
+   glCompileShader ( shader );
+    
+    //release shader source code buffer
+    free(shaderData);
 
    // Check the compile status
    glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
@@ -228,11 +296,11 @@ int RenderUtils::RenderInit() {
    glAttachShader ( programObject, vertexShader );
    glAttachShader ( programObject, fragmentShader );
 
-   // Bind aPosition to attribute 0
-   glBindAttribLocation ( programObject, 0, "aPosition" );
-    
-    // Bind aColor to attribute 1
-    glBindAttribLocation ( programObject, 1, "aColor" );
+//   // Bind aPosition to attribute 0
+//   glBindAttribLocation ( programObject, 0, "aPosition" );
+//    
+//    // Bind aColor to attribute 1
+//    glBindAttribLocation ( programObject, 1, "aColor" );
 
    // Link the program
    glLinkProgram ( programObject );
@@ -262,7 +330,7 @@ int RenderUtils::RenderInit() {
 
    // Store the program object
    userData->programObject = programObject;
-
+    
    return GL_TRUE;
 }
 

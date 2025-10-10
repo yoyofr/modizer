@@ -18,7 +18,7 @@ bool ImGui_ImplIOS_Init()
     //io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
     //io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
     //io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can set io.MouseHoveredViewport correctly (optional, not easy)
-    io.BackendFlags |= ImGuiConfigFlags_IsTouchScreen;
+    //io.BackendFlags |= ImGuiConfigFlags_IsTouchScreen;
     io.BackendPlatformName = "imgui_impl_ios";
     
     g_timer.Restart();
@@ -43,17 +43,31 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     }
     // Update buttons
     ImGuiIO& io = ImGui::GetIO();
-    io.WantCaptureMouse=true;
+    //io.WantCaptureMouse=true;
     
     if (currentEvent.event_type==IMGUI_IOS_Event_Tap_1) {
         //NSLog(@"tap1 event: %d x %d",currentEvent.pos_x,currentEvent.pos_y);
-        io.MouseDown[0] = 1;
-        io.MousePos = ImVec2((float)currentEvent.pos_x, (float)currentEvent.pos_y);
-    } else {
-        //Do not reset position if button hasn't been released yet, in order to let ImGui process the event first
-        if (io.MouseDown[0]==0) io.MousePos = ImVec2((float)0, (float)0);
-        io.MouseDown[0] = 0;
+        //io.MouseDown[0] = 1;
+        //io.MousePos = ImVec2((float)currentEvent.pos_x, (float)currentEvent.pos_y);
         
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
+        io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
+        
+        io.AddMouseButtonEvent(0, true);
+    } else {
+        
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
+        //Do not reset position if button hasn't been released yet, in order to let ImGui process the event first
+        //NSLog(@"release tap");
+        
+//        if (io.MouseDown[0]==0) {
+//            //io.MousePos = ImVec2((float)0, (float)0);
+//            io.AddMousePosEvent((float)(0), (float)(0));
+//        }
+        
+        //io.MouseDown[0] = 0;
+        io.AddMouseButtonEvent(0, false);
+        io.AddMousePosEvent((float)(-1), (float)(-1));
     }
 }
 
@@ -78,8 +92,6 @@ void ImGui_ImplIOS_NewFrame(float w,float h,float scale,ImGuiIOSEvent *event)
     
     io.DeltaTime = g_timer.GetElapsedSeconds();
     g_timer.Restart();
-    
-    
     
     ImGui_ImplIOS_UpdateEvent(event);
 }

@@ -12,16 +12,9 @@
 extern ImFont *font_body;
 extern volatile t_settings settings[MAX_SETTINGS];
 
-namespace PMenu {
+extern void pmSoftReinit();
 
-static GLuint txtMenuHandle[16];
-static GLuint txtSubMenuHandle[41];
-const char *menuRootLabel[16]={
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,"Fullscreen",NULL,"Exit"
-};
+namespace PMenu {
 
 static bool pMenu_isInitialized=false;
 
@@ -37,27 +30,57 @@ enum PMenu_Menu_List {
     MENU_MILKDROP
 };
 
+static GLuint txtMenuHandle[16];
+static GLuint txtSubMenuHandle[41];
+
+static GLuint txtMenuMilkdropHandle[16];
+
+const char *menuRootLabel[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,"Fullscreen",NULL,"Exit"
+};
+const char *menuMildropLabel[16]={
+    "Off",NULL,"Show name\nand\ndisappear","Show name",
+    "Blend presets","Lock preset","Random order","Sequential\norder",
+    "Default\npresets","Custom\npresets",NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+
+
 struct {
     int menu_idx;
 } pMenu_state;
 
 #define pMenu_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
 
-int playerGetActiveFX() {
+int playerGetActivatedCells(int menu_idx) {
     int active_idx=0;
-    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
-    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
-    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
-    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<3;
     
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
-    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
-    
-    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
-    
-    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
+    if (menu_idx==MENU_ROOT) {
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
+        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
+        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<3;
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
+        if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
+        if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
+    } else if (menu_idx==MENU_MILKDROP) {
+        if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<1;
+        else active_idx|=1<<0;
+        if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1) active_idx|=1<<2;
+        else if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) active_idx|=1<<3;
+        if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
+        if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
+        if (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) active_idx|=1<<7;
+        else active_idx|=1<<6;
+        if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
+        if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
+    }
     return active_idx;
 }
 
@@ -70,6 +93,9 @@ void playerMenuInit() {
     pMenu_state.menu_idx=MENU_ROOT;
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
+    
+    memset(txtMenuMilkdropHandle,0,sizeof(txtMenuMilkdropHandle));
+    
     //Oscilloscope
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5a_2x.png"), &(txtMenuHandle[0]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
@@ -233,6 +259,8 @@ void playerMenuInit() {
     txtSubMenuHandle[SUBMENU7_START]=0;
     txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];
     
+    txtMenuMilkdropHandle[1]=txtMenuHandle[8];
+    
     pMenu_isInitialized=true;
 }
 //------------------------------------------------------
@@ -262,9 +290,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     // Root window, full screen
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
-    ImGui::GetStyle().Alpha=fadelev;
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+
     
+    ImGui::GetStyle().Alpha=1.0;//fadelev;
     
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
     static ImGuiTableFlags flagTable = ImGuiTableFlags_Borders|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX;
@@ -272,12 +301,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     //static ImGuiTableFlags sizing_policy_flags[4] = { ImGuiTableFlags_SizingFixedFit, ImGuiTableFlags_SizingFixedSame, ImGuiTableFlags_SizingStretchProp, ImGuiTableFlags_SizingStretchSame };
 
     if (font_body) ImGui::PushFont(font_body);
+    ImGui::PushFont(nullptr,18*menu_win_size/512);
     
-    int activeFx=playerGetActiveFX();
+    int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
 
     ImGuiStyle& style = ImGui::GetStyle();
-    style.FontSizeBase=18*menu_win_size/512;
-    style._NextFrameFontSizeBase = style.FontSizeBase;
+//    style.FontSizeBase=18*menu_win_size/512;
+//    style._NextFrameFontSizeBase = style.FontSizeBase;
     
     //ImGui::PushStyleColor(ImGuiCol_TableBorderLight,ImVec4(0,0,0,1));
     //ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0,0,0,1));
@@ -293,30 +323,33 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);
                     ImVec2 uv1(1,1);
                     ImVec4 bg_col(0,0,0,0.0f);
-                    ImVec4 tint_col(0.7,0.7,0.7,1.0f);
+                    ImVec4 tint_col(0.7,0.7,0.7,0.8f);
                     float padding_val=0;
-                    if (activeFx&(1<<(r*4+c))) {
-                        //Active
-                        tint_col.x=1.0;
-                        tint_col.y=1.0;
-                        tint_col.z=1.0;
-                        tint_col.w=1.0f;
+                    if (activeFx&(1<<(r*4+c))) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        
+                        float cr,cg,cb;
+                        cr=0.95f+0.05f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
+                        cg=0.95f+0.05f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
+                        cb=0.95f+0.05f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
+                        if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
                         
                         padding_val=cell_size/40.0f;
-                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(1,1,1,0.8f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.5f,1.0f,0.9f));
+                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(cr,cg,cb,0.9f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.9f));
                         
-                    } else {
-                        //Inactive
-                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(1.0,1.0,1.0,0.3f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.7f,0.7f,1.0f,0.5f));
+                    } else {//Inactive
+                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.3f));
                     }
                     ImVec2 padding(padding_val,padding_val);
                     
                     
                     if (txtMenuHandle[r*4+c]) {
                         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,padding);
+                        
                         ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtMenuHandle[r*4+c], ImVec2(cell_size-padding_val*2, cell_size-padding_val*2),uv0,uv1,bg_col,tint_col);
+                        
                         ImGui::PopStyleVar();
                     }
                     else if (menuRootLabel[r*4+c]) ret=ImGui::Button(menuRootLabel[r*4+c],ImVec2(cell_size, cell_size));
@@ -370,20 +403,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 break;
                             case 0x02:
                                 pMenu_state.menu_idx=MENU_MILKDROP;
-//                                    viewTapHelpShow_SubStart=SUBMENU7_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU7_SIZE;
                                 break;
-                            case 0x03:
-                                //HIDE FX Screen
+                            case 0x03://HIDE FX Screen
                                 keepOpened=-1;
                                 break;
-                            case 0x13:
-                                //Fullscreen switch
-                                //oglViewFullscreen^=1;
+                            case 0x13://Fullscreen switch
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
-                            case 0x23:
-                                //ALL FX Off
+                            case 0x23://ALL FX Off
                                 settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
@@ -395,9 +422,107 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
                                 break;
+                            case 0x33://Exit
+                                keepOpened=0;
+                                break;
+                        }
+                    }
+                    ImGui::PopID();
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_MILKDROP) {
+        if (ImGui::BeginTable("menu_milkdrop",4,flagTable)) {
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    ImGui::TableSetColumnIndex(c);
+                    ImGui::PushID(r*4+c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);
+                    ImVec2 uv1(1,1);
+                    ImVec4 bg_col(0,0,0,0.0f);
+                    ImVec4 tint_col(0.7,0.7,0.7,0.8f);
+                    float padding_val=0;
+                    if (activeFx&(1<<(r*4+c))) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        
+                        float cr,cg,cb;
+                        cr=0.95f+0.05f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
+                        cg=0.95f+0.05f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
+                        cb=0.95f+0.05f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
+                        if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
+                        
+                        padding_val=cell_size/40.0f;
+                        if (txtMenuMilkdropHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(cr,cg,cb,0.9f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.9f));
+                        
+                    } else {//Inactive
+                        if (txtMenuMilkdropHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.3f));
+                    }
+                    ImVec2 padding(padding_val,padding_val);
+                    
+                    
+                    if (txtMenuMilkdropHandle[r*4+c]) {
+                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,padding);
+                        ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtMenuMilkdropHandle[r*4+c], ImVec2(cell_size-padding_val*2, cell_size-padding_val*2),uv0,uv1,bg_col,tint_col);
+                        ImGui::PopStyleVar();
+                    }
+                    else if (menuMildropLabel[r*4+c]) ret=ImGui::Button(menuMildropLabel[r*4+c],ImVec2(cell_size, cell_size));
+                    
+                    ImGui::PopStyleColor();
+                    if (ret) {
+//                        NSLog(@"press: %dx%d",c,r);
+                        switch (c*16+r) {
+                            case 0x00: //MIKDROP OFF
+                                settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+                                break;
+                            case 0x10: //MILKDROP ON
+                                settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x20: //Show preset's name
+                                if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1) settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
+                                else settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x30:// Show temporarly preset's name
+                                if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
+                                else settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=2;
+                                break;
+                            case 0x01:
+                                if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=0;
+                                else settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+                                break;
+                            case 0x11:
+                                if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                                else settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                                break;
+                            case 0x21:
+                                settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
+                                break;
+                            case 0x31:
+                                settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x02:
+                                if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=0;
+                                else settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit();
+                                break;
+                            case 0x12:
+                                if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=0;
+                                else settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit();
+                                break;
+                            case 0x03:
+                                break;
+                            case 0x13:
+                                break;
+                            case 0x23:
+                                break;
                             case 0x33:
                                 //Exit
-                                keepOpened=0;
+                                pMenu_state.menu_idx=MENU_ROOT;
                                 break;
                         }
                     }
@@ -413,6 +538,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     //ImGui::Text("Hello, world %d", 123);
     //ImGui::Image((ImTextureID)(intptr_t)txtMenuHandle[0], ImVec2(256, 256));
     if (font_body) ImGui::PopFont();
+    ImGui::PopFont();
     
     ImGui::EndChild();
     
