@@ -1,7 +1,0 @@
-#!/bin/sh
-set -e
-if test "$CONFIGURATION" = "Debug,Release"; then :
-  cd /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/src/libprojectM/Renderer
-  /opt/homebrew/Cellar/cmake/3.29.3/bin/cmake -D SHADER_FILES="TransitionShaders/TransitionShaderBuiltInCircleGlsl330.frag;TransitionShaders/TransitionShaderBuiltInPlasmaGlsl330.frag;TransitionShaders/TransitionShaderBuiltInSimpleBlendGlsl330.frag;TransitionShaders/TransitionShaderBuiltInSweepGlsl330.frag;TransitionShaders/TransitionShaderBuiltInWarpGlsl330.frag;TransitionShaders/TransitionShaderBuiltInZoomBlurGlsl330.frag;TransitionShaders/TransitionVertexShaderGlsl330.vert;TransitionShaders/TransitionShaderHeaderGlsl330.frag;TransitionShaders/TransitionShaderMainGlsl330.frag" -D OUTPUT_DIR=/Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/cmake-build/src/libprojectM/Renderer -P /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/src/libprojectM/Renderer/GenerateBuiltInTransitionsResources.cmake
-fi
-
