@@ -67,7 +67,6 @@
 		CCABA2D22E93C97600AF59B0 /* FinalComposite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA21B2E93C97600AF59B0 /* FinalComposite.cpp */; };
 		CCABA2D42E93C97600AF59B0 /* Sampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA25A2E93C97600AF59B0 /* Sampler.cpp */; };
 		CCABA2D52E93C97600AF59B0 /* PlaylistCWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA28D2E93C97600AF59B0 /* PlaylistCWrapper.cpp */; };
-		CCABA2D62E93C97600AF59B0 /* PresetFileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA22F2E93C97600AF59B0 /* PresetFileParser.cpp */; };
 		CCABA2D72E93C97600AF59B0 /* Filters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2192E93C97600AF59B0 /* Filters.cpp */; };
 		CCABA2D82E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1FC2E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp */; };
 		CCABA2D92E93C97600AF59B0 /* VideoEcho.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2352E93C97600AF59B0 /* VideoEcho.cpp */; };
@@ -97,6 +96,11 @@
 		CCABA2F32E93C97600AF59B0 /* TimeKeeper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2772E93C97600AF59B0 /* TimeKeeper.cpp */; };
 		CCABA2F42E93C97600AF59B0 /* Line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1F02E93C97600AF59B0 /* Line.cpp */; };
 		CCABA3512E93D06300AF59B0 /* MilkdropStaticShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */; };
+		CCE025D92E99A5D4008B7070 /* Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D02E99A5D4008B7070 /* Factory.cpp */; };
+		CCE025DA2E99A5D4008B7070 /* MilkdropSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D22E99A5D4008B7070 /* MilkdropSprite.cpp */; };
+		CCE025DB2E99A5D4008B7070 /* SpriteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D62E99A5D4008B7070 /* SpriteManager.cpp */; };
+		CCE025DE2E99A6A3008B7070 /* PresetFileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025DD2E99A6A3008B7070 /* PresetFileParser.cpp */; };
+		CCE0263A2E99A7BD008B7070 /* ShaderCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE026392E99A7BD008B7070 /* ShaderCache.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -551,7 +555,6 @@
 		CCABA22C2E93C97600AF59B0 /* PerPixelMesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerPixelMesh.hpp; sourceTree = "<group>"; };
 		CCABA22D2E93C97600AF59B0 /* PerPixelMesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PerPixelMesh.cpp; sourceTree = "<group>"; };
 		CCABA22E2E93C97600AF59B0 /* PresetFileParser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PresetFileParser.hpp; sourceTree = "<group>"; };
-		CCABA22F2E93C97600AF59B0 /* PresetFileParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PresetFileParser.cpp; sourceTree = "<group>"; };
 		CCABA2302E93C97600AF59B0 /* PresetState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PresetState.hpp; sourceTree = "<group>"; };
 		CCABA2312E93C97600AF59B0 /* PresetState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PresetState.cpp; sourceTree = "<group>"; };
 		CCABA2322E93C97600AF59B0 /* ShapePerFrameContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShapePerFrameContext.hpp; sourceTree = "<group>"; };
@@ -582,7 +585,6 @@
 		CCABA24D2E93C97600AF59B0 /* FileScanner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FileScanner.cpp; sourceTree = "<group>"; };
 		CCABA24E2E93C97600AF59B0 /* Framebuffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Framebuffer.hpp; sourceTree = "<group>"; };
 		CCABA24F2E93C97600AF59B0 /* Framebuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Framebuffer.cpp; sourceTree = "<group>"; };
-		CCABA2502E93C97600AF59B0 /* GenerateBuiltInTransitionsResources.cmake */ = {isa = PBXFileReference; lastKnownFileType = text; path = GenerateBuiltInTransitionsResources.cmake; sourceTree = "<group>"; };
 		CCABA2512E93C97600AF59B0 /* IdleTextures.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IdleTextures.hpp; sourceTree = "<group>"; };
 		CCABA2522E93C97600AF59B0 /* MilkdropNoise.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropNoise.hpp; sourceTree = "<group>"; };
 		CCABA2532E93C97600AF59B0 /* MilkdropNoise.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropNoise.cpp; sourceTree = "<group>"; };
@@ -648,6 +650,23 @@
 		CCABA34E2E93D03700AF59B0 /* BuiltInTransitionsResources.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BuiltInTransitionsResources.hpp; sourceTree = "<group>"; };
 		CCABA34F2E93D06300AF59B0 /* MilkdropStaticShaders.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropStaticShaders.hpp; sourceTree = "<group>"; };
 		CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropStaticShaders.cpp; sourceTree = "<group>"; };
+		CCE025CB2E99A5D4008B7070 /* MilkdropSpriteFragmentGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteFragmentGlsl330.frag; sourceTree = "<group>"; };
+		CCE025CC2E99A5D4008B7070 /* MilkdropSpriteVertexGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteVertexGlsl330.vert; sourceTree = "<group>"; };
+		CCE025CE2E99A5D4008B7070 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		CCE025CF2E99A5D4008B7070 /* Factory.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Factory.hpp; sourceTree = "<group>"; };
+		CCE025D02E99A5D4008B7070 /* Factory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Factory.cpp; sourceTree = "<group>"; };
+		CCE025D12E99A5D4008B7070 /* MilkdropSprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropSprite.hpp; sourceTree = "<group>"; };
+		CCE025D22E99A5D4008B7070 /* MilkdropSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropSprite.cpp; sourceTree = "<group>"; };
+		CCE025D32E99A5D4008B7070 /* Sprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Sprite.hpp; sourceTree = "<group>"; };
+		CCE025D42E99A5D4008B7070 /* SpriteException.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpriteException.hpp; sourceTree = "<group>"; };
+		CCE025D52E99A5D4008B7070 /* SpriteManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpriteManager.hpp; sourceTree = "<group>"; };
+		CCE025D62E99A5D4008B7070 /* SpriteManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpriteManager.cpp; sourceTree = "<group>"; };
+		CCE025D72E99A5D4008B7070 /* SpriteShaders.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SpriteShaders.hpp; sourceTree = "<group>"; };
+		CCE025DC2E99A6A3008B7070 /* PresetFileParser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PresetFileParser.hpp; sourceTree = "<group>"; };
+		CCE025DD2E99A6A3008B7070 /* PresetFileParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PresetFileParser.cpp; sourceTree = "<group>"; };
+		CCE026372E99A778008B7070 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		CCE026382E99A7BD008B7070 /* ShaderCache.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShaderCache.hpp; sourceTree = "<group>"; };
+		CCE026392E99A7BD008B7070 /* ShaderCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderCache.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
@@ -1136,7 +1155,7 @@
 				CCABA1992E93C75B00AF59B0 /* CMakeLists.txt */,
 			);
 			name = vendor;
-			path = "libprojectM-4.1.4/vendor";
+			path = libprojectM/vendor;
 			sourceTree = "<group>";
 		};
 		CCABA1C42E93C97600AF59B0 /* projectM-4 */ = {
@@ -1279,7 +1298,6 @@
 				CCABA2292E93C97600AF59B0 /* PerFrameContext.cpp */,
 				CCABA22B2E93C97600AF59B0 /* PerPixelContext.cpp */,
 				CCABA22D2E93C97600AF59B0 /* PerPixelMesh.cpp */,
-				CCABA22F2E93C97600AF59B0 /* PresetFileParser.cpp */,
 				CCABA2312E93C97600AF59B0 /* PresetState.cpp */,
 				CCABA2332E93C97600AF59B0 /* ShapePerFrameContext.cpp */,
 				CCABA2352E93C97600AF59B0 /* VideoEcho.cpp */,
@@ -1340,7 +1358,8 @@
 		CCABA2672E93C97600AF59B0 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
-				CCABA2502E93C97600AF59B0 /* GenerateBuiltInTransitionsResources.cmake */,
+				CCE026382E99A7BD008B7070 /* ShaderCache.hpp */,
+				CCE026392E99A7BD008B7070 /* ShaderCache.cpp */,
 				CCABA24B2E93C97600AF59B0 /* CopyTexture.cpp */,
 				CCABA24D2E93C97600AF59B0 /* FileScanner.cpp */,
 				CCABA24F2E93C97600AF59B0 /* Framebuffer.cpp */,
@@ -1380,6 +1399,10 @@
 		CCABA27A2E93C97600AF59B0 /* libprojectM */ = {
 			isa = PBXGroup;
 			children = (
+				CCE026372E99A778008B7070 /* config.h */,
+				CCE025DC2E99A6A3008B7070 /* PresetFileParser.hpp */,
+				CCE025DD2E99A6A3008B7070 /* PresetFileParser.cpp */,
+				CCE025D82E99A5D4008B7070 /* UserSprites */,
 				CCABA1D52E93C97600AF59B0 /* Audio */,
 				CCABA23D2E93C97600AF59B0 /* MilkdropPreset */,
 				CCABA2672E93C97600AF59B0 /* Renderer */,
@@ -1456,7 +1479,34 @@
 				CCABA2A72E93C97600AF59B0 /* CMakeLists.txt */,
 			);
 			name = src;
-			path = "libprojectM-4.1.4/src";
+			path = libprojectM/src;
+			sourceTree = "<group>";
+		};
+		CCE025CD2E99A5D4008B7070 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				CCE025CB2E99A5D4008B7070 /* MilkdropSpriteFragmentGlsl330.frag */,
+				CCE025CC2E99A5D4008B7070 /* MilkdropSpriteVertexGlsl330.vert */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+		CCE025D82E99A5D4008B7070 /* UserSprites */ = {
+			isa = PBXGroup;
+			children = (
+				CCE025CD2E99A5D4008B7070 /* Shaders */,
+				CCE025CE2E99A5D4008B7070 /* CMakeLists.txt */,
+				CCE025CF2E99A5D4008B7070 /* Factory.hpp */,
+				CCE025D02E99A5D4008B7070 /* Factory.cpp */,
+				CCE025D12E99A5D4008B7070 /* MilkdropSprite.hpp */,
+				CCE025D22E99A5D4008B7070 /* MilkdropSprite.cpp */,
+				CCE025D32E99A5D4008B7070 /* Sprite.hpp */,
+				CCE025D42E99A5D4008B7070 /* SpriteException.hpp */,
+				CCE025D52E99A5D4008B7070 /* SpriteManager.hpp */,
+				CCE025D62E99A5D4008B7070 /* SpriteManager.cpp */,
+				CCE025D72E99A5D4008B7070 /* SpriteShaders.hpp */,
+			);
+			path = UserSprites;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1561,6 +1611,9 @@
 				CCABA2C52E93C97600AF59B0 /* PerPixelMesh.cpp in Sources */,
 				CCABA2C62E93C97600AF59B0 /* Item.cpp in Sources */,
 				CCABA2C72E93C97600AF59B0 /* CustomWaveform.cpp in Sources */,
+				CCE025D92E99A5D4008B7070 /* Factory.cpp in Sources */,
+				CCE025DA2E99A5D4008B7070 /* MilkdropSprite.cpp in Sources */,
+				CCE025DB2E99A5D4008B7070 /* SpriteManager.cpp in Sources */,
 				CCABA2C82E93C97600AF59B0 /* ExplosiveHash.cpp in Sources */,
 				CCABA2C92E93C97600AF59B0 /* CenteredSpiro.cpp in Sources */,
 				CCABA2CA2E93C97600AF59B0 /* ProjectMCWrapper.cpp in Sources */,
@@ -1573,7 +1626,6 @@
 				CCABA2D22E93C97600AF59B0 /* FinalComposite.cpp in Sources */,
 				CCABA2D42E93C97600AF59B0 /* Sampler.cpp in Sources */,
 				CCABA2D52E93C97600AF59B0 /* PlaylistCWrapper.cpp in Sources */,
-				CCABA2D62E93C97600AF59B0 /* PresetFileParser.cpp in Sources */,
 				CCABA2D72E93C97600AF59B0 /* Filters.cpp in Sources */,
 				CCABA2D82E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp in Sources */,
 				CCABA2D92E93C97600AF59B0 /* VideoEcho.cpp in Sources */,
@@ -1590,12 +1642,14 @@
 				CCABA2E62E93C97600AF59B0 /* MilkdropFFT.cpp in Sources */,
 				CCABA2E72E93C97600AF59B0 /* IdlePreset.cpp in Sources */,
 				CCABA2E82E93C97600AF59B0 /* TextureManager.cpp in Sources */,
+				CCE025DE2E99A6A3008B7070 /* PresetFileParser.cpp in Sources */,
 				CCABA2E92E93C97600AF59B0 /* CopyTexture.cpp in Sources */,
 				CCABA2EA2E93C97600AF59B0 /* XYOscillationSpiral.cpp in Sources */,
 				CCABA2EB2E93C97600AF59B0 /* Milkdrop2077WaveFlower.cpp in Sources */,
 				CCABA2EC2E93C97600AF59B0 /* CustomShape.cpp in Sources */,
 				CCABA2ED2E93C97600AF59B0 /* MilkdropPreset.cpp in Sources */,
 				CCABA2EE2E93C97600AF59B0 /* MilkdropShader.cpp in Sources */,
+				CCE0263A2E99A7BD008B7070 /* ShaderCache.cpp in Sources */,
 				CCABA2EF2E93C97600AF59B0 /* MotionVectors.cpp in Sources */,
 				CCABA2F02E93C97600AF59B0 /* EvalLibMutex.cpp in Sources */,
 				CCABA3512E93D06300AF59B0 /* MilkdropStaticShaders.cpp in Sources */,
@@ -1672,14 +1726,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/projectm-eval",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/libprojectM",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/libprojectM/MilkdropPreset",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/api/include",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/projectm-eval/projectm-eval/api",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/playlist/api",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
+					"$(PROJECT_DIR)/libprojectM/vendor",
+					"$(PROJECT_DIR)/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
+					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1746,14 +1800,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/projectm-eval",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/libprojectM",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/libprojectM/MilkdropPreset",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/api/include",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/projectm-eval/projectm-eval/api",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/src/playlist/api",
-					"$(PROJECT_DIR)/libprojectM-4.1.4/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
+					"$(PROJECT_DIR)/libprojectM/vendor",
+					"$(PROJECT_DIR)/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
+					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;

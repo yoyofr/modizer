@@ -1,0 +1,52 @@
+name: Emscripten
+
+on:
+  push:
+      branches: 
+        - "*"
+      tags:
+        - "*"
+    
+  pull_request:
+      branches: 
+        - "*"
+
+jobs:
+  build:
+    name: Static Library
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          # Make sure to set a version number!
+          version: 3.1.74
+          # This is the name of the cache folder.
+          # The cache folder will be placed in the build directory,
+          #  so make sure it doesn't conflict with anything!
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Verify EMSDK
+        run: emcc -v
+
+      - name: Update Packages
+        run: |
+          sudo apt-get update
+
+      - name: Configure Release
+        run: emcmake cmake -G "Unix Makefiles" -S "${{ github.workspace }}" -B "${{ github.workspace }}/cmake-build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" -DCMAKE_VERBOSE_MAKEFILE=YES
+
+      - name: Build Release
+        run: cmake --build "${{ github.workspace }}/cmake-build" --parallel
+
+      - name: Install
+        run: cmake --install "${{ github.workspace }}/cmake-build"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: projectm-eval-emscripten-latest
+            path: install/*

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+if test "$CONFIGURATION" = "Debug,Release"; then :
+  cd /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/src/libprojectM/MilkdropPreset
+  /opt/homebrew/Cellar/cmake/3.29.3/bin/cmake -D SHADER_FILES="Shaders/Blur1FragmentShaderGlsl330.frag;Shaders/Blur2FragmentShaderGlsl330.frag;Shaders/BlurVertexShaderGlsl330.vert;Shaders/PresetCompVertexShaderGlsl330.vert;Shaders/PresetMotionVectorsVertexShaderGlsl330.vert;Shaders/PresetShaderHeaderGlsl330.inc;Shaders/PresetWarpFragmentShaderGlsl330.frag;Shaders/PresetWarpVertexShaderGlsl330.vert;Shaders/TexturedDrawFragmentShaderGlsl330.frag;Shaders/TexturedDrawVertexShaderGlsl330.vert;Shaders/UntexturedDrawFragmentShaderGlsl330.frag;Shaders/UntexturedDrawVertexShaderGlsl330.vert" -D OUTPUT_DIR=/Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/cmake-build/src/libprojectM/MilkdropPreset -P /Users/yoyofr/Documents/dev/pm/libprojectM-4.1.4/src/libprojectM/MilkdropPreset/GenerateStaticShaders.cmake
+fi
+

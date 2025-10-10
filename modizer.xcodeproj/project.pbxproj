@@ -6826,8 +6826,8 @@
 					"$(PROJECT_DIR)/utils/MetalANGLE/",
 					"${PROJECT_DIR}/../../include",
 					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -6969,8 +6969,8 @@
 					"$(PROJECT_DIR)/utils/MetalANGLE/",
 					"${PROJECT_DIR}/../../include",
 					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -7113,8 +7113,8 @@
 					"$(PROJECT_DIR)/utils/MetalANGLE/",
 					"${PROJECT_DIR}/../../include",
 					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM-4.1.4/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";

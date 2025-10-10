@@ -1,0 +1,48 @@
+name: Ubuntu Linux (x86_64)
+
+on:
+  push:
+      branches: 
+        - "*"
+      tags:
+        - "*"
+    
+  pull_request:
+      branches: 
+        - "*"
+
+jobs:
+  build-static:
+    name: Static Library
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtest-dev libgmock-dev ninja-build
+
+      - name: Configure Build
+        run: cmake -G "Ninja Multi-Config" -S "${{ github.workspace }}" -B "${{ github.workspace }}/cmake-build" -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/install" -DCMAKE_VERBOSE_MAKEFILE=YES -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=YES
+
+      - name: Build Debug
+        run: cmake --build "${{ github.workspace }}/cmake-build" --config "Debug" --parallel
+
+      - name: Run Unit Tests
+        run: ctest --test-dir "${{ github.workspace }}/cmake-build" --verbose --build-config "Debug"
+
+      - name: Build Release
+        run: cmake --build "${{ github.workspace }}/cmake-build" --config "Release" --parallel
+
+      - name: Install
+        run: |
+          cmake --build "${{ github.workspace }}/cmake-build" --config "Debug" --target install
+          cmake --build "${{ github.workspace }}/cmake-build" --config "Release" --target install
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: projectm-eval-linux-latest
+          path: install/*
