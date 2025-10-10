@@ -4820,11 +4820,15 @@ void ViewPerspective()
 }
 
 void pmSoftReinit() {
+    if (!_pm) return;
+    if (!_pm_playlist) return;
+    
     projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
     
     projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
-    projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
-    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value);//false);
+    if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    else projectm_set_soft_cut_duration(_pm, 0);//2.0);
+    projectm_set_hard_cut_enabled(_pm, false);
  
     if ((_pm_playlist_loadBundled!=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value)
         || (_pm_playlist_loadCustom!=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value)) {
@@ -4838,13 +4842,18 @@ void pmSoftReinit() {
         
         projectm_playlist_clear(_pm_playlist);
         
+        NSLog(@"reinit\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
+        
         if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
         if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
         
+        NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
+        
         _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
         _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
-        
-        if (_pm) projectm_playlist_play_next(_pm_playlist, true);
+
+        if (projectm_playlist_size(_pm_playlist)) projectm_playlist_play_next(_pm_playlist, true);
+        else projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
     }
 }
 
@@ -4886,8 +4895,9 @@ void pmSoftReinit() {
 
     // Preset display settings
     projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
-    projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
-    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value);//false);
+    if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    else projectm_set_soft_cut_duration(_pm, 0);//2.0);
+    projectm_set_hard_cut_enabled(_pm, false);
     
     projectm_set_hard_cut_duration(_pm, 3.0);
     projectm_set_hard_cut_sensitivity(_pm, static_cast<float>(1.0));
@@ -4913,6 +4923,8 @@ void pmSoftReinit() {
 
     if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
     if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+    
+    NSLog(@"Init\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
     
     _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
     _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
@@ -6452,12 +6464,14 @@ extern "C" int current_sample;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
 //        NSLog(@"A:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
+        projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
     }
     if (panGesture1Tap) {
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
         imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
 //        NSLog(@"B:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
+        projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
     }
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
     ImGui_ImplOpenGL3_NewFrame();
