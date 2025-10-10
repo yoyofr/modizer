@@ -14,6 +14,7 @@
 #include "ModizerConstants.h"
 #include "sqlite3.h"
 #include <pthread.h>
+
 extern pthread_mutex_t db_mutex;
 
 NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *localPath,NSString *ext) {

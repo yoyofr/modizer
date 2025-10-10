@@ -113,7 +113,7 @@ enum {
     int mOnlyCurrentEntry;
     int mOnlyCurrentSubEntry;
 
-	int oglViewFullscreen,oglViewFullscreenChanged;
+	int oglViewFullscreenChanged;
 	int orientationHV;
     
 	

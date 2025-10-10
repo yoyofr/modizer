@@ -50,8 +50,6 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-
-#include "TextureUtils.h"
 #include "DBHelper.h"
 
 #define DEBUG_INFOS 0
@@ -103,6 +101,8 @@ static int fps=60;
 static int meshX=48,meshY=32;
 static float glScaleFactor=1.0;
 
+
+
 bool GetResourceDir(std::string &outdir) {
     outdir = [[[NSBundle mainBundle] resourcePath] UTF8String];
     return true;
@@ -120,12 +120,16 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
     NSLog(@"Preset switch failed.\Filename: %s\nMessage: %s",preset_filename,message);
 }
 
-/*----------------------------------------------*/
+//--------------------------------------------------
+// ImGui
+//--------------------------------------------------
 #include "../utils/imgui/imgui.h"
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
-/*----------------------------------------------*/
+//--------------------------------------------------
+
+#include "PlayerMenu.h"
 
 #import "gme.h"
 
@@ -177,8 +181,6 @@ static MPVolumeView *volumeView;
 static MPMediaItemArtwork *artwork;
 
 extern int txt_pianoRoll[3];
-static int txtMenuHandle[16];
-static int txtSubMenuHandle[41];
 static char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
 
 //int texturePiano;
@@ -590,7 +592,8 @@ static int display_length_mode=0;
     
     if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
     
-    if (oglViewFullscreen) active_idx|=1<<13;
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
+    
     return active_idx;
 }
 
@@ -1194,7 +1197,7 @@ static float movePinchScale,movePinchScaleOld;
             if (m_oglView.hidden) {
                 viewTapHelpInfo=0;//255;
                 if ([self computeActiveFX]==0) {
-                    NSLog(@"display oglView & info menu");
+                    //NSLog(@"display oglView & info menu");
                     viewTapHelpShow=1;
                     viewTapHelpShowMode=1;
                 }
@@ -1317,9 +1320,9 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 - (void)oglViewSwitchFS {
-    oglViewFullscreen^=1;
+    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
     oglViewFullscreenChanged=1;
-    if (oglViewFullscreen) {
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         if (mOglViewIsHidden) {
             mOglViewIsHidden=NO;
             [self checkGLViewCanDisplay];
@@ -3758,7 +3761,7 @@ int recording=0;
                 //[[self navigationController] setNavigationBarHidden:NO animated:NO];
             }
         }
-        if (oglViewFullscreen) {
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
             if (mHasFocus) {
                 statusbarHidden=YES;
                 [self setNeedsStatusBarAppearanceUpdate];
@@ -4007,7 +4010,7 @@ int recording=0;
             }
             
             
-            if (oglViewFullscreen) {
+            if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
                 if (mHasFocus) {
                     statusbarHidden=YES;
                     [self setNeedsStatusBarAppearanceUpdate];
@@ -4225,8 +4228,8 @@ void ViewPerspective()
 -(void) updateAllSettingsAfterChange {
     /////////////////////////////////////
     //update according to settings
-    if (oglViewFullscreen) {
-        oglViewFullscreen=0;
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+        settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
         [self oglViewSwitchFS];
     }
     
@@ -4294,8 +4297,8 @@ void ViewPerspective()
     if (valNb == nil) infoIsFullscreen = 0;
     else infoIsFullscreen = [valNb intValue];
     valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
-    if (valNb == nil) oglViewFullscreen = 0;
-    else oglViewFullscreen = [valNb intValue];
+//    if (valNb == nil) oglViewFullscreen = 0;
+//    else oglViewFullscreen = [valNb intValue];
     valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
     if (valNb == nil) mLoopMode = 0;
     else mLoopMode = [valNb intValue];
@@ -4455,8 +4458,8 @@ void ViewPerspective()
     
     valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
     [prefs setObject:valNb forKey:@"InfoFullscreen"];
-    valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
-    [prefs setObject:valNb forKey:@"OGLFullscreen"];
+//    valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
+//    [prefs setObject:valNb forKey:@"OGLFullscreen"];
     
     
     valNb=[[NSNumber alloc] initWithInt:mLoopMode];
@@ -4728,6 +4731,7 @@ void ViewPerspective()
      {
      }*/
 }
+
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
@@ -5483,113 +5487,11 @@ void ViewPerspective()
 //    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
     
     memset(txt_pianoRoll,0,sizeof(txt_pianoRoll));
-    txt_pianoRoll[TXT_PIANOROLL_LIGHT]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoLight.png"]);
-    txt_pianoRoll[TXT_PIANOROLL_PARTICLE]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoParticle.png"]);
-    txt_pianoRoll[TXT_PIANOROLL_SPARK]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoSpark.png"]);
+//    txt_pianoRoll[TXT_PIANOROLL_LIGHT]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoLight.png"]);
+//    txt_pianoRoll[TXT_PIANOROLL_PARTICLE]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoParticle.png"]);
+//    txt_pianoRoll[TXT_PIANOROLL_SPARK]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoSpark.png"]);
     
-    memset(txtMenuHandle,0,sizeof(txtMenuHandle));
-    
-    //txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
-    
-    //Oscilloscope
-    txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
-    //Spectrum 2D
-    txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
-    //Spectrum 3D objects
-    txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12a_2x.png"]);
-    //Spectrum 3D landscape
-    txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
-    //Piano roll
-    txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
-    //Note scrollers
-    txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
-    //mod patterns
-    txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
-    //smoke FX
-    txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
-    //milkdrop
-    txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13a_2x.png"]);
-    
-    txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
-    
-    memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
-    
-#define SUBMENU0_START 0
-#define SUBMENU0_SIZE 4
-    //Oscilloscopes
-    txtSubMenuHandle[SUBMENU0_START]=0;
-    txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[0];
-    txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
-    txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5c_2x.png"]);
-    
-#define SUBMENU1_START SUBMENU0_START+SUBMENU0_SIZE
-#define SUBMENU1_SIZE 3
-    //Spectrum 2D
-    txtSubMenuHandle[SUBMENU1_START]=0;
-    txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[1];
-    txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
-    
-
-#define SUBMENU2_START SUBMENU1_START+SUBMENU1_SIZE
-#define SUBMENU2_SIZE 4
-    //Spectrum 3D objects
-    txtSubMenuHandle[SUBMENU2_START]=0;
-    txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[2];
-    txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
-    txtSubMenuHandle[SUBMENU2_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
-    
-    
-#define SUBMENU3_START SUBMENU2_START+SUBMENU2_SIZE
-#define SUBMENU3_SIZE 9
-    //Spectrum 3D landscape
-    txtSubMenuHandle[SUBMENU3_START]=0;
-    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[3];
-    txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
-    txtSubMenuHandle[SUBMENU3_START+8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
-    
-    
-#define SUBMENU4_START SUBMENU3_START+SUBMENU3_SIZE
-#define SUBMENU4_SIZE 7
-    //Piano FX
-    txtSubMenuHandle[SUBMENU4_START]=0;
-    txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[4];
-    txtSubMenuHandle[SUBMENU4_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11e_2x.png"]);
-    txtSubMenuHandle[SUBMENU4_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11f_2x.png"]);
-    
-    
-    
-#define SUBMENU5_START SUBMENU4_START+SUBMENU4_SIZE
-#define SUBMENU5_SIZE 3
-    //Notes scrollers
-    txtSubMenuHandle[SUBMENU5_START]=0;
-    txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[5];
-    txtSubMenuHandle[SUBMENU5_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
-    
-#define SUBMENU6_START SUBMENU5_START+SUBMENU5_SIZE
-#define SUBMENU6_SIZE 7
-    //Mod patterns
-    txtSubMenuHandle[SUBMENU6_START]=0;
-    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[6];
-    txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
-    txtSubMenuHandle[SUBMENU6_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
-    txtSubMenuHandle[SUBMENU6_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
-    txtSubMenuHandle[SUBMENU6_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
-    txtSubMenuHandle[SUBMENU6_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
-    
-#define SUBMENU7_START SUBMENU6_START+SUBMENU6_SIZE
-#define SUBMENU7_SIZE 2
-    //Mod patterns
-    txtSubMenuHandle[SUBMENU7_START]=0;
-    txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];
-    //txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu13b_2x.png"]);
+    PMenu::playerMenuInit();
 //
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
@@ -5708,6 +5610,8 @@ void ViewPerspective()
     free(fft_time);
     
     
+    PMenu::playerMenuShutdown();
+    
     //[super dealloc];
 }
 
@@ -5763,11 +5667,11 @@ void ViewPerspective()
         //if (!is_macOS) mDeviceType=1; //ipad
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (size.height>size.width) {
-            mDevice_hh=size.height+(oglViewFullscreen?0:68);
+            mDevice_hh=size.height+(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
             mDevice_ww=size.width;
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=size.height+(oglViewFullscreen?0:68);
+            mDevice_ww=size.height+(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
             mDevice_hh=size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
@@ -6300,18 +6204,12 @@ void infoSubMenuShowImages(int window_width,int window_height,int start_index,in
 
 
 static int mOglView1Tap=0;
-//static int mOglView2Taps=0;
-/*-(void) glViewOneFingerTwoTaps {
- mOglView2Taps=1;
- mOglView1Tap=0;
- }*/
 
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
     mOglView1Tap=1;
     CGPoint pt=[gestureRecognizer locationInView:m_oglView];
     oglTapX=pt.x;
     oglTapY=pt.y;
-    
     //NSLog(@"tap on %f x %f",oglTapX,oglTapY);
 }
 
@@ -6362,7 +6260,6 @@ extern "C" int current_sample;
     int linestodraw,midline;
     ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
     int size_chan;
-    int shouldhide=0;
     int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
     static float piano_posy=0;
@@ -6389,7 +6286,7 @@ extern "C" int current_sample;
         return;
     }
     
-    if (oglViewFullscreen) {
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         fxalpha=1;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
@@ -6425,7 +6322,7 @@ extern "C" int current_sample;
     framecpt++;  //TODO: check dependency / FPS (30, 60)
     
     
-    if (oglViewFullscreen) {
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         cover_viewBG.layer.zPosition=MAXFLOAT-10;
         cover_view.layer.zPosition=MAXFLOAT-9;
         m_oglView.layer.zPosition=MAXFLOAT-8;
@@ -6443,7 +6340,14 @@ extern "C" int current_sample;
     //-----------------------------------
     // ImGui
     //-----------------------------------
-    ImGui_ImplIOS_NewFrame(ww,hh,glScaleFactor);
+    ImGuiIOSEvent imgui_event;
+    imgui_event.event_type=IMGUI_IOS_Event_None;
+    if (mOglView1Tap) {
+        imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
+        imgui_event.pos_x=oglTapX*glScaleFactor;
+        imgui_event.pos_y=oglTapY*glScaleFactor;
+    }
+    ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
     
@@ -6451,7 +6355,7 @@ extern "C" int current_sample;
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pm) {
+    if (_pm && settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
         
@@ -6537,11 +6441,6 @@ extern "C" int current_sample;
     if (!viewTapInfoStr[17]) viewTapInfoStr[17]= new CGLString("Prev", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[18]) viewTapInfoStr[18]= new CGLString("Preset", mFontMenu,mScaleFactor);
     if (!viewTapInfoStr[19]) viewTapInfoStr[19]= new CGLString("Limited", mFontMenu,mScaleFactor);
-    
-    
-    
-    
-    //if (mOglView1Tap) mOglView1Tap--;
     
     movePxMILK+=movePx-movePxOld;
     movePyMILK+=movePy-movePyOld;
@@ -6763,13 +6662,17 @@ extern "C" int current_sample;
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
+        if (viewTapHelpShow==0) viewTapHelpShow=1;
+        
+#if 0
+        
         if (viewTapHelpShow==1) {  //Main Menu
             //viewTapHelpShow=0;
             viewTapHelpShowMode=1;
             int menu_cell_size=(ww<hh?ww:hh);
             int tlx=oglTapX;
             int tly=oglTapY-(hh-menu_cell_size)/2;
-            if (tly>=0) {
+            if (0 && (tly>=0)) {
                 int touched_cellX=tlx*4/menu_cell_size;
                 int touched_cellY=tly*4/menu_cell_size;
                 int touched_coord=(touched_cellX<<4)|(touched_cellY);
@@ -6825,7 +6728,7 @@ extern "C" int current_sample;
                     shouldhide=1;
                 } else if (touched_coord==0x13) {
                     //Fullscreen switch
-                    oglViewFullscreen^=1;
+                    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                     oglViewFullscreenChanged=1;
                     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
                 } else if (touched_coord==0x23) {
@@ -7208,10 +7111,13 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x33) {
                     //Exit sub menu
                     //viewTapHelpShow=0;
-                    viewTapHelpShow=1;viewTapHelpShowMode=1;
+                    viewTapHelpShow=1;
+                    viewTapHelpShowMode=1;
                 }
             }
         } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
+        
+#endif
     }
     
     hasdrawnotes=0;
@@ -7407,30 +7313,6 @@ extern "C" int current_sample;
     
     
     angle+=(float)4.0f;
-    //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);//fxalpha);
-    //glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    RenderUtils::SetUpOrtho(0,ww,hh);
-    //m_oglView.alpha=1.0f;
-    
-    
-        if ((fxalpha<1)&&oglViewFullscreen) {
-            /*CGPoint pos=cover_view.frame.origin;
-            UIView *sview=cover_view.superview;
-            while (sview!=nil) {
-                pos.x+=sview.frame.origin.x;
-                pos.y+=sview.frame.origin.y;
-                sview=sview.superview;
-            }
-            
-            //NSLog(@"yo %f x %f",pos.x,pos.y);
-            float top_size=pos.y;
-            float bottom_size=m_oglView.frame.size.height-(pos.y+cover_view.frame.size.height);
-            
-            
-            //RenderUtils::ClearUI(ww,hh,top_size,bottom_size);*/
-        }
-    
-    
     
     if ([mplayer isPlaying]) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
@@ -7856,12 +7738,12 @@ extern "C" int current_sample;
 //                        static int cpt=0;
 //                        cpt++;
 //                        if (!(cpt&31)) printf("call with buff: %d\n",cur_pos);
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 }
                 break;
             case 2:
@@ -7874,16 +7756,16 @@ extern "C" int current_sample;
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,oglViewFullscreen,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 }
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,oglViewFullscreen,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 break;
         }
     }
@@ -7953,55 +7835,38 @@ extern "C" int current_sample;
         }
     }
     
-    if (shouldhide) {
-        shouldhide=0;
-        mOglViewIsHidden=YES;
-        viewTapHelpInfo=0;
-        if (oglViewFullscreen) {
-            oglViewFullscreen=0;
-            oglViewFullscreenChanged=1;
-            [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-        }
-    }
-    
     //NSLog(@"ogl size: %f x %f",m_oglView.frame.size.width, m_oglView.frame.size.height);
     if (viewTapHelpInfo) {
         float fadelev=sin(viewTapHelpInfo*3.14159/2/256);
         if (fadelev<0) fadelev=0;
-        if (fadelev>1) fadelev=1;
+        if (fadelev>0.8f) fadelev=0.8f;
         
-        int active_idx=0;
+        //specific case for fullscreen switch change
+        bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
+        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev);
+        if (ret<0) {
+            mOglViewIsHidden=YES;
+            viewTapHelpShow=0;
+            if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
+                oglViewFullscreenChanged=1;
+                [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+            }
+        } else if (ret==0) {
+            viewTapHelpShow=0;
+            NSLog(@"close");
+        }
+        
+        //specific case for fullscreen switch change
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value!=isFullscreen) {
+            oglViewFullscreenChanged=1;
+            [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+        }
+        
+#if 0
         if (viewTapHelpShowMode==1) {
-            active_idx=[self computeActiveFX];
             
-            //NSLog(@"alpha: %f / %f",fadelev,fxalpha);
-            //NSLog(@"grid: %d x %d - %f scale %f",ww,hh,fxalpha,mScaleFactor);
-            RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha,active_idx,framecpt,mScaleFactor);
-            
-            ImGui::Begin("Modizer menu",0,ImGuiWindowFlags_NoTitleBar);
-            ImGui::Text("Hello, world %d", 123);
-            ImGui::End();
-            
-//            if (ImGui::Button("Save"))
-//                MySaveFunction();
-//            ImGui::InputText("string", buf, IM_ARRAYSIZE(buf));
-//            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-            
-#if  0
-            infoMenuShowImages(ww,hh,fadelev);
-            
-            glPushMatrix();
-            int menu_cell_size=(ww<hh?ww:hh);
-            glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
-            viewTapInfoStr[2]->Render(128+(fadelev/2));
-            glPopMatrix();
-            
-            glPushMatrix();
-            glTranslatef((menu_cell_size*1/4)+menu_cell_size/8-(strlen(viewTapInfoStr[9]->mText))*(mFontMenu->maxCharWidth/mScaleFactor)/2,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
-            viewTapInfoStr[9]->Render(128+(fadelev/2));
-            glPopMatrix();
-#endif
         }
         if (viewTapHelpShowMode==2) {
             
@@ -8245,6 +8110,7 @@ extern "C" int current_sample;
                     break;
             }
         }
+#endif
 #if 0
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
@@ -8805,14 +8671,14 @@ extern "C" int current_sample;
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
         
-        oglViewFullscreen=1;
+        settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
         oglViewFullscreenChanged=1;
         [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
         
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
                 isRecordingScreen=RS_NOT_RECORDING;
-                oglViewFullscreen=0;
+                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=0;
                 NSLog(@"Error= %@",error.localizedDescription);
             } else {
@@ -8835,14 +8701,14 @@ extern "C" int current_sample;
         RPScreenRecorder* recorder =  RPScreenRecorder.sharedRecorder;
         recorder.delegate = self;
         
-        oglViewFullscreen=1;
+        settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
         oglViewFullscreenChanged=1;
         [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
         
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
                 isRecordingScreen=RS_NOT_RECORDING;
-                oglViewFullscreen=0;
+                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=0;
                 NSLog(@"Error= %@",error.localizedDescription);
             } else {

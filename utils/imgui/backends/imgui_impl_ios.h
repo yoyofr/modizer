@@ -15,10 +15,30 @@
 
 #include "imgui.h"      // IMGUI_IMPL_API
 
-@class NSEvent;
-@class NSView;
+#ifndef ImGuiIOSEvent_t
+#define ImGuiIOSEvent_t
+struct ImGuiIOSEvent {
+    int event_type;
+    int tap_nb;
+    int pos_x,pos_y;
+    int delta_x,delta_y;
+};
+#endif
+
+#ifndef ImGuiIOSEventType_t
+#define ImGuiIOSEventType_t
+enum ImGuiIOSEventType {
+    IMGUI_IOS_Event_None,
+    IMGUI_IOS_Event_Tap_1,
+    IMGUI_IOS_Event_Swipe
+};
+#endif
+
 
 IMGUI_IMPL_API bool     ImGui_ImplIOS_Init();
 IMGUI_IMPL_API void     ImGui_ImplIOS_Shutdown();
-IMGUI_IMPL_API void     ImGui_ImplIOS_NewFrame(float ww,float hh,float scale);
-IMGUI_IMPL_API bool     ImGui_ImplIOS_HandleEvent();
+IMGUI_IMPL_API void     ImGui_ImplIOS_NewFrame(float w,float h,float scale,ImGuiIOSEvent *event);
+void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event);
+void ImGui_ImplIOS_ResetTapPos();
+
+

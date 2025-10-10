@@ -620,7 +620,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
-    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_value=0.8;
+    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
     
@@ -1483,6 +1483,15 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXRandom].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     
+    SETTINGS_ID_DEF(GLOB_FXFullscreen)
+    settings[GLOB_FXFullscreen].label=(char*)"FX Fullscreen";
+    settings[GLOB_FXFullscreen].description=NULL;
+    settings[GLOB_FXFullscreen].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXFullscreen].sub_family=0;
+    settings[GLOB_FXFullscreen].callback=&optVISUChangedC;
+    settings[GLOB_FXFullscreen].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
+    
     SETTINGS_ID_DEF(GLOB_FXAlpha)
     settings[GLOB_FXAlpha].label=(char*)"FX Alpha";
     settings[GLOB_FXAlpha].description=NULL;
@@ -1493,17 +1502,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_digits=100;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
-    
-    SETTINGS_ID_DEF(GLOB_FXAlphaFS)
-    settings[GLOB_FXAlphaFS].label=(char*)"FX Alpha Fullscreen";
-    settings[GLOB_FXAlphaFS].description=NULL;
-    settings[GLOB_FXAlphaFS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXAlphaFS].sub_family=0;
-    settings[GLOB_FXAlphaFS].callback=&optVISUChangedC;
-    settings[GLOB_FXAlphaFS].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_digits=100;
-    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_min_value=0;
-    settings[GLOB_FXAlphaFS].detail.mdz_slider.slider_max_value=1;
     
     SETTINGS_ID_DEF(GLOB_FXOscillo)
     settings[GLOB_FXOscillo].type=MDZ_SWITCH;
