@@ -26,6 +26,7 @@ enum MDZ_SETTINGS_TYPE {
     MDZ_BOOLSWITCH,
     MDZ_SLIDER_CONTINUOUS,
     MDZ_SLIDER_DISCRETE,
+    MDZ_SLIDER_DISCRETE_EVEN,
     MDZ_SLIDER_DISCRETE_TIME,
     MDZ_SLIDER_DISCRETE_TIME_LONG,
     MDZ_TEXTBOX,
@@ -259,6 +260,7 @@ enum MDZ_SETTINGS {
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
         MDZ_SETTINGS_FAMILY_MILKDROP,
+        GLOB_FXMilkdrop,
         MILKDROP_ShowPresetLabel,
         MILKDROP_AutoSwitchPresetsMode,
         MILKDROP_LockPreset,
@@ -267,8 +269,17 @@ enum MDZ_SETTINGS {
         MILKDROP_BlendTime,
         MILKDROP_BundledPresets,
         MILKDROP_CustomPresets,
+        MILKDROP_HardCutEnabled,
+        MILKDROP_HardCutMinTime,
+        MILKDROP_HardCutSensitivity,
+        MILKDROP_BeatSensitivity,
+        MILKDROP_MeshSizeX,
+        MILKDROP_MeshSizeY,
+        MILKDROP_AspectRatio,
+        
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
+        GLOB_FXOscillo,
         OSCILLO_ShowLabel,
         OSCILLO_LabelFontSize,
         OSCILLO_ShowGrid,
@@ -286,8 +297,8 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR07,
         OSCILLO_MULTI_COLOR08,
     
-    GLOB_FXMilkdrop,
-    GLOB_FXOscillo,
+    
+    
     GLOB_FXAlpha,
     GLOB_FXFullscreen,
     GLOB_FXFPS,

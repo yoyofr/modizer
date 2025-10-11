@@ -137,11 +137,44 @@ volatile t_settings settings[MAX_SETTINGS];
 
 
 -(IBAction) goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
+//    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
+//    else {
+//        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
+//                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+//        [nofileplaying show];
+//    }
+    if (detailViewController.mPlaylist_size) {
+        if (detailViewController) {
+            @try {
+                [self.navigationController pushViewController:detailViewController animated:YES];
+            } @catch (NSException * ex) {
+                //“Pushing the same view controller instance more than once is not supported”
+                //NSInvalidArgumentException
+                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
+                NSLog(@"ex.name:'%@'", ex.name);
+                NSLog(@"ex.reason:'%@'", ex.reason);
+                //Full error includes class pointer address so only care if it starts with this error
+                NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
+                
+                if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
+                    range.location != NSNotFound) {
+                    //view controller already exists in the stack - just pop back to it
+                    [self.navigationController popToViewController:detailViewController animated:YES];
+                } else {
+                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    [self.navigationController popViewControllerAnimated:YES];
+                }
+            } @finally {
+                //NSLog(@"finally");
+            }
+        } else {
+            NSLog(@"ERROR:pushViewController: viewController is nil");
+        }
+    }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+                UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                      message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                [nofileplaying show];
     }
 }
 
@@ -330,6 +363,13 @@ void optNSFPLAYChangedC(id param) {
                     if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
                     if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
                     break;
+                case MDZ_SLIDER_DISCRETE_EVEN:
+                    valNb=[prefs objectForKey:str];
+                    if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
+                    if (settings[i].detail.mdz_slider.slider_value<settings[i].detail.mdz_slider.slider_min_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_min_value;
+                    if (settings[i].detail.mdz_slider.slider_value>settings[i].detail.mdz_slider.slider_max_value) settings[i].detail.mdz_slider.slider_value=settings[i].detail.mdz_slider.slider_max_value;
+                    settings[i].detail.mdz_slider.slider_value=round(settings[i].detail.mdz_slider.slider_value/2)*2;
+                    break;
                 case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[prefs objectForKey:str];
                     if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
@@ -403,6 +443,10 @@ void optNSFPLAYChangedC(id param) {
                     [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_DISCRETE:
+                    valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_slider.slider_value];
+                    [prefs setObject:valNb forKey:str];
+                    break;
+                case MDZ_SLIDER_DISCRETE_EVEN:
                     valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];
                     break;
@@ -639,6 +683,13 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value=2.7;
     settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=1;
     settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value=32;
+    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value=24;
+    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value=20;
+    settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value=1;
+    settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value=1;
+    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value=1.0;
     
     
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
@@ -1513,7 +1564,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].type=MDZ_SWITCH;
     settings[GLOB_FXOscillo].label=(char*)"Oscillo FX";
     settings[GLOB_FXOscillo].description=NULL;
-    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[GLOB_FXOscillo].sub_family=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1526,7 +1577,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMilkdrop].type=MDZ_SWITCH;
     settings[GLOB_FXMilkdrop].label=(char*)"Milkdrop FX";
     settings[GLOB_FXMilkdrop].description=NULL;
-    settings[GLOB_FXMilkdrop].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMilkdrop].family=MDZ_SETTINGS_FAMILY_MILKDROP;
     settings[GLOB_FXMilkdrop].sub_family=0;
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1868,6 +1919,77 @@ void optNSFPLAYChangedC(id param) {
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_min_value=0.5;
     settings[MILKDROP_BlendTime].detail.mdz_slider.slider_max_value=5;
     
+    
+    SETTINGS_ID_DEF(MILKDROP_MeshSizeX)
+    settings[MILKDROP_MeshSizeX].label=(char*)"Mesh size X";
+    settings[MILKDROP_MeshSizeX].description=(char*)"Default value is 32";
+    settings[MILKDROP_MeshSizeX].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_MeshSizeX].sub_family=0;
+    settings[MILKDROP_MeshSizeX].callback=&optMILKDROPChangedC;
+    settings[MILKDROP_MeshSizeX].type=MDZ_SLIDER_DISCRETE_EVEN;
+    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_digits=0;
+    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_min_value=8;
+    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_max_value=128;
+    
+    SETTINGS_ID_DEF(MILKDROP_MeshSizeY)
+    settings[MILKDROP_MeshSizeY].label=(char*)"Mesh size Y";
+    settings[MILKDROP_MeshSizeY].description=(char*)"Default value is 24";
+    settings[MILKDROP_MeshSizeY].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_MeshSizeY].sub_family=0;
+    settings[MILKDROP_MeshSizeY].callback=&optMILKDROPChangedC;
+    settings[MILKDROP_MeshSizeY].type=MDZ_SLIDER_DISCRETE_EVEN;
+    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_digits=0;
+    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_min_value=6;
+    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_max_value=96;
+    
+    SETTINGS_ID_DEF(MILKDROP_HardCutMinTime)
+    settings[MILKDROP_HardCutMinTime].label=(char*)"Hardcut min time";
+    settings[MILKDROP_HardCutMinTime].description=(char*)"Default value is 20";
+    settings[MILKDROP_HardCutMinTime].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_HardCutMinTime].sub_family=0;
+    settings[MILKDROP_HardCutMinTime].callback=&optMILKDROPChangedC;
+    settings[MILKDROP_HardCutMinTime].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_digits=0;
+    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_min_value=0;
+    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_max_value=60;
+    
+    SETTINGS_ID_DEF(MILKDROP_HardCutEnabled)
+    settings[MILKDROP_HardCutEnabled].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_HardCutEnabled].label=(char*)"Hardcut";
+    settings[MILKDROP_HardCutEnabled].description=(char*)"Hardcut triggers presets switch synchronized with beats.";
+    settings[MILKDROP_HardCutEnabled].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_HardCutEnabled].sub_family=0;
+    settings[MILKDROP_HardCutEnabled].callback=&optMILKDROPChangedC;
+    
+    SETTINGS_ID_DEF(MILKDROP_AspectRatio)
+    settings[MILKDROP_AspectRatio].type=MDZ_BOOLSWITCH;
+    settings[MILKDROP_AspectRatio].label=(char*)"Aspect ratio";
+    settings[MILKDROP_AspectRatio].description=(char*)"Preserve aspect ratio for compatible shaders.";
+    settings[MILKDROP_AspectRatio].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_AspectRatio].sub_family=0;
+    settings[MILKDROP_AspectRatio].callback=&optMILKDROPChangedC;
+    
+    SETTINGS_ID_DEF(MILKDROP_BeatSensitivity)
+    settings[MILKDROP_BeatSensitivity].label=(char*)"Beat sensitivity";
+    settings[MILKDROP_BeatSensitivity].description=(char*)"Default value is 1";
+    settings[MILKDROP_BeatSensitivity].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_BeatSensitivity].sub_family=0;
+    settings[MILKDROP_BeatSensitivity].callback=&optMILKDROPChangedC;
+    settings[MILKDROP_BeatSensitivity].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_digits=1;
+    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_min_value=0;
+    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_max_value=5;
+    
+    SETTINGS_ID_DEF(MILKDROP_HardCutSensitivity)
+    settings[MILKDROP_HardCutSensitivity].label=(char*)"Hardcut sensitivity";
+    settings[MILKDROP_HardCutSensitivity].description=(char*)"Default value is 1";
+    settings[MILKDROP_HardCutSensitivity].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_HardCutSensitivity].sub_family=0;
+    settings[MILKDROP_HardCutSensitivity].callback=&optMILKDROPChangedC;
+    settings[MILKDROP_HardCutSensitivity].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_digits=1;
+    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_min_value=0;
+    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_max_value=5;
     
     /////////////////////////////////////
     //OSCILLO
@@ -3803,8 +3925,13 @@ void optNSFPLAYChangedC(id param) {
     for (v in [masterView subviews]) {
         if ([v isKindOfClass:[UILabel class]]) {
             UILabel *lblValue=(UILabel *)v;
+            float val=((OBSlider*)sender).value;
             
-            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:((OBSlider*)sender).value];
+            if (settings[cur_settings_idx[indexPath.section]].type==MDZ_SLIDER_DISCRETE_EVEN) {
+                val=round(val/2)*2;
+            }
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:val];
         }
     }
 }
@@ -3820,7 +3947,8 @@ void optNSFPLAYChangedC(id param) {
     if ((settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==0)||
         (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==60) ){
         
-        settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value);
+        if (settings[cur_settings_idx[indexPath.section]].type==MDZ_SLIDER_DISCRETE_EVEN) settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value/2)*2;
+        else settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=round(((OBSlider*)sender).value);
     
         ((OBSlider*)sender).value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
     } else if (settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits==100 ){
@@ -4161,6 +4289,38 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_SLIDER_DISCRETE: {
+            
+            UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
+            accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
+            lblValue.font=[[lblValue font] fontWithSize:12];
+            
+            sliderview = [[OBSlider alloc] initWithFrame:CGRectMake(0,12,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
+            [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
+            [sliderview setContinuous:true];
+            sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+            [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+            [sliderview addTarget:self action:@selector(sliderTouchUp:) forControlEvents:UIControlEventTouchUpOutside];
+            
+            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[sliderview.description componentsSeparatedByString:@";"] firstObject]];
+            
+            [accview addSubview:lblValue];
+            [accview addSubview:sliderview];
+            cell.accessoryView = accview;
+            
+            [self sliderUpdateLabelValue:lblValue digits:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_digits value:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value];
+            
+            if (settings[cur_settings_idx[indexPath.section]].description) {
+                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+                tapLabelDesc.delegate = self;
+                [topLabel addGestureRecognizer:tapLabelDesc];
+            }
+            break;
+        }
+        case MDZ_SLIDER_DISCRETE_EVEN: {
             
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;

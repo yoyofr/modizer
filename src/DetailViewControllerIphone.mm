@@ -100,7 +100,7 @@ char *milkPresetStr;
 bool milkPreset_hasChanged;
 //
 static int fps=60;
-static int meshX=48,meshY=32;
+static int meshX=32,meshY=24;
 static float glScaleFactor=1.0;
 
 
@@ -1221,8 +1221,6 @@ static float movePinchScale,movePinchScaleOld;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MILKDROP)) {
         if (_pm && _pm_playlist) {
             pmSoftReinit();
-//            if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-//            if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
         }
     }
 }
@@ -4842,10 +4840,24 @@ void pmSoftReinit() {
     
     projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
     
+    meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+    if (meshX<8) meshX=8;if (meshX>128) meshX=128;
+    meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+    if (meshX<8) meshX=8;if (meshX>128) meshX=128;
+    
+    projectm_set_mesh_size(_pm, meshX, meshY);
+    projectm_set_aspect_correction(_pm, settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value);
+    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
+
+    // Preset display settings
     projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
     if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
     else projectm_set_soft_cut_duration(_pm, 0);//2.0);
-    projectm_set_hard_cut_enabled(_pm, false);
+    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value);
+    
+    projectm_set_hard_cut_duration(_pm, settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_sensitivity(_pm, settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_beat_sensitivity(_pm, settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value);
  
     if ((_pm_playlist_loadBundled!=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value)
         || (_pm_playlist_loadCustom!=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value)) {
@@ -4909,20 +4921,24 @@ void pmSoftReinit() {
     projectm_set_window_size(_pm, canvasWidth, canvasHeight);
     projectm_set_fps(_pm, fps);
     
-    projectm_set_mesh_size(_pm, meshX, meshY);
-    projectm_set_aspect_correction(_pm, true);
-    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
+    meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+    if (meshX<8) meshX=8;if (meshX>128) meshX=128;
+    meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+    if (meshX<8) meshX=8;if (meshX>128) meshX=128;
     
+    projectm_set_mesh_size(_pm, meshX, meshY);
+    projectm_set_aspect_correction(_pm, settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value);
+    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
 
     // Preset display settings
     projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
     if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
     else projectm_set_soft_cut_duration(_pm, 0);//2.0);
-    projectm_set_hard_cut_enabled(_pm, false);
+    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value);
     
-    projectm_set_hard_cut_duration(_pm, 3.0);
-    projectm_set_hard_cut_sensitivity(_pm, static_cast<float>(1.0));
-    projectm_set_beat_sensitivity(_pm, static_cast<float>(1.0));
+    projectm_set_hard_cut_duration(_pm, settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_sensitivity(_pm, settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_beat_sensitivity(_pm, settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value);
     
     
     int textureDirNb=0;
@@ -6128,195 +6144,6 @@ void pmSoftReinit() {
     //
     [super viewDidAppear:animated];
 }
-/*
- +(natural_t) get_free_memory {
- mach_port_t host_port;
- mach_msg_type_number_t host_size;
- vm_size_t pagesize;
- host_port = mach_host_self();
- host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
- host_page_size(host_port, &pagesize);
- vm_statistics_data_t vm_stat;
- if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
- NSLog(@"Failed to fetch vm statistics");
- return 0;
- }
- // Stats in bytes
- natural_t mem_free = vm_stat.free_count * pagesize;
- return mem_free;
- }*/
-
-void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
-    return;
-#if 0
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
-    glEnable(GL_BLEND);                 /* Enable Blending           */
-    
-    /* Bind To The Blur Texture */
-    
-    
-    /* Switch To An Ortho View   */
-    int menu_cell_size;
-    if (window_width<window_height) {
-        menu_cell_size=window_width;
-    } else {
-        menu_cell_size=window_height;
-    }
-    ViewOrtho(window_width, window_height);
-    
-    
-    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Vertex Pointer */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
-    texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
-    texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
-    texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
-    texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
-    
-    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) txtMenuHandle[0]=txtSubMenuHandle[SUBMENU0_START+settings[GLOB_FXOscillo].detail.mdz_switch.switch_value];
-    else txtMenuHandle[0]=txtSubMenuHandle[SUBMENU0_START+1];
-    
-    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[1]=txtSubMenuHandle[SUBMENU1_START+settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value];
-    else txtMenuHandle[1]=txtSubMenuHandle[SUBMENU1_START+1];
-    
-    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value];
-    else txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+1];
-    
-    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value];
-    else txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+1];
-    
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
-    else if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+4+settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value];
-    else txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+1];
-    
-    
-    
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) txtMenuHandle[5]=txtSubMenuHandle[SUBMENU5_START+settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value];
-    else txtMenuHandle[5]=txtSubMenuHandle[SUBMENU5_START+1];
-    
-    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
-    else txtMenuHandle[6]=txtSubMenuHandle[SUBMENU6_START+1];
-    
-//    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) txtMenuHandle[7]=txtSubMenuHandle[SUBMENU7_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
-//    else txtMenuHandle[7]=txtSubMenuHandle[SUBMENU7_START+1];
-    
-    int marg=4;
-    for (int i=0;i<4;i++)
-        for (int j=0;j<4;j++) {
-            if (txtMenuHandle[i*4+j]) {
-                glBindTexture(GL_TEXTURE_2D, txtMenuHandle[i*4+j]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[3][2]=0.0f;
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-        }
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    /* Disable Texture Coordinations Pointer */
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    
-    /* Switch To A Perspective View */
-    ViewPerspective();
-    
-    /* Enable Depth Testing */
-    glEnable(GL_DEPTH_TEST);
-    /* Disable 2D Texture Mapping */
-    glDisable(GL_TEXTURE_2D);
-    /* Disable Blending */
-    glDisable(GL_BLEND);
-    /* Unbind The Blur Texture */
-    glBindTexture(GL_TEXTURE_2D, 0);
-#endif
-}
-
-void infoSubMenuShowImages(int window_width,int window_height,int start_index,int nb,int alpha_byte ) {
-    return;
-#if 0
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
-    glEnable(GL_BLEND);                 /* Enable Blending           */
-    
-    /* Bind To The Blur Texture */
-    
-    
-    /* Switch To An Ortho View   */
-    ViewOrtho(window_width, window_height);
-    
-    int menu_cell_size;
-    if (window_width<window_height) {
-        menu_cell_size=window_width;
-    } else {
-        menu_cell_size=window_height;
-    }
-    
-    
-    
-    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Vertex Pointer */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
-    texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
-    texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
-    texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
-    texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
-    
-    
-    int marg=4;
-    int idx=start_index;
-    for (int i=0;(i<4)&&(idx<start_index+nb);i++) {
-        for (int j=0;(j<4)&&(idx<start_index+nb);j++) {
-            if (txtSubMenuHandle[idx]) {
-                glBindTexture(GL_TEXTURE_2D, txtSubMenuHandle[idx]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[3][2]=0.0f;
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-            idx++;
-        }
-    }
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    /* Disable Texture Coordinations Pointer */
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    
-    /* Switch To A Perspective View */
-    ViewPerspective();
-    
-    /* Enable Depth Testing */
-    glEnable(GL_DEPTH_TEST);
-    /* Disable 2D Texture Mapping */
-    glDisable(GL_TEXTURE_2D);
-    /* Disable Blending */
-    glDisable(GL_BLEND);
-    /* Unbind The Blur Texture */
-    glBindTexture(GL_TEXTURE_2D, 0);
-#endif
-}
-
 
 static int mOglView1Tap=0;
 
@@ -6400,6 +6227,7 @@ extern "C" int current_sample;
     static float piano_roty=0;
     float fxalpha;
     static int frameToUpdate=0;
+    int shouldGoToSettings=0;
     
     frameToUpdate++;
     
@@ -6499,6 +6327,11 @@ extern "C" int current_sample;
     if (_pm && settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
+        
+        meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+        if (meshX<8) meshX=8;if (meshX>128) meshX=128;
+        meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+        if (meshY<6) meshY=6;if (meshY>96) meshY=96;
         
         projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
         if (currentMeshX != meshX || currentMeshY != meshY) {
@@ -7950,6 +7783,10 @@ extern "C" int current_sample;
         } else if (ret==0) {
             viewTapHelpShow=0;
 //            NSLog(@"close");
+        } else if (ret>0) {
+            if (ret==2) shouldGoToSettings=1; //Visu
+            else if (ret==3) shouldGoToSettings=2; //Oscillo
+            else if (ret==4) shouldGoToSettings=3; //Milkdrop
         }
         
         //specific case for fullscreen switch change
@@ -8224,8 +8061,32 @@ extern "C" int current_sample;
     [self presentContextOGL];
     
     no_reentrant=0;
-    
-    
+    if (shouldGoToSettings) {
+        SettingsGenViewController *settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
+        settingsVC->detailViewController=self;
+        switch (shouldGoToSettings) {
+            case 1: //Visualization
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 2: //Oscillo
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_OSCILLO;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3: //Milkdrop
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_MILKDROP;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            default: //Root
+                settingsVC.title=NSLocalizedString(@"General Settings",@"");
+                //settingsVC->current_family=MDZ_SETTINGS_FAMILY_ROOT;
+                break;
+        }
+        
+        settingsVC.view.frame=self.view.frame;
+        [self.navigationController pushViewController:settingsVC animated:YES];
+        
+    }
 }
 
 

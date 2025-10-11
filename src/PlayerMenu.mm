@@ -50,64 +50,64 @@ static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,"Fullscreen",NULL,"Exit"
+    NULL,NULL,NULL,"Fullscreen",
+    "Close FX\nwindow","All FX off","Go to\nsettings","Exit"
 };
 static GLuint txtMenuMilkdropHandle[16];
 const char *menuMilkdropLabel[16]={
     "Off",NULL,"Show name\nand\ndisappear","Show name",
     "Blend presets","Lock preset","Random order","Sequential\norder",
     "Default\npresets","Custom\npresets",NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenuOscilloHandle[16];
 const char *menuOscilloLabel[16]={
     "Off",NULL,NULL,NULL,
     "Labels","Grid",NULL,NULL,
     "Size 10","Size 16","Size 24",NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenu2DSpectrumHandle[16];
 const char *menu2DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenu3DSpectrumHandle[16];
 const char *menu3DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenuPianoHandle[16];
 const char *menuPianoLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenuMidiHandle[16];
 const char *menuMidiLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,"Fixed bar",
     "Size 10","Size 16","Size 24","Size 32",
-    NULL,NULL,NULL,"Exit"
+    NULL,NULL,"Go to\nsettings","Exit"
 };
 char *menuModPatternDynLabel[16];
 
@@ -271,9 +271,9 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu0.png"), &(txtMenuHandle[12]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
+//    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu0.png"), &(txtMenuHandle[12]), NULL, NULL)) {
+//        NSLog(@"Cannot load texture");
+//    }
     
     //Oscilloscopes
     txtMenuOscilloHandle[1]=txtMenuHandle[0];
@@ -409,8 +409,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     static int cpt=0;
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
-    float menu_win_size=fmin(ww,hh)*glScaleFactor;
-    float cell_size=fmin(ww,hh)*glScaleFactor/4.5f;
+    float menu_win_size=round(fmin(ww,hh)*glScaleFactor);
+    float cell_size=round(fmin(ww,hh)*glScaleFactor/4.5f);
     GLuint *current_txtMenuHandle;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
@@ -523,15 +523,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 break;
                             case 0x22:
                                 break;
-                            case 0x32:
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x03://HIDE FX Screen
                                 keepOpened=-1;
                                 break;
-                            case 0x13://Fullscreen switch
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
-                                break;
-                            case 0x23://ALL FX Off
+                            case 0x13: //ALL FX Off
                                 settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
@@ -542,7 +540,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
                                 break;
-                            case 0x33://Exit
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -647,7 +648,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - oscillo
+                                keepOpened=3;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -734,7 +737,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -826,7 +831,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -933,7 +940,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -1033,7 +1042,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -1114,7 +1125,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -1226,7 +1239,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value+1)%5;
                                 break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - visu
+                                keepOpened=2;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
@@ -1342,7 +1357,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x32:break;
                             case 0x03:break;
                             case 0x13:break;
-                            case 0x23:break;
+                            case 0x23: //Go to settings - milk
+                                keepOpened=4;
+                                break;
                             case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
