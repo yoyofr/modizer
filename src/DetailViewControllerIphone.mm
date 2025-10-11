@@ -57,7 +57,6 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 
 //#include "OGLView.h"
 #include "RenderUtils.h"
-#include "FXFluid.h"
 
 extern unsigned int data_midifx_pal1[32];
 extern unsigned int data_midifx_pal2[32];
@@ -97,6 +96,8 @@ extern unsigned int m_voice_oscillo_pal3[8];
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
+char *milkPresetStr;
+bool milkPreset_hasChanged;
 //
 static int fps=60;
 static int meshX=48,meshY=32;
@@ -117,7 +118,16 @@ bool GetHomeDir(std::string &outdir) {
 
 void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
+    char *title=strrchr(presetName,'/');
+    if (!title) title=presetName+1;
     //NSLog(@"Preset switched to: %s",presetName);
+    if (milkPresetStr) {
+        free(milkPresetStr);
+    }
+    milkPresetStr=(char*)malloc(strlen(title)+32);
+    sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
+    milkPreset_hasChanged=true;
+    
     projectm_playlist_free_string(presetName);
 }
 
@@ -588,13 +598,12 @@ static int display_length_mode=0;
     //if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) ret=false;
     //if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) ret=false;
     //if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) ret=false;
-    //if (settings[GLOB_FX2].detail.mdz_switch.switch_value) ret=false;
+    //if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) ret=false;
     
     //Only Piano, Midi & MOD are using screen touches
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) ret=false;
-    //if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) ret=false;
     
     //if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) ret=false;
     
@@ -608,12 +617,11 @@ static int display_length_mode=0;
     if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
     if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
-    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<3;
+    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<3;
     
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
     
     if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
     
@@ -1023,12 +1031,6 @@ static float movePinchScale,movePinchScaleOld;
     //VISU
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
-        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-        }
-        if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
-            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-        }
         [self updateVisibleChan];
         
         [self updateFont];
@@ -1334,13 +1336,12 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
             break;
         case 2:
-            settings[GLOB_FX2].detail.mdz_switch.switch_value=(settings[GLOB_FX2].detail.mdz_switch.switch_value+1)%6;
+            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value+1)%6;
             break;
         case 3:
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
             break;
         case 4:
-            settings[GLOB_FX4].detail.mdz_switch.switch_value=(settings[GLOB_FX4].detail.mdz_switch.switch_value+1)%2;
             break;
         case 5:
             settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%3;
@@ -1804,8 +1805,7 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
             settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
             settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
             switch (arc4random()%20) {
                 case 0:
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1819,7 +1819,7 @@ static float movePinchScale,movePinchScaleOld;
                 case 3:
                     break;
                 case 4:
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 5:
                     //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
@@ -1833,7 +1833,7 @@ static float movePinchScale,movePinchScaleOld;
                 case 8:
                     break;
                 case 9:
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 10:
                     //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
@@ -1844,11 +1844,10 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 12:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 13:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 14:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1862,7 +1861,7 @@ static float movePinchScale,movePinchScaleOld;
                     break;
                 case 17:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
+                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 18:
                     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -4386,6 +4385,16 @@ void ViewPerspective()
         }
     }
     
+    if (_pm_playlist) {
+        if (projectm_playlist_size(_pm_playlist)) {
+            valNb=[prefs objectForKey:@"ProjectM_playlist_index"];if (safe_mode) valNb=nil;
+            if (valNb != nil) {
+                int idx=[valNb intValue];
+                if (idx<projectm_playlist_size(_pm_playlist)) projectm_playlist_set_position(_pm_playlist,idx,true);
+            }
+        }
+    }
+    
     if (mPlaylist_size) {
         gzFile f;
         f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
@@ -4551,6 +4560,14 @@ void ViewPerspective()
     [prefs setObject:valNb forKey:@"ArchiveCnt"];
     valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
     [prefs setObject:valNb forKey:@"ArchiveIndex"];
+    
+    if (_pm_playlist) {
+        if (projectm_playlist_size(_pm_playlist)) {
+            int index=projectm_playlist_get_position(_pm_playlist);
+            valNb=[[NSNumber alloc] initWithInt:index];
+            [prefs setObject:valNb forKey:@"ProjectM_playlist_index"];
+        }
+    }
     
     [prefs synchronize];
 }
@@ -4853,7 +4870,11 @@ void pmSoftReinit() {
         _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
 
         if (projectm_playlist_size(_pm_playlist)) projectm_playlist_play_next(_pm_playlist, true);
-        else projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
+        else {
+            projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
+            milkPresetStr=strdup("No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.");
+        }
+        milkPreset_hasChanged=true;
     }
 }
 
@@ -4939,7 +4960,16 @@ void pmSoftReinit() {
     
     NSLog(@"projectM initialized");
     
-    if (_pm) projectm_playlist_play_next(_pm_playlist, true);
+    milkPresetStr=NULL;
+    milkPreset_hasChanged=false;
+    
+    projectm_playlist_play_next(_pm_playlist, true);
+
+    if (projectm_playlist_size(_pm_playlist)==0) {
+        milkPresetStr=strdup("No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.");
+    }
+    milkPreset_hasChanged=true;
+    
 }
 
 
@@ -5020,10 +5050,10 @@ void pmSoftReinit() {
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     
     //Font
-    mFont=NULL;
-    mFontPath=NULL;
-    mFontMenu=NULL;
-    mFontMenuPath=NULL;
+//    mFont=NULL;
+//    mFontPath=NULL;
+//    mFontMenu=NULL;
+//    mFontMenuPath=NULL;
     
     commandViewU.backgroundColor=[UIColor colorWithRed:0 green:0 blue:0 alpha:0.9f];
     
@@ -5404,8 +5434,8 @@ void pmSoftReinit() {
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
     
-    for (int i=0;i<MAX_MENU_FX_STRING;i++) viewTapInfoStr[i]=NULL;
-    milkPresetStr=NULL;
+//    for (int i=0;i<MAX_MENU_FX_STRING;i++) viewTapInfoStr[i]=NULL;
+    
     
     mPlaylist_size=0;
     mIsPlaying=FALSE;
@@ -5459,19 +5489,19 @@ void pmSoftReinit() {
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     //init pattern notes buffer
-    for (int i=0;i<128;i++) {
-        mText[i]=nil;
-    }
-    for (int i=0;i<128;i++) {
-        mTextLine[i]=nil;
-    }
+//    for (int i=0;i<128;i++) {
+//        mText[i]=nil;
+//    }
+//    for (int i=0;i<128;i++) {
+//        mTextLine[i]=nil;
+//    }
     
     end_time=clock();
 #ifdef LOAD_PROFILE
     NSLog(@"detail1 : %d",end_time-start_time);
 #endif
     
-    mHeader=nil;
+//    mHeader=nil;
     mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
     
     end_time=clock();
@@ -5521,10 +5551,6 @@ void pmSoftReinit() {
     [m_oglView addGestureRecognizer:glViewPinchGesture];
     
     //[glViewOneFingerOneTap requireGestureRecognizerToFail : glViewOneFingerTwoTaps];
-    
-    //FLUID
-    if (mDevice_ww==320) initFluid(40,40);
-    else initFluid(64,64);
     
     //BButton
     [btnShowVoices setStyle:BButtonStyleBootstrapV2];
@@ -5702,9 +5728,6 @@ void pmSoftReinit() {
     free(mPlaylist);
     mPlaylist_size=0;
     
-    //Fluid
-    closeFluid();
-    
     //FFT
     delete(fftAccel);
     free(fft_frequency);
@@ -5797,82 +5820,82 @@ void pmSoftReinit() {
 }
 
 - (void)updateVisibleChan {
-    int size_chan=11*(mFontWidth/mScaleFactor);
-    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-        case 1:
-        case 4:
-            size_chan=11*(mFontWidth/mScaleFactor);
-            break;
-        case 2:
-        case 5:
-            size_chan=6*(mFontWidth/mScaleFactor);
-            break;
-        case 3:
-        case 6:
-            size_chan=4*(mFontWidth/mScaleFactor);
-            break;
-    }
-    
-    visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+//    int size_chan=11*(mFontWidth/mScaleFactor);
+//    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+//        case 1:
+//        case 4:
+//            size_chan=11*(mFontWidth/mScaleFactor);
+//            break;
+//        case 2:
+//        case 5:
+//            size_chan=6*(mFontWidth/mScaleFactor);
+//            break;
+//        case 3:
+//        case 6:
+//            size_chan=4*(mFontWidth/mScaleFactor);
+//            break;
+//    }
+//    
+//    visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
     if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
     if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
     if (startChan<0) startChan=0;
 }
 
 - (void)updateFont{
-    NSString *fontPath;
-    
-    mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
-    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-        case 0:
-            mCurrentFontSize=10;
-            break;
-        case 1:
-            mCurrentFontSize=16;
-            break;
-        case 2:
-            mCurrentFontSize=24;
-            break;
-        case 3:
-            mCurrentFontSize=32;
-            break;
-    }
-    
-    fontPath = [[NSBundle mainBundle] pathForResource: [NSString stringWithFormat:@"%s%d",fontName[mCurrentFontIdx],mCurrentFontSize] ofType: @"fnt"];
-    
-    if (!fontPath) {
-        mCurrentFontIdx=0;
-        mCurrentFontSize=16;
-        settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
-        settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
-        fontPath = [[NSBundle mainBundle] pathForResource:@"amiga16" ofType: @"fnt"];
-        if (!fontPath) {
-            NSLog(@"Issue with mFont init, cannot find default font amiga16.fnt");
-            return;
-        }
-    }
-    
-//    int loadFont=0;
-//    if (mFontPath==NULL) loadFont=1;
-//    else if ([mFontPath isEqualToString:fontPath]==false) loadFont=1;
+//    NSString *fontPath;
 //    
-//    if (loadFont==0) return;
-        
-    if (mFont) delete mFont;
-    mFont=NULL;
-    
-    mFont = new CFont([fontPath UTF8String]);
-    if (!mFont) {
-        NSLog(@"Issue with mFont init");
-        return;
-    }
-    mFontPath=[NSString stringWithString:fontPath];
-    
-    mFontWidth= mFont->maxCharWidth;
-    mFontHeight= mFont->maxCharHeight;
-    //NSLog(@"font size: %dx%d",mFontWidth,mFontHeight);
-    NOTES_DISPLAY_LEFTMARGIN=(mFontWidth/mScaleFactor)*2.5f+8+6;
-    NOTES_DISPLAY_TOPMARGIN=(mFontHeight/mScaleFactor)*2+8+6;
+//    mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
+//    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
+//        case 0:
+//            mCurrentFontSize=10;
+//            break;
+//        case 1:
+//            mCurrentFontSize=16;
+//            break;
+//        case 2:
+//            mCurrentFontSize=24;
+//            break;
+//        case 3:
+//            mCurrentFontSize=32;
+//            break;
+//    }
+//    
+//    fontPath = [[NSBundle mainBundle] pathForResource: [NSString stringWithFormat:@"%s%d",fontName[mCurrentFontIdx],mCurrentFontSize] ofType: @"fnt"];
+//    
+//    if (!fontPath) {
+//        mCurrentFontIdx=0;
+//        mCurrentFontSize=16;
+//        settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
+//        settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"amiga16" ofType: @"fnt"];
+//        if (!fontPath) {
+//            NSLog(@"Issue with mFont init, cannot find default font amiga16.fnt");
+//            return;
+//        }
+//    }
+//    
+////    int loadFont=0;
+////    if (mFontPath==NULL) loadFont=1;
+////    else if ([mFontPath isEqualToString:fontPath]==false) loadFont=1;
+////    
+////    if (loadFont==0) return;
+//        
+//    if (mFont) delete mFont;
+//    mFont=NULL;
+//    
+//    mFont = new CFont([fontPath UTF8String]);
+//    if (!mFont) {
+//        NSLog(@"Issue with mFont init");
+//        return;
+//    }
+//    mFontPath=[NSString stringWithString:fontPath];
+//    
+//    mFontWidth= mFont->maxCharWidth;
+//    mFontHeight= mFont->maxCharHeight;
+//    //NSLog(@"font size: %dx%d",mFontWidth,mFontHeight);
+//    NOTES_DISPLAY_LEFTMARGIN=(mFontWidth/mScaleFactor)*2.5f+8+6;
+//    NOTES_DISPLAY_TOPMARGIN=(mFontHeight/mScaleFactor)*2+8+6;
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -6027,26 +6050,25 @@ void pmSoftReinit() {
     //get ogl context & bind
     [self setContextOGL];
     
+//    if (milkPresetStr) {
+//        free(milkPresetStr);
+//        milkPresetStr=NULL;
+//    }
     
-    if (milkPresetStr) {
-        free(milkPresetStr);
-        milkPresetStr=NULL;
-    }
-    
-    mFont=NULL;
-    mFontMenu=NULL;
+//    mFont=NULL;
+//    mFontMenu=NULL;
     
     [self updateFont];
     [self updateVisibleChan];
     
-    NSString *fontPath;
-    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-    else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-    mFontMenu = new CFont([fontPath UTF8String]);
-    if (!mFontMenu) {
-        NSLog(@"Issue with mFont init");
-        return;
-    }
+//    NSString *fontPath;
+//    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+//    else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
+//    mFontMenu = new CFont([fontPath UTF8String]);
+//    if (!mFontMenu) {
+//        NSLog(@"Issue with mFont init");
+//        return;
+//    }
     
     
     [self updateBarPos];
@@ -6059,10 +6081,6 @@ void pmSoftReinit() {
         }
         [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     }
-    /*CATransition *transition=[CATransition animation];
-     transition.duration=0.2;
-     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
     [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
     
@@ -6070,12 +6088,6 @@ void pmSoftReinit() {
     
     movePxMID=movePyMID=0;
     moveMILKnomore=0;
-    
-    //    self.navigationController.navigationBar.hidden = YES;
-//    m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
-//    m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
-//    [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-    
 }
 
 
@@ -6177,7 +6189,7 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value];
     else txtMenuHandle[2]=txtSubMenuHandle[SUBMENU2_START+1];
     
-    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FX2].detail.mdz_switch.switch_value];
+    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value];
     else txtMenuHandle[3]=txtSubMenuHandle[SUBMENU3_START+1];
     
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU4_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
@@ -6340,6 +6352,9 @@ static int mOglView1Tap=0;
             break;
         default:
             panGesture1Tap=0;
+            //Also reset tracking variables related to "swipe" like gesture
+            movePxMILK=0;movePyMILK=0;
+            moveMILKnomore=0;
             break;
     }
 }
@@ -6398,10 +6413,10 @@ extern "C" int current_sample;
         return;
     }
     
-    if (!mFont || !mFontMenu ) {
-        no_reentrant=0;
-        return;
-    }
+//    if (!mFont || !mFontMenu ) {
+//        no_reentrant=0;
+//        return;
+//    }
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         fxalpha=1;
@@ -6421,20 +6436,20 @@ extern "C" int current_sample;
     clearAudioFXbuffer=false;
     
     
-    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-        case 1:
-        case 4:
-            size_chan=11*(mFontWidth/mScaleFactor);
-            break;
-        case 2:
-        case 5:
-            size_chan=6*(mFontWidth/mScaleFactor);
-            break;
-        case 3:
-        case 6:
-            size_chan=4*(mFontWidth/mScaleFactor);
-            break;
-    }
+//    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+//        case 1:
+//        case 4:
+//            size_chan=11*(mFontWidth/mScaleFactor);
+//            break;
+//        case 2:
+//        case 5:
+//            size_chan=6*(mFontWidth/mScaleFactor);
+//            break;
+//        case 3:
+//        case 6:
+//            size_chan=4*(mFontWidth/mScaleFactor);
+//            break;
+//    }
     
     framecpt++;  //TODO: check dependency / FPS (30, 60)
     
@@ -6545,28 +6560,28 @@ extern "C" int current_sample;
     /*-------------------------------------------------------------------------------*/
     
     
-    if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("FX Off", mFontMenu,mScaleFactor);
-    
-    if (!viewTapInfoStr[3]) viewTapInfoStr[3]= new CGLString("Fixed bar", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[4]) viewTapInfoStr[4]= new CGLString("Size 10", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[5]) viewTapInfoStr[5]= new CGLString("Size 16", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[6]) viewTapInfoStr[6]= new CGLString("Size 24", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[7]) viewTapInfoStr[7]= new CGLString("Size 32", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[8]) viewTapInfoStr[8]= new CGLString("Labels", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[9]) viewTapInfoStr[9]= new CGLString("Fullscreen", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[10]) viewTapInfoStr[10]= new CGLString("Grid", mFontMenu,mScaleFactor);
-    
-    if (!viewTapInfoStr[11]) viewTapInfoStr[11]= new CGLString("Names", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[12]) viewTapInfoStr[12]= new CGLString("Blend", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[13]) viewTapInfoStr[13]= new CGLString("Lock", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[14]) viewTapInfoStr[14]= new CGLString("Rand", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[15]) viewTapInfoStr[15]= new CGLString("Seq", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[16]) viewTapInfoStr[16]= new CGLString("Next", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[17]) viewTapInfoStr[17]= new CGLString("Prev", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[18]) viewTapInfoStr[18]= new CGLString("Preset", mFontMenu,mScaleFactor);
-    if (!viewTapInfoStr[19]) viewTapInfoStr[19]= new CGLString("Limited", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("FX Off", mFontMenu,mScaleFactor);
+//    
+//    if (!viewTapInfoStr[3]) viewTapInfoStr[3]= new CGLString("Fixed bar", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[4]) viewTapInfoStr[4]= new CGLString("Size 10", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[5]) viewTapInfoStr[5]= new CGLString("Size 16", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[6]) viewTapInfoStr[6]= new CGLString("Size 24", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[7]) viewTapInfoStr[7]= new CGLString("Size 32", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[8]) viewTapInfoStr[8]= new CGLString("Labels", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[9]) viewTapInfoStr[9]= new CGLString("Fullscreen", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[10]) viewTapInfoStr[10]= new CGLString("Grid", mFontMenu,mScaleFactor);
+//    
+//    if (!viewTapInfoStr[11]) viewTapInfoStr[11]= new CGLString("Names", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[12]) viewTapInfoStr[12]= new CGLString("Blend", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[13]) viewTapInfoStr[13]= new CGLString("Lock", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[14]) viewTapInfoStr[14]= new CGLString("Rand", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[15]) viewTapInfoStr[15]= new CGLString("Seq", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[16]) viewTapInfoStr[16]= new CGLString("Next", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[17]) viewTapInfoStr[17]= new CGLString("Prev", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[18]) viewTapInfoStr[18]= new CGLString("Preset", mFontMenu,mScaleFactor);
+//    if (!viewTapInfoStr[19]) viewTapInfoStr[19]= new CGLString("Limited", mFontMenu,mScaleFactor);
     
     movePxMILK+=movePx-movePxOld;
     movePyMILK+=movePy-movePyOld;
@@ -6829,7 +6844,7 @@ extern "C" int current_sample;
                     val++;
                     if (val>=2) val=0;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
-                    if (val) settings[GLOB_FX2].detail.mdz_boolswitch.switch_value=0;
+                    if (val) settings[GLOB_FX3DLandscape].detail.mdz_boolswitch.switch_value=0;
                 } else if (touched_coord==0x03) {
                     //HIDE FX Screen
                     shouldhide=1;
@@ -6840,7 +6855,7 @@ extern "C" int current_sample;
                     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
                 } else if (touched_coord==0x23) {
                     //ALL FX Off
-                    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
@@ -6879,7 +6894,7 @@ extern "C" int current_sample;
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
                             settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
@@ -6909,7 +6924,7 @@ extern "C" int current_sample;
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=1;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=1;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -6943,7 +6958,7 @@ extern "C" int current_sample;
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=2;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=2;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -6976,7 +6991,7 @@ extern "C" int current_sample;
                             settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=3;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=3;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7007,7 +7022,7 @@ extern "C" int current_sample;
                         case SUBMENU2_START: //3D Spectrum Objects
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=4;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=4;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7038,7 +7053,7 @@ extern "C" int current_sample;
                         case SUBMENU2_START: //3D Spectrum Objects
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=5;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=5;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7067,7 +7082,7 @@ extern "C" int current_sample;
                         case SUBMENU2_START: //3D Spectrum Objects
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=6;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=6;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7096,7 +7111,7 @@ extern "C" int current_sample;
                         case SUBMENU2_START: //3D Spectrum Objects
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=7;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=7;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7118,7 +7133,7 @@ extern "C" int current_sample;
                         case SUBMENU2_START: //3D Spectrum Objects
                             break;
                         case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX2].detail.mdz_switch.switch_value=8;
+                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=8;
                             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                             break;
                         case SUBMENU4_START: //Piano FX
@@ -7231,8 +7246,7 @@ extern "C" int current_sample;
     
     //update spectrum data
     if (
-        (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
-        (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
+        (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value)||
         (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
         (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)  ) {
             //compute new spectrum data
@@ -7367,7 +7381,6 @@ extern "C" int current_sample;
         }
     
     int detail_lvl=settings[GLOB_FXLOD].detail.mdz_switch.switch_value;
-    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) detail_lvl=0; //force low for fx4
     int decrease_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?3:2);
     int increase_factor=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?2:1);
     int tgtL,tgtR;
@@ -7459,16 +7472,16 @@ extern "C" int current_sample;
             
             if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
                 if (DEBUG_INFOS) {
-                    if (mHeader) delete mHeader;
-                    mHeader=nil;
+//                    if (mHeader) delete mHeader;
+//                    mHeader=nil;
                     
                     sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
-                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
-                    glPushMatrix();
-                    glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
-                    //glScalef(1.58f, 1.58f, 1.58f);
-                    mHeader->Render(0);
-                    glPopMatrix();
+//                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
+//                    glPushMatrix();
+//                    glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
+//                    //glScalef(1.58f, 1.58f, 1.58f);
+//                    mHeader->Render(0);
+//                    glPopMatrix();
                 }
             }
         }
@@ -7476,59 +7489,59 @@ extern "C" int current_sample;
             
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
                 //DISPLAY MOD PATTERNS
-                linestodraw=round((hh-NOTES_DISPLAY_TOPMARGIN+mFontHeight/mScaleFactor+3)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-                int limit_midline=round((hh-NOTES_DISPLAY_TOPMARGIN)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-                midline=0;//linestodraw>>1;
-                
-                for (i=0;i<linestodraw;i++) {
-                    if (mText[i]) delete mText[i];
-                    mText[i]=nil;
-                }
-                for (i=0;i<linestodraw;i++) {
-                    if (mTextLine[i]) delete mTextLine[i];
-                    mTextLine[i]=nil;
-                }
-                if (mHeader) delete mHeader;
-                mHeader=nil;
-                
-                int *pat,*row;
-                int playerpos;
-                //            int *playerOffset;
-                pat=[mplayer playPattern];
-                row=[mplayer playRow];
-                //            playerOffset=[mplayer playOffset];
-                playerpos=[mplayer getCurrentPlayedBufferIdx];
-                currentPattern=pat[playerpos];
-                currentRow=row[playerpos];
-                
-                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
-                prevNotes=nil;
-                nextNotes=nil;
-                int prevPattern=[mplayer prevPattern][playerpos];
-                if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
-                
-                int nextPattern=[mplayer nextPattern][playerpos];
-                if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
-                
-                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
-                else {
-                    midline=currentRow;
-                    if (midline>=limit_midline) midline=limit_midline-1;
-                }
-                
-                endChan=startChan+visibleChan;
-                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
-                else if (endChan<mplayer.numChannels) endChan++;
-                startRow=currentRow-midline;
-                
-                int channelVolumeData[SOUND_MAXMOD_CHANNELS];
-                unsigned char *volData=[mplayer playVolData];
-                for (int i=0;i<endChan-startChan;i++) {
-                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
-                }
-                
-                idx=startRow*mplayer.numChannels+startChan;
-                
+//                linestodraw=round((hh-NOTES_DISPLAY_TOPMARGIN+mFontHeight/mScaleFactor+3)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
+//                int limit_midline=round((hh-NOTES_DISPLAY_TOPMARGIN)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
+//                midline=0;//linestodraw>>1;
+//                
+//                for (i=0;i<linestodraw;i++) {
+//                    if (mText[i]) delete mText[i];
+//                    mText[i]=nil;
+//                }
+//                for (i=0;i<linestodraw;i++) {
+//                    if (mTextLine[i]) delete mTextLine[i];
+//                    mTextLine[i]=nil;
+//                }
+//                if (mHeader) delete mHeader;
+//                mHeader=nil;
+//                
+//                int *pat,*row;
+//                int playerpos;
+//                //            int *playerOffset;
+//                pat=[mplayer playPattern];
+//                row=[mplayer playRow];
+//                //            playerOffset=[mplayer playOffset];
+//                playerpos=[mplayer getCurrentPlayedBufferIdx];
+//                currentPattern=pat[playerpos];
+//                currentRow=row[playerpos];
+//                
+//                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
+//                prevNotes=nil;
+//                nextNotes=nil;
+//                int prevPattern=[mplayer prevPattern][playerpos];
+//                if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
+//                
+//                int nextPattern=[mplayer nextPattern][playerpos];
+//                if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
+//                
+//                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
+//                else {
+//                    midline=currentRow;
+//                    if (midline>=limit_midline) midline=limit_midline-1;
+//                }
+//                
+//                endChan=startChan+visibleChan;
+//                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
+//                else if (endChan<mplayer.numChannels) endChan++;
+//                startRow=currentRow-midline;
+//                
+//                int channelVolumeData[SOUND_MAXMOD_CHANNELS];
+//                unsigned char *volData=[mplayer playVolData];
+//                for (int i=0;i<endChan-startChan;i++) {
+//                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
+//                }
+//                
+//                idx=startRow*mplayer.numChannels+startChan;
+/*
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
@@ -7536,190 +7549,190 @@ extern "C" int current_sample;
                 } else {
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
                 }
-                
-                if (currentNotes) {
-                    hasdrawnotes=1;
-                    l=0;
-                    for (i=startRow;i<startRow+linestodraw;i++) {
-                        note_avail=0;
-                        if (i<0) {
-                            if ((prevNotes)&&((numRowsP+i)>=0)) {
-                                if (numRowsP+i>=0) {
-                                    note_avail=1;
-                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
-                                    readNote=prevNotes;
-                                }
-                            }
-                        } else if (currentNotes&&(i<numRows)) {
-                            note_avail=1;
-                            idx=i*mplayer.numChannels+startChan;
-                            readNote=currentNotes;
-                        } else {
-                            if ((nextNotes)&&((i-numRows)<numRowsN)) {
-                                note_avail=1;
-                                idx=(i-numRows)*mplayer.numChannels+startChan;
-                                readNote=nextNotes;
-                            }
-                        }
-                        if (note_avail) {
-                            k=0;
-                            switch (display_note_mode) {
-                                case 0: //all infos
-                                    for (j=0;j<endChan-startChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
-                                        cinst=currentNotes[idx].Instrument;
-                                        ceff=currentNotes[idx].Effect;
-                                        cparam=currentNotes[idx].Parameter;
-                                        cvol=currentNotes[idx].Volume;
-                                        if (cnote) {
-                                            str_data[k++]=note2charA[(cnote-13)%12];
-                                            str_data[k++]=note2charB[(cnote-13)%12];
-                                            str_data[k++]=(cnote-13)/12+'0';
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        if (cinst) {
-                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                            str_data[k++]=dec2hex[cinst&0xF];
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        if (cvol) {
-                                            str_data[k++]=dec2hex[(cvol>>4)&0xF];
-                                            str_data[k++]=dec2hex[cvol&0xF];
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        if (ceff) {
-                                            str_data[k++]='A'+ceff;
-                                        } else {
-                                            str_data[k++]='.';
-                                        }
-                                        if (cparam) {
-                                            str_data[k++]=dec2hex[(cparam>>4)&0xF];
-                                            str_data[k++]=dec2hex[cparam&0xF];
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        str_data[k++]=' ';
-                                        idx++;
-                                    }
-                                    break;
-                                case 1: //note + instru
-                                    for (j=0;j<endChan-startChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
-                                        cinst=currentNotes[idx].Instrument;
-                                        if (cnote) {
-                                            str_data[k++]=note2charA[(cnote-13)%12];
-                                            str_data[k++]=note2charB[(cnote-13)%12];
-                                            str_data[k++]=(cnote-13)/12+'0';
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        if (cinst) {
-                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                            str_data[k++]=dec2hex[cinst&0xF];
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        str_data[k++]=' ';
-                                        idx++;
-                                    }
-                                    break;
-                                case 2: //only note
-                                    for (j=0;j<endChan-startChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
-                                        if (cnote) {
-                                            str_data[k++]=note2charA[(cnote-13)%12];
-                                            str_data[k++]=note2charB[(cnote-13)%12];
-                                            str_data[k++]=(cnote-13)/12+'0';
-                                        } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-                                        }
-                                        str_data[k++]=' ';
-                                        idx++;
-                                    }
-                                    break;
-                            }
-                            str_data[k]=0;
-                            mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
-                            
-                        } else {
-                            mText[l++] = NULL;
-                            
-                        }
-                    }
-                    str_data[2]=0;
-                    for (l=0;l<linestodraw;l++) {
-                        i=l+startRow;
-                        if (mText[l]) {
-                            glPushMatrix();
-                            glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-                            
-                            if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
-                            else {
-                                if (i!=currentRow) mText[l]->Render(3+display_note_mode);
-                                else {
-                                    mText[l]->Render(20+display_note_mode);
-                                }
-                            }
-                            glPopMatrix();
-                        }
-                        if ((i<0)&&prevNotes) {
-                            str_data[0]=dec2hex[((numRowsP+i)>>4)&0xF];
-                            str_data[1]=dec2hex[(numRowsP+i)&0xF];
-                        } else if (i<numRows) {
-                            str_data[0]=dec2hex[(i>>4)&0xF];
-                            str_data[1]=dec2hex[i&0xF];
-                        } else if (nextNotes) {
-                            str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
-                            str_data[1]=dec2hex[(i-numRows)&0xF];
-                        }
-                        mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
-                        glPushMatrix();
-                        glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-                        mTextLine[l]->Render(1+(l&1));
-                        glPopMatrix();
-                    }
-                    
-                    
-                }
-                //draw header + fps
-                memset(str_data,32,11*visibleChan);
-                str_data[11*visibleChan]=0; //11 chars max / channel
-                float xofs=0;
-                switch (display_note_mode) {
-                    case 0:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
-                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*11+9]=0;
-                        xofs=0.0f;
-                        break;
-                    case 1:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
-                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*6+7]=0;
-                        xofs=0.0f;
-                        break;
-                    case 2:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
-                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*4+6]=0;
-                        xofs=0.0f;
-                        break;
-                }
-                mHeader= new CGLString(str_data, mFont,mScaleFactor);
-                glPushMatrix();
-                glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
-                //glScalef(1.58f, 1.58f, 1.58f);
-                mHeader->Render(0);
-                glPopMatrix();
+                */
+//                if (currentNotes) {
+//                    hasdrawnotes=1;
+//                    l=0;
+//                    for (i=startRow;i<startRow+linestodraw;i++) {
+//                        note_avail=0;
+//                        if (i<0) {
+//                            if ((prevNotes)&&((numRowsP+i)>=0)) {
+//                                if (numRowsP+i>=0) {
+//                                    note_avail=1;
+//                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
+//                                    readNote=prevNotes;
+//                                }
+//                            }
+//                        } else if (currentNotes&&(i<numRows)) {
+//                            note_avail=1;
+//                            idx=i*mplayer.numChannels+startChan;
+//                            readNote=currentNotes;
+//                        } else {
+//                            if ((nextNotes)&&((i-numRows)<numRowsN)) {
+//                                note_avail=1;
+//                                idx=(i-numRows)*mplayer.numChannels+startChan;
+//                                readNote=nextNotes;
+//                            }
+//                        }
+//                        if (note_avail) {
+//                            k=0;
+//                            switch (display_note_mode) {
+//                                case 0: //all infos
+//                                    for (j=0;j<endChan-startChan;j++)  {
+//                                        cnote=currentNotes[idx].Note;
+//                                        cinst=currentNotes[idx].Instrument;
+//                                        ceff=currentNotes[idx].Effect;
+//                                        cparam=currentNotes[idx].Parameter;
+//                                        cvol=currentNotes[idx].Volume;
+//                                        if (cnote) {
+//                                            str_data[k++]=note2charA[(cnote-13)%12];
+//                                            str_data[k++]=note2charB[(cnote-13)%12];
+//                                            str_data[k++]=(cnote-13)/12+'0';
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        if (cinst) {
+//                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+//                                            str_data[k++]=dec2hex[cinst&0xF];
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        if (cvol) {
+//                                            str_data[k++]=dec2hex[(cvol>>4)&0xF];
+//                                            str_data[k++]=dec2hex[cvol&0xF];
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        if (ceff) {
+//                                            str_data[k++]='A'+ceff;
+//                                        } else {
+//                                            str_data[k++]='.';
+//                                        }
+//                                        if (cparam) {
+//                                            str_data[k++]=dec2hex[(cparam>>4)&0xF];
+//                                            str_data[k++]=dec2hex[cparam&0xF];
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        str_data[k++]=' ';
+//                                        idx++;
+//                                    }
+//                                    break;
+//                                case 1: //note + instru
+//                                    for (j=0;j<endChan-startChan;j++)  {
+//                                        cnote=currentNotes[idx].Note;
+//                                        cinst=currentNotes[idx].Instrument;
+//                                        if (cnote) {
+//                                            str_data[k++]=note2charA[(cnote-13)%12];
+//                                            str_data[k++]=note2charB[(cnote-13)%12];
+//                                            str_data[k++]=(cnote-13)/12+'0';
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        if (cinst) {
+//                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+//                                            str_data[k++]=dec2hex[cinst&0xF];
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        str_data[k++]=' ';
+//                                        idx++;
+//                                    }
+//                                    break;
+//                                case 2: //only note
+//                                    for (j=0;j<endChan-startChan;j++)  {
+//                                        cnote=currentNotes[idx].Note;
+//                                        if (cnote) {
+//                                            str_data[k++]=note2charA[(cnote-13)%12];
+//                                            str_data[k++]=note2charB[(cnote-13)%12];
+//                                            str_data[k++]=(cnote-13)/12+'0';
+//                                        } else {
+//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+//                                        }
+//                                        str_data[k++]=' ';
+//                                        idx++;
+//                                    }
+//                                    break;
+//                            }
+//                            str_data[k]=0;
+//                            mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
+//                            
+//                        } else {
+//                            mText[l++] = NULL;
+//                            
+//                        }
+//                    }
+//                    str_data[2]=0;
+//                    for (l=0;l<linestodraw;l++) {
+//                        i=l+startRow;
+//                        if (mText[l]) {
+//                            glPushMatrix();
+//                            glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
+//                            
+//                            if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
+//                            else {
+//                                if (i!=currentRow) mText[l]->Render(3+display_note_mode);
+//                                else {
+//                                    mText[l]->Render(20+display_note_mode);
+//                                }
+//                            }
+//                            glPopMatrix();
+//                        }
+//                        if ((i<0)&&prevNotes) {
+//                            str_data[0]=dec2hex[((numRowsP+i)>>4)&0xF];
+//                            str_data[1]=dec2hex[(numRowsP+i)&0xF];
+//                        } else if (i<numRows) {
+//                            str_data[0]=dec2hex[(i>>4)&0xF];
+//                            str_data[1]=dec2hex[i&0xF];
+//                        } else if (nextNotes) {
+//                            str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
+//                            str_data[1]=dec2hex[(i-numRows)&0xF];
+//                        }
+//                        mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
+//                        glPushMatrix();
+//                        glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
+//                        mTextLine[l]->Render(1+(l&1));
+//                        glPopMatrix();
+//                    }
+//                    
+//                    
+//                }
+//                //draw header + fps
+//                memset(str_data,32,11*visibleChan);
+//                str_data[11*visibleChan]=0; //11 chars max / channel
+//                float xofs=0;
+//                switch (display_note_mode) {
+//                    case 0:
+//                        for (j=startChan;j<endChan;j++) {
+//                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
+//                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
+//                        }
+//                        str_data[(endChan-1-startChan)*11+9]=0;
+//                        xofs=0.0f;
+//                        break;
+//                    case 1:
+//                        for (j=startChan;j<endChan;j++) {
+//                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
+//                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
+//                        }
+//                        str_data[(endChan-1-startChan)*6+7]=0;
+//                        xofs=0.0f;
+//                        break;
+//                    case 2:
+//                        for (j=startChan;j<endChan;j++) {
+//                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
+//                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
+//                        }
+//                        str_data[(endChan-1-startChan)*4+6]=0;
+//                        xofs=0.0f;
+//                        break;
+//                }
+//                mHeader= new CGLString(str_data, mFont,mScaleFactor);
+//                glPushMatrix();
+//                glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
+//                //glScalef(1.58f, 1.58f, 1.58f);
+//                mHeader->Render(0);
+//                glPopMatrix();
             }
         }
     }
@@ -7746,54 +7759,17 @@ extern "C" int current_sample;
             static int scroll_pause=0;
             static int display_countdown=0;
             
-            char *title;
-            uint32_t index=projectm_playlist_get_position(_pm_playlist);
-            title = projectm_playlist_item(_pm_playlist, index);
-            if (title) {
-                char *name=strrchr(title,'/');
-                if (name==NULL) name=title;
-                else name++;
-                if (milkPresetStr) {
-                    if (strcmp(milkPresetStr,name)) {
-                        //reset string as it has changed
-                        free(milkPresetStr);
-                        milkPresetStr=NULL;
-                    }
-                }
-                if (milkPresetStr==NULL) {
-                    //milkPresetStr=strdup(name);
-                    milkPresetStr=(char*)malloc(strlen(name)+32);
-                    sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
-                    
-                    scrollx=0;
-                    scroll_direction=1;
-                    display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
-                }
-                
-                projectm_playlist_free_string(title);
-            } else if (projectm_playlist_size(_pm_playlist)==0) {
-                title="No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.";
-                char *name=title;
-                if (milkPresetStr) {
-                    if (strcmp(milkPresetStr,name)) {
-                        //reset string as it has changed
-                        free(milkPresetStr);
-                        milkPresetStr=NULL;
-                    }
-                }
-                if (milkPresetStr==NULL) {
-                    milkPresetStr=(char*)malloc(strlen(name)+32);
-                    sprintf(milkPresetStr,"%s",name);
-                    
-                    scrollx=0;
-                    scroll_direction=1;
-                    display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
-                }
+            if (milkPreset_hasChanged) {
+                milkPreset_hasChanged=false;
+                scrollx=0;
+                scroll_direction=1;
+                display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
             }
             
             //if not limited, reset countdown
-            if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2)||(projectm_playlist_size(_pm_playlist)==0)) display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
-            
+            if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) || (projectm_playlist_size(_pm_playlist)==0)) {
+                display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+            }
             
             if (milkPresetStr&&display_countdown) {
                 float alpha_val=(float)(display_countdown*4)/255.0;
@@ -7893,20 +7869,17 @@ extern "C" int current_sample;
     }
     
     if ([mplayer isPlaying]){
-        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4){
-                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
-            } else if (settings[GLOB_FX2].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
+            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
+                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
             } else {
-                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
+                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
             }
-        } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
-            renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         }
-        
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
             int mirror=1;
-            if (settings[GLOB_FX2].detail.mdz_switch.switch_value) mirror=0;
+            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
@@ -8009,7 +7982,7 @@ extern "C" int current_sample;
                     active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
                 case SUBMENU3_START: //3D Spectrum Landscapes
-                    active_idx=1<<settings[GLOB_FX2].detail.mdz_switch.switch_value;
+                    active_idx=1<<settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value;
                     break;
                 case SUBMENU4_START: //Piano FX
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
@@ -8258,21 +8231,6 @@ extern "C" int current_sample;
 
 - (void)viewDidDisappear:(BOOL)animated {
     mHasFocus=0;
-    
-    for (int i=0;i<MAX_MENU_FX_STRING;i++) if (viewTapInfoStr[i]) {
-        delete viewTapInfoStr[i];
-        viewTapInfoStr[i]=NULL;
-    }
-    if (mFont) {
-        delete mFont;
-        mFont=NULL;
-    }
-    if (mFontMenu) {
-        delete mFontMenu;
-        mFontMenu=NULL;
-    }
-    mFontPath=NULL;
-    mFontMenuPath=NULL;
     
     [super viewDidDisappear:animated];
 }

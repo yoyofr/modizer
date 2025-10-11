@@ -672,10 +672,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     
@@ -1572,7 +1569,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].sub_family=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[0]=(char*)"Follow";
+    settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[0]=(char*)"Scroll";
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[1]=(char*)"Fixed";
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_Font)
@@ -1739,49 +1736,23 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
     
-    SETTINGS_ID_DEF(GLOB_FX2)
-    settings[GLOB_FX2].type=MDZ_SWITCH;
-    settings[GLOB_FX2].label=(char*)"FX2";
-    settings[GLOB_FX2].description=NULL;
-    settings[GLOB_FX2].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX2].sub_family=0;
-    settings[GLOB_FX2].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX2].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX2].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FX2].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FX2].detail.mdz_switch.switch_labels[1]=(char*)"1";
-    settings[GLOB_FX2].detail.mdz_switch.switch_labels[2]=(char*)"2";
-    
-    SETTINGS_ID_DEF(GLOB_FX3)
-    settings[GLOB_FX3].type=MDZ_SWITCH;
-    settings[GLOB_FX3].label=(char*)"FX3";
-    settings[GLOB_FX3].description=NULL;
-    settings[GLOB_FX3].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX3].sub_family=0;
-    settings[GLOB_FX3].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX3].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FX3].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FX3].detail.mdz_switch.switch_labels[1]=(char*)"1";
-    settings[GLOB_FX3].detail.mdz_switch.switch_labels[2]=(char*)"2";
-    
-    SETTINGS_ID_DEF(GLOB_FX4)
-    settings[GLOB_FX4].label=(char*)"FX4";
-    settings[GLOB_FX4].description=NULL;
-    settings[GLOB_FX4].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX4].sub_family=0;
-    settings[GLOB_FX4].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-    
-    SETTINGS_ID_DEF(GLOB_FX5)
-    settings[GLOB_FX5].type=MDZ_SWITCH;
-    settings[GLOB_FX5].label=(char*)"FX5";
-    settings[GLOB_FX5].description=NULL;
-    settings[GLOB_FX5].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX5].sub_family=0;
-    settings[GLOB_FX5].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX5].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX5].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FX5].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FX5].detail.mdz_switch.switch_labels[1]=(char*)"1";
-    settings[GLOB_FX5].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    SETTINGS_ID_DEF(GLOB_FX3DLandscape)
+    settings[GLOB_FX3DLandscape].type=MDZ_SWITCH;
+    settings[GLOB_FX3DLandscape].label=(char*)"3D Landscape";
+    settings[GLOB_FX3DLandscape].description=(char*)"0: off";
+    settings[GLOB_FX3DLandscape].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscape].sub_family=0;
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value_nb=9;
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[0]=(char*)"0";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[5]=(char*)"5";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[6]=(char*)"6";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[7]=(char*)"7";
+    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[8]=(char*)"8";
     
     SETTINGS_ID_DEF(GLOB_FXLOD)
     settings[GLOB_FXLOD].type=MDZ_SWITCH;

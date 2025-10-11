@@ -9,6 +9,16 @@
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
 
+#define pMenu_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
+
+#ifndef min
+#define min(a,b) ((a)<(b)?a:b)
+#endif
+#ifndef max
+#define max(a,b) ((a)>(b)?a:b)
+#endif
+
+
 extern ImFont *font_body;
 extern volatile t_settings settings[MAX_SETTINGS];
 
@@ -16,44 +26,109 @@ extern void pmSoftReinit();
 
 namespace PMenu {
 
+ImVec4 colorBtnTextInactive=ImVec4(0.5f,0.4f,1.0f,0.3f);
+ImVec4 colorBtnTextActive=ImVec4(0.5f,0.4f,1.0f,0.9f);
+
 static bool pMenu_isInitialized=false;
 
 enum PMenu_Menu_List {
     MENU_ROOT,
     MENU_OSCILLO,
-    MENU_SPECTRUM,
+    MENU_2DSPECTRUM,
     MENU_3DSPECTRUM,
-    MENU_FX2,
+    MENU_3DLANDSCAPE,
     MENU_PIANO,
     MENU_MIDIPATTERN,
     MENU_MODPATTERN,
     MENU_MILKDROP
 };
 
+static GLuint txtShineFx;
+static int menuCpt[16];
+
 static GLuint txtMenuHandle[16];
-static GLuint txtSubMenuHandle[41];
-
-static GLuint txtMenuMilkdropHandle[16];
-
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,"Fullscreen",NULL,"Exit"
 };
-const char *menuMildropLabel[16]={
+static GLuint txtMenuMilkdropHandle[16];
+const char *menuMilkdropLabel[16]={
     "Off",NULL,"Show name\nand\ndisappear","Show name",
     "Blend presets","Lock preset","Random order","Sequential\norder",
     "Default\npresets","Custom\npresets",NULL,NULL,
     NULL,NULL,NULL,"Exit"
 };
+static GLuint txtMenuOscilloHandle[16];
+const char *menuOscilloLabel[16]={
+    "Off",NULL,NULL,NULL,
+    "Labels","Grid",NULL,NULL,
+    "Size 10","Size 16","Size 24",NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenu2DSpectrumHandle[16];
+const char *menu2DSpectrumLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenu3DSpectrumHandle[16];
+const char *menu3DSpectrumLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenu3DLandscapeHandle[16];
+const char *menu3DLandscapeLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenuPianoHandle[16];
+const char *menuPianoLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenuMidiHandle[16];
+const char *menuMidiLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Exit"
+};
+static GLuint txtMenuModPatternHandle[16];
+const char *menuModPatternLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fixed bar",
+    "Size 10","Size 16","Size 24","Size 32",
+    NULL,NULL,NULL,"Exit"
+};
+char *menuModPatternDynLabel[16];
 
 
 struct {
     int menu_idx;
 } pMenu_state;
 
-#define pMenu_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
+
+void playerRootMenuInitRightItemsTexture() {
+    txtMenuHandle[0]=txtMenuOscilloHandle[max(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value&15,1)];
+    txtMenuHandle[1]=txtMenu2DSpectrumHandle[max(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value&15,1)];
+    txtMenuHandle[2]=txtMenu3DSpectrumHandle[max(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value&15,1)];
+    txtMenuHandle[3]=txtMenu3DLandscapeHandle[max(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value&15,1)];
+    
+    if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtMenuPianoHandle[max(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value&15,1)];
+    else if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtMenuPianoHandle[max((settings[GLOB_FXPiano].detail.mdz_switch.switch_value+2)&15,1)];
+    
+    txtMenuHandle[5]=txtMenuMidiHandle[max(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value&15,1)];
+    txtMenuHandle[6]=txtMenuModPatternHandle[max(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value&15,1)];
+}
 
 int playerGetActivatedCells(int menu_idx) {
     int active_idx=0;
@@ -62,13 +137,68 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
-        if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<3;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<3;
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-        if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
         if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
+    } else if (menu_idx==MENU_OSCILLO) {
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<4;
+        if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<5;
+        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
+        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
+        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
+    } else if (menu_idx==MENU_2DSPECTRUM) {
+        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+    } else if (menu_idx==MENU_3DSPECTRUM) {
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+    } else if (menu_idx==MENU_3DLANDSCAPE) {
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==5) active_idx|=1<<5;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==6) active_idx|=1<<6;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==7) active_idx|=1<<7;
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==8) active_idx|=1<<8;
+    } else if (menu_idx==MENU_PIANO) {
+        if ( (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) && (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0)) active_idx|=1<<0;
+        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==1) active_idx|=1<<3;
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==2) active_idx|=1<<4;
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==3) active_idx|=1<<5;
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==4) active_idx|=1<<6;
+    } else if (menu_idx==MENU_MIDIPATTERN) {
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+    } else if (menu_idx==MENU_MODPATTERN) {
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==5) active_idx|=1<<5;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==6) active_idx|=1<<6;
+        if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value==1) active_idx|=1<<7;
+        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
+        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
+        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
+        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==3) active_idx|=1<<11;
+        
+        snprintf(menuModPatternDynLabel[12],64,"Font:\n%s",settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_MILKDROP) {
         if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<1;
         else active_idx|=1<<0;
@@ -93,8 +223,19 @@ void playerMenuInit() {
     pMenu_state.menu_idx=MENU_ROOT;
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
-    
     memset(txtMenuMilkdropHandle,0,sizeof(txtMenuMilkdropHandle));
+    memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
+    memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
+    memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
+    memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
+    memset(txtMenuPianoHandle,0,sizeof(txtMenuPianoHandle));
+    memset(txtMenuMidiHandle,0,sizeof(txtMenuMidiHandle));
+    memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
+    memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
+    
+    menuModPatternDynLabel[12]=(char*)malloc(64);
+    
+    for (int i=0;i<16;i++) menuCpt[i]=rand();
     
     //Oscilloscope
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5a_2x.png"), &(txtMenuHandle[0]), NULL, NULL)) {
@@ -113,7 +254,7 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     //Piano roll
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11a_2x.png"), &(txtMenuHandle[4]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11e_2x.png"), &(txtMenuHandle[4]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     //Note scrollers
@@ -124,10 +265,7 @@ void playerMenuInit() {
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7a_2x.png"), &(txtMenuHandle[6]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    //smoke FX
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu9_2x.png"), &(txtMenuHandle[7]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
+    
     //milkdrop
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu13a_2x.png"), &(txtMenuHandle[8]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
@@ -137,129 +275,108 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     
-    memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
-    
-#define SUBMENU0_START 0
-#define SUBMENU0_SIZE 4
     //Oscilloscopes
-    txtSubMenuHandle[SUBMENU0_START]=0;
-    txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[0];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5b_2x.png"), &(txtSubMenuHandle[SUBMENU0_START+2]), NULL, NULL)) {
+    txtMenuOscilloHandle[1]=txtMenuHandle[0];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5b_2x.png"), &(txtMenuOscilloHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5c_2x.png"), &(txtSubMenuHandle[SUBMENU0_START+3]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5c_2x.png"), &(txtMenuOscilloHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-#define SUBMENU1_START SUBMENU0_START+SUBMENU0_SIZE
-#define SUBMENU1_SIZE 3
     //Spectrum 2D
-    txtSubMenuHandle[SUBMENU1_START]=0;
-    txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[1];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu4b_2x.png"), &(txtSubMenuHandle[SUBMENU1_START+2]), NULL, NULL)) {
+    txtMenu2DSpectrumHandle[1]=txtMenuHandle[1];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu4b_2x.png"), &(txtMenu2DSpectrumHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-
-#define SUBMENU2_START SUBMENU1_START+SUBMENU1_SIZE
-#define SUBMENU2_SIZE 4
+    
     //Spectrum 3D objects
-    txtSubMenuHandle[SUBMENU2_START]=0;
-    txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[2];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12b_2x.png"), &(txtSubMenuHandle[SUBMENU2_START+3]), NULL, NULL)) {
+    txtMenu3DSpectrumHandle[1]=txtMenuHandle[2];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12b_2x.png"), &(txtMenu3DSpectrumHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12c_2x.png"), &(txtSubMenuHandle[SUBMENU2_START+3]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12c_2x.png"), &(txtMenu3DSpectrumHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-#define SUBMENU3_START SUBMENU2_START+SUBMENU2_SIZE
-#define SUBMENU3_SIZE 9
     //Spectrum 3D landscape
-    txtSubMenuHandle[SUBMENU3_START]=0;
-    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[3];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2b_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+2]), NULL, NULL)) {
+    txtMenu3DLandscapeHandle[1]=txtMenuHandle[3];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2b_2x.png"), &(txtMenu3DLandscapeHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2c_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+3]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2c_2x.png"), &(txtMenu3DLandscapeHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2d_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+4]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2d_2x.png"), &(txtMenu3DLandscapeHandle[4]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2e_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+5]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2e_2x.png"), &(txtMenu3DLandscapeHandle[5]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3a_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+6]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3a_2x.png"), &(txtMenu3DLandscapeHandle[6]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3b_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+7]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3b_2x.png"), &(txtMenu3DLandscapeHandle[7]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3c_2x.png"), &(txtSubMenuHandle[SUBMENU3_START+8]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3c_2x.png"), &(txtMenu3DLandscapeHandle[8]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-#define SUBMENU4_START SUBMENU3_START+SUBMENU3_SIZE
-#define SUBMENU4_SIZE 7
     //Piano FX
-    txtSubMenuHandle[SUBMENU4_START]=0;
-    txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[4];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11b_2x.png"), &(txtSubMenuHandle[SUBMENU4_START+2]), NULL, NULL)) {
+    txtMenuPianoHandle[1]=txtMenuHandle[4];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11f_2x.png"), &(txtMenuPianoHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11c_2x.png"), &(txtSubMenuHandle[SUBMENU4_START+3]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11a_2x.png"), &(txtMenuPianoHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11d_2x.png"), &(txtSubMenuHandle[SUBMENU4_START+4]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11b_2x.png"), &(txtMenuPianoHandle[4]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11e_2x.png"), &(txtSubMenuHandle[SUBMENU4_START+5]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11c_2x.png"), &(txtMenuPianoHandle[5]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11f_2x.png"), &(txtSubMenuHandle[SUBMENU4_START+6]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11d_2x.png"), &(txtMenuPianoHandle[6]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
     
     
-#define SUBMENU5_START SUBMENU4_START+SUBMENU4_SIZE
-#define SUBMENU5_SIZE 3
     //Notes scrollers
-    txtSubMenuHandle[SUBMENU5_START]=0;
-    txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[5];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu8b_2x.png"), &(txtSubMenuHandle[SUBMENU5_START+2]), NULL, NULL)) {
+    txtMenuMidiHandle[1]=txtMenuHandle[5];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu8b_2x.png"), &(txtMenuMidiHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-#define SUBMENU6_START SUBMENU5_START+SUBMENU5_SIZE
-#define SUBMENU6_SIZE 7
     //Mod patterns
-    txtSubMenuHandle[SUBMENU6_START]=0;
-    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[6];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7b_2x.png"), &(txtSubMenuHandle[SUBMENU6_START+2]), NULL, NULL)) {
+    txtMenuModPatternHandle[1]=txtMenuHandle[6];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7b_2x.png"), &(txtMenuModPatternHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7c_2x.png"), &(txtSubMenuHandle[SUBMENU6_START+3]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7c_2x.png"), &(txtMenuModPatternHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7d_2x.png"), &(txtSubMenuHandle[SUBMENU6_START+4]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7d_2x.png"), &(txtMenuModPatternHandle[4]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7e_2x.png"), &(txtSubMenuHandle[SUBMENU6_START+5]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7e_2x.png"), &(txtMenuModPatternHandle[5]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7f_2x.png"), &(txtSubMenuHandle[SUBMENU6_START+6]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7f_2x.png"), &(txtMenuModPatternHandle[6]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-#define SUBMENU7_START SUBMENU6_START+SUBMENU6_SIZE
-#define SUBMENU7_SIZE 2
-    //Mod patterns
-    txtSubMenuHandle[SUBMENU7_START]=0;
-    txtSubMenuHandle[SUBMENU7_START+1]=txtMenuHandle[8];
-    
+    //Milkdrop
     txtMenuMilkdropHandle[1]=txtMenuHandle[8];
+    
+    
+    //shine texture
+    txtShineFx=0;
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"gloss.png"), &(txtShineFx), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
     
     pMenu_isInitialized=true;
 }
@@ -269,6 +386,16 @@ void playerMenuInit() {
 //------------------------------------------------------
 void playerMenuShutdown() {
     pMenu_isInitialized=false;
+}
+
+ImVec4 getColor(int cpti) {
+    float cr,cg,cb;
+    float cpt=cpti;
+    cr=0.95f+0.01f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
+    cg=0.95f+0.01f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
+    cb=0.95f+0.01f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
+    if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
+    return ImVec4(cr,cg,cb,1.0);
 }
 
 //------------------------------------------------------
@@ -284,14 +411,21 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     int keepOpened=1;
     float menu_win_size=fmin(ww,hh)*glScaleFactor;
     float cell_size=fmin(ww,hh)*glScaleFactor/4.5f;
+    GLuint *current_txtMenuHandle;
+    const char **currentMenuLabel;
+    char **currentMenuDynLabel;
+    
     
     cpt++;
+    for (int i=0;i<16;i++) {
+        menuCpt[i]++;
+    }
     
     // Root window, full screen
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
-
+    
     
     ImGui::GetStyle().Alpha=1.0;//fadelev;
     
@@ -299,110 +433,97 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     static ImGuiTableFlags flagTable = ImGuiTableFlags_Borders|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX;
     
     //static ImGuiTableFlags sizing_policy_flags[4] = { ImGuiTableFlags_SizingFixedFit, ImGuiTableFlags_SizingFixedSame, ImGuiTableFlags_SizingStretchProp, ImGuiTableFlags_SizingStretchSame };
-
+    
     if (font_body) ImGui::PushFont(font_body);
     ImGui::PushFont(nullptr,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
-
-    ImGuiStyle& style = ImGui::GetStyle();
-//    style.FontSizeBase=18*menu_win_size/512;
-//    style._NextFrameFontSizeBase = style.FontSizeBase;
     
-    //ImGui::PushStyleColor(ImGuiCol_TableBorderLight,ImVec4(0,0,0,1));
-    //ImGui::PushStyleColor(ImGuiCol_TableBorderStrong,ImVec4(0,0,0,1));
+    ImGuiStyle& style = ImGui::GetStyle();
+    
     
     if (pMenu_state.menu_idx==MENU_ROOT) {
+        //Select right current textures for root menu itemas, based on current settings
+        playerRootMenuInitRightItemsTexture();
         if (ImGui::BeginTable("menu_root",4,flagTable)) {
+            current_txtMenuHandle=txtMenuHandle;
+            currentMenuLabel=menuRootLabel;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    ImGui::PushID(r*4+c);
                     bool ret=false;
-                    ImVec2 uv0(0,0);
-                    ImVec2 uv1(1,1);
-                    ImVec4 bg_col(0,0,0,0.0f);
-                    ImVec4 tint_col(0.7,0.7,0.7,0.8f);
-                    float padding_val=0;
-                    if (activeFx&(1<<(r*4+c))) {//Active
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        
-                        float cr,cg,cb;
-                        cr=0.95f+0.05f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
-                        cg=0.95f+0.05f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
-                        cb=0.95f+0.05f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
-                        if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
-                        
-                        padding_val=cell_size/40.0f;
-                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(cr,cg,cb,0.9f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.9f));
-                        
-                    } else {//Inactive
-                        if (txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.3f));
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
                     }
-                    ImVec2 padding(padding_val,padding_val);
-                    
-                    
-                    if (txtMenuHandle[r*4+c]) {
-                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,padding);
-                        
-                        ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtMenuHandle[r*4+c], ImVec2(cell_size-padding_val*2, cell_size-padding_val*2),uv0,uv1,bg_col,tint_col);
-                        
-                        ImGui::PopStyleVar();
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            //bg_col.w=0.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
                     }
-                    else if (menuRootLabel[r*4+c]) ret=ImGui::Button(menuRootLabel[r*4+c],ImVec2(cell_size, cell_size));
-                    
                     ImGui::PopStyleColor();
                     if (ret) {
-//                        NSLog(@"press: %dx%d",c,r);
                         switch (c*16+r) {
                             case 0x00:
                                 pMenu_state.menu_idx=MENU_OSCILLO;
-//                                    viewTapHelpShow_SubStart=SUBMENU0_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU0_SIZE;
                                 break;
                             case 0x10:
-                                pMenu_state.menu_idx=MENU_SPECTRUM;
-//                                    viewTapHelpShow_SubStart=SUBMENU1_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU1_SIZE;
+                                pMenu_state.menu_idx=MENU_2DSPECTRUM;
                                 break;
                             case 0x20:
                                 pMenu_state.menu_idx=MENU_3DSPECTRUM;
-//                                    viewTapHelpShow_SubStart=SUBMENU2_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU2_SIZE;
                                 break;
                             case 0x30:
-                                pMenu_state.menu_idx=MENU_FX2;
-//                                    viewTapHelpShow_SubStart=SUBMENU3_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU3_SIZE;
+                                pMenu_state.menu_idx=MENU_3DLANDSCAPE;
                                 break;
                             case 0x01:
                                 pMenu_state.menu_idx=MENU_PIANO;
-//                                    viewTapHelpShow_SubStart=SUBMENU4_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU4_SIZE;
                                 break;
                             case 0x11:
                                 pMenu_state.menu_idx=MENU_MIDIPATTERN;
-//                                    viewTapHelpShow_SubStart=SUBMENU5_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU5_SIZE;
                                 break;
                             case 0x21:
                                 pMenu_state.menu_idx=MENU_MODPATTERN;
-//                                    viewTapHelpShow_SubStart=SUBMENU6_START;
-//                                    viewTapHelpShow_SubNb=SUBMENU6_SIZE;
                                 break;
-                            case 0x31: {
-                                int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
-                                val++;
-                                if (val>=2) val=0;
-                                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
-                                if (val) settings[GLOB_FX2].detail.mdz_boolswitch.switch_value=0;
-                            }
+                            case 0x31:
                                 break;
                             case 0x02:
                                 pMenu_state.menu_idx=MENU_MILKDROP;
+                                break;
+                            case 0x12:
+                                break;
+                            case 0x22:
+                                break;
+                            case 0x32:
                                 break;
                             case 0x03://HIDE FX Screen
                                 keepOpened=-1;
@@ -411,8 +532,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x23://ALL FX Off
-                                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
-                                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
@@ -427,54 +547,752 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 break;
                         }
                     }
-                    ImGui::PopID();
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_OSCILLO) {
+        if (ImGui::BeginTable("menu_oscillo",4,flagTable)) {
+            current_txtMenuHandle=txtMenuOscilloHandle;
+            currentMenuLabel=menuOscilloLabel;
+            
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    //float padding_val=0;
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            //bg_col.w=0.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        } else {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //Oscillo OFF
+                                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[0]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //Oscillo Green
+                                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[0]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //Oscillo Custom col
+                                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[0]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30: //Oscillo stereo
+                                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
+                                txtMenuHandle[0]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01: //Oscillo show labels
+                                if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
+                                else settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
+                                break;
+                            case 0x11: //Oscillo show grid
+                                if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
+                                else settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
+                                break;
+                            case 0x21:
+                                break;
+                            case 0x31:
+                                break;
+                            case 0x02:
+                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=0;
+                                break;
+                            case 0x12:
+                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x22:
+                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=2;
+                                break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_2DSPECTRUM) {
+        if (ImGui::BeginTable("menu_2dspectrum",4,flagTable)) {
+            current_txtMenuHandle=txtMenu2DSpectrumHandle;
+            currentMenuLabel=menu2DSpectrumLabel;
+            
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        } else {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //2dSpectrum OFF
+                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[1]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //2DSpectrum ON
+                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[1]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //Show preset's name
+                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[1]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30:break;
+                            case 0x01:break;
+                            case 0x11:break;
+                            case 0x21:break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_3DSPECTRUM) {
+        if (ImGui::BeginTable("menu_3dspectrum",4,flagTable)) {
+            current_txtMenuHandle=txtMenu3DSpectrumHandle;
+            currentMenuLabel=menu3DSpectrumLabel;
+            
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    //float padding_val=0;
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            //bg_col.w=0.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        } else {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //3dSpectrum OFF
+                                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[2]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //3DSpectrum ON-mode 1
+                                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[2]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //3DSpectrum ON-mode 2
+                                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[2]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30: //3DSpectrum ON-mode 3
+                                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
+                                txtMenuHandle[2]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01:break;
+                            case 0x11:break;
+                            case 0x21:break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_3DLANDSCAPE) {
+        if (ImGui::BeginTable("menu_3dlandscape",4,flagTable)) {
+            current_txtMenuHandle=txtMenu3DLandscapeHandle;
+            currentMenuLabel=menu3DLandscapeLabel;
+            
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    //float padding_val=0;
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            //bg_col.w=0.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        } else {
+                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //3DLandscape off
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[3]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //3DLandscape 1
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[3]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //3DLandscape 2
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[3]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30: //3DLandscape 3
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=3;
+                                txtMenuHandle[3]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01: //3DLandscape 4
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=4;
+                                txtMenuHandle[3]=current_txtMenuHandle[4];
+                                break;
+                            case 0x11: //3DLandscape 5
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=5;
+                                txtMenuHandle[3]=current_txtMenuHandle[5];
+                                break;
+                            case 0x21: //3DLandscape 6
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=6;
+                                txtMenuHandle[3]=current_txtMenuHandle[6];
+                                break;
+                            case 0x31: //3DLandscape 7
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=7;
+                                txtMenuHandle[3]=current_txtMenuHandle[7];
+                                break;
+                            case 0x02: //3DLandscape 8
+                                settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=8;
+                                txtMenuHandle[3]=current_txtMenuHandle[8];
+                                break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_PIANO) {
+        if (ImGui::BeginTable("menu_piano",4,flagTable)) {
+            current_txtMenuHandle=txtMenuPianoHandle;
+            currentMenuLabel=menuPianoLabel;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[4]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[4]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[4]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[4]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[4]=current_txtMenuHandle[4];
+                                break;
+                            case 0x11:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[4]=current_txtMenuHandle[5];
+                                break;
+                            case 0x21:
+                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
+                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[4]=current_txtMenuHandle[6];
+                                break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_MIDIPATTERN) {
+        if (ImGui::BeginTable("menu_midipattern",4,flagTable)) {
+            current_txtMenuHandle=txtMenuMidiHandle;
+            currentMenuLabel=menuMidiLabel;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //Off
+                                settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[5]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //
+                                settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[5]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //
+                                settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[5]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30:break;
+                            case 0x01:break;
+                            case 0x11:break;
+                            case 0x21:break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_MODPATTERN) {
+        if (ImGui::BeginTable("menu_modpattern",4,flagTable)) {
+            current_txtMenuHandle=txtMenuModPatternHandle;
+            currentMenuLabel=menuModPatternLabel;
+            currentMenuDynLabel=menuModPatternDynLabel;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            tint_col=getColor(menuCpt[r*4+c]);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(menuModPatternDynLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(menuModPatternDynLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //off
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[6]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //All info, no volume bar
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[6]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20: //Medium info, no volume bar
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[6]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30: //Min info, no volume bar
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
+                                txtMenuHandle[6]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01: //All info, volume bars
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
+                                txtMenuHandle[6]=current_txtMenuHandle[4];
+                                break;
+                            case 0x11: //Medium info, volume bars
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
+                                txtMenuHandle[6]=current_txtMenuHandle[5];
+                                break;
+                            case 0x21: //Min info, volume bars
+                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
+                                txtMenuHandle[6]=current_txtMenuHandle[6];
+                                break;
+                            case 0x31: //Fixed bar for mod current line
+                                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
+                                else settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x02: //Font size 10
+                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
+                                break;
+                            case 0x12: //Font size 16
+                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
+                                break;
+                            case 0x22: //Font size 24
+                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
+                                break;
+                            case 0x32: //Font size 32
+                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=3;
+                                break;
+                            case 0x03: //Current font
+                                settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value+1)%5;
+                                break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                        }
+                    }
                 }
             }
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_MILKDROP) {
+        
         if (ImGui::BeginTable("menu_milkdrop",4,flagTable)) {
-            for (int r=0;r<4;r++) {
-                ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
-                    ImGui::TableSetColumnIndex(c);
-                    ImGui::PushID(r*4+c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);
-                    ImVec2 uv1(1,1);
-                    ImVec4 bg_col(0,0,0,0.0f);
-                    ImVec4 tint_col(0.7,0.7,0.7,0.8f);
-                    float padding_val=0;
-                    if (activeFx&(1<<(r*4+c))) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+            current_txtMenuHandle=txtMenuMilkdropHandle;
+            currentMenuLabel=menuMilkdropLabel;
+                
+                for (int r=0;r<4;r++) {
+                    ImGui::TableNextRow(0,cell_size);
+                    for (int c=0;c<4;c++) {
+                        bool isActive=activeFx&(1<<(r*4+c));
+                        ImGui::TableSetColumnIndex(c);
                         
-                        float cr,cg,cb;
-                        cr=0.95f+0.05f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
-                        cg=0.95f+0.05f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
-                        cb=0.95f+0.05f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
-                        if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
-                        
-                        padding_val=cell_size/40.0f;
-                        if (txtMenuMilkdropHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(cr,cg,cb,0.9f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.9f));
-                        
-                    } else {//Inactive
-                        if (txtMenuMilkdropHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.5f,0.4f,1.0f,0.3f));
-                    }
-                    ImVec2 padding(padding_val,padding_val);
-                    
-                    
-                    if (txtMenuMilkdropHandle[r*4+c]) {
-                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,padding);
-                        ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtMenuMilkdropHandle[r*4+c], ImVec2(cell_size-padding_val*2, cell_size-padding_val*2),uv0,uv1,bg_col,tint_col);
-                        ImGui::PopStyleVar();
-                    }
-                    else if (menuMildropLabel[r*4+c]) ret=ImGui::Button(menuMildropLabel[r*4+c],ImVec2(cell_size, cell_size));
-                    
-                    ImGui::PopStyleColor();
+                        bool ret=false;
+                        ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                        //float padding_val=0;
+                        if (isActive) {//Active
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
+                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                        } else { //Inactive
+                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                        }
+                        ImVec2 cur_pos=ImGui::GetCursorPos();
+                        if (current_txtMenuHandle[r*4+c]) { //Image Button
+                            if (isActive) {
+                                ImGui::SetNextItemAllowOverlap();
+                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                                ImGui::PushID((r*4+c)*4+0);
+                                ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                                //bg_col.w=0.0f;
+                                ImGui::SetCursorPos(cur_pos);
+                                
+                                tint_col=getColor(menuCpt[r*4+c]);
+                                ImGui::PushID((r*4+c)*4+1);
+                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                            } else {
+                                ImGui::PushID((r*4+c)*4);
+                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                            }
+                        } else if (currentMenuLabel[r*4+c]) { //Text Button
+                            ImGui::PushID((r*4+c)*4+0);
+                            if (isActive) {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            } else {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            }
+                            ImGui::PopID();
+                        }
+                        ImGui::PopStyleColor();
                     if (ret) {
-//                        NSLog(@"press: %dx%d",c,r);
+                        //                        NSLog(@"press: %dx%d",c,r);
                         switch (c*16+r) {
                             case 0x00: //MIKDROP OFF
                                 settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
@@ -485,24 +1303,30 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x20: //Show preset's name
                                 if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1) settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
                                 else settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=1;
+                                pmSoftReinit();
                                 break;
                             case 0x30:// Show temporarly preset's name
                                 if (settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
                                 else settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=2;
+                                pmSoftReinit();
                                 break;
                             case 0x01:
                                 if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=0;
                                 else settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit();
                                 break;
                             case 0x11:
                                 if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
                                 else settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit();
                                 break;
                             case 0x21:
                                 settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
+                                pmSoftReinit();
                                 break;
                             case 0x31:
                                 settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
+                                pmSoftReinit();
                                 break;
                             case 0x02:
                                 if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=0;
@@ -514,38 +1338,51 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 else settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=1;
                                 pmSoftReinit();
                                 break;
-                            case 0x03:
-                                break;
-                            case 0x13:
-                                break;
-                            case 0x23:
-                                break;
-                            case 0x33:
-                                //Exit
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13:break;
+                            case 0x23:break;
+                            case 0x33: //Exit
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
                         }
                     }
-                    ImGui::PopID();
                 }
             }
             ImGui::EndTable();
         }
     }
-//    ImGui::PopStyleColor();
-//    ImGui::PopStyleColor();
-    
-    //ImGui::Text("Hello, world %d", 123);
-    //ImGui::Image((ImTextureID)(intptr_t)txtMenuHandle[0], ImVec2(256, 256));
     if (font_body) ImGui::PopFont();
     ImGui::PopFont();
     
+    //    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    //
+    //    ImVec2 p0 = ImVec2(0,0);
+    //    ImVec2 p1 = ImVec2(ww*glScaleFactor,hh*glScaleFactor);
+    //
+    //    draw_list->PushClipRect(p0, p1);
+    //    draw_list->AddCallback([](const ImDrawList*, const ImDrawCmd*)
+    //        {
+    //            glBlendEquation(GL_FUNC_ADD);
+    //            //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+    //        }, nullptr);
+    //
+    //    //draw_list->AddRectFilled(p0, p1, 0xFFFF00FF);
+    //    draw_list->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
+    //    draw_list->PopClipRect();
+    
+    
+    
+    
     ImGui::EndChild();
+    
+    
     
     ImGui::End();
     
     return keepOpened;
 }
-
 
 }

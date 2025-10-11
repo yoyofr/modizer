@@ -412,7 +412,6 @@
 		59A65CA126277C4D00BC99D1 /* TTFadeAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
-		59B9996B25CFE45D0071E144 /* FXFluid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996925CFE45D0071E144 /* FXFluid.cpp */; };
 		59B9997025CFE4680071E144 /* RenderUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996E25CFE4680071E144 /* RenderUtils.mm */; };
 		59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
 		59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AA17B17A5100AE0EA1 /* NSString+FontAwesome.m */; };
@@ -844,7 +843,6 @@
 		CCB8D99C17F62A18008E6A45 /* txtMenu5b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98A17F62A18008E6A45 /* txtMenu5b_2x.png */; };
 		CCB8D99E17F62A18008E6A45 /* txtMenu8a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98C17F62A18008E6A45 /* txtMenu8a_2x.png */; };
 		CCB8D99F17F62A18008E6A45 /* txtMenu8b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */; };
-		CCB8D9A017F62A18008E6A45 /* txtMenu9_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98E17F62A18008E6A45 /* txtMenu9_2x.png */; };
 		CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */; };
 		CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */; };
 		CCBF10151221788200E8DE4E /* digidrum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10011221788200E8DE4E /* digidrum.cpp */; };
@@ -911,6 +909,7 @@
 		CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025752E98F7EB008B7070 /* ProggyClean.ttf */; };
 		CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */; };
 		CCE025B12E994C82008B7070 /* MDZShaders in Resources */ = {isa = PBXBuildFile; fileRef = CCE025B02E9949E0008B7070 /* MDZShaders */; };
+		CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE0263D2E9A60E3008B7070 /* gloss.png */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
@@ -1920,8 +1919,6 @@
 		59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementNoTableView.h; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
-		59B9996925CFE45D0071E144 /* FXFluid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FXFluid.cpp; path = utils/Misc/FXFluid.cpp; sourceTree = "<group>"; };
-		59B9996A25CFE45D0071E144 /* FXFluid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FXFluid.h; path = utils/Misc/FXFluid.h; sourceTree = "<group>"; };
 		59B9996E25CFE4680071E144 /* RenderUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderUtils.mm; path = utils/Misc/RenderUtils.mm; sourceTree = "<group>"; };
 		59B9996F25CFE4680071E144 /* RenderUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderUtils.h; path = utils/Misc/RenderUtils.h; sourceTree = "<group>"; };
 		59B9998B25CFE6030071E144 /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
@@ -2703,7 +2700,6 @@
 		CCB8D98A17F62A18008E6A45 /* txtMenu5b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5b_2x.png; sourceTree = "<group>"; };
 		CCB8D98C17F62A18008E6A45 /* txtMenu8a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8a_2x.png; sourceTree = "<group>"; };
 		CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b_2x.png; sourceTree = "<group>"; };
-		CCB8D98E17F62A18008E6A45 /* txtMenu9_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu9_2x.png; sourceTree = "<group>"; };
 		CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a_2x.png; sourceTree = "<group>"; };
 		CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c_2x.png; sourceTree = "<group>"; };
 		CCBF10011221788200E8DE4E /* digidrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = digidrum.cpp; sourceTree = "<group>"; };
@@ -2771,6 +2767,7 @@
 		CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
 		CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		CCE025B02E9949E0008B7070 /* MDZShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MDZShaders; sourceTree = "<group>"; };
+		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
 		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
 		CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimatedLaunchVC.mm; sourceTree = "<group>"; };
@@ -3134,8 +3131,6 @@
 			isa = PBXGroup;
 			children = (
 				CCE025B02E9949E0008B7070 /* MDZShaders */,
-				59B9996925CFE45D0071E144 /* FXFluid.cpp */,
-				59B9996A25CFE45D0071E144 /* FXFluid.h */,
 				59B9996F25CFE4680071E144 /* RenderUtils.h */,
 				59B9996E25CFE4680071E144 /* RenderUtils.mm */,
 			);
@@ -3885,8 +3880,6 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CC9CEF2D2E98D73200725D15 /* PlayerMenu.h */,
-				CC9CEF2E2E98D76C00725D15 /* PlayerMenu.mm */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
@@ -3927,6 +3920,8 @@
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
+				CC9CEF2D2E98D73200725D15 /* PlayerMenu.h */,
+				CC9CEF2E2E98D76C00725D15 /* PlayerMenu.mm */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
 				CC1E623512041177000A8A4E /* SearchViewController.h */,
 				CC1E623612041177000A8A4E /* SearchViewController.mm */,
@@ -4075,6 +4070,7 @@
 		CC1E5A2C1200B3B8000A8A4E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				CCE0263D2E9A60E3008B7070 /* gloss.png */,
 				CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */,
 				CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */,
 				33C722D51691F882001D77A5 /* 02-redo-green@2x.png */,
@@ -4226,7 +4222,6 @@
 				CCB8D97517F62356008E6A45 /* txtMenu7f_2x.png */,
 				CCB8D98C17F62A18008E6A45 /* txtMenu8a_2x.png */,
 				CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */,
-				CCB8D98E17F62A18008E6A45 /* txtMenu9_2x.png */,
 				CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */,
 				CCB8D97617F62356008E6A45 /* txtMenu11b_2x.png */,
 				CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */,
@@ -6063,6 +6058,7 @@
 				59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */,
 				CC1E6319120423DF000A8A4E /* ArtOfNoise-8V in Resources */,
 				CCC678EE17F88AF900F16A54 /* star5@2x.png in Resources */,
+				CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */,
 				CCB8D99617F62A18008E6A45 /* txtMenu3a_2x.png in Resources */,
 				CC1E631A120423DF000A8A4E /* AudioSculpture in Resources */,
 				CC1E631B120423DF000A8A4E /* BeathovenSynthesizer in Resources */,
@@ -6222,7 +6218,6 @@
 				CC1E638D120423E0000A8A4E /* SIDMon2.0 in Resources */,
 				CC1E638E120423E0000A8A4E /* Sierra-AGI in Resources */,
 				CC1E638F120423E0000A8A4E /* Silmarils in Resources */,
-				CCB8D9A017F62A18008E6A45 /* txtMenu9_2x.png in Resources */,
 				CC1E6390120423E0000A8A4E /* SonicArranger in Resources */,
 				CC1E6391120423E0000A8A4E /* SonicArranger-pc-all in Resources */,
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
@@ -6510,7 +6505,6 @@
 				CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */,
 				CC83686C2B57CA9A0035A4DA /* conf68.c in Sources */,
 				CC1E624A12041177000A8A4E /* WebBrowser.mm in Sources */,
-				59B9996B25CFE45D0071E144 /* FXFluid.cpp in Sources */,
 				CCCFB6C02BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm in Sources */,
 				591D8E4725DC63620013E19F /* scale_factors.c in Sources */,
 				CC8368602B57CA9A0035A4DA /* paula_io.c in Sources */,

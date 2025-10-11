@@ -577,7 +577,6 @@
 		CCABA2442E93C97600AF59B0 /* TransitionShaderHeaderGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = TransitionShaderHeaderGlsl330.frag; sourceTree = "<group>"; };
 		CCABA2452E93C97600AF59B0 /* TransitionShaderMainGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = TransitionShaderMainGlsl330.frag; sourceTree = "<group>"; };
 		CCABA2462E93C97600AF59B0 /* TransitionVertexShaderGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = TransitionVertexShaderGlsl330.vert; sourceTree = "<group>"; };
-		CCABA2482E93C97600AF59B0 /* BuiltInTransitionsResources.hpp.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = BuiltInTransitionsResources.hpp.in; sourceTree = "<group>"; };
 		CCABA2492E93C97600AF59B0 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		CCABA24A2E93C97600AF59B0 /* CopyTexture.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CopyTexture.hpp; sourceTree = "<group>"; };
 		CCABA24B2E93C97600AF59B0 /* CopyTexture.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CopyTexture.cpp; sourceTree = "<group>"; };
@@ -1389,7 +1388,6 @@
 				CCABA2612E93C97600AF59B0 /* TextureManager.hpp */,
 				CCABA2632E93C97600AF59B0 /* TextureSamplerDescriptor.hpp */,
 				CCABA2652E93C97600AF59B0 /* TransitionShaderManager.hpp */,
-				CCABA2482E93C97600AF59B0 /* BuiltInTransitionsResources.hpp.in */,
 				CCABA2492E93C97600AF59B0 /* CMakeLists.txt */,
 				CCABA2472E93C97600AF59B0 /* TransitionShaders */,
 			);

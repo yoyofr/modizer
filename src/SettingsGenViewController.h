@@ -346,10 +346,7 @@ enum MDZ_SETTINGS {
     GLOB_FX3DSpectrum,
         
     GLOB_FXSpectrum,
-    GLOB_FX2,
-    GLOB_FX3,
-    GLOB_FX4,
-    GLOB_FX5,
+    GLOB_FX3DLandscape,
     GLOB_FXRandom,
     
     MAX_SETTINGS
