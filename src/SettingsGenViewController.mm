@@ -162,7 +162,8 @@ volatile t_settings settings[MAX_SETTINGS];
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
                     NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
-                    [self.navigationController popViewControllerAnimated:YES];
+                    //[self.navigationController popViewControllerAnimated:YES];
+                    [self.navigationController popToViewController:detailViewController animated:YES];
                 }
             } @finally {
                 //NSLog(@"finally");
@@ -670,7 +671,7 @@ void optNSFPLAYChangedC(id param) {
     //Visualizers
     /////////////////////////////////////
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
@@ -1557,8 +1558,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].callback=&optVISUChangedC;
     settings[GLOB_FXAlpha].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_digits=100;
-    settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
-    settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0.3f;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1.0f;
     
     SETTINGS_ID_DEF(GLOB_FXOscillo)
     settings[GLOB_FXOscillo].type=MDZ_SWITCH;

@@ -46,11 +46,13 @@ enum PMenu_Menu_List {
 static GLuint txtShineFx;
 static int menuCpt[16];
 
+static float global_FXAlpha;
+
 static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
+    NULL,NULL,"@slider_alpha","Fullscreen",
     "Close FX\nwindow","All FX off","Go to\nsettings","Exit"
 };
 static GLuint txtMenuMilkdropHandle[16];
@@ -142,7 +144,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
         if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
-        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -415,22 +417,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
     
-    
     cpt++;
     for (int i=0;i<16;i++) {
         menuCpt[i]++;
     }
+    
+    // Global var mirroring
+    global_FXAlpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*100;
     
     // Root window, full screen
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
     
-    
-    ImGui::GetStyle().Alpha=1.0;//fadelev;
+    ImGui::GetStyle().Alpha=fadelev;
     
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
-    static ImGuiTableFlags flagTable = ImGuiTableFlags_Borders|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX;
+    static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
     //static ImGuiTableFlags sizing_policy_flags[4] = { ImGuiTableFlags_SizingFixedFit, ImGuiTableFlags_SizingFixedSame, ImGuiTableFlags_SizingStretchProp, ImGuiTableFlags_SizingStretchSame };
     
@@ -486,8 +489,25 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                         }
                     } else if (currentMenuLabel[r*4+c]) { //Text Button
                         ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
+                            cur_pos=ImGui::GetCursorPos();
+                            cur_pos.y+=(cell_size/4);
+                            ImGui::SetCursorPos(cur_pos);
+                            ImGui::LabelText("", "FX\nalpha");
+                            
+                            cur_pos.x+=(cell_size-1.5*cell_size/3);
+                            cur_pos.y-=(cell_size/4);
+                            ImGui::SetCursorPos(cur_pos);
+                            
+                            ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
+                            ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
+                            ImGui::PopStyleVar();
+                        } else {
+                            
+                            if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            
+                        }
                         ImGui::PopID();
                     }
                     ImGui::PopStyleColor();
@@ -1398,6 +1418,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     
     
     ImGui::End();
+    
+    //Global var mirroring
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=global_FXAlpha/100;
     
     return keepOpened;
 }

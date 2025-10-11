@@ -6250,6 +6250,7 @@ extern "C" int current_sample;
         fxalpha=1;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    m_oglView.alpha=fxalpha;
     
     //get ogl view dimension
     ww=m_oglView.frame.size.width;
@@ -7766,7 +7767,7 @@ extern "C" int current_sample;
     if (viewTapHelpInfo) {
         float fadelev=sin(viewTapHelpInfo*3.14159/2/256);
         if (fadelev<0) fadelev=0;
-        if (fadelev>0.6f) fadelev=0.6f;
+        if (fadelev>1.0f) fadelev=1.0f;
         
         //specific case for fullscreen switch change
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
