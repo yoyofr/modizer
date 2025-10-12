@@ -55,11 +55,27 @@ struct SimpleLineVertexF {
     }
     
     SimpleLineVertexF(int _Ax, int _Ay,int _Bx, int _By, int width, int height)
-    : Ax((float)_Ax*2.0/width-1.0), Ay((float)_Ay*2.0/height-1.0),Bx((float)_Bx*2.0/width-1.0), By((float)_By*2.0/height-1.0) {
+    : Ax((float)_Ax*2.0/(float)width-1.0), Ay((float)_Ay*2.0/(float)height-1.0),Bx((float)_Bx*2.0/(float)width-1.0), By((float)_By*2.0/(float)height-1.0) {
     }
     
     GLfloat Ax,Ay;
     GLfloat Bx,By;
+};
+
+struct ColoredLineVertexF {
+    
+    ColoredLineVertexF() {}
+    ColoredLineVertexF(GLfloat _Ax, GLfloat _Ay, GLfloat _Bx,GLfloat _By,GLfloat _r,GLfloat _g,GLfloat _b)
+    : Ax(_Ax), Ay(_Ay), Bx(_Bx), By(_By), r(_r), g(_g), b(_b) {
+    }
+    
+    ColoredLineVertexF(int _Ax, int _Ay,int _Bx, int _By, int _r,int _g,int _b,int width, int height)
+    : Ax((float)_Ax*2.0/(float)width-1.0), Ay((float)_Ay*2.0/(float)height-1.0),Bx((float)_Bx*2.0/(float)width-1.0), By((float)_By*2.0/(float)height-1.0),r((float)_r/255.0),g((float)_g/255.0),b((float)_b/255.0) {
+    }
+    
+    GLfloat Ax,Ay;
+    GLfloat Bx,By;
+    GLfloat r,g,b,a;
 };
 
 struct LineVertexF
@@ -74,7 +90,7 @@ struct LineVertexF
     }
     
     LineVertexF(int _x, int _y,int _r, int _g, int _b, int _a,int width,int height)
-    : x((float)_x*2.0/width-1.0), y((float)_y*2.0/height-1.0), z(0), r((float)_r/255.0), g((float)_g/255.0), b((float)_b/255.0), a((float)_a/255.0) {
+    : x((float)_x*2.0/(float)width-1.0), y((float)_y*2.0/(float)height-1.0), z(0), r((float)_r/255.0), g((float)_g/255.0), b((float)_b/255.0), a((float)_a/255.0) {
     }
     
     GLfloat x, y, z;
@@ -141,19 +157,13 @@ void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 // Clear the top & bottom part of the UI when opengl window is not fully opaque & in fullscreen
 void ClearUI(uint width,uint height,uint top_size,uint bottom_size);
 	
-void DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,float mScaleFactor);
 void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
-void DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame);
-void DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands,float mScaleFactor);
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror);
 void DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
-
-void DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor);
-	
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
 void UpdateDataPiano(unsigned int *data,bool clearbuffer,bool paused);

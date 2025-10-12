@@ -184,8 +184,6 @@ enum {
     int real_spectrumIR[SPECTRUM_BANDS];
     short int img_spectrumR[SPECTRUM_BANDS*2];
     int real_spectrumSumL[SPECTRUM_BANDS][8],real_spectrumSumR[SPECTRUM_BANDS][8];
-	unsigned char real_beatDetectedL[SPECTRUM_BANDS];
-	unsigned char real_beatDetectedR[SPECTRUM_BANDS];
     
     bool clearAudioFXbuffer;
 	

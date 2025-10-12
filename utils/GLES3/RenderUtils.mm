@@ -577,8 +577,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     if (!renderIsInit) return;
     
-    //snd_data_idx--;
-    //snd_data_idx-=OSCILLO_BUFFER_NB;
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
     
@@ -586,17 +584,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int max_ofs=OSCILLO_BUFFER_SIZE-max_len_oscillo_buffer;
     int min_ofs=0;
     
-    
     colA=255;//128;
     
-    //snd_data_idx--;
-    //snd_data_idx-=OSCILLO_BUFFER_NB;
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
-    
-    colA=128;
-    
-    
     
     //-----------------------------------------------------------------
     if (flag_direct_stereo) {
@@ -909,7 +900,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( pointABAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(SimpleLineVertexF), &(ptsLines[0].Ax) );
-    
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].r) );
     
     // Load the vertex data
@@ -978,498 +968,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glRestoreState();
 }
 
-void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame) {
-#if 0
-    LineVertex *pts;
-    int mulfactor;
-    int val[SOUND_MAXVOICES_BUFFER_FX];
-    int oval[SOUND_MAXVOICES_BUFFER_FX];
-    int sp[SOUND_MAXVOICES_BUFFER_FX];
-    int osp[SOUND_MAXVOICES_BUFFER_FX];
-    
-    int colR,colG,colB,tmpR,tmpG,tmpB,colA;
-    int count;
-    int min_gap,tmp_gap,ofs1,ofs2,old_ofs;
-    
-    static char first_call=1;
-    
-    //uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame) {
-    int num_voices=2;
-    char *voices_label=NULL;
-    
-    //snd_data_idx--;
-    //snd_data_idx-=OSCILLO_BUFFER_NB;
-    while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
-    while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
-    
-    int max_len_oscillo_buffer=735;// 1frame at 60fps & 44100Hz, assume OSCILLO_BUFFER_SIZE>735  OSCILLO_BUFFER_SIZE*2/6;
-    int max_ofs=OSCILLO_BUFFER_SIZE-max_len_oscillo_buffer;
-    int min_ofs=0;
-    
-    
-    colA=128;
-    
-    for (int i=0;i<num_voices;i++)
-        for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
-            for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
-                cur_snd_data[(j+k*SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+k)%SOUND_BUFFER_NB][j*2+i]>>8;
-            }
-        }
-    
-    if (first_call) {
-        prev_snd_data=(signed char*)malloc(OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
-        if (!prev_snd_data) {
-            printf("%s: cannot allocate prev_snd_data\n",__func__);
-            return;
-        }
-        memcpy(prev_snd_data,cur_snd_data,OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
-        
-        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
-            snd_data_ofs[i]=max_ofs/2;
-        }
-        
-        first_call=0;
-    }
-    
-    int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
-    int columns_width=ww/columns_nb;
-    
-    int max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-    float ratio;
-    
-    //check best config, maximize 16/9 ratio
-    //    if (num_voices>=1)
-    //        for (;;) {
-    //            columns_width=ww/columns_nb;
-    //            max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-    //            mulfactor=(hh-8)/(max_voices_by_row)/2;
-    //            ratio=columns_width/(2*mulfactor);
-    //
-    //            if (ratio<=2) break;
-    //            if (columns_nb>=num_voices) break;
-    //
-    //            columns_nb++;
-    //
-    //        }
-    // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
-    //stereo, force 1 column
-    columns_nb=1;
-    columns_width=ww/columns_nb;
-    max_voices_by_row=(num_voices+columns_nb-1)/columns_nb;
-    mulfactor=(hh-8)/(max_voices_by_row)/2;
-    ratio=columns_width/(2*mulfactor);
-    
-    int xofs=(ww-columns_width*columns_nb)/2;
-    int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
-    int cur_voices=0;
-    
-    int max_count=2*columns_width*num_voices;
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*columns_width*num_voices);
-    if (!pts) {
-        printf("%s: cannot allocate LineVertex buffer\n",__func__);
-        return;
-    }
-    count=0;
-    
-    //determine min smplincr / width of oscillo on screen, help reduce processing time
-    int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
-    if (smplincr<1) smplincr=1;
-    int bufflen=max_len_oscillo_buffer/smplincr;
-    
-    // min gap to match/allow
-    int min_gap_threshold=0;//bufflen;
-    
-    for (int j=0;j<num_voices;j++) {
-        // for each voices
-        min_gap=bufflen*256;
-        //reset start offset / previous frame
-        old_ofs=0;
-        
-        ofs1=snd_data_ofs[j];
-        ofs2=snd_data_ofs[j];
-        int right_done=0;
-        int left_done=0;
-        for (;;) {
-            // start analyzing
-            
-            //check on right side, ofs1
-            if ((ofs1<max_ofs)&& !right_done) {
-                tmp_gap=0;
-                signed char *snd_data_ptr=cur_snd_data+ofs1*SOUND_MAXVOICES_BUFFER_FX+j;
-                signed char *prev_snd_data_ptr=prev_snd_data+j;
-                int val;
-                int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
-                for (int i=0;i<bufflen;i++) {
-                    //compute diff between 2 samples with respective offset
-                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
-                    if (val>0) tmp_gap+=val;
-                    else if (val<0) tmp_gap-=val;
-                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
-                    snd_data_ptr+=incr;
-                    prev_snd_data_ptr+=incr;
-                }
-                
-                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
-                    min_gap=tmp_gap;
-                    snd_data_ofs[j]=ofs1;
-                    if (min_gap<=min_gap_threshold) {
-                        left_done=1;
-                        right_done=1;
-                        break;
-                    }
-                }
-                
-                ofs1+=smplincr;
-            } else right_done=1;
-            //check on left side, ofs2
-            if ((ofs2>0)&& !left_done) {
-                tmp_gap=0;
-                signed char *snd_data_ptr=cur_snd_data+ofs2*SOUND_MAXVOICES_BUFFER_FX+j;
-                signed char *prev_snd_data_ptr=prev_snd_data+j;
-                int val;
-                int incr=smplincr*SOUND_MAXVOICES_BUFFER_FX;
-                for (int i=0;i<bufflen;i++) {
-                    //compute diff between 2 samples with respective offset
-                    val=(int)(*snd_data_ptr)-(int)(*prev_snd_data_ptr);
-                    if (val>0) tmp_gap+=val;
-                    else if (val<0) tmp_gap-=val;
-                    if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
-                    snd_data_ptr+=incr;
-                    prev_snd_data_ptr+=incr;
-                }
-                
-                if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
-                    min_gap=tmp_gap;
-                    snd_data_ofs[j]=ofs2;
-                    if (min_gap<=min_gap_threshold)  {
-                        left_done=1;
-                        right_done=1;
-                        break;
-                    }
-                }
-                ofs2-=smplincr;
-            } else left_done=1;
-            
-            if ( left_done && right_done ) break;
-        }
-        //snd_data_ofs[j]=0;
-    }
-    
-    for (int i=0;i<max_len_oscillo_buffer;i++){
-        for (int j=0;j<num_voices;j++) {
-            prev_snd_data[i*SOUND_MAXVOICES_BUFFER_FX+j]=cur_snd_data[(i+(snd_data_ofs[j]))*SOUND_MAXVOICES_BUFFER_FX+j];
-        }
-    }
-    
-    for (int i=0;i<num_voices;i++) {
-        val[i]=(signed int)(cur_snd_data[((snd_data_ofs[i]))*SOUND_MAXVOICES_BUFFER_FX+i])*(mulfactor-1)>>7;
-        sp[i]=(val[i]); if(sp[i]>=mulfactor) sp[i]=mulfactor-1; if (sp[i]<=-mulfactor) sp[i]=-mulfactor+1;
-    }
-    
-    for (int r=0;r<columns_nb;r++) {
-        int xpos=xofs+r*columns_width;
-        int max_voices=num_voices*(r+1)/columns_nb;
-        int ypos=hh-mulfactor;
-        
-        for (;cur_voices<max_voices;cur_voices++,ypos-=2*mulfactor) {
-            int smpl_ofs=snd_data_ofs[cur_voices]<<FIXED_POINT_PRECISION;
-            
-            if (color_mode==1) {
-                colR=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>16)&0xFF;
-                colG=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>8)&0xFF;
-                colB=(settings[OSCILLO_MONO_COLOR].detail.mdz_color.rgb>>0)&0xFF;
-                
-            } else {
-                colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
-                colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
-                colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
-                /*colR*=1.2f;
-                 colG*=1.2f;
-                 colB*=1.2f;*/
-            }
-            
-            for (int i=0; i<columns_width-2; i++) {
-                oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=cur_snd_data[((smpl_ofs>>FIXED_POINT_PRECISION))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
-                osp[cur_voices]=sp[cur_voices];
-                sp[cur_voices]=(val[cur_voices])*(mulfactor-1)>>7; if(sp[cur_voices]>=mulfactor) sp[cur_voices]=mulfactor-1; if (sp[cur_voices]<=-mulfactor) sp[cur_voices]=-mulfactor+1;
-                
-                tmpR=colR;//+((val[cur_voices]-oval[cur_voices])<<1);
-                tmpG=colG;//+((val[cur_voices]-oval[cur_voices])<<1);
-                tmpB=colB;//+((val[cur_voices]-oval[cur_voices])<<1);
-                if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
-                if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
-                
-                if (count>=max_count-1) break;
-                pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
-                pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
-                
-                smpl_ofs+=smpl_ofs_incr;//*3/4;
-            }
-        }
-    }
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    //    glLineWidth(2.0f*mScaleFactor);
-    switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
-        case 0:glLineWidth(1.0f*mScaleFactor);
-            break;
-        case 1:glLineWidth(2.0f*mScaleFactor);
-            break;
-        case 2:glLineWidth(3.0f*mScaleFactor);
-            break;
-    }
-    
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    
-    if (count>=max_count) {
-        printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-    } else glDrawArrays(GL_LINES, 0, count);
-    
-    if (draw_frame) {
-        //draw frame
-        count=0;
-        glLineWidth(1.0f*mScaleFactor);
-        colR=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>16)&0xFF;
-        colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
-        colB=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>0)&0xFF;
-        //top
-        pts[count++] = LineVertex(0, hh-1,colR,colG,colB,colA);
-        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
-        //right
-        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
-        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        //bottom
-        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        //left
-        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        pts[count++] = LineVertex(0,hh-1,colR,colG,colB,colA);
-        
-        for (int r=0;r<columns_nb;r++) {
-            int xpos=xofs+r*columns_width;
-            int max_voices=num_voices*(r+1)/columns_nb;
-            int ypos=hh-mulfactor;
-            
-            pts[count++] = LineVertex(xpos,hh-1,colR,colG,colB,colA);
-            pts[count++] = LineVertex(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        }
-        for (int r=0;r<max_voices_by_row;r++) {
-            pts[count++] = LineVertex(0,hh-mulfactor*r*2,colR,colG,colB,colA);
-            pts[count++] = LineVertex(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA);
-        }
-        
-        if (count>=max_count) {
-            printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-        } else glDrawArrays(GL_LINES, 0, count);
-    }
-    
-    glLineWidth(1.0f*mScaleFactor);
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
-    free(pts);
-#endif
-}
-
-
-void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,float mScaleFactor) {
-#if 0
-    LineVertex *pts,*ptsB;
-    int mulfactor;
-    int dval,valL,valR,ovalL,ovalR,ospl,ospr,spl,spr,colR1,colL1,colR2,colL2,ypos;
-    int count;
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
-    
-    
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*128*6);
-    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
-    count=0;
-    
-    
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    if (type_oscillo==1) {
-        int wd=(ww/2-10)/64;
-        if (pos) {
-            ypos=hh/4;
-            mulfactor=hh*1/4;
-        } else {
-            ypos=hh/2;
-            mulfactor=hh*1/4;
-        }
-        
-        if (bg) {
-            if (pos) ypos=40;
-            else ypos=hh/2;
-            ptsB[0] = LineVertex((ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
-            ptsB[1] = LineVertex((ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
-            ptsB[2] = LineVertex((ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
-            ptsB[3] = LineVertex((ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-            /* Render The Quad */
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            
-            ptsB[0] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos-32,		0,0,16,192);
-            ptsB[1] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos-32,		0,0,16,192);
-            ptsB[2] = LineVertex(ww/2+(ww/2+(64*wd))/2, ypos+32,		0,0,16,192);
-            ptsB[3] = LineVertex(ww/2+(ww/2-(64*wd))/2, ypos+32,		0,0,16,192);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-            /* Render The Quad */
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        }
-        valL=snd_data[0]*mulfactor>>6;
-        valR=snd_data[1]*mulfactor>>6;
-        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-        colR1=150;
-        colL1=150;
-        colR2=75;
-        colL2=75;
-        
-        for (int i=1; i<64; i++) {
-            ovalL=valL;ovalR=valR;
-            valL=snd_data[(i*numval>>6)*2]*mulfactor>>6;
-            valR=snd_data[(i*numval>>6)*2+1]*mulfactor>>6;
-            ospl=spl;ospr=spr;
-            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
-            colL1=(((valL-ovalL)*1024)>>15)+180;
-            colL2=(((valL-ovalL)*128)>>15)+32;
-            if (colL1<32) colL1=32;if (colL1>255) colL1=255;
-            if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-            pts[count++] = LineVertex((ww/2-(64*wd))/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
-            
-            pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
-            colR1=(((valR-ovalR)*1024)>>15)+180;
-            colR2=(((valR-ovalR)*128)>>15)+32;
-            if (colR1<32) colR1=32;if (colR1>255) colR1=255;
-            if (colR2<32) colR2=32;if (colR2>255) colR2=255;
-            pts[count++] = LineVertex(ww/2+(ww/2-(64*wd))/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
-        }
-        glLineWidth(2.0f*mScaleFactor);
-        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-        glDrawArrays(GL_LINES, 0, count);
-        
-    }
-    if (type_oscillo==2) {
-        int wd=(ww-10)/128;
-        
-        valL=snd_data[0]*mulfactor>>6;
-        valR=snd_data[1]*mulfactor>>6;
-        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-        colR1=150;
-        colL1=150;
-        colR2=75;
-        colL2=75;
-        
-        if (pos) {
-            ypos=hh/4;
-            mulfactor=hh*1/4;
-        } else {
-            ypos=hh/2;
-            mulfactor=hh*1/4;
-        }
-        
-        if (bg) {
-            if (pos) ypos=40;
-            else ypos=hh/2;
-            ptsB[0] = LineVertex((ww+128*wd)/2, ypos-32,		0,0,16,192);
-            ptsB[1] = LineVertex((ww-128*wd)/2, ypos-32,		0,0,16,192);
-            ptsB[2] = LineVertex((ww+128*wd)/2, ypos+32,		0,0,16,192);
-            ptsB[3] = LineVertex((ww-128*wd)/2, ypos+32,		0,0,16,192);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-            /* Render The Quad */
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        }
-        for (int i=1; i<128; i++) {
-            valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
-            valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
-            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            dval=valL-valR; if (dval<0) dval=-dval;
-            colL1=((dval*512)>>15)+164;
-            colL2=((dval*256)>>15)+48;
-            if (colL1<48) colL1=48;if (colL1>255) colL1=255;
-            if (colL2<48) colL2=48;if (colL2>255) colL2=255;
-            
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,192);
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colL2,colL1,colL2,192);
-            
-        }
-        glLineWidth(1.0f*mScaleFactor);
-        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-        glDrawArrays(GL_LINES, 0, count);
-        
-        
-        count=0;
-        valL=snd_data[0]*mulfactor>>6;
-        valR=snd_data[1]*mulfactor>>6;
-        spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-        spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-        colR1=150;
-        colL1=150;
-        colR2=75;
-        colL2=75;
-        for (int i=1; i<128; i++) {
-            ovalL=valL;ovalR=valR;
-            valL=snd_data[((i*numval)>>7)*2]*mulfactor>>6;
-            valR=snd_data[((i*numval)>>7)*2+1]*mulfactor>>6;
-            ospl=spl;ospr=spr;
-            spl=(valL)>>(15-5); if(spl>mulfactor) spl=mulfactor; if (spl<-mulfactor) spl=-mulfactor;
-            spr=(valR)>>(15-5); if(spr>mulfactor) spr=mulfactor; if (spr<-mulfactor) spr=-mulfactor;
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospl,colL2,colL1,colL2,205);
-            colL1=(((ovalL-valL)*1024)>>15)+164;
-            colL2=(((ovalL-valL)*256)>>15)+64;
-            if (colL1<48) colL1=48;if (colL1>255) colL1=255;
-            if (colL2<48) colL2=48;if (colL2>255) colL2=255;
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spl,colL2,colL1,colL2,205);
-            
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd-wd, ypos+ospr,colR2,colR1,colR2,205);
-            colR1=(((ovalR-valR)*1024)>>15)+164;
-            colR2=(((ovalR-valR)*256)>>15)+64;
-            if (colR1<48) colR1=48;if (colR1>255) colR1=255;
-            if (colR2<48) colR2=48;if (colR2>255) colR2=255;
-            pts[count++] = LineVertex((ww-128*wd)/2+i*wd, ypos+spr,colR2,colR1,colR2,205);
-        }
-        glLineWidth(2.0f*mScaleFactor);
-        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-        glDrawArrays(GL_LINES, 0, count);
-        
-    }
-    
-    
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
-    free(pts);
-    free(ptsB);
-#endif
-}
-
 static int DrawSpectrum_first_call=1;
 static int spectrumPeakValueL[SPECTRUM_BANDS];
 static int spectrumPeakValueR[SPECTRUM_BANDS];
@@ -1477,337 +975,8 @@ static int spectrumPeakValueL_index[SPECTRUM_BANDS];
 static int spectrumPeakValueR_index[SPECTRUM_BANDS];
 
 
-void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands,float mScaleFactor) {
-#if 0
-    LineVertex *pts,*ptsB,*ptsC;
-    float x,y;
-    int spl,spr,mulfactor,cr,cg,cb;
-    int pr,pl;
-    int count,yposL,yposR,maxsp,xshift;
-    float band_width;
-    
-    band_width=(ww-32)*1.0f/(float)(nb_spectrum_bands);
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*nb_spectrum_bands*2*2*2);
-    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
-    if (peaks) ptsC=(LineVertex*)malloc(sizeof(LineVertex)*nb_spectrum_bands*2*2*2);
-    
-    if (DrawSpectrum_first_call) {
-        DrawSpectrum_first_call=0;
-        for (int i=0;i<nb_spectrum_bands;i++) {
-            spectrumPeakValueL[i]=0;
-            spectrumPeakValueL_index[i]=0;
-            spectrumPeakValueR[i]=0;
-            spectrumPeakValueR_index[i]=0;
-        }
-    }
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    if (_pos) {
-        mulfactor=hh/3;
-        maxsp=hh/3;
-        yposL=hh-hh/2-hh/4;
-        yposR=hh-hh/2+hh/4;
-        
-    } else {
-        //ypos=hh/2-hh/2/2;
-        mulfactor=hh/2;
-        maxsp=hh/2;
-        yposL=hh/2-hh/4;
-        yposR=hh/2+hh/4;
-        
-    }
-    
-    xshift=maxsp/10;
-    
-    if (bg) {
-        /*ptsB[0] = LineVertex(xshift+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos-maxsp/2,		0,0,16,192);
-         ptsB[1] = LineVertex(xshift+(ww/2-(nb_spectrum_bands*band_width))/2-maxsp/4,  ypos-maxsp/2,		0,0,16,192);
-         ptsB[2] = LineVertex(xshift+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos+maxsp,		0,0,16,192);
-         ptsB[3] = LineVertex(xshift+(ww/2-(nb_spectrum_bands*band_width))/2-maxsp/4, ypos+maxsp,		0,0,16,192);
-         glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-         // Render The Quad
-         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-         
-         ptsB[0] = LineVertex(xshift+ww/2+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos-maxsp/2,		0,0,16,192);
-         ptsB[1] = LineVertex(xshift+ww/2+(ww/2-(nb_spectrum_bands*band_width))/2-maxsp/4,  ypos-maxsp/2,		0,0,16,192);
-         ptsB[2] = LineVertex(xshift+ww/2+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos+maxsp,		0,0,16,192);
-         ptsB[3] = LineVertex(xshift+ww/2+(ww/2-(nb_spectrum_bands*band_width))/2-maxsp/4, ypos+maxsp,		0,0,16,192);
-         glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-         // Render The Quad
-         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-         */
-    }
-    //	NSLog(@"%d %d",hh,ypos);
-    glDisable(GL_BLEND);
-    count=0;
-    for (int i=0; i<nb_spectrum_bands; i++)
-    {
-        spl=((int)spectrumDataL[i]*maxsp)>>13;
-        spr=((int)spectrumDataR[i]*maxsp)>>13;
-        if (spl>maxsp) spl=maxsp;
-        if (spr>maxsp) spr=maxsp;
-        
-        
-        if (spectrumPeakValueL_index[i]) {
-            pl=spectrumPeakValueL[i]*sin(spectrumPeakValueL_index[i]*3.14159f/180)*sin(spectrumPeakValueL_index[i]*3.14159f/180);
-            spectrumPeakValueL_index[i]-=2;
-        } else pl=0;
-        if (spectrumPeakValueR_index[i]) {
-            pr=spectrumPeakValueR[i]*sin(spectrumPeakValueR_index[i]*3.14159f/180)*sin(spectrumPeakValueR_index[i]*3.14159f/180);
-            spectrumPeakValueR_index[i]-=2;
-        } else pr=0;
-        
-        if (pl<spl) {
-            spectrumPeakValueL[i]=spl;
-            pl=spl;
-            spectrumPeakValueL_index[i]=90;
-        }
-        if (pr<spr) {
-            spectrumPeakValueR[i]=spr;
-            pr=spr;
-            spectrumPeakValueR_index[i]=90;
-        }
-        if (spl>=1) {
-            cg=(spl*2*256)/maxsp; if (cg<0) cg=0; if (cg>255) cg=255;
-            cb=(spl*1*256)/maxsp; if (cb<0) cb=0; if (cb>255) cb=255;
-            cr=(spl*3*256)/maxsp; if (cr<0) cr=0; if (cr>255) cr=255;
-            cr=cr-(cg+cb)/2;if (cr<0) cr=0;
-            cr=cg=cb=255;
-            
-            x=xshift+16+i*band_width+band_width/2;
-            pts[count++] = LineVertex(x, yposL,	cb/3,cg/3,cr,255);
-            pts[count++] = LineVertex(x, yposL+spl,	cb,cr/3,cg,255);
-            
-            if (spl>=2) {
-                pts[count++] = LineVertex(x, yposL,	cb/3/3,cg/3/3,cr/3,255);
-                y=yposL-(int)(spl/2);
-                x=x-(int)(spl/4);
-                if (x<0) {y-=x*2;x=0;}
-                pts[count++] = LineVertex(x, y,	cb/3,cr/3/3,cg/3,255);
-            }
-        }
-        
-        if (spr>=1) {
-            cg=(spr*2*256)/maxsp; if (cg<0) cg=0; if (cg>255) cg=255;
-            cb=(spr*1*256)/maxsp; if (cb<0) cb=0; if (cb>255) cb=255;
-            cr=(spr*3*256)/maxsp; if (cr<0) cr=0; if (cr>255) cr=255;
-            cr=cr-(cg+cb)/2;if (cr<0) cr=0;
-            cr=cg=cb=255;
-            
-            
-            x=xshift+16+i*band_width+band_width/2;
-            pts[count++] = LineVertex(x, yposR,	cg/3,cr/3,cb,255);
-            pts[count++] = LineVertex(x, yposR+spr,	cg,cb,cr/3,255);
-            
-            if (spr>=2) {
-                pts[count++] = LineVertex(x, yposR,	cg/3/3,cr/3/3,cb/3,255);
-                y=yposR-(int)(spr/2);
-                x=x-(int)(spr/4);
-                if (x<0) {y-=x*2;x=0;}
-                
-                pts[count++] = LineVertex(x, y,	cg/3,cb/3,cr/3/3,255);
-            }
-        }
-        
-        if (peaks) {
-            ptsC[i*8+0] = LineVertex(xshift+16+i*band_width, yposL+pl,	255,255/3,255,255);
-            ptsC[i*8+1] = LineVertex(xshift+16+i*band_width+band_width, yposL+pl,	255,255/3,255,255);
-            ptsC[i*8+2] = LineVertex(xshift+16+i*band_width, yposR+pr,	255,255,255/3,255);
-            ptsC[i*8+3] = LineVertex(xshift+16+i*band_width+band_width, yposR+pr,	255,255,255/3,255);
-            
-            x=xshift+16+i*band_width-pl/4;if (x<0) x=0;
-            ptsC[i*8+4] = LineVertex(x, yposL-pl/2,	255/3,255/3/3,255/3,255);
-            x=xshift+16+i*band_width+band_width-pl/4;if (x<0) x=0;
-            ptsC[i*8+5] = LineVertex(x, yposL-pl/2,	255/3,255/3/3,255/3,255);
-            ptsC[i*8+6] = LineVertex(xshift+16+i*band_width-pr/4, yposR-pr/2,	255/3,255/3,255/3/3,255);
-            ptsC[i*8+7] = LineVertex(xshift+16+i*band_width+band_width-pr/4, yposR-pr/2,	255/3,255/3,255/3/3,255);
-        }
-    }
-    
-    glLineWidth((band_width-1)*mScaleFactor);
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    glDrawArrays(GL_LINES, 0, count);
-    
-    if (peaks) {
-        glLineWidth(1);
-        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsC[0].x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsC[0].r);
-        glDrawArrays(GL_LINES, 0, nb_spectrum_bands*4*2);
-    }
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    free(pts);
-    free(ptsB);
-    if (peaks) free(ptsC);
-#endif
-}
-
 static int beatValueL_index[SPECTRUM_BANDS];
 static int beatValueR_index[SPECTRUM_BANDS];
-
-void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor) {
-#if 0
-    LineVertexF pts[24];
-    int menu_cell_size;
-    if (_ww<_hh) menu_cell_size=_ww;
-    else menu_cell_size=_hh;
-    
-    float fade_lev=fade_level*0.75f;
-    if (fade_lev<min_level) fade_lev=min_level;
-    if (fade_lev>0.8f) fade_lev=0.8f;
-    
-    pts[0] = LineVertexF(0, 0,        0,0,0,fade_lev);
-    pts[1] = LineVertexF(_ww, 0,        0,0,0,fade_lev);
-    pts[2] = LineVertexF(0, _hh,        0,0,0,fade_lev);
-    pts[3] = LineVertexF(_ww, _hh,        0,0,0,fade_lev);
-    
-    for (int i=0;i<4;i++) {
-        pts[i].x=((pts[i].x*2/(float)_ww)-1.0);
-        pts[i].y=((pts[i].y*2/(float)_hh)-1.0);
-        
-        pts[i].r=pts[i].r/255.0;
-        pts[i].g=pts[i].g/255.0;
-        pts[i].b=pts[i].b/255.0;
-        //pts[i].a=pts[i].a/255.0;
-    }
-    
-    // Use the program object
-    glUseProgram ( userData_simpleRender->programObject );
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    // Load the vertex data
-    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
-    glVertexAttribPointer ( 1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
-    
-    // Load the vertex data
-    glEnableVertexAttribArray ( 0 );
-    glEnableVertexAttribArray ( 1 );
-//    
-    glDrawArrays ( GL_TRIANGLE_STRIP, 0, 4 );
-    
-    pts[0] = LineVertexF(menu_cell_size*1/4-1, 0,		255,255,255,fade_lev);
-    pts[1] = LineVertexF(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_lev);
-    pts[2] = LineVertexF(menu_cell_size*2/4-1, 0,		55,55,155,fade_lev);
-    pts[3] = LineVertexF(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_lev);
-    pts[4] = LineVertexF(menu_cell_size*3/4-1, 0,		55,55,155,fade_lev);
-    pts[5] = LineVertexF(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_lev);
-    pts[6] = LineVertexF(menu_cell_size*1/4+1, 0,		255,255,255,fade_lev/4);
-    pts[7] = LineVertexF(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_lev/4);
-    pts[8] = LineVertexF(menu_cell_size*2/4+1, 0,		55,55,155,fade_lev/4);
-    pts[9] = LineVertexF(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_lev/4);
-    pts[10] = LineVertexF(menu_cell_size*3/4+1, 0,		55,55,155,fade_lev/4);
-    pts[11] = LineVertexF(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_lev/4);
-    
-    pts[12] = LineVertexF(0,	menu_cell_size*1/4-1, 	55,55,155,fade_lev);
-    pts[13] = LineVertexF(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_lev);
-    pts[14] = LineVertexF(0,	menu_cell_size*2/4-1, 	255,255,255,fade_lev);
-    pts[15] = LineVertexF(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_lev);
-    pts[16] = LineVertexF(0,	menu_cell_size*3/4-1, 	255,255,255,fade_lev);
-    pts[17] = LineVertexF(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_lev);
-    pts[18] = LineVertexF(0,	menu_cell_size*1/4+1, 	55,55,155,fade_lev/4);
-    pts[19] = LineVertexF(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_lev/4);
-    pts[20] = LineVertexF(0,	menu_cell_size*2/4+1, 	255,255,255,fade_lev/4);
-    pts[21] = LineVertexF(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_lev/4);
-    pts[22] = LineVertexF(0,	menu_cell_size*3/4+1, 	255,255,255,fade_lev/4);
-    pts[23] = LineVertexF(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_lev/4);
-    
-    for (int i=0;i<24;i++) pts[i].y+=(_hh-menu_cell_size)/2;
-    
-    for (int i=0;i<24;i++) {
-        pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
-        pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
-        
-        pts[i].r=pts[i].r/255.0;
-        pts[i].g=pts[i].g/255.0;
-        pts[i].b=pts[i].b/255.0;
-        //pts[i].a=pts[i].a/255.0;
-    }
-    glLineWidth(1.0f*mScaleFactor);
-    glDrawArrays(GL_LINES, 0, 24);
-    
-    pts[0] = LineVertexF(menu_cell_size*1/4, 0,		255,255,255,fade_lev/2);
-    pts[1] = LineVertexF(menu_cell_size*1/4, menu_cell_size,		55,55,155,fade_lev/2);
-    pts[2] = LineVertexF(menu_cell_size*2/4, 0,		55,55,155,fade_lev/2);
-    pts[3] = LineVertexF(menu_cell_size*2/4, menu_cell_size,		255,255,255,fade_lev/2);
-    pts[4] = LineVertexF(menu_cell_size*3/4, 0,		55,55,155,fade_lev/2);
-    pts[5] = LineVertexF(menu_cell_size*3/4, menu_cell_size,		255,255,255,fade_lev/2);
-    
-    pts[6] = LineVertexF(0,	menu_cell_size*1/4, 	55,55,155,fade_lev/2);
-    pts[7] = LineVertexF(menu_cell_size,	menu_cell_size*1/4, 	255,255,255,fade_lev/2);
-    pts[8] = LineVertexF(0,	menu_cell_size*2/4, 	255,255,255,fade_lev/2);
-    pts[9] = LineVertexF(menu_cell_size,	menu_cell_size*2/4, 	55,55,155,fade_lev/2);
-    pts[10] = LineVertexF(0,	menu_cell_size*3/4, 	255,255,255,fade_lev/2);
-    pts[11] = LineVertexF(menu_cell_size,	menu_cell_size*3/4, 	55,55,155,fade_lev/2);
-    
-    for (int i=0;i<12;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
-    
-    for (int i=0;i<12;i++) {
-        pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
-        pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
-        
-        pts[i].r=pts[i].r/255.0;
-        pts[i].g=pts[i].g/255.0;
-        pts[i].b=pts[i].b/255.0;
-        //pts[i].a=pts[i].a/255.0;
-    }
-    glLineWidth(2.0f*mScaleFactor);
-    glDrawArrays(GL_LINES, 0, 12);
-    
-    int factA,factB;
-    factA=180;
-    factB=32;
-    int colbgAR=factA+factB*(0.3*sin(cpt*7*3.1459/8192)+1.2*sin(cpt*17*8*3.1459/8192)+0.7*sin(cpt*31*8*3.1459/8192));
-    int colbgAG=factA+factB*(0.3*sin(cpt*5*3.1459/8192)+1.2*sin(cpt*11*8*3.1459/8192)-0.7*sin(cpt*27*8*3.1459/8192));
-    int colbgAB=factA+factB*(1.2*sin(cpt*7*3.1459/8192)-0.5*sin(cpt*13*8*3.1459/8192)+1.5*sin(cpt*57*8*3.1459/8192));
-    cpt+=1;
-    int colbgBR=factA+factB*(0.3*sin(cpt*3*3.1459/8192)+1.2*sin(cpt*15*8*3.1459/8192)+0.7*sin(cpt*19*8*3.1459/8192));
-    int colbgBG=factA+factB*(0.3*sin(cpt*2*3.1459/8192)+1.2*sin(cpt*9*8*3.1459/8192)-0.7*sin(cpt*27*8*3.1459/8192));
-    int colbgBB=factA+factB*(1.2*sin(cpt*5*3.1459/8192)-0.5*sin(cpt*17*8*3.1459/8192)+1.5*sin(cpt*37*8*3.1459/8192));
-    
-    if (colbgAR<0) colbgAR=0; if (colbgAR>255) colbgAR=255;
-    if (colbgAG<0) colbgAG=0; if (colbgAG>255) colbgAG=255;
-    if (colbgAB<0) colbgAB=0; if (colbgAB>255) colbgAB=255;
-    if (colbgBR<0) colbgBR=0; if (colbgBR>255) colbgBR=255;
-    if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
-    if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
-    glLineWidth(4.0f*mScaleFactor);
-    fade_lev=1;
-    glDisable(GL_BLEND);
-    for (int y=0;y<4;y++)
-        for (int x=0;x<4;x++) {
-            if (active_idx&(1<<((3-y)*4+x))) {
-                pts[0] = LineVertexF(x*menu_cell_size/4+3, y*menu_cell_size/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[1] = LineVertexF((x+1)*menu_cell_size/4-3, y*menu_cell_size/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
-                pts[2] = LineVertexF((x+1)*menu_cell_size/4-3, (y+1)*menu_cell_size/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[3] = LineVertexF(x*menu_cell_size/4+3, (y+1)*menu_cell_size/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
-                
-                for (int i=0;i<4;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
-                
-                for (int i=0;i<4;i++) {
-                    pts[i].x=(pts[i].x*2/(float)_ww)-1.0;
-                    pts[i].y=(pts[i].y*2/(float)_hh)-1.0;
-                    
-                    pts[i].r=pts[i].r/255.0;
-                    pts[i].g=pts[i].g/255.0;
-                    pts[i].b=pts[i].b/255.0;
-                    //pts[i].a=pts[i].a/255.0;
-                }
-                glLineWidth(1.0f*mScaleFactor);
-                glDrawArrays(GL_LINE_LOOP, 0, 4);
-            }
-        }
-#endif
-}
 
 void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
     int count=0;
@@ -2363,28 +1532,34 @@ float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
 void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands) {
-    LineVertex *pts;
+    LineVertexF *pts;
     int index=0;
-    GLfloat spL,spR;
-    GLfloat crt,cgt,cbt;
-    GLfloat x,y,sx,sy;
-    
-    return;
+    float spL,spR;
+    float crt,cgt,cbt;
+    float x,y,sx,sy;
     
     for (int i=0;i<nb_spectrum_bands;i++) {
-        barSpectrumDataL[i]=(float)1.f*spectrumDataL[i]/512.0f;
-        barSpectrumDataR[i]=(float)1.f*spectrumDataR[i]/512.0f;
+        barSpectrumDataL[i]=1.0f*(float)spectrumDataL[i]/512.0f;
+        barSpectrumDataR[i]=1.0f*(float)spectrumDataR[i]/512.0f;
     }
     
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*nb_spectrum_bands*2);
     
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*6*nb_spectrum_bands*2);
+    glDumpState();
+    
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
     
     glDisable(GL_BLEND);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
     
     crt=0;
     cgt=0;
@@ -2419,31 +1594,31 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
         if (cbt>1) cbt=1;
         
         if (mode==1) {
-            x=ww*(i+4)/(nb_spectrum_bands+8);
-            sx=ww/(nb_spectrum_bands+8)-1;
-            y=hh/2+hh/8;
-            sy=spL*hh/32;
+            x=(float)ww*(i+4)/((float)nb_spectrum_bands+8);
+            sx=(float)ww/(nb_spectrum_bands+8)-1;
+            y=(float)hh/2+(float)hh/8;
+            sy=spL*(float)hh/32;
             
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
             
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
         } else if (mode==2) {
             x=ww*(i+4)/(nb_spectrum_bands+8);
             sx=ww/(nb_spectrum_bands+8)-1;
             y=hh/2;
             sy=spL*hh/32;
             
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
             
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
         }
         
         /////////////////
@@ -2475,45 +1650,56 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
         
         
         if (mode==1) {
-            x=ww*(i+4)/(nb_spectrum_bands+8);
-            sx=ww/(nb_spectrum_bands+8)-1;
-            y=0*hh/2+hh/4;
-            sy=spR*hh/32;
+            x=(float)ww*(i+4)/((float)nb_spectrum_bands+8);
+            sx=(float)ww/((float)nb_spectrum_bands+8)-1;
+            y=(float)hh/2+(float)hh/4;
+            sy=spR*(float)hh/32;
             
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            y=(float)hh/2-(float)hh/8;
             
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
+            
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
         } else if (mode==2) {
             x=ww*(i+4)/(nb_spectrum_bands+8);
             sx=ww/(nb_spectrum_bands+8)-1;
             y=hh/2;
             sy=-spR*hh/32;
             
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
             
-            pts[index++] = LineVertex(x+sx, y+sy,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x+sx, y,crt*255,cgt*255,cbt*255,255);
-            pts[index++] = LineVertex(x, y,crt*255,cgt*255,cbt*255,255);
+            pts[index++] = LineVertexF(x+sx, y+sy,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x+sx, y,crt,cgt,cbt,1.0f);
+            pts[index++] = LineVertexF(x, y,crt,cgt,cbt,1.0f);
         }
     }
+    
+    for (int i=0;i<index;i++) {
+        pts[i].x=2*pts[i].x/ww-1;
+        pts[i].y=2*pts[i].y/hh-1;
+    }
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
+    // Load the uniforms
+    
     glDrawArrays(GL_TRIANGLES, 0, index);
     
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    glRestoreState();
     
     free(pts);
-    
-    //    glDisable(GL_BLEND);
-    
-    /* Pop The Matrix */
-    //glPopMatrix();
 }
 
 
