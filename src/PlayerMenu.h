@@ -23,4 +23,6 @@ void playerMenuShutdown();
 
 int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev);
 
+void playerMenuBack();
+
 }

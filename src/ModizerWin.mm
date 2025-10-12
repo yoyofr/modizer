@@ -59,7 +59,11 @@
     
               [UIKeyCommand keyCommandWithInput:@"p"   modifierFlags:0 action:@selector(keyPPressed)],
               [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
-              [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)]];
+              [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
+              
+              [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],];
+                
 }
 -(void)key1Pressed {
     [detailViewControllerIphone switchFX:0];
@@ -107,7 +111,12 @@
 - (void)keyLPressed{
     [detailViewControllerIphone mdSwitchLockPreset];
 }
-
+- (void)keyESCPressed{
+    [detailViewControllerIphone mdOpenCloseMenu];
+}
+- (void)keyDeletePressed{
+    [detailViewControllerIphone mdBackAction];
+}
 
 -(void)leftPressed {
     [detailViewControllerIphone jumpSeekBwd];

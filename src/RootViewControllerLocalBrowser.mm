@@ -2236,7 +2236,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     //Faster loading of player view for debug
 #ifdef DEBUG_MODIZER
     [self modizerIsLaunched];
-    [self goPlayer];
+    //[self goPlayer];
 #else
 #endif
 

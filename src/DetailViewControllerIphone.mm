@@ -84,6 +84,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 #include "ModizerVoicesData.h"
 
+#include "TextureUtils.h"
 /*----------------------------------------------*/
 
 #include <stdint.h>
@@ -181,6 +182,7 @@ bool tim_midifx_note_offset_reset;
 extern volatile int db_checked;
 
 static int shouldRestart;
+static int shouldUpdateCoverTexture;
 
 //static volatile int locManager_isOn;
 static int coverflow_plsize,coverflow_pos,coverflow_needredraw;
@@ -221,6 +223,8 @@ static 	UIImage *covers_default; // album covers images
 
 static int display_length_mode=0;
 
+UIImage *backgroundImage;
+
 @implementation DetailViewControllerIphone
 
 @synthesize btnAddToPl;
@@ -237,7 +241,7 @@ static int display_length_mode=0;
 
 @synthesize mDeviceType;
 @synthesize is_macOS;
-@synthesize cover_view,cover_viewBG,gifAnimation;
+@synthesize cover_view,cover_viewBG,cover_viewAll,gifAnimation;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
@@ -596,19 +600,10 @@ static int display_length_mode=0;
 
 -(bool) isMilkDropAlone {
     bool ret=true;
-    //if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) ret=false;
-    //if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) ret=false;
-    //if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) ret=false;
-    //if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) ret=false;
-    
     //Only Piano, Midi & MOD are using screen touches
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) ret=false;
-    
-    //if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) ret=false;
-    
-    //if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) ret=false;
     
     return ret;
 }
@@ -1292,6 +1287,19 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 
+-(void) mdOpenCloseMenu {
+    if (mOglViewIsHidden==YES) {
+        mOglViewIsHidden=NO;
+        [self checkGLViewCanDisplay];
+    }
+    
+    if (viewTapHelpShow==0) viewTapHelpShow=1;
+    else viewTapHelpShow=0;
+}
+-(void) mdBackAction {
+    PMenu::playerMenuBack();
+}
+
 -(void) mdPrevPreset {
     if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, true);
 }
@@ -1328,20 +1336,36 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) switchFX:(int)fxNb {
+    if (mOglViewIsHidden==YES) {
+        mOglViewIsHidden=NO;
+        [self checkGLViewCanDisplay];
+    }
     switch (fxNb) {
         case 0:
-            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value+1)%3;
+            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb;
             break;
         case 1:
-            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%4;
+            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
+            
             break;
         case 2:
-            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value+1)%6;
+            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
             break;
         case 3:
-            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
+            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value+1)%6;
             break;
-        case 4:
+        case 4: //cycle through FXPianoRoll first, then FXPiano
+            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0) {
+                if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
+                else if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
+                else {
+                    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+                    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
+                }
+            } else {
+                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
+                if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
+            }
             break;
         case 5:
             settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%3;
@@ -1350,13 +1374,11 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value+1)%7;
             break;
         case 7:
-            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
             break;
         case 8:
-            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
+            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value+1)%2;
             break;
         case 9:
-            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value+1)%2;
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
@@ -1839,32 +1861,32 @@ static float movePinchScale,movePinchScaleOld;
                     //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 11:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 12:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 13:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 14:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 15:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 16:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 17:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 18:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 19:
                     settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
@@ -3022,22 +3044,25 @@ int recording=0;
         UIRectFill(CGRectMake(0, 0, size.width, size.height));
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();*/
-        //cover_img=default_cover;
+        cover_img=default_cover;
     }
     
     if (cover_img) {
-        
         if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
         
         cover_view.image=cover_img;
-        cover_view.hidden=FALSE;
+        //cover_view.hidden=FALSE;
         
         cover_viewBG.image=[cover_img applyLightEffect];
-        cover_viewBG.hidden=FALSE;
+        //cover_viewBG.hidden=FALSE;
+        cover_viewAll.hidden=FALSE;
     } else {
-        cover_view.hidden=TRUE;
-        cover_viewBG.hidden=TRUE;
+        //cover_view.hidden=TRUE;
+        //cover_viewBG.hidden=TRUE;
+        cover_viewAll.hidden=TRUE;
     }
+    
+    shouldUpdateCoverTexture=1;
 }
 
 -(void) cancelPushed {
@@ -3814,7 +3839,8 @@ int recording=0;
             mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
             m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_ww, mDevice_hh);
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
-            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
+            //cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
+            cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
             
         } else {
             if (mHasFocus) {
@@ -3846,8 +3872,16 @@ int recording=0;
                 oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             }
             
-            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
-            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
+            //cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
+            //cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
+            cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
+            
+            cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height/20,
+                                          cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
+                                          
+            
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             
             
@@ -4065,7 +4099,8 @@ int recording=0;
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
-                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
+                //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
+                cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
                 
                 //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
@@ -4101,8 +4136,13 @@ int recording=0;
                     
                 }
                 
-                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
-                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
+//                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
+                //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
+                cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
+                cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                              cover_viewAll.frame.size.height/20,
+                                              cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                              cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
                 if (gifAnimation) {
                     //NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
                     gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
@@ -4209,6 +4249,9 @@ GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordinates. */
 GLfloat normalData[3];       /* An Array To Store The Normal Data */
 //GLuint  BlurTexture,FxTexture;     /* An Unsigned Int To Store The Texture Number */
+
+GLuint txtbackgroundImage;
+GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
 
 /* Set Up An Ortho View */
 void ViewOrtho(GLfloat window_width, GLfloat window_height)
@@ -5009,6 +5052,12 @@ void pmSoftReinit() {
     //--------------------------------//
     [self pmInit];
     
+    //--------------------------------//
+    // Texture for background view
+    //--------------------------------//
+    txtbackgroundImage=0;
+    glGenTextures(1, &txtbackgroundImage);
+    
     
     //--------------------------------//
     // ImGui init
@@ -5119,6 +5168,7 @@ void pmSoftReinit() {
     gifAnimation=nil;
     cover_view.contentMode=UIViewContentModeScaleAspectFit;
     cover_viewBG.contentMode=UIViewContentModeScaleToFill;
+    cover_viewAll.contentMode=UIViewContentModeScaleToFill;
     
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
@@ -6140,11 +6190,61 @@ void pmSoftReinit() {
     [self setNeedsStatusBarAppearanceUpdate];
 }
 
+- (UIImage *)imageFromView:(UIView *)view {
+    UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithBounds:view.layer.bounds];
+    UIImage *image= [renderer imageWithActions:^(UIGraphicsImageRendererContext*_Nonnull myContext){
+            [view.layer renderInContext: myContext.CGContext];
+    }];
+
+    return image;
+}
+
+-(void) generateBGTexture {
+    backgroundImage=[self imageFromView:self.cover_viewAll];
+    //backgroundImage=self.cover_img;
+    if (backgroundImage) {
+        if (txtbackgroundImage) {
+            //glDeleteTextures(1,&txtbackgroundImage);
+        }
+        
+        CGSize sizeOfImage = [backgroundImage size];
+          CGFloat scaleOfImage = [backgroundImage scale];
+          CGSize pixelSizeOfImage = CGSizeMake(scaleOfImage * sizeOfImage.width, scaleOfImage * sizeOfImage.height);
+
+          //create context
+          GLubyte * textureData = (GLubyte *)malloc(pixelSizeOfImage.width * pixelSizeOfImage.height * 4 * sizeof(GLubyte));
+          CGContextRef tmpContext = CGBitmapContextCreate(textureData, pixelSizeOfImage.width, pixelSizeOfImage.height, 8, pixelSizeOfImage.width * 4, CGImageGetColorSpace(backgroundImage.CGImage), kCGImageAlphaPremultipliedLast);
+
+          //draw image into context
+          CGContextDrawImage(tmpContext, CGRectMake(0.0, 0.0, pixelSizeOfImage.width, pixelSizeOfImage.height), backgroundImage.CGImage);
+
+        txtbackgroundImageWidth=pixelSizeOfImage.width;
+        txtbackgroundImageHeight=pixelSizeOfImage.height;
+        
+          glBindTexture(GL_TEXTURE_2D, txtbackgroundImage);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+          //create texture
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixelSizeOfImage.width, pixelSizeOfImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+
+          glActiveTexture(GL_TEXTURE0);
+          glBindTexture(GL_TEXTURE_2D, txtbackgroundImage);
+
+          free(textureData);
+          CGContextRelease(tmpContext);
+    }
+}
+
 - (void)viewDidAppear:(BOOL)animated {
     mHasFocus=1;
     
     nowplayingPL=nil;
-        
+    
+    
     //
     [super viewDidAppear:animated];
 }
@@ -6238,6 +6338,12 @@ extern "C" int current_sample;
     if (no_reentrant) return;
     no_reentrant=1;
     
+    if (shouldUpdateCoverTexture) {
+        // Generate new texture / current background view
+        [self generateBGTexture];
+        shouldUpdateCoverTexture=0;
+    }
+    
     if (mOglViewIsHidden) m_oglView.hidden=YES;
     
     if (self.mainView.hidden||m_oglView.hidden||(coverflow.hidden==FALSE)) {
@@ -6254,7 +6360,7 @@ extern "C" int current_sample;
         fxalpha=1;
     }
     else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
-    m_oglView.alpha=fxalpha;
+    //m_oglView.alpha=fxalpha;
     
     //get ogl view dimension
     ww=m_oglView.frame.size.width;
@@ -6288,13 +6394,15 @@ extern "C" int current_sample;
     
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
-        cover_viewBG.layer.zPosition=MAXFLOAT-10;
-        cover_view.layer.zPosition=MAXFLOAT-9;
-        m_oglView.layer.zPosition=MAXFLOAT-8;
+        //cover_viewBG.layer.zPosition=MAXFLOAT-10;
+        //cover_view.layer.zPosition=MAXFLOAT-9;
+        cover_viewAll.layer.zPosition=MAXFLOAT-8;
+        m_oglView.layer.zPosition=MAXFLOAT-7;
     } else {
-        cover_viewBG.layer.zPosition=0;
-        cover_view.layer.zPosition=1;
-        m_oglView.layer.zPosition=2;
+        //cover_viewBG.layer.zPosition=0;
+        //cover_view.layer.zPosition=1;
+        cover_viewAll.layer.zPosition=0;
+        m_oglView.layer.zPosition=3;
     }
     
     
@@ -6325,7 +6433,9 @@ extern "C" int current_sample;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
     
-    
+    //ImGui::Image((ImTextureID)(intptr_t)txtbackgroundImage,ImVec2
+    RenderUtils::DrawTexture(ww, hh, txtbackgroundImage, 1.0f-fxalpha);
+
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
@@ -7679,7 +7789,9 @@ extern "C" int current_sample;
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    //RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    
+                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 2:
@@ -7697,11 +7809,16 @@ extern "C" int current_sample;
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    //RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 3:
-                RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                //RenderUtils::DrawOscilloStereo(snd_buffer,cur_pos,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                break;
+            case 4:
+                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
         }
     }

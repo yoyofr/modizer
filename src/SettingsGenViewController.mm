@@ -1567,12 +1567,13 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXOscillo].description=NULL;
     settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[GLOB_FXOscillo].sub_family=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Multi 1";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo 1";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[4]=(char*)"Stereo 2";
     
     SETTINGS_ID_DEF(GLOB_FXMilkdrop)
     settings[GLOB_FXMilkdrop].type=MDZ_SWITCH;
@@ -2036,11 +2037,12 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_LINE_Width].description=NULL;
     settings[OSCILLO_LINE_Width].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[OSCILLO_LINE_Width].sub_family=0;
-    settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value_nb=3;
+    settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value_nb=4;
     settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels=(char**)malloc(settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[0]=(char*)"Thin";
     settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[1]=(char*)"Medium";
     settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[2]=(char*)"Thick";
+    settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[3]=(char*)"Beefy";
     
     SETTINGS_ID_DEF(OSCILLO_MONO_COLOR)
     settings[OSCILLO_MONO_COLOR].label=(char*)"Mono color";

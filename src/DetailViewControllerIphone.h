@@ -154,6 +154,7 @@ enum {
 	IBOutlet UIView *volWin;
     
     IBOutlet UIImageView *cover_view,*cover_viewBG;
+    IBOutlet UIView *cover_viewAll;
     UIImageView *gifAnimation;
     
 	int sliderProgressModuleEdit;
@@ -333,6 +334,7 @@ enum {
 
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*cover_viewBG;
+@property (nonatomic, retain) IBOutlet UIView *cover_viewAll;
 @property (nonatomic, retain) UIImageView *gifAnimation;
 
 @property int mOnlyCurrentEntry;
@@ -394,6 +396,8 @@ enum {
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 -(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong;
 
+-(void) generateBGTexture;
+
 -(void) jumpSeekFwd;
 -(void) jumpSeekBwd;
 -(void) oglViewSwitchFS;
@@ -401,5 +405,9 @@ enum {
 -(void) mdPrevPreset;
 -(void) mdNextPreset;
 -(void) mdSwitchLockPreset;
+-(void) mdOpenCloseMenu;
+-(void) mdBackAction;
+
+
 
 @end

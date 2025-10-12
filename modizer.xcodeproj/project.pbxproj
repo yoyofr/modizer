@@ -908,6 +908,7 @@
 		CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025752E98F7EB008B7070 /* ProggyClean.ttf */; };
 		CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */; };
 		CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE0263D2E9A60E3008B7070 /* gloss.png */; };
+		CCE026552E9C4F18008B7070 /* txtMenu5d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
@@ -2763,6 +2764,7 @@
 		CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
 		CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
+		CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5d_2x.png; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
 		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
 		CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimatedLaunchVC.mm; sourceTree = "<group>"; };
@@ -4058,6 +4060,7 @@
 		CC1E5A2C1200B3B8000A8A4E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */,
 				CCE0263D2E9A60E3008B7070 /* gloss.png */,
 				CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */,
 				CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */,
@@ -6078,6 +6081,7 @@
 				CC1E632B120423DF000A8A4E /* Desire in Resources */,
 				CC1E632C120423DF000A8A4E /* DIGI-Booster in Resources */,
 				CC1E632D120423DF000A8A4E /* DigitalSonixChrome in Resources */,
+				CCE026552E9C4F18008B7070 /* txtMenu5d_2x.png in Resources */,
 				CC1E632E120423DF000A8A4E /* DigitalSoundStudio in Resources */,
 				CC1E632F120423DF000A8A4E /* DirkBialluch in Resources */,
 				CCB8D99E17F62A18008E6A45 /* txtMenu8a_2x.png in Resources */,

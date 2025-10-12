@@ -26,7 +26,7 @@ extern void pmSoftReinit();
 
 namespace PMenu {
 
-ImVec4 colorBtnTextInactive=ImVec4(0.5f,0.4f,1.0f,0.3f);
+ImVec4 colorBtnTextInactive=ImVec4(0.25f,0.2f,0.5f,0.9f);
 ImVec4 colorBtnTextActive=ImVec4(0.5f,0.4f,1.0f,0.9f);
 
 static bool pMenu_isInitialized=false;
@@ -60,56 +60,57 @@ const char *menuMilkdropLabel[16]={
     "Off",NULL,"Show name\nand\ndisappear","Show name",
     "Blend presets","Lock preset","Random order","Sequential\norder",
     "Default\npresets","Custom\npresets",NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenuOscilloHandle[16];
 const char *menuOscilloLabel[16]={
     "Off",NULL,NULL,NULL,
-    "Labels","Grid",NULL,NULL,
+    NULL,"Labels","Grid",NULL,
     "Size 10","Size 16","Size 24",NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
+char *menuOscilloDynLabel[16];
 static GLuint txtMenu2DSpectrumHandle[16];
 const char *menu2DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenu3DSpectrumHandle[16];
 const char *menu3DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenuPianoHandle[16];
 const char *menuPianoLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenuMidiHandle[16];
 const char *menuMidiLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,"Fixed bar",
     "Size 10","Size 16","Size 24","Size 32",
-    NULL,NULL,"Go to\nsettings","Exit"
+    NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menuModPatternDynLabel[16];
 
@@ -150,11 +151,14 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
-        if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<4;
-        if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<5;
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
+        if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<5;
+        if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<6;
         if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
         if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
         if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
+        
+        snprintf(menuOscilloDynLabel[6],64,"Thickness:\n%s",settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_2DSPECTRUM) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -227,6 +231,7 @@ void playerMenuInit() {
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
     memset(txtMenuMilkdropHandle,0,sizeof(txtMenuMilkdropHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
+    memset(menuOscilloDynLabel,0,sizeof(menuOscilloDynLabel));
     memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
     memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
     memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
@@ -235,6 +240,7 @@ void playerMenuInit() {
     memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
+    menuOscilloDynLabel[6]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();
@@ -283,6 +289,9 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5c_2x.png"), &(txtMenuOscilloHandle[3]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5d_2x.png"), &(txtMenuOscilloHandle[4]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
@@ -390,14 +399,14 @@ void playerMenuShutdown() {
     pMenu_isInitialized=false;
 }
 
-ImVec4 getColor(int cpti) {
-    float cr,cg,cb;
-    float cpt=cpti;
-    cr=0.95f+0.01f*(sin(cpt*0.01f)-2*sin(cpt*0.03f)+5*sin(cpt*0.05f));
-    cg=0.95f+0.01f*(sin(cpt*0.015f)+3*sin(cpt*0.022f)+2*sin(cpt*0.07f));
-    cb=0.95f+0.01f*(sin(cpt*0.017f)+5*sin(cpt*0.027f)-7*sin(cpt*0.053f));
-    if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
-    return ImVec4(cr,cg,cb,1.0);
+//------------------------------------------------------
+// playerMenuBack
+//   go back one level, if possible
+//------------------------------------------------------
+void playerMenuBack() {
+    if (pMenu_state.menu_idx>MENU_ROOT) {
+        pMenu_state.menu_idx=MENU_ROOT;
+    }
 }
 
 //------------------------------------------------------
@@ -428,9 +437,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     // Root window, full screen
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
+    
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,0.5f));
+    
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
     
     ImGui::GetStyle().Alpha=fadelev;
+    
+    
     
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
@@ -460,11 +474,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
                     }
                     ImVec2 cur_pos=ImGui::GetCursorPos();
@@ -475,10 +488,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::PushID((r*4+c)*4+0);
                             ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            //bg_col.w=0.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -495,20 +505,19 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 cur_pos.y+=(cell_size/4);
                                 ImGui::SetCursorPos(cur_pos);
                                 ImGui::LabelText("", "FX\nalpha");
-                                
                                 cur_pos.x+=(cell_size-1.5*cell_size/3);
                                 cur_pos.y-=(cell_size/4);
                                 ImGui::SetCursorPos(cur_pos);
-                                
                                 ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
                                 ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
                                 ImGui::PopStyleVar();
                             }
                         } else {
-                            
-                            if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            
+                            if (isActive) {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            } else {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            }
                         }
                         ImGui::PopID();
                     }
@@ -578,7 +587,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
         if (ImGui::BeginTable("menu_oscillo",4,flagTable)) {
             current_txtMenuHandle=txtMenuOscilloHandle;
             currentMenuLabel=menuOscilloLabel;
-            
+            currentMenuDynLabel=menuOscilloDynLabel;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
@@ -590,8 +599,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     //float padding_val=0;
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -606,10 +614,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            //bg_col.w=0.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -620,11 +625,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                         }
                     } else if (currentMenuLabel[r*4+c]) { //Text Button
                         ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        } else {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        }
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
                         ImGui::PopID();
                     }
                     ImGui::PopStyleColor();
@@ -642,21 +649,25 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=2;
                                 txtMenuHandle[0]=current_txtMenuHandle[2];
                                 break;
-                            case 0x30: //Oscillo stereo
+                            case 0x30: //Oscillo stereo green
                                 settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
                                 txtMenuHandle[0]=current_txtMenuHandle[3];
                                 break;
-                            case 0x01: //Oscillo show labels
+                            case 0x01: //Oscillo stereo custom col
+                                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=4;
+                                txtMenuHandle[0]=current_txtMenuHandle[4];
+                                break;
+                            case 0x11: //Oscillo show labels
                                 if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
                                 else settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
                                 break;
-                            case 0x11: //Oscillo show grid
+                            case 0x21: //Oscillo show grid
                                 if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
                                 else settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
+                                
                                 break;
-                            case 0x21:
-                                break;
-                            case 0x31:
+                            case 0x31: //Oscillo line width
+                                settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value=(settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value+1)%settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x02:
                                 settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=0;
@@ -669,12 +680,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - oscillo
+                            case 0x13: //Go to settings - oscillo
                                 keepOpened=3;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -697,8 +710,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -714,8 +726,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -758,12 +768,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -787,8 +799,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     //float padding_val=0;
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -803,10 +814,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            //bg_col.w=0.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -852,12 +860,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -881,8 +891,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     //float padding_val=0;
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -899,8 +908,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
                             //bg_col.w=0.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -961,12 +968,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -987,8 +996,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -1004,7 +1012,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -1063,12 +1070,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -1089,8 +1098,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -1106,7 +1114,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -1146,12 +1153,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -1173,8 +1182,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
                     if (isActive) {//Active
                         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                         else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                     } else { //Inactive
                         if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -1190,7 +1198,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ImGui::PopID();
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
                             ImGui::SetCursorPos(cur_pos);
-                            tint_col=getColor(menuCpt[r*4+c]);
                             ImGui::PushID((r*4+c)*4+1);
                             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                             ImGui::PopID();
@@ -1260,12 +1267,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x03: //Current font
                                 settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value+1)%5;
                                 break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - visu
+                            case 0x13: //Go to settings - visu
                                 keepOpened=2;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -1290,8 +1299,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                         //float padding_val=0;
                         if (isActive) {//Active
                             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImVec4 color=ImVec4(0.0,0.0,0.0,0.0f);//getColor(cpt);
-                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,color);
+                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
                             else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
                         } else { //Inactive
                             if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
@@ -1306,10 +1314,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                                 ImGui::PopID();
                                 tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                                //bg_col.w=0.0f;
                                 ImGui::SetCursorPos(cur_pos);
-                                
-                                tint_col=getColor(menuCpt[r*4+c]);
                                 ImGui::PushID((r*4+c)*4+1);
                                 ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
                                 ImGui::PopID();
@@ -1378,12 +1383,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;
-                            case 0x13:break;
-                            case 0x23: //Go to settings - milk
+                            case 0x13: //Go to settings - mikdrop
                                 keepOpened=4;
                                 break;
-                            case 0x33: //Exit
+                            case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
                                 break;
                         }
                     }
@@ -1420,6 +1427,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     
     
     ImGui::End();
+    
+    ImGui::PopStyleColor();
     
     //Global var mirroring
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=global_FXAlpha/100;

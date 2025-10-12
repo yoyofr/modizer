@@ -142,7 +142,7 @@ void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 void ClearUI(uint width,uint height,uint top_size,uint bottom_size);
 	
 void DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,float mScaleFactor);
-void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label=NULL,bool draw_frame=true);
+void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 void DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame);
 void DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands,float mScaleFactor);
 
@@ -165,6 +165,8 @@ void DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, fl
 void DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
 void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
 void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
+
+void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha);
 }
 
 #endif

@@ -15,8 +15,16 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-#import "Font.h"
-#import "GLString.h"
+//#import "Font.h"
+//#import "GLString.h"
+
+//--------------------------------------------------
+// ImGui
+//--------------------------------------------------
+#include "../utils/imgui/imgui.h"
+#include "../utils/imgui/backends/imgui_impl_ios.h"
+#include "../utils/imgui/backends/imgui_impl_opengl3.h"
+
 
 
 #define glPushMatrix(...)
@@ -47,9 +55,6 @@ unsigned int data_midifx_pal_custom[32]={
 
 unsigned int *data_midifx_col=data_midifx_pal1;
 
-
-//class CFont;
-//class CGLString;
 
 #define MAX_VISIBLE_CHAN 64
 
@@ -125,6 +130,7 @@ float position[] = { 0, 0, 8, 1 };
 
 GLUserData *userData_simpleRender2D;
 GLUserData *userData_Render2DLines;
+GLUserData *userData_Render2DTextures;
 bool renderIsInit;
 
 /********************************************************************************/
@@ -307,7 +313,10 @@ int RenderUtils::RenderInit() {
     userData_Render2DLines=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DLines.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DLines.glsl"] UTF8String]);
     
-    if (userData_simpleRender2D && userData_Render2DLines) {
+    userData_Render2DTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTextures.glsl"] UTF8String]);
+    
+    if (userData_simpleRender2D && userData_Render2DLines && userData_Render2DTextures) {
         renderIsInit=true;
     }
     
@@ -421,6 +430,110 @@ void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size)
 #endif
 }
 
+static GLint blendSrc,blendDst;
+static GLboolean isBlendOn,isCuffFaceOn,isDepthTestOn,isStencilTestOn;
+void glDumpState() {
+    glGetBooleanv(GL_BLEND,&isBlendOn);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA,&blendSrc);
+    glGetIntegerv(GL_BLEND_DST_ALPHA,&blendDst);
+    glGetBooleanv(GL_CULL_FACE,&isCuffFaceOn);
+    glGetBooleanv(GL_DEPTH_TEST,&isDepthTestOn);
+    glGetBooleanv(GL_STENCIL_TEST,&isStencilTestOn);
+}
+void glRestoreState() {
+    if (isBlendOn) glEnable(GL_BLEND);
+    else glDisable(GL_BLEND);
+    
+    if (isCuffFaceOn) glEnable(GL_CULL_FACE);
+    else glDisable(GL_CULL_FACE);
+    
+    if (isDepthTestOn) glEnable(GL_DEPTH_TEST);
+    else glDisable(GL_DEPTH_TEST);
+    
+    if (isStencilTestOn) glEnable(GL_STENCIL_TEST);
+    else glDisable(GL_STENCIL_TEST);
+    
+    glBlendFunc(blendSrc,blendDst);
+}
+
+void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha) {
+    // Use the program object
+    if (!renderIsInit) return;
+    
+    glUseProgram ( userData_Render2DTextures->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTextures->programObject, "a_position");
+    GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTextures->programObject, "a_textCoord");
+    GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_curTexture");
+    GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_alpha");
+
+    //Save opengl state
+    glDumpState();
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureIdx);
+    
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    LineVertexF ptsTriangles[6];
+    coordData ptsTextCoord[6];
+    
+    ptsTriangles[0].x=-1; ptsTriangles[0].y=-1;
+    ptsTriangles[1].x=1; ptsTriangles[1].y=-1;
+    ptsTriangles[2].x=1; ptsTriangles[2].y=1;
+    
+    ptsTriangles[3].x=-1; ptsTriangles[3].y=-1;
+    ptsTriangles[4].x=1; ptsTriangles[4].y=1;
+    ptsTriangles[5].x=-1; ptsTriangles[5].y=1;
+    
+    ptsTextCoord[0].u=0; ptsTextCoord[0].v=0;
+    ptsTextCoord[1].u=1; ptsTextCoord[1].v=0;
+    ptsTextCoord[2].u=1; ptsTextCoord[2].v=1;
+    
+    ptsTextCoord[3].u=0; ptsTextCoord[3].v=0;
+    ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
+    ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
+    glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( textCoordAttribHandle );
+    
+    glVertexAttribDivisor ( positionAttribHandle, 0);
+    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+    
+    // Load the uniforms
+    // Load the texture idx
+    glUniform1ui(textureUnifHandle, textureIdx);
+    glUniform1fv(alphaUnifHandle,1,&alpha);
+    
+    
+//    glBindTexture(GL_TEXTURE_2D, textureUnifHandle);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//
+//    glActiveTexture(GL_TEXTURE1);
+//    glBindTexture(GL_TEXTURE_2D, textureUnifHandle);
+
+    
+    glDrawArrays(GL_TRIANGLES,0,6);
+    
+    
+    glRestoreState();
+}
+
 void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 {
 //    glMatrixMode(GL_PROJECTION);
@@ -440,11 +553,7 @@ static signed char *prev_snd_dataStereo;
 static int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 
-static CFont *mOscilloFont[3]={NULL,NULL,NULL};
-static CGLString *mVoicesName[SOUND_MAXVOICES_BUFFER_FX];
-static CGLString *mVoicesNamePiano[SOUND_MAXVOICES_BUFFER_FX];
-static CGLString *mOctavesIndex[256/12];
-static int mVoicesName_FontSize;
+//static int mVoicesName_FontSize;
 
 #define FX_OSCILLO_MAXROWS 16
 #include "ModizerVoicesData.h"
@@ -452,8 +561,7 @@ static int mVoicesName_FontSize;
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame) {
-    LineVertexF *pts;
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -481,12 +589,32 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     colA=255;//128;
     
-    for (int i=0;i<num_voices;i++)
-        for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
-            for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
-                cur_snd_data[(j+k*SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+k)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+    //snd_data_idx--;
+    //snd_data_idx-=OSCILLO_BUFFER_NB;
+    while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
+    while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
+    
+    colA=128;
+    
+    
+    
+    //-----------------------------------------------------------------
+    if (flag_direct_stereo) {
+        for (int i=0;i<num_voices;i++)
+            for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
+                for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
+                    cur_snd_data[(j+k*SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=((short int **)snd_data)[(snd_data_idx+k)%SOUND_BUFFER_NB][j*2+i]>>8;
+                }
             }
-        }
+        
+    } else {
+        for (int i=0;i<num_voices;i++)
+            for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
+                for (int j=0;j<SOUND_BUFFER_SIZE_SAMPLE;j++) {
+                    cur_snd_data[(j+k*SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i]=snd_data[(snd_data_idx+k)%SOUND_BUFFER_NB][j*SOUND_MAXVOICES_BUFFER_FX+i];
+                }
+            }
+    }
     
     if (first_call) {
         prev_snd_data=(signed char*)malloc(OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX);
@@ -498,9 +626,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
             snd_data_ofs[i]=max_ofs/2;
-            mVoicesName[i]=NULL;
+            //mVoicesName[i]=NULL;
         }
-        mVoicesName_FontSize=-1;
+        //mVoicesName_FontSize=-1;
         
         first_call=0;
     }
@@ -517,19 +645,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
 //        if (fontPath) mOscilloFont[2] = new CFont([fontPath UTF8String]);
 //    }
     
-//    if (mOscilloFont[1] && voices_label)
-//        for (int i=0;i<num_voices;i++) {
-//            if (mVoicesName[i]) {
-//                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
-//                    //not the same, reset string
-//                    delete mVoicesName[i];
-//                    mVoicesName[i]=NULL;
-//                }
-//            }
-//            if (!mVoicesName[i]) {
-//                if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
-//            }
-//        }
 //    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
@@ -566,6 +681,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         case 2:
             thickness=(3.0f*mScaleFactor);
             break;
+        case 3:
+            thickness=(4.0f*mScaleFactor);
+            break;
     }
 
     
@@ -573,10 +691,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
     int cur_voices=0;
     
-    int max_count=2*columns_width*num_voices;
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*2*columns_width*num_voices);
+    int max_count=columns_width*num_voices;
     ptsLines=(SimpleLineVertexF*)malloc(sizeof(SimpleLineVertexF)*columns_width*num_voices);
-    if ((!pts)||(!ptsLines)) {
+    if (!ptsLines) {
         printf("%s: cannot allocate LineVertex buffer\n",__func__);
         return;
     }
@@ -664,6 +781,34 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         sp[i]=(val[i]); if(sp[i]>=mulfactor) sp[i]=mulfactor-1; if (sp[i]<=-mulfactor) sp[i]=-mulfactor+1;
     }
     
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
+    ImGui::GetStyle().Alpha=1.0f;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    
+    float fontSize=16;
+    switch (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value) {
+        case 0: //10
+            fontSize=10;
+            break;
+        case 1: //16
+            fontSize=16;
+            break;
+        case 2: //24
+            fontSize=24;
+            break;
+    }
+    
+    ImGui::PushFont(nullptr,fontSize*2);
+    ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+    
+//    ImGuiStyle& style = ImGui::GetStyle();
+//    style.FontSizeBase=36;//*menu_win_size/512;
+//    style._NextFrameFontSizeBase = style.FontSizeBase;
+    
+    
+    
+    
     for (int r=0;r<columns_nb;r++) {
         int xpos=xofs+r*columns_width;
         int max_voices=num_voices*(r+1)/columns_nb;
@@ -681,18 +826,16 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
-                /*colR*=1.2f;
-                 colG*=1.2f;
-                 colB*=1.2f;*/
             }
             
             //draw label if specified
-//            if (voices_label&&mVoicesName[cur_voices]) {
-//                glPushMatrix();
-//                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]->maxCharHeight/mScaleFactor), 0.0f);
-//                mVoicesName[cur_voices]->Render(255);
-//                glPopMatrix();
-//            }
+            if (voices_label) {
+                ImVec2 cursorPos=ImVec2((xpos+4)*mScaleFactor,
+                                        (hh-(ypos+mulfactor-4))*mScaleFactor);
+                
+                ImGui::SetCursorPos(cursorPos);
+                ImGui::Text("%s",voices_label+cur_voices*32);
+            }
             
             for (int i=0; i<columns_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
@@ -706,10 +849,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
                 
-                if (count>=max_count-1) break;
-                
-                pts[count++] = LineVertexF(xpos+i,osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA,ww,hh);
-                pts[count++] = LineVertexF(xpos+i+1,sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA,ww,hh);
+                if (countLines>=max_count-1) break;
                 
                 ptsLines[countLines++] = SimpleLineVertexF(xpos+i,osp[cur_voices]+ypos,
                                                          xpos+i+1,sp[cur_voices]+ypos,ww,hh);
@@ -719,12 +859,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         }
     }
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-//    
-//    
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
+    ImGui::End();
+    ImGui::PopFont();
+    ImGui::PopStyleColor();
     
     GLfloat line_width=thickness*(2.0f/(float)ww);
     
@@ -752,13 +889,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         ptsTriangles[i].a=1;
     }
     
-//    ptsLines[0].Ax=0; ptsLines[0].Ay=0;
-//    ptsLines[0].Bx=0.5; ptsLines[0].By=0;
-//    
-//    ptsLines[1].Ax=0.5; ptsLines[1].Ay=0;
-//    ptsLines[1].Bx=0.5; ptsLines[1].By=0.5;
-//    
-    
     // Use the program object
     glUseProgram ( userData_Render2DLines->programObject );
     
@@ -767,13 +897,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     GLuint colorAttribHandle    = glGetAttribLocation(userData_Render2DLines->programObject, "a_color");
     GLuint widthHandle = glGetUniformLocation(userData_Render2DLines->programObject, "u_width");
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //Save opengl state
+    glDumpState();
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    //glBlendEquation(GL_FUNC_ADD);
-    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -788,15 +916,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( pointABAttribHandle );
     glEnableVertexAttribArray ( colorAttribHandle );
-    
     glVertexAttribDivisor ( pointABAttribHandle, 1);
-    
     
     // Generate a model view matrix to rotate/translate the cube
     esMatrixLoadIdentity ( &(userData_Render2DLines->mvpMatrix) );
     
     // Load the uniforms
-    
     // Load the MVP matrix
     glUniformMatrix4fv ( userData_Render2DLines->mvpLoc, 1, GL_FALSE, ( GLfloat * ) &userData_Render2DLines->mvpMatrix.m[0][0] );
     
@@ -804,62 +929,53 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glUniform1fv(widthHandle,1, &line_width);
     
     glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
-    //glDrawArraysInstanced(GL_TRIANGLES,0,6, 2);
-    
-    free(pts);
-    free(ptsTriangles);
-    return;
-    
-    if (count>=max_count) {
-        printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-    } else {
-        glDrawArrays(GL_LINES, 0, count);
-    }
     
     if (draw_frame) {
-        //draw frame
         count=0;
-        glLineWidth(1.0f*mScaleFactor);
+        countLines=0;
+        
+        line_width=thickness*(2.0f/(float)ww);
+        
         colR=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>16)&0xFF;
         colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
         colB=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>0)&0xFF;
-        //top
-        pts[count++] = LineVertexF(0, hh-1,colR,colG,colB,colA,ww,hh);
-        pts[count++] = LineVertexF(ww-1,hh-1,colR,colG,colB,colA,ww,hh);
-        //right
-        pts[count++] = LineVertexF(ww-1,hh-1,colR,colG,colB,colA,ww,hh);
-        pts[count++] = LineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
-        //bottom
-        pts[count++] = LineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
-        pts[count++] = LineVertexF(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
-        //left
-        pts[count++] = LineVertexF(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
-        pts[count++] = LineVertexF(0,hh-1,colR,colG,colB,colA,ww,hh);
         
+        for (int i=0;i<6;i++) {
+            ptsTriangles[i].r=(float)colR/255.0;
+            ptsTriangles[i].g=(float)colG/255.0;
+            ptsTriangles[i].b=(float)colB/255.0;
+            ptsTriangles[i].a=1;
+        }
+        //top
+        ptsLines[countLines++] = SimpleLineVertexF(0, hh-1,
+                                                 ww-1,hh-1,ww,hh);
+        //right
+        ptsLines[countLines++] = SimpleLineVertexF(ww-1, hh-1,
+                                                 ww-1,hh-mulfactor*max_voices_by_row*2,ww,hh);
+        //bottom
+        ptsLines[countLines++] = SimpleLineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,
+                                                   0,hh-mulfactor*max_voices_by_row*2,ww,hh);
+        //left
+        ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*max_voices_by_row*2,
+                                                   0,hh-1,ww,hh);
         for (int r=0;r<columns_nb;r++) {
             int xpos=xofs+r*columns_width;
             int max_voices=num_voices*(r+1)/columns_nb;
             int ypos=hh-mulfactor;
             
-            pts[count++] = LineVertexF(xpos,hh-1,colR,colG,colB,colA,ww,hh);
-            pts[count++] = LineVertexF(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
+            ptsLines[countLines++] = SimpleLineVertexF(xpos,hh-1,
+                                                       xpos,hh-mulfactor*max_voices_by_row*2,ww,hh);
         }
         for (int r=0;r<max_voices_by_row;r++) {
-            pts[count++] = LineVertexF(0,hh-mulfactor*r*2,colR,colG,colB,colA,ww,hh);
-            pts[count++] = LineVertexF(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA,ww,hh);
+            ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*r*2,
+                                                       ww-1,hh-mulfactor*r*2,ww,hh);
         }
-        
-        if (count>=max_count) {
-            printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-        } else glDrawArrays(GL_LINES, 0, count);
+        glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
     }
     
-    glLineWidth(1.0f*mScaleFactor);
-    
-//    glDisableClientState(GL_VERTEX_ARRAY);
-//    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
-    free(pts);
+    free(ptsTriangles);
+    glVertexAttribDivisor ( pointABAttribHandle, 0);
+    glRestoreState();
 }
 
 void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame) {
@@ -2252,6 +2368,8 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
     GLfloat spL,spR;
     GLfloat crt,cgt,cbt;
     GLfloat x,y,sx,sy;
+    
+    return;
     
     for (int i=0;i<nb_spectrum_bands;i++) {
         barSpectrumDataL[i]=(float)1.f*spectrumDataL[i]/512.0f;
