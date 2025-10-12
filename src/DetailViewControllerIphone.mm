@@ -119,7 +119,8 @@ bool GetHomeDir(std::string &outdir) {
 void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
     char *title=strrchr(presetName,'/');
-    if (!title) title=presetName+1;
+    if (!title) title=presetName;
+    else title+=1;
     //NSLog(@"Preset switched to: %s",presetName);
     if (milkPresetStr) {
         free(milkPresetStr);
@@ -1031,11 +1032,12 @@ static float movePinchScale,movePinchScaleOld;
     //VISU
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
+        m_oglView.drawableMultisample = (settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value?MGLDrawableMultisample4X:MGLDrawableMultisampleNone);
+        
         [self updateVisibleChan];
         
         [self updateFont];
         [self updateVisibleChan];
-        
         
         [self checkGLViewCanDisplay];
     }
@@ -4807,7 +4809,7 @@ void ViewPerspective()
 -(void) setContextOGL {
     MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
     [MGLContext setCurrentContext:m_oglContext forLayer:oglLayer];
-    glViewport(0, 0, m_oglView.frame.size.width*1, m_oglView.frame.size.height*1);
+    glViewport(0, 0, m_oglView.frame.size.width*glScaleFactor, m_oglView.frame.size.height*glScaleFactor);
 }
 -(void) setupOGLView {
     MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
@@ -4829,7 +4831,7 @@ void ViewPerspective()
     m_oglView.drawableDepthFormat = MGLDrawableDepthFormat24;
     m_oglView.drawableStencilFormat = MGLDrawableStencilFormat8;
     // Enable multisampling
-    m_oglView.drawableMultisample = MGLDrawableMultisampleNone;
+    m_oglView.drawableMultisample = (settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value?MGLDrawableMultisample4X:MGLDrawableMultisampleNone);
     
     
 }
@@ -5527,7 +5529,9 @@ void pmSoftReinit() {
     //
     //opengl stuff
     //Init shaders
-    RenderUtils::RenderInit();
+    if (RenderUtils::RenderInit()) {
+        NSLog(@"render init OK");
+    }  else NSLog(@"!!render init KO!!");
     
     // Create gesture recognizer
     UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];

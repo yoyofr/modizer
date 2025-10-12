@@ -262,7 +262,12 @@ pthread_mutex_t play_mutex;
     animatedLaunchVC.view.frame=/*self.view.*/frame;
     animatedLaunchVC.localBrowserVC=rootViewControlleriPhone;
     
+    //Faster loading for debug
+#ifdef DEBUG_MODIZER
+    
+#else
     [modizerWin addSubview:[animatedLaunchVC view]];
+#endif
     
     //[self pushViewController:animatedLaunchVC animated:YES];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setNumberOfLines:2];

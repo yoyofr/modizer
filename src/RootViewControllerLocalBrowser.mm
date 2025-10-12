@@ -2231,6 +2231,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
 #endif
     }
+    
+    
+    //Faster loading of player view for debug
+#ifdef DEBUG_MODIZER
+    [self modizerIsLaunched];
+    [self goPlayer];
+#else
+#endif
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

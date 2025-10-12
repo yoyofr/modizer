@@ -15,6 +15,8 @@
 
 #include <GLES3/gl3.h>
 
+#include "esUtil.h"
+
 //tmp
 //#include <OpenGLES/ES1/glext.h>
 //#include <GLES/gl.h>
@@ -45,15 +47,36 @@ struct LineVertex
     uint8_t r, g, b, a;
 };
 
+struct SimpleLineVertexF {
+    
+    SimpleLineVertexF() {}
+    SimpleLineVertexF(GLfloat _Ax, GLfloat _Ay, GLfloat _Bx,GLfloat _By)
+    : Ax(_Ax), Ay(_Ay), Bx(_Bx), By(_By) {
+    }
+    
+    SimpleLineVertexF(int _Ax, int _Ay,int _Bx, int _By, int width, int height)
+    : Ax((float)_Ax*2.0/width-1.0), Ay((float)_Ay*2.0/height-1.0),Bx((float)_Bx*2.0/width-1.0), By((float)_By*2.0/height-1.0) {
+    }
+    
+    GLfloat Ax,Ay;
+    GLfloat Bx,By;
+};
+
 struct LineVertexF
 {
     LineVertexF() {}
     LineVertexF(GLfloat _x, GLfloat _y, GLfloat _z,GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a)
-    : x(_x), y(_y), z(_z), r(_r), g(_g), b(_b), a(_a)
-    {}
+    : x(_x), y(_y), z(_z), r(_r), g(_g), b(_b), a(_a) {
+    }
+    
     LineVertexF(GLfloat _x, GLfloat _y,GLfloat _r, GLfloat _g, GLfloat _b, GLfloat _a)
-    : x(_x), y(_y), z(0), r(_r), g(_g), b(_b), a(_a)
-    {}
+    : x(_x), y(_y), z(0), r(_r), g(_g), b(_b), a(_a) {
+    }
+    
+    LineVertexF(int _x, int _y,int _r, int _g, int _b, int _a,int width,int height)
+    : x((float)_x*2.0/width-1.0), y((float)_y*2.0/height-1.0), z(0), r((float)_r/255.0), g((float)_g/255.0), b((float)_b/255.0), a((float)_a/255.0) {
+    }
+    
     GLfloat x, y, z;
     GLfloat r, g, b, a;
 };
@@ -72,6 +95,17 @@ struct coordData {
     GLfloat v;             // OpenGL Y Coordinate
 };
 
+typedef struct {
+    // Handle to a program object
+    GLuint programObject;
+    
+    // Uniform locations
+    GLint  mvpLoc;
+    
+    // MVP matrix
+    ESMatrix  mvpMatrix;
+    
+} GLUserData;
 
 }
 
@@ -83,6 +117,8 @@ GLuint LoadShaderFromFile ( GLenum type, const char *shaderFile );
 GLuint LoadShader ( GLenum type, const GLchar *shaderSrc );
 
 int RenderInit();
+GLUserData* InitProgram(char *vsfile,char *fsfile);
+void ShutdownProgram(GLUserData *userData);
 
 
 void drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);

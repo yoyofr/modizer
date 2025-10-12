@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -412,7 +412,6 @@
 		59A65CA126277C4D00BC99D1 /* TTFadeAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
-		59B9997025CFE4680071E144 /* RenderUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996E25CFE4680071E144 /* RenderUtils.mm */; };
 		59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
 		59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AA17B17A5100AE0EA1 /* NSString+FontAwesome.m */; };
 		59B9998025CFE5700071E144 /* BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5A817B17A5100AE0EA1 /* BButton.m */; };
@@ -908,7 +907,6 @@
 		CCE0257B2E98F7EB008B7070 /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */; };
 		CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025752E98F7EB008B7070 /* ProggyClean.ttf */; };
 		CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */; };
-		CCE025B12E994C82008B7070 /* MDZShaders in Resources */ = {isa = PBXBuildFile; fileRef = CCE025B02E9949E0008B7070 /* MDZShaders */; };
 		CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE0263D2E9A60E3008B7070 /* gloss.png */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
@@ -1919,8 +1917,6 @@
 		59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementNoTableView.h; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
-		59B9996E25CFE4680071E144 /* RenderUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderUtils.mm; path = utils/Misc/RenderUtils.mm; sourceTree = "<group>"; };
-		59B9996F25CFE4680071E144 /* RenderUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderUtils.h; path = utils/Misc/RenderUtils.h; sourceTree = "<group>"; };
 		59B9998B25CFE6030071E144 /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
 		59B9999425CFE6890071E144 /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59B9999525CFE6890071E144 /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
@@ -2766,7 +2762,6 @@
 		CCE025752E98F7EB008B7070 /* ProggyClean.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyClean.ttf; sourceTree = "<group>"; };
 		CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
 		CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
-		CCE025B02E9949E0008B7070 /* MDZShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MDZShaders; sourceTree = "<group>"; };
 		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
 		CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatedLaunch.xib; sourceTree = "<group>"; };
@@ -2816,6 +2811,10 @@
 		CCFDC52617DB105500C6692C /* NVSoundLevelMeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVSoundLevelMeter.h; sourceTree = "<group>"; };
 		CCFDC52717DB105500C6692C /* NVSoundLevelMeter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVSoundLevelMeter.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CCE026442E9BB0E3008B7070 /* GLES3 */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (MDZShaders, ); path = GLES3; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1D60588F0D05DD3D006BFB54 /* Frameworks */ = {
@@ -3124,17 +3123,6 @@
 				33BA705E1407A12F0099E943 /* tim.xcodeproj */,
 			);
 			name = libtim;
-			path = ..;
-			sourceTree = "<group>";
-		};
-		33BA5B4F1431B3F200C87F5B /* VisuFX */ = {
-			isa = PBXGroup;
-			children = (
-				CCE025B02E9949E0008B7070 /* MDZShaders */,
-				59B9996F25CFE4680071E144 /* RenderUtils.h */,
-				59B9996E25CFE4680071E144 /* RenderUtils.mm */,
-			);
-			name = VisuFX;
 			path = ..;
 			sourceTree = "<group>";
 		};
@@ -3561,6 +3549,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CCE026442E9BB0E3008B7070 /* GLES3 */,
 				CC9CEF1E2E97D9CC00725D15 /* stb */,
 				CC9CE4AC2E97C27900725D15 /* imgui */,
 				CCABFAE02E959DED00AF59B0 /* projectm-ios.xcodeproj */,
@@ -3587,7 +3576,6 @@
 				33C7395613A0AA700012221C /* tapkulib */,
 				59A65C9E26277C4D00BC99D1 /* Transitions */,
 				CC1E5B131200B3B8000A8A4E /* unzip */,
-				33BA5B4F1431B3F200C87F5B /* VisuFX */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -5484,6 +5472,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				CCE026442E9BB0E3008B7070 /* GLES3 */,
+			);
 			name = modizer;
 			packageProductDependencies = (
 			);
@@ -6227,7 +6218,6 @@
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
-				CCE025B12E994C82008B7070 /* MDZShaders in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
 				CC1E6397120423E0000A8A4E /* SoundMaster in Resources */,
 				CC1E6398120423E0000A8A4E /* SoundMon2.0 in Resources */,
@@ -6581,7 +6571,6 @@
 				CC83686A2B57CA9A0035A4DA /* api68.c in Sources */,
 				CC83685A2B57CA9A0035A4DA /* ym_io.c in Sources */,
 				CC8368612B57CA9A0035A4DA /* shifter_io.c in Sources */,
-				59B9997025CFE4680071E144 /* RenderUtils.mm in Sources */,
 				5937EEE626453B0800270715 /* TFHpple.m in Sources */,
 				CC83685F2B57CA9A0035A4DA /* paulaemul.c in Sources */,
 				CC02DD222BA316F100ED5992 /* MSRGBView.m in Sources */,

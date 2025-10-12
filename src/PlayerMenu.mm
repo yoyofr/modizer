@@ -490,18 +490,20 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     } else if (currentMenuLabel[r*4+c]) { //Text Button
                         ImGui::PushID((r*4+c)*4+0);
                         if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
-                            cur_pos=ImGui::GetCursorPos();
-                            cur_pos.y+=(cell_size/4);
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::LabelText("", "FX\nalpha");
-                            
-                            cur_pos.x+=(cell_size-1.5*cell_size/3);
-                            cur_pos.y-=(cell_size/4);
-                            ImGui::SetCursorPos(cur_pos);
-                            
-                            ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
-                            ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
-                            ImGui::PopStyleVar();
+                            if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value==0) {
+                                cur_pos=ImGui::GetCursorPos();
+                                cur_pos.y+=(cell_size/4);
+                                ImGui::SetCursorPos(cur_pos);
+                                ImGui::LabelText("", "FX\nalpha");
+                                
+                                cur_pos.x+=(cell_size-1.5*cell_size/3);
+                                cur_pos.y-=(cell_size/4);
+                                ImGui::SetCursorPos(cur_pos);
+                                
+                                ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
+                                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
+                                ImGui::PopStyleVar();
+                            }
                         } else {
                             
                             if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));

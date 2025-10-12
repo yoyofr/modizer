@@ -123,14 +123,12 @@ float specularLight[3][4] = {
 float position[] = { 0, 0, 8, 1 };
 
 
+GLUserData *userData_simpleRender2D;
+GLUserData *userData_Render2DLines;
+bool renderIsInit;
+
 /********************************************************************************/
 
-typedef struct
-{
-   // Handle to a program object
-   GLuint programObject;
-
-} GLUserData;
 
 ///
 // Create a shader object, load the shader source, and
@@ -217,9 +215,7 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
    // Compile the shader
    glCompileShader ( shader );
     
-    //release shader source code buffer
-    free(shaderData);
-
+   
    // Check the compile status
    glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
 
@@ -240,98 +236,143 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
       }
 
       glDeleteShader ( shader );
+       
+       //release shader source code buffer
+       free(shaderData);
+
+       
       return 0;
    }
+    
+    //release shader source code buffer
+    free(shaderData);
 
    return shader;
-
 }
 
 ///
 // Initialize the shader and program object
 //
-GLUserData *userData_simpleRender;
 
 int RenderUtils::RenderInit() {
+    renderIsInit=false;
+    
     GLUserData *userData = (GLUserData*)malloc(sizeof(GLUserData));
+    GLuint vertexShader;
+    GLuint fragmentShader;
+    GLuint programObject;
+    GLint linked;
     
-    userData_simpleRender=userData;
-   
-    GLchar vShaderStr[] =
-    "#version 300 es\n"
-    "in vec4 aPosition;    \n"
-    "in vec4 aColor;    \n"
-    "out vec4 vColor;\n"
-    "void main()                  \n"
-    "{                            \n"
-    "   vColor = aColor;  \n"
-    "   gl_Position = aPosition;  \n"
-    "}                            \n";
-
-    GLchar fShaderStr[] =
-    "#version 300 es\n"
-    "precision mediump float;\n"
-    "in vec4 vColor;\n"
-    "out vec4 FragColor;\n"
-    "void main()                                  \n"
-    "{                                            \n"
-    "  FragColor = vColor;\n"
-    "}                                            \n";
-
-   GLuint vertexShader;
-   GLuint fragmentShader;
-   GLuint programObject;
-   GLint linked;
-
-   // Load the vertex/fragment shaders
-   vertexShader = LoadShader ( GL_VERTEX_SHADER, vShaderStr );
-   fragmentShader = LoadShader ( GL_FRAGMENT_SHADER, fShaderStr );
-
-   // Create the program object
-   programObject = glCreateProgram ( );
-   
-   if ( programObject == 0 )
-      return 0;
-
-   glAttachShader ( programObject, vertexShader );
-   glAttachShader ( programObject, fragmentShader );
-
-//   // Bind aPosition to attribute 0
-//   glBindAttribLocation ( programObject, 0, "aPosition" );
-//    
-//    // Bind aColor to attribute 1
-//    glBindAttribLocation ( programObject, 1, "aColor" );
-
-   // Link the program
-   glLinkProgram ( programObject );
-
-   // Check the link status
-   glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
-
-   if ( !linked )
-   {
-      GLint infoLen = 0;
-
-      glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
-      
-      if ( infoLen > 1 )
-      {
-         char* infoLog = (char*)malloc (sizeof(char) * infoLen );
-
-         glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
-         NSLog ( @"Error linking program:\n%s\n", infoLog );
-         
-         free ( infoLog );
-      }
-
-      glDeleteProgram ( programObject );
-      return GL_FALSE;
-   }
-
-   // Store the program object
-   userData->programObject = programObject;
+    vertexShader = LoadShaderFromFile(GL_VERTEX_SHADER,[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"] UTF8String]);
+    fragmentShader = LoadShaderFromFile(GL_FRAGMENT_SHADER,[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
     
-   return GL_TRUE;
+    // Create the program object
+    programObject = glCreateProgram ( );
+    
+    if ( programObject == 0 )
+        return 0;
+    
+    glAttachShader ( programObject, vertexShader );
+    glAttachShader ( programObject, fragmentShader );
+    
+    // Link the program
+    glLinkProgram ( programObject );
+    
+    // Check the link status
+    glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
+    
+    if ( !linked )
+    {
+        GLint infoLen = 0;
+        
+        glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+        
+        if ( infoLen > 1 )
+        {
+            char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+            
+            glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
+            NSLog ( @"Error linking program:\n%s\n", infoLog );
+            
+            free ( infoLog );
+        }
+        
+        glDeleteProgram ( programObject );
+        return 0;
+    }
+    
+    userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
+    
+    userData_Render2DLines=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DLines.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DLines.glsl"] UTF8String]);
+    
+    if (userData_simpleRender2D && userData_Render2DLines) {
+        renderIsInit=true;
+    }
+    
+    return 1;
+}
+
+GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
+    GLUserData *userData = (GLUserData*)malloc(sizeof(GLUserData));
+    GLuint vertexShader;
+    GLuint fragmentShader;
+    GLuint programObject;
+    GLint linked;
+    
+    vertexShader = LoadShaderFromFile(GL_VERTEX_SHADER,vsfile);
+    fragmentShader = LoadShaderFromFile(GL_FRAGMENT_SHADER,fsfile);
+    
+    // Create the program object
+    programObject = glCreateProgram ( );
+    
+    if ( programObject == 0 ) {
+        if (userData) free(userData);
+        return 0;
+    }
+    
+    glAttachShader ( programObject, vertexShader );
+    glAttachShader ( programObject, fragmentShader );
+    
+    // Link the program
+    glLinkProgram ( programObject );
+    
+    // Check the link status
+    glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
+    
+    if ( !linked )
+    {
+        GLint infoLen = 0;
+        
+        glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+        
+        if ( infoLen > 1 )
+        {
+            char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+            
+            glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
+            NSLog ( @"Error linking program:\n%s\n", infoLog );
+            
+            free ( infoLog );
+        }
+        
+        glDeleteProgram ( programObject );
+        
+        if (userData) free(userData);
+        return 0;
+    }
+    
+    userData->programObject=programObject;
+    
+    // Get the uniform locations
+    userData->mvpLoc = glGetUniformLocation ( userData->programObject, "u_mvpMatrix" );
+    
+    return userData;
+}
+
+void RenderUtils::ShutdownProgram(GLUserData *userData) {
+    if (userData) free(userData);
 }
 
 /********************************************************************************/
@@ -412,8 +453,8 @@ static int mVoicesName_FontSize;
 
 #define FIXED_POINT_PRECISION 16
 void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame) {
-#if 0
-    LineVertex *pts;
+    LineVertexF *pts;
+    SimpleLineVertexF *ptsLines;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
     int oval[SOUND_MAXVOICES_BUFFER_FX];
@@ -421,10 +462,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int osp[SOUND_MAXVOICES_BUFFER_FX];
     
     int colR,colG,colB,tmpR,tmpG,tmpB,colA;
-    int count;
+    int count,countLines;
     int64_t max_gap,tmp_gap,ofs1,ofs2,old_ofs;
     
     static char first_call=1;
+    
+    if (!renderIsInit) return;
     
     //snd_data_idx--;
     //snd_data_idx-=OSCILLO_BUFFER_NB;
@@ -436,7 +479,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     int min_ofs=0;
     
     
-    colA=128;
+    colA=255;//128;
     
     for (int i=0;i<num_voices;i++)
         for (int k=0;k<OSCILLO_BUFFER_NB;k++) {
@@ -462,32 +505,32 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         first_call=0;
     }
     
-    if (!mOscilloFont[0]) {
-        NSString *fontPath;
-        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        if (fontPath) mOscilloFont[0] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-        if (fontPath) mOscilloFont[1] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-        if (fontPath) mOscilloFont[2] = new CFont([fontPath UTF8String]);
-    }
+//    if (!mOscilloFont[0]) {
+//        NSString *fontPath;
+//        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+//        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+//        if (fontPath) mOscilloFont[0] = new CFont([fontPath UTF8String]);
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+//        if (fontPath) mOscilloFont[1] = new CFont([fontPath UTF8String]);
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
+//        if (fontPath) mOscilloFont[2] = new CFont([fontPath UTF8String]);
+//    }
     
-    if (mOscilloFont[1] && voices_label)
-        for (int i=0;i<num_voices;i++) {
-            if (mVoicesName[i]) {
-                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
-                    //not the same, reset string
-                    delete mVoicesName[i];
-                    mVoicesName[i]=NULL;
-                }
-            }
-            if (!mVoicesName[i]) {
-                if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
-            }
-        }
-    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
+//    if (mOscilloFont[1] && voices_label)
+//        for (int i=0;i<num_voices;i++) {
+//            if (mVoicesName[i]) {
+//                if ((settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value!=mVoicesName_FontSize) || (strcmp(mVoicesName[i]->mText,voices_label+i*32))) {
+//                    //not the same, reset string
+//                    delete mVoicesName[i];
+//                    mVoicesName[i]=NULL;
+//                }
+//            }
+//            if (!mVoicesName[i]) {
+//                if (mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]) mVoicesName[i]=new CGLString(voices_label+i*32, mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value],mScaleFactor);
+//            }
+//        }
+//    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
@@ -510,18 +553,35 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             
         }
     // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
+
+    float thickness;
+    switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
+        default:
+        case 0:
+            thickness=(1.0f*mScaleFactor);
+            break;
+        case 1:
+            thickness=(2.0f*mScaleFactor);
+            break;
+        case 2:
+            thickness=(3.0f*mScaleFactor);
+            break;
+    }
+
     
     int xofs=(ww-columns_width*columns_nb)/2;
     int smpl_ofs_incr=(max_len_oscillo_buffer)*(1<<FIXED_POINT_PRECISION)/columns_width;
     int cur_voices=0;
     
     int max_count=2*columns_width*num_voices;
-    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*columns_width*num_voices);
-    if (!pts) {
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*2*columns_width*num_voices);
+    ptsLines=(SimpleLineVertexF*)malloc(sizeof(SimpleLineVertexF)*columns_width*num_voices);
+    if ((!pts)||(!ptsLines)) {
         printf("%s: cannot allocate LineVertex buffer\n",__func__);
         return;
     }
     count=0;
+    countLines=0;
     
     //determine min smplincr / width of oscillo on screen, help reduce processing time
     int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
@@ -627,12 +687,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             }
             
             //draw label if specified
-            if (voices_label&&mVoicesName[cur_voices]) {
-                glPushMatrix();
-                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]->maxCharHeight/mScaleFactor), 0.0f);
-                mVoicesName[cur_voices]->Render(255);
-                glPopMatrix();
-            }
+//            if (voices_label&&mVoicesName[cur_voices]) {
+//                glPushMatrix();
+//                glTranslatef(xpos+4,ypos+mulfactor-4-(mOscilloFont[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]->maxCharHeight/mScaleFactor), 0.0f);
+//                mVoicesName[cur_voices]->Render(255);
+//                glPopMatrix();
+//            }
             
             for (int i=0; i<columns_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
@@ -647,37 +707,114 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
                 
                 if (count>=max_count-1) break;
-                pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
-                pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA);
+                
+                pts[count++] = LineVertexF(xpos+i,osp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA,ww,hh);
+                pts[count++] = LineVertexF(xpos+i+1,sp[cur_voices]+ypos,tmpR,tmpG,tmpB,colA,ww,hh);
+                
+                ptsLines[countLines++] = SimpleLineVertexF(xpos+i,osp[cur_voices]+ypos,
+                                                         xpos+i+1,sp[cur_voices]+ypos,ww,hh);
                 
                 smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
         }
     }
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+//    
+//    
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_COLOR_ARRAY);
     
+    GLfloat line_width=thickness*(2.0f/(float)ww);
     
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    LineVertexF *ptsTriangles;
     
-    //    glLineWidth(2.0f*mScaleFactor);
-    switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
-        case 0:glLineWidth(1.0f*mScaleFactor);
-            break;
-        case 1:glLineWidth(2.0f*mScaleFactor);
-            break;
-        case 2:glLineWidth(3.0f*mScaleFactor);
-            break;
+    ptsTriangles=(LineVertexF*)malloc(sizeof(LineVertexF)*6);
+    
+    ptsTriangles[0].x=0; ptsTriangles[0].y=-0.5;
+    ptsTriangles[1].x=1; ptsTriangles[1].y=-0.5;
+    ptsTriangles[2].x=1; ptsTriangles[2].y=0.5;
+    
+    ptsTriangles[3].x=0; ptsTriangles[3].y=-0.5;
+    ptsTriangles[4].x=1; ptsTriangles[4].y=0.5;
+    ptsTriangles[5].x=0; ptsTriangles[5].y=0.5;
+    
+    //  5---24
+    //  | / |
+    //  03--1
+    //
+    
+    for (int i=0;i<6;i++) {
+        ptsTriangles[i].r=(float)colR/255.0;
+        ptsTriangles[i].g=(float)colG/255.0;
+        ptsTriangles[i].b=(float)colB/255.0;
+        ptsTriangles[i].a=1;
     }
     
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+//    ptsLines[0].Ax=0; ptsLines[0].Ay=0;
+//    ptsLines[0].Bx=0.5; ptsLines[0].By=0;
+//    
+//    ptsLines[1].Ax=0.5; ptsLines[1].Ay=0;
+//    ptsLines[1].Bx=0.5; ptsLines[1].By=0.5;
+//    
+    
+    // Use the program object
+    glUseProgram ( userData_Render2DLines->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DLines->programObject, "a_position");
+    GLuint pointABAttribHandle = glGetAttribLocation(userData_Render2DLines->programObject, "a_pointAB");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_Render2DLines->programObject, "a_color");
+    GLuint widthHandle = glGetUniformLocation(userData_Render2DLines->programObject, "u_width");
+    
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    //glBlendEquation(GL_FUNC_ADD);
+    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
+    glVertexAttribPointer ( pointABAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(SimpleLineVertexF), &(ptsLines[0].Ax) );
+    
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].r) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( pointABAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
+    glVertexAttribDivisor ( pointABAttribHandle, 1);
+    
+    
+    // Generate a model view matrix to rotate/translate the cube
+    esMatrixLoadIdentity ( &(userData_Render2DLines->mvpMatrix) );
+    
+    // Load the uniforms
+    
+    // Load the MVP matrix
+    glUniformMatrix4fv ( userData_Render2DLines->mvpLoc, 1, GL_FALSE, ( GLfloat * ) &userData_Render2DLines->mvpMatrix.m[0][0] );
+    
+    // Load the line width
+    glUniform1fv(widthHandle,1, &line_width);
+    
+    glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
+    //glDrawArraysInstanced(GL_TRIANGLES,0,6, 2);
+    
+    free(pts);
+    free(ptsTriangles);
+    return;
     
     if (count>=max_count) {
         printf("%s: count too high: %d / %d\n",__func__,count,max_count);
-    } else glDrawArrays(GL_LINES, 0, count);
+    } else {
+        glDrawArrays(GL_LINES, 0, count);
+    }
     
     if (draw_frame) {
         //draw frame
@@ -687,29 +824,29 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
         colB=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>0)&0xFF;
         //top
-        pts[count++] = LineVertex(0, hh-1,colR,colG,colB,colA);
-        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
+        pts[count++] = LineVertexF(0, hh-1,colR,colG,colB,colA,ww,hh);
+        pts[count++] = LineVertexF(ww-1,hh-1,colR,colG,colB,colA,ww,hh);
         //right
-        pts[count++] = LineVertex(ww-1,hh-1,colR,colG,colB,colA);
-        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        pts[count++] = LineVertexF(ww-1,hh-1,colR,colG,colB,colA,ww,hh);
+        pts[count++] = LineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
         //bottom
-        pts[count++] = LineVertex(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+        pts[count++] = LineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
+        pts[count++] = LineVertexF(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
         //left
-        pts[count++] = LineVertex(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
-        pts[count++] = LineVertex(0,hh-1,colR,colG,colB,colA);
+        pts[count++] = LineVertexF(0,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
+        pts[count++] = LineVertexF(0,hh-1,colR,colG,colB,colA,ww,hh);
         
         for (int r=0;r<columns_nb;r++) {
             int xpos=xofs+r*columns_width;
             int max_voices=num_voices*(r+1)/columns_nb;
             int ypos=hh-mulfactor;
             
-            pts[count++] = LineVertex(xpos,hh-1,colR,colG,colB,colA);
-            pts[count++] = LineVertex(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA);
+            pts[count++] = LineVertexF(xpos,hh-1,colR,colG,colB,colA,ww,hh);
+            pts[count++] = LineVertexF(xpos,hh-mulfactor*max_voices_by_row*2,colR,colG,colB,colA,ww,hh);
         }
         for (int r=0;r<max_voices_by_row;r++) {
-            pts[count++] = LineVertex(0,hh-mulfactor*r*2,colR,colG,colB,colA);
-            pts[count++] = LineVertex(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA);
+            pts[count++] = LineVertexF(0,hh-mulfactor*r*2,colR,colG,colB,colA,ww,hh);
+            pts[count++] = LineVertexF(ww-1,hh-mulfactor*r*2,colR,colG,colB,colA,ww,hh);
         }
         
         if (count>=max_count) {
@@ -719,11 +856,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     glLineWidth(1.0f*mScaleFactor);
     
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//    glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     free(pts);
-#endif
 }
 
 void RenderUtils::DrawOscilloStereo(short int **snd_data,int snd_data_idx,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool draw_frame) {
@@ -1402,6 +1538,7 @@ static int beatValueL_index[SPECTRUM_BANDS];
 static int beatValueR_index[SPECTRUM_BANDS];
 
 void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_level,int active_idx,int cpt,float mScaleFactor) {
+#if 0
     LineVertexF pts[24];
     int menu_cell_size;
     if (_ww<_hh) menu_cell_size=_ww;
@@ -1553,6 +1690,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,float fade_level,float min_l
                 glDrawArrays(GL_LINE_LOOP, 0, 4);
             }
         }
+#endif
 }
 
 void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
