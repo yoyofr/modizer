@@ -472,7 +472,6 @@
 		CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A041200B3B8000A8A4E /* Font.cpp */; };
 		CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A091200B3B8000A8A4E /* GLString.cpp */; };
 		CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A0B1200B3B8000A8A4E /* HardwareClock.cpp */; };
-		CC1E5C801200B3B8000A8A4E /* TextureUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A151200B3B8000A8A4E /* TextureUtils.cpp */; };
 		CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */; };
 		CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */; };
 		CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */; };
@@ -2017,8 +2016,6 @@
 		CC1E5A0F1200B3B8000A8A4E /* OGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGLView.h; sourceTree = "<group>"; };
 		CC1E5A101200B3B8000A8A4E /* OGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OGLView.mm; sourceTree = "<group>"; };
 		CC1E5A111200B3B8000A8A4E /* Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Queue.h; sourceTree = "<group>"; };
-		CC1E5A141200B3B8000A8A4E /* TextureUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureUtils.h; sourceTree = "<group>"; };
-		CC1E5A151200B3B8000A8A4E /* TextureUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureUtils.cpp; sourceTree = "<group>"; };
 		CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo-green.png"; sourceTree = "<group>"; };
 		CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo.png"; sourceTree = "<group>"; };
 		CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback-green.png"; sourceTree = "<group>"; };
@@ -3972,8 +3969,6 @@
 				CC1E5A0F1200B3B8000A8A4E /* OGLView.h */,
 				CC1E5A101200B3B8000A8A4E /* OGLView.mm */,
 				CC1E5A111200B3B8000A8A4E /* Queue.h */,
-				CC1E5A141200B3B8000A8A4E /* TextureUtils.h */,
-				CC1E5A151200B3B8000A8A4E /* TextureUtils.cpp */,
 				3317853F17C56EAC00929E8F /* TPKeyboardAvoidingTableView.h */,
 				3317854017C56EAC00929E8F /* TPKeyboardAvoidingTableView.m */,
 				CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */,
@@ -6462,7 +6457,6 @@
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
 				59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */,
 				59A65C882625947500BC99D1 /* CBAutoScrollLabel.m in Sources */,
-				CC1E5C801200B3B8000A8A4E /* TextureUtils.cpp in Sources */,
 				591D8E4025DC63620013E19F /* libatrac9.c in Sources */,
 				591D8E4425DC63620013E19F /* band_extension.c in Sources */,
 				CC8368ED2B57CA9B0035A4DA /* replay68.c in Sources */,

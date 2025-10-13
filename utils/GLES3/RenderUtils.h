@@ -154,15 +154,12 @@ void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 
-// Clear the top & bottom part of the UI when opengl window is not fully opaque & in fullscreen
-void ClearUI(uint width,uint height,uint top_size,uint bottom_size);
-	
 void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror);
-void DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands);
+void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
@@ -176,7 +173,14 @@ void DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_
 void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
 void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
-void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha);
+void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
+void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,int hori);
+void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float alpha);
+
+bool initRenderToTexture(int width,int height);
+bool startRenderToTexture(int width,int height);
+void endRenderToTexture(int width,int height);
+
 }
 
 #endif

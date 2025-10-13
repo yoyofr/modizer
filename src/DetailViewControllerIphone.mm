@@ -5051,6 +5051,7 @@ void pmSoftReinit() {
     //--------------------------------//
     txtbackgroundImage=0;
     glGenTextures(1, &txtbackgroundImage);
+    NSLog(@"new texture %s %d","txtbackgroundImage",txtbackgroundImage);
     
     
     //--------------------------------//
@@ -6227,7 +6228,7 @@ void pmSoftReinit() {
 
           glActiveTexture(GL_TEXTURE0);
           glBindTexture(GL_TEXTURE_2D, txtbackgroundImage);
-
+        
           free(textureData);
           CGContextRelease(tmpContext);
     }
@@ -7340,8 +7341,8 @@ extern "C" int current_sample;
     
     if ([mplayer isPlaying]) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
-                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
+                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor);
         }
     }
     

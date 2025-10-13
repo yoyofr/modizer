@@ -62,7 +62,8 @@
               [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
               
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],];
+              [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
+              [UIKeyCommand keyCommandWithInput:@"\t"  modifierFlags:0 action:@selector(keyTabPressed)],];
                 
 }
 -(void)key1Pressed {
@@ -116,6 +117,32 @@
 }
 - (void)keyDeletePressed{
     [detailViewControllerIphone mdBackAction];
+}
+
+- (UIViewController *) getVisibleViewControllerFrom:(UIViewController *) vc {
+    if ([vc isKindOfClass:[UINavigationController class]]) {
+        return [self getVisibleViewControllerFrom:[((UINavigationController *) vc) visibleViewController]];
+    } else if ([vc isKindOfClass:[UITabBarController class]]) {
+        return [self getVisibleViewControllerFrom:[((UITabBarController *) vc) selectedViewController]];
+    } else {
+        if (vc.presentedViewController) {
+            return [self getVisibleViewControllerFrom:vc.presentedViewController];
+        } else {
+            return vc;
+        }
+    }
+}
+
+- (UIViewController *)visibleViewController {
+    UIViewController *rootViewController = self.rootViewController;
+    return [self getVisibleViewControllerFrom:rootViewController];
+}
+
+- (void)keyTabPressed{
+    UIViewController *currentVC=[self visibleViewController];
+    if (currentVC) {
+        if ([currentVC respondsToSelector:@selector(goPlayer)]) [currentVC performSelector:@selector(goPlayer)];
+    }
 }
 
 -(void)leftPressed {

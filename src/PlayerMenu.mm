@@ -158,7 +158,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
         if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
         
-        snprintf(menuOscilloDynLabel[6],64,"Thickness:\n%s",settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value]);
+        snprintf(menuOscilloDynLabel[7],64,"Thickness:\n%s",settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_2DSPECTRUM) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -240,7 +240,7 @@ void playerMenuInit() {
     memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
-    menuOscilloDynLabel[6]=(char*)malloc(64);
+    menuOscilloDynLabel[7]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();

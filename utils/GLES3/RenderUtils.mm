@@ -7,6 +7,7 @@
  *
  */
 
+
 extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
@@ -131,6 +132,8 @@ float position[] = { 0, 0, 8, 1 };
 GLUserData *userData_simpleRender2D;
 GLUserData *userData_Render2DLines;
 GLUserData *userData_Render2DTextures;
+GLUserData *userData_Render2DTexturesBlur;
+GLUserData *userData_Render2DTexturesBlend;
 bool renderIsInit;
 
 /********************************************************************************/
@@ -202,7 +205,8 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
         fclose(f);
         return 0;
     }
-    char *shaderData=(char*)malloc(fsize);
+    char *shaderData=(char*)malloc(fsize+1);
+    shaderData[fsize]=0;
     fread(shaderData, 1, fsize, f);
     fclose(f);
     
@@ -316,10 +320,21 @@ int RenderUtils::RenderInit() {
     userData_Render2DTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTextures.glsl"] UTF8String]);
     
-    if (userData_simpleRender2D && userData_Render2DLines && userData_Render2DTextures) {
-        renderIsInit=true;
+    userData_Render2DTexturesBlur=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlur.glsl"] UTF8String]);
+    userData_Render2DTexturesBlend=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlend.glsl"] UTF8String]);
+    
+    if (!userData_simpleRender2D ||
+        !userData_Render2DLines ||
+        !userData_Render2DTextures ||
+        !userData_Render2DTexturesBlur ||
+        !userData_Render2DTexturesBlend) {
+        
+        return 0;
     }
     
+    renderIsInit=true;
     return 1;
 }
 
@@ -386,50 +401,6 @@ void RenderUtils::ShutdownProgram(GLUserData *userData) {
 
 /********************************************************************************/
 
-// Clear the top & bottom part of the UI when opengl window is not fully opaque & in fullscreen
-void RenderUtils::ClearUI(uint width,uint height,uint top_size,uint bottom_size) {
-#if 0
-    LineVertexF ptsB[6*2];
-    int index;
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    glDisable(GL_BLEND);
-    
-    for (int i=0;i<6*2;i++) {
-        ptsB[i].r=0;
-        ptsB[i].g=0;
-        ptsB[i].b=0;
-        ptsB[i].a=255;
-    }
-    
-    ptsB[0].x=0;        ptsB[0].y=0;
-    ptsB[1].x=width;    ptsB[1].y=0;
-    ptsB[2].x=width;    ptsB[2].y=bottom_size;
-    ptsB[3].x=0;        ptsB[3].y=0;
-    ptsB[4].x=width;    ptsB[4].y=bottom_size;
-    ptsB[5].x=0;        ptsB[5].y=bottom_size;
-    
-    ptsB[6].x=0;        ptsB[6].y=height;
-    ptsB[7].x=width;    ptsB[7].y=height;
-    ptsB[8].x=width;    ptsB[8].y=height-top_size;
-    ptsB[9].x=0;        ptsB[9].y=height;
-    ptsB[10].x=width;    ptsB[10].y=height-top_size;
-    ptsB[11].x=0;        ptsB[11].y=height-top_size;
-    
-    index=6*2;
-    
-    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
-    
-    glDrawArrays(GL_TRIANGLES, 0, index);
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-#endif
-}
-
 static GLint blendSrc,blendDst;
 static GLboolean isBlendOn,isCuffFaceOn,isDepthTestOn,isStencilTestOn;
 void glDumpState() {
@@ -456,7 +427,7 @@ void glRestoreState() {
     glBlendFunc(blendSrc,blendDst);
 }
 
-void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha) {
+void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed) {
     // Use the program object
     if (!renderIsInit) return;
     
@@ -500,6 +471,12 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha) {
     ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
     ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
     
+    if (reversed) {
+        for (int i=0;i<6;i++) {
+            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
+        }
+    }
+    
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
@@ -534,6 +511,153 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha) {
     glRestoreState();
 }
 
+void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,int hori) {
+    // Use the program object
+    if (!renderIsInit) return;
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlur->programObject, "a_position");
+    GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlur->programObject, "a_textCoord");
+    GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_curTexture");
+    GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_alpha");
+    GLuint horizontalUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_horizontal");
+    
+    glDumpState();
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureIdx);
+    
+    
+    glDisable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    LineVertexF ptsTriangles[6];
+    coordData ptsTextCoord[6];
+    
+    ptsTriangles[0].x=-1; ptsTriangles[0].y=-1;
+    ptsTriangles[1].x=1; ptsTriangles[1].y=-1;
+    ptsTriangles[2].x=1; ptsTriangles[2].y=1;
+    
+    ptsTriangles[3].x=-1; ptsTriangles[3].y=-1;
+    ptsTriangles[4].x=1; ptsTriangles[4].y=1;
+    ptsTriangles[5].x=-1; ptsTriangles[5].y=1;
+    
+    ptsTextCoord[0].u=0; ptsTextCoord[0].v=0;
+    ptsTextCoord[1].u=1; ptsTextCoord[1].v=0;
+    ptsTextCoord[2].u=1; ptsTextCoord[2].v=1;
+    
+    ptsTextCoord[3].u=0; ptsTextCoord[3].v=0;
+    ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
+    ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
+    
+//    if (reversed) {
+//        for (int i=0;i<6;i++) {
+//            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
+//        }
+//    }
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
+    glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( textCoordAttribHandle );
+    
+    glVertexAttribDivisor ( positionAttribHandle, 0);
+    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+    
+    // Load the uniforms
+    // Load the texture idx
+    glUniform1ui(textureUnifHandle, textureIdx);
+    glUniform1i(horizontalUnifHandle, hori);
+    glUniform1fv(alphaUnifHandle,1,&alpha);
+    
+    
+    glDrawArrays(GL_TRIANGLES,0,6);
+    glRestoreState();
+}
+
+void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float alpha) {
+    // Use the program object
+    if (!renderIsInit) return;
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_position");
+    GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_textCoord");
+    GLuint textOrigUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textOriginal");
+    GLuint textBlurUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textBlurred");
+    GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_alpha");
+    GLuint exposureUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_exposure");
+    
+    // Save state
+    glDumpState();
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textOrigIdx);
+    glBindTexture(GL_TEXTURE_2D, textBlurIdx);
+    
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    LineVertexF ptsTriangles[6];
+    coordData ptsTextCoord[6];
+    
+    ptsTriangles[0].x=-1; ptsTriangles[0].y=-1;
+    ptsTriangles[1].x=1; ptsTriangles[1].y=-1;
+    ptsTriangles[2].x=1; ptsTriangles[2].y=1;
+    
+    ptsTriangles[3].x=-1; ptsTriangles[3].y=-1;
+    ptsTriangles[4].x=1; ptsTriangles[4].y=1;
+    ptsTriangles[5].x=-1; ptsTriangles[5].y=1;
+    
+    ptsTextCoord[0].u=0; ptsTextCoord[0].v=0;
+    ptsTextCoord[1].u=1; ptsTextCoord[1].v=0;
+    ptsTextCoord[2].u=1; ptsTextCoord[2].v=1;
+    
+    ptsTextCoord[3].u=0; ptsTextCoord[3].v=0;
+    ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
+    ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
+    
+//    if (reversed) {
+//        for (int i=0;i<6;i++) {
+//            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
+//        }
+//    }
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
+    glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( textCoordAttribHandle );
+    
+    glVertexAttribDivisor ( positionAttribHandle, 0);
+    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+    
+    // Load the uniforms
+    glUniform1ui(textOrigUnifHandle, textOrigIdx);
+    glUniform1ui(textBlurUnifHandle, textBlurIdx);
+    glUniform1fv(alphaUnifHandle,1,&alpha);
+    
+    float exposure=2.0f;
+    glUniform1fv(exposureUnifHandle,1,&exposure);
+    
+    // Render
+    glDrawArrays(GL_TRIANGLES,0,6);
+    // Restore state
+    glRestoreState();
+}
+
+
 void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 {
 //    glMatrixMode(GL_PROJECTION);
@@ -545,6 +669,155 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 //    glLoadIdentity();
     
 }
+
+
+static GLuint framebuffer = 0;
+static GLuint renderedTexture;
+static GLuint colorRenderbuffer,depthRenderbuffer;
+static int renderedTextWidth,renderedTextHeight;
+static GLint curFramebuffer,curRenderbuffer;
+static unsigned int pingpongFBO[2];
+static unsigned int pingpongBuffer[2];
+
+bool RenderUtils::startRenderToTexture(int width,int height) {
+    static bool firstCall=true;
+    //NSLog(@"start render to texture %d x %d",width,height);
+    // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+    
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING,&curFramebuffer);
+    //glGetIntegerv(GL_RENDERBUFFER_BINDING,&curRenderbuffer);
+    
+    if (firstCall||(renderedTextWidth!=width)||(renderedTextHeight!=height)) {
+        renderedTextWidth=width;
+        renderedTextHeight=height;
+        RenderUtils::initRenderToTexture(width,height);
+        firstCall=false;
+    }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glViewport(0,0,width,height);
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, renderedTexture);
+    return true;
+}
+
+
+void RenderUtils::endRenderToTexture(int width,int height) {
+    //apply BLUR
+    if (!renderIsInit) return;
+    GLuint curTexture;
+    bool horizontal = true, first_iteration = true;
+    int amount = 10;
+    glUseProgram ( userData_Render2DTexturesBlur->programObject );
+    
+    for (unsigned int i = 0; i < amount; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+        //glClearColor(0.0f,0.0f,0.0f,0.0f);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
+        glBindTexture(GL_TEXTURE_2D,curTexture);
+        RenderUtils::DrawTextureBlur(width, height, curTexture, 1.0, (horizontal?1:0));
+        horizontal = !horizontal;
+        if (first_iteration)
+            first_iteration = false;
+    }
+    // Bind rendering buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
+    glViewport(0,0,width,height);
+    // clear
+//    glClearColor(0.0f,0.0f,0.0f,1.0f);
+//    glClear(GL_COLOR_BUFFER_BIT);
+    
+    // Render by blending the original & blurred textures
+    glUseProgram ( userData_Render2DTexturesBlend->programObject );
+    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture, 1.0);
+}
+
+bool RenderUtils::initRenderToTexture(int width,int height) {
+    if (!renderIsInit) return false;
+    NSLog(@"init render to texture %d x %d",width,height);
+    // Save current framebuffer & renderbuffer
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING,&curFramebuffer);
+    //glGetIntegerv(GL_RENDERBUFFER_BINDING,&curRenderbuffer);
+    
+    //----------------------------
+    // Initial rendering setup
+    //----------------------------
+    // Create the framebuffer and bind it
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    
+    // create the texture
+    glGenTextures(1, &renderedTexture);
+    NSLog(@"new texture %s %d","renderedTexture",renderedTexture);
+    
+    glBindTexture(GL_TEXTURE_2D, renderedTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // Set "renderedTexture" as our colour attachement #0
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);
+    
+    // Set the list of draw buffers.
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+    
+    // Create a color renderbuffer, allocate storage for it, and attach it to the framebuffer’s color attachment point.
+//    glGenRenderbuffers(1, &colorRenderbuffer);
+//    glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+//    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
+    
+    // Create a depth or depth/stencil renderbuffer, allocate storage for it, and attach it to the framebuffer’s depth attachment point.
+//    glGenRenderbuffers(1, &depthRenderbuffer);
+//    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+//    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    
+    
+    //----------------------------
+    // Blur rendering setup
+    //----------------------------
+    
+    glGenFramebuffers(2, pingpongFBO);
+    glGenTextures(2, pingpongBuffer);
+    NSLog(@"new texture %s %d","pingpongBuffer0",pingpongBuffer[0]);
+    NSLog(@"new texture %s %d","pingpongBuffer1",pingpongBuffer[1]);
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, pingpongBuffer[i]);
+//        glTexImage2D(
+//            GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL
+//        );
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongBuffer[i], 0
+        );
+        
+        // Set the list of draw buffers.
+        GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+        glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+    }
+    
+    // Always check that our framebuffer is ok
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
+    if(status != GL_FRAMEBUFFER_COMPLETE) {
+        NSLog(@"failed to make complete framebuffer object %x", status);
+        return false;
+    }
+    return true;
+}
+
 
 #define OSCILLO_BUFFER_NB 4
 #define OSCILLO_BUFFER_SIZE SOUND_BUFFER_SIZE_SAMPLE*OSCILLO_BUFFER_NB
@@ -576,6 +849,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     static char first_call=1;
     
     if (!renderIsInit) return;
+    
+    RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
     
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
@@ -966,6 +1241,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     free(ptsTriangles);
     glVertexAttribDivisor ( pointABAttribHandle, 0);
     glRestoreState();
+    
+    RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+    
+    //RenderUtils::DrawTexture(ww*mScaleFactor,hh*mScaleFactor,renderedTexture,1.0f,true);
 }
 
 static int DrawSpectrum_first_call=1;
@@ -1531,13 +1810,19 @@ void RenderUtils::drawbar2(float x,float y,float z,float sx,float sy,float sz,fl
 float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
-void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor) {
+    if (!renderIsInit) return;
+    
     LineVertexF *pts;
     int index=0;
     float spL,spR;
     float crt,cgt,cbt;
     float x,y,sx,sy;
     
+    int bloom=1;
+    
+    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+#if 1
     for (int i=0;i<nb_spectrum_bands;i++) {
         barSpectrumDataL[i]=1.0f*(float)spectrumDataL[i]/512.0f;
         barSpectrumDataR[i]=1.0f*(float)spectrumDataR[i]/512.0f;
@@ -1696,10 +1981,16 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
     // Load the uniforms
     
     glDrawArrays(GL_TRIANGLES, 0, index);
-    
+
     glRestoreState();
     
+    if (bloom) {
+        RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+        //RenderUtils::DrawTexture(ww*mScaleFactor,hh*mScaleFactor,renderedTexture,1.0f,true);
+    }
+    
     free(pts);
+#endif
 }
 
 
