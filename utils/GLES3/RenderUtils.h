@@ -146,20 +146,18 @@ int DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height
 int DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel);
 int DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel);
 
-void SetUpOrtho(float rotation,uint width,uint height);
-
 void DrawChanLayout(uint ww,uint hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor);
 void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor);
 
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 
-void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
+void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float expo,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror);
-void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor);
+void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float expo);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
@@ -174,12 +172,13 @@ void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,f
 void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
-void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,int hori);
-void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float alpha);
+void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness);
+void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float expo);
 
 bool initRenderToTexture(int width,int height);
-bool startRenderToTexture(int width,int height);
-void endRenderToTexture(int width,int height);
+void shutdownRenderToTexture();
+void startRenderToTexture(int width,int height);
+void endRenderToTexture(int width,int height,float expo);
 
 }
 

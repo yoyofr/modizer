@@ -670,11 +670,14 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //Visualizers
     /////////////////////////////////////
+    
+    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=1.0f;
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
+    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
     
     settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
     settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
@@ -1532,6 +1535,24 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //Visualizers
     /////////////////////////////////////
+    SETTINGS_ID_DEF(GLOB_BLOOMFX)
+    settings[GLOB_BLOOMFX].type=MDZ_BOOLSWITCH;
+    settings[GLOB_BLOOMFX].label=(char*)"Bloom FX";
+    settings[GLOB_BLOOMFX].description=NULL;
+    settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_BLOOMFX].sub_family=0;
+    
+    SETTINGS_ID_DEF(GLOB_BLOOMEXPOSURE)
+    settings[GLOB_BLOOMEXPOSURE].label=(char*)"Bloom exposure";
+    settings[GLOB_BLOOMEXPOSURE].description=NULL;
+    settings[GLOB_BLOOMEXPOSURE].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_BLOOMEXPOSURE].sub_family=0;
+    settings[GLOB_BLOOMEXPOSURE].callback=&optVISUChangedC;
+    settings[GLOB_BLOOMEXPOSURE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_digits=1;
+    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_min_value=0.0f;
+    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_max_value=1.0f;
+    
     SETTINGS_ID_DEF(GLOB_FXRandom)
     settings[GLOB_FXRandom].label=(char*)"Random FX";
     settings[GLOB_FXRandom].description=NULL;
@@ -1560,31 +1581,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_digits=100;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0.3f;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1.0f;
-    
-    SETTINGS_ID_DEF(GLOB_FXOscillo)
-    settings[GLOB_FXOscillo].type=MDZ_SWITCH;
-    settings[GLOB_FXOscillo].label=(char*)"Oscillo FX";
-    settings[GLOB_FXOscillo].description=NULL;
-    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_OSCILLO;
-    settings[GLOB_FXOscillo].sub_family=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=5;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Multi 1";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[3]=(char*)"Stereo 1";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[4]=(char*)"Stereo 2";
-    
-    SETTINGS_ID_DEF(GLOB_FXMilkdrop)
-    settings[GLOB_FXMilkdrop].type=MDZ_SWITCH;
-    settings[GLOB_FXMilkdrop].label=(char*)"Milkdrop FX";
-    settings[GLOB_FXMilkdrop].description=NULL;
-    settings[GLOB_FXMilkdrop].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[GLOB_FXMilkdrop].sub_family=0;
-    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb=2;
-    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_labels[1]=(char*)"On";
     
     SETTINGS_ID_DEF(GLOB_FXSpectrum)
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
@@ -1842,6 +1838,17 @@ void optNSFPLAYChangedC(id param) {
     //MILKDROP
     /////////////////////////////////////
     ///
+    SETTINGS_ID_DEF(MILKDROP_FXONOFF)
+    settings[MILKDROP_FXONOFF].type=MDZ_SWITCH;
+    settings[MILKDROP_FXONOFF].label=(char*)"Milkdrop FX";
+    settings[MILKDROP_FXONOFF].description=NULL;
+    settings[MILKDROP_FXONOFF].family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    settings[MILKDROP_FXONOFF].sub_family=0;
+    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value_nb=2;
+    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels[1]=(char*)"On";
+    
     SETTINGS_ID_DEF(MILKDROP_BundledPresets)
     settings[MILKDROP_BundledPresets].type=MDZ_BOOLSWITCH;
     settings[MILKDROP_BundledPresets].label=(char*)"Bundled presets";
@@ -1997,6 +2004,22 @@ void optNSFPLAYChangedC(id param) {
     //OSCILLO
     /////////////////////////////////////
     ///
+    
+    SETTINGS_ID_DEF(OSCILLO_FXMODE)
+    settings[OSCILLO_FXMODE].type=MDZ_SWITCH;
+    settings[OSCILLO_FXMODE].label=(char*)"Oscillo FX";
+    settings[OSCILLO_FXMODE].description=NULL;
+    settings[OSCILLO_FXMODE].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_FXMODE].sub_family=0;
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value_nb=5;
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels=(char**)malloc(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[1]=(char*)"Multi 1";
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[2]=(char*)"Multi 2";
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[3]=(char*)"Stereo 1";
+    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[4]=(char*)"Stereo 2";
+    
+    
     SETTINGS_ID_DEF(OSCILLO_ShowLabel)
     settings[OSCILLO_ShowLabel].type=MDZ_BOOLSWITCH;
     settings[OSCILLO_ShowLabel].label=(char*)"Oscillo show labels";

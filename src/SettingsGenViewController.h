@@ -259,8 +259,15 @@ enum MDZ_SETTINGS {
         XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
+    GLOB_BLOOMFX,
+    GLOB_BLOOMEXPOSURE,
+    GLOB_FXAlpha,
+    GLOB_FXFullscreen,
+    GLOB_FXFPS,
+    GLOB_FXMSAA,
+    GLOB_FXLOD,
         MDZ_SETTINGS_FAMILY_MILKDROP,
-        GLOB_FXMilkdrop,
+        MILKDROP_FXONOFF,
         MILKDROP_ShowPresetLabel,
         MILKDROP_AutoSwitchPresetsMode,
         MILKDROP_LockPreset,
@@ -279,7 +286,7 @@ enum MDZ_SETTINGS {
         
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
-        GLOB_FXOscillo,
+        OSCILLO_FXMODE,
         OSCILLO_ShowLabel,
         OSCILLO_LabelFontSize,
         OSCILLO_ShowGrid,
@@ -297,13 +304,6 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR07,
         OSCILLO_MULTI_COLOR08,
     
-    
-    
-    GLOB_FXAlpha,
-    GLOB_FXFullscreen,
-    GLOB_FXFPS,
-    GLOB_FXMSAA,
-    GLOB_FXLOD,
     GLOB_FXMODPattern,
     GLOB_FXMODPattern_CurrentLineMode,
     GLOB_FXMODPattern_Font,

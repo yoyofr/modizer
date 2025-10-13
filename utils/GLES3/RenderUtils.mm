@@ -6,7 +6,7 @@
  *  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
  *
  */
-
+#define BLOOM_BLUR_ITERATIONS 10 //Horizontal+Vertical (alternate)
 
 extern int NOTES_DISPLAY_TOPMARGIN;
 
@@ -511,15 +511,15 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glRestoreState();
 }
 
-void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,int hori) {
+void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness) {
     // Use the program object
     if (!renderIsInit) return;
     
     GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlur->programObject, "a_position");
     GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlur->programObject, "a_textCoord");
     GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_curTexture");
-    GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_alpha");
     GLuint horizontalUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_horizontal");
+    GLuint minBrightnessUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_min_brightness");
     
     glDumpState();
     
@@ -553,12 +553,6 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,
     ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
     ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
     
-//    if (reversed) {
-//        for (int i=0;i<6;i++) {
-//            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
-//        }
-//    }
-    
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
@@ -574,31 +568,32 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,float alpha,
     // Load the texture idx
     glUniform1ui(textureUnifHandle, textureIdx);
     glUniform1i(horizontalUnifHandle, hori);
-    glUniform1fv(alphaUnifHandle,1,&alpha);
+    glUniform1f(minBrightnessUnifHandle, min_brightness);
     
     
     glDrawArrays(GL_TRIANGLES,0,6);
     glRestoreState();
 }
 
-void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float alpha) {
+void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float expo) {
     // Use the program object
     if (!renderIsInit) return;
+    
+    glUseProgram ( userData_Render2DTexturesBlend->programObject );
     
     GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_position");
     GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_textCoord");
     GLuint textOrigUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textOriginal");
     GLuint textBlurUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textBlurred");
-    GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_alpha");
-    GLuint exposureUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_exposure");
+    GLuint expoUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_exposure");
     
     // Save state
     glDumpState();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textOrigIdx);
+    //glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, textBlurIdx);
-    
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -626,11 +621,11 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
     ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
     
-//    if (reversed) {
-//        for (int i=0;i<6;i++) {
-//            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
-//        }
-//    }
+    if (0) {
+        for (int i=0;i<6;i++) {
+            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
+        }
+    }
     
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
@@ -646,10 +641,7 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     // Load the uniforms
     glUniform1ui(textOrigUnifHandle, textOrigIdx);
     glUniform1ui(textBlurUnifHandle, textBlurIdx);
-    glUniform1fv(alphaUnifHandle,1,&alpha);
-    
-    float exposure=2.0f;
-    glUniform1fv(exposureUnifHandle,1,&exposure);
+    glUniform1f(expoUnifHandle,expo);
     
     // Render
     glDrawArrays(GL_TRIANGLES,0,6);
@@ -658,30 +650,16 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
 }
 
 
-void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
-{
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    glRotatef(rotation, 0, 0, 1);
-//    glOrthof(0, width*2, 0, height*2, 0, 200);
-//    
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-    
-}
-
-
 static GLuint framebuffer = 0;
-static GLuint renderedTexture;
+static GLuint renderedTexture = 0;
 static GLuint colorRenderbuffer,depthRenderbuffer;
 static int renderedTextWidth,renderedTextHeight;
 static GLint curFramebuffer,curRenderbuffer;
 static unsigned int pingpongFBO[2];
 static unsigned int pingpongBuffer[2];
 
-bool RenderUtils::startRenderToTexture(int width,int height) {
+void RenderUtils::startRenderToTexture(int width,int height) {
     static bool firstCall=true;
-    //NSLog(@"start render to texture %d x %d",width,height);
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     
     glGetIntegerv(GL_FRAMEBUFFER_BINDING,&curFramebuffer);
@@ -702,26 +680,22 @@ bool RenderUtils::startRenderToTexture(int width,int height) {
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, renderedTexture);
-    return true;
 }
 
 
-void RenderUtils::endRenderToTexture(int width,int height) {
+void RenderUtils::endRenderToTexture(int width,int height,float expo) {
     //apply BLUR
     if (!renderIsInit) return;
     GLuint curTexture;
     bool horizontal = true, first_iteration = true;
-    int amount = 10;
+    int amount = BLOOM_BLUR_ITERATIONS;
     glUseProgram ( userData_Render2DTexturesBlur->programObject );
     
     for (unsigned int i = 0; i < amount; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        //glClearColor(0.0f,0.0f,0.0f,0.0f);
-        //glClear(GL_COLOR_BUFFER_BIT);
         curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-        glBindTexture(GL_TEXTURE_2D,curTexture);
-        RenderUtils::DrawTextureBlur(width, height, curTexture, 1.0, (horizontal?1:0));
+        RenderUtils::DrawTextureBlur(width, height, curTexture, (horizontal?1:0),(first_iteration?0.0f:0.0f));
         horizontal = !horizontal;
         if (first_iteration)
             first_iteration = false;
@@ -729,18 +703,32 @@ void RenderUtils::endRenderToTexture(int width,int height) {
     // Bind rendering buffer
     glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
     glViewport(0,0,width,height);
-    // clear
-//    glClearColor(0.0f,0.0f,0.0f,1.0f);
-//    glClear(GL_COLOR_BUFFER_BIT);
     
     // Render by blending the original & blurred textures
-    glUseProgram ( userData_Render2DTexturesBlend->programObject );
-    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture, 1.0);
+    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture, expo);
+    //RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
+}
+
+void RenderUtils::shutdownRenderToTexture() {
+    if (framebuffer) glDeleteFramebuffers(1, &framebuffer);
+    framebuffer=0;
+    if (pingpongFBO[0]) glDeleteFramebuffers(2, pingpongFBO);
+    pingpongFBO[0]=pingpongFBO[1]=0;
+    
+    if (renderedTexture) glDeleteTextures(1, &renderedTexture);
+    renderedTexture=0;
+    if (pingpongBuffer[0]) glDeleteTextures(2, pingpongBuffer);
+    pingpongBuffer[0]=pingpongBuffer[1]=0;
 }
 
 bool RenderUtils::initRenderToTexture(int width,int height) {
     if (!renderIsInit) return false;
-    NSLog(@"init render to texture %d x %d",width,height);
+    
+    if (!framebuffer) NSLog(@"init render to texture %d x %d",width,height);
+    else {
+        NSLog(@"reinit render to texture %d x %d",width,height);
+        RenderUtils::shutdownRenderToTexture();
+    }
     // Save current framebuffer & renderbuffer
     glGetIntegerv(GL_FRAMEBUFFER_BINDING,&curFramebuffer);
     //glGetIntegerv(GL_RENDERBUFFER_BINDING,&curRenderbuffer);
@@ -754,7 +742,7 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     
     // create the texture
     glGenTextures(1, &renderedTexture);
-    NSLog(@"new texture %s %d","renderedTexture",renderedTexture);
+//    NSLog(@"new texture %s %d","renderedTexture",renderedTexture);
     
     glBindTexture(GL_TEXTURE_2D, renderedTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -785,8 +773,8 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     
     glGenFramebuffers(2, pingpongFBO);
     glGenTextures(2, pingpongBuffer);
-    NSLog(@"new texture %s %d","pingpongBuffer0",pingpongBuffer[0]);
-    NSLog(@"new texture %s %d","pingpongBuffer1",pingpongBuffer[1]);
+//    NSLog(@"new texture %s %d","pingpongBuffer0",pingpongBuffer[0]);
+//    NSLog(@"new texture %s %d","pingpongBuffer1",pingpongBuffer[1]);
     for (unsigned int i = 0; i < 2; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
@@ -834,7 +822,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float expo,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -850,7 +838,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     if (!renderIsInit) return;
     
-    RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
     
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
@@ -898,20 +886,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         
         first_call=0;
     }
-    
-//    if (!mOscilloFont[0]) {
-//        NSString *fontPath;
-//        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-//        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
-//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-//        if (fontPath) mOscilloFont[0] = new CFont([fontPath UTF8String]);
-//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-//        if (fontPath) mOscilloFont[1] = new CFont([fontPath UTF8String]);
-//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-//        if (fontPath) mOscilloFont[2] = new CFont([fontPath UTF8String]);
-//    }
-    
-//    mVoicesName_FontSize=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value;
     
     int columns_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int columns_width=ww/columns_nb;
@@ -1067,13 +1041,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     ImGui::PushFont(nullptr,fontSize*2);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
-    
-//    ImGuiStyle& style = ImGui::GetStyle();
-//    style.FontSizeBase=36;//*menu_win_size/512;
-//    style._NextFrameFontSizeBase = style.FontSizeBase;
-    
-    
-    
     
     for (int r=0;r<columns_nb;r++) {
         int xpos=xofs+r*columns_width;
@@ -1242,9 +1209,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glVertexAttribDivisor ( pointABAttribHandle, 0);
     glRestoreState();
     
-    RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
-    
-    //RenderUtils::DrawTexture(ww*mScaleFactor,hh*mScaleFactor,renderedTexture,1.0f,true);
+    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,expo);
 }
 
 static int DrawSpectrum_first_call=1;
@@ -1810,7 +1775,7 @@ void RenderUtils::drawbar2(float x,float y,float z,float sx,float sy,float sz,fl
 float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
-void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor) {
+void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float expo) {
     if (!renderIsInit) return;
     
     LineVertexF *pts;
@@ -1818,8 +1783,6 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     float spL,spR;
     float crt,cgt,cbt;
     float x,y,sx,sy;
-    
-    int bloom=1;
     
     if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
 #if 1
@@ -1984,12 +1947,9 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
 
     glRestoreState();
     
-    if (bloom) {
-        RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
-        //RenderUtils::DrawTexture(ww*mScaleFactor,hh*mScaleFactor,renderedTexture,1.0f,true);
-    }
-    
     free(pts);
+    
+    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,expo);
 #endif
 }
 

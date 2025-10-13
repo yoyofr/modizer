@@ -610,7 +610,7 @@ UIImage *backgroundImage;
 
 -(int) computeActiveFX {
     int active_idx=0;
-    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<0;
+    if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) active_idx|=1<<0;
     if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
     if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<3;
@@ -619,7 +619,7 @@ UIImage *backgroundImage;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     
-    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) active_idx|=1<<8;
+    if (settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<8;
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
     
@@ -1342,7 +1342,7 @@ static float movePinchScale,movePinchScaleOld;
     }
     switch (fxNb) {
         case 0:
-            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value+1)%settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb;
+            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value+1)%settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value_nb;
             break;
         case 1:
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
@@ -1376,7 +1376,7 @@ static float movePinchScale,movePinchScaleOld;
         case 7:
             break;
         case 8:
-            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=(settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value+1)%2;
+            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=(settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value+1)%2;
             break;
         case 9:
             break;
@@ -1819,15 +1819,15 @@ static float movePinchScale,movePinchScaleOld;
             mRandomFXCpt=MIN_RANDFX_TIME*5+arc4random()%(5*MAX_RANDFX_TIME); //Min is 10 seconds Max is 60seconds
             mRandomFXCptRev=0;
             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
+            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
             switch (arc4random()%20) {
                 case 0:
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 1:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 2:
                     settings[GLOB_FXPianoRoll].detail.mdz_boolswitch.switch_value=(arc4random()&1)+1;
@@ -1841,7 +1841,7 @@ static float movePinchScale,movePinchScaleOld;
                     //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 6:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 7:
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1855,35 +1855,35 @@ static float movePinchScale,movePinchScaleOld;
                     //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
                     break;
                 case 11:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 12:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 13:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 14:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 15:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
                     break;
                 case 16:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 17:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
                     break;
                 case 18:
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&4)+1;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
                     break;
                 case 19:
-                    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
+                    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=1;
                     break;
             }
         }
@@ -5051,7 +5051,7 @@ void pmSoftReinit() {
     //--------------------------------//
     txtbackgroundImage=0;
     glGenTextures(1, &txtbackgroundImage);
-    NSLog(@"new texture %s %d","txtbackgroundImage",txtbackgroundImage);
+//    NSLog(@"new texture %s %d","txtbackgroundImage",txtbackgroundImage);
     
     
     //--------------------------------//
@@ -6330,6 +6330,9 @@ extern "C" int current_sample;
     
     frameToUpdate++;
     
+//    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value+0.1f;
+//    if (settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value>50.0f) settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=0.0f;
+    
     if (no_reentrant) return;
     no_reentrant=1;
     
@@ -6429,12 +6432,26 @@ extern "C" int current_sample;
     ImGui::NewFrame();
     
     //ImGui::Image((ImTextureID)(intptr_t)txtbackgroundImage,ImVec2
-    RenderUtils::DrawTexture(ww, hh, txtbackgroundImage, 1.0f-fxalpha);
+    RenderUtils::DrawTexture(ww, hh, txtbackgroundImage, 1.0f-fxalpha,1);
+    
+    
+    
+//    ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
+//    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
+//    ImGui::Begin("On screen info2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+//    
+//    ImGuiStyle& style = ImGui::GetStyle();
+//    style.FontSizeBase=36;//*menu_win_size/512;
+//    style._NextFrameFontSizeBase = style.FontSizeBase;
+//    
+//    ImGui::Text("%.1f",settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value);
+//    
+//    ImGui::End();
 
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pm && settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
+    if (_pm && settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
         
@@ -6526,7 +6543,7 @@ extern "C" int current_sample;
     movePy2Old=movePy2;
     movePinchScaleOld=movePinchScale;
     
-    if (settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) {
+    if (settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) {
         //MILK is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
@@ -6781,10 +6798,10 @@ extern "C" int current_sample;
                     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+                    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
                 }  else if (touched_coord==0x33) {
                     //Exit
                     viewTapHelpShow=0;
@@ -6805,7 +6822,7 @@ extern "C" int current_sample;
                 if (touched_coord==0x00) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU0_START: //Oscillo
-                            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
                             break;
                         case SUBMENU1_START: //2D Spectrum
                             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
@@ -6829,13 +6846,13 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=0;
+                            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x10) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU0_START: //Oscillo
-                            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
+                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=1;
                             break;
                         case SUBMENU1_START: //2D Spectrum
                             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
@@ -6863,13 +6880,13 @@ extern "C" int current_sample;
                             [self updateVisibleChan];
                             break;
                         case SUBMENU7_START: //Milkdrop
-                            settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value=1;
+                            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x20) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU0_START: //Oscillo
-                            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=2;
+                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=2;
                             break;
                         case SUBMENU1_START: //2D Spectrum
                             settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
@@ -6903,7 +6920,7 @@ extern "C" int current_sample;
                 } else if (touched_coord==0x30) {
                     switch (viewTapHelpShow_SubStart) {
                         case SUBMENU0_START: //Oscillo
-                            settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
+                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=3;
                             break;
                         case SUBMENU1_START: //2D Spectrum
                             break;
@@ -7342,7 +7359,9 @@ extern "C" int current_sample;
     if ([mplayer isPlaying]) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
-                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor);
+                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
+                                        settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                        settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value);
         }
     }
     
@@ -7656,7 +7675,7 @@ extern "C" int current_sample;
 //    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //    ImGui::End();
     
-    if ((settings[GLOB_FXMilkdrop].detail.mdz_switch.switch_value) && ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
+    if ((settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) && ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
             //float x,y,w,h;
             static float scrollx=0;
@@ -7730,7 +7749,7 @@ extern "C" int current_sample;
         cur_pos=[mplayer getCurrentPlayedBufferIdx];
         short int *curBuffer=snd_buffer[cur_pos];
         
-        switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
+        switch (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
             case 1:
                 if ([mplayer m_voicesDataAvail]) {
                     if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
@@ -7738,12 +7757,21 @@ extern "C" int current_sample;
                         for (int i=0;i<[mplayer getNumChannels];i++) {
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                     settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 2:
@@ -7756,19 +7784,34 @@ extern "C" int current_sample;
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
                         
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,(char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
-                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                     settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 3:
-                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                 settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                 settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                 NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
             case 4:
-                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                 settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                 settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                 NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
         }
     }
