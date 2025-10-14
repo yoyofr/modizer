@@ -63,7 +63,7 @@ const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     "Bloom","@slider_bloom","@slider_alpha","Fullscreen",
-    "Close FX\nwindow","All FX off","Go to\nsettings","Exit"
+    "Close FX\nwindow","All FX off","Go to\nsettings","Exit Menu"
 };
 static GLuint txtMenuMilkdropHandle[16];
 const char *menuMilkdropLabel[16]={

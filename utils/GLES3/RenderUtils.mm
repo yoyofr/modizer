@@ -490,8 +490,11 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     
     // Load the uniforms
     // Load the texture idx
-    glUniform1ui(textureUnifHandle, textureIdx);
+    glUniform1ui(textureUnifHandle, 0);
     glUniform1fv(alphaUnifHandle,1,&alpha);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureIdx);
     
     
 //    glBindTexture(GL_TEXTURE_2D, textureUnifHandle);
@@ -522,10 +525,6 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     GLuint minBrightnessUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_min_brightness");
     
     glDumpState();
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureIdx);
-    
     
     glDisable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -566,9 +565,12 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     
     // Load the uniforms
     // Load the texture idx
-    glUniform1ui(textureUnifHandle, textureIdx);
+    glUniform1ui(textureUnifHandle, 0);
     glUniform1i(horizontalUnifHandle, hori);
     glUniform1f(minBrightnessUnifHandle, min_brightness);
+    
+    glActiveTexture(GL_TEXTURE0+0);
+    glBindTexture(GL_TEXTURE_2D, textureIdx);
     
     
     glDrawArrays(GL_TRIANGLES,0,6);
@@ -581,18 +583,13 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     
     glUseProgram ( userData_Render2DTexturesBlend->programObject );
     
-    GLuint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_position");
-    GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_textCoord");
-    GLuint textOrigUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textOriginal");
-    GLuint textBlurUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textBlurred");
+    GLint positionAttribHandle = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_position");
+    GLint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_textCoord");
+    GLint textOrigUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textOriginal");
+    GLint textBlurUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textBlurred");
     
     // Save state
     glDumpState();
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textOrigIdx);
-    //glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textBlurIdx);
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -620,12 +617,6 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     ptsTextCoord[4].u=1; ptsTextCoord[4].v=1;
     ptsTextCoord[5].u=0; ptsTextCoord[5].v=1;
     
-    if (0) {
-        for (int i=0;i<6;i++) {
-            ptsTextCoord[i].v=1.0f-ptsTextCoord[i].v;
-        }
-    }
-    
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
@@ -638,8 +629,13 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     glVertexAttribDivisor ( textCoordAttribHandle, 0);
     
     // Load the uniforms
-    glUniform1ui(textOrigUnifHandle, textOrigIdx);
-    glUniform1ui(textBlurUnifHandle, textBlurIdx);
+    glUniform1i(textOrigUnifHandle, 0);
+    glUniform1i(textBlurUnifHandle, 1);
+    
+    glActiveTexture(GL_TEXTURE0+0);
+    glBindTexture(GL_TEXTURE_2D, textOrigIdx);
+    glActiveTexture(GL_TEXTURE0+1);
+    glBindTexture(GL_TEXTURE_2D, textBlurIdx);
     
     // Render
     glDrawArrays(GL_TRIANGLES,0,6);
@@ -704,6 +700,7 @@ void RenderUtils::endRenderToTexture(int width,int height,float bloom_size) {
     
     // Render by blending the original & blurred textures
     RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture);
+    //RenderUtils::DrawTexture(width, height, curTexture,1.0,0);
     //RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
 }
 
@@ -780,7 +777,7 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
 //        glTexImage2D(
 //            GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL
 //        );
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,  width, height, 0, GL_RGBA, GL_FLOAT, NULL);
         
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -836,7 +833,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     if (!renderIsInit) return;
     
-    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+//    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+//    if (bloom) RenderUtils::startRenderToTexture(ww,hh);
     
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
@@ -911,16 +909,16 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
         default:
         case 0:
-            thickness=(1.0f*mScaleFactor);
+            thickness=1.0;//(1.0f*mScaleFactor);
             break;
         case 1:
-            thickness=(2.0f*mScaleFactor);
+            thickness=2.0;//(2.0f*mScaleFactor);
             break;
         case 2:
-            thickness=(3.0f*mScaleFactor);
+            thickness=4.0;//(3.0f*mScaleFactor);
             break;
         case 3:
-            thickness=(4.0f*mScaleFactor);
+            thickness=8.0;//(4.0f*mScaleFactor);
             break;
     }
 
@@ -1209,7 +1207,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glVertexAttribDivisor ( pointABAttribHandle, 0);
     glRestoreState();
     
-    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
+//    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
+//    if (bloom) RenderUtils::endRenderToTexture(ww,hh,bloom_size);
 }
 
 static int DrawSpectrum_first_call=1;
@@ -1784,7 +1783,8 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     float crt,cgt,cbt;
     float x,y,sx,sy;
     
-    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+//    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
+//    if (bloom) RenderUtils::startRenderToTexture(ww,hh);
 #if 1
     for (int i=0;i<nb_spectrum_bands;i++) {
         barSpectrumDataL[i]=1.0f*(float)spectrumDataL[i]/512.0f;
@@ -1949,7 +1949,8 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     
     free(pts);
     
-    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
+//    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
+//    if (bloom) RenderUtils::endRenderToTexture(ww,hh,bloom_size);
 #endif
 }
 

@@ -19,8 +19,8 @@ void main()
         for(int i = 1; i < 5; ++i)
         {
             float i_float=float(i);
-            result += texture(u_curTexture, v_textCoord + vec2(tex_offset.x * i_float, 0.0)).rgb * weight[i];
-            result += texture(u_curTexture, v_textCoord - vec2(tex_offset.x * i_float, 0.0)).rgb * weight[i];
+            result += texture(u_curTexture, v_textCoord + vec2(tex_offset.x * i_float, 0.0)).rgb * weight[i]*1.1;
+            result += texture(u_curTexture, v_textCoord - vec2(tex_offset.x * i_float, 0.0)).rgb * weight[i]*1.1;
         }
     }
     else
@@ -28,11 +28,14 @@ void main()
         for(int i = 1; i < 5; ++i)
         {
             float i_float=float(i);
-            result += texture(u_curTexture, v_textCoord + vec2(0.0, tex_offset.y * i_float)).rgb * weight[i];
-            result += texture(u_curTexture, v_textCoord - vec2(0.0, tex_offset.y * i_float)).rgb * weight[i];
+            result += texture(u_curTexture, v_textCoord + vec2(0.0, tex_offset.y * i_float)).rgb * weight[i]*1.1;
+            result += texture(u_curTexture, v_textCoord - vec2(0.0, tex_offset.y * i_float)).rgb * weight[i]*1.1;
         }
     }
     float alpha=length(result);
+    if (alpha>0.1) alpha=1.0;
+//    alpha=1.0;
     outColor = vec4(result, alpha);
+//    outColor = vec4(result, 1.0);
 }
 

@@ -7359,6 +7359,14 @@ extern "C" int current_sample;
     }
     angle+=(float)4.0f;
     
+    
+    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
+        RenderUtils::startRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
+    }
+    
+    //-------------------------------------
+    // Spectrum2D
+    //-------------------------------------
     if ([mplayer isPlaying]) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
@@ -7367,7 +7375,9 @@ extern "C" int current_sample;
                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
         }
     }
-    
+    //-------------------------------------
+    // MOD & MIDI
+    //-------------------------------------
     if (([mplayer isPlaying])&&
         (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value||
          settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||
@@ -7677,7 +7687,9 @@ extern "C" int current_sample;
 //    float f;
 //    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //    ImGui::End();
-    
+    //-------------------------------------
+    // Milkdrop info
+    //-------------------------------------
     if ((settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) && ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
             //float x,y,w,h;
@@ -7745,6 +7757,9 @@ extern "C" int current_sample;
         }
     }
     
+    //-------------------------------------
+    // Oscillo
+    //-------------------------------------
     if ([mplayer isPlaying]){
         short int **snd_buffer;
         int cur_pos,prev_pos;
@@ -7818,7 +7833,9 @@ extern "C" int current_sample;
                 break;
         }
     }
-    
+    //-------------------------------------
+    // 3D Landscape, 3D Spectrum, 3D Piano
+    //-------------------------------------
     if ([mplayer isPlaying]){
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
             if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
@@ -7867,6 +7884,16 @@ extern "C" int current_sample;
             }
         }
     }
+    
+    //-------------------------------------
+    // FX Rendering over
+    // Apply Bloom if active
+    //-------------------------------------
+    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
+        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor, settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
+    }
+    
+    
     if (viewTapHelpShow) {
         if (viewTapHelpInfo<255) {
             viewTapHelpInfo+=48;//48;
