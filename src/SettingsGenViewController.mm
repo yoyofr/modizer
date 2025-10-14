@@ -672,7 +672,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     
     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=1.0f;
+    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=10.0;
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
@@ -1542,16 +1542,16 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_BLOOMFX].sub_family=0;
     
-    SETTINGS_ID_DEF(GLOB_BLOOMEXPOSURE)
-    settings[GLOB_BLOOMEXPOSURE].label=(char*)"Bloom exposure";
-    settings[GLOB_BLOOMEXPOSURE].description=NULL;
-    settings[GLOB_BLOOMEXPOSURE].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_BLOOMEXPOSURE].sub_family=0;
-    settings[GLOB_BLOOMEXPOSURE].callback=&optVISUChangedC;
-    settings[GLOB_BLOOMEXPOSURE].type=MDZ_SLIDER_CONTINUOUS;
-    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_digits=1;
-    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_min_value=0.0f;
-    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_max_value=1.0f;
+    SETTINGS_ID_DEF(GLOB_BLOOMSIZE)
+    settings[GLOB_BLOOMSIZE].label=(char*)"Bloom size";
+    settings[GLOB_BLOOMSIZE].description=(char*)"Higher is slower";
+    settings[GLOB_BLOOMSIZE].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_BLOOMSIZE].sub_family=0;
+    settings[GLOB_BLOOMSIZE].callback=&optVISUChangedC;
+    settings[GLOB_BLOOMSIZE].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_min_value=1;
+    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_max_value=15;
     
     SETTINGS_ID_DEF(GLOB_FXRandom)
     settings[GLOB_FXRandom].label=(char*)"Random FX";

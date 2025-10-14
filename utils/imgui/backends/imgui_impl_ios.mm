@@ -46,7 +46,7 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     //io.WantCaptureMouse=true;
     
     if (currentEvent.event_type==IMGUI_IOS_Event_Tap_1) {
-        //NSLog(@"tap1 event: %d x %d",currentEvent.pos_x,currentEvent.pos_y);
+//        NSLog(@"tap1 event: %d x %d",currentEvent.pos_x,currentEvent.pos_y);
         //io.MouseDown[0] = 1;
         //io.MousePos = ImVec2((float)currentEvent.pos_x, (float)currentEvent.pos_y);
         

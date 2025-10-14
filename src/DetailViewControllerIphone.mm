@@ -1334,6 +1334,9 @@ static float movePinchScale,movePinchScaleOld;
         
     }
 }
+-(void) mdSwitchBloomFX {
+    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
+}
 
 -(void) switchFX:(int)fxNb {
     if (mOglViewIsHidden==YES) {
@@ -6330,8 +6333,8 @@ extern "C" int current_sample;
     
     frameToUpdate++;
     
-//    settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value+0.1f;
-//    if (settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value>50.0f) settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value=0.0f;
+//    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value+0.1f;
+//    if (settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value>50.0f) settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=0.0f;
     
     if (no_reentrant) return;
     no_reentrant=1;
@@ -6438,13 +6441,13 @@ extern "C" int current_sample;
     
 //    ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
 //    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
-//    ImGui::Begin("On screen info2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
-//    
+//    ImGui::Begin("On screen info2",0,ImGuiWindowFlags_NoFocusOnAppearing|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+//
 //    ImGuiStyle& style = ImGui::GetStyle();
 //    style.FontSizeBase=36;//*menu_win_size/512;
 //    style._NextFrameFontSizeBase = style.FontSizeBase;
 //    
-//    ImGui::Text("%.1f",settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value);
+//    ImGui::Text("%.1f",settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
 //    
 //    ImGui::End();
 
@@ -7361,7 +7364,7 @@ extern "C" int current_sample;
             RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
                                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                        settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value);
+                                        settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
         }
     }
     
@@ -7665,7 +7668,7 @@ extern "C" int current_sample;
 //    //ImGui::SetNextWindowSize(ImVec2(500*glScaleFactor,500*glScaleFactor));
 //    ImGui::GetStyle().Alpha=1.0f;
 //        ImGui::Begin("On screen debug info",0,0);
-//    
+//
 //        ImGuiStyle& style = ImGui::GetStyle();
 //        style.FontSizeBase=36;//*menu_win_size/512;
 //        style._NextFrameFontSizeBase = style.FontSizeBase;
@@ -7702,7 +7705,7 @@ extern "C" int current_sample;
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
                 ImGui::GetStyle().Alpha=alpha_val;
-                ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+                ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 
                 ImGuiStyle& style = ImGui::GetStyle();
                 style.FontSizeBase=36;//*menu_win_size/512;
@@ -7759,18 +7762,18 @@ extern "C" int current_sample;
                         }
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                     settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
@@ -7786,31 +7789,31 @@ extern "C" int current_sample;
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                     settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 3:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                  settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                 settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
             case 4:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                  settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMEXPOSURE].detail.mdz_slider.slider_value,
+                                                 settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
         }

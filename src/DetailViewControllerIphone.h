@@ -405,6 +405,7 @@ enum {
 -(void) mdSwitchLockPreset;
 -(void) mdOpenCloseMenu;
 -(void) mdBackAction;
+-(void) mdSwitchBloomFX;
 
 
 

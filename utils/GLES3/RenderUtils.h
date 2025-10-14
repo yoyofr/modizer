@@ -152,12 +152,12 @@ void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 
-void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float expo,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
+void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float bloom_size,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror);
-void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float expo);
+void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float bloom_size);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
@@ -173,12 +173,12 @@ void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy
 
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
 void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness);
-void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float expo);
+void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx);
 
 bool initRenderToTexture(int width,int height);
 void shutdownRenderToTexture();
 void startRenderToTexture(int width,int height);
-void endRenderToTexture(int width,int height,float expo);
+void endRenderToTexture(int width,int height,float bloom_size);
 
 }
 

@@ -61,6 +61,8 @@
               [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
               [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
               
+              [UIKeyCommand keyCommandWithInput:@"b"   modifierFlags:0 action:@selector(keyBPressed)],
+              
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
               [UIKeyCommand keyCommandWithInput:@"\t"  modifierFlags:0 action:@selector(keyTabPressed)],];
@@ -111,6 +113,9 @@
 }
 - (void)keyLPressed{
     [detailViewControllerIphone mdSwitchLockPreset];
+}
+- (void)keyBPressed{
+    [detailViewControllerIphone mdSwitchBloomFX];
 }
 - (void)keyESCPressed{
     [detailViewControllerIphone mdOpenCloseMenu];

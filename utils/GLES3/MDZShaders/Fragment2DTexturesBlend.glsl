@@ -7,7 +7,7 @@ out vec4 outColor;
 
 uniform sampler2D u_textOriginal;
 uniform sampler2D u_textBlurred;
-uniform float u_exposure;
+//uniform float u_exposure;
 
 void main()
 {
@@ -19,9 +19,10 @@ void main()
     hdrColor += bloomColor; // additive blending
     // tone mapping
     vec3 result;
-    result= vec3(1.0) - exp(-hdrColor * u_exposure);
+    result = hdrColor;
+//    result= vec3(1.0) - exp(-hdrColor * u_exposure);
     // also gamma correct while we're at it
-    result = pow(result, vec3(1.0 / gamma));
+//    result = pow(result, vec3(1.0 / gamma));
     outColor = vec4(result, alpha);
 }
 

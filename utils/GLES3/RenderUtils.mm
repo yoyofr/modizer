@@ -575,7 +575,7 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     glRestoreState();
 }
 
-void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx,float expo) {
+void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx) {
     // Use the program object
     if (!renderIsInit) return;
     
@@ -585,7 +585,6 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTexturesBlend->programObject, "a_textCoord");
     GLuint textOrigUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textOriginal");
     GLuint textBlurUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_textBlurred");
-    GLuint expoUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlend->programObject, "u_exposure");
     
     // Save state
     glDumpState();
@@ -641,7 +640,6 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     // Load the uniforms
     glUniform1ui(textOrigUnifHandle, textOrigIdx);
     glUniform1ui(textBlurUnifHandle, textBlurIdx);
-    glUniform1f(expoUnifHandle,expo);
     
     // Render
     glDrawArrays(GL_TRIANGLES,0,6);
@@ -683,12 +681,12 @@ void RenderUtils::startRenderToTexture(int width,int height) {
 }
 
 
-void RenderUtils::endRenderToTexture(int width,int height,float expo) {
+void RenderUtils::endRenderToTexture(int width,int height,float bloom_size) {
     //apply BLUR
     if (!renderIsInit) return;
     GLuint curTexture;
     bool horizontal = true, first_iteration = true;
-    int amount = BLOOM_BLUR_ITERATIONS;
+    int amount = bloom_size;//BLOOM_BLUR_ITERATIONS;
     glUseProgram ( userData_Render2DTexturesBlur->programObject );
     
     for (unsigned int i = 0; i < amount; i++)
@@ -705,7 +703,7 @@ void RenderUtils::endRenderToTexture(int width,int height,float expo) {
     glViewport(0,0,width,height);
     
     // Render by blending the original & blurred textures
-    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture, expo);
+    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture);
     //RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
 }
 
@@ -822,7 +820,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float expo,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float bloom_size,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -1040,7 +1038,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     }
     
     ImGui::PushFont(nullptr,fontSize*2);
-    ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     
     for (int r=0;r<columns_nb;r++) {
         int xpos=xofs+r*columns_width;
@@ -1206,10 +1204,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     }
     
     free(ptsTriangles);
+    free(ptsLines);
+    
     glVertexAttribDivisor ( pointABAttribHandle, 0);
     glRestoreState();
     
-    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,expo);
+    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
 }
 
 static int DrawSpectrum_first_call=1;
@@ -1775,7 +1775,7 @@ void RenderUtils::drawbar2(float x,float y,float z,float sx,float sy,float sz,fl
 float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
-void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float expo) {
+void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float bloom_size) {
     if (!renderIsInit) return;
     
     LineVertexF *pts;
@@ -1949,7 +1949,7 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     
     free(pts);
     
-    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,expo);
+    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);
 #endif
 }
 
