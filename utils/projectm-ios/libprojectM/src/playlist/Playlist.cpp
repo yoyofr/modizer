@@ -220,6 +220,11 @@ auto Playlist::NextPresetIndex() -> uint32_t
 
     if (m_shuffle)
     {
+//        static bool firstCall=true;
+//        if (firstCall) {
+//            firstCall=false;
+//            srand(clock());
+//        }
         std::uniform_int_distribution<uint32_t> randomDistribution(0, static_cast<uint32_t>(m_items.size()));
         m_currentPosition = randomDistribution(m_randomGenerator);
     }

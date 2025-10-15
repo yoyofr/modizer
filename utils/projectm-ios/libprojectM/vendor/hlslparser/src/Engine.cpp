@@ -64,9 +64,8 @@ bool String_EqualNoCase(const char * a, const char * b) {
 #endif
 }
 
+/*
 static inline double iss_strtod(const char * in, char ** end) {
-    
-    return strtod(in,end);
     
     char * in_var = const_cast<char *>(in);
     double df;
@@ -90,9 +89,11 @@ static inline double iss_strtod(const char * in, char ** end) {
     *end = in_var + pos;
     return df;
 }
+*/
 
 double String_ToDouble(const char * str, char ** endptr) {
-	return iss_strtod(str, endptr);
+	//return iss_strtod(str, endptr);
+    return strtod(str, endptr);
 }
 
 int String_ToInteger(const char * str, char ** endptr) {
