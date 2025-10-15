@@ -65,6 +65,9 @@ bool String_EqualNoCase(const char * a, const char * b) {
 }
 
 static inline double iss_strtod(const char * in, char ** end) {
+    
+    return strtod(in,end);
+    
     char * in_var = const_cast<char *>(in);
     double df;
     std::istringstream iss(in);

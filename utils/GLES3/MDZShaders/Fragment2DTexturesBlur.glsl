@@ -16,6 +16,7 @@ void main()
 {
     vec2 tex_offset = vec2(1.0f,1.0f) / vec2(textureSize(u_curTexture, 0)); // gets size of single texel
     vec3 result = texture(u_curTexture, v_textCoord).rgb * weight[0]; // current fragment's contribution
+    
     if(u_horizontal==1)
     {
         for(int i = 1; i < 5; ++i)

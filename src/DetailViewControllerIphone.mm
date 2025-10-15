@@ -1301,11 +1301,14 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) mdPrevPreset {
-    if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, true);
+//    if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, true);
+    if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, false);
 }
 -(void) mdNextPreset {
-    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, true);
+//    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, true);
+    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
 }
+
 -(void) mdSwitchLockPreset {
     if (_pm) {
         char *title;
@@ -4909,7 +4912,7 @@ void pmSoftReinit() {
         std::string homeDir;
         GetHomeDir(homeDir);
         std::string presetsDir = resourceDir+"/projectm/assets/presets";
-        std::string presetsCustomDir = homeDir+"/Documents/.projectm/presets";
+        std::string presetsCustomDir = homeDir+"/Documents"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets";
         
         projectm_playlist_clear(_pm_playlist);
         
@@ -4926,7 +4929,8 @@ void pmSoftReinit() {
         if (projectm_playlist_size(_pm_playlist)) projectm_playlist_play_next(_pm_playlist, true);
         else {
             projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
-            milkPresetStr=strdup("No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.");
+            std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
+            milkPresetStr=strdup(strtmp.c_str());
         }
         milkPreset_hasChanged=true;
     }
@@ -4948,8 +4952,8 @@ void pmSoftReinit() {
     GetHomeDir(homeDir);
     std::string texturesDir = resourceDir+"/projectm/assets/textures";
     std::string presetsDir = resourceDir+"/projectm/assets/presets";
-    std::string texturesCustomDir = homeDir+"/Documents/.projectm/textures";
-    std::string presetsCustomDir = homeDir+"/Documents/.projectm/presets";
+    std::string texturesCustomDir = homeDir+"/Documents"+PM_ROOT_FOLDER_CUSTOM+"/textures";
+    std::string presetsCustomDir = homeDir+"/Documents"+PM_ROOT_FOLDER_CUSTOM+"/presets";
     
 //    NSLog(@"Textures: %s",texturesDir.c_str());
 //    NSLog(@"Presets: %s",presetsDir.c_str());
@@ -5021,11 +5025,14 @@ void pmSoftReinit() {
     milkPresetStr=NULL;
     milkPreset_hasChanged=false;
     
+    if (projectm_playlist_size(_pm_playlist)==0) {
+        std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
+        milkPresetStr=strdup(strtmp.c_str());
+    }
+    
     projectm_playlist_play_next(_pm_playlist, true);
 
-    if (projectm_playlist_size(_pm_playlist)==0) {
-        milkPresetStr=strdup("No preset found. Activate bundled presets or copy files in '.projectm/presets' & '.projectm/textures' folders.");
-    }
+    
     milkPreset_hasChanged=true;
     
 }
