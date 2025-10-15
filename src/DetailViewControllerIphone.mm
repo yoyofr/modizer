@@ -98,9 +98,10 @@ projectm_handle _pm; //!< Pointer to the projectM instance used by the applicati
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 char *milkPresetStr;
+int _pm_display_name_countdown;
 bool milkPreset_hasChanged;
 //
-static int fps=60;
+static int _pm_fps=60;
 static int meshX=32,meshY=24;
 static float glScaleFactor=1.0;
 
@@ -129,6 +130,8 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     milkPresetStr=(char*)malloc(strlen(title)+32);
     sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
     milkPreset_hasChanged=true;
+    
+    _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
     
     projectm_playlist_free_string(presetName);
 }
@@ -1035,6 +1038,8 @@ static float movePinchScale,movePinchScaleOld;
         [self updateVisibleChan];
         
         [self checkGLViewCanDisplay];
+        
+        if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
     }
     
     /////////////////////
@@ -4963,9 +4968,11 @@ void pmSoftReinit() {
     canvasHeight=m_oglView.frame.size.height*glScaleFactor;
     
 //    NSLog(@"Canvas: %d x %d",canvasWidth,canvasHeight);
+    
+    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
 
     projectm_set_window_size(_pm, canvasWidth, canvasHeight);
-    projectm_set_fps(_pm, fps);
+    projectm_set_fps(_pm, _pm_fps);
     
     meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
@@ -5018,12 +5025,13 @@ void pmSoftReinit() {
 
     projectm_playlist_set_preset_switched_event_callback(_pm_playlist, &PresetSwitchedEvent, nil);
     projectm_playlist_set_preset_switch_failed_event_callback(_pm_playlist, &PresetSwitchFailedEvent, nil);
-    
-    
-    NSLog(@"projectM initialized");
+
+
+    MDZLog(@"projectM initialized");
     
     milkPresetStr=NULL;
     milkPreset_hasChanged=false;
+    _pm_display_name_countdown=0;
     
     if (projectm_playlist_size(_pm_playlist)==0) {
         std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
@@ -5767,7 +5775,7 @@ void pmSoftReinit() {
     
     //    m_displayLink=nil;
         m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
-        m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //60 or 30 fps depending on device speed iPhone
+        m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
         [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 
     //	[super viewDidLoad];
@@ -6160,6 +6168,8 @@ void pmSoftReinit() {
     [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
     
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
+    
+    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
     
     movePxMID=movePyMID=0;
     moveMILKnomore=0;
@@ -7703,22 +7713,22 @@ extern "C" int current_sample;
             static float scrollx=0;
             static int scroll_direction=1;
             static int scroll_pause=0;
-            static int display_countdown=0;
+            
             
             if (milkPreset_hasChanged) {
                 milkPreset_hasChanged=false;
                 scrollx=0;
                 scroll_direction=1;
-                display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+                _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
             //if not limited, reset countdown
             if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) || (projectm_playlist_size(_pm_playlist)==0)) {
-                display_countdown=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30)*4;
+                _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
-            if (milkPresetStr&&display_countdown) {
-                float alpha_val=(float)(display_countdown*4)/255.0;
+            if (milkPresetStr&&_pm_display_name_countdown) {
+                float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
                 
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
@@ -7739,7 +7749,7 @@ extern "C" int current_sample;
                 ImGui::SetScrollX(scrollx);
                 ImGui::End();
                 
-                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&display_countdown) display_countdown--;
+                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
                 
                 if (scroll_pause) scroll_pause--;
                 else {
@@ -7748,7 +7758,7 @@ extern "C" int current_sample;
                         else {
                             if (scrollx>0) {
                                 scroll_direction=-1;
-                                scroll_pause=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30);
+                                scroll_pause=_pm_fps*1.5;
                             }
                         }
                     } else {
@@ -7756,7 +7766,7 @@ extern "C" int current_sample;
                         else {
                             scrollx=0;
                             scroll_direction=1;
-                            scroll_pause=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30);
+                            scroll_pause=_pm_fps*1.5;
                         }
                     }
                 }

@@ -1833,6 +1833,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[1]=(char*)"60";
+    settings[GLOB_FXFPS].callback=&optVISUChangedC;
     
     /////////////////////////////////////
     //MILKDROP
