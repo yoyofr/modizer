@@ -13,6 +13,7 @@ jobs:
       # HIGHLIGHT_LANGS: show these languages individually; everything else goes to "Others"
       HIGHLIGHT_LANGS: "C,Objective-C,C++,Objective-C++,GLSL"
 
+
       # IGNORE_LANGS: drop these languages entirely (not shown and not counted)
       IGNORE_LANGS: "JSON,HTML,CSS,SCSS,Sass,Markdown,SVG,XML,YAML,TOML,CSV,Text,Properties"
 
