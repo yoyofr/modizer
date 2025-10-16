@@ -110,7 +110,7 @@ extern void *LoadingProgressObserverContext;
 #define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz
 
-#define MILK_BUFFER_SIZE 735*2 //Milkdrop sound buffer size.
+#define MILK_BUFFER_SIZE 735*2 //ProjectM sound buffer size.
 #define PM_ROOT_FOLDER_CUSTOM "/ProjectM"
 #define PM_PRESET_DISPLAY_TIMEOUT 5 //Display time in seconds of preset's name when in temporary display mode
 

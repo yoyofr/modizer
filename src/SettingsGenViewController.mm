@@ -222,12 +222,12 @@ void optGLOBALChangedC(id param) {
 void optVISUChangedC(id param) {
     [param optVISUChanged];
 }
-//MILKDROP
--(void) optMILKDROPChanged {
-    [detailViewController settingsChanged:(int)SETTINGS_MILKDROP];
+//PROJECTM
+-(void) optPROJECTMChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_PROJECTM];
 }
-void optMILKDROPChangedC(id param) {
-    [param optMILKDROPChanged];
+void optPROJECTMChangedC(id param) {
+    [param optPROJECTMChanged];
 }
 //ADPLUG
 -(void) optADPLUGChanged {
@@ -672,28 +672,26 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     
     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=10.0;
-    settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
-    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
+    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
     
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=0;
-    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
-    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
-    settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
-    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
-    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value=2.7;
-    settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value=1;
-    settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
+    settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
+    settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_value=15.0;
+    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_value=2.7;
+    settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value=1;
     
-    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value=32;
-    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value=24;
-    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value=20;
-    settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value=1;
-    settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value=1;
-    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value=1.0;
+    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value=32;
+    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value=24;
+    settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value=20;
+    settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value=1.0;
     
     
     settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
@@ -932,12 +930,12 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_FAMILY_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     
-    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_MILKDROP)
-    settings[MDZ_SETTINGS_FAMILY_MILKDROP].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_MILKDROP].label=(char*)"Milkdrop settings";
-    settings[MDZ_SETTINGS_FAMILY_MILKDROP].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_MILKDROP].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[MDZ_SETTINGS_FAMILY_MILKDROP].sub_family=MDZ_SETTINGS_FAMILY_MILKDROP;
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PROJECTM)
+    settings[MDZ_SETTINGS_FAMILY_PROJECTM].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_PROJECTM].label=(char*)"ProjectM settings";
+    settings[MDZ_SETTINGS_FAMILY_PROJECTM].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_PROJECTM].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_PROJECTM].sub_family=MDZ_SETTINGS_FAMILY_PROJECTM;
     
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_OSCILLO)
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].type=MDZ_FAMILY;
@@ -1542,26 +1540,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_BLOOMFX].sub_family=0;
     
-    SETTINGS_ID_DEF(GLOB_BLOOMSIZE)
-    settings[GLOB_BLOOMSIZE].label=(char*)"Bloom size";
-    settings[GLOB_BLOOMSIZE].description=(char*)"Higher is slower";
-    settings[GLOB_BLOOMSIZE].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_BLOOMSIZE].sub_family=0;
-    settings[GLOB_BLOOMSIZE].callback=&optVISUChangedC;
-    settings[GLOB_BLOOMSIZE].type=MDZ_SLIDER_DISCRETE;
-    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_digits=0;
-    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_min_value=1;
-    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_max_value=15;
-    
-    SETTINGS_ID_DEF(GLOB_FXRandom)
-    settings[GLOB_FXRandom].label=(char*)"Random FX";
-    settings[GLOB_FXRandom].description=NULL;
-    settings[GLOB_FXRandom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXRandom].sub_family=0;
-    settings[GLOB_FXRandom].callback=&optVISUChangedC;
-    settings[GLOB_FXRandom].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
-    
     SETTINGS_ID_DEF(GLOB_FXFullscreen)
     settings[GLOB_FXFullscreen].label=(char*)"FX Fullscreen";
     settings[GLOB_FXFullscreen].description=NULL;
@@ -1836,170 +1814,170 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].callback=&optVISUChangedC;
     
     /////////////////////////////////////
-    //MILKDROP
+    //PROJECTM
     /////////////////////////////////////
     ///
-    SETTINGS_ID_DEF(MILKDROP_FXONOFF)
-    settings[MILKDROP_FXONOFF].type=MDZ_SWITCH;
-    settings[MILKDROP_FXONOFF].label=(char*)"Milkdrop FX";
-    settings[MILKDROP_FXONOFF].description=NULL;
-    settings[MILKDROP_FXONOFF].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_FXONOFF].sub_family=0;
-    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value_nb=2;
-    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_labels[1]=(char*)"On";
+    SETTINGS_ID_DEF(PROJECTM_FXONOFF)
+    settings[PROJECTM_FXONOFF].type=MDZ_SWITCH;
+    settings[PROJECTM_FXONOFF].label=(char*)"ProjectM FX";
+    settings[PROJECTM_FXONOFF].description=NULL;
+    settings[PROJECTM_FXONOFF].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_FXONOFF].sub_family=0;
+    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value_nb=2;
+    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels[1]=(char*)"On";
     
-    SETTINGS_ID_DEF(MILKDROP_BundledPresets)
-    settings[MILKDROP_BundledPresets].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_BundledPresets].label=(char*)"Bundled presets";
-    settings[MILKDROP_BundledPresets].description=NULL;
-    settings[MILKDROP_BundledPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_BundledPresets].sub_family=0;
-    settings[MILKDROP_BundledPresets].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_BundledPresets)
+    settings[PROJECTM_BundledPresets].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_BundledPresets].label=(char*)"Bundled presets";
+    settings[PROJECTM_BundledPresets].description=NULL;
+    settings[PROJECTM_BundledPresets].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_BundledPresets].sub_family=0;
+    settings[PROJECTM_BundledPresets].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_CustomPresets)
-    settings[MILKDROP_CustomPresets].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_CustomPresets].label=(char*)"Custom presets";
-    settings[MILKDROP_CustomPresets].description=(char*)"Custom presets/textures should be copied in .projectm folder";
-    settings[MILKDROP_CustomPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_CustomPresets].sub_family=0;
-    settings[MILKDROP_CustomPresets].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_CustomPresets)
+    settings[PROJECTM_CustomPresets].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_CustomPresets].label=(char*)"Custom presets";
+    settings[PROJECTM_CustomPresets].description=(char*)"Custom presets/textures should be copied in .projectm folder";
+    settings[PROJECTM_CustomPresets].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_CustomPresets].sub_family=0;
+    settings[PROJECTM_CustomPresets].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_ShowPresetLabel)
-    settings[MILKDROP_ShowPresetLabel].type=MDZ_SWITCH;
-    settings[MILKDROP_ShowPresetLabel].label=(char*)"Display preset name";
-    settings[MILKDROP_ShowPresetLabel].description=(char*)"Lim: display and disappear quickly";
-    settings[MILKDROP_ShowPresetLabel].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_ShowPresetLabel].sub_family=0;
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value_nb=3;
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[1]=(char*)"Lim";
-    settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_labels[2]=(char*)"On";
-    settings[MILKDROP_ShowPresetLabel].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_ShowPresetLabel)
+    settings[PROJECTM_ShowPresetLabel].type=MDZ_SWITCH;
+    settings[PROJECTM_ShowPresetLabel].label=(char*)"Display preset name";
+    settings[PROJECTM_ShowPresetLabel].description=(char*)"Lim: display and disappear quickly";
+    settings[PROJECTM_ShowPresetLabel].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_ShowPresetLabel].sub_family=0;
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value_nb=3;
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_labels[1]=(char*)"Lim";
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_labels[2]=(char*)"On";
+    settings[PROJECTM_ShowPresetLabel].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_AutoSwitchPresetsMode)
-    settings[MILKDROP_AutoSwitchPresetsMode].type=MDZ_SWITCH;
-    settings[MILKDROP_AutoSwitchPresetsMode].label=(char*)"Auto switch presets";
-    settings[MILKDROP_AutoSwitchPresetsMode].description=NULL;
-    settings[MILKDROP_AutoSwitchPresetsMode].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_AutoSwitchPresetsMode].sub_family=0;
-    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb=2;
-    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Rand";
-    settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Next";
-    settings[MILKDROP_AutoSwitchPresetsMode].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_AutoSwitchPresetsMode)
+    settings[PROJECTM_AutoSwitchPresetsMode].type=MDZ_SWITCH;
+    settings[PROJECTM_AutoSwitchPresetsMode].label=(char*)"Auto switch presets";
+    settings[PROJECTM_AutoSwitchPresetsMode].description=NULL;
+    settings[PROJECTM_AutoSwitchPresetsMode].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_AutoSwitchPresetsMode].sub_family=0;
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb=2;
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Rand";
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Next";
+    settings[PROJECTM_AutoSwitchPresetsMode].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_LockPreset)
-    settings[MILKDROP_LockPreset].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_LockPreset].label=(char*)"Lock preset";
-    settings[MILKDROP_LockPreset].description=NULL;
-    settings[MILKDROP_LockPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_LockPreset].sub_family=0;
-    settings[MILKDROP_LockPreset].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_LockPreset)
+    settings[PROJECTM_LockPreset].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_LockPreset].label=(char*)"Lock preset";
+    settings[PROJECTM_LockPreset].description=NULL;
+    settings[PROJECTM_LockPreset].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_LockPreset].sub_family=0;
+    settings[PROJECTM_LockPreset].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_BlendPresets)
-    settings[MILKDROP_BlendPresets].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_BlendPresets].label=(char*)"Blend presets";
-    settings[MILKDROP_BlendPresets].description=NULL;
-    settings[MILKDROP_BlendPresets].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_BlendPresets].sub_family=0;
-    settings[MILKDROP_BlendPresets].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_BlendPresets)
+    settings[PROJECTM_BlendPresets].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_BlendPresets].label=(char*)"Blend presets";
+    settings[PROJECTM_BlendPresets].description=NULL;
+    settings[PROJECTM_BlendPresets].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_BlendPresets].sub_family=0;
+    settings[PROJECTM_BlendPresets].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_TimeBetweenPreset)
-    settings[MILKDROP_TimeBetweenPreset].label=(char*)"Time between presets";
-    settings[MILKDROP_TimeBetweenPreset].description=(char*)"Default is 15s";
-    settings[MILKDROP_TimeBetweenPreset].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_TimeBetweenPreset].sub_family=0;
-    settings[MILKDROP_TimeBetweenPreset].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_TimeBetweenPreset].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_digits=1;
-    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_min_value=3;
-    settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_max_value=60;
+    SETTINGS_ID_DEF(PROJECTM_TimeBetweenPreset)
+    settings[PROJECTM_TimeBetweenPreset].label=(char*)"Time between presets";
+    settings[PROJECTM_TimeBetweenPreset].description=(char*)"Default is 15s";
+    settings[PROJECTM_TimeBetweenPreset].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_TimeBetweenPreset].sub_family=0;
+    settings[PROJECTM_TimeBetweenPreset].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_TimeBetweenPreset].type=MDZ_SLIDER_CONTINUOUS;
+    settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_digits=1;
+    settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_min_value=3;
+    settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_max_value=60;
     
-    SETTINGS_ID_DEF(MILKDROP_BlendTime)
-    settings[MILKDROP_BlendTime].label=(char*)"Blend time";
-    settings[MILKDROP_BlendTime].description=(char*)"Default is 2.7s";
-    settings[MILKDROP_BlendTime].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_BlendTime].sub_family=0;
-    settings[MILKDROP_BlendTime].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_BlendTime].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_digits=1;
-    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_min_value=0.5;
-    settings[MILKDROP_BlendTime].detail.mdz_slider.slider_max_value=5;
+    SETTINGS_ID_DEF(PROJECTM_BlendTime)
+    settings[PROJECTM_BlendTime].label=(char*)"Blend time";
+    settings[PROJECTM_BlendTime].description=(char*)"Default is 2.7s";
+    settings[PROJECTM_BlendTime].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_BlendTime].sub_family=0;
+    settings[PROJECTM_BlendTime].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_BlendTime].type=MDZ_SLIDER_CONTINUOUS;
+    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_digits=1;
+    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_min_value=0.5;
+    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_max_value=5;
     
     
-    SETTINGS_ID_DEF(MILKDROP_MeshSizeX)
-    settings[MILKDROP_MeshSizeX].label=(char*)"Mesh size X";
-    settings[MILKDROP_MeshSizeX].description=(char*)"Default value is 32";
-    settings[MILKDROP_MeshSizeX].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_MeshSizeX].sub_family=0;
-    settings[MILKDROP_MeshSizeX].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_MeshSizeX].type=MDZ_SLIDER_DISCRETE_EVEN;
-    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_digits=0;
-    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_min_value=8;
-    settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_max_value=128;
+    SETTINGS_ID_DEF(PROJECTM_MeshSizeX)
+    settings[PROJECTM_MeshSizeX].label=(char*)"Mesh size X";
+    settings[PROJECTM_MeshSizeX].description=(char*)"Default value is 32";
+    settings[PROJECTM_MeshSizeX].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_MeshSizeX].sub_family=0;
+    settings[PROJECTM_MeshSizeX].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_MeshSizeX].type=MDZ_SLIDER_DISCRETE_EVEN;
+    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_digits=0;
+    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_min_value=8;
+    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_max_value=128;
     
-    SETTINGS_ID_DEF(MILKDROP_MeshSizeY)
-    settings[MILKDROP_MeshSizeY].label=(char*)"Mesh size Y";
-    settings[MILKDROP_MeshSizeY].description=(char*)"Default value is 24";
-    settings[MILKDROP_MeshSizeY].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_MeshSizeY].sub_family=0;
-    settings[MILKDROP_MeshSizeY].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_MeshSizeY].type=MDZ_SLIDER_DISCRETE_EVEN;
-    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_digits=0;
-    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_min_value=6;
-    settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_max_value=96;
+    SETTINGS_ID_DEF(PROJECTM_MeshSizeY)
+    settings[PROJECTM_MeshSizeY].label=(char*)"Mesh size Y";
+    settings[PROJECTM_MeshSizeY].description=(char*)"Default value is 24";
+    settings[PROJECTM_MeshSizeY].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_MeshSizeY].sub_family=0;
+    settings[PROJECTM_MeshSizeY].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_MeshSizeY].type=MDZ_SLIDER_DISCRETE_EVEN;
+    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_digits=0;
+    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_min_value=6;
+    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_max_value=96;
     
-    SETTINGS_ID_DEF(MILKDROP_HardCutMinTime)
-    settings[MILKDROP_HardCutMinTime].label=(char*)"Hardcut min time";
-    settings[MILKDROP_HardCutMinTime].description=(char*)"Default value is 20";
-    settings[MILKDROP_HardCutMinTime].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_HardCutMinTime].sub_family=0;
-    settings[MILKDROP_HardCutMinTime].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_HardCutMinTime].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_digits=0;
-    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_min_value=0;
-    settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_max_value=60;
+    SETTINGS_ID_DEF(PROJECTM_HardCutMinTime)
+    settings[PROJECTM_HardCutMinTime].label=(char*)"Hardcut min time";
+    settings[PROJECTM_HardCutMinTime].description=(char*)"Default value is 20";
+    settings[PROJECTM_HardCutMinTime].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_HardCutMinTime].sub_family=0;
+    settings[PROJECTM_HardCutMinTime].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_HardCutMinTime].type=MDZ_SLIDER_CONTINUOUS;
+    settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_digits=0;
+    settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_min_value=0;
+    settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_max_value=60;
     
-    SETTINGS_ID_DEF(MILKDROP_HardCutEnabled)
-    settings[MILKDROP_HardCutEnabled].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_HardCutEnabled].label=(char*)"Hardcut";
-    settings[MILKDROP_HardCutEnabled].description=(char*)"Hardcut triggers presets switch synchronized with beats.";
-    settings[MILKDROP_HardCutEnabled].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_HardCutEnabled].sub_family=0;
-    settings[MILKDROP_HardCutEnabled].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_HardCutEnabled)
+    settings[PROJECTM_HardCutEnabled].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_HardCutEnabled].label=(char*)"Hardcut";
+    settings[PROJECTM_HardCutEnabled].description=(char*)"Hardcut triggers presets switch synchronized with beats.";
+    settings[PROJECTM_HardCutEnabled].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_HardCutEnabled].sub_family=0;
+    settings[PROJECTM_HardCutEnabled].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_AspectRatio)
-    settings[MILKDROP_AspectRatio].type=MDZ_BOOLSWITCH;
-    settings[MILKDROP_AspectRatio].label=(char*)"Aspect ratio";
-    settings[MILKDROP_AspectRatio].description=(char*)"Preserve aspect ratio for compatible shaders.";
-    settings[MILKDROP_AspectRatio].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_AspectRatio].sub_family=0;
-    settings[MILKDROP_AspectRatio].callback=&optMILKDROPChangedC;
+    SETTINGS_ID_DEF(PROJECTM_AspectRatio)
+    settings[PROJECTM_AspectRatio].type=MDZ_BOOLSWITCH;
+    settings[PROJECTM_AspectRatio].label=(char*)"Aspect ratio";
+    settings[PROJECTM_AspectRatio].description=(char*)"Preserve aspect ratio for compatible shaders.";
+    settings[PROJECTM_AspectRatio].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_AspectRatio].sub_family=0;
+    settings[PROJECTM_AspectRatio].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(MILKDROP_BeatSensitivity)
-    settings[MILKDROP_BeatSensitivity].label=(char*)"Beat sensitivity";
-    settings[MILKDROP_BeatSensitivity].description=(char*)"Default value is 1";
-    settings[MILKDROP_BeatSensitivity].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_BeatSensitivity].sub_family=0;
-    settings[MILKDROP_BeatSensitivity].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_BeatSensitivity].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_digits=1;
-    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_min_value=0;
-    settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_max_value=5;
+    SETTINGS_ID_DEF(PROJECTM_BeatSensitivity)
+    settings[PROJECTM_BeatSensitivity].label=(char*)"Beat sensitivity";
+    settings[PROJECTM_BeatSensitivity].description=(char*)"Default value is 1";
+    settings[PROJECTM_BeatSensitivity].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_BeatSensitivity].sub_family=0;
+    settings[PROJECTM_BeatSensitivity].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_BeatSensitivity].type=MDZ_SLIDER_CONTINUOUS;
+    settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_digits=1;
+    settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_min_value=0;
+    settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_max_value=5;
     
-    SETTINGS_ID_DEF(MILKDROP_HardCutSensitivity)
-    settings[MILKDROP_HardCutSensitivity].label=(char*)"Hardcut sensitivity";
-    settings[MILKDROP_HardCutSensitivity].description=(char*)"Default value is 1";
-    settings[MILKDROP_HardCutSensitivity].family=MDZ_SETTINGS_FAMILY_MILKDROP;
-    settings[MILKDROP_HardCutSensitivity].sub_family=0;
-    settings[MILKDROP_HardCutSensitivity].callback=&optMILKDROPChangedC;
-    settings[MILKDROP_HardCutSensitivity].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_digits=1;
-    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_min_value=0;
-    settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_max_value=5;
+    SETTINGS_ID_DEF(PROJECTM_HardCutSensitivity)
+    settings[PROJECTM_HardCutSensitivity].label=(char*)"Hardcut sensitivity";
+    settings[PROJECTM_HardCutSensitivity].description=(char*)"Default value is 1";
+    settings[PROJECTM_HardCutSensitivity].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_HardCutSensitivity].sub_family=0;
+    settings[PROJECTM_HardCutSensitivity].callback=&optPROJECTMChangedC;
+    settings[PROJECTM_HardCutSensitivity].type=MDZ_SLIDER_CONTINUOUS;
+    settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_digits=1;
+    settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_min_value=0;
+    settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_max_value=5;
     
     /////////////////////////////////////
     //OSCILLO

@@ -55,7 +55,7 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_NSFPLAY,
     SETTINGS_OSCILLO,
     SETTINGS_PIANOMIDI,
-    SETTINGS_MILKDROP
+    SETTINGS_PROJECTM
 };
 
 enum MDZ_SETTINGS {
@@ -260,29 +260,28 @@ enum MDZ_SETTINGS {
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
     GLOB_BLOOMFX,
-    GLOB_BLOOMSIZE,
     GLOB_FXAlpha,
     GLOB_FXFullscreen,
     GLOB_FXFPS,
     GLOB_FXMSAA,
     GLOB_FXLOD,
-        MDZ_SETTINGS_FAMILY_MILKDROP,
-        MILKDROP_FXONOFF,
-        MILKDROP_ShowPresetLabel,
-        MILKDROP_AutoSwitchPresetsMode,
-        MILKDROP_LockPreset,
-        MILKDROP_TimeBetweenPreset,
-        MILKDROP_BlendPresets,
-        MILKDROP_BlendTime,
-        MILKDROP_BundledPresets,
-        MILKDROP_CustomPresets,
-        MILKDROP_HardCutEnabled,
-        MILKDROP_HardCutMinTime,
-        MILKDROP_HardCutSensitivity,
-        MILKDROP_BeatSensitivity,
-        MILKDROP_MeshSizeX,
-        MILKDROP_MeshSizeY,
-        MILKDROP_AspectRatio,
+        MDZ_SETTINGS_FAMILY_PROJECTM,
+        PROJECTM_FXONOFF,
+        PROJECTM_ShowPresetLabel,
+        PROJECTM_AutoSwitchPresetsMode,
+        PROJECTM_LockPreset,
+        PROJECTM_TimeBetweenPreset,
+        PROJECTM_BlendPresets,
+        PROJECTM_BlendTime,
+        PROJECTM_BundledPresets,
+        PROJECTM_CustomPresets,
+        PROJECTM_HardCutEnabled,
+        PROJECTM_HardCutMinTime,
+        PROJECTM_HardCutSensitivity,
+        PROJECTM_BeatSensitivity,
+        PROJECTM_MeshSizeX,
+        PROJECTM_MeshSizeY,
+        PROJECTM_AspectRatio,
         
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
@@ -358,7 +357,6 @@ enum MDZ_SETTINGS {
         
     GLOB_FXSpectrum,
     GLOB_FX3DLandscape,
-    GLOB_FXRandom,
     
     MAX_SETTINGS
 };

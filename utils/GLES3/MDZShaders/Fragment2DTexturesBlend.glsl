@@ -22,7 +22,7 @@ void main()
     // tone mapping
     vec3 result;
     
-    result = hdrColor;
+//    result = hdrColor;
     result= vec3(1.0) - exp(-hdrColor * u_exposure);
     // also gamma correct while we're at it
     result = pow(result, vec3(1.0 / gamma));

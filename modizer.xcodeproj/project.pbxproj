@@ -789,6 +789,10 @@
 		CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */; };
 		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
+		CC9331782EA1521B00CB0503 /* amiga4ever pro2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */; };
+		CC9331792EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */; };
+		CC93317A2EA1521B00CB0503 /* FT2FONT.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331762EA1521B00CB0503 /* FT2FONT.ttf */; };
+		CC93317B2EA1521B00CB0503 /* ModernDOS8x16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
@@ -2503,6 +2507,12 @@
 		CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-80.png"; sourceTree = "<group>"; };
 		CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-100.png"; sourceTree = "<group>"; };
 		CC8D41AF1801E26F00533682 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = SOURCE_ROOT; };
+		CC9331562EA040B200CB0503 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		CC9331582EA040B300CB0503 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "amiga4ever pro2.ttf"; sourceTree = "<group>"; };
+		CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Commodore Pixelized v1.2.ttf"; sourceTree = "<group>"; };
+		CC9331762EA1521B00CB0503 /* FT2FONT.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FT2FONT.ttf; sourceTree = "<group>"; };
+		CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ModernDOS8x16.ttf; sourceTree = "<group>"; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2964,6 +2974,8 @@
 				CC1E56CA1200B391000A8A4E /* OpenGLES.framework */,
 				CC1E56CC1200B391000A8A4E /* QuartzCore.framework */,
 				CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */,
+				CC9331562EA040B200CB0503 /* WidgetKit.framework */,
+				CC9331582EA040B300CB0503 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4013,6 +4025,10 @@
 		CC1E5A2A1200B3B8000A8A4E /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */,
+				CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */,
+				CC9331762EA1521B00CB0503 /* FT2FONT.ttf */,
+				CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */,
 				CCE025722E98F7EB008B7070 /* Cousine-Regular.ttf */,
 				CCE025732E98F7EB008B7070 /* DroidSans.ttf */,
 				CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */,
@@ -5481,6 +5497,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1500;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "modizer" */;
@@ -6408,6 +6425,10 @@
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */,
+				CC9331782EA1521B00CB0503 /* amiga4ever pro2.ttf in Resources */,
+				CC9331792EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf in Resources */,
+				CC93317A2EA1521B00CB0503 /* FT2FONT.ttf in Resources */,
+				CC93317B2EA1521B00CB0503 /* ModernDOS8x16.ttf in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
 				59909B601E3E7F2400C629AA /* tabview_gradient40Black.png in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,

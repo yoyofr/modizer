@@ -6,7 +6,7 @@
  *  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
  *
  */
-#define BLOOM_BLUR_ITERATIONS 10 //Horizontal+Vertical (alternate)
+#define BLOOM_BLUR_ITERATIONS 7 //
 
 extern int NOTES_DISPLAY_TOPMARGIN;
 
@@ -677,19 +677,28 @@ void RenderUtils::startRenderToTexture(int width,int height) {
 }
 
 
-void RenderUtils::endRenderToTexture(int width,int height,float bloom_size) {
+void RenderUtils::endRenderToTexture(int width,int height) {
     //apply BLUR
     if (!renderIsInit) return;
     GLuint curTexture;
     bool horizontal = true, first_iteration = true;
-    int amount = bloom_size;//BLOOM_BLUR_ITERATIONS;
+    int amount = BLOOM_BLUR_ITERATIONS;
     glUseProgram ( userData_Render2DTexturesBlur->programObject );
     
+//    for (unsigned int i = 0; i < amount; i++)
+//    {
+//        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+//        curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
+//        RenderUtils::DrawTextureBlur(width, height, curTexture, (horizontal?1:0),(first_iteration?0.0f:0.0f));
+//        horizontal = !horizontal;
+//        if (first_iteration)
+//            first_iteration = false;
+//    }
     for (unsigned int i = 0; i < amount; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
         curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-        RenderUtils::DrawTextureBlur(width, height, curTexture, (horizontal?1:0),(first_iteration?0.0f:0.0f));
+        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?0.0f:0.0f));
         horizontal = !horizontal;
         if (first_iteration)
             first_iteration = false;
@@ -817,7 +826,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,float bloom_size,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
+void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
@@ -915,10 +924,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             thickness=2.0;//(2.0f*mScaleFactor);
             break;
         case 2:
-            thickness=4.0;//(3.0f*mScaleFactor);
+            thickness=3.0;//(3.0f*mScaleFactor);
             break;
         case 3:
-            thickness=8.0;//(4.0f*mScaleFactor);
+            thickness=4.0;//(4.0f*mScaleFactor);
             break;
     }
 
@@ -1035,8 +1044,10 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             break;
     }
     
-    ImGui::PushFont(nullptr,fontSize*2);
+    ImGui::PushFont(nullptr,fontSize*mScaleFactor);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
+    //ImGui::SetCursorPos(ImVec2(0,0));
+    //ImGui::Text("%d %d",ww,hh);
     
     for (int r=0;r<columns_nb;r++) {
         int xpos=xofs+r*columns_width;
@@ -1092,7 +1103,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     ImGui::PopFont();
     ImGui::PopStyleColor();
     
-    GLfloat line_width=thickness*(2.0f/(float)ww);
+    GLfloat line_width=mScaleFactor*thickness/(float)hh;
     
     LineVertexF *ptsTriangles;
     
@@ -1155,6 +1166,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     // Load the line width
     glUniform1fv(widthHandle,1, &line_width);
+    
+    //ImGui::Text("%.3f x %.3f, %.3f x %.3f",ptsLines[0].Ax,ptsLines[0].Ay,ptsLines[0].Bx,ptsLines[0].By);
     
     glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
     
@@ -1774,7 +1787,7 @@ void RenderUtils::drawbar2(float x,float y,float z,float sx,float sy,float sz,fl
 float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
-void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom,float bloom_size) {
+void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom) {
     if (!renderIsInit) return;
     
     LineVertexF *pts;

@@ -8,6 +8,23 @@ static ImGuiIOSEvent currentEvent;
 
 ImFont  *font_body;
 
+
+ImFont  *font_tracker[FONT_TRACKER_NB];
+NSString *font_trackerName[FONT_TRACKER_NB]={
+    @"ModernDOS8x16",
+    @"amiga4ever pro2",
+    @"Commodore Pixelized v1.2",
+    @"FT2FONT"
+};
+
+float font_trackerSize[FONT_TRACKER_NB]={
+    16.0,
+    16.0,
+    16.0,
+    16.0
+};
+
+
 // Functions
 bool ImGui_ImplIOS_Init()
 {
@@ -26,8 +43,14 @@ bool ImGui_ImplIOS_Init()
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
     ;
-    ImFont* font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f, NULL, io.Fonts->GetGlyphRangesDefault());
     IM_ASSERT(font_body != NULL);
+    
+    for (int i=0;i<FONT_TRACKER_NB;i++) {
+        NSLog(@"loading %@.ttf",font_trackerName[i]);
+        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:font_trackerName[i] ofType: @"ttf"] UTF8String], font_trackerSize[i], NULL, io.Fonts->GetGlyphRangesDefault());
+        IM_ASSERT(font_tracker[i] != NULL);
+    }
 
     return true;
 }

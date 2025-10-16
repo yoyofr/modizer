@@ -99,7 +99,7 @@ projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist man
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 char *milkPresetStr;
 int _pm_display_name_countdown;
-bool milkPreset_hasChanged;
+bool _pmPresetHasChanged;
 //
 static int _pm_fps=60;
 static int meshX=32,meshY=24;
@@ -129,7 +129,7 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     }
     milkPresetStr=(char*)malloc(strlen(title)+32);
     sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
-    milkPreset_hasChanged=true;
+    _pmPresetHasChanged=true;
     
     _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
     
@@ -146,6 +146,8 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/imgui.h"
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
+
+extern ImFont  *font_tracker[FONT_TRACKER_NB];
 
 //--------------------------------------------------
 
@@ -195,7 +197,6 @@ static NSDate *locationLastUpdate=nil;
 
 int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
-static int mRandomFXCpt,mRandomFXCptRev;
 static int infoIsFullscreen=0;
 static MPVolumeView *volumeView;
 
@@ -601,7 +602,7 @@ UIImage *backgroundImage;
     }
 }
 
--(bool) isMilkDropAlone {
+-(bool) isProjectMAlone {
     bool ret=true;
     //Only Piano, Midi & MOD are using screen touches
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
@@ -622,7 +623,7 @@ UIImage *backgroundImage;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     
-    if (settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<8;
+    if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<8;
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
     
@@ -985,6 +986,7 @@ static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static int currentPattern,currentRow,startChan,visibleChan;
+static float modPatternLineSize,modPatternWindowSize;
 
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0;
 static float startPx=0,startPy=0;
@@ -1220,7 +1222,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optXMP_SetTempo];
     }
     
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MILKDROP)) {
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_PROJECTM)) {
         if (_pm && _pm_playlist) {
             pmSoftReinit();
         }
@@ -1325,13 +1327,13 @@ static float movePinchScale,movePinchScaleOld;
             char *tmp_str=(char*)malloc(strlen(name)+32);
             sprintf(tmp_str,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
             
-            if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) {
+            if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
-                settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
                 [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",tmp_str] style:0];
             } else {
                 projectm_set_preset_locked(_pm, true);
-                settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
                 [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",tmp_str] style:0];
             }
             
@@ -1387,7 +1389,7 @@ static float movePinchScale,movePinchScaleOld;
         case 7:
             break;
         case 8:
-            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=(settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value+1)%2;
+            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=(settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value+1)%2;
             break;
         case 9:
             break;
@@ -1819,86 +1821,6 @@ static float movePinchScale,movePinchScaleOld;
         return;
     } else {
         //		NSLog(@"waiting : %d %d",mplayer.bGlobalAudioPause,[mplayer isEndReached]);
-    }
-    
-    if ( (mPaused==0)&&(mplayer.bGlobalAudioPause==0)&&(settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value) ) {
-        if (mRandomFXCpt) {
-            mRandomFXCpt--;
-            mRandomFXCptRev++;
-        }
-        if (mRandomFXCpt==0) {
-            mRandomFXCpt=MIN_RANDFX_TIME*5+arc4random()%(5*MAX_RANDFX_TIME); //Min is 10 seconds Max is 60seconds
-            mRandomFXCptRev=0;
-            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
-            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
-            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
-            switch (arc4random()%20) {
-                case 0:
-                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 1:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 2:
-                    settings[GLOB_FXPianoRoll].detail.mdz_boolswitch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-                    break;
-                case 5:
-                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-                    break;
-                case 6:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 7:
-                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 8:
-                    break;
-                case 9:
-                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-                    break;
-                case 10:
-                    //settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
-                    break;
-                case 11:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 12:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-                    break;
-                case 13:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    break;
-                case 14:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    break;
-                case 15:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-                    break;
-                case 16:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    break;
-                case 17:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(arc4random()%5)+1;
-                    break;
-                case 18:
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(arc4random()&4)+1;
-                    break;
-                case 19:
-                    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=1;
-                    break;
-            }
-        }
-        
     }
     
     if (updMPNowCnt==0) {  // call 1/5 => 1/s
@@ -4888,29 +4810,29 @@ void pmSoftReinit() {
     if (!_pm) return;
     if (!_pm_playlist) return;
     
-    projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
+    projectm_playlist_set_shuffle(_pm_playlist, (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
     
-    meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+    meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
-    meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+    meshY=round(settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
     
     projectm_set_mesh_size(_pm, meshX, meshY);
-    projectm_set_aspect_correction(_pm, settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value);
-    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
+    projectm_set_aspect_correction(_pm, settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value);
+    projectm_set_preset_locked(_pm, settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value);
 
     // Preset display settings
-    projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
-    if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    projectm_set_preset_duration(_pm, settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
+    if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[PROJECTM_BlendTime].detail.mdz_slider.slider_value);//2.0);
     else projectm_set_soft_cut_duration(_pm, 0);//2.0);
-    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value);
+    projectm_set_hard_cut_enabled(_pm, settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value);
     
-    projectm_set_hard_cut_duration(_pm, settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value);
-    projectm_set_hard_cut_sensitivity(_pm, settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_value);
-    projectm_set_beat_sensitivity(_pm, settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_duration(_pm, settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_sensitivity(_pm, settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_beat_sensitivity(_pm, settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value);
  
-    if ((_pm_playlist_loadBundled!=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value)
-        || (_pm_playlist_loadCustom!=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value)) {
+    if ((_pm_playlist_loadBundled!=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value)
+        || (_pm_playlist_loadCustom!=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value)) {
         
         std::string resourceDir;
         GetResourceDir(resourceDir);
@@ -4923,13 +4845,13 @@ void pmSoftReinit() {
         
         NSLog(@"reinit\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
         
-        if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-        if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
         
         NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
         
-        _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
-        _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
+        _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
+        _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
 
         if (projectm_playlist_size(_pm_playlist)) projectm_playlist_play_next(_pm_playlist, true);
         else {
@@ -4937,7 +4859,7 @@ void pmSoftReinit() {
             std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
             milkPresetStr=strdup(strtmp.c_str());
         }
-        milkPreset_hasChanged=true;
+        _pmPresetHasChanged=true;
     }
 }
 
@@ -4974,29 +4896,29 @@ void pmSoftReinit() {
     projectm_set_window_size(_pm, canvasWidth, canvasHeight);
     projectm_set_fps(_pm, _pm_fps);
     
-    meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+    meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
-    meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+    meshY=round(settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
     
     projectm_set_mesh_size(_pm, meshX, meshY);
-    projectm_set_aspect_correction(_pm, settings[MILKDROP_AspectRatio].detail.mdz_boolswitch.switch_value);
-    projectm_set_preset_locked(_pm, settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value);
+    projectm_set_aspect_correction(_pm, settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value);
+    projectm_set_preset_locked(_pm, settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value);
 
     // Preset display settings
-    projectm_set_preset_duration(_pm, settings[MILKDROP_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
-    if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[MILKDROP_BlendTime].detail.mdz_slider.slider_value);//2.0);
+    projectm_set_preset_duration(_pm, settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
+    if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[PROJECTM_BlendTime].detail.mdz_slider.slider_value);//2.0);
     else projectm_set_soft_cut_duration(_pm, 0);//2.0);
-    projectm_set_hard_cut_enabled(_pm, settings[MILKDROP_HardCutEnabled].detail.mdz_boolswitch.switch_value);
+    projectm_set_hard_cut_enabled(_pm, settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value);
     
-    projectm_set_hard_cut_duration(_pm, settings[MILKDROP_HardCutMinTime].detail.mdz_slider.slider_value);
-    projectm_set_hard_cut_sensitivity(_pm, settings[MILKDROP_HardCutSensitivity].detail.mdz_slider.slider_value);
-    projectm_set_beat_sensitivity(_pm, settings[MILKDROP_BeatSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_duration(_pm, settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value);
+    projectm_set_hard_cut_sensitivity(_pm, settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_value);
+    projectm_set_beat_sensitivity(_pm, settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value);
     
     
     int textureDirNb=0;
-    if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesDir.c_str();
-    if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesCustomDir.c_str();
+    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesDir.c_str();
+    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesCustomDir.c_str();
     
     projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,textureDirNb);
 
@@ -5009,15 +4931,15 @@ void pmSoftReinit() {
         return;
     }
 
-    projectm_playlist_set_shuffle(_pm_playlist, (settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
+    projectm_playlist_set_shuffle(_pm_playlist, (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
 
-    if (settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-    if (settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
     
     NSLog(@"Init\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
     
-    _pm_playlist_loadBundled=settings[MILKDROP_BundledPresets].detail.mdz_boolswitch.switch_value;
-    _pm_playlist_loadCustom=settings[MILKDROP_CustomPresets].detail.mdz_boolswitch.switch_value;
+    _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
+    _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
     
     NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
 
@@ -5027,10 +4949,10 @@ void pmSoftReinit() {
     projectm_playlist_set_preset_switch_failed_event_callback(_pm_playlist, &PresetSwitchFailedEvent, nil);
 
 
-    MDZLog(@"projectM initialized");
+    MDZLog("projectM initialized");
     
     milkPresetStr=NULL;
-    milkPreset_hasChanged=false;
+    _pmPresetHasChanged=false;
     _pm_display_name_countdown=0;
     
     if (projectm_playlist_size(_pm_playlist)==0) {
@@ -5041,7 +4963,7 @@ void pmSoftReinit() {
     projectm_playlist_play_next(_pm_playlist, true);
 
     
-    milkPreset_hasChanged=true;
+    _pmPresetHasChanged=true;
     
 }
 
@@ -5245,8 +5167,6 @@ void pmSoftReinit() {
      action:@selector(showPlaylist)] autorelease]
      animated:YES];
      */
-    mRandomFXCpt=0;
-    mRandomFXCptRev=0;
     mHasFocus=0;
     mShouldUpdateInfos=0;
     mPaused=1;
@@ -5777,6 +5697,11 @@ void pmSoftReinit() {
         m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
         m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
         [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    
+    //------------------------------------------------------
+    
+    modPatternWindowSize=0;
+    modPatternLineSize=0;
 
     //	[super viewDidLoad];
     end_time=clock();
@@ -5920,6 +5845,9 @@ void pmSoftReinit() {
 //    }
 //    
 //    visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
+    
+    visibleChan=MAX_VISIBLE_MODCHANNELS;
+    
     if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
     if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
     if (startChan<0) startChan=0;
@@ -6170,6 +6098,7 @@ void pmSoftReinit() {
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
     
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
+    if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetHasChanged=true; //Force a (re)display
     
     movePxMID=movePyMID=0;
     moveMILKnomore=0;
@@ -6350,9 +6279,6 @@ extern "C" int current_sample;
     
     frameToUpdate++;
     
-//    settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value+0.1f;
-//    if (settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value>50.0f) settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value=0.0f;
-    
     if (no_reentrant) return;
     no_reentrant=1;
     
@@ -6383,6 +6309,8 @@ extern "C" int current_sample;
     //get ogl view dimension
     ww=m_oglView.frame.size.width;
     hh=m_oglView.frame.size.height;
+    
+    
     
     //    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
     while (frameToUpdate) {
@@ -6456,28 +6384,16 @@ extern "C" int current_sample;
     
     
     
-//    ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
-//    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
-//    ImGui::Begin("On screen info2",0,ImGuiWindowFlags_NoFocusOnAppearing|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
-//
-//    ImGuiStyle& style = ImGui::GetStyle();
-//    style.FontSizeBase=36;//*menu_win_size/512;
-//    style._NextFrameFontSizeBase = style.FontSizeBase;
-//    
-//    ImGui::Text("%.1f",settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
-//    
-//    ImGui::End();
-
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pm && settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) {
+    if (_pm && settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
         
-        meshX=round(settings[MILKDROP_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+        meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
         if (meshX<8) meshX=8;if (meshX>128) meshX=128;
-        meshY=round(settings[MILKDROP_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+        meshY=round(settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
         if (meshY<6) meshY=6;if (meshY>96) meshY=96;
         
         projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
@@ -6497,7 +6413,7 @@ extern "C" int current_sample;
         
         
         /*------------------------------------------------*/
-        // Feed buffer for Milkdrop
+        // Feed buffer for ProjectM
         if ([mplayer isPlaying]){
             short int **snd_buffer;
             int cur_pos,prev_pos;
@@ -6563,11 +6479,11 @@ extern "C" int current_sample;
     movePy2Old=movePy2;
     movePinchScaleOld=movePinchScale;
     
-    if (settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) {
+    if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
         //MILK is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
-        bool isMILKalone=[self isMilkDropAlone];
+        bool isMILKalone=[self isProjectMAlone];
         
         if (isMILKalone&&(moveMILKnomore==0)) {
             if (movePxMILK>MILK_HorizontalSwipe_Threshold) {
@@ -6575,13 +6491,13 @@ extern "C" int current_sample;
                 movePyMILK=0;
                 moveMILKnomore=1;
                 NSLog(@"Prev");
-                if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, TRUE);
+                if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, false);
             } else if (movePxMILK<-MILK_HorizontalSwipe_Threshold) {
                 movePxMILK=0;
                 movePyMILK=0;
                 moveMILKnomore=1;
                 NSLog(@"Next");
-                if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, TRUE);
+                if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
             }
             
             if (movePyMILK>MILK_VerticalSwipe_Threshold) {
@@ -6594,7 +6510,7 @@ extern "C" int current_sample;
                     //Lock Preset
                     //////////////
                     
-                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                    settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
                     [self mdSwitchLockPreset];
                 }
             } else if (movePyMILK<-MILK_VerticalSwipe_Threshold) {
@@ -6607,7 +6523,7 @@ extern "C" int current_sample;
                     //Unlock Preset
                     //////////////
                     
-                    settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                    settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
                     [self mdSwitchLockPreset];
                 }
             }
@@ -6618,13 +6534,17 @@ extern "C" int current_sample;
     /* Compute pattern display scrolling */
     /*******************************************************/
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-        if (visibleChan<=mplayer.numChannels+1) {
-            if (movePxMOD>0) movePxMOD=0;
-            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
-            startChan=-movePxMOD/size_chan;
-            
-        } else movePxMOD=0;
-        
+//        if (visibleChan<=mplayer.numChannels+1) {
+//            if (movePxMOD>0) movePxMOD=0;
+//            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
+//            startChan=-movePxMOD/size_chan;
+//            
+//        } else movePxMOD=0;
+        if (modPatternLineSize<=modPatternWindowSize) movePxMOD=0;
+        else {
+            if (modPatternWindowSize-movePxMOD*glScaleFactor>=modPatternLineSize) movePxMOD=-(modPatternLineSize-modPatternWindowSize)/glScaleFactor;
+            else if (movePxMOD>0) movePxMOD=0;
+        }
     }
     
     /*******************************************************/
@@ -6821,7 +6741,7 @@ extern "C" int current_sample;
                     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-                    settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
+                    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
                 }  else if (touched_coord==0x33) {
                     //Exit
                     viewTapHelpShow=0;
@@ -6865,8 +6785,8 @@ extern "C" int current_sample;
                             settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                             movePxMOD=movePyMOD=0;
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=0;
+                        case SUBMENU7_START: //ProjectM
+                            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x10) {
@@ -6899,8 +6819,8 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value=1;
+                        case SUBMENU7_START: //ProjectM
+                            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x20) {
@@ -6933,8 +6853,8 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value=(settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value+1)%3;
+                        case SUBMENU7_START: //ProjectM
+                            settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=(settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value+1)%3;
                             break;
                     }
                 } else if (touched_coord==0x30) {
@@ -6963,9 +6883,9 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            if (settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value) settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=0;
-                            else settings[MILKDROP_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+                        case SUBMENU7_START: //ProjectM
+                            if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=0;
+                            else settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x01) {
@@ -6994,9 +6914,9 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            if (settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value) settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                            else settings[MILKDROP_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                        case SUBMENU7_START: //ProjectM
+                            if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                            else settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x11) {
@@ -7026,8 +6946,8 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
+                        case SUBMENU7_START: //ProjectM
+                            settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
                             break;
                     }
                 } else if (touched_coord==0x21) {
@@ -7055,8 +6975,8 @@ extern "C" int current_sample;
                             movePxMOD=movePyMOD=0;
                             [self updateVisibleChan];
                             break;
-                        case SUBMENU7_START: //Milkdrop
-                            settings[MILKDROP_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
+                        case SUBMENU7_START: //ProjectM
+                            settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
                             break;
                     }
                 } else if (touched_coord==0x31) {
@@ -7388,8 +7308,7 @@ extern "C" int current_sample;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
                                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
-                                        settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                        settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
+                                        settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value);
         }
     }
     //-------------------------------------
@@ -7443,58 +7362,84 @@ extern "C" int current_sample;
             
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
                 //DISPLAY MOD PATTERNS
-//                linestodraw=round((hh-NOTES_DISPLAY_TOPMARGIN+mFontHeight/mScaleFactor+3)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-//                int limit_midline=round((hh-NOTES_DISPLAY_TOPMARGIN)/(mFontHeight/mScaleFactor+4)); //draw even if halfed for last line
-//                midline=0;//linestodraw>>1;
-//                
-//                for (i=0;i<linestodraw;i++) {
-//                    if (mText[i]) delete mText[i];
-//                    mText[i]=nil;
-//                }
-//                for (i=0;i<linestodraw;i++) {
-//                    if (mTextLine[i]) delete mTextLine[i];
-//                    mTextLine[i]=nil;
-//                }
-//                if (mHeader) delete mHeader;
-//                mHeader=nil;
-//                
-//                int *pat,*row;
-//                int playerpos;
-//                //            int *playerOffset;
-//                pat=[mplayer playPattern];
-//                row=[mplayer playRow];
-//                //            playerOffset=[mplayer playOffset];
-//                playerpos=[mplayer getCurrentPlayedBufferIdx];
-//                currentPattern=pat[playerpos];
-//                currentRow=row[playerpos];
-//                
-//                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
-//                prevNotes=nil;
-//                nextNotes=nil;
-//                int prevPattern=[mplayer prevPattern][playerpos];
-//                if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
-//                
-//                int nextPattern=[mplayer nextPattern][playerpos];
-//                if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
-//                
-//                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
-//                else {
-//                    midline=currentRow;
-//                    if (midline>=limit_midline) midline=limit_midline-1;
-//                }
-//                
-//                endChan=startChan+visibleChan;
-//                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
-//                else if (endChan<mplayer.numChannels) endChan++;
-//                startRow=currentRow-midline;
-//                
-//                int channelVolumeData[SOUND_MAXMOD_CHANNELS];
-//                unsigned char *volData=[mplayer playVolData];
-//                for (int i=0;i<endChan-startChan;i++) {
-//                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
-//                }
-//                
-//                idx=startRow*mplayer.numChannels+startChan;
+                float fontSize=16;
+                switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
+                    case 0: //10
+                        fontSize=10;
+                        break;
+                    case 1: //16
+                        fontSize=16;
+                        break;
+                    case 2: //24
+                        fontSize=24;
+                        break;
+                    case 3: //32
+                        fontSize=32;
+                        break;
+                }
+                
+                ImGui::SetNextWindowPos(ImVec2(0,0));
+                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
+                ImGui::GetStyle().Alpha=1.0f;
+                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+                
+                int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
+                if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
+                
+                if (font_tracker[cur_font]) ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
+                else ImGui::PushFont(nullptr,fontSize*glScaleFactor);
+//                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
+                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                             ImGuiWindowFlags_NoScrollbar|
+                             ImGuiWindowFlags_NoFocusOnAppearing);
+                //ImGui::SetCursorPos(ImVec2(0,0));
+                
+                //Compute how many lines to draw
+                float lineHeight=ImGui::GetTextLineHeight();
+                
+                linestodraw=((float)hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight-1)/lineHeight;
+                //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
+                //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
+                int limit_midline=((float)hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+0)/lineHeight;
+                midline=0;//linestodraw>>1;
+                
+
+                //Get access to notes data / patterns
+                int *pat,*row;
+                int playerpos;
+                pat=[mplayer playPattern];
+                row=[mplayer playRow];
+                playerpos=[mplayer getCurrentPlayedBufferIdx];
+                currentPattern=pat[playerpos];
+                currentRow=row[playerpos];
+                
+                currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
+                prevNotes=nil;
+                nextNotes=nil;
+                int prevPattern=[mplayer prevPattern][playerpos];
+                if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
+                
+                int nextPattern=[mplayer nextPattern][playerpos];
+                if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
+                
+                if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
+                else {
+                    midline=currentRow;
+                    if (midline>=limit_midline) midline=limit_midline-1;
+                }
+                
+                endChan=startChan+mplayer.numChannels;//visibleChan;
+                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
+                else if (endChan<mplayer.numChannels) endChan++;
+                startRow=currentRow-midline;
+                
+                int channelVolumeData[SOUND_MAXMOD_CHANNELS];
+                unsigned char *volData=[mplayer playVolData];
+                for (int i=0;i<endChan-startChan;i++) {
+                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
+                }
+                
+                idx=startRow*mplayer.numChannels+startChan;
 /*
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
                 
@@ -7504,118 +7449,145 @@ extern "C" int current_sample;
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
                 }
                 */
-//                if (currentNotes) {
-//                    hasdrawnotes=1;
-//                    l=0;
-//                    for (i=startRow;i<startRow+linestodraw;i++) {
-//                        note_avail=0;
-//                        if (i<0) {
-//                            if ((prevNotes)&&((numRowsP+i)>=0)) {
-//                                if (numRowsP+i>=0) {
-//                                    note_avail=1;
-//                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
-//                                    readNote=prevNotes;
-//                                }
-//                            }
-//                        } else if (currentNotes&&(i<numRows)) {
-//                            note_avail=1;
-//                            idx=i*mplayer.numChannels+startChan;
-//                            readNote=currentNotes;
-//                        } else {
-//                            if ((nextNotes)&&((i-numRows)<numRowsN)) {
-//                                note_avail=1;
-//                                idx=(i-numRows)*mplayer.numChannels+startChan;
-//                                readNote=nextNotes;
-//                            }
-//                        }
-//                        if (note_avail) {
-//                            k=0;
-//                            switch (display_note_mode) {
-//                                case 0: //all infos
-//                                    for (j=0;j<endChan-startChan;j++)  {
-//                                        cnote=currentNotes[idx].Note;
-//                                        cinst=currentNotes[idx].Instrument;
-//                                        ceff=currentNotes[idx].Effect;
-//                                        cparam=currentNotes[idx].Parameter;
-//                                        cvol=currentNotes[idx].Volume;
-//                                        if (cnote) {
-//                                            str_data[k++]=note2charA[(cnote-13)%12];
-//                                            str_data[k++]=note2charB[(cnote-13)%12];
-//                                            str_data[k++]=(cnote-13)/12+'0';
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        if (cinst) {
-//                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
-//                                            str_data[k++]=dec2hex[cinst&0xF];
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        if (cvol) {
-//                                            str_data[k++]=dec2hex[(cvol>>4)&0xF];
-//                                            str_data[k++]=dec2hex[cvol&0xF];
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        if (ceff) {
-//                                            str_data[k++]='A'+ceff;
-//                                        } else {
-//                                            str_data[k++]='.';
-//                                        }
-//                                        if (cparam) {
-//                                            str_data[k++]=dec2hex[(cparam>>4)&0xF];
-//                                            str_data[k++]=dec2hex[cparam&0xF];
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        str_data[k++]=' ';
-//                                        idx++;
-//                                    }
-//                                    break;
-//                                case 1: //note + instru
-//                                    for (j=0;j<endChan-startChan;j++)  {
-//                                        cnote=currentNotes[idx].Note;
-//                                        cinst=currentNotes[idx].Instrument;
-//                                        if (cnote) {
-//                                            str_data[k++]=note2charA[(cnote-13)%12];
-//                                            str_data[k++]=note2charB[(cnote-13)%12];
-//                                            str_data[k++]=(cnote-13)/12+'0';
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        if (cinst) {
-//                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
-//                                            str_data[k++]=dec2hex[cinst&0xF];
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        str_data[k++]=' ';
-//                                        idx++;
-//                                    }
-//                                    break;
-//                                case 2: //only note
-//                                    for (j=0;j<endChan-startChan;j++)  {
-//                                        cnote=currentNotes[idx].Note;
-//                                        if (cnote) {
-//                                            str_data[k++]=note2charA[(cnote-13)%12];
-//                                            str_data[k++]=note2charB[(cnote-13)%12];
-//                                            str_data[k++]=(cnote-13)/12+'0';
-//                                        } else {
-//                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
-//                                        }
-//                                        str_data[k++]=' ';
-//                                        idx++;
-//                                    }
-//                                    break;
-//                            }
-//                            str_data[k]=0;
-//                            mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
-//                            
-//                        } else {
-//                            mText[l++] = NULL;
-//                            
-//                        }
-//                    }
+                
+                
+                if (currentNotes) {
+                    hasdrawnotes=1;
+                    l=0;
+                    for (i=startRow;i<startRow+linestodraw;i++) {
+                        note_avail=0;
+                        if (i<0) {
+                            if ((prevNotes)&&((numRowsP+i)>=0)) {
+                                if (numRowsP+i>=0) {
+                                    note_avail=1;
+                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
+                                    readNote=prevNotes;
+                                }
+                            }
+                        } else if (currentNotes&&(i<numRows)) {
+                            note_avail=1;
+                            idx=i*mplayer.numChannels+startChan;
+                            readNote=currentNotes;
+                        } else {
+                            if ((nextNotes)&&((i-numRows)<numRowsN)) {
+                                note_avail=1;
+                                idx=(i-numRows)*mplayer.numChannels+startChan;
+                                readNote=nextNotes;
+                            }
+                        }
+                        k=0;
+                        if (note_avail) {
+                            switch (display_note_mode) {
+                                case 0: //all infos
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        cinst=currentNotes[idx].Instrument;
+                                        ceff=currentNotes[idx].Effect;
+                                        cparam=currentNotes[idx].Parameter;
+                                        cvol=currentNotes[idx].Volume;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cinst) {
+                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                            str_data[k++]=dec2hex[cinst&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cvol) {
+                                            str_data[k++]=dec2hex[(cvol>>4)&0xF];
+                                            str_data[k++]=dec2hex[cvol&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (ceff) {
+                                            str_data[k++]='A'+ceff;
+                                        } else {
+                                            str_data[k++]='.';
+                                        }
+                                        if (cparam) {
+                                            str_data[k++]=dec2hex[(cparam>>4)&0xF];
+                                            str_data[k++]=dec2hex[cparam&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
+                                    }
+                                    break;
+                                case 1: //note + instru
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        cinst=currentNotes[idx].Instrument;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        if (cinst) {
+                                            str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                            str_data[k++]=dec2hex[cinst&0xF];
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
+                                    }
+                                    break;
+                                case 2: //only note
+                                    for (j=0;j<endChan-startChan;j++)  {
+                                        cnote=currentNotes[idx].Note;
+                                        if (cnote) {
+                                            str_data[k++]=note2charA[(cnote-13)%12];
+                                            str_data[k++]=note2charB[(cnote-13)%12];
+                                            str_data[k++]=(cnote-13)/12+'0';
+                                        } else {
+                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                        }
+                                        str_data[k++]=' ';
+                                        idx++;
+                                    }
+                                    break;
+                            }
+                            str_data[k]=0;
+                            //mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
+                            
+                        } else {
+                            //mText[l++] = NULL;
+                            str_data[k]=0;
+                        }
+                        
+                        char str_prefix[3];
+                        str_prefix[2]=0;
+                        if ((i<0)&&prevNotes) {
+                            str_prefix[0]=dec2hex[((numRowsP+i)>>4)&0xF];
+                            str_prefix[1]=dec2hex[(numRowsP+i)&0xF];
+                        } else if (i<numRows) {
+                            str_prefix[0]=dec2hex[(i>>4)&0xF];
+                            str_prefix[1]=dec2hex[i&0xF];
+                        } else if (nextNotes) {
+                            str_prefix[0]=dec2hex[((i-numRows)>>4)&0xF];
+                            str_prefix[1]=dec2hex[(i-numRows)&0xF];
+                        }
+                        
+                        ImVec2 cursorPos=ImVec2((0)*mScaleFactor, (i-startRow+1)*lineHeight);
+                        ImGui::SetCursorPos(cursorPos);
+                        ImGui::Text("%s",str_prefix);
+                        
+                        cursorPos.x=ImGui::CalcTextSize("XX ").x;
+                        ImGui::SetCursorPos(cursorPos);
+                        ImGui::Text("%s",str_data);
+                        
+                        modPatternLineSize=ImGui::CalcTextSize(str_data).x;
+                        modPatternWindowSize=ww*glScaleFactor-ImGui::CalcTextSize("XX ").x;
+                    }
+                }
 //                    str_data[2]=0;
 //                    for (l=0;l<linestodraw;l++) {
 //                        i=l+startRow;
@@ -7649,38 +7621,36 @@ extern "C" int current_sample;
 //                        glPopMatrix();
 //                    }
 //                    
-//                    
-//                }
-//                //draw header + fps
-//                memset(str_data,32,11*visibleChan);
-//                str_data[11*visibleChan]=0; //11 chars max / channel
-//                float xofs=0;
-//                switch (display_note_mode) {
-//                    case 0:
-//                        for (j=startChan;j<endChan;j++) {
-//                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
-//                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
-//                        }
-//                        str_data[(endChan-1-startChan)*11+9]=0;
-//                        xofs=0.0f;
-//                        break;
-//                    case 1:
-//                        for (j=startChan;j<endChan;j++) {
-//                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
-//                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
-//                        }
-//                        str_data[(endChan-1-startChan)*6+7]=0;
-//                        xofs=0.0f;
-//                        break;
-//                    case 2:
-//                        for (j=startChan;j<endChan;j++) {
-//                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
-//                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
-//                        }
-//                        str_data[(endChan-1-startChan)*4+6]=0;
-//                        xofs=0.0f;
-//                        break;
-//                }
+                //draw header + fps
+                memset(str_data,32,11*mplayer.numChannels);//visibleChan);
+                str_data[11*mplayer.numChannels]=0; //11 chars max / channel
+                float xofs=0;
+                switch (display_note_mode) {
+                    case 0:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
+                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*11+9]=0;
+                        xofs=0.0f;
+                        break;
+                    case 1:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
+                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*6+7]=0;
+                        xofs=0.0f;
+                        break;
+                    case 2:
+                        for (j=startChan;j<endChan;j++) {
+                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
+                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
+                        }
+                        str_data[(endChan-1-startChan)*4+6]=0;
+                        xofs=0.0f;
+                        break;
+                }
 //                mHeader= new CGLString(str_data, mFont,mScaleFactor);
 //                glPushMatrix();
 //                glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
@@ -7688,11 +7658,17 @@ extern "C" int current_sample;
 //                mHeader->Render(0);
 //                glPopMatrix();
             }
+            
+            ImGui::SetScrollX(-movePxMOD*glScaleFactor);
+            
+            ImGui::End();
+            ImGui::PopFont();
+            ImGui::PopStyleColor();
         }
     }
     
 //    ImGui::SetNextWindowPos(ImVec2(0,0));
-//    //ImGui::SetNextWindowSize(ImVec2(500*glScaleFactor,500*glScaleFactor));
+//    ImGui::SetNextWindowSize(ImVec2(500*glScaleFactor,500*glScaleFactor));
 //    ImGui::GetStyle().Alpha=1.0f;
 //        ImGui::Begin("On screen debug info",0,0);
 //
@@ -7700,14 +7676,14 @@ extern "C" int current_sample;
 //        style.FontSizeBase=36;//*menu_win_size/512;
 //        style._NextFrameFontSizeBase = style.FontSizeBase;
 //    
-//        ImGui::Text("%.2f x %.2f %d",movePxMILK,movePyMILK,moveMILKnomore);
+//    ImGui::Text("%d x %d",ww,hh);
 //    float f;
-//    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+//    //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //    ImGui::End();
+//    //-------------------------------------
+    // ProjectM info
     //-------------------------------------
-    // Milkdrop info
-    //-------------------------------------
-    if ((settings[MILKDROP_FXONOFF].detail.mdz_switch.switch_value) && ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
+    if ((settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
             //float x,y,w,h;
             static float scrollx=0;
@@ -7715,15 +7691,15 @@ extern "C" int current_sample;
             static int scroll_pause=0;
             
             
-            if (milkPreset_hasChanged) {
-                milkPreset_hasChanged=false;
+            if (_pmPresetHasChanged) {
+                _pmPresetHasChanged=false;
                 scrollx=0;
                 scroll_direction=1;
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
             //if not limited, reset countdown
-            if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==2) || (projectm_playlist_size(_pm_playlist)==0)) {
+            if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) || (projectm_playlist_size(_pm_playlist)==0)) {
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
@@ -7749,7 +7725,7 @@ extern "C" int current_sample;
                 ImGui::SetScrollX(scrollx);
                 ImGui::End();
                 
-                if ((settings[MILKDROP_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
+                if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
                 
                 if (scroll_pause) scroll_pause--;
                 else {
@@ -7794,18 +7770,15 @@ extern "C" int current_sample;
                         }
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
@@ -7821,31 +7794,26 @@ extern "C" int current_sample;
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                          settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 3:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                  settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
             case 4:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                  settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
         }
@@ -7907,7 +7875,7 @@ extern "C" int current_sample;
     // Apply Bloom if active
     //-------------------------------------
     if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
-        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor, settings[GLOB_BLOOMSIZE].detail.mdz_slider.slider_value);
+        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
     }
     
     
@@ -7948,7 +7916,7 @@ extern "C" int current_sample;
         } else if (ret>0) {
             if (ret==2) shouldGoToSettings=1; //Visu
             else if (ret==3) shouldGoToSettings=2; //Oscillo
-            else if (ret==4) shouldGoToSettings=3; //Milkdrop
+            else if (ret==4) shouldGoToSettings=3; //ProjectM
         }
         
         //specific case for fullscreen switch change
@@ -7980,8 +7948,8 @@ extern "C" int current_sample;
                 settingsVC->current_family=MDZ_SETTINGS_FAMILY_OSCILLO;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
-            case 3: //Milkdrop
-                settingsVC->current_family=MDZ_SETTINGS_FAMILY_MILKDROP;
+            case 3: //ProjectM
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_PROJECTM;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
             default: //Root
