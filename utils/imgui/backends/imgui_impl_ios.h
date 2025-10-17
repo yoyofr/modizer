@@ -15,7 +15,7 @@
 
 #include "imgui.h"      // IMGUI_IMPL_API
 
-#define FONT_TRACKER_NB 4
+#define FONT_TRACKER_NB 5
 
 #ifndef ImGuiIOSEvent_t
 #define ImGuiIOSEvent_t

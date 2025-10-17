@@ -43,7 +43,6 @@
 		33554E1914C3299F00018161 /* btnback.png in Resources */ = {isa = PBXBuildFile; fileRef = 33554E1614C3299E00018161 /* btnback.png */; };
 		33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33554E1714C3299E00018161 /* btnpause@2x.png */; };
 		33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33554E1814C3299E00018161 /* btnplay@2x.png */; };
-		3356548617B51924003AE763 /* UpheavalPro.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3356548517B51924003AE763 /* UpheavalPro.ttf */; };
 		3356548917B52EFF003AE763 /* browser_home.html in Resources */ = {isa = PBXBuildFile; fileRef = 3356548817B52EFF003AE763 /* browser_home.html */; };
 		3358147914EC0F27003D7B5B /* pinfo.png in Resources */ = {isa = PBXBuildFile; fileRef = 3358147714EC0F27003D7B5B /* pinfo.png */; };
 		3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3358147814EC0F27003D7B5B /* pinfo@2x.png */; };
@@ -695,21 +694,11 @@
 		CC4884AD2B7A609100BCFFCC /* 05-shuffleone-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */; };
 		CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4AF40D2BC09067006D7EFC /* libvio2sf.a */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
-		CC4F49D02B6FB728002A9309 /* c6416.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49C72B6FB728002A9309 /* c6416.fnt */; };
-		CC4F49D12B6FB728002A9309 /* tracking16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49C82B6FB728002A9309 /* tracking16.fnt */; };
-		CC4F49D22B6FB728002A9309 /* tracking32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49C92B6FB728002A9309 /* tracking32.fnt */; };
-		CC4F49D32B6FB728002A9309 /* c6432.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49CA2B6FB728002A9309 /* c6432.fnt */; };
-		CC4F49D62B6FB728002A9309 /* c6424.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49CD2B6FB728002A9309 /* c6424.fnt */; };
-		CC4F49D72B6FB728002A9309 /* tracking24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49CE2B6FB728002A9309 /* tracking24.fnt */; };
-		CC4F49DA2B7021A0002A9309 /* c6410.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D82B7021A0002A9309 /* c6410.fnt */; };
-		CC4F49DB2B7021A0002A9309 /* tracking10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC4F49D92B7021A0002A9309 /* tracking10.fnt */; };
 		CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4F49F62B704F4D002A9309 /* liblibeupmini.a */; };
 		CC4FC8762E8EBF8100B3E56F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
 		CC4FC8772E8EBFC000B3E56F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
 		CC4FC8792E8EBFCE00B3E56F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FC8782E8EBFCD00B3E56F /* Metal.framework */; };
 		CC4FC8FA2E91958900B3E56F /* txtMenu13a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */; };
-		CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333582B7E938B009ED5D7 /* tracking12.fnt */; };
-		CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CC5333592B7E938C009ED5D7 /* tracking14.fnt */; };
 		CC57D51F2BEB89C9004629AA /* liblibfmpmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC57D4CF2BEB5DDD004629AA /* liblibfmpmini.a */; };
 		CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */; };
 		CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5BAD522BFB818A007A3920 /* liblibchpconv.a */; };
@@ -789,10 +778,7 @@
 		CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */; };
 		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
-		CC9331782EA1521B00CB0503 /* amiga4ever pro2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */; };
-		CC9331792EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */; };
-		CC93317A2EA1521B00CB0503 /* FT2FONT.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331762EA1521B00CB0503 /* FT2FONT.ttf */; };
-		CC93317B2EA1521B00CB0503 /* ModernDOS8x16.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */; };
+		CC9331942EA28F0F00CB0503 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
@@ -890,24 +876,6 @@
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC07A8832BB952EA0052DE82 /* libgbsplay.a */; };
-		CCDE83D12B6EC38F00DC9F63 /* 04b10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */; };
-		CCDE83D22B6EC38F00DC9F63 /* amiga24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */; };
-		CCDE83D32B6EC38F00DC9F63 /* gb16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */; };
-		CCDE83D52B6EC38F00DC9F63 /* gb24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */; };
-		CCDE83D72B6EC38F00DC9F63 /* amiga16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */; };
-		CCDE83D82B6EC38F00DC9F63 /* 04b32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */; };
-		CCDE83D92B6EC38F00DC9F63 /* amiga32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */; };
-		CCDE83DD2B6EC38F00DC9F63 /* gb32.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */; };
-		CCDE83DE2B6EC38F00DC9F63 /* 04b16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */; };
-		CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */; };
-		CCDE83E32B6EC38F00DC9F63 /* gb10.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */; };
-		CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */ = {isa = PBXBuildFile; fileRef = CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */; };
-		CCE025782E98F7EB008B7070 /* Cousine-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025722E98F7EB008B7070 /* Cousine-Regular.ttf */; };
-		CCE025792E98F7EB008B7070 /* DroidSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025732E98F7EB008B7070 /* DroidSans.ttf */; };
-		CCE0257A2E98F7EB008B7070 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */; };
-		CCE0257B2E98F7EB008B7070 /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */; };
-		CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025752E98F7EB008B7070 /* ProggyClean.ttf */; };
-		CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */; };
 		CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE0263D2E9A60E3008B7070 /* gloss.png */; };
 		CCE026552E9C4F18008B7070 /* txtMenu5d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
@@ -1570,7 +1538,6 @@
 		33554E1614C3299E00018161 /* btnback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnback.png; sourceTree = "<group>"; };
 		33554E1714C3299E00018161 /* btnpause@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btnpause@2x.png"; sourceTree = "<group>"; };
 		33554E1814C3299E00018161 /* btnplay@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btnplay@2x.png"; sourceTree = "<group>"; };
-		3356548517B51924003AE763 /* UpheavalPro.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = UpheavalPro.ttf; sourceTree = "<group>"; };
 		3356548817B52EFF003AE763 /* browser_home.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = browser_home.html; sourceTree = "<group>"; };
 		3358147714EC0F27003D7B5B /* pinfo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pinfo.png; sourceTree = "<group>"; };
 		3358147814EC0F27003D7B5B /* pinfo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pinfo@2x.png"; sourceTree = "<group>"; };
@@ -2252,22 +2219,12 @@
 		CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green@2x.png"; sourceTree = "<group>"; };
 		CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vio2sf.xcodeproj; path = vio2sf/vio2sf.xcodeproj; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
-		CC4F49C72B6FB728002A9309 /* c6416.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6416.fnt; sourceTree = "<group>"; };
-		CC4F49C82B6FB728002A9309 /* tracking16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking16.fnt; sourceTree = "<group>"; };
-		CC4F49C92B6FB728002A9309 /* tracking32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking32.fnt; sourceTree = "<group>"; };
-		CC4F49CA2B6FB728002A9309 /* c6432.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6432.fnt; sourceTree = "<group>"; };
-		CC4F49CD2B6FB728002A9309 /* c6424.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6424.fnt; sourceTree = "<group>"; };
-		CC4F49CE2B6FB728002A9309 /* tracking24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking24.fnt; sourceTree = "<group>"; };
-		CC4F49D82B7021A0002A9309 /* c6410.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = c6410.fnt; sourceTree = "<group>"; };
-		CC4F49D92B7021A0002A9309 /* tracking10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking10.fnt; sourceTree = "<group>"; };
 		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
 		CC4FB2F32E8EA80A00B3E56F /* libhlsl2glsl-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libhlsl2glsl-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		CC4FC8742E8EBF7C00B3E56F /* libhlsl2glsl-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libhlsl2glsl-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC4FC8782E8EBFCD00B3E56F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu13a_2x.png; sourceTree = "<group>"; };
-		CC5333582B7E938B009ED5D7 /* tracking12.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking12.fnt; sourceTree = "<group>"; };
-		CC5333592B7E938C009ED5D7 /* tracking14.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = tracking14.fnt; sourceTree = "<group>"; };
 		CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfmpmini.xcodeproj; path = libfmpmini/libfmpmini.xcodeproj; sourceTree = "<group>"; };
 		CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12c_2x.png; sourceTree = "<group>"; };
 		CC5BAD4D2BFB818A007A3920 /* libchpconv.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libchpconv.xcodeproj; path = libchpconv/libchpconv.xcodeproj; sourceTree = "<group>"; };
@@ -2509,10 +2466,7 @@
 		CC8D41AF1801E26F00533682 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = SOURCE_ROOT; };
 		CC9331562EA040B200CB0503 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CC9331582EA040B300CB0503 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "amiga4ever pro2.ttf"; sourceTree = "<group>"; };
-		CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Commodore Pixelized v1.2.ttf"; sourceTree = "<group>"; };
-		CC9331762EA1521B00CB0503 /* FT2FONT.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FT2FONT.ttf; sourceTree = "<group>"; };
-		CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ModernDOS8x16.ttf; sourceTree = "<group>"; };
+		CC9331932EA28B7B00CB0503 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2748,24 +2702,6 @@
 		CCD4631D123CB8F600D063FE /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		CCD791701219FC6B0063D0E7 /* unzoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unzoom.png; sourceTree = "<group>"; };
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
-		CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b10.fnt; sourceTree = "<group>"; };
-		CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga24.fnt; sourceTree = "<group>"; };
-		CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb16.fnt; sourceTree = "<group>"; };
-		CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb24.fnt; sourceTree = "<group>"; };
-		CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga16.fnt; sourceTree = "<group>"; };
-		CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b32.fnt; sourceTree = "<group>"; };
-		CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga32.fnt; sourceTree = "<group>"; };
-		CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb32.fnt; sourceTree = "<group>"; };
-		CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b16.fnt; sourceTree = "<group>"; };
-		CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = amiga10.fnt; sourceTree = "<group>"; };
-		CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = gb10.fnt; sourceTree = "<group>"; };
-		CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = 04b24.fnt; sourceTree = "<group>"; };
-		CCE025722E98F7EB008B7070 /* Cousine-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cousine-Regular.ttf"; sourceTree = "<group>"; };
-		CCE025732E98F7EB008B7070 /* DroidSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = DroidSans.ttf; sourceTree = "<group>"; };
-		CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Karla-Regular.ttf"; sourceTree = "<group>"; };
-		CCE025752E98F7EB008B7070 /* ProggyClean.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyClean.ttf; sourceTree = "<group>"; };
-		CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
-		CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
 		CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5d_2x.png; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
@@ -3988,13 +3924,13 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CC9331932EA28B7B00CB0503 /* Fonts */,
 				CC9CE1552E96F68100725D15 /* projectm */,
 				59387AEF20C746D3001F0C20 /* AppStore512.png */,
 				33888A7C122318C60030C82E /* backgrounds */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				59BE93A32600D3F500414A42 /* c64 */,
 				CC1E5A171200B3B8000A8A4E /* DB */,
-				CC1E5A2A1200B3B8000A8A4E /* Fonts */,
 				CC1E5E961200CF6C000A8A4E /* Icons */,
 				CC1E5A2C1200B3B8000A8A4E /* Images */,
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
@@ -4020,46 +3956,6 @@
 				CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */,
 			);
 			path = DB;
-			sourceTree = "<group>";
-		};
-		CC1E5A2A1200B3B8000A8A4E /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				CC9331742EA1521B00CB0503 /* amiga4ever pro2.ttf */,
-				CC9331752EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf */,
-				CC9331762EA1521B00CB0503 /* FT2FONT.ttf */,
-				CC9331772EA1521B00CB0503 /* ModernDOS8x16.ttf */,
-				CCE025722E98F7EB008B7070 /* Cousine-Regular.ttf */,
-				CCE025732E98F7EB008B7070 /* DroidSans.ttf */,
-				CCE025742E98F7EB008B7070 /* Karla-Regular.ttf */,
-				CCE025752E98F7EB008B7070 /* ProggyClean.ttf */,
-				CCE025762E98F7EB008B7070 /* ProggyTiny.ttf */,
-				CCE025772E98F7EB008B7070 /* Roboto-Medium.ttf */,
-				CCDE83BD2B6EC38E00DC9F63 /* 04b10.fnt */,
-				CCDE83CA2B6EC38F00DC9F63 /* 04b16.fnt */,
-				CCDE83D02B6EC38F00DC9F63 /* 04b24.fnt */,
-				CCDE83C42B6EC38E00DC9F63 /* 04b32.fnt */,
-				CCDE83CE2B6EC38F00DC9F63 /* amiga10.fnt */,
-				CCDE83C32B6EC38E00DC9F63 /* amiga16.fnt */,
-				CCDE83BE2B6EC38E00DC9F63 /* amiga24.fnt */,
-				CCDE83C52B6EC38E00DC9F63 /* amiga32.fnt */,
-				CC4F49D82B7021A0002A9309 /* c6410.fnt */,
-				CC4F49C72B6FB728002A9309 /* c6416.fnt */,
-				CC4F49CD2B6FB728002A9309 /* c6424.fnt */,
-				CC4F49CA2B6FB728002A9309 /* c6432.fnt */,
-				CCDE83CF2B6EC38F00DC9F63 /* gb10.fnt */,
-				CCDE83BF2B6EC38E00DC9F63 /* gb16.fnt */,
-				CCDE83C12B6EC38E00DC9F63 /* gb24.fnt */,
-				CCDE83C92B6EC38E00DC9F63 /* gb32.fnt */,
-				CC4F49D92B7021A0002A9309 /* tracking10.fnt */,
-				CC5333582B7E938B009ED5D7 /* tracking12.fnt */,
-				CC5333592B7E938C009ED5D7 /* tracking14.fnt */,
-				CC4F49C82B6FB728002A9309 /* tracking16.fnt */,
-				CC4F49CE2B6FB728002A9309 /* tracking24.fnt */,
-				CC4F49C92B6FB728002A9309 /* tracking32.fnt */,
-				3356548517B51924003AE763 /* UpheavalPro.ttf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		CC1E5A2C1200B3B8000A8A4E /* Images */ = {
@@ -6010,7 +5906,6 @@
 				CC1E5CA81200B3B8000A8A4E /* close.png in Resources */,
 				CC1E5CA91200B3B8000A8A4E /* collapsed.png in Resources */,
 				CC1E5CAB1200B3B8000A8A4E /* expanded.png in Resources */,
-				CCDE83E32B6EC38F00DC9F63 /* gb10.fnt in Resources */,
 				CC1E5CAD1200B3B8000A8A4E /* info.png in Resources */,
 				CC1E5CAF1200B3B8000A8A4E /* next.png in Resources */,
 				CC1E5CB01200B3B8000A8A4E /* play.png in Resources */,
@@ -6034,7 +5929,6 @@
 				CC1E5EA61200D05E000A8A4E /* iTunesArtwork in Resources */,
 				CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */,
 				CC1E5F0D120154A8000A8A4E /* Icon-72.png in Resources */,
-				CC4F49D22B6FB728002A9309 /* tracking32.fnt in Resources */,
 				CC1E5F0F120154A8000A8A4E /* Icon-Small.png in Resources */,
 				CC1E5F10120154A8000A8A4E /* Icon-Small@2x.png in Resources */,
 				CC1E5F11120154A8000A8A4E /* Icon.png in Resources */,
@@ -6073,7 +5967,6 @@
 				CC33B4271ABE1FC6009608E8 /* slider.png in Resources */,
 				CC1E6321120423DF000A8A4E /* CoreDesign in Resources */,
 				CC1E6322120423DF000A8A4E /* CustomMade in Resources */,
-				CCDE83D12B6EC38F00DC9F63 /* 04b10.fnt in Resources */,
 				CC1E6323120423DF000A8A4E /* DariusZendeh in Resources */,
 				CC1E6324120423DF000A8A4E /* DaveLowe in Resources */,
 				CC1E6325120423DF000A8A4E /* DaveLowe_Deli in Resources */,
@@ -6097,14 +5990,11 @@
 				CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
 				337FE6A824A8D20800CEE44D /* Launch Screen.storyboard in Resources */,
-				CC4F49D32B6FB728002A9309 /* c6432.fnt in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
 				CC1E6334120423DF000A8A4E /* ahx in Resources */,
-				CCDE83D92B6EC38F00DC9F63 /* amiga32.fnt in Resources */,
 				CC1E6335120423DF000A8A4E /* ahx.waves in Resources */,
 				CC1E6336120423DF000A8A4E /* ems_v6.cfg in Resources */,
 				CC1E6337120423DF000A8A4E /* ems_v6.cfg.txt in Resources */,
-				CC4F49D12B6FB728002A9309 /* tracking16.fnt in Resources */,
 				CC8A8D4617F9FF5500A56E0C /* Icon-152.png in Resources */,
 				CC1E6338120423DF000A8A4E /* EP-Hippel_7V.cfg in Resources */,
 				CC1E6339120423DF000A8A4E /* EP-Mugician_II.cfg in Resources */,
@@ -6118,7 +6008,6 @@
 				CC1E6340120423DF000A8A4E /* Fred in Resources */,
 				59909B611E3E7F2400C629AA /* tabview_gradient40Black@2x.png in Resources */,
 				CC1E6341120423DF000A8A4E /* FredGray in Resources */,
-				CC4F49DA2B7021A0002A9309 /* c6410.fnt in Resources */,
 				CC1E6342120423DF000A8A4E /* FutureComposer-BSI in Resources */,
 				59909B551E3E20A300C629AA /* tabview_gradient40Green@2x.png in Resources */,
 				CC1E6343120423DF000A8A4E /* FutureComposer1.3 in Resources */,
@@ -6161,7 +6050,6 @@
 				CC1E6360120423DF000A8A4E /* Mark_Cooksey in Resources */,
 				CC1E6361120423DF000A8A4E /* Mark_Cooksey_Old in Resources */,
 				CC1E6362120423DF000A8A4E /* MarkII in Resources */,
-				CC4F49DB2B7021A0002A9309 /* tracking10.fnt in Resources */,
 				59909B5D1E3E786700C629AA /* tabview_gradient40Red@2x.png in Resources */,
 				CC1E6363120423DF000A8A4E /* MartinWalker in Resources */,
 				CC1E6364120423DF000A8A4E /* Maximum_Effect in Resources */,
@@ -6171,7 +6059,6 @@
 				CC1E6366120423DF000A8A4E /* MED in Resources */,
 				CC1E6367120423DF000A8A4E /* Medley in Resources */,
 				CC1E6368120423DF000A8A4E /* MIDI-Loriciel in Resources */,
-				CCDE83D22B6EC38F00DC9F63 /* amiga24.fnt in Resources */,
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
 				CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */,
 				CC1E636A120423DF000A8A4E /* MMDC in Resources */,
@@ -6194,14 +6081,12 @@
 				CC1E6379120423DF000A8A4E /* PaulSummers in Resources */,
 				CC1E637A120423DF000A8A4E /* PeterVerswyvelen in Resources */,
 				CCB8D97A17F62356008E6A45 /* txtMenu7c_2x.png in Resources */,
-				CCDE83E42B6EC38F00DC9F63 /* 04b24.fnt in Resources */,
 				CC1E637B120423DF000A8A4E /* PierreAdane in Resources */,
 				CC1E637C120423DF000A8A4E /* ProfessionalSoundArtists in Resources */,
 				59BE91DB26000FE500414A42 /* NEWS in Resources */,
 				CC1E637D120423DF000A8A4E /* PTK-Prowiz in Resources */,
 				CC1E637E120423DF000A8A4E /* PumaTracker in Resources */,
 				CC1E637F120423DF000A8A4E /* QuadraComposer in Resources */,
-				CCDE83D82B6EC38F00DC9F63 /* 04b32.fnt in Resources */,
 				CC1E6380120423DF000A8A4E /* Quartet in Resources */,
 				CC1E6381120423DF000A8A4E /* Quartet_PSG in Resources */,
 				CC1E6382120423DF000A8A4E /* Quartet_ST in Resources */,
@@ -6222,7 +6107,6 @@
 				CC1E6390120423E0000A8A4E /* SonicArranger in Resources */,
 				CC1E6391120423E0000A8A4E /* SonicArranger-pc-all in Resources */,
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
-				CC53335B2B7E938C009ED5D7 /* tracking14.fnt in Resources */,
 				CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */,
 				CC1E6393120423E0000A8A4E /* Sound-FX in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
@@ -6234,7 +6118,6 @@
 				CC1E6399120423E0000A8A4E /* SoundMon2.2 in Resources */,
 				CC1E639A120423E0000A8A4E /* SoundPlayer in Resources */,
 				CC1E639B120423E0000A8A4E /* SoundProgrammingLanguage in Resources */,
-				CCDE83E22B6EC38F00DC9F63 /* amiga10.fnt in Resources */,
 				59909B581E3E6B9A00C629AA /* tabview_gradient40Pink.png in Resources */,
 				CC1E639C120423E0000A8A4E /* Soundtracker-IV in Resources */,
 				CCB8D99717F62A18008E6A45 /* txtMenu3b_2x.png in Resources */,
@@ -6246,7 +6129,6 @@
 				CC1E63A1120423E0000A8A4E /* SteveBarrett in Resources */,
 				CC1E63A2120423E0000A8A4E /* SteveTurner in Resources */,
 				CC1E63A3120423E0000A8A4E /* SUN-Tronic in Resources */,
-				CC4F49D02B6FB728002A9309 /* c6416.fnt in Resources */,
 				CCB8D97D17F62356008E6A45 /* txtMenu11b_2x.png in Resources */,
 				CCCCB2242BDD5AE300A18848 /* txtMenu11e_2x.png in Resources */,
 				CC1E63A4120423E0000A8A4E /* Synth in Resources */,
@@ -6280,10 +6162,10 @@
 				CC1E63B5120423E0000A8A4E /* VoodooSupremeSynthesizer in Resources */,
 				CC1E63B6120423E0000A8A4E /* WallyBeben in Resources */,
 				CC1E63B7120423E0000A8A4E /* YM-2149 in Resources */,
+				CC9331942EA28F0F00CB0503 /* Fonts in Resources */,
 				CC1E63B8120423E0000A8A4E /* score in Resources */,
 				CC1E63B9120423E0000A8A4E /* uade.conf in Resources */,
 				CC1E63BA120423E0000A8A4E /* uaerc in Resources */,
-				CCDE83DD2B6EC38F00DC9F63 /* gb32.fnt in Resources */,
 				CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */,
 				CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */,
 				CCB8D97F17F62356008E6A45 /* txtMenu12a_2x.png in Resources */,
@@ -6291,7 +6173,6 @@
 				CCD791731219FC6B0063D0E7 /* zoom.png in Resources */,
 				33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */,
 				3335B7CE122E30BB00E06F60 /* playlist_del.png in Resources */,
-				CCDE83DE2B6EC38F00DC9F63 /* 04b16.fnt in Resources */,
 				CCC678ED17F88AF900F16A54 /* star4@2x.png in Resources */,
 				CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */,
 				CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */,
@@ -6319,11 +6200,9 @@
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
-				CCDE83D32B6EC38F00DC9F63 /* gb16.fnt in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
 				330FB72D138053E9001EC7A2 /* play_all.png in Resources */,
 				330FB72F138053F6001EC7A2 /* play_all@2x.png in Resources */,
-				CCDE83D52B6EC38F00DC9F63 /* gb24.fnt in Resources */,
 				330FB73213810D1D001EC7A2 /* playlist_add_all.png in Resources */,
 				330FB73313810D1D001EC7A2 /* playlist_add_all@2x.png in Resources */,
 				3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */,
@@ -6342,7 +6221,6 @@
 				594CB8C2263358D900D154E5 /* txtMenu5c_2x.png in Resources */,
 				59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */,
 				33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */,
-				CCDE83D72B6EC38F00DC9F63 /* amiga16.fnt in Resources */,
 				33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */,
 				3358147914EC0F27003D7B5B /* pinfo.png in Resources */,
 				3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */,
@@ -6352,12 +6230,6 @@
 				333DA8FA15F48D5E0095494B /* video_next.png in Resources */,
 				333DA8FB15F48D5E0095494B /* video_next@2x.png in Resources */,
 				333DA8FC15F48D5E0095494B /* video_pause.png in Resources */,
-				CCE025782E98F7EB008B7070 /* Cousine-Regular.ttf in Resources */,
-				CCE025792E98F7EB008B7070 /* DroidSans.ttf in Resources */,
-				CCE0257A2E98F7EB008B7070 /* Roboto-Medium.ttf in Resources */,
-				CCE0257B2E98F7EB008B7070 /* ProggyTiny.ttf in Resources */,
-				CCE0257C2E98F7EB008B7070 /* ProggyClean.ttf in Resources */,
-				CCE0257D2E98F7EB008B7070 /* Karla-Regular.ttf in Resources */,
 				CCCCB22A2BDE8DB400A18848 /* txt_pianoSpark.png in Resources */,
 				333DA8FD15F48D5E0095494B /* video_pause@2x.png in Resources */,
 				333DA8FE15F48D5E0095494B /* video_play.png in Resources */,
@@ -6385,7 +6257,6 @@
 				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
 				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
-				CC4F49D72B6FB728002A9309 /* tracking24.fnt in Resources */,
 				330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */,
 				337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */,
 				33ABE58A17B0E65500AE0EA1 /* bb_list.png in Resources */,
@@ -6410,8 +6281,6 @@
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
 				33ABE5B717B23DF900AE0EA1 /* BookmarksViewController.xib in Resources */,
-				CC4F49D62B6FB728002A9309 /* c6424.fnt in Resources */,
-				3356548617B51924003AE763 /* UpheavalPro.ttf in Resources */,
 				3356548917B52EFF003AE763 /* browser_home.html in Resources */,
 				33F6A93F17B99FB8002369E7 /* SettingsViewController.xib in Resources */,
 				33ABD4EA17BCC02600D50393 /* bb_refresh.png in Resources */,
@@ -6424,11 +6293,6 @@
 				59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */,
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
-				CC53335A2B7E938C009ED5D7 /* tracking12.fnt in Resources */,
-				CC9331782EA1521B00CB0503 /* amiga4ever pro2.ttf in Resources */,
-				CC9331792EA1521B00CB0503 /* Commodore Pixelized v1.2.ttf in Resources */,
-				CC93317A2EA1521B00CB0503 /* FT2FONT.ttf in Resources */,
-				CC93317B2EA1521B00CB0503 /* ModernDOS8x16.ttf in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
 				59909B601E3E7F2400C629AA /* tabview_gradient40Black.png in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,

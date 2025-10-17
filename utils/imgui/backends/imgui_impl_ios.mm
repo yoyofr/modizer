@@ -10,18 +10,20 @@ ImFont  *font_body;
 
 
 ImFont  *font_tracker[FONT_TRACKER_NB];
-NSString *font_trackerName[FONT_TRACKER_NB]={
-    @"ModernDOS8x16",
-    @"amiga4ever pro2",
-    @"Commodore Pixelized v1.2",
-    @"FT2FONT"
+const char *font_trackerName[FONT_TRACKER_NB][2]={
+    {"ModernDOS8x16","DOS"},
+    {"amiga4ever","Amiga"},
+    {"Commodore Rounded v1.2","C64"},
+    {"Coda-Regular","Coda"},
+    {"Roboto-Medium","Roboto"}
 };
 
-float font_trackerSize[FONT_TRACKER_NB][2]={
-    {16.0,10.0},
-    {16.0,10.0},
-    {16.0,10.0},
-    {16.0,10.0},
+float font_trackerSize[FONT_TRACKER_NB][5]={
+    {16.0,10.0,1.0,0.0,0.0},
+    {16.0,16.0,0.82,0.0,1.0},
+    {16.0,12.0,0.85,0.0,-1.0},
+    {16.0,8.0,1.1,0.0,-2.0},
+    {16.0,10.0,0.9,0.0,2.0},
 };
 
 
@@ -43,17 +45,17 @@ bool ImGui_ImplIOS_Init()
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
     ;
-    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f, NULL, io.Fonts->GetGlyphRangesDefault());
     IM_ASSERT(font_body != NULL);
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {
-        NSLog(@"loading %@.ttf",font_trackerName[i]);
+        NSLog(@"loading %s.ttf",font_trackerName[i][0]);
         
         ImFontConfig font_cfg = ImFontConfig();
         font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1];
         font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1];
         
-        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:font_trackerName[i] ofType: @"ttf"] UTF8String], font_trackerSize[i][0], &font_cfg, io.Fonts->GetGlyphRangesDefault());
+        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0], &font_cfg, io.Fonts->GetGlyphRangesDefault());
         IM_ASSERT(font_tracker[i] != NULL);
     }
 

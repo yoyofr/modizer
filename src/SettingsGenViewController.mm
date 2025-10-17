@@ -20,6 +20,15 @@
 
 #import "TTFadeAnimator.h"
 
+//--------------------------------------------------
+// ImGui
+//--------------------------------------------------
+#include "../utils/imgui/imgui.h"
+#include "../utils/imgui/backends/imgui_impl_ios.h"
+#include "../utils/imgui/backends/imgui_impl_opengl3.h"
+extern const char *font_trackerName[FONT_TRACKER_NB][2];
+
+
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
 
@@ -1607,11 +1616,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].sub_family=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)"DOS";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[1]=(char*)"1";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[2]=(char*)"2";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[3]=(char*)"3";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)font_trackerName[0][1];
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[1]=(char*)font_trackerName[1][1];
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[2]=(char*)font_trackerName[2][1];
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[3]=(char*)font_trackerName[3][1];
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[4]=(char*)font_trackerName[4][1];
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_FontSize)
     settings[GLOB_FXMODPattern_FontSize].type=MDZ_SWITCH;

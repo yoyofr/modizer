@@ -150,6 +150,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
 extern ImFont  *font_tracker[FONT_TRACKER_NB];
+extern float font_trackerSize[FONT_TRACKER_NB][5];
 
 //--------------------------------------------------
 
@@ -7387,16 +7388,24 @@ extern "C" int current_sample;
                 int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
                 if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
                 
-                if (font_tracker[cur_font]) ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
-                else ImGui::PushFont(nullptr,fontSize*glScaleFactor);
+                float font_ofsX,font_ofsY;
+                if (font_tracker[cur_font]) { ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
+                    font_ofsX=font_trackerSize[cur_font][3];
+                    font_ofsY=font_trackerSize[cur_font][4];
+                }
+                else {
+                    ImGui::PushFont(nullptr,fontSize*glScaleFactor);
+                    font_ofsX=0;
+                    font_ofsY=0;
+                }
 //                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 
                 //ImGui::SetCursorPos(ImVec2(0,0));
                 
                 //Compute how many lines to draw
-                float lineHeight=ImGui::GetTextLineHeight();
+                float lineHeight=fontSize*glScaleFactor;//ImGui::GetTextLineHeight();
                 
-                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
+                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight/2)/lineHeight;
                 //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
                 //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
                 int limit_midline=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
@@ -7440,8 +7449,8 @@ extern "C" int current_sample;
                 
                 idx=startRow*mplayer.numChannels+startChan;
  
-                float fontWidth=ImGui::CalcTextSize("A").x;
-                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,mScaleFactor);
+                float fontWidth=ImGui::CalcTextSize("12345678").x/8.0;
+                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/glScaleFactor,fontSize,glScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
@@ -7480,7 +7489,7 @@ extern "C" int current_sample;
                             str_prefix[1]=dec2hex[(i-numRows)&0xF];
                         }
                         
-                        cursorPos=ImVec2((3.0)*mScaleFactor, (i-startRow+1)*lineHeight+4.0*glScaleFactor);
+                        cursorPos=ImVec2((3.0+font_ofsX)*mScaleFactor, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
                         ImGui::SetCursorPos(cursorPos);
                         ImGui::Text("%s",str_prefix);
                         
@@ -7612,8 +7621,8 @@ extern "C" int current_sample;
                             str_data[k]=0;
                         }
                         
-                        cursorPos.y=(i-startRow+1)*lineHeight+4.0*glScaleFactor;
-                        cursorPos.x=0;
+                        cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
+                        cursorPos.x=font_ofsX*glScaleFactor;
                         ImGui::SetCursorPos(cursorPos);
                         ImGui::Text("%s",str_data);
                         
@@ -7658,7 +7667,7 @@ extern "C" int current_sample;
                             xofs=startx/6.0;
                             break;
                     }
-                    ImGui::SetCursorPos(ImVec2(-xofs,4.0*glScaleFactor));
+                    ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY)*glScaleFactor));
                     ImGui::Text("%s",str_data);
 
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);

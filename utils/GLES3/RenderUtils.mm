@@ -1281,7 +1281,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
         case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
     }
     
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(chanNb*3+4+4));
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*3+4+4));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
@@ -1333,42 +1333,42 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
                                   MODPATTERN_FRAME_COLHIGH1,
                                   _ww,_hh);
     
-//border / lines nb
+    //border / lines nb
 
-count+=RenderUtils::buildQuad(&(pts[count]),
-                              0,     0,
-                              2, 0,
-                              2,  _hh-(char_height+2-0)-2,
-                              0,      _hh-(char_height+2-0)-2,
-                              MODPATTERN_FRAME_COLHIGH1,
-                              MODPATTERN_FRAME_COLHIGH2,
-                              MODPATTERN_FRAME_COLHIGH2,
-                              MODPATTERN_FRAME_COLHIGH1,
-                              _ww,_hh);
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  0,     0,
+                                  2, 0,
+                                  2,  _hh-(char_height+2-0)-2,
+                                  0,      _hh-(char_height+2-0)-2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  _ww,_hh);
 
 
-count+=RenderUtils::buildQuad(&(pts[count]),
-                              2,     0,
-                              col_ofs-2, 0,
-                              col_ofs-2,  _hh-(char_height+2-0)-2,
-                              2,      _hh-(char_height+2-0)-2,
-                              MODPATTERN_FRAME_COLMED1,
-                              MODPATTERN_FRAME_COLMED2,
-                              MODPATTERN_FRAME_COLMED2,
-                              MODPATTERN_FRAME_COLMED1,
-                              _ww,_hh);
-    
-count+=RenderUtils::buildQuad(&(pts[count]),
-                              col_ofs-2,     0,
-                              col_ofs, 0,
-                              col_ofs,  _hh-(char_height+2-0)-2,
-                              col_ofs-2,      _hh-(char_height+2-0)-2,
-                              MODPATTERN_FRAME_COLLOW1,
-                              MODPATTERN_FRAME_COLLOW2,
-                              MODPATTERN_FRAME_COLLOW2,
-                              MODPATTERN_FRAME_COLLOW1,
-                              _ww,_hh);
-    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  2,     0,
+                                  col_ofs-2, 0,
+                                  col_ofs-2,  _hh-(char_height+2-0)-2,
+                                  2,      _hh-(char_height+2-0)-2,
+                                  MODPATTERN_FRAME_COLMED1,
+                                  MODPATTERN_FRAME_COLMED2,
+                                  MODPATTERN_FRAME_COLMED2,
+                                  MODPATTERN_FRAME_COLMED1,
+                                  _ww,_hh);
+        
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  col_ofs-2,     0,
+                                  col_ofs, 0,
+                                  col_ofs,  _hh-(char_height+2-0)-2,
+                                  col_ofs-2,      _hh-(char_height+2-0)-2,
+                                  MODPATTERN_FRAME_COLLOW1,
+                                  MODPATTERN_FRAME_COLLOW2,
+                                  MODPATTERN_FRAME_COLLOW2,
+                                  MODPATTERN_FRAME_COLLOW1,
+                                  _ww,_hh);
+        
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   0,     _hh-(char_height+2-0),
                                   col_ofs, _hh-(char_height+2-0),
@@ -1382,7 +1382,7 @@ count+=RenderUtils::buildQuad(&(pts[count]),
 
 
     //then draw channels frame
-    for (int i=1; i<chanNb; i++) {
+    for (int i=1; i<=chanNb; i++) {
         if (pixOfs+col_size*i+col_ofs-2.0f>_ww) break;
         if ((pixOfs+col_size*i+col_ofs-2.0)<col_ofs) continue;
         count+=RenderUtils::buildQuad(&(pts[count]),
