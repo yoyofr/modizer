@@ -17,9 +17,7 @@
 #define VERSION_MINOR_STR "12"
 
 #ifdef DEBUG_MODIZER
-#define MDZLog(text) NSLog(@"[Modizer debug] %s",text)
 #else
-#define MDZLog(text)
 #endif
 
 //#define STATISTICS_URL @"http://localhost:8080"

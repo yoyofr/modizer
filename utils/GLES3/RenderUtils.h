@@ -62,19 +62,14 @@ struct SimpleLineVertexF {
     GLfloat Bx,By;
 };
 
-struct ColoredLineVertexF {
+
+struct ColorDataF {
     
-    ColoredLineVertexF() {}
-    ColoredLineVertexF(GLfloat _Ax, GLfloat _Ay, GLfloat _Bx,GLfloat _By,GLfloat _r,GLfloat _g,GLfloat _b)
-    : Ax(_Ax), Ay(_Ay), Bx(_Bx), By(_By), r(_r), g(_g), b(_b) {
+    ColorDataF() {}
+    ColorDataF(GLfloat _Ar,GLfloat _Ag,GLfloat _Ab,GLfloat _Aa)
+    : r(_Ar), g(_Ag), b(_Ab), a(_Aa) {
     }
     
-    ColoredLineVertexF(int _Ax, int _Ay,int _Bx, int _By, int _r,int _g,int _b,int width, int height)
-    : Ax((float)_Ax*2.0/(float)width-1.0), Ay((float)_Ay*2.0/(float)height-1.0),Bx((float)_Bx*2.0/(float)width-1.0), By((float)_By*2.0/(float)height-1.0),r((float)_r/255.0),g((float)_g/255.0),b((float)_b/255.0) {
-    }
-    
-    GLfloat Ax,Ay;
-    GLfloat Bx,By;
     GLfloat r,g,b,a;
 };
 
@@ -179,6 +174,17 @@ bool initRenderToTexture(int width,int height);
 void shutdownRenderToTexture();
 void startRenderToTexture(int width,int height);
 void endRenderToTexture(int width,int height);
+
+int buildQuad(LineVertexF *pts,
+              int x1,int y1,
+                  int x2,int y2,
+                  int x3,int y3,
+                  int x4,int y4,
+                  int r1,int g1,int b1,int a1,
+                  int r2,int g2,int b2,int a2,
+                  int r3,int g3,int b3,int a3,
+                  int r4,int g4,int b4,int a4,int ww,int hh) ;
+
 
 }
 

@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define ASCII_MIDDOT "·"
+
 #define glPushMatrix(...)
 #define glTranslatef(...)
 #define glPushMatrix(...)
@@ -4949,7 +4951,7 @@ void pmSoftReinit() {
     projectm_playlist_set_preset_switch_failed_event_callback(_pm_playlist, &PresetSwitchFailedEvent, nil);
 
 
-    MDZLog("projectM initialized");
+    NSLog(@"projectM initialized");
     
     milkPresetStr=NULL;
     _pmPresetHasChanged=false;
@@ -6260,7 +6262,7 @@ extern "C" int current_sample;
     uint ww,hh;
     int nb_spectrum_bands;
     uint hasdrawnotes;
-    char str_data[11*MAX_VISIBLE_MODCHANNELS+1]; //MAX 64 channels visible, much higher than what current screen can display
+    char str_data[11*MAX_VISIBLE_MODCHANNELS*2+1]; //MAX 64 channels visible, much higher than what current screen can display
     unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
     int i,j,k,l,note_avail,idx,startRow;
@@ -7378,10 +7380,9 @@ extern "C" int current_sample;
                         break;
                 }
                 
-                ImGui::SetNextWindowPos(ImVec2(0,0));
-                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
                 ImGui::GetStyle().Alpha=1.0f;
                 ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+                ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
                 
                 int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
                 if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
@@ -7389,18 +7390,16 @@ extern "C" int current_sample;
                 if (font_tracker[cur_font]) ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
                 else ImGui::PushFont(nullptr,fontSize*glScaleFactor);
 //                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
-                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
-                             ImGuiWindowFlags_NoScrollbar|
-                             ImGuiWindowFlags_NoFocusOnAppearing);
+                
                 //ImGui::SetCursorPos(ImVec2(0,0));
                 
                 //Compute how many lines to draw
                 float lineHeight=ImGui::GetTextLineHeight();
                 
-                linestodraw=((float)hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight-1)/lineHeight;
+                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
                 //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
                 //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
-                int limit_midline=((float)hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+0)/lineHeight;
+                int limit_midline=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
                 midline=0;//linestodraw>>1;
                 
 
@@ -7440,20 +7439,60 @@ extern "C" int current_sample;
                 }
                 
                 idx=startRow*mplayer.numChannels+startChan;
-/*
-                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mScaleFactor);
+ 
+                float fontWidth=ImGui::CalcTextSize("A").x;
+                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,mScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
                 } else {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),mFontWidth/mScaleFactor,mFontHeight/mScaleFactor,mFont->yCharOffset/mScaleFactor,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
                 }
-                */
                 
                 
                 if (currentNotes) {
                     hasdrawnotes=1;
                     l=0;
+                    
+                    //1st win with line nb
+                    char str_prefix[3];
+                    ImVec2 cursorPos;
+                    float startx=ImGui::CalcTextSize("XX ").x;
+                    modPatternWindowSize=ww*glScaleFactor-startx;
+                    
+                    ImGui::SetNextWindowPos(ImVec2(0,0));
+                    ImGui::SetNextWindowSize(ImVec2(startx,hh*glScaleFactor));
+                    ImGui::Begin("ModPatternWin1",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                                 ImGuiWindowFlags_NoScrollbar|
+                                 ImGuiWindowFlags_NoFocusOnAppearing);
+                    
+                    for (i=startRow;i<startRow+linestodraw;i++) {
+                        
+                        str_prefix[2]=0;
+                        if ((i<0)&&prevNotes) {
+                            str_prefix[0]=dec2hex[((numRowsP+i)>>4)&0xF];
+                            str_prefix[1]=dec2hex[(numRowsP+i)&0xF];
+                        } else if (i<numRows) {
+                            str_prefix[0]=dec2hex[(i>>4)&0xF];
+                            str_prefix[1]=dec2hex[i&0xF];
+                        } else if (nextNotes) {
+                            str_prefix[0]=dec2hex[((i-numRows)>>4)&0xF];
+                            str_prefix[1]=dec2hex[(i-numRows)&0xF];
+                        }
+                        
+                        cursorPos=ImVec2((3.0)*mScaleFactor, (i-startRow+1)*lineHeight+4.0*glScaleFactor);
+                        ImGui::SetCursorPos(cursorPos);
+                        ImGui::Text("%s",str_prefix);
+                        
+                    }
+                    ImGui::End();
+                    //2nd win with pattern
+                    ImGui::SetNextWindowPos(ImVec2(startx,0));
+                    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,hh*glScaleFactor));
+                    ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                                 ImGuiWindowFlags_NoScrollbar|
+                                 ImGuiWindowFlags_NoFocusOnAppearing);
+                    
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         note_avail=0;
                         if (i<0) {
@@ -7490,30 +7529,35 @@ extern "C" int current_sample;
                                             str_data[k++]=note2charB[(cnote-13)%12];
                                             str_data[k++]=(cnote-13)/12+'0';
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         if (cinst) {
                                             str_data[k++]=dec2hex[(cinst>>4)&0xF];
                                             str_data[k++]=dec2hex[cinst&0xF];
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         if (cvol) {
                                             str_data[k++]=dec2hex[(cvol>>4)&0xF];
                                             str_data[k++]=dec2hex[cvol&0xF];
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         if (ceff) {
                                             str_data[k++]='A'+ceff;
                                         } else {
-                                            str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         if (cparam) {
                                             str_data[k++]=dec2hex[(cparam>>4)&0xF];
                                             str_data[k++]=dec2hex[cparam&0xF];
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         str_data[k++]=' ';
                                         idx++;
@@ -7528,13 +7572,16 @@ extern "C" int current_sample;
                                             str_data[k++]=note2charB[(cnote-13)%12];
                                             str_data[k++]=(cnote-13)/12+'0';
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         if (cinst) {
                                             str_data[k++]=dec2hex[(cinst>>4)&0xF];
                                             str_data[k++]=dec2hex[cinst&0xF];
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         str_data[k++]=' ';
                                         idx++;
@@ -7548,7 +7595,9 @@ extern "C" int current_sample;
                                             str_data[k++]=note2charB[(cnote-13)%12];
                                             str_data[k++]=(cnote-13)/12+'0';
                                         } else {
-                                            str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                            str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         str_data[k++]=' ';
                                         idx++;
@@ -7563,107 +7612,62 @@ extern "C" int current_sample;
                             str_data[k]=0;
                         }
                         
-                        char str_prefix[3];
-                        str_prefix[2]=0;
-                        if ((i<0)&&prevNotes) {
-                            str_prefix[0]=dec2hex[((numRowsP+i)>>4)&0xF];
-                            str_prefix[1]=dec2hex[(numRowsP+i)&0xF];
-                        } else if (i<numRows) {
-                            str_prefix[0]=dec2hex[(i>>4)&0xF];
-                            str_prefix[1]=dec2hex[i&0xF];
-                        } else if (nextNotes) {
-                            str_prefix[0]=dec2hex[((i-numRows)>>4)&0xF];
-                            str_prefix[1]=dec2hex[(i-numRows)&0xF];
-                        }
-                        
-                        ImVec2 cursorPos=ImVec2((0)*mScaleFactor, (i-startRow+1)*lineHeight);
-                        ImGui::SetCursorPos(cursorPos);
-                        ImGui::Text("%s",str_prefix);
-                        
-                        cursorPos.x=ImGui::CalcTextSize("XX ").x;
+                        cursorPos.y=(i-startRow+1)*lineHeight+4.0*glScaleFactor;
+                        cursorPos.x=0;
                         ImGui::SetCursorPos(cursorPos);
                         ImGui::Text("%s",str_data);
                         
                         modPatternLineSize=ImGui::CalcTextSize(str_data).x;
-                        modPatternWindowSize=ww*glScaleFactor-ImGui::CalcTextSize("XX ").x;
                     }
+                    ImGui::SetScrollX(-movePxMOD*glScaleFactor);
+                    ImGui::End();
+                    
+                    //3rd win: draw header
+                    ImGui::SetNextWindowPos(ImVec2(startx,0));
+                    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,lineHeight));
+                    ImGui::Begin("ModPatternWin3",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                                 ImGuiWindowFlags_NoScrollbar|
+                                 ImGuiWindowFlags_NoFocusOnAppearing);
+                    
+                    memset(str_data,32,11*mplayer.numChannels);//visibleChan);
+                    str_data[11*mplayer.numChannels]=0; //11 chars max / channel
+                    float xofs=0;
+                    switch (display_note_mode) {
+                        case 0:
+                            for (j=startChan;j<endChan;j++) {
+                                str_data[(j-startChan)*11+4]='0'+(j+1)/10;
+                                str_data[(j-startChan)*11+5]='0'+(j+1)%10;
+                            }
+                            str_data[(endChan-1-startChan)*11+9]=0;
+                            xofs=0.0f;
+                            break;
+                        case 1:
+                            for (j=startChan;j<endChan;j++) {
+                                str_data[(j-startChan)*6+2]='0'+(j+1)/10;
+                                str_data[(j-startChan)*6+3]='0'+(j+1)%10;
+                            }
+                            str_data[(endChan-1-startChan)*6+7]=0;
+                            xofs=startx/6.0;
+                            break;
+                        case 2:
+                            for (j=startChan;j<endChan;j++) {
+                                str_data[(j-startChan)*4+1]='0'+(j+1)/10;
+                                str_data[(j-startChan)*4+2]='0'+(j+1)%10;
+                            }
+                            str_data[(endChan-1-startChan)*4+6]=0;
+                            xofs=startx/6.0;
+                            break;
+                    }
+                    ImGui::SetCursorPos(ImVec2(-xofs,4.0*glScaleFactor));
+                    ImGui::Text("%s",str_data);
+
+                    ImGui::SetScrollX(-movePxMOD*glScaleFactor);
+                    ImGui::End();
                 }
-//                    str_data[2]=0;
-//                    for (l=0;l<linestodraw;l++) {
-//                        i=l+startRow;
-//                        if (mText[l]) {
-//                            glPushMatrix();
-//                            glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-//                            
-//                            if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
-//                            else {
-//                                if (i!=currentRow) mText[l]->Render(3+display_note_mode);
-//                                else {
-//                                    mText[l]->Render(20+display_note_mode);
-//                                }
-//                            }
-//                            glPopMatrix();
-//                        }
-//                        if ((i<0)&&prevNotes) {
-//                            str_data[0]=dec2hex[((numRowsP+i)>>4)&0xF];
-//                            str_data[1]=dec2hex[(numRowsP+i)&0xF];
-//                        } else if (i<numRows) {
-//                            str_data[0]=dec2hex[(i>>4)&0xF];
-//                            str_data[1]=dec2hex[i&0xF];
-//                        } else if (nextNotes) {
-//                            str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
-//                            str_data[1]=dec2hex[(i-numRows)&0xF];
-//                        }
-//                        mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
-//                        glPushMatrix();
-//                        glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*(mFontHeight/mScaleFactor+4)/*+currentYoffset*/, 0.0f);
-//                        mTextLine[l]->Render(1+(l&1));
-//                        glPopMatrix();
-//                    }
-//                    
-                //draw header + fps
-                memset(str_data,32,11*mplayer.numChannels);//visibleChan);
-                str_data[11*mplayer.numChannels]=0; //11 chars max / channel
-                float xofs=0;
-                switch (display_note_mode) {
-                    case 0:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*11+7]='0'+(j+1)/10;
-                            str_data[(j-startChan)*11+8]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*11+9]=0;
-                        xofs=0.0f;
-                        break;
-                    case 1:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*6+5]='0'+(j+1)/10;
-                            str_data[(j-startChan)*6+6]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*6+7]=0;
-                        xofs=0.0f;
-                        break;
-                    case 2:
-                        for (j=startChan;j<endChan;j++) {
-                            str_data[(j-startChan)*4+4]='0'+(j+1)/10;
-                            str_data[(j-startChan)*4+5]='0'+(j+1)%10;
-                        }
-                        str_data[(endChan-1-startChan)*4+6]=0;
-                        xofs=0.0f;
-                        break;
-                }
-//                mHeader= new CGLString(str_data, mFont,mScaleFactor);
-//                glPushMatrix();
-//                glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-(mFontHeight/mScaleFactor+4), 0.0f);
-//                //glScalef(1.58f, 1.58f, 1.58f);
-//                mHeader->Render(0);
-//                glPopMatrix();
+                ImGui::PopFont();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
             }
-            
-            ImGui::SetScrollX(-movePxMOD*glScaleFactor);
-            
-            ImGui::End();
-            ImGui::PopFont();
-            ImGui::PopStyleColor();
         }
     }
     

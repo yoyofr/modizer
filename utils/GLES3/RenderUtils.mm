@@ -8,6 +8,15 @@
  */
 #define BLOOM_BLUR_ITERATIONS 7 //
 
+#define MODPATTERN_FRAME_COLHIGH1 140,160,255,255
+#define MODPATTERN_FRAME_COLHIGH2 60,100,255,255
+
+#define MODPATTERN_FRAME_COLMED1 140/3,160/3,255/3,255
+#define MODPATTERN_FRAME_COLMED2 60/3,100/3,255/3,255
+
+#define MODPATTERN_FRAME_COLLOW1 140/5,160/5,255/5,255
+#define MODPATTERN_FRAME_COLLOW2 60/5,100/5,255/5,255
+
 extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
@@ -1155,6 +1164,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( pointABAttribHandle );
     glEnableVertexAttribArray ( colorAttribHandle );
+    
     glVertexAttribDivisor ( pointABAttribHandle, 1);
     
     // Generate a model view matrix to rotate/translate the cube
@@ -1234,120 +1244,238 @@ static int spectrumPeakValueR_index[SPECTRUM_BANDS];
 static int beatValueL_index[SPECTRUM_BANDS];
 static int beatValueR_index[SPECTRUM_BANDS];
 
+int RenderUtils::buildQuad(LineVertexF *pts,
+                       int x1,int y1,
+                           int x2,int y2,
+                           int x3,int y3,
+                           int x4,int y4,
+                           int r1,int g1,int b1,int a1,
+                           int r2,int g2,int b2,int a2,
+                           int r3,int g3,int b3,int a3,
+                           int r4,int g4,int b4,int a4,int ww,int hh) {
+    int count=0;
+    
+    if (!pts) return 0;
+    
+    //1st triangle
+    pts[count++]=LineVertexF(x1,y1,r1,g1,b1,a1,ww,hh);
+    pts[count++]=LineVertexF(x2,y2,r2,g2,b2,a2,ww,hh);
+    pts[count++]=LineVertexF(x3,y3,r3,g3,b3,a3,ww,hh);
+    
+    //2nd triangle
+    pts[count++]=LineVertexF(x1,y1,r1,g1,b1,a1,ww,hh);
+    pts[count++]=LineVertexF(x3,y3,r3,g3,b3,a3,ww,hh);
+    pts[count++]=LineVertexF(x4,y4,r4,g4,b4,a4,ww,hh);
+    
+    return count;
+}
+
 void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
     int count=0;
     float col_size,col_ofs;
-    LineVertex pts[10*MAX_VISIBLE_CHAN+10],ptsD[4*2];
-    //set the opengl state
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    LineVertexF *pts;
+    
+    switch (display_note_mode){
+        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
+    }
+    
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(chanNb*3+4+4));
+    if (!pts) {
+        NSLog(@"%s - cannot allocate memory",__func__);
+        return;
+    }
+    float min_w=col_size*chanNb+col_ofs;
+    min_w=fmin(min_w,_ww);
+    
+    //Header line
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  col_ofs,     _hh,
+                                  min_w, _hh,
+                                  min_w, _hh-2,
+                                  col_ofs,     _hh-2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  _ww,_hh);
+    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  col_ofs,     _hh-2,
+                                  min_w, _hh-2,
+                                  min_w, _hh-(char_height+2-0)-2,
+                                  col_ofs,     _hh-(char_height+2-0)-2,
+                                  MODPATTERN_FRAME_COLMED1,
+                                  MODPATTERN_FRAME_COLMED2,
+                                  MODPATTERN_FRAME_COLMED2,
+                                  MODPATTERN_FRAME_COLMED1,
+                                  _ww,_hh);
+
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  col_ofs,     _hh-(char_height+2-0)-2,
+                                  min_w, _hh-(char_height+2-0)-2,
+                                  min_w, _hh-(char_height+2-0),
+                                  col_ofs,     _hh-(char_height+2-0),
+                                  MODPATTERN_FRAME_COLLOW1,
+                                  MODPATTERN_FRAME_COLLOW2,
+                                  MODPATTERN_FRAME_COLLOW2,
+                                  MODPATTERN_FRAME_COLLOW1,
+                                  _ww,_hh);
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  col_ofs-2,     _hh,
+                                  col_ofs, _hh,
+                                  col_ofs,  _hh-(char_height+2-0),
+                                  col_ofs-2,      _hh-(char_height+2-0),
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  _ww,_hh);
+    
+//border / lines nb
+
+count+=RenderUtils::buildQuad(&(pts[count]),
+                              0,     0,
+                              2, 0,
+                              2,  _hh-(char_height+2-0)-2,
+                              0,      _hh-(char_height+2-0)-2,
+                              MODPATTERN_FRAME_COLHIGH1,
+                              MODPATTERN_FRAME_COLHIGH2,
+                              MODPATTERN_FRAME_COLHIGH2,
+                              MODPATTERN_FRAME_COLHIGH1,
+                              _ww,_hh);
+
+
+count+=RenderUtils::buildQuad(&(pts[count]),
+                              2,     0,
+                              col_ofs-2, 0,
+                              col_ofs-2,  _hh-(char_height+2-0)-2,
+                              2,      _hh-(char_height+2-0)-2,
+                              MODPATTERN_FRAME_COLMED1,
+                              MODPATTERN_FRAME_COLMED2,
+                              MODPATTERN_FRAME_COLMED2,
+                              MODPATTERN_FRAME_COLMED1,
+                              _ww,_hh);
+    
+count+=RenderUtils::buildQuad(&(pts[count]),
+                              col_ofs-2,     0,
+                              col_ofs, 0,
+                              col_ofs,  _hh-(char_height+2-0)-2,
+                              col_ofs-2,      _hh-(char_height+2-0)-2,
+                              MODPATTERN_FRAME_COLLOW1,
+                              MODPATTERN_FRAME_COLLOW2,
+                              MODPATTERN_FRAME_COLLOW2,
+                              MODPATTERN_FRAME_COLLOW1,
+                              _ww,_hh);
+    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  0,     _hh-(char_height+2-0),
+                                  col_ofs, _hh-(char_height+2-0),
+                                  col_ofs,  _hh-(char_height+2-0)-2,
+                                  0,      _hh-(char_height+2-0)-2,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  MODPATTERN_FRAME_COLHIGH1,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  MODPATTERN_FRAME_COLHIGH2,
+                                  _ww,_hh);
+
+
+    //then draw channels frame
+    for (int i=1; i<chanNb; i++) {
+        if (pixOfs+col_size*i+col_ofs-2.0f>_ww) break;
+        if ((pixOfs+col_size*i+col_ofs-2.0)<col_ofs) continue;
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                               pixOfs+col_size*i+col_ofs-2.0f, _hh-2,
+                               pixOfs+col_size*i+col_ofs-2.0f+1.0, _hh-2,
+                               pixOfs+col_size*i+col_ofs-2.0f+1.0,    0,
+                               pixOfs+col_size*i+col_ofs-2.0f,    0,
+                                      MODPATTERN_FRAME_COLHIGH1,
+                                      MODPATTERN_FRAME_COLHIGH1,
+                                      MODPATTERN_FRAME_COLHIGH2,
+                                      MODPATTERN_FRAME_COLHIGH2,
+                                      _ww,_hh);
+        
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      pixOfs+col_size*i+col_ofs-1, _hh-2,
+                                      pixOfs+col_size*i+col_ofs+2.0, _hh-2,
+                                      pixOfs+col_size*i+col_ofs+2.0,    0,
+                                      pixOfs+col_size*i+col_ofs-1,    0,
+                                      MODPATTERN_FRAME_COLMED1,
+                                      MODPATTERN_FRAME_COLMED1,
+                                      MODPATTERN_FRAME_COLMED2,
+                                      MODPATTERN_FRAME_COLMED2,
+                                      _ww,_hh);
+            
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      pixOfs+col_size*i+col_ofs+2, _hh-2,
+                                      pixOfs+col_size*i+col_ofs+2+1.0, _hh-2,
+                                      pixOfs+col_size*i+col_ofs+2+1.0,    0,
+                                      pixOfs+col_size*i+col_ofs,    0,
+                                      MODPATTERN_FRAME_COLLOW1,
+                                      MODPATTERN_FRAME_COLLOW1,
+                                      MODPATTERN_FRAME_COLLOW2,
+                                      MODPATTERN_FRAME_COLLOW2,
+                                      _ww,_hh);
+    }
+    
+        
+
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    
+    //Save opengl state
+    glDumpState();
+    
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glLineWidth(1.0f*mScaleFactor);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     
-    switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f+8+6-2;break;
-    }
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
     
-    //then draw channels frame
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
     
-    for (int i=0; i<chanNb; i++) {
-        if (pixOfs+col_size*i+col_ofs-2.0f>_ww) break;
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-2.0f, (i&1?_hh:0),	140,160,255,255);
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-2.0f,	(i&1?0:_hh),	60,100,255,255);
-        
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-1, (i&1?_hh:0),	140/3,160/3,255/3,255);
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs-1, (i&1?0:_hh),	60/3,100/3,255/3,255);
-        
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs, (i&1?_hh:0),		140/3,160/3,255/3,255);
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs, (i&1?0:_hh),		60/3,100/3,255/3,255);
-        
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+1, (i&1?_hh:0),	140/3,160/3,255/3,255);
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+1, (i&1?0:_hh),	60/3,100/3,255/3,255);
-        
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+2.0f, (i&1?_hh:0),	140/6,160/6,255/6,255);
-        pts[count++] = LineVertex(pixOfs+col_size*i+col_ofs+2.0f, (i&1?0:_hh),	60/6,100/6,255/6,255);
-    }
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
     
-    //Header line
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+2,			140,160,255,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+2,		60,100,255,255);
+    // Load the uniforms
+    glDrawArrays(GL_TRIANGLES,0,count);
     
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)+1,	60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0),		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0),		60/3,100/3,255/3,255);
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-1,		140/3,160/3,255/3,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-1,	60/3,100/3,255/3,255);
+    glRestoreState();
     
-    pts[count++] = LineVertex(1,     _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-2,		140/6,160/6,255/6,255);
-    pts[count++] = LineVertex(_ww-1, _hh-NOTES_DISPLAY_TOPMARGIN+(char_height+2-0)-2,	60/6,100/6,255/6,255);
-    
-    
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    
-    glDrawArrays(GL_LINES, 0, count);
-    
-    
-    //3D border effect
-    ptsD[0] = LineVertex(0, 1,		80,80,80,255);
-    ptsD[1] = LineVertex(_ww, 1,	140,140,140,255);
-    ptsD[2] = LineVertex(0, _hh-1,	20,20,20,255);
-    ptsD[3] = LineVertex(_ww, _hh-1,80,80,80,255);
-    ptsD[4] = LineVertex(_ww-1, 0,	140,140,140,255);
-    ptsD[5] = LineVertex(_ww-1, _hh,80,80,80,255);
-    ptsD[6] = LineVertex(1, 0,		80,80,80,255);
-    ptsD[7] = LineVertex(1, _hh,	20,20,20,255);
-    glLineWidth(2.0f*mScaleFactor);
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsD[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsD[0].r);
-    glDrawArrays(GL_LINES, 0, 8);
-    
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
+    free(pts);
     
 }
 
 void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor) {
-    LineVertex pts[64*2];
     int ii;
+    int colr,colg,colb,cola;
     int count=0;
     float col_size,col_ofs;
-    int colr,colg,colb,cola;
+    LineVertexF *pts;
     
-    //set the opengl state
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnable(GL_BLEND);
-    glLineWidth(2.0f*mScaleFactor);
-    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+    switch (display_note_mode){
+        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
+    }
     
-    colr=230;colg=76;colb=153;cola=150;
-    //Draw current playing line
-    ii=_hh-NOTES_DISPLAY_TOPMARGIN-rowToHighlight*(char_height+4)-char_yOfs-char_height+(char_yOfs+char_height)/2;
-    
-    pts[0] = LineVertex(0,     ii-3,		colr,colg,colb,cola);
-    pts[1] = LineVertex(_ww-1, ii-3,		colr,colg,colb,cola);
-    pts[2] = LineVertex(0,     ii+char_height+3,		colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, ii+char_height+3,		colr,colg,colb,cola);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    pts[0] = LineVertex(0,     ii-4,     colr/2,colg/2,colb/2,cola);
-    pts[1] = LineVertex(_ww-1, ii-4,     colr/2,colg/2,colb/2,cola);
-    colr*=1.4f;if (colr>255) colr=255;
-    colg*=1.4f;if (colg>255) colg=255;
-    colb*=1.4f;if (colb>255) colb=255;
-    cola*=1.4f;if (cola>255) cola=255;
-    pts[2] = LineVertex(0,     ii+char_height+4,     colr,colg,colb,cola);
-    pts[3] = LineVertex(_ww-1, ii+char_height+4,     colr,colg,colb,cola);
-    glDrawArrays(GL_LINES, 0, 4);
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+0));
+    if (!pts) {
+        NSLog(@"%s - cannot allocate memory",__func__);
+        return;
+    }
+    float min_w=col_size*chanNb+col_ofs;
+    min_w=fmin(min_w,_ww);
     
     switch (display_note_mode){
         case 0:col_size=11*char_width;col_ofs=(char_width)*2+8+6-2;break;
@@ -1355,33 +1483,100 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
         case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
     }
     
-    //Volumes bar
-    count=0;
-    if (volumeData) {
-        for (int i=0; i<chanNb; i++) {
-            if (col_size*i+col_ofs-2.0f>_ww) break;
-            
-            int cr,cg,cb,crb,cgb,cbb;
-            crb=100;
-            cgb=50;
-            cbb=150;
-            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
-            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
-            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
-            
-            
-            
-            pts[0] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5, 0,	crb,cgb,cbb,125);
-            pts[1] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,	0,	crb,cgb,cbb,125);
-            pts[2] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5,	volumeData[i]*_hh/256/5,cr,cg,cb,125);
-            pts[3] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,	volumeData[i]*_hh/256/5,cr,cg,cb,125);
-            glDrawArrays(GL_TRIANGLE_STRIP,0,4);
-        }
-    }
+    //Draw current playing line
+    ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs;
     
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
+    colr=230;colg=76;colb=153;cola=150;
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  0,     ii-1,
+                                  min_w, ii-1,
+                                  min_w, ii+char_height,
+                                  0,     ii+char_height,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  _ww,_hh);
+    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  0,     ii-1,
+                                  min_w, ii-1,
+                                  min_w, ii-3,
+                                  0, ii-3,
+                                  colr/2,colg/2,colb/2,cola,
+                                  colr/2,colg/2,colb/2,cola,
+                                  colr/2,colg/2,colb/2,cola,
+                                  colr/2,colg/2,colb/2,cola,
+                                  _ww,_hh);
+
+    colr*=1.4f;if (colr>255) colr=255;
+    colg*=1.4f;if (colg>255) colg=255;
+    colb*=1.4f;if (colb>255) colb=255;
+    cola*=1.4f;if (cola>255) cola=255;
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  0,    ii+char_height-2,
+                                  min_w, ii+char_height-2,
+                                  min_w, ii+char_height,
+                                  0, ii+char_height,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  colr,colg,colb,cola,
+                                  _ww,_hh);
+    //Volumes bar
+//    if (volumeData) {
+//        for (int i=0; i<chanNb; i++) {
+//            if (col_size*i+col_ofs-2.0f>_ww) break;
+//            
+//            int cr,cg,cb,crb,cgb,cbb;
+//            crb=100;
+//            cgb=50;
+//            cbb=150;
+//            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
+//            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
+//            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
+//            
+//            
+//            
+//            pts[0] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5, 0,    crb,cgb,cbb,125);
+//            pts[1] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,    0,    crb,cgb,cbb,125);
+//            pts[2] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5,    volumeData[i]*_hh/256/5,cr,cg,cb,125);
+//            pts[3] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,    volumeData[i]*_hh/256/5,cr,cg,cb,125);
+//        }
+//    }
+    
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    
+    //Save opengl state
+    glDumpState();
+    
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
+    // Load the uniforms
+    glDrawArrays(GL_TRIANGLES,0,count);
+    
+    glRestoreState();
+    
+    free(pts);
     
 }
 

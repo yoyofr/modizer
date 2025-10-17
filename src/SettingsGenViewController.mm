@@ -1607,11 +1607,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].sub_family=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)"Amiga";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[1]=(char*)"C64";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[2]=(char*)"GB";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[3]=(char*)"04b";
-    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[4]=(char*)"Trk";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[0]=(char*)"DOS";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[4]=(char*)"4";
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_FontSize)
     settings[GLOB_FXMODPattern_FontSize].type=MDZ_SWITCH;

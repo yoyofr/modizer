@@ -17,11 +17,11 @@ NSString *font_trackerName[FONT_TRACKER_NB]={
     @"FT2FONT"
 };
 
-float font_trackerSize[FONT_TRACKER_NB]={
-    16.0,
-    16.0,
-    16.0,
-    16.0
+float font_trackerSize[FONT_TRACKER_NB][2]={
+    {16.0,10.0},
+    {16.0,10.0},
+    {16.0,10.0},
+    {16.0,10.0},
 };
 
 
@@ -48,7 +48,12 @@ bool ImGui_ImplIOS_Init()
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {
         NSLog(@"loading %@.ttf",font_trackerName[i]);
-        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:font_trackerName[i] ofType: @"ttf"] UTF8String], font_trackerSize[i], NULL, io.Fonts->GetGlyphRangesDefault());
+        
+        ImFontConfig font_cfg = ImFontConfig();
+        font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1];
+        font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1];
+        
+        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:font_trackerName[i] ofType: @"ttf"] UTF8String], font_trackerSize[i][0], &font_cfg, io.Fonts->GetGlyphRangesDefault());
         IM_ASSERT(font_tracker[i] != NULL);
     }
 
