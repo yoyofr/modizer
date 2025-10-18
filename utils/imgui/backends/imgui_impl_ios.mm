@@ -7,9 +7,8 @@ extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 
-ImFont  *font_body;
-
-
+//ImFont  *font_body;
+ImFont  *font_menu[4];
 ImFont  *font_tracker[FONT_TRACKER_NB][4];
 const char *font_trackerName[FONT_TRACKER_NB][2]={
     {"ModernDOS8x16","DOS"},
@@ -45,11 +44,18 @@ bool ImGui_ImplIOS_Init()
     
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
-    ;
-    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
-    IM_ASSERT(font_body != NULL);
+//    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
+//    IM_ASSERT(font_body != NULL);
     
     float font_size[4]={10,16,24,32};
+    
+    for (int j=0;j<4;j++) {
+        float ft_size=font_size[j];
+        font_menu[j]=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], ft_size*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
+        IM_ASSERT(font_menu[j] != NULL);
+    }
+    
+    
     for (int i=0;i<FONT_TRACKER_NB;i++) {
         for (int j=0;j<4;j++) {
             float ft_size=font_size[j];

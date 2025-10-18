@@ -20,7 +20,7 @@
 
 
 
-extern ImFont *font_body;
+extern ImFont *font_menu[4];
 extern volatile t_settings settings[MAX_SETTINGS];
 extern bool _pmPresetHasChanged;
 
@@ -455,8 +455,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
-    if (font_body) ImGui::PushFont(font_body);
-    ImGui::PushFont(nullptr);//,18*menu_win_size/512);
+    if (font_menu[2]) ImGui::PushFont(font_menu[2]);
+    else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
     
@@ -1407,7 +1407,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
             ImGui::EndTable();
         }
     }
-    if (font_body) ImGui::PopFont();
     ImGui::PopFont();
     
     //    ImDrawList* draw_list = ImGui::GetWindowDrawList();

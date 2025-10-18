@@ -698,7 +698,7 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value=32;
     settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value=24;
     settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value=20;
-    settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value=1;
+    settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value=0;
     settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value=1;
     settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value=1.0;
     

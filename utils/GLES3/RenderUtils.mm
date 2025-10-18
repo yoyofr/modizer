@@ -44,6 +44,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
+extern ImFont  *font_menu[4];
 
 
 #define glPushMatrix(...)
@@ -1048,7 +1049,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
     
     float fontSize=16;
-    switch (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value) {
+    int curFontIdx=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value%3;
+    switch (curFontIdx) {
         case 0: //10
             fontSize=10;
             break;
@@ -1059,7 +1061,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             fontSize=24;
             break;
     }
-    ImGui::PushFont(nullptr);//,fontSize*mScaleFactor);
+    if (font_menu[curFontIdx]) ImGui::PushFont(font_menu[curFontIdx]);
+    else ImGui::PushFont(nullptr);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     //ImGui::SetCursorPos(ImVec2(0,0));
     //ImGui::Text("%d %d",ww,hh);

@@ -168,6 +168,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
+extern ImFont  *font_menu[4];
 extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
 extern float font_trackerSize[FONT_TRACKER_NB][5];
 
@@ -7750,9 +7751,11 @@ extern "C" int current_sample;
                 float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
                 
-                ImGui::SetNextWindowPos(ImVec2(0,(hh-36)*glScaleFactor));
-                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,36*glScaleFactor));
+                ImGui::SetNextWindowPos(ImVec2(0,(hh-24)*glScaleFactor));
+                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,24*glScaleFactor));
                 ImGui::GetStyle().Alpha=alpha_val;
+                if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+                else ImGui::PushFont(nullptr);
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 
                 ImGuiStyle& style = ImGui::GetStyle();
@@ -7767,6 +7770,7 @@ extern "C" int current_sample;
                 
                 ImGui::SetScrollX(scrollx);
                 ImGui::End();
+                ImGui::PopFont();
                 
                 if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
                 

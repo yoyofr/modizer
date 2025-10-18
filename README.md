@@ -7,9 +7,9 @@ Support iOS 12+
 
 ## Building
 
-Requires recent Xcode
-
-To be updated. 
+Requires Xcode, currently building with XCode 16.4 in arm64 environment.
+Simulator for Intel based Mac might not work, I cannot test anymore.
+Open Modizer Xcode project file to build, should be straightforward.
 
  <!-- LANGUAGES BREAKDOWN START -->
 ```
