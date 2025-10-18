@@ -22,7 +22,7 @@ Modizer is using several playback libraries to support a wide range of music for
 | - [Adplug](https://github.com/adplug/adplug) | - [Another Slight Atari Player(ASAP)](https://asap.sourceforge.net/) |
 | - [AtariAudio](https://github.com/arnaud-carre/sndh-player) | - [Eupmini](https://github.com/gzaffin/eupmini) |
 | - [ffmpeg/mpg123/vorbis](https://github.com/arthenica/ffmpeg-kit) | - [Game Music Emu](https://github.com/libgme/game-music-emu) | 
-| - FMPmini | - [HighlyExperimental](https://gitlab.com/kode54/highly_experimental/) |
+| - [FMPmini](https://github.com/myon98/98fmplayer) | - [HighlyExperimental](https://gitlab.com/kode54/highly_experimental/) |
 | - [HighlyQuixotic](https://gitlab.com/kode54/highly_quixotic/) | - [HighlyTheoritical](https://gitlab.com/kode54/highly_theoretical/) |
 | - [AHX/Hively tracker](https://github.com/pete-gordon/hivelytracker) | - [LazyUSF](https://github.com/derselbst/lazyusf) |
 | - [Libvgm](https://github.com/ValleyBell/libvgm) | - [mdxmini](https://github.com/gzaffin/mdxmini) |
