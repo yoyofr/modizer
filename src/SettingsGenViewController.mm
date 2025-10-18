@@ -45,57 +45,6 @@ volatile t_settings settings[MAX_SETTINGS];
 
 #include "MiniPlayerImplementTableView.h"
 
--(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
-    const NSInteger BOTTOM_LABEL_TAG = 1002;
-    CGPoint p = [gestureRecognizer locationInView:self.tableView];
-    
-    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
-    if (indexPath != nil) {
-        if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
-            int crow=indexPath.row;
-            int csection=indexPath.section;
-            if (csection>=0) {
-                //display popup
-                
-                //get info
-                NSError *err;
-                NSDictionary *dict;
-                
-                if (settings[cur_settings_idx[indexPath.section]].description) {
-                    NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
-                    
-                    if (self.popTipView == nil) {
-                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
-                        self.popTipView.delegate = self;
-                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
-                        self.popTipView.textColor = [UIColor darkTextColor];
-                        self.popTipView.textAlignment=UITextAlignmentLeft;
-                        self.popTipView.titleAlignment=UITextAlignmentLeft;
-                        
-                        [self.popTipView presentPointingAtView:[[self.tableView cellForRowAtIndexPath:indexPath] viewWithTag:BOTTOM_LABEL_TAG]  inView:self.view animated:YES];
-                        popTipViewRow=crow;
-                        popTipViewSection=csection;
-                    } else {
-                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
-                            self.popTipView.message=str;
-                            [self.popTipView presentPointingAtView:[[self.tableView cellForRowAtIndexPath:indexPath] viewWithTag:BOTTOM_LABEL_TAG] inView:self.view animated:YES];
-                            popTipViewRow=crow;
-                            popTipViewSection=csection;
-                        }
-                    }
-                }
-            }
-        } else {
-            //hide popup
-            if (popTipView!=nil) {
-                [self.popTipView dismissAnimated:YES];
-                popTipView=nil;
-            }
-        }
-    }
-}
-
 -(void)handleTapPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
@@ -680,13 +629,13 @@ void optNSFPLAYChangedC(id param) {
     //Visualizers
     /////////////////////////////////////
     
-    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=0;
+//    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
     settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
     
-    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;
+    settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=1;
     settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
     settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
@@ -699,6 +648,7 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value=24;
     settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value=20;
     settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_value=0;
+    settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_value=1.0;
     settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value=1;
     settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value=1.0;
     
@@ -1542,12 +1492,12 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //Visualizers
     /////////////////////////////////////
-    SETTINGS_ID_DEF(GLOB_BLOOMFX)
-    settings[GLOB_BLOOMFX].type=MDZ_BOOLSWITCH;
-    settings[GLOB_BLOOMFX].label=(char*)"Bloom FX";
-    settings[GLOB_BLOOMFX].description=NULL;
-    settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_BLOOMFX].sub_family=0;
+//    SETTINGS_ID_DEF(GLOB_BLOOMFX)
+//    settings[GLOB_BLOOMFX].type=MDZ_BOOLSWITCH;
+//    settings[GLOB_BLOOMFX].label=(char*)"Bloom FX";
+//    settings[GLOB_BLOOMFX].description=NULL;
+//    settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+//    settings[GLOB_BLOOMFX].sub_family=0;
     
     SETTINGS_ID_DEF(GLOB_FXFullscreen)
     settings[GLOB_FXFullscreen].label=(char*)"FX Fullscreen";
@@ -3533,12 +3483,6 @@ void optNSFPLAYChangedC(id param) {
     
     popTipViewRow=-1;
     popTipViewSection=-1;
-    
-    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
-                                          initWithTarget:self action:@selector(handleLongPress:)];
-    lpgr.minimumPressDuration = 1.0; //seconds
-    lpgr.delegate = self;
-    [self.tableView addGestureRecognizer:lpgr];
     
     self.navigationController.delegate = self;
     

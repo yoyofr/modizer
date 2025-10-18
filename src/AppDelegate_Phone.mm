@@ -124,7 +124,7 @@ pthread_mutex_t play_mutex;
         NSLog(@"iCloud not available");
     } else {
         icloud_available=true;
-        NSLog(@"got iCloud token");
+//        NSLog(@"got iCloud token");
         NSURL *url=[mFileMngr URLForUbiquityContainerIdentifier:nil];
         
         if (url) {

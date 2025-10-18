@@ -63,7 +63,7 @@ static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    "Bloom",NULL,"@slider_alpha","Fullscreen",
+    NULL,NULL,"@slider_alpha","Fullscreen",
     "Close FX\nwindow","All FX off","Go to\nsettings","Exit Menu"
 };
 static GLuint txtMenuProjectMHandle[16];
@@ -157,7 +157,6 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
         
-        if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -429,7 +428,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
     float menu_win_size=round(fmin(ww,hh)*glScaleFactor);
-    float cell_size=round(fmin(ww,hh)*glScaleFactor/4.5f);
+    ImVec2 menu_win_pos=ImVec2((ww*glScaleFactor-menu_win_size)/2,(hh*glScaleFactor-menu_win_size)/2);
+    float cell_size=round(fmin(ww,hh)*glScaleFactor/4.4f);
     GLuint *current_txtMenuHandle;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
@@ -452,6 +452,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     ImGui::SetWindowFocus();
     ImGui::GetStyle().Alpha=fadelev;
     
+    ImGui::SetNextWindowPos(menu_win_pos);
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
@@ -504,7 +505,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     } else if (currentMenuLabel[r*4+c]) { //Text Button
                         ImGui::PushID((r*4+c)*4+0);
                         if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
-                            if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value==0) {
                                 cur_pos=ImGui::GetCursorPos();
                                 cur_pos.y+=(cell_size/4);
                                 ImGui::SetCursorPos(cur_pos);
@@ -515,7 +515,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
                                 ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
                                 ImGui::PopStyleVar();
-                            }
                         } else {
                             if (isActive) {
                                 ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
@@ -552,10 +551,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x31:
                                 pMenu_state.menu_idx=8;
                                 break;
-                            case 0x02: //Bloom Switch
-                                settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!(settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value);
+                            case 0x02:
                                 break;
-                            case 0x12: //Bloom Size
+                            case 0x12:
                                 break;
                             case 0x22: //FX Alpha
                                 break;
@@ -1408,33 +1406,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
         }
     }
     ImGui::PopFont();
-    
-    //    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    //
-    //    ImVec2 p0 = ImVec2(0,0);
-    //    ImVec2 p1 = ImVec2(ww*glScaleFactor,hh*glScaleFactor);
-    //
-    //    draw_list->PushClipRect(p0, p1);
-    //    draw_list->AddCallback([](const ImDrawList*, const ImDrawCmd*)
-    //        {
-    //            glBlendEquation(GL_FUNC_ADD);
-    //            //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    //        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-    //        }, nullptr);
-    //
-    //    //draw_list->AddRectFilled(p0, p1, 0xFFFF00FF);
-    //    draw_list->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
-    //    draw_list->PopClipRect();
-    
-    
-    
-    
     ImGui::EndChild();
-    
-    
-    
     ImGui::End();
-    
     ImGui::PopStyleColor();
     
     //Global var mirroring

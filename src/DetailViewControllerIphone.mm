@@ -9,13 +9,8 @@
 
 #define ASCII_MIDDOT "·"
 
-#define glPushMatrix(...)
-#define glTranslatef(...)
-#define glPushMatrix(...)
-#define glPopMatrix(...)
-
-#define MILK_HorizontalSwipe_Threshold 160
-#define MILK_VerticalSwipe_Threshold 160
+#define PM_HorizontalSwipe_Threshold 160
+#define PM_VerticalSwipe_Threshold 160
 
 #define SELECTOR_TABVIEWCELL_HEIGHT 50
 #define ARCSUB_MODE_NONE 0
@@ -118,7 +113,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
-char *milkPresetStr;
+char *pmPresetStr;
 int _pm_display_name_countdown;
 bool _pmPresetHasChanged;
 //
@@ -138,18 +133,29 @@ bool GetHomeDir(std::string &outdir) {
     return true;
 }
 
+char *pmGetPresetCleanTitle(char *filename) {
+    char *title=strchr(filename,'/');
+    while (title) {
+        if (strncasecmp(title+1,"presets/",strlen("presets/"))==0) {
+            title=strchr(title+1,'/')+1;
+            break;
+        }
+        title=strchr(title+1,'/');
+    }
+    if (!title) title=filename;
+    return title;
+}
 
 void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
-    char *title=strrchr(presetName,'/');
-    if (!title) title=presetName;
-    else title+=1;
+    char *title=pmGetPresetCleanTitle(presetName);
+    
     //NSLog(@"Preset switched to: %s",presetName);
-    if (milkPresetStr) {
-        free(milkPresetStr);
+    if (pmPresetStr) {
+        free(pmPresetStr);
     }
-    milkPresetStr=(char*)malloc(strlen(title)+32);
-    sprintf(milkPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
+    pmPresetStr=(char*)malloc(strlen(title)+32);
+    sprintf(pmPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
     _pmPresetHasChanged=true;
     
     _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
@@ -237,8 +243,6 @@ static volatile int alertCannotPlay_displayed;
 static int viewTapHelpInfo=0;
 static int viewTapHelpShow=0;
 static int viewTapHelpShowMode=0;
-static int viewTapHelpShow_SubStart=0;
-static int viewTapHelpShow_SubNb=0;
 
 static 	UIImage *covers_default; // album covers images
 
@@ -1011,9 +1015,9 @@ static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D'
 static int currentPattern,currentRow,visibleChan;
 static float modPatternLineSize,modPatternWindowSize;
 
-static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0;
+static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxPM=0,movePyPM=0;
 static float startPx=0,startPy=0;
-static int moveMILKnomore=0;
+static int movePMnomore=0;
 static int panGesture1Tap;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
@@ -1340,8 +1344,8 @@ static float movePinchScale,movePinchScaleOld;
         uint32_t index=projectm_playlist_get_position(_pm_playlist);
         title = projectm_playlist_item(_pm_playlist, index);
         if (title) {
-            char *name=strrchr(title,'/');
-            if (!name) name=title;
+            char *name=pmGetPresetCleanTitle(title);
+            
             char *tmp_str=(char*)malloc(strlen(name)+32);
             sprintf(tmp_str,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
             
@@ -1363,7 +1367,7 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 -(void) mdSwitchBloomFX {
-    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
+//    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
 }
 
 -(void) switchFX:(int)fxNb {
@@ -1418,6 +1422,8 @@ static float movePinchScale,movePinchScaleOld;
 - (void)oglViewSwitchFS {
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
     oglViewFullscreenChanged=1;
+    shouldUpdateCoverTexture=1;
+    
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         if (mOglViewIsHidden) {
             mOglViewIsHidden=NO;
@@ -1715,7 +1721,6 @@ static float movePinchScale,movePinchScaleOld;
             }
             if (infoView.hidden==FALSE) {
                 textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
-                [self adjustTextMessageFont];
             }
             if (mpl_upd==3) {
                 if (infoView.hidden==FALSE) [textMessage scrollRangeToVisible:NSMakeRange([textMessage.text length], 0)];
@@ -1939,25 +1944,12 @@ int recording=0;
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 
-- (void) adjustTextMessageFont {
-    if (infoView.hidden==YES) return;
-    
-    /*textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:20];
-     while ((textMessage.contentSize.height > textMessage.frame.size.height)||(textMessage.contentSize.width > textMessage.frame.size.width))
-     {
-     textMessage.font = [textMessage.font fontWithSize:textMessage.font.pointSize -1];
-     [textMessage layoutSubviews];//force .contentSize to update
-     }*/
-}
-
 - (IBAction)showInfo {
     if (infoView.hidden==NO) {
         [self hideInfo];
         return;
     }
     textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
-    [self adjustTextMessageFont];
-    
     
     infoView.hidden=NO;
 }
@@ -2820,7 +2812,6 @@ int recording=0;
     labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
     labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
     textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
-    [self adjustTextMessageFont];
     
     [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
@@ -3009,7 +3000,7 @@ int recording=0;
 
 -(void) cancelPushed {
 #if DEBUG_MODIZER
-    NSLog(@"detailedview cancelPushed");
+//    NSLog(@"detailedview cancelPushed");
 #endif
     if (loadRequestInProgress) {
         mplayer.extractPendingCancel=true;
@@ -3055,7 +3046,7 @@ int recording=0;
 
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
 #if DEBUG_MODIZER
-    NSLog(@"load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
+//    NSLog(@"load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
 #endif
     //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
@@ -3213,7 +3204,6 @@ int recording=0;
     labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
     labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
     textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
-    [self adjustTextMessageFont];
     
     [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
@@ -3673,7 +3663,6 @@ int recording=0;
     labelModuleType.text=[NSString stringWithFormat:@"Format: %@",[mplayer getModType]];
     labelLibName.text=[NSString stringWithFormat:@"Player: %@",[mplayer getPlayerName]];
     textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
-    [self adjustTextMessageFont];
     
     [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
@@ -3737,7 +3726,7 @@ int recording=0;
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     orientationHV=interfaceOrientation;
-    //NSLog(@"should rotate to : %d",orientationHV);
+//    NSLog(@"should rotate to : %d",orientationHV);
     
     if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
@@ -3781,6 +3770,11 @@ int recording=0;
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
             //cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh);//-230+80+44-safe_bottom);
+            
+            cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height/20,
+                                          cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
             
         } else {
             if (mHasFocus) {
@@ -4042,6 +4036,11 @@ int recording=0;
                 //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
                 cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
                 
+                cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                              cover_viewAll.frame.size.height/20,
+                                              cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                              cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
+                
                 //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
             } else {
@@ -4145,6 +4144,7 @@ int recording=0;
     }
     [self updateBarPos];
     
+    
     return YES;
 }
 
@@ -4191,34 +4191,6 @@ GLfloat normalData[3];       /* An Array To Store The Normal Data */
 
 GLuint txtbackgroundImage;
 GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
-
-/* Set Up An Ortho View */
-void ViewOrtho(GLfloat window_width, GLfloat window_height)
-{
-    return;
-    
-//    glMatrixMode(GL_PROJECTION);        /* Select Projection */
-//    glPushMatrix();                     /* Push The Matrix   */
-//    glLoadIdentity();                   /* Reset The Matrix  */
-//    /* Select Ortho Mode (window_width x window_height)      */
-//    glOrthof(0, window_width, window_height, 0, -1, 1);
-//    glMatrixMode(GL_MODELVIEW);         /* Select Modelview Matrix */
-//    glPushMatrix();                     /* Push The Matrix   */
-//    glLoadIdentity();                   /* Reset The Matrix  */
-}
-
-/* Set Up A Perspective View */
-void ViewPerspective()
-{
-    return;
-    
-//    glMatrixMode(GL_PROJECTION);        /* Select Projection */
-//    glPopMatrix();                      /* Pop The Matrix    */
-//    glMatrixMode(GL_MODELVIEW);         /* Select Modelview  */
-//    glPopMatrix();                      /* Pop The Matrix    */
-}
-
-
 
 /**************************************************/
 
@@ -4855,21 +4827,24 @@ void pmSoftReinit() {
         
         projectm_playlist_clear(_pm_playlist);
         
-        NSLog(@"reinit\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
-        
-        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
-        
-        NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
-        
         _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
         _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
-
-        if (projectm_playlist_size(_pm_playlist)) projectm_playlist_play_next(_pm_playlist, true);
+        
+//        NSLog(@"reinit\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
+        
+        if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+        if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        
+//        NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
+        
+        if (projectm_playlist_size(_pm_playlist)) {
+            projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
+            projectm_playlist_play_next(_pm_playlist, true);
+        }
         else {
             projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
             std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
-            milkPresetStr=strdup(strtmp.c_str());
+            pmPresetStr=strdup(strtmp.c_str());
         }
         _pmPresetHasChanged=true;
     }
@@ -4944,32 +4919,32 @@ void pmSoftReinit() {
     }
 
     projectm_playlist_set_shuffle(_pm_playlist, (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
-
-    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
-    
-    NSLog(@"Init\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
     
     _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
     _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
-    
-    NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
 
-    projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FILENAME_ONLY, SORT_ORDER_ASCENDING);
+    if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+    if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+    
+//    NSLog(@"Init\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
+    
+//    NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
+
+    projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
 
     projectm_playlist_set_preset_switched_event_callback(_pm_playlist, &PresetSwitchedEvent, nil);
     projectm_playlist_set_preset_switch_failed_event_callback(_pm_playlist, &PresetSwitchFailedEvent, nil);
 
 
-    NSLog(@"projectM initialized");
+//    NSLog(@"projectM initialized");
     
-    milkPresetStr=NULL;
+    pmPresetStr=NULL;
     _pmPresetHasChanged=false;
     _pm_display_name_countdown=0;
     
     if (projectm_playlist_size(_pm_playlist)==0) {
         std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
-        milkPresetStr=strdup(strtmp.c_str());
+        pmPresetStr=strdup(strtmp.c_str());
     }
     
     projectm_playlist_play_next(_pm_playlist, true);
@@ -5820,11 +5795,9 @@ void pmSoftReinit() {
         }
     }
     
-    //NSLog(@"resize to %d x %d",mDevice_ww,mDevice_hh);
+//    NSLog(@"resize to %d x %d",mDevice_ww,mDevice_hh);
     
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-    
-    [self adjustTextMessageFont];
     
     //Should recompute bg texture after resize
     shouldUpdateCoverTexture=1;
@@ -5994,24 +5967,6 @@ void pmSoftReinit() {
     //get ogl context & bind
     [self setContextOGL];
     
-//    if (milkPresetStr) {
-//        free(milkPresetStr);
-//        milkPresetStr=NULL;
-//    }
-    
-//    mFont=NULL;
-//    mFontMenu=NULL;
-    
-//    NSString *fontPath;
-//    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-//    else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-//    mFontMenu = new CFont([fontPath UTF8String]);
-//    if (!mFontMenu) {
-//        NSLog(@"Issue with mFont init");
-//        return;
-//    }
-    
-    
     [self updateBarPos];
     //Hack to allow UIToolbar to be set up correctly
     if (((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortrait) || ((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortraitUpsideDown) ) {
@@ -6031,7 +5986,7 @@ void pmSoftReinit() {
     if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetHasChanged=true; //Force a (re)display
     
     movePxMID=movePyMID=0;
-    moveMILKnomore=0;
+    movePMnomore=0;
 }
 
 
@@ -6149,8 +6104,8 @@ static int mOglView1Tap=0;
             movePxOld=movePx;
             movePyOld=movePy;
             //Also reset tracking variables related to "swipe" like gesture
-            movePxMILK=0;movePyMILK=0;
-            moveMILKnomore=0;
+            movePxPM=0;movePyPM=0;
+            movePMnomore=0;
             break;
         case UIGestureRecognizerStateChanged:
             panGesture1Tap=2;
@@ -6158,8 +6113,8 @@ static int mOglView1Tap=0;
         default:
             panGesture1Tap=0;
             //Also reset tracking variables related to "swipe" like gesture
-            movePxMILK=0;movePyMILK=0;
-            moveMILKnomore=0;
+            movePxPM=0;movePyPM=0;
+            movePMnomore=0;
             break;
     }
 }
@@ -6230,10 +6185,7 @@ extern "C" int current_sample;
 //        return;
 //    }
     
-    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
-        fxalpha=1;
-    }
-    else fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     //m_oglView.alpha=fxalpha;
     
     //get ogl view dimension
@@ -6328,7 +6280,7 @@ extern "C" int current_sample;
         
         projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
         if (currentMeshX != meshX || currentMeshY != meshY) {
-            NSLog(@"new mesh size: %dx%d (old: %dx%d)",meshX,meshY,currentMeshX,currentMeshY);
+//            NSLog(@"new mesh size: %dx%d (old: %dx%d)",meshX,meshY,currentMeshX,currentMeshY);
             projectm_set_mesh_size(_pm, meshX, meshY);
         }
         
@@ -6353,20 +6305,20 @@ extern "C" int current_sample;
             
             int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
             
-            milkBufferPosWrite=0;
+            pmBufferPosWrite=0;
             
             if ([mplayer isPaused]) {
                 for (int i=0;i<sample_count;i++) {
-                    milkBuffer[milkBufferPosWrite++]=0;
-                    milkBuffer[milkBufferPosWrite++]=0;
-                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
+                    pmBuffer[pmBufferPosWrite++]=0;
+                    pmBuffer[pmBufferPosWrite++]=0;
+                    if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
                 }
             } else {
                 int posBuff=0;
                 for (int i=0;i<sample_count;i++) {
-                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2];
-                    milkBuffer[milkBufferPosWrite++]=curBuffer[posBuff*2+1];
-                    if (milkBufferPosWrite>=MILK_BUFFER_SIZE*2) milkBufferPosWrite=0;
+                    pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2];
+                    pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2+1];
+                    if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
                     posBuff++;
                     if (posBuff>=SOUND_BUFFER_SIZE_SAMPLE) {
                         posBuff=0;
@@ -6379,15 +6331,15 @@ extern "C" int current_sample;
         }
         /*----------------------------------------------------*/
         int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
-        projectm_pcm_add_int16(_pm,(const int16_t*)milkBuffer,sample_count,PROJECTM_STEREO);
+        projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
         projectm_opengl_render_frame(_pm);
     }
     /*-------------------------------------------------------------------------------*/
     
     
-    movePxMILK+=movePx-movePxOld;
-    movePyMILK+=movePy-movePyOld;
+    movePxPM+=movePx-movePxOld;
+    movePyPM+=movePy-movePyOld;
     
     movePxMOD+=movePx-movePxOld;
     movePyMOD+=movePy-movePyOld;
@@ -6410,31 +6362,31 @@ extern "C" int current_sample;
     movePinchScaleOld=movePinchScale;
     
     if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
-        //MILK is active
+        //PM is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
-        bool isMILKalone=[self isProjectMAlone];
+        bool isPMalone=[self isProjectMAlone];
         
-        if (isMILKalone&&(moveMILKnomore==0)) {
-            if (movePxMILK>MILK_HorizontalSwipe_Threshold) {
-                movePxMILK=0;
-                movePyMILK=0;
-                moveMILKnomore=1;
-                NSLog(@"Prev");
+        if (isPMalone&&(movePMnomore==0)) {
+            if (movePxPM>PM_HorizontalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+//                NSLog(@"Prev");
                 if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, false);
-            } else if (movePxMILK<-MILK_HorizontalSwipe_Threshold) {
-                movePxMILK=0;
-                movePyMILK=0;
-                moveMILKnomore=1;
-                NSLog(@"Next");
+            } else if (movePxPM<-PM_HorizontalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+//                NSLog(@"Next");
                 if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
             }
             
-            if (movePyMILK>MILK_VerticalSwipe_Threshold) {
-                movePxMILK=0;
-                movePyMILK=0;
-                moveMILKnomore=1;
-                NSLog(@"Lock");
+            if (movePyPM>PM_VerticalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+//                NSLog(@"Lock");
                 if (_pm) {
                     //////////////
                     //Lock Preset
@@ -6443,11 +6395,11 @@ extern "C" int current_sample;
                     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
                     [self mdSwitchLockPreset];
                 }
-            } else if (movePyMILK<-MILK_VerticalSwipe_Threshold) {
-                movePxMILK=0;
-                movePyMILK=0;
-                moveMILKnomore=1;
-                NSLog(@"Unlock");
+            } else if (movePyPM<-PM_VerticalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+//                NSLog(@"Unlock");
                 if (_pm) {
                     //////////////
                     //Unlock Preset
@@ -6592,461 +6544,6 @@ extern "C" int current_sample;
         mOglView1Tap=0;
         
         if (viewTapHelpShow==0) viewTapHelpShow=1;
-        
-#if 0
-        
-        if (viewTapHelpShow==1) {  //Main Menu
-            //viewTapHelpShow=0;
-            viewTapHelpShowMode=1;
-            int menu_cell_size=(ww<hh?ww:hh);
-            int tlx=oglTapX;
-            int tly=oglTapY-(hh-menu_cell_size)/2;
-            if (0 && (tly>=0)) {
-                int touched_cellX=tlx*4/menu_cell_size;
-                int touched_cellY=tly*4/menu_cell_size;
-                int touched_coord=(touched_cellX<<4)|(touched_cellY);
-                
-                if (touched_coord==0x00) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU0_START;
-                    viewTapHelpShow_SubNb=SUBMENU0_SIZE;
-                } else if (touched_coord==0x10) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU1_START;
-                    viewTapHelpShow_SubNb=SUBMENU1_SIZE;
-                } else if (touched_coord==0x20) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU2_START;
-                    viewTapHelpShow_SubNb=SUBMENU2_SIZE;
-                } else if (touched_coord==0x30) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU3_START;
-                    viewTapHelpShow_SubNb=SUBMENU3_SIZE;
-                } else if (touched_coord==0x01) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU4_START;
-                    viewTapHelpShow_SubNb=SUBMENU4_SIZE;
-                } else if (touched_coord==0x11) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU5_START;
-                    viewTapHelpShow_SubNb=SUBMENU5_SIZE;
-                } else if (touched_coord==0x21) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU6_START;
-                    viewTapHelpShow_SubNb=SUBMENU6_SIZE;
-                } else if (touched_coord==0x02) {
-                    viewTapHelpShow=2;
-                    viewTapHelpShowMode=2;
-                    viewTapHelpShow_SubStart=SUBMENU7_START;
-                    viewTapHelpShow_SubNb=SUBMENU7_SIZE;
-                } else if (touched_coord==0x31) {
-                    int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
-                    val++;
-                    if (val>=2) val=0;
-                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
-                    if (val) settings[GLOB_FX3DLandscape].detail.mdz_boolswitch.switch_value=0;
-                } else if (touched_coord==0x03) {
-                    //HIDE FX Screen
-                    shouldhide=1;
-                } else if (touched_coord==0x13) {
-                    //Fullscreen switch
-                    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
-                    oglViewFullscreenChanged=1;
-                    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-                } else if (touched_coord==0x23) {
-                    //ALL FX Off
-                    settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-                    settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-                    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
-                }  else if (touched_coord==0x33) {
-                    //Exit
-                    viewTapHelpShow=0;
-                }
-                
-            }
-            
-        } else if (viewTapHelpShow==2) { //sub menu
-            //viewTapHelpShow=0;
-            viewTapHelpShowMode=2;
-            int menu_cell_size=(ww<hh?ww:hh);
-            int tlx=oglTapX;
-            int tly=oglTapY-(hh-menu_cell_size)/2;
-            if (tly>=0) {
-                int touched_cellX=tlx*4/menu_cell_size;
-                int touched_cellY=tly*4/menu_cell_size;
-                int touched_coord=(touched_cellX<<4)|(touched_cellY);
-                if (touched_coord==0x00) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-                            movePxMOD=movePyMOD=0;
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
-                            break;
-                    }
-                } else if (touched_coord==0x10) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=1;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
-                            size_chan=11*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=1;
-                            break;
-                    }
-                } else if (touched_coord==0x20) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=2;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            movePxMID=movePyMID=0;
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
-                            size_chan=6*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=(settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value+1)%3;
-                            break;
-                    }
-                } else if (touched_coord==0x30) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=3;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=3;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
-                            size_chan=4*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=0;
-                            else settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
-                            break;
-                    }
-                } else if (touched_coord==0x01) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=0;
-                            else settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value=1;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=4;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
-                            size_chan=11*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                            else settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                            break;
-                    }
-                } else if (touched_coord==0x11) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value) settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=0;
-                            else settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value=1;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=5;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
-                            size_chan=6*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
-                            break;
-                    }
-                } else if (touched_coord==0x21) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=6;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
-                            settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                            size_chan=4*(mFontWidth/mScaleFactor);
-                            movePxMOD=movePyMOD=0;
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU7_START: //ProjectM
-                            settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
-                            break;
-                    }
-                } else if (touched_coord==0x31) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=7;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
-                            else settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=1;
-                            break;
-                    }
-                } else if (touched_coord==0x02) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=8;
-                            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
-                            [self updateFont];
-                            [self updateVisibleChan];
-                            break;
-                    }
-                } else if (touched_coord==0x12) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=1;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
-                            [self updateFont];
-                            [self updateVisibleChan];
-                            break;
-                    }
-                } else if (touched_coord==0x22) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[OSCILLO_LabelFontSize].detail.mdz_boolswitch.switch_value=2;
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
-                            [self updateFont];
-                            [self updateVisibleChan];
-                            break;
-                    }
-                } else if (touched_coord==0x32) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=3;
-                            [self updateFont];
-                            [self updateVisibleChan];
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            break;
-                    }
-                } else if (touched_coord==0x03) {
-                    switch (viewTapHelpShow_SubStart) {
-                        case SUBMENU0_START: //Oscillo
-                            break;
-                        case SUBMENU1_START: //2D Spectrum
-                            break;
-                        case SUBMENU2_START: //3D Spectrum Objects
-                            break;
-                        case SUBMENU3_START: //3D Spectrum Landscape
-                            break;
-                        case SUBMENU4_START: //Piano FX
-                            break;
-                        case SUBMENU5_START: //Notes scrollers
-                            break;
-                        case SUBMENU6_START: //Mod patterns
-                            //viewTapHelpShow=2; //keep menu visible
-                            settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value++;
-                            if (settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value>=MOD_PATTERN_FONT_NB) settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
-                            [self updateFont];
-                            [self updateVisibleChan];
-                            break;
-                    }
-                } else if (touched_coord==0x33) {
-                    //Exit sub menu
-                    //viewTapHelpShow=0;
-                    viewTapHelpShow=1;
-                    viewTapHelpShowMode=1;
-                }
-            }
-        } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
-        
-#endif
     }
     
     hasdrawnotes=0;
@@ -7227,10 +6724,6 @@ extern "C" int current_sample;
     angle+=(float)4.0f;
     
     
-    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
-        RenderUtils::startRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
-    }
-    
     //-------------------------------------
     // Spectrum2D
     //-------------------------------------
@@ -7238,7 +6731,7 @@ extern "C" int current_sample;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
                                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
-                                        settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value);
+                                        0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/);
         }
     }
     //-------------------------------------
@@ -7747,7 +7240,7 @@ extern "C" int current_sample;
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
-            if (milkPresetStr&&_pm_display_name_countdown) {
+            if (pmPresetStr&&_pm_display_name_countdown) {
                 float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
                 
@@ -7763,10 +7256,10 @@ extern "C" int current_sample;
                 //style._NextFrameFontSizeBase = style.FontSizeBase;
                 
                 
-                ImVec2 milkPresetStr_size=ImGui::CalcTextSize(milkPresetStr);
-                milkPresetStr_size.x+=18;
+                ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
+                pmPresetStr_size.x+=18;
                 
-                ImGui::Text(milkPresetStr);
+                ImGui::Text(pmPresetStr);
                 
                 ImGui::SetScrollX(scrollx);
                 ImGui::End();
@@ -7777,7 +7270,7 @@ extern "C" int current_sample;
                 if (scroll_pause) scroll_pause--;
                 else {
                     if (scroll_direction==1) {
-                        if (m_oglView.frame.size.width*glScaleFactor+scrollx<milkPresetStr_size.x) scrollx+=2;
+                        if (m_oglView.frame.size.width*glScaleFactor+scrollx<pmPresetStr_size.x) scrollx+=2;
                         else {
                             if (scrollx>0) {
                                 scroll_direction=-1;
@@ -7816,16 +7309,16 @@ extern "C" int current_sample;
                             snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                         }
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
@@ -7840,27 +7333,27 @@ extern "C" int current_sample;
                         }
                         
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                          (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     } else {
                         RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                          NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                     }
                 } else {
                     RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                     settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
                 break;
             case 3:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
             case 4:
                 RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                 settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value,
+                                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 break;
         }
@@ -7921,9 +7414,9 @@ extern "C" int current_sample;
     // FX Rendering over
     // Apply Bloom if active
     //-------------------------------------
-    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
-        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
-    }
+//    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
+//        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
+//    }
     
     
     if (viewTapHelpShow) {
@@ -7968,8 +7461,10 @@ extern "C" int current_sample;
         
         //specific case for fullscreen switch change
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value!=isFullscreen) {
-            oglViewFullscreenChanged=1;
+            
             [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+            shouldUpdateCoverTexture=1;
+            oglViewFullscreenChanged=1;
         }
         
     }

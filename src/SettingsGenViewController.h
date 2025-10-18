@@ -259,7 +259,7 @@ enum MDZ_SETTINGS {
         XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
-    GLOB_BLOOMFX,
+    //GLOB_BLOOMFX,
     GLOB_FXAlpha,
     GLOB_FXFullscreen,
     GLOB_FXFPS,
