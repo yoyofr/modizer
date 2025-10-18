@@ -1,3 +1,4 @@
+![Modizer logo](logoMod12.png "Modizer logo")\
 Modizer
 =======
 
