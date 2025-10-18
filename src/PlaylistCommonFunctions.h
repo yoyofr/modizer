@@ -27,7 +27,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT COUNT(*) FROM playlists");
+        snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM playlists");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -40,7 +40,7 @@
             int pl_index=0;
             (*plList)=(t_playlist_DB*)calloc(1,sizeof(t_playlist_DB)*pl_number);
             
-            sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists ORDER BY name");
+            snprintf(sqlStatement,1024,"SELECT id,name,num_files FROM playlists ORDER BY name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 
@@ -75,7 +75,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT COUNT(*) FROM user_stats WHERE rating=5");
+        snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM user_stats WHERE rating=5");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -105,7 +105,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT COUNT(*) FROM user_stats WHERE play_count>0");
+        snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM user_stats WHERE play_count>0");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -135,7 +135,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-            sprintf(sqlStatement,"SELECT name,fullpath FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
+            snprintf(sqlStatement,1024,"SELECT name,fullpath FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -166,7 +166,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-            sprintf(sqlStatement,"SELECT name,fullpath FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
+            snprintf(sqlStatement,1024,"SELECT name,fullpath FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -197,7 +197,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
                     
-            sprintf(sqlStatement,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",pl_id);
+            snprintf(sqlStatement,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",pl_id);
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -230,7 +230,7 @@
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+        snprintf(sqlStatement,1024,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
                 [id_playlist UTF8String],[label UTF8String],[fullPath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
@@ -240,7 +240,7 @@
             NSLog(@"ErrSQL : %d",err);
         }
         if (result) {
-            sprintf(sqlStatement,"UPDATE playlists SET num_files=\
+            snprintf(sqlStatement,1024,"UPDATE playlists SET num_files=\
                     (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
                     WHERE id=%s",
                     [id_playlist UTF8String],[id_playlist UTF8String]);

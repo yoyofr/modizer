@@ -182,7 +182,7 @@
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_categ_entry *wentry = (t_categ_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        sprintf(str,"%s",[wentry->category UTF8String]);
+        snprintf(str,1024,"%s",[wentry->category UTF8String]);
         
         previndex=index;
         index=0;
@@ -350,7 +350,7 @@
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_webSite_entry *wentry = (t_webSite_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        sprintf(str,"%s",[wentry->webSite_name UTF8String]);
+        snprintf(str,1024,"%s",[wentry->webSite_name UTF8String]);
         
         previndex=index;
         index=0;
@@ -580,7 +580,7 @@
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        sprintf(str,"%s",[[wef->file_URL stringByRemovingPercentEncoding] UTF8String]);
+        snprintf(str,1024,"%s",[[wef->file_URL stringByRemovingPercentEncoding] UTF8String]);
         
         //NSLog(@"%@",wef->file_size);
         previndex=index;

@@ -413,8 +413,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
         //1st : count how many entries we'll have
-        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
-        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file");
+        if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+        else snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir1) FROM asma_file");
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -433,8 +433,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 dbASMA_entries[i]=NULL;
             }
             //3rd get the entries
-            if (mSearch) sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\" GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE",[mSearchText UTF8String]);
-            else sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE");
+            if (mSearch) snprintf(sqlStatement,1024,"SELECT dir1,COUNT(1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\" GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE",[mSearchText UTF8String]);
+            else snprintf(sqlStatement,1024,"SELECT dir1,COUNT(1) FROM asma_file GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE");
             
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
@@ -552,9 +552,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
         //1st : count how many entries we'll have
-        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\"\
+        if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\"\
                              UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
-        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null\
+        else snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null\
                      UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null",[dir1 UTF8String],[dir1 UTF8String]);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -576,10 +576,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 dbASMA_entries[i]=NULL;
             }
             //3rd get the entries
-            if (mSearch) sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\" GROUP BY dir2 \
+            if (mSearch) snprintf(sqlStatement,1024,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\" GROUP BY dir2 \
                                  UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\" \
                                  ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
-            else sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null GROUP BY dir2\
+            else snprintf(sqlStatement,1024,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null GROUP BY dir2\
                          UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null \
                          ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir1 UTF8String]);
             
@@ -706,9 +706,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
         //1st : count how many entries we'll have
-        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
+        if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
                              UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
-        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null\
+        else snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null\
                      UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -731,10 +731,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 dbASMA_entries[i]=NULL;
             }
             //3rd get the entries
-            if (mSearch) sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\" GROUP BY dir3 \
+            if (mSearch) snprintf(sqlStatement,1024,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\" GROUP BY dir3 \
                                  UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\" \
                                  ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
-            else sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null GROUP BY dir3\
+            else snprintf(sqlStatement,1024,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null GROUP BY dir3\
                          UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null \
                          ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
             
@@ -863,8 +863,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
         //1st : count how many entries we'll have
-        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
-        else sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
+        if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
+        else snprintf(sqlStatement,1024,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -886,9 +886,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 dbASMA_entries[i]=NULL;
             }
             //3rd get the entries
-            if (mSearch) sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\" \
+            if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\" \
                                  ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
-            else sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"\
+            else snprintf(sqlStatement,1024,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"\
                          ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
             
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -946,7 +946,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,"select fullpath from mod_file where id=%d",id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -976,7 +976,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1006,7 +1006,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
+        snprintf(sqlStatement,1024,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1033,7 +1033,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
+        snprintf(sqlStatement,1024,"select filename from mod_file where id=%d",idmod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {

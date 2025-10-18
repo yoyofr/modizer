@@ -498,7 +498,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
     
-    // Load the vertex data
+    // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
@@ -573,7 +573,7 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
     
-    // Load the vertex data
+    // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
@@ -638,7 +638,7 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(ptsTextCoord[0].u) );
     
-    // Load the vertex data
+    // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
@@ -1169,7 +1169,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glVertexAttribPointer ( pointABAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(SimpleLineVertexF), &(ptsLines[0].Ax) );
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].r) );
     
-    // Load the vertex data
+    // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( pointABAttribHandle );
     glEnableVertexAttribArray ( colorAttribHandle );
@@ -1498,7 +1498,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
     
-    // Load the vertex data
+    // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( colorAttribHandle );
     
@@ -2213,6 +2213,7 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     
     // Load the uniforms
     
+    // Draw
     glDrawArrays(GL_TRIANGLES, 0, index);
 
     glRestoreState();
@@ -4381,7 +4382,6 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
     }
 }
 
-
 void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
 #if 0
     int index;
@@ -6119,10 +6119,8 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
 #endif
 }
 
-
-int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote) {
+int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int ww,int hh) {
     int crtp[6],cgtp[6],cbtp[6],cap[6];
-    
     for (int ii=0;ii<4;ii++) {
         double fact=1;
         double ofs=0;
@@ -6144,40 +6142,40 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
         if (cap[ii]>255) cap[ii]=255;
     }
     //top
-    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width, y,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x, y+border_size,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x, y+border_size,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //left
-    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+border_size, y,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+border_size, y,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x, y+height,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x, y,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+border_size, y+height,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x, y+height,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
     //bottom
-    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2]);
-    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
-    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2]);
-    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x, y+height-border_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+    ptsB[index++] = LineVertexF(x, y+height,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+height-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x, y+height-border_size,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
     
     //right
-    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2]);
-    ptsB[index++] = LineVertexF(x+width-border_size, y,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-border_size, y,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2]);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width, y,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width, y+height,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
     //inner part
     if (subnote) {
@@ -6208,13 +6206,13 @@ int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width
         crtp[4]=crt;cgtp[4]=cgt;cbtp[4]=cbt;cap[4]=ca;
         crtp[5]=crt;cgtp[5]=cgt;cbtp[5]=cbt;cap[5]=ca;
     }
-    ptsB[index++] = LineVertexF(x+border_size, y+border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+border_size, y+border_size,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-border_size, y+height-border_size,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+border_size,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+border_size, y+height-border_size,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-border_size, y+height-border_size,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
     
     return index;
 }
@@ -6226,8 +6224,7 @@ int lastkey_type;
 #define PR_SHADOW_LARGE_BLACK (1<<2)
 
 int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int
-                          note_idx,int channel) {
-#if 0
+                          note_idx,int channel,int ww,int hh) {
     int crtp[6],cgtp[6],cbtp[6],cap[6];
     float height2;
     uint8_t shadow_type=0;
@@ -6330,120 +6327,117 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
     }
     
     //left high
-    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+1             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+1             , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y+height2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+1             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //left low
-    ptsB[index++] = LineVertexF(x               , y         ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12      , y         ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12      , y+height2 ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x               , y         ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/12      , y         ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/12      , y+height2 ,0,0,0,cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x               , y          ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width/12      , y+height2  ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x               , y+height2  ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x               , y          ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/12      , y+height2  ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x               , y+height2  ,0,0,0,cap[0],ww,hh);
     
     //right high
-    ptsB[index++] = LineVertexF(x+width             , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-1           , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-1           , y+height      ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height2     ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height      ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width             , y+height2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y+height2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1           , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //right low
-    ptsB[index++] = LineVertexF(x+width             , y         ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12    , y         ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2 ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y         ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y         ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2 ,0,0,0,cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width             , y          ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2  ,0,0,0,cap[0]);
-    ptsB[index++] = LineVertexF(x+width             , y+height2  ,0,0,0,cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y          ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/12    , y+height2  ,0,0,0,cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width             , y+height2  ,0,0,0,cap[0],ww,hh);
     
     //inner part high
     
-    ptsB[index++] = LineVertexF(x+1           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+1           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-1     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+width-1     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
     
     //top
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     //
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
     
     //inner part low
-    ptsB[index++] = LineVertexF(x+width/16           , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width/16           , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width-width/16     , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/16           , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/16     , y+height2      ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
     //bottom high
-    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-1 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+1       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+1       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-1 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+1       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
     //bottom low
-    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/16 , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/16       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width/16       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/16 , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/16       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //shadow
     if (shadow_type) {
         if (shadow_type&PR_SHADOW_WHITE) {
-            ptsB[index++] = LineVertexF(x+1       , y+height*7/8    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+width/3 , y+height2+height2       ,0,0,0,0);
-            ptsB[index++] = LineVertexF(x+1       , y+height2           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+1       , y+height*7/8    ,0,0,0,128,ww,hh);
+            ptsB[index++] = LineVertexF(x+width/3 , y+height2+height2       ,0,0,0,0,ww,hh);
+            ptsB[index++] = LineVertexF(x+1       , y+height2           ,0,0,0,128,ww,hh);
         }
         
         if (shadow_type&PR_SHADOW_SMALL_BLACK) {
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/4 , y+height*2/5+height2       ,0,0,0,0);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/4 , y+height*2/5+height2       ,0,0,0,0,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128,ww,hh);
         }
         
         if (shadow_type&PR_SHADOW_LARGE_BLACK) {
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height      ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height    ,0,0,0,128,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height      ,0,0,0,128,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128,ww,hh);
             
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height    ,0,0,0,128);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/2 , y+height*2/5+height2*3       ,0,0,0,0);
-            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/5 , y+height    ,0,0,0,128,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs+width/2 , y+height*2/5+height2*3       ,0,0,0,0,ww,hh);
+            ptsB[index++] = LineVertexF(x+shadow_left_black_ofs         , y+height*2/5           ,0,0,0,128,ww,hh);
         }
     }
     return index;
-#endif
-    return 0;
 }
 
 
-int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel) {
-#if 0
+int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel,int ww,int hh) {
     int crtp[6],cgtp[6],cbtp[6],cap[6];
     float height2;
     
@@ -6501,93 +6495,102 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
     height*=1.02;
     
     //left
-    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/8             , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x               , y         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8             , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x               , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //right
-    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/8           , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height2         ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x+width             , y         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8           , y+height  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width             , y+height  ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     //inner part high
     
-    ptsB[index++] = LineVertexF(x+width/8           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+width/8           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4]);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2+2   ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5]);
-    ptsB[index++] = LineVertexF(x+width/8           , y+height     ,crtp[4],cgtp[4],cbtp[4],cap[4]);
-    ptsB[index++] = LineVertexF(x+width-width/8     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5]);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2+2   ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height     ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
     
     //top
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     //
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
     
     //inner part low
-    ptsB[index++] = LineVertexF(x           , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x           , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+    ptsB[index++] = LineVertexF(x+width     , y+2         ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8           , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8     , y+height2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
     //bottom high
-    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
-    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
-    ptsB[index++] = LineVertexF(x+width/8       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3]);
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2             ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width-width/8 , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+    ptsB[index++] = LineVertexF(x+width/8       , y+height2+2           ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
     
     //bottom low
-    ptsB[index++] = LineVertexF(x      , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x      , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
-    ptsB[index++] = LineVertexF(x       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-    ptsB[index++] = LineVertexF(x       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0]);
+    ptsB[index++] = LineVertexF(x       , y             ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x+width , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+    ptsB[index++] = LineVertexF(x       , y+2 ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
     
     return index;
-#endif
-    return 0;
 }
 
 
 void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
-#if 0
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int index;
     int voices_posX[SOUND_MAXVOICES_BUFFER_FX];
     //int band_width,ofs_band;
-    static bool first_call=true;
     
+    if (!renderIsInit) return;
     
-    if (first_call) {
-        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
-            mVoicesNamePiano[i]=NULL;
-        }
-        first_call=false;
-        memset(mOctavesIndex,0,sizeof(mOctavesIndex));
-    }
+    glDumpState();
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
     
     if (fx_len>MIDIFX_LEN) fx_len=MIDIFX_LEN;
     if (fx_len<=MIDIFX_OFS) fx_len=MIDIFX_OFS+1;
@@ -6597,53 +6600,48 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
         //data_midifx_first=1;
     }
     
-    if (!mOscilloFont[0]) {
-        NSString *fontPath;
-        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
-        mOscilloFont[0] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
-        mOscilloFont[1] = new CFont([fontPath UTF8String]);
-        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
-        mOscilloFont[2] = new CFont([fontPath UTF8String]);
-    }
+//    if (!mOscilloFont[0]) {
+//        NSString *fontPath;
+//        //if (mScaleFactor<2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+//        //else fontPath = [[NSBundle mainBundle] pathForResource:@"tracking14" ofType: @"fnt"];
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking10" ofType: @"fnt"];
+//        mOscilloFont[0] = new CFont([fontPath UTF8String]);
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
+//        mOscilloFont[1] = new CFont([fontPath UTF8String]);
+//        fontPath = [[NSBundle mainBundle] pathForResource:@"tracking24" ofType: @"fnt"];
+//        mOscilloFont[2] = new CFont([fontPath UTF8String]);
+//    }
+
+//    if (mOscilloFont[1] && voices_label)
+//        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
+//            if (mVoicesNamePiano[i]) {
+//                if (strcmp(mVoicesNamePiano[i]->mText,voices_label+i*32)) {
+//                    //not the same, reset string
+//                    delete mVoicesNamePiano[i];
+//                    mVoicesNamePiano[i]=NULL;
+//                }
+//            }
+//            if (!mVoicesNamePiano[i]) {
+//                mVoicesNamePiano[i]=new CGLString(voices_label+i*32, mOscilloFont[1],mScaleFactor);
+//            }
+//        }
     
-    if (mOscilloFont[1] && voices_label)
-        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
-            if (mVoicesNamePiano[i]) {
-                if (strcmp(mVoicesNamePiano[i]->mText,voices_label+i*32)) {
-                    //not the same, reset string
-                    delete mVoicesNamePiano[i];
-                    mVoicesNamePiano[i]=NULL;
-                }
-            }
-            if (!mVoicesNamePiano[i]) {
-                mVoicesNamePiano[i]=new CGLString(voices_label+i*32, mOscilloFont[1],mScaleFactor);
-            }
-        }
-    
-    if (mOscilloFont[1] && (mOctavesIndex[0]==NULL)) {
-        char str_tmp[3];
-        for (int i=0;i<256/12;i++) {
-            snprintf(str_tmp,3,"%d",i);
-            mOctavesIndex[i]=new CGLString(str_tmp, mOscilloFont[1],mScaleFactor);
-        }
-    }
+//    if (mOscilloFont[1] && (mOctavesIndex[0]==NULL)) {
+//        char str_tmp[3];
+//        for (int i=0;i<256/12;i++) {
+//            snprintf(str_tmp,3,"%d",i);
+//            mOctavesIndex[i]=new CGLString(str_tmp, mOscilloFont[1],mScaleFactor);
+//        }
+//    }
     
     ptsB=(LineVertexF*)malloc(sizeof(LineVertexF)*30*MAX_BARS);
     max_indices=30*MAX_BARS;
     
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_COLOR_ARRAY);
     
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
-    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
+//    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
+//    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
     
     
     //////////////////////////////////////////////
@@ -6671,25 +6669,34 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     //draw piano felt
     index=0;
     int crtp[2],cgtp[2],cbtp[2],cap[2];
-    crtp[0]=60;crtp[1]=120;
-    cgtp[0]=60;cgtp[1]=0;
-    cbtp[0]=60;cbtp[1]=0;
+    crtp[0]=80;crtp[1]=140;
+    cgtp[0]=40;cgtp[1]=0;
+    cbtp[0]=40;cbtp[1]=0;
     cap[0]=255;cap[1]=255;
-    float wd=height/32.0;
+    float wd=height/24.0;//32.0;
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1)+height;
-        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1]);
         
-        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0]);
-        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1]);
-        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1]);
+        index+=buildQuad(&(ptsB[index]),
+                  0, y,
+                  ww, y,
+                  ww, y+wd,
+                  0, y+wd,
+                  crtp[0],cgtp[0],cbtp[0],cap[0],
+                  crtp[0],cgtp[0],cbtp[0],cap[0],
+                  crtp[1],cgtp[1],cbtp[1],cap[1],
+                  crtp[1],cgtp[1],cbtp[1],cap[1],
+                  ww,hh);
     }
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+    // Load the uniforms
+    // Draw
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
-    
     //prepapre key data & check all key status
     int wk_idx=0;//white key counter
     int bk_idx=0;//black key counter
@@ -6749,10 +6756,21 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 x=note_posX[note];
                 if ((x+width>0)||(x<ww) ) {
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
+                        //glDrawArrays(GL_TRIANGLES, 0, index);
+                        
+                        // Load the vertex data
+                        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+                        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+                        // enable data buffers for shader
+                        glEnableVertexAttribArray ( positionAttribHandle );
+                        glEnableVertexAttribArray ( colorAttribHandle );
+                        // Load the uniforms
+                        // Draw
                         glDrawArrays(GL_TRIANGLES, 0, index);
+                        
                         index=0;
                     }
-                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j);
+                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j,ww,hh);
                 }
             }
         }
@@ -6788,18 +6806,28 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                     if (note_posType[note]==0) { //white key
                         y=hh-(height+16)*((instr%num_rows)+1);
                         if (index+INDICES_SIZE_KEYW>=max_indices) {
+                            // Load the vertex data
+                            glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+                            glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+                            // enable data buffers for shader
+                            glEnableVertexAttribArray ( positionAttribHandle );
+                            glEnableVertexAttribArray ( colorAttribHandle );
+                            // Load the uniforms
+                            // Draw
                             glDrawArrays(GL_TRIANGLES, 0, index);
+                            //glDrawArrays(GL_TRIANGLES, 0, index);
+                            
+                            
                             index=0;
                         }
                         if ( (x+width>0)||(x<ww)) {
-                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
+                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
                         }
                     }
                 }
             }
         }
     }
-    
     //draw black keys
     for (int j=0;j<num_rows;j++) {
         y=hh-(height+16)*(j+1);
@@ -6808,10 +6836,16 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                 yB=y+height-heightB;
                 xB=note_posX[note];
                 if (index+INDICES_SIZE_KEYB>=max_indices) {
+                    // Load the vertex data
+                    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+                    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+                    // Load the uniforms
+                    // Draw
                     glDrawArrays(GL_TRIANGLES, 0, index);
+                    //glDrawArrays(GL_TRIANGLES, 0, index);
                     index=0;
                 }
-                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j);
+                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j,ww,hh);
             }
         }
     }
@@ -6851,107 +6885,129 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
                     if (note_posType[note]==1) { //back key
                         y=hh-(height+16)*((instr%num_rows)+1)+height-heightB;
                         if (index+INDICES_SIZE_KEYB>=max_indices) {
+                            // Load the vertex data
+                            glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+                            glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+                            // Load the uniforms
+                            // Draw
                             glDrawArrays(GL_TRIANGLES, 0, index);
+                            //glDrawArrays(GL_TRIANGLES, 0, index);
                             index=0;
                         }
-                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows);
+                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
                     }
                 }
             }
         }
     }
     
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
+    ImGui::GetStyle().Alpha=1.0f;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    
+    if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+    else ImGui::PushFont(nullptr);
+    ImGui::Begin("PianoRollFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     
     
     memset(voices_posX,0,sizeof(voices_posX));
     //draw label small colored boxes
-    if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value)
+    if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value) {
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i%num_rows;
             y=hh-(height+16)*(j+1)+height+1;
             
-            if (mVoicesNamePiano[i]) {
-                x=voices_posX[j]+16;
+            x=voices_posX[j]+16;
+            
+            voices_posX[j]+=16+ImGui::CalcTextSize(voices_label+i*32).x/mScaleFactor;//+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
+            
+            int colidx=i&63;
+            int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
+            int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
+            int cbt=(data_midifx_col[colidx&31]&0xFF);
+            
+            if (colidx&0x20) {
+                crt=(crt+255)/2;
+                cgt=(cgt+255)/2;
+                cbt=(cbt+255)/2;
+            }
+            
+            y=hh-(height+16)*(j+1)+height+4;
+            
+            ImVec2 cursorPos=ImVec2((x+3.0)*mScaleFactor, (hh-y-13)*mScaleFactor);
+            ImGui::SetCursorPos(cursorPos);
+            ImGui::Text("%s",voices_label+i*32);
+            
+            if (index+INDICES_SIZE_BOX>=max_indices) {
+                // Load the vertex data
+                glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+                // Load the uniforms
+                // Draw
+                glDrawArrays(GL_TRIANGLES, 0, index);
+                //glDrawArrays(GL_TRIANGLES, 0, index);
+                index=0;
+            }
+            index=DrawBox(ptsB,index,x-10,y+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,ww,hh);
+        }
+    }
+    
+    if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_switch.switch_value) {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,64));
+        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
+            int j=i%num_rows;
+            for (int o=0;o<256/12;o++) {
+                x=o*width*7.0-note_display_offset;
                 
-                voices_posX[j]+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
+                if (pianoroll_key_status[j][o*12]&PR_KEY_PRESSED) y=hh-(height+16)*(j+1)+16-12+height/24;
+                else y=hh-(height+16)*(j+1)+16-12+height/8;
                 
-                int colidx=i&63;
-                int crt=((data_midifx_col[colidx&31]>>16)&0xFF);
-                int cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
-                int cbt=(data_midifx_col[colidx&31]&0xFF);
+                char str_tmp[3];
+                snprintf(str_tmp,3,"%d",o);
                 
-                if (colidx&0x20) {
-                    crt=(crt+255)/2;
-                    cgt=(cgt+255)/2;
-                    cbt=(cbt+255)/2;
-                }
                 
-                y=hh-(height+16)*(j+1)+height+4;
-                if (index+INDICES_SIZE_BOX>=max_indices) {
-                    glDrawArrays(GL_TRIANGLES, 0, index);
-                    index=0;
-                }
-                index=DrawBox(ptsB,index,x-10,y,8,8,1/*border_size*/,crt,cgt,cbt,255,0);
+                float lblwidth=ImGui::CalcTextSize(str_tmp).x/mScaleFactor;//strlen(mOctavesIndex[o]->mText)*mOscilloFont[1]->maxCharWidth/mScaleFactor;
+                x+=(width-lblwidth)/2;
+                
+                ImVec2 cursorPos=ImVec2((x+0.0)*mScaleFactor, (hh-y-12)*mScaleFactor);
+                ImGui::SetCursorPos(cursorPos);
+                ImGui::Text("%s",str_tmp);
+                //glTranslatef(x,y, 0.0f);
+                //mOctavesIndex[o]->Render(32);
             }
         }
+        ImGui::PopStyleColor();
+    }
     
-    glDrawArrays(GL_TRIANGLES, 0, index);
+
+    if (index) {
+        // Load the vertex data
+        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+        // Load the uniforms
+        // Draw
+        glDrawArrays(GL_TRIANGLES, 0, index);
+        index=0;
+    }
     
-    
+    ImGui::End();
+    ImGui::PopFont();
+    ImGui::PopStyleColor();
     
     //////////////////////////////////////////////
     
     //    glEnable(GL_BLEND);
     //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     
     memset(voices_posX,0,sizeof(voices_posX));
     
-    //draw label
-    if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value) {
-        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
-            int j=i%num_rows;
-            y=hh-(height+16)*(j+1)+height+4+1;
-            
-            if (mVoicesNamePiano[i]) {
-                x=voices_posX[j]+16;
-                glPushMatrix();
-                glTranslatef(x,y, 0.0f);
-                mVoicesNamePiano[i]->Render(255);
-                voices_posX[j]+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
-                glPopMatrix();
-            }
-        }
-    }
     
-    if (mOctavesIndex[0]&&settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_switch.switch_value) {
-        for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
-            int j=i%num_rows;
-            for (int o=0;o<256/12;o++) {
-                x=o*width*7.0-note_display_offset;
-                
-                if (mOctavesIndex[o]) {
-                    glPushMatrix();
-                    
-                    if (pianoroll_key_status[j][o*12]&PR_KEY_PRESSED) y=hh-(height+16)*(j+1)+16-12+height/24;
-                    else y=hh-(height+16)*(j+1)+16-12+height/8;
-                    
-                    float lblwidth=strlen(mOctavesIndex[o]->mText)*mOscilloFont[1]->maxCharWidth/mScaleFactor;
-                    x+=(width-lblwidth)/2;
-                    
-                    glTranslatef(x,y, 0.0f);
-                    mOctavesIndex[o]->Render(32);
-                    
-                    glPopMatrix();
-                }
-            }
-        }
-    }
     free(ptsB);
-#endif
+    
+    glRestoreState();
 }
 
 void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
@@ -7447,7 +7503,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0);
+            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0,ww,hh);
         }
     }
     
@@ -7487,7 +7543,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0);
+                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
                 }
             }
         }
@@ -7503,7 +7559,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0);
+            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0,ww,hh);
         }
     }
     
@@ -7542,7 +7598,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0);
+                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
                 }
             }
         }

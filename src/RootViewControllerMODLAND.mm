@@ -441,9 +441,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_type t,mod_type_author ta\
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_type t,mod_type_author ta\
 							 WHERE ta.id_author=%d AND ta.id_type=t.id AND t.filetype like \"%%%s%%\"",authorID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1) FROM mod_type t,mod_type_author ta\
+		else snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_type t,mod_type_author ta\
 					 WHERE ta.id_author=%d AND ta.id_type=t.id",authorID);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -462,9 +462,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
 								 WHERE ta.id_author=%d AND ta.id_type=t.id AND t.filetype like \"%%%s%%\" ORDER BY t.filetype COLLATE NOCASE",authorID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
+			else snprintf(sqlStatement,1024,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
 						 WHERE ta.id_author=%d AND ta.id_type=t.id ORDER BY t.filetype COLLATE NOCASE",authorID);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
@@ -570,8 +570,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type WHERE filetype LIKE \"%%%s%%\"",[mSearchText UTF8String]);
-		else  sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type");
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_type WHERE filetype LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+		else  snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_type");
 		
 		
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -590,8 +590,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filetype,num_files,id FROM mod_type WHERE filetype LIKE \"%%%s%%\" ORDER BY filetype COLLATE NOCASE",[mSearchText UTF8String]);
-			else  sprintf(sqlStatement,"SELECT filetype,num_files,id FROM mod_type ORDER BY filetype COLLATE NOCASE");
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT filetype,num_files,id FROM mod_type WHERE filetype LIKE \"%%%s%%\" ORDER BY filetype COLLATE NOCASE",[mSearchText UTF8String]);
+			else  snprintf(sqlStatement,1024,"SELECT filetype,num_files,id FROM mod_type ORDER BY filetype COLLATE NOCASE");
 			
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
@@ -696,8 +696,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_author WHERE author LIKE \"%%%s%%\"",[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1) FROM mod_author");
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_author WHERE author LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+		else snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_author");
 		
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -716,8 +716,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT author,num_files,id FROM mod_author WHERE author LIKE \"%%%s%%\" ORDER BY author COLLATE NOCASE",[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT author,num_files,id FROM mod_author ORDER BY author COLLATE NOCASE");
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT author,num_files,id FROM mod_author WHERE author LIKE \"%%%s%%\" ORDER BY author COLLATE NOCASE",[mSearchText UTF8String]);
+			else snprintf(sqlStatement,1024,"SELECT author,num_files,id FROM mod_author ORDER BY author COLLATE NOCASE");
 			
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
@@ -829,8 +829,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\"",filetypeID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type_author m WHERE m.id_type=%d",filetypeID);
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\"",filetypeID,[mSearchText UTF8String]);
+		else snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_type_author m WHERE m.id_type=%d",filetypeID);
 		
 		
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -849,8 +849,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT a.author,m.num_files,a.id FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\" ORDER BY a.author COLLATE NOCASE",filetypeID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT a.author,m.num_files,a.id FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id ORDER BY a.author COLLATE NOCASE",filetypeID);
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT a.author,m.num_files,a.id FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\" ORDER BY a.author COLLATE NOCASE",filetypeID,[mSearchText UTF8String]);
+			else snprintf(sqlStatement,1024,"SELECT a.author,m.num_files,a.id FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id ORDER BY a.author COLLATE NOCASE",filetypeID);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             
             
@@ -963,9 +963,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
 							 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null \
+		else snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null \
 					 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND m.id_author=a.id_author",authorID,authorID);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		db_nb_entries=0;
@@ -985,12 +985,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
 								 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
 								 WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_album is null \
 						 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
 						 WHERE m.id_author=%d AND m.id_album=a.id AND m.id_author=a.id_author\
@@ -1116,11 +1116,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file \
 							 WHERE id_author=%d AND id_type=%d id_album is null AND filename like \"%%%s%%\" \
 							 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
 							 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" AND m.id_author=a.id_author",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
+		else snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file \
 					 WHERE id_author=%d AND id_type=%d AND id_album is null \
 					 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
 					 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND m.id_author=a.id_author",authorID,filetypeID,authorID,filetypeID);
@@ -1143,12 +1143,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_type=%d AND id_album is null AND filename like \"%%%s%%\" \
 								 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
 								 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_type=%d AND id_album is null \
 						 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
 						 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id  AND m.id_author=a.id_author\
@@ -1276,8 +1276,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename",authorID,albumID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename",authorID,albumID);
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename",authorID,albumID,[mSearchText UTF8String]);
+		else snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename",authorID,albumID);
 		
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1295,8 +1295,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename COLLATE NOCASE",authorID,albumID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename COLLATE NOCASE",authorID,albumID);
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename COLLATE NOCASE",authorID,albumID,[mSearchText UTF8String]);
+			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename COLLATE NOCASE",authorID,albumID);
 			
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
@@ -1407,8 +1407,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\"",filetypeID,authorID,albumID,[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d",filetypeID,authorID,albumID);
+		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\"",filetypeID,authorID,albumID,[mSearchText UTF8String]);
+		else snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d",filetypeID,authorID,albumID);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		db_nb_entries=0;
 		if (err==SQLITE_OK){
@@ -1427,9 +1427,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 				db_entries[i]=NULL;
 			}
 			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file \
 								 WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\" ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID,[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file \
 						 WHERE id_type=%d AND id_author=%d AND id_album=%d ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID);
 			
 			
@@ -1491,7 +1491,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		
-		sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,"select fullpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1522,7 +1522,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
 		
-		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1552,7 +1552,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
+        snprintf(sqlStatement,1024,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1579,7 +1579,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-		sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
+        snprintf(sqlStatement,1024,"select filename from mod_file where id=%d",idmod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1763,7 +1763,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
+        snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1803,7 +1803,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1841,7 +1841,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1850,7 +1850,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
-        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1888,7 +1888,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1897,7 +1897,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
-        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1906,7 +1906,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
-        sprintf(sqlStatement,"SELECT album FROM mod_album WHERE id=%d",id_album);
+        snprintf(sqlStatement,1024,"SELECT album FROM mod_album WHERE id=%d",id_album);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1944,7 +1944,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             
@@ -1954,7 +1954,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT a.author FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id",id_type);
+        snprintf(sqlStatement,1024,"SELECT a.author FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1993,7 +1993,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -2001,7 +2001,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
-        sprintf(sqlStatement,"SELECT album FROM mod_album WHERE id=%d",id_album);
+        snprintf(sqlStatement,1024,"SELECT album FROM mod_album WHERE id=%d",id_album);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -2011,7 +2011,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         
         
-        sprintf(sqlStatement,"SELECT a.author FROM mod_type_author_album m,mod_author a WHERE m.id_type=%d AND m.id_album=%d m.id_author=a.id",id_type,id_album);
+        snprintf(sqlStatement,1024,"SELECT a.author FROM mod_type_author_album m,mod_author a WHERE m.id_type=%d AND m.id_album=%d m.id_author=a.id",id_type,id_album);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {

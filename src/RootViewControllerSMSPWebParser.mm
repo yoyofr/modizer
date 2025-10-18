@@ -200,7 +200,6 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_categ_entry *wentry = (t_categ_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        //sprintf(str,"%s",[wentry->category UTF8String]);
         chr=[wentry->category characterAtIndex:0];
         previndex=index;
         index=0;
@@ -501,7 +500,6 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         //NSLog(@"%@",wef->file_name);
-        //sprintf(str,"%s",[[wef->file_name stringByRemovingPercentEncoding] UTF8String]);
         chr=[wef->file_name characterAtIndex:0];
         
         //NSLog(@"%@",wef->file_size);

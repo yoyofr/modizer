@@ -9,6 +9,8 @@
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
 
+#define MENU_BACKGROUND_ALPHA 0.7f
+
 #define pMenu_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
 
 #ifndef min
@@ -106,7 +108,7 @@ static GLuint txtMenuPianoHandle[16];
 const char *menuPianoLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    "Voices\nlabels","Octaves\nlabels",NULL,NULL,
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 static GLuint txtMenuMidiHandle[16];
@@ -198,6 +200,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==2) active_idx|=1<<4;
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==3) active_idx|=1<<5;
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==4) active_idx|=1<<6;
+        if (settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
+        if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
     } else if (menu_idx==MENU_MIDIPATTERN) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -446,7 +450,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
     
-    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,0.5f));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,MENU_BACKGROUND_ALPHA));
     
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFocus();
@@ -1068,8 +1072,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[6];
                                 break;
                             case 0x31:break;
-                            case 0x02:break;
-                            case 0x12:break;
+                            case 0x02: // Voices labels
+                                settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value;
+                                break;
+                            case 0x12: // Octaves labels
+                                settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value;
+                                break;
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;

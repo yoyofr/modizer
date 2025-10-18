@@ -108,7 +108,7 @@ static char **browser_sidtune_title,**browser_sidtune_name;
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT major,minor FROM version");
+        snprintf(sqlStatement,1024,"SELECT major,minor FROM version");
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -170,12 +170,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     } else NSLog(@"ErrSQL : %d",err);
                     
                     //Migrate DB user data : song length, ratings, playlists, ...
-                    sprintf(sqlStatementR,"SELECT name,fullpath,play_count,rating FROM user_stats");
+                    snprintf(sqlStatementR,1024,"SELECT name,fullpath,play_count,rating FROM user_stats");
                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
                     if (err==SQLITE_OK){
                         while (sqlite3_step(stmt) == SQLITE_ROW) {
                             
-                            sprintf(sqlStatementW,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
+                            snprintf(sqlStatementW,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
                                     (char*)sqlite3_column_text(stmt, 0),
                                     (char*)sqlite3_column_text(stmt, 1),
                                     sqlite3_column_int(stmt, 2),
@@ -186,29 +186,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         sqlite3_finalize(stmt);
                     } else NSLog(@"ErrSQL : %d",err);
                     
-                    /*sprintf(sqlStatementR,"SELECT id_md5,track_nb,song_length FROM songlength");
-                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
-                     if (err==SQLITE_OK){
-                     while (sqlite3_step(stmt) == SQLITE_ROW) {
-                     
-                     sprintf(sqlStatementW,"INSERT INTO songlength (id_md5,track_nb,song_length) SELECT \"%s\",%d,%d",
-                     (char*)sqlite3_column_text(stmt, 0),
-                     sqlite3_column_int(stmt, 1),
-                     sqlite3_column_int(stmt, 2));
-                     err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                     if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
-                     }
-                     sqlite3_finalize(stmt);
-                     } else NSLog(@"ErrSQL : %d",err);*/
-                    
-                    
-                    sprintf(sqlStatementR,"SELECT id,name,num_files FROM playlists");
+                    snprintf(sqlStatementR,1024,"SELECT id,name,num_files FROM playlists");
                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
                     if (err==SQLITE_OK){
                         while (sqlite3_step(stmt) == SQLITE_ROW) {
                             int id_playlist;
                             //CREATE NEW PL
-                            sprintf(sqlStatementW,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
+                            snprintf(sqlStatementW,1024,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
                                     (char*)sqlite3_column_text(stmt, 1),
                                     sqlite3_column_int(stmt, 2));
                             err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
@@ -218,12 +202,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                             id_playlist=sqlite3_last_insert_rowid(db);
                             
                             //RECOPY PL ENTRIES
-                            sprintf(sqlStatementR2,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
+                            snprintf(sqlStatementR2,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
                             err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
                             if (err==SQLITE_OK){
                                 while (sqlite3_step(stmt2) == SQLITE_ROW) {
                                     
-                                    sprintf(sqlStatementW,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
+                                    snprintf(sqlStatementW,104,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
                                             id_playlist,
                                             [[[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt2, 0)] lastPathComponent] UTF8String],
                                             (char*)sqlite3_column_text(stmt2, 1));
@@ -718,7 +702,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         
         if (!realPath) {
             //try to find realPath with md5
-            sprintf(sqlStatement,"SELECT filepath FROM hvsc_path WHERE id_md5=\"%s\"",browser_song_md5);
+            snprintf(sqlStatement,1024,"SELECT filepath FROM hvsc_path WHERE id_md5=\"%s\"",browser_song_md5);
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -729,7 +713,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             } else NSLog(@"ErrSQL : %d",err);
         } else realPath+=5;
         if (realPath) {
-            sprintf(sqlStatement,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
+            snprintf(sqlStatement,1024,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1135,7 +1119,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                             local_entries[index][local_entries_count[index]].songs=1;//0;
                             local_entries[index][local_entries_count[index]].channels_nb=0;
                             
-                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                             if (err==SQLITE_OK){
                                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1333,7 +1317,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                 local_entries[index][local_entries_count[index]].songs=1;//0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1550,7 +1534,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                 local_entries[index][local_entries_count[index]].songs=0;
                                 local_entries[index][local_entries_count[index]].channels_nb=0;
                                 
-                                sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1891,7 +1875,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     local_entries[index][local_entries_count[index]].channels_nb=-1;
                                     
 #if 0
-                                    sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
+                                    snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     
                                     //printf("%s\n",sqlStatement);

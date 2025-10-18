@@ -42,9 +42,9 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *localPath,NS
         index = [strTmpPath rangeOfString:@"/"].location;
         strTmpPath = [strTmpPath substringFromIndex:index+1];
         
-        sprintf(sqltmp,"%s",[strTmpPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        snprintf(sqltmp,512,"%s",[strTmpPath cStringUsingEncoding:NSUTF8StringEncoding]);
         
-        sprintf(sqlStatement,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%%s\"",sqltmp,[ext UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%%s\"",sqltmp,[ext UTF8String]);
         //NSLog(@"sql: %s",sqlStatement);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -88,11 +88,11 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqltmp,"%s",[localPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        snprintf(sqltmp,512,"%s",[localPath cStringUsingEncoding:NSUTF8StringEncoding]);
         //		printf("%s\n",sqltmp);
         
-        if (adjusted) sprintf(sqlStatement,"SELECT fullpath FROM mod_file WHERE localpath LIKE \"%s\"",sqltmp);
-        else sprintf(sqlStatement,"SELECT fullpath FROM mod_file WHERE localpath = \"%s\"",sqltmp);
+        if (adjusted) snprintf(sqlStatement,1024,"SELECT fullpath FROM mod_file WHERE localpath LIKE \"%s\"",sqltmp);
+        else snprintf(sqlStatement,1024,"SELECT fullpath FROM mod_file WHERE localpath = \"%s\"",sqltmp);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -127,7 +127,7 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqltmp,"%s",[fullPath cStringUsingEncoding:NSNonLossyASCIIStringEncoding]);
+        snprintf(sqltmp,512,"%s",[fullPath cStringUsingEncoding:NSNonLossyASCIIStringEncoding]);
         
         char *tmp_str;
         tmp_str=strstr(sqltmp,"\\u");
@@ -140,8 +140,8 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
                 adjusted=1;
             }
         }
-        if (adjusted) sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE fullpath like \"%s\"",sqltmp);
-        else sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE fullpath = \"%s\"",sqltmp);
+        if (adjusted) snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE fullpath like \"%s\"",sqltmp);
+        else snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE fullpath = \"%s\"",sqltmp);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -186,7 +186,7 @@ int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed c
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -233,7 +233,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -260,7 +260,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;NSLog(@"ErrSQL : %d",err);}
@@ -287,7 +287,7 @@ int DBHelper::getNbFormatEntries() {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT count(1) FROM mod_type");
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_type");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -318,7 +318,7 @@ int DBHelper::getNbAuthorEntries() {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT count(1) FROM mod_author");
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_author");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -349,7 +349,7 @@ int DBHelper::getNbHVSCFilesEntries() {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT count(1) FROM hvsc_file");
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM hvsc_file");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -380,7 +380,7 @@ int DBHelper::getNbASMAFilesEntries() {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT count(1) FROM asma_file");
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM asma_file");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -411,7 +411,7 @@ int DBHelper::getNbMODLANDFilesEntries() {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT count(1) FROM mod_file");
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -465,7 +465,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
             
-            sprintf(sqlStatement,"SELECT name,fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
             
             //printf("req: %s\n",sqlStatement);
             
@@ -515,14 +515,14 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             
             //2nd update rating based on average
             
-            sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
             
             if (fname==NULL) fname=[fullpathCleaned lastPathComponent];
             
-            sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
@@ -553,7 +553,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
             
-            sprintf(sqlStatement,"SELECT name,fullpath,play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
             
             //printf("req: %s\n",sqlStatement);
             
@@ -609,14 +609,14 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             
             //2nd update rating based on average
             
-            sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
             
             if (fname==NULL) fname=[fullpathCleaned lastPathComponent];
             
-            sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else NSLog(@"ErrSQL : %d",err);
@@ -670,7 +670,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
@@ -679,7 +679,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
         if (rating==-1) rating=0;
         if (avg_rating==-1) avg_rating=0;
         
-        sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
+        snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);

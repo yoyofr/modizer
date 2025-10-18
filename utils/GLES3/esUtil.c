@@ -68,7 +68,7 @@ void ESUTIL_API esLogMessage ( const char *formatStr, ... )
    char buf[BUFSIZ];
 
    va_start ( params, formatStr );
-   vsprintf ( buf, formatStr, params );
+   vsnprintf ( buf, BUFSIZ,formatStr, params );
 
 #ifdef ANDROID
    __android_log_print ( ANDROID_LOG_INFO, "esUtil" , "%s", buf );

@@ -155,7 +155,7 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
         free(pmPresetStr);
     }
     pmPresetStr=(char*)malloc(strlen(title)+32);
-    sprintf(pmPresetStr,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
+    snprintf(pmPresetStr,strlen(title)+32,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),title);
     _pmPresetHasChanged=true;
     
     _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
@@ -1347,7 +1347,7 @@ static float movePinchScale,movePinchScaleOld;
             char *name=pmGetPresetCleanTitle(title);
             
             char *tmp_str=(char*)malloc(strlen(name)+32);
-            sprintf(tmp_str,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
+            snprintf(tmp_str,strlen(name)+32,"(%d/%d) %s",index+1,projectm_playlist_size(_pm_playlist),name);
             
             if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
@@ -3464,7 +3464,7 @@ int recording=0;
             mRestart=0;
             mRestart_sub=0;
             mRestart_arc=0;
-            if (mplayer_error_msg[0]==0) sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
+            if (mplayer_error_msg[0]==0) snprintf(mplayer_error_msg,sizeof(mplayer_error_msg),"%s",[filePathTmp UTF8String]);
             if (retcode==-99) mLoadIssueMessage=0;
             else mLoadIssueMessage=3;
             return FALSE;
@@ -6754,6 +6754,8 @@ extern "C" int current_sample;
             
             switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
                 case 1:
+//                    tim_midifx_noteroll_offset=0;
+//                    tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES*mDevice_ww/640.0;
                     RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_noteroll_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
                     break;
                 case 2:
@@ -6771,7 +6773,7 @@ extern "C" int current_sample;
 //                    if (mHeader) delete mHeader;
 //                    mHeader=nil;
                     
-                    sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
+                    snprintf(str_data,MAX_STR_DATA_SIZE,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
 //                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
 //                    glPushMatrix();
 //                    glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);

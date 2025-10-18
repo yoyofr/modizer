@@ -163,9 +163,9 @@ pthread_mutex_t play_mutex;
     //[SettingsGenViewController loadSettings];
     //[SettingsGenViewController restoreSettings];
  
-    sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
+    snprintf(homedirectory,sizeof(homedirectory),"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
-    sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
+    snprintf(bundledirectory,sizeof(bundledirectory),"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;
