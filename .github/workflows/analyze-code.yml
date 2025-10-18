@@ -11,7 +11,7 @@ jobs:
     env:
       # Check cloc docs for supported languages and exact names (e.g., "Vuejs Component", "C#")
       # HIGHLIGHT_LANGS: show these languages individually; everything else goes to "Others"
-      HIGHLIGHT_LANGS: "C,Objective-C,C++,Objective-C++,GLSL"
+      HIGHLIGHT_LANGS: "C,Objective-C,C++,C/C++ Header,Objective-C++,GLSL"
 
 
       # IGNORE_LANGS: drop these languages entirely (not shown and not counted)
