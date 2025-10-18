@@ -6,6 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+
 #define ASCII_MIDDOT "·"
 
 #define glPushMatrix(...)
@@ -22,9 +23,6 @@
 #define ARCSUB_MODE_SUB 2
 static int current_selmode;
 int MIDIFX_OFS;
-
-#define MOD_PATTERN_FONT_NB 5
-static char *fontName[MOD_PATTERN_FONT_NB]={"amiga","gb","c64","04b","tracking"};
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
@@ -56,6 +54,27 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 
 #define DEBUG_INFOS 0
 #define DEBUG_NO_SETTINGS 0
+
+
+typedef struct {
+    uint8_t lineNb_col1[3];
+    uint8_t lineNb_col2[3];
+    uint8_t note_col[3];
+    uint8_t instrument_col[3];
+    uint8_t volume_col[3];
+    uint8_t effect_col[3];
+    uint8_t param_col[3];
+} modpat_color_t;
+
+modpat_color_t modpat_colorStd={
+    {0xF0,0xF0,0xF0},  //Line nb color 1
+    {0xF0,0xF0,0x00},  //Line nb color 2
+    {0xFF,0xFF,0xFF},  //Note color
+    {0x80,0xE0,0xFF},  //Instrument color
+    {0x80,0xFF,0x80},  //Volume color
+    {0xFF,0x80,0xE0},  //Effect nb color
+    {0xFF,0xE0,0x80}  //Effect value color
+};
 
 //#include "OGLView.h"
 #include "RenderUtils.h"
@@ -105,7 +124,7 @@ bool _pmPresetHasChanged;
 //
 static int _pm_fps=60;
 static int meshX=32,meshY=24;
-static float glScaleFactor=1.0;
+float glScaleFactor=1.0;
 
 
 
@@ -149,7 +168,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
-extern ImFont  *font_tracker[FONT_TRACKER_NB];
+extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
 extern float font_trackerSize[FONT_TRACKER_NB][5];
 
 //--------------------------------------------------
@@ -988,7 +1007,7 @@ UIImage *backgroundImage;
 static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-static int currentPattern,currentRow,startChan,visibleChan;
+static int currentPattern,currentRow,visibleChan;
 static float modPatternLineSize,modPatternWindowSize;
 
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxMILK=0,movePyMILK=0;
@@ -1036,11 +1055,6 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
         m_oglView.drawableMultisample = (settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value?MGLDrawableMultisample4X:MGLDrawableMultisampleNone);
-        
-        [self updateVisibleChan];
-        
-        [self updateFont];
-        [self updateVisibleChan];
         
         [self checkGLViewCanDisplay];
         
@@ -1777,8 +1791,6 @@ static float movePinchScale,movePinchScaleOld;
             if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-itime)/1000)/60,((curSongLength-itime)/1000)%60];
             sliderProgressModule.value=(float)(itime)/(float)(curSongLength);
         }
-        if ((mMoveStartChanLeft)&&(startChan>0)) startChan--;
-        if ((mMoveStartChanRight)&&(startChan<(mplayer.numChannels-visibleChan))) startChan++;
     }
     
     int seekinprogress=[mplayer isSeeking];
@@ -2711,7 +2723,6 @@ int recording=0;
     
     alertCannotPlay_displayed=0;
     //Visiulization stuff
-    startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
     startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
@@ -3071,7 +3082,6 @@ int recording=0;
     
     alertCannotPlay_displayed=0;
     //Visiulization stuff
-    startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
     startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
@@ -3524,7 +3534,6 @@ int recording=0;
     
     alertCannotPlay_displayed=0;
     //Visiulization stuff
-    startChan=0;
     movePx=movePy=movePxOld=movePyOld=0;
     startPx=startPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
@@ -4134,7 +4143,6 @@ int recording=0;
         }
     }
     [self updateBarPos];
-    [self updateVisibleChan];
     
     return YES;
 }
@@ -5678,10 +5686,6 @@ void pmSoftReinit() {
     NSLog(@"detail7 : %d",end_time-start_time);
 #endif
     
-    [self updateVisibleChan];
-    
-    mMoveStartChanLeft=mMoveStartChanRight=0;
-    
     if ([self checkFlagOnStartup]) {
         [self loadSettings:1];
         mShouldUpdateInfos=1;
@@ -5705,6 +5709,7 @@ void pmSoftReinit() {
     
     modPatternWindowSize=0;
     modPatternLineSize=0;
+    visibleChan=SOUND_MAXMOD_CHANNELS;
 
     //	[super viewDidLoad];
     end_time=clock();
@@ -5819,6 +5824,10 @@ void pmSoftReinit() {
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     
     [self adjustTextMessageFont];
+    
+    //Should recompute bg texture after resize
+    shouldUpdateCoverTexture=1;
+    
     //[waitingView setNeedsLayout]
 }
 
@@ -5830,87 +5839,7 @@ void pmSoftReinit() {
     return statusbarHidden;
 }
 
-- (void)updateVisibleChan {
-//    int size_chan=11*(mFontWidth/mScaleFactor);
-//    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-//        case 1:
-//        case 4:
-//            size_chan=11*(mFontWidth/mScaleFactor);
-//            break;
-//        case 2:
-//        case 5:
-//            size_chan=6*(mFontWidth/mScaleFactor);
-//            break;
-//        case 3:
-//        case 6:
-//            size_chan=4*(mFontWidth/mScaleFactor);
-//            break;
-//    }
-//    
-//    visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan+1;
-    
-    visibleChan=MAX_VISIBLE_MODCHANNELS;
-    
-    if (visibleChan>MAX_VISIBLE_MODCHANNELS) visibleChan=MAX_VISIBLE_MODCHANNELS;
-    if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
-    if (startChan<0) startChan=0;
-}
 
-- (void)updateFont{
-//    NSString *fontPath;
-//    
-//    mCurrentFontIdx=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
-//    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-//        case 0:
-//            mCurrentFontSize=10;
-//            break;
-//        case 1:
-//            mCurrentFontSize=16;
-//            break;
-//        case 2:
-//            mCurrentFontSize=24;
-//            break;
-//        case 3:
-//            mCurrentFontSize=32;
-//            break;
-//    }
-//    
-//    fontPath = [[NSBundle mainBundle] pathForResource: [NSString stringWithFormat:@"%s%d",fontName[mCurrentFontIdx],mCurrentFontSize] ofType: @"fnt"];
-//    
-//    if (!fontPath) {
-//        mCurrentFontIdx=0;
-//        mCurrentFontSize=16;
-//        settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
-//        settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=0;
-//        fontPath = [[NSBundle mainBundle] pathForResource:@"amiga16" ofType: @"fnt"];
-//        if (!fontPath) {
-//            NSLog(@"Issue with mFont init, cannot find default font amiga16.fnt");
-//            return;
-//        }
-//    }
-//    
-////    int loadFont=0;
-////    if (mFontPath==NULL) loadFont=1;
-////    else if ([mFontPath isEqualToString:fontPath]==false) loadFont=1;
-////    
-////    if (loadFont==0) return;
-//        
-//    if (mFont) delete mFont;
-//    mFont=NULL;
-//    
-//    mFont = new CFont([fontPath UTF8String]);
-//    if (!mFont) {
-//        NSLog(@"Issue with mFont init");
-//        return;
-//    }
-//    mFontPath=[NSString stringWithString:fontPath];
-//    
-//    mFontWidth= mFont->maxCharWidth;
-//    mFontHeight= mFont->maxCharHeight;
-//    //NSLog(@"font size: %dx%d",mFontWidth,mFontHeight);
-//    NOTES_DISPLAY_LEFTMARGIN=(mFontWidth/mScaleFactor)*2.5f+8+6;
-//    NOTES_DISPLAY_TOPMARGIN=(mFontHeight/mScaleFactor)*2+8+6;
-}
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
@@ -6071,9 +6000,6 @@ void pmSoftReinit() {
     
 //    mFont=NULL;
 //    mFontMenu=NULL;
-    
-    [self updateFont];
-    [self updateVisibleChan];
     
 //    NSString *fontPath;
 //    if (mScaleFactor<=2) fontPath = [[NSBundle mainBundle] pathForResource:@"tracking16" ofType: @"fnt"];
@@ -6263,13 +6189,13 @@ extern "C" int current_sample;
     uint ww,hh;
     int nb_spectrum_bands;
     uint hasdrawnotes;
-    char str_data[11*MAX_VISIBLE_MODCHANNELS*2+1]; //MAX 64 channels visible, much higher than what current screen can display
+#define MAX_STR_DATA_SIZE 65*SOUND_MAXMOD_CHANNELS+1
+    char str_data[MAX_STR_DATA_SIZE]; //MAX 64 channels visible, much higher than what current screen can display
     unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
     int i,j,k,l,note_avail,idx,startRow;
     int linestodraw,midline;
     ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
-    int size_chan;
     int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
     static float piano_posy=0;
@@ -7366,6 +7292,7 @@ extern "C" int current_sample;
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
                 //DISPLAY MOD PATTERNS
                 float fontSize=16;
+                int ftsizeIdx=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value;
                 switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
                     case 0: //10
                         fontSize=10;
@@ -7389,12 +7316,12 @@ extern "C" int current_sample;
                 if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
                 
                 float font_ofsX,font_ofsY;
-                if (font_tracker[cur_font]) { ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
+                if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);//,fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
                     font_ofsX=font_trackerSize[cur_font][3];
                     font_ofsY=font_trackerSize[cur_font][4];
                 }
                 else {
-                    ImGui::PushFont(nullptr,fontSize*glScaleFactor);
+                    ImGui::PushFont(nullptr);//,fontSize*glScaleFactor);
                     font_ofsX=0;
                     font_ofsY=0;
                 }
@@ -7436,26 +7363,26 @@ extern "C" int current_sample;
                     if (midline>=limit_midline) midline=limit_midline-1;
                 }
                 
-                endChan=startChan+mplayer.numChannels;//visibleChan;
+                endChan=mplayer.numChannels;//visibleChan;
                 if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
                 else if (endChan<mplayer.numChannels) endChan++;
                 startRow=currentRow-midline;
                 
                 int channelVolumeData[SOUND_MAXMOD_CHANNELS];
-                unsigned char *volData=[mplayer playVolData];
-                for (int i=0;i<endChan-startChan;i++) {
-                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
+                unsigned char *volData=mplayer.playVolData;
+                for (int i=0;i<endChan;i++) {
+                    channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i];
                 }
                 
-                idx=startRow*mplayer.numChannels+startChan;
+                idx=startRow*mplayer.numChannels;
  
                 float fontWidth=ImGui::CalcTextSize("12345678").x/8.0;
-                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/glScaleFactor,fontSize,glScaleFactor);
+                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize,glScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
                 } else {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
                 }
                 
                 
@@ -7475,23 +7402,40 @@ extern "C" int current_sample;
                                  ImGuiWindowFlags_NoScrollbar|
                                  ImGuiWindowFlags_NoFocusOnAppearing);
                     
+                    int colR,colG,colB;
+                    float color_div;
+                    
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         
                         str_prefix[2]=0;
                         if ((i<0)&&prevNotes) {
                             str_prefix[0]=dec2hex[((numRowsP+i)>>4)&0xF];
                             str_prefix[1]=dec2hex[(numRowsP+i)&0xF];
+                            color_div=0.7;
                         } else if (i<numRows) {
                             str_prefix[0]=dec2hex[(i>>4)&0xF];
                             str_prefix[1]=dec2hex[i&0xF];
+                            color_div=1;
                         } else if (nextNotes) {
                             str_prefix[0]=dec2hex[((i-numRows)>>4)&0xF];
                             str_prefix[1]=dec2hex[(i-numRows)&0xF];
+                            color_div=0.7;
                         }
-                        
                         cursorPos=ImVec2((3.0+font_ofsX)*mScaleFactor, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
                         ImGui::SetCursorPos(cursorPos);
-                        ImGui::Text("%s",str_prefix);
+                        //ImGui::Text("%s",str_prefix);
+                        
+                        if (i&1) {
+                            colR=modpat_colorStd.lineNb_col1[0]*color_div;
+                            colG=modpat_colorStd.lineNb_col1[1]*color_div;
+                            colB=modpat_colorStd.lineNb_col1[2]*color_div;
+                        } else {
+                            colR=modpat_colorStd.lineNb_col2[0]*color_div;
+                            colG=modpat_colorStd.lineNb_col2[1]*color_div;
+                            colB=modpat_colorStd.lineNb_col2[2]*color_div;
+                        }
+                        
+                        ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
                         
                     }
                     ImGui::End();
@@ -7505,21 +7449,24 @@ extern "C" int current_sample;
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         note_avail=0;
                         if (i<0) {
+                            color_div=0.7;
                             if ((prevNotes)&&((numRowsP+i)>=0)) {
                                 if (numRowsP+i>=0) {
                                     note_avail=1;
-                                    idx=(numRowsP+i)*mplayer.numChannels+startChan;
+                                    idx=(numRowsP+i)*mplayer.numChannels;
                                     readNote=prevNotes;
                                 }
                             }
                         } else if (currentNotes&&(i<numRows)) {
+                            color_div=1;
                             note_avail=1;
-                            idx=i*mplayer.numChannels+startChan;
+                            idx=i*mplayer.numChannels;
                             readNote=currentNotes;
                         } else {
+                            color_div=0.7;
                             if ((nextNotes)&&((i-numRows)<numRowsN)) {
                                 note_avail=1;
-                                idx=(i-numRows)*mplayer.numChannels+startChan;
+                                idx=(i-numRows)*mplayer.numChannels;
                                 readNote=nextNotes;
                             }
                         }
@@ -7527,12 +7474,22 @@ extern "C" int current_sample;
                         if (note_avail) {
                             switch (display_note_mode) {
                                 case 0: //all infos
-                                    for (j=0;j<endChan-startChan;j++)  {
+                                    for (j=0;j<endChan;j++)  {
                                         cnote=currentNotes[idx].Note;
                                         cinst=currentNotes[idx].Instrument;
                                         ceff=currentNotes[idx].Effect;
                                         cparam=currentNotes[idx].Parameter;
                                         cvol=currentNotes[idx].Volume;
+                                        
+                                        colR=modpat_colorStd.note_col[0]*color_div;
+                                        colG=modpat_colorStd.note_col[1]*color_div;
+                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cnote) {
                                             str_data[k++]=note2charA[(cnote-13)%12];
                                             str_data[k++]=note2charB[(cnote-13)%12];
@@ -7542,6 +7499,16 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
+                                        
+                                        colR=modpat_colorStd.instrument_col[0]*color_div;
+                                        colG=modpat_colorStd.instrument_col[1]*color_div;
+                                        colB=modpat_colorStd.instrument_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cinst) {
                                             str_data[k++]=dec2hex[(cinst>>4)&0xF];
                                             str_data[k++]=dec2hex[cinst&0xF];
@@ -7549,6 +7516,16 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
+                                        
+                                        colR=modpat_colorStd.volume_col[0]*color_div;
+                                        colG=modpat_colorStd.volume_col[1]*color_div;
+                                        colB=modpat_colorStd.volume_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cvol) {
                                             str_data[k++]=dec2hex[(cvol>>4)&0xF];
                                             str_data[k++]=dec2hex[cvol&0xF];
@@ -7556,11 +7533,31 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
+                                        
+                                        colR=modpat_colorStd.effect_col[0]*color_div;
+                                        colG=modpat_colorStd.effect_col[1]*color_div;
+                                        colB=modpat_colorStd.effect_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (ceff) {
                                             str_data[k++]='A'+ceff;
                                         } else {
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
+                                        
+                                        colR=modpat_colorStd.param_col[0]*color_div;
+                                        colG=modpat_colorStd.param_col[1]*color_div;
+                                        colB=modpat_colorStd.param_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cparam) {
                                             str_data[k++]=dec2hex[(cparam>>4)&0xF];
                                             str_data[k++]=dec2hex[cparam&0xF];
@@ -7573,9 +7570,19 @@ extern "C" int current_sample;
                                     }
                                     break;
                                 case 1: //note + instru
-                                    for (j=0;j<endChan-startChan;j++)  {
+                                    for (j=0;j<endChan;j++)  {
                                         cnote=currentNotes[idx].Note;
                                         cinst=currentNotes[idx].Instrument;
+                                        
+                                        colR=modpat_colorStd.note_col[0]*color_div;
+                                        colG=modpat_colorStd.note_col[1]*color_div;
+                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cnote) {
                                             str_data[k++]=note2charA[(cnote-13)%12];
                                             str_data[k++]=note2charB[(cnote-13)%12];
@@ -7585,6 +7592,16 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
+                                        
+                                        colR=modpat_colorStd.instrument_col[0]*color_div;
+                                        colG=modpat_colorStd.instrument_col[1]*color_div;
+                                        colB=modpat_colorStd.instrument_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cinst) {
                                             str_data[k++]=dec2hex[(cinst>>4)&0xF];
                                             str_data[k++]=dec2hex[cinst&0xF];
@@ -7597,8 +7614,18 @@ extern "C" int current_sample;
                                     }
                                     break;
                                 case 2: //only note
-                                    for (j=0;j<endChan-startChan;j++)  {
+                                    for (j=0;j<endChan;j++)  {
                                         cnote=currentNotes[idx].Note;
+                                        
+                                        colR=modpat_colorStd.note_col[0]*color_div;
+                                        colG=modpat_colorStd.note_col[1]*color_div;
+                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        str_data[k++]='{';str_data[k++]='#';
+                                        str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                        str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                        str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                        str_data[k++]='}';
+                                        
                                         if (cnote) {
                                             str_data[k++]=note2charA[(cnote-13)%12];
                                             str_data[k++]=note2charB[(cnote-13)%12];
@@ -7624,9 +7651,12 @@ extern "C" int current_sample;
                         cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
                         cursorPos.x=font_ofsX*glScaleFactor;
                         ImGui::SetCursorPos(cursorPos);
-                        ImGui::Text("%s",str_data);
+                        ImGui::TextAttr("%s",str_data);
+                        
+//                        NSLog(@"str_data. size:%d\n%s",strlen(str_data),str_data);
                         
                         modPatternLineSize=ImGui::CalcTextSize(str_data).x;
+//                        NSLog(@"msize2: %f",modPatternLineSize);
                     }
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);
                     ImGui::End();
@@ -7643,27 +7673,27 @@ extern "C" int current_sample;
                     float xofs=0;
                     switch (display_note_mode) {
                         case 0:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*11+4]='0'+(j+1)/10;
-                                str_data[(j-startChan)*11+5]='0'+(j+1)%10;
+                            for (j=0;j<endChan;j++) {
+                                str_data[(j-0)*11+4]='0'+(j+1)/10;
+                                str_data[(j-0)*11+5]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-startChan)*11+9]=0;
+                            str_data[(endChan-1-0)*11+9]=0;
                             xofs=0.0f;
                             break;
                         case 1:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*6+2]='0'+(j+1)/10;
-                                str_data[(j-startChan)*6+3]='0'+(j+1)%10;
+                            for (j=0;j<endChan;j++) {
+                                str_data[(j-0)*6+2]='0'+(j+1)/10;
+                                str_data[(j-0)*6+3]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-startChan)*6+7]=0;
+                            str_data[(endChan-1-0)*6+7]=0;
                             xofs=startx/6.0;
                             break;
                         case 2:
-                            for (j=startChan;j<endChan;j++) {
-                                str_data[(j-startChan)*4+1]='0'+(j+1)/10;
-                                str_data[(j-startChan)*4+2]='0'+(j+1)%10;
+                            for (j=0;j<endChan;j++) {
+                                str_data[(j-0)*4+1]='0'+(j+1)/10;
+                                str_data[(j-0)*4+2]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-startChan)*4+6]=0;
+                            str_data[(endChan-1-0)*4+6]=0;
                             xofs=startx/6.0;
                             break;
                     }
@@ -7726,8 +7756,8 @@ extern "C" int current_sample;
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 
                 ImGuiStyle& style = ImGui::GetStyle();
-                style.FontSizeBase=36;//*menu_win_size/512;
-                style._NextFrameFontSizeBase = style.FontSizeBase;
+                //style.FontSizeBase=36;//*menu_win_size/512;
+                //style._NextFrameFontSizeBase = style.FontSizeBase;
                 
                 
                 ImVec2 milkPresetStr_size=ImGui::CalcTextSize(milkPresetStr);

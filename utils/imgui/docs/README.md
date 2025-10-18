@@ -16,7 +16,7 @@ Businesses: support continued development and maintenance via invoiced sponsorin
 | [The Pitch](#the-pitch) - [Usage](#usage) - [How it works](#how-it-works) - [Releases & Changelogs](#releases--changelogs) - [Demo](#demo) - [Getting Started & Integration](#getting-started--integration) |
 :----------------------------------------------------------: |
 | [Gallery](#gallery) - [Support, FAQ](#support-frequently-asked-questions-faq) -  [How to help](#how-to-help) - **[Funding & Sponsors](https://github.com/ocornut/imgui/wiki/Funding)** - [Credits](#credits) - [License](#license) |
-| [Wiki](https://github.com/ocornut/imgui/wiki) - [Extensions](https://github.com/ocornut/imgui/wiki/Useful-Extensions) - [Language bindings & framework backends](https://github.com/ocornut/imgui/wiki/Bindings) - [Software using Dear ImGui](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) - [User quotes](https://github.com/ocornut/imgui/wiki/Quotes) |
+| [Wiki](https://github.com/ocornut/imgui/wiki) - [Extensions](https://github.com/ocornut/imgui/wiki/Useful-Extensions) - [Languages bindings & frameworks backends](https://github.com/ocornut/imgui/wiki/Bindings) - [Software using Dear ImGui](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) - [User quotes](https://github.com/ocornut/imgui/wiki/Quotes) |
 
 ### The Pitch
 
@@ -110,7 +110,7 @@ Reading the changelogs is a good way to keep up to date with the things Dear ImG
 Calling the `ImGui::ShowDemoWindow()` function will create a demo window showcasing a variety of features and examples. The code is always available for reference in `imgui_demo.cpp`. [Here's how the demo looks](https://raw.githubusercontent.com/wiki/ocornut/imgui/web/v167/v167-misc.png).
 
 You should be able to build the examples from sources. If you don't, let us know! If you want to have a quick look at some Dear ImGui features, you can download Windows binaries of the demo app here:
-- [imgui-demo-binaries-20250625.zip](https://www.dearimgui.com/binaries/imgui-demo-binaries-20250625.zip) (Windows, 1.92.0, built 2025/06/25, master) or [older binaries](https://www.dearimgui.com/binaries).
+- [imgui-demo-binaries-20240105.zip](https://www.dearimgui.com/binaries/imgui-demo-binaries-20240105.zip) (Windows, 1.90.1 WIP, built 2024/01/05, master) or [older binaries](https://www.dearimgui.com/binaries).
 
 The demo applications are not DPI aware so expect some blurriness on a 4K screen. For DPI awareness in your application, you can load/reload your font at a different scale and scale your style with `style.ScaleAllSizes()` (see [FAQ](https://www.dearimgui.com/faq)).
 
@@ -120,10 +120,10 @@ See the [Getting Started](https://github.com/ocornut/imgui/wiki/Getting-Started)
 
 On most platforms and when using C++, **you should be able to use a combination of the [imgui_impl_xxxx](https://github.com/ocornut/imgui/tree/master/backends) backends without modification** (e.g. `imgui_impl_win32.cpp` + `imgui_impl_dx11.cpp`). If your engine supports multiple platforms, consider using more imgui_impl_xxxx files instead of rewriting them: this will be less work for you, and you can get Dear ImGui running immediately. You can _later_ decide to rewrite a custom backend using your custom engine functions if you wish so.
 
-Integrating Dear ImGui within your custom engine is a matter of 1) wiring mouse/keyboard/gamepad inputs 2) uploading a texture to your GPU/render engine 3) providing a render function that can bind textures and render textured triangles, which is essentially what Backends are doing. The [examples/](https://github.com/ocornut/imgui/tree/master/examples) folder is populated with applications doing just that: setting up a window and using backends. If you follow the [Getting Started](https://github.com/ocornut/imgui/wiki/Getting-Started) guide it should in theory take you less than an hour to integrate Dear ImGui.  **Make sure to spend time reading the [FAQ](https://www.dearimgui.com/faq), comments, and the examples applications!**
+Integrating Dear ImGui within your custom engine is a matter of 1) wiring mouse/keyboard/gamepad inputs 2) uploading a texture to your GPU/render engine 3) providing a render function that can bind textures and render textured triangles, which is essentially what Backends are doing. The [examples/](https://github.com/ocornut/imgui/tree/master/examples) folder is populated with applications doing just that: setting up a window and using backends. If you follow the [Getting Started](https://github.com/ocornut/imgui/wiki/Getting-Started) guide it should in theory takes you less than an hour to integrate Dear ImGui.  **Make sure to spend time reading the [FAQ](https://www.dearimgui.com/faq), comments, and the examples applications!**
 
 Officially maintained backends/bindings (in repository):
-- Renderers: DirectX9, DirectX10, DirectX11, DirectX12, Metal, OpenGL/ES/ES2, SDL_GPU, SDL_Renderer2/3, Vulkan, WebGPU.
+- Renderers: DirectX9, DirectX10, DirectX11, DirectX12, Metal, OpenGL/ES/ES2, SDL_Renderer, Vulkan, WebGPU.
 - Platforms: GLFW, SDL2/SDL3, Win32, Glut, OSX, Android.
 - Frameworks: Allegro5, Emscripten.
 
@@ -141,7 +141,7 @@ Also see [Wiki](https://github.com/ocornut/imgui/wiki) for more links and ideas.
 
 Examples projects using Dear ImGui: [Tracy](https://github.com/wolfpld/tracy) (profiler), [ImHex](https://github.com/WerWolv/ImHex) (hex editor/data analysis), [RemedyBG](https://remedybg.itch.io/remedybg) (debugger) and [hundreds of others](https://github.com/ocornut/imgui/wiki/Software-using-Dear-ImGui).
 
-For more user-submitted screenshots of projects using Dear ImGui, check out the [Gallery Threads](https://github.com/ocornut/imgui/issues?q=label%3Agallery)!
+For more user-submitted screenshots of projects using Dear ImGui, check out the [Gallery Threads](https://github.com/ocornut/imgui/issues/7503)!
 
 For a list of third-party widgets and extensions, check out the [Useful Extensions/Widgets](https://github.com/ocornut/imgui/wiki/Useful-Extensions) wiki page.
 
@@ -170,11 +170,11 @@ Private support is available for paying business customers (E-mail: _contact @ d
 
 **Which version should I get?**
 
-We occasionally tag [Releases](https://github.com/ocornut/imgui/releases) (with nice releases notes) but it is generally safe and recommended to sync to latest `master` or `docking` branch. The library is fairly stable and regressions tend to be fixed fast when reported. Advanced users may want to use the `docking` branch with [Multi-Viewport](https://github.com/ocornut/imgui/wiki/Multi-Viewports) and [Docking](https://github.com/ocornut/imgui/wiki/Docking) features. This branch is kept in sync with master regularly.
+We occasionally tag [Releases](https://github.com/ocornut/imgui/releases) (with nice releases notes) but it is generally safe and recommended to sync to latest `master` or `docking` branch. The library is fairly stable and regressions tend to be fixed fast when reported. Advanced users may want to use the `docking` branch with [Multi-Viewport](https://github.com/ocornut/imgui/issues/1542) and [Docking](https://github.com/ocornut/imgui/issues/2109) features. This branch is kept in sync with master regularly.
 
 **Who uses Dear ImGui?**
 
-See the [Quotes](https://github.com/ocornut/imgui/wiki/Quotes), [Funding & Sponsors](https://github.com/ocornut/imgui/wiki/Funding), and [Software using Dear ImGui](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) Wiki pages for an idea of who is using Dear ImGui. Please add your game/software if you can! Also, see the [Gallery Threads](https://github.com/ocornut/imgui/issues?q=label%3Agallery)!
+See the [Quotes](https://github.com/ocornut/imgui/wiki/Quotes), [Funding & Sponsors](https://github.com/ocornut/imgui/wiki/Funding), and [Software using Dear ImGui](https://github.com/ocornut/imgui/wiki/Software-using-dear-imgui) Wiki pages for an idea of who is using Dear ImGui. Please add your game/software if you can! Also, see the [Gallery Threads](https://github.com/ocornut/imgui/issues/7503)!
 
 How to help
 -----------
@@ -184,7 +184,7 @@ How to help
 - See [GitHub Forum/Issues](https://github.com/ocornut/imgui/issues).
 - You may help with development and submit pull requests! Please understand that by submitting a PR you are also submitting a request for the maintainer to review your code and then take over its maintenance forever. PR should be crafted both in the interest of the end-users and also to ease the maintainer into understanding and accepting it.
 - See [Help wanted](https://github.com/ocornut/imgui/wiki/Help-Wanted) on the [Wiki](https://github.com/ocornut/imgui/wiki/) for some more ideas.
-- Be a [Funding Supporter](https://github.com/ocornut/imgui/wiki/Funding)! Have your company financially support this project via invoiced sponsors/maintenance or by buying a license for [Dear ImGui Test Engine](https://github.com/ocornut/imgui_test_engine) (please reach out: contact AT dearimgui DOT com).
+- Be a [Funding Supporter](https://github.com/ocornut/imgui/wiki/Funding)! Have your company financially support this project via invoiced sponsors/maintenance or by buying a license for [Dear ImGui Test Engine](https://github.com/ocornut/imgui_test_engine) (please reach out: omar AT dearimgui DOT com).
 
 Sponsors
 --------
@@ -196,7 +196,7 @@ Ongoing Dear ImGui development is and has been financially supported by users an
 **THANK YOU to all past and present supporters for helping to keep this project alive and thriving!**
 
 Dear ImGui is using software and services provided free of charge for open source projects:
-- [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) for static analysis (supports C/C++/C#/Java).
+- [PVS-Studio](https://www.viva64.com/en/b/0570/) for static analysis.
 - [GitHub actions](https://github.com/features/actions) for continuous integration systems.
 - [OpenCppCoverage](https://github.com/OpenCppCoverage/OpenCppCoverage) for code coverage analysis.
 
@@ -214,7 +214,7 @@ Omar: "I first discovered the IMGUI paradigm at [Q-Games](https://www.q-games.co
 Embeds [ProggyClean.ttf](https://www.proggyfonts.net) font by Tristan Grimmer (MIT license).
 <br>Embeds [stb_textedit.h, stb_truetype.h, stb_rect_pack.h](https://github.com/nothings/stb/) by Sean Barrett (public domain).
 
-Inspiration, feedback, and testing for early versions: Casey Muratori, Atman Binstock, Mikko Mononen, Emmanuel Briney, Stefan Kamoda, Anton Mikhailov, Matt Willis. Special thanks to Alex Evans, Patrick Doane, Marco Koegler for kindly helping. Also thank you to everyone posting feedback, questions and patches on GitHub.
+Inspiration, feedback, and testing for early versions: Casey Muratori, Atman Binstock, Mikko Mononen, Emmanuel Briney, Stefan Kamoda, Anton Mikhailov, Matt Willis. Also thank you to everyone posting feedback, questions and patches on GitHub.
 
 License
 -------

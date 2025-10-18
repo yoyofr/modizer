@@ -117,7 +117,7 @@ struct ModChannel
 	uint8 nCutOff, nResonance;
 	uint8 nTremorCount, nTremorParam;
 	uint8 nPatternLoopCount;
-	uint8 nLeftVU, nRightVU;
+	uint32 nLeftVU, nRightVU;
 	uint8 nActiveMacro;
 	FilterMode nFilterMode;
 	uint8 nEFxSpeed, nEFxDelay;              // memory for Invert Loop (EFx, .MOD only)

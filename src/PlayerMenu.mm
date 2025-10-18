@@ -456,7 +456,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
     if (font_body) ImGui::PushFont(font_body);
-    ImGui::PushFont(nullptr,18*menu_win_size/512);
+    ImGui::PushFont(nullptr);//,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
     

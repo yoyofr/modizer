@@ -35,8 +35,6 @@ extern void *LoadingProgressObserverContext;
 #define MODIZER_MACM1_HEIGHT_MIN  360
 #define MODIZER_MACM1_HEIGHT_MAX 1200
 
-#define MAX_VISIBLE_MODCHANNELS 64
-
 #define ACTION_COLOR_RED ((float)(0xD5)/255.0)
 #define ACTION_COLOR_GREEN ((float)(0x4A)/255.0)
 #define ACTION_COLOR_BLUE ((float)(0xCA)/255.0)

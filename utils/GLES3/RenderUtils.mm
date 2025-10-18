@@ -8,14 +8,23 @@
  */
 #define BLOOM_BLUR_ITERATIONS 7 //
 
-#define MODPATTERN_FRAME_COLHIGH1 140,160,255,255
-#define MODPATTERN_FRAME_COLHIGH2 60,100,255,255
+#define R_BASE1 0xFC
+#define G_BASE1 0xBD
+#define B_BASE1 0xF0
 
-#define MODPATTERN_FRAME_COLMED1 140/3,160/3,255/3,255
-#define MODPATTERN_FRAME_COLMED2 60/3,100/3,255/3,255
+#define R_BASE2 0xD0
+#define G_BASE2 0xA0
+#define B_BASE2 0xFF
 
-#define MODPATTERN_FRAME_COLLOW1 140/5,160/5,255/5,255
-#define MODPATTERN_FRAME_COLLOW2 60/5,100/5,255/5,255
+
+#define MODPATTERN_FRAME_COLHIGH1 R_BASE1,G_BASE1,B_BASE1,255
+#define MODPATTERN_FRAME_COLHIGH2 R_BASE2,G_BASE2,B_BASE2,255 //60,100,255,255
+
+#define MODPATTERN_FRAME_COLMED1 R_BASE1/3,G_BASE1/3,B_BASE1/3,255
+#define MODPATTERN_FRAME_COLMED2 R_BASE2/3,G_BASE2/3,B_BASE2/3,255
+
+#define MODPATTERN_FRAME_COLLOW1 R_BASE1/5,G_BASE1/5,B_BASE1/5,255
+#define MODPATTERN_FRAME_COLLOW2 R_BASE2/5,G_BASE2/5,B_BASE2/5,255
 
 extern int NOTES_DISPLAY_TOPMARGIN;
 
@@ -65,8 +74,6 @@ unsigned int data_midifx_pal_custom[32]={
 
 unsigned int *data_midifx_col=data_midifx_pal1;
 
-
-#define MAX_VISIBLE_CHAN 64
 
 #define SPECTRUM_DEPTH 32
 #define SPECTRUM_ZSIZE 12
@@ -1052,8 +1059,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             fontSize=24;
             break;
     }
-    
-    ImGui::PushFont(nullptr,fontSize*mScaleFactor);
+    ImGui::PushFont(nullptr);//,fontSize*mScaleFactor);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     //ImGui::SetCursorPos(ImVec2(0,0));
     //ImGui::Text("%d %d",ww,hh);
@@ -1281,7 +1287,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
         case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
     }
     
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*3+4+4));
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*7+4));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
@@ -1289,49 +1295,50 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     float min_w=col_size*chanNb+col_ofs;
     min_w=fmin(min_w,_ww);
     
-    //Header line
-    count+=RenderUtils::buildQuad(&(pts[count]),
-                                  col_ofs,     _hh,
-                                  min_w, _hh,
-                                  min_w, _hh-2,
-                                  col_ofs,     _hh-2,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  _ww,_hh);
     
-    count+=RenderUtils::buildQuad(&(pts[count]),
-                                  col_ofs,     _hh-2,
-                                  min_w, _hh-2,
-                                  min_w, _hh-(char_height+2-0)-2,
-                                  col_ofs,     _hh-(char_height+2-0)-2,
-                                  MODPATTERN_FRAME_COLMED1,
-                                  MODPATTERN_FRAME_COLMED2,
-                                  MODPATTERN_FRAME_COLMED2,
-                                  MODPATTERN_FRAME_COLMED1,
-                                  _ww,_hh);
-
-    count+=RenderUtils::buildQuad(&(pts[count]),
-                                  col_ofs,     _hh-(char_height+2-0)-2,
-                                  min_w, _hh-(char_height+2-0)-2,
-                                  min_w, _hh-(char_height+2-0),
-                                  col_ofs,     _hh-(char_height+2-0),
-                                  MODPATTERN_FRAME_COLLOW1,
-                                  MODPATTERN_FRAME_COLLOW2,
-                                  MODPATTERN_FRAME_COLLOW2,
-                                  MODPATTERN_FRAME_COLLOW1,
-                                  _ww,_hh);
-    count+=RenderUtils::buildQuad(&(pts[count]),
-                                  col_ofs-2,     _hh,
-                                  col_ofs, _hh,
-                                  col_ofs,  _hh-(char_height+2-0),
-                                  col_ofs-2,      _hh-(char_height+2-0),
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  _ww,_hh);
+    //Header line
+//    count+=RenderUtils::buildQuad(&(pts[count]),
+//                                  col_ofs,     _hh,
+//                                  min_w, _hh,
+//                                  min_w, _hh-2,
+//                                  col_ofs,     _hh-2,
+//                                  MODPATTERN_FRAME_COLHIGH1,
+//                                  MODPATTERN_FRAME_COLHIGH2,
+//                                  MODPATTERN_FRAME_COLHIGH2,
+//                                  MODPATTERN_FRAME_COLHIGH1,
+//                                  _ww,_hh);
+//    
+//    count+=RenderUtils::buildQuad(&(pts[count]),
+//                                  col_ofs,     _hh-2,
+//                                  min_w, _hh-2,
+//                                  min_w, _hh-(char_height+2-0)-2,
+//                                  col_ofs,     _hh-(char_height+2-0)-2,
+//                                  MODPATTERN_FRAME_COLMED1,
+//                                  MODPATTERN_FRAME_COLMED2,
+//                                  MODPATTERN_FRAME_COLMED2,
+//                                  MODPATTERN_FRAME_COLMED1,
+//                                  _ww,_hh);
+//
+//    count+=RenderUtils::buildQuad(&(pts[count]),
+//                                  col_ofs,     _hh-(char_height+2-0)-2,
+//                                  min_w, _hh-(char_height+2-0)-2,
+//                                  min_w, _hh-(char_height+2-0),
+//                                  col_ofs,     _hh-(char_height+2-0),
+//                                  MODPATTERN_FRAME_COLLOW1,
+//                                  MODPATTERN_FRAME_COLLOW2,
+//                                  MODPATTERN_FRAME_COLLOW2,
+//                                  MODPATTERN_FRAME_COLLOW1,
+//                                  _ww,_hh);
+//    count+=RenderUtils::buildQuad(&(pts[count]),
+//                                  col_ofs-2,     _hh,
+//                                  col_ofs, _hh,
+//                                  col_ofs,  _hh-(char_height+2-0),
+//                                  col_ofs-2,      _hh-(char_height+2-0),
+//                                  MODPATTERN_FRAME_COLHIGH1,
+//                                  MODPATTERN_FRAME_COLHIGH2,
+//                                  MODPATTERN_FRAME_COLHIGH2,
+//                                  MODPATTERN_FRAME_COLHIGH1,
+//                                  _ww,_hh);
     
     //border / lines nb
 
@@ -1383,44 +1390,89 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
 
     //then draw channels frame
     for (int i=1; i<=chanNb; i++) {
-        if (pixOfs+col_size*i+col_ofs-2.0f>_ww) break;
-        if ((pixOfs+col_size*i+col_ofs-2.0)<col_ofs) continue;
-        count+=RenderUtils::buildQuad(&(pts[count]),
-                               pixOfs+col_size*i+col_ofs-2.0f, _hh-2,
-                               pixOfs+col_size*i+col_ofs-2.0f+1.0, _hh-2,
-                               pixOfs+col_size*i+col_ofs-2.0f+1.0,    0,
-                               pixOfs+col_size*i+col_ofs-2.0f,    0,
-                                      MODPATTERN_FRAME_COLHIGH1,
-                                      MODPATTERN_FRAME_COLHIGH1,
-                                      MODPATTERN_FRAME_COLHIGH2,
-                                      MODPATTERN_FRAME_COLHIGH2,
-                                      _ww,_hh);
-        
-        count+=RenderUtils::buildQuad(&(pts[count]),
-                                      pixOfs+col_size*i+col_ofs-1, _hh-2,
-                                      pixOfs+col_size*i+col_ofs+2.0, _hh-2,
-                                      pixOfs+col_size*i+col_ofs+2.0,    0,
-                                      pixOfs+col_size*i+col_ofs-1,    0,
-                                      MODPATTERN_FRAME_COLMED1,
-                                      MODPATTERN_FRAME_COLMED1,
-                                      MODPATTERN_FRAME_COLMED2,
-                                      MODPATTERN_FRAME_COLMED2,
-                                      _ww,_hh);
+        if ( ((pixOfs+col_size*i+col_ofs)>=col_ofs) && ( (pixOfs+col_ofs+col_size*(i-1))<_ww) ) {
+            //Header line
+            float min_x=fmax(pixOfs+col_ofs+col_size*(i-1),col_ofs);
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          min_x,     _hh,
+                                          pixOfs+col_ofs+col_size*i, _hh,
+                                          pixOfs+col_ofs+col_size*i, _hh-2,
+                                          min_x,     _hh-2,
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          _ww,_hh);
             
-        count+=RenderUtils::buildQuad(&(pts[count]),
-                                      pixOfs+col_size*i+col_ofs+2, _hh-2,
-                                      pixOfs+col_size*i+col_ofs+2+1.0, _hh-2,
-                                      pixOfs+col_size*i+col_ofs+2+1.0,    0,
-                                      pixOfs+col_size*i+col_ofs,    0,
-                                      MODPATTERN_FRAME_COLLOW1,
-                                      MODPATTERN_FRAME_COLLOW1,
-                                      MODPATTERN_FRAME_COLLOW2,
-                                      MODPATTERN_FRAME_COLLOW2,
-                                      _ww,_hh);
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          min_x,     _hh-2,
+                                          pixOfs+col_ofs+col_size*i, _hh-2,
+                                          pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0)-2,
+                                          min_x,     _hh-(char_height+2-0)-2,
+                                          MODPATTERN_FRAME_COLMED1,
+                                          MODPATTERN_FRAME_COLMED2,
+                                          MODPATTERN_FRAME_COLMED2,
+                                          MODPATTERN_FRAME_COLMED1,
+                                          _ww,_hh);
+            
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          min_x,     _hh-(char_height+2-0)-2,
+                                          pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0)-2,
+                                          pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0),
+                                          min_x,     _hh-(char_height+2-0),
+                                          MODPATTERN_FRAME_COLLOW1,
+                                          MODPATTERN_FRAME_COLLOW2,
+                                          MODPATTERN_FRAME_COLLOW2,
+                                          MODPATTERN_FRAME_COLLOW1,
+                                          _ww,_hh);
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          min_x-2,     _hh,
+                                          min_x, _hh,
+                                          min_x,  _hh-(char_height+2-0),
+                                          min_x-2,      _hh-(char_height+2-0),
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          _ww,_hh);
+        }
+        //channel frame
+        if ( ( (pixOfs+col_size*i+col_ofs-2.0f+1.0)>col_ofs ) && ( (pixOfs+col_size*i+col_ofs-2.0f)<=_ww) ) {
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          pixOfs+col_size*i+col_ofs-2.0f, _hh-2,
+                                          pixOfs+col_size*i+col_ofs-2.0f+1.0, _hh-2,
+                                          pixOfs+col_size*i+col_ofs-2.0f+1.0,    0,
+                                          pixOfs+col_size*i+col_ofs-2.0f,    0,
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          MODPATTERN_FRAME_COLHIGH1,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          MODPATTERN_FRAME_COLHIGH2,
+                                          _ww,_hh);
+            
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          pixOfs+col_size*i+col_ofs-1, _hh-2,
+                                          pixOfs+col_size*i+col_ofs+2.0, _hh-2,
+                                          pixOfs+col_size*i+col_ofs+2.0,    0,
+                                          pixOfs+col_size*i+col_ofs-1,    0,
+                                          MODPATTERN_FRAME_COLMED1,
+                                          MODPATTERN_FRAME_COLMED1,
+                                          MODPATTERN_FRAME_COLMED2,
+                                          MODPATTERN_FRAME_COLMED2,
+                                          _ww,_hh);
+            
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          pixOfs+col_size*i+col_ofs+2, _hh-2,
+                                          pixOfs+col_size*i+col_ofs+2+1.0, _hh-2,
+                                          pixOfs+col_size*i+col_ofs+2+1.0,    0,
+                                          pixOfs+col_size*i+col_ofs+2,    0,
+                                          MODPATTERN_FRAME_COLLOW1,
+                                          MODPATTERN_FRAME_COLLOW1,
+                                          MODPATTERN_FRAME_COLLOW2,
+                                          MODPATTERN_FRAME_COLLOW2,
+                                          _ww,_hh);
+        }
     }
     
-        
-
     // Use the program object
     glUseProgram ( userData_simpleRender2D->programObject );
     
@@ -1469,7 +1521,7 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
         case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
     }
     
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+0));
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+chanNb));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
@@ -1524,26 +1576,33 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                                   colr,colg,colb,cola,
                                   _ww,_hh);
     //Volumes bar
-//    if (volumeData) {
-//        for (int i=0; i<chanNb; i++) {
-//            if (col_size*i+col_ofs-2.0f>_ww) break;
-//            
-//            int cr,cg,cb,crb,cgb,cbb;
-//            crb=100;
-//            cgb=50;
-//            cbb=150;
-//            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
-//            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
-//            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
-//            
-//            
-//            
-//            pts[0] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5, 0,    crb,cgb,cbb,125);
-//            pts[1] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,    0,    crb,cgb,cbb,125);
-//            pts[2] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5,    volumeData[i]*_hh/256/5,cr,cg,cb,125);
-//            pts[3] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,    volumeData[i]*_hh/256/5,cr,cg,cb,125);
-//        }
-//    }
+    if (volumeData) {
+        for (int i=0; i<chanNb; i++) {
+            //if (col_size*i+col_ofs-2.0f>_ww) break;
+            int cr,cg,cb,crb,cgb,cbb;
+            crb=100;
+            cgb=50;
+            cbb=150;
+            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
+            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
+            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
+            
+            if ( ((pixOfs+col_size*i+col_ofs+col_size*1/5-6.0)<_ww) &&
+                 ((pixOfs+col_size*i+col_ofs+col_size*4/5-6.0)>0)
+                )
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, 0,
+                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, 0,
+                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, volumeData[i]*_hh/256/5,
+                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, volumeData[i]*_hh/256/5,
+                                          crb,cgb,cbb,255,
+                                          crb,cgb,cbb,255,
+                                          cr,cg,cb,255,
+                                          cr,cg,cb,255,
+                                          _ww,_hh);
+            
+        }
+    }
     
     // Use the program object
     glUseProgram ( userData_simpleRender2D->programObject );

@@ -195,8 +195,6 @@ enum {
 	int mShuffle;
     int mShouldUpdateInfos;
 	int mLoopMode;
-	int mMoveStartChanLeft;
-	int mMoveStartChanRight;
 	
 	int mPlayingPosRestart;
 	BOOL mIsPlaying;
@@ -250,9 +248,6 @@ enum {
 - (IBAction)hideInfo;
 - (IBAction)infoFullscreen;
 - (IBAction)infoNormal;
-
-- (void)updateVisibleChan;
-- (void)updateFont;
 
 - (void)showRating:(int)rating;
 -(void) checkGLViewCanDisplay;

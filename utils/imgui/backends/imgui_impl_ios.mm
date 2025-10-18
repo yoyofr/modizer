@@ -3,13 +3,14 @@
 
 #include "StopWatch.h"
 
+extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 
 ImFont  *font_body;
 
 
-ImFont  *font_tracker[FONT_TRACKER_NB];
+ImFont  *font_tracker[FONT_TRACKER_NB][4];
 const char *font_trackerName[FONT_TRACKER_NB][2]={
     {"ModernDOS8x16","DOS"},
     {"amiga4ever","Amiga"},
@@ -45,18 +46,22 @@ bool ImGui_ImplIOS_Init()
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
     ;
-    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
     IM_ASSERT(font_body != NULL);
     
+    float font_size[4]={10,16,24,32};
     for (int i=0;i<FONT_TRACKER_NB;i++) {
-        NSLog(@"loading %s.ttf",font_trackerName[i][0]);
-        
-        ImFontConfig font_cfg = ImFontConfig();
-        font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1];
-        font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1];
-        
-        font_tracker[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0], &font_cfg, io.Fonts->GetGlyphRangesDefault());
-        IM_ASSERT(font_tracker[i] != NULL);
+        for (int j=0;j<4;j++) {
+            float ft_size=font_size[j];
+            //NSLog(@"loading %s.ttf size: %f",font_trackerName[i][0],ft_size);
+            
+            ImFontConfig font_cfg = ImFontConfig();
+            font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1]*ft_size/16.0*glScaleFactor*font_trackerSize[i][2];
+            font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1]*ft_size/16.0*glScaleFactor*font_trackerSize[i][2];
+            
+            font_tracker[i][j] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0]*ft_size*glScaleFactor/16.0*font_trackerSize[i][2], &font_cfg, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_tracker[i][j] != NULL);
+        }
     }
 
     return true;

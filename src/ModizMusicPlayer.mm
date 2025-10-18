@@ -3286,7 +3286,7 @@ void propertyListenerCallback (void                   *inUserData,              
             //take into account audio latency for output device
             
             int tgt_ofs=(buffer_ana_play_ofs-[self getLatencyInBuffer:settings[GLOB_AudioLatency].detail.mdz_slider.slider_value])%SOUND_BUFFER_NB;//-;
-            if (tgt_ofs<0) tgt_ofs+=SOUND_BUFFER_NB;
+            while (tgt_ofs<0) tgt_ofs+=SOUND_BUFFER_NB;
             
             if (mPatternDataAvail) {//Modplug
                 playPattern[buffer_ana_play_ofs]=genPattern[tgt_ofs];
@@ -6262,7 +6262,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 for (int i=0;i<numChannels;i++) {
                                     int v=xmp_fi.channel_info[i].volume*4;
-                                    genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
+                                    if (v<0) v=0;
+                                    if (v>255) v=255;
+                                    genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=v;
                                 }
                                 
                                 //midi like notes data
@@ -6324,18 +6326,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //reset to 0 buffer
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                             }
-                            
-                            genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
-                            genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
-                            
-                            int order_idx=-1;
-                            int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
-                            if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
-                            genPrevPattern[buffer_ana_gen_ofs]=order_idx;
-                            
-                            if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
-                            genNextPattern[buffer_ana_gen_ofs]=order_idx;
-                            
+//                            
+//                            genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
+//                            genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
+//                            
+//                            int order_idx=-1;
+//                            int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+//                            if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
+//                            genPrevPattern[buffer_ana_gen_ofs]=order_idx;
+//                            
+//                            if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
+//                            genNextPattern[buffer_ana_gen_ofs]=order_idx;
+//                            
                             nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes;
@@ -6343,8 +6345,24 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             for (int i=0;i<numChannels;i++) {
                                 int v=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),i)*255;
-                                genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
+                                if (v<0) v=0;
+                                if (v>255) v=255;
+                                genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=v;
                             }
+                            
+                            int order_idx=-1;
+                            int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+                            
+                            if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
+                            genPrevPattern[buffer_ana_gen_ofs]=-1;//order_idx;
+
+                            order_idx=-1;
+                            if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
+                            genNextPattern[buffer_ana_gen_ofs]=-1;//order_idx;
+
+                            
+                            genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
+                            genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
                             
                             //midi like notes data
                             int voices_idx=0;
@@ -11688,7 +11706,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
     
-    ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
+    ompt_patterns = (ModPlugNote**)malloc(sizeof(ModPlugNote*)*numPatterns);
+    memset(ompt_patterns,0,sizeof(ModPlugNote*)*numPatterns);
     
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT,optOMPT_StereoSeparationVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);
@@ -11698,6 +11717,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
         ompt_mod_interactive->set_tempo_factor(ompt_mod,settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
     } else ompt_mod_interactive->set_tempo_factor(ompt_mod,1.0);
+    
+    //Preload all patterns
+    for (int i=0;i<numPatterns;i++) {
+        [self ompt_getPattern:i numrows:NULL];
+    }
     
     return 0;
 }
@@ -11762,8 +11786,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     if(!ompt_mod) return NULL;
     if (!openmpt_module_ext_get_module(ompt_mod)) return NULL;
+    
+    numr = openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern);
+    numc = openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));
+    
     if(numrows){
-        *numrows = openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern);
+        *numrows = numr;
     }
     if(pattern<0||pattern>=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod))){
         return NULL;
@@ -11771,24 +11799,23 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     
     if(!ompt_patterns[pattern]){
-        ompt_patterns[pattern] = (ModPlugNote*)malloc(sizeof(ModPlugNote)*openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern)*openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod)));
+        ompt_patterns[pattern] = (ModPlugNote*)malloc(sizeof(ModPlugNote)*numr*numc);
         if(!ompt_patterns[pattern]) return NULL;
-        memset(ompt_patterns[pattern],0,sizeof(ModPlugNote)*openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern)*openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod)));
-    }
-    numr = openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern);
-    numc = openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));
-    for(r=0;r<numr;r++){
-        for(c=0;c<numc;c++){
-            memset(&note,0,sizeof(ModPlugNote));
-            note.Note = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_NOTE);
-            note.Instrument = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_INSTRUMENT);
-            note.VolumeEffect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUMEEFFECT);
-            note.Effect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_EFFECT);
-            note.Volume = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUME);
-            note.Parameter = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_PARAMETER);
-            memcpy(&ompt_patterns[pattern][r*numc+c],&note,sizeof(ModPlugNote));
+        
+        for(r=0;r<numr;r++){
+            for(c=0;c<numc;c++){
+                memset(&note,0,sizeof(ModPlugNote));
+                note.Note = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_NOTE);
+                note.Instrument = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_INSTRUMENT);
+                note.VolumeEffect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUMEEFFECT);
+                note.Effect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_EFFECT);
+                note.Volume = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUME);
+                note.Parameter = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_PARAMETER);
+                memcpy(&ompt_patterns[pattern][r*numc+c],&note,sizeof(ModPlugNote));
+            }
         }
     }
+    
     return ompt_patterns[pattern];
 }
 

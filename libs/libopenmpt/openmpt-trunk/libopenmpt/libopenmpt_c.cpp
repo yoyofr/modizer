@@ -1051,6 +1051,14 @@ uint32_t openmpt_module_get_current_channel_note( openmpt_module * mod, int32_t 
 //YOYOFR
 
 float openmpt_module_get_current_channel_vu_mono( openmpt_module * mod, int32_t channel ) {
+    try {
+        openmpt::interface::check_soundfile( mod );
+        return mod->impl->get_current_channel_vu_mono( channel );
+    } catch ( ... ) {
+        openmpt::report_exception( __func__, mod );
+    }
+    return 0.0;
+    
 	try {
 		openmpt::interface::check_soundfile( mod );
 		return mod->impl->get_current_channel_vu_mono( channel );

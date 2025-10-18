@@ -1369,12 +1369,21 @@ uint32_t module_impl::get_current_channel_note( std::int32_t channel ) const {
 //YOYOFR
 
 float module_impl::get_current_channel_vu_mono( std::int32_t channel ) const {
-	if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
-		return 0.0f;
-	}
-	const float left = m_sndFile->m_PlayState.Chn[channel].nLeftVU * (1.0f/128.0f);
-	const float right = m_sndFile->m_PlayState.Chn[channel].nRightVU * (1.0f/128.0f);
-	return std::sqrt(left*left + right*right);
+    if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
+        return 0.0f;
+    }
+    OpenMPT::ModChannel &chn = m_sndFile->m_PlayState.Chn[channel];
+    
+         float left = (float)(chn.nLeftVU) * (1.0f/128.0f);
+         float right = (float)(chn.nRightVU) * (1.0f/128.0f);
+        return std::sqrt(left*left + right*right);
+    
+//	if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
+//		return 0.0f;
+//	}
+//	const float left = m_sndFile->m_PlayState.Chn[channel].nLeftVU * (1.0f/128.0f);
+//	const float right = m_sndFile->m_PlayState.Chn[channel].nRightVU * (1.0f/128.0f);
+//	return std::sqrt(left*left + right*right);
 }
 float module_impl::get_current_channel_vu_left( std::int32_t channel ) const {
 	if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {
