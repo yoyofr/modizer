@@ -26,6 +26,9 @@
 #define MODPATTERN_FRAME_COLLOW1 R_BASE1/5,G_BASE1/5,B_BASE1/5,255
 #define MODPATTERN_FRAME_COLLOW2 R_BASE2/5,G_BASE2/5,B_BASE2/5,255
 
+#define mdz_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
+
+
 extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
@@ -92,7 +95,7 @@ extern int MIDIFX_OFS;
 
 static int max_indices;
 
-int txt_pianoRoll[3];
+GLuint txt_pianoRoll[3];
 
 #define INDICES_SIZE_KEYW 60
 #define INDICES_SIZE_KEYB 36
@@ -149,6 +152,7 @@ float position[] = { 0, 0, 8, 1 };
 GLUserData *userData_simpleRender2D;
 GLUserData *userData_Render2DLines;
 GLUserData *userData_Render2DTextures;
+GLUserData *userData_Render2DColoredTextures;
 GLUserData *userData_Render2DTexturesBlur;
 GLUserData *userData_Render2DTexturesBlend;
 bool renderIsInit;
@@ -337,6 +341,9 @@ int RenderUtils::RenderInit() {
     userData_Render2DTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTextures.glsl"] UTF8String]);
     
+    userData_Render2DColoredTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DColoredTextures.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DColoredTextures.glsl"] UTF8String]);
+    
     userData_Render2DTexturesBlur=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlur.glsl"] UTF8String]);
     userData_Render2DTexturesBlend=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
@@ -344,11 +351,25 @@ int RenderUtils::RenderInit() {
     
     if (!userData_simpleRender2D ||
         !userData_Render2DLines ||
+        !userData_Render2DColoredTextures ||
         !userData_Render2DTextures ||
         !userData_Render2DTexturesBlur ||
         !userData_Render2DTexturesBlend) {
         
         return 0;
+    }
+    
+    //Load textures
+    memset(txt_pianoRoll,0,sizeof(txt_pianoRoll));
+    //
+    if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoLight.png"), &(txt_pianoRoll[TXT_PIANOROLL_LIGHT]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoParticle.png"), &(txt_pianoRoll[TXT_PIANOROLL_PARTICLE]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoSpark.png"), &(txt_pianoRoll[TXT_PIANOROLL_SPARK]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
     }
     
     renderIsInit=true;
@@ -458,7 +479,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     //Save opengl state
     glDumpState();
     
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, textureIdx);
     
     
@@ -510,23 +531,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glUniform1ui(textureUnifHandle, 0);
     glUniform1fv(alphaUnifHandle,1,&alpha);
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureIdx);
-    
-    
-//    glBindTexture(GL_TEXTURE_2D, textureUnifHandle);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_2D, textureUnifHandle);
-
-    
     glDrawArrays(GL_TRIANGLES,0,6);
-    
     
     glRestoreState();
 }
@@ -689,7 +694,7 @@ void RenderUtils::startRenderToTexture(int width,int height) {
     glClear(GL_COLOR_BUFFER_BIT);
     
     // Bind our texture in Texture Unit 0
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, renderedTexture);
 }
 
@@ -7046,15 +7051,12 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     max_indices=30*MAX_BARS;
     texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
-//    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
-//    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
-    
     
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
@@ -7244,24 +7246,41 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         }
     }
     
-    // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
     //    printf("total: %d\n",index);
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     
     //Draw spark fx
-#if 0
-    //glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    
+    glUseProgram ( userData_Render2DColoredTextures->programObject );
+    
+    positionAttribHandle = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_position");
+    colorAttribHandle    = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_color");
+    GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_textCoord");
+    GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DColoredTextures->programObject, "u_curTexture");
+    
+    glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_SPARK]);
+    
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
     
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+    glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(texcoords[0].u) );
     
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    glEnableVertexAttribArray ( textCoordAttribHandle );
+    
+//    glVertexAttribDivisor ( positionAttribHandle, 0);
+//    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+    
+    // Load the uniforms
+    // Load the texture idx
+    glUniform1ui(textureUnifHandle, 0);
     
     memset(sparkPresent,0,sizeof(sparkPresent));
     index=0;
@@ -7409,9 +7428,17 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 
             }
         }
+    
+    for (int i=0;i<index;i++) {
+        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
+        ptsB[i].r=ptsB[i].r/255.0;
+        ptsB[i].g=ptsB[i].g/255.0;
+        ptsB[i].b=ptsB[i].b/255.0;
+        ptsB[i].a=ptsB[i].a/255.0;
+    }
     glDrawArrays(GL_TRIANGLES, 0, index);
   
-#endif
     //reset spark intensity if no note played
     for (int i=0;i<256;i++) {
         if (sparkPresent[i]==0) {
@@ -7420,9 +7447,16 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         }
     }
     
-//    glBindTexture(GL_TEXTURE_2D,0);
-//    glDisable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-//    glEnableClientState(GL_COLOR_ARRAY);
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
+    
+    positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     index=0;
@@ -7442,10 +7476,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
         ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-    
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
@@ -7457,10 +7487,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
         if ( note_posType[note]==0) { //white key
             x=note_posX[note];
             if (index+INDICES_SIZE_KEYW>=max_indices) {
-                // Load the vertex data
-                glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
@@ -7501,10 +7527,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     
                     y=ofsy+0;
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
-                        // Load the vertex data
-                        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-                        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
@@ -7521,10 +7543,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             yB=y+height-heightB;
             xB=note_posX[note];
             if (index+INDICES_SIZE_KEYB>=max_indices) {
-                // Load the vertex data
-                glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
@@ -7564,10 +7582,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                     x=note_posX[note];
                     y=ofsy+height-heightB+0;
                     if (index+INDICES_SIZE_KEYB>=max_indices) {
-                        // Load the vertex data
-                        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-                        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
@@ -7605,10 +7619,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 y-=16;
             }
             if (index+INDICES_SIZE_BOX>=max_indices) {
-                // Load the vertex data
-                glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
@@ -7619,29 +7629,44 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     
     if (index) {
-        // Load the vertex data
-        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
-        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
-        
+        // Draw
         glDrawArrays(GL_TRIANGLES, 0, index);
     }
     
-    
-#if 0
     //Draw light fx
-    //glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    glUseProgram ( userData_Render2DColoredTextures->programObject );
+    
+    positionAttribHandle = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_position");
+    colorAttribHandle    = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_color");
+    textCoordAttribHandle    = glGetAttribLocation(userData_Render2DColoredTextures->programObject, "a_textCoord");
+    textureUnifHandle    = glGetUniformLocation(userData_Render2DColoredTextures->programObject, "u_curTexture");
+    
+    glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, txt_pianoRoll[TXT_PIANOROLL_LIGHT]);
+    
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
     
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+    glVertexAttribPointer ( textCoordAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(coordData), &(texcoords[0].u) );
     
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    glEnableVertexAttribArray ( textCoordAttribHandle );
+    
+//    glVertexAttribDivisor ( positionAttribHandle, 0);
+//    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+    
+    // Load the uniforms
+    // Load the texture idx
+    glUniform1ui(textureUnifHandle, 0);
     
     memset(sparkPresent,0,sizeof(sparkPresent));
     index=0;
-    if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value)
+    if (settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value) {
         for (int i=0; i<256; i++) { //for each channels
             if ((data_midifx_note[midi_data_ofs][i]/*||data_midifx_note[midi_data_ofs+1][i]*/)&&
                 (data_midifx_vol[midi_data_ofs][i]>=data_midifx_vol[midi_data_ofs+1][i]) ) {  //do we have a note ?
@@ -7774,40 +7799,30 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
                 
             }
         }
+    }
+    for (int i=0;i<index;i++) {
+        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
+        ptsB[i].r=ptsB[i].r/255.0;
+        ptsB[i].g=ptsB[i].g/255.0;
+        ptsB[i].b=ptsB[i].b/255.0;
+        ptsB[i].a=ptsB[i].a/255.0;
+    }
     glDrawArrays(GL_TRIANGLES, 0, index);
-#endif
     
-    
-//    glBindTexture(GL_TEXTURE_2D,0);
-//    glDisable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-//    glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     index=0;
     
-    
-    //////////////////////////////////////////////
-    
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-//    glDisableClientState(GL_VERTEX_ARRAY);
-//    glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_BLEND);
     
     memset(voices_posX,0,sizeof(voices_posX));
-    
     //draw label
-    
-    
-    
     if (voices_label&&settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_switch.switch_value) {
         y=ofsy-16;//height+16;
         x=16;
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i;
-            
-            //float widthx=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
             float widthx=16+ImGui::CalcTextSize(voices_label+i*32).x/mScaleFactor;
             
             if (x+widthx>ww) {
@@ -7830,8 +7845,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             if (pianoroll_key_status[0][o*12]&PR_KEY_PRESSED) y=ofsy+0+3+height/24;
             else y=ofsy+0+3+height/8;
             
-            //                    glPushMatrix();
-            
             char str_tmp[3];
             snprintf(str_tmp,3,"%d",o);
             
@@ -7841,11 +7854,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             ImVec2 cursorPos=ImVec2((x+0.0)*mScaleFactor, (hh-y-12-1)*mScaleFactor);
             ImGui::SetCursorPos(cursorPos);
             ImGui::Text("%s",str_tmp);
-            
-            //                    glTranslatef(x,y, 0.0f);
-            //                    mOctavesIndex[o]->Render(32);
-            //
-            //                    glPopMatrix();
         }
         ImGui::PopStyleColor();
     }

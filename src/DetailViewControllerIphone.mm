@@ -231,7 +231,6 @@ static MPVolumeView *volumeView;
 
 static MPMediaItemArtwork *artwork;
 
-extern int txt_pianoRoll[3];
 static char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
 
 //int texturePiano;
@@ -5605,10 +5604,6 @@ void pmSoftReinit() {
 //    /* Set Perspective Calculations To Most Accurate */
 //    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
     
-    memset(txt_pianoRoll,0,sizeof(txt_pianoRoll));
-//    txt_pianoRoll[TXT_PIANOROLL_LIGHT]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoLight.png"]);
-//    txt_pianoRoll[TXT_PIANOROLL_PARTICLE]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoParticle.png"]);
-//    txt_pianoRoll[TXT_PIANOROLL_SPARK]=TextureUtils::Create([UIImage imageNamed:@"txt_pianoSpark.png"]);
     
     PMenu::playerMenuInit();
 //
